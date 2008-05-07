@@ -170,7 +170,10 @@
                                       (incf (processed-request-count-of server)))
                                     (bind ((*server* server)
                                            (*request* (read-request server stream-socket)))
-                                      (funcall (handler-of server))
+                                      (loop
+                                         (with-simple-restart (retry-handling "Try again handling this request")
+                                           (funcall (handler-of server))
+                                           (return)))
                                       (close-request *request*)))
                                (with-lock-held-on-server server
                                  (decf (occupied-worker-count-of server)))))
