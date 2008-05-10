@@ -3,9 +3,9 @@
 (def special-variable *test-application* (make-application :path-prefix "/test/"))
 
 (def entry-point (*test-application* :path "params") ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
-  (make-functional-response ((+header/content-type+ (content-type-for +html-mime-type+ *encoding*)))
+  (make-functional-response ((+header/content-type+ +html-content-type+))
     (emit-into-html-stream (network-stream-of *request*)
-      (with-simple-html-body (:title "foo")
+      (with-html-document-body (:title "foo")
         <p "number: " ,number>
         <p "the-answer: " ,the-answer>
         <a (:href ,(concatenate-string (path-prefix-of *test-application*)
@@ -17,7 +17,7 @@
 (def special-variable *echo-application* (make-application :path-prefix "/echo/"))
 
 (def entry-point (*echo-application* :path-prefix "") ()
-  (make-request-echo-response))
+  +request-echo-response+)
 
 (def function start-server-with-test-applications (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level

@@ -41,7 +41,7 @@
                 (socket (make-socket :connect :passive
                                      :local-host (host-of server)
                                      :local-port (port-of server)
-                                     :external-format *external-format*
+                                     :external-format +external-format+
                                      :reuse-address #t)))
            (unwind-protect
                 (progn

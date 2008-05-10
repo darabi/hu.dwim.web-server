@@ -29,4 +29,4 @@
                                     (entry-points-of application)
                                     (entry-points-of application)
                                     0)
-      *no-handler-response*))
+      +no-handler-response+))

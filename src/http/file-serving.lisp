@@ -68,7 +68,7 @@
 (defmethod send-response ((self directory-index-response))
   (call-next-method)
   (emit-into-html-stream (network-stream-of *request*)
-    (with-simple-html-body (:title "foo")
+    (with-html-document-body (:title "foo")
       <table
         ,@(bind ((elements (cl-fad:list-directory (directory-of self)))
                  (path-prefix (path-prefix-of self))

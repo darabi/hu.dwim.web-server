@@ -6,13 +6,13 @@
 
 (enable-sharp-boolean-syntax)
 
-(def special-variable *encoding* :utf-8)
+(def constant +encoding+ :utf-8)
 
-(def special-variable *external-format* (ensure-external-format *encoding*))
+(def (constant :test 'external-format-equal) +external-format+ (ensure-external-format +encoding+))
 
 (def special-variable *quasi-quoted-xml-transformation*
   `(quasi-quoted-string ;; may (quasi-quoted-string :indent 2)
-    (quasi-quoted-binary :encoding ,*encoding*)
+    (quasi-quoted-binary :encoding ,+encoding+)
     ;; disable lambda wrapping of xml fragments, which only works if the runtime order
     ;; of the code is the same as the expected output order. this also means that ,@
     ;; is kinda pointless in this setup.
@@ -86,14 +86,21 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +header/server+              "Server"
    ))
 
-(def (constant :test #'string=) +utf-8-html-content-type+      "text/html; charset=utf-8")
-(def (constant :test #'string=) +utf-8-css-content-type+       "text/css; charset=utf-8")
-(def (constant :test #'string=) +us-ascii-html-content-type+   "text/html; charset=us-ascii")
-(def (constant :test #'string=) +us-ascii-css-content-type+    "text/css; charset=us-ascii")
-(def (constant :test #'string=) +iso-8859-1-html-content-type+ "text/html; charset=iso-8859-1")
-(def (constant :test #'string=) +iso-8859-1-css-content-type+  "text/css; charset=iso-8859-1")
+(def (constant :test #'string=) +utf-8-html-content-type+            "text/html; charset=utf-8")
+(def (constant :test #'string=) +utf-8-css-content-type+             "text/css; charset=utf-8")
+(def (constant :test #'string=) +utf-8-xml-content-type+             "text/xml; charset=utf-8")
+(def (constant :test #'string=) +utf-8-plain-text-content-type+      "text/xml; charset=utf-8")
+(def (constant :test #'string=) +us-ascii-html-content-type+         "text/plain; charset=us-ascii")
+(def (constant :test #'string=) +us-ascii-css-content-type+          "text/css; charset=us-ascii")
+(def (constant :test #'string=) +us-ascii-xml-content-type+          "text/xml; charset=us-ascii")
+(def (constant :test #'string=) +us-ascii-plain-text-content-type+   "text/plain; charset=us-ascii")
+(def (constant :test #'string=) +iso-8859-1-html-content-type+       "text/html; charset=iso-8859-1")
+(def (constant :test #'string=) +iso-8859-1-css-content-type+        "text/css; charset=iso-8859-1")
+(def (constant :test #'string=) +iso-8859-1-xml-content-type+        "text/xml; charset=iso-8859-1")
+(def (constant :test #'string=) +iso-8859-1-plain-text-content-type+ "text/plain; charset=iso-8859-1")
 
 (def (constant :test #'string=) +html-mime-type+ "text/html")
+(def (constant :test #'string=) +xml-mime-type+ "text/xml")
 (def (constant :test #'string=) +css-mime-type+ "text/css")
 (def (constant :test #'string=) +plain-text-mime-type+ "text/plain")
 

@@ -14,7 +14,7 @@
 
 (def class* http-message ()
   ((headers nil)
-   (cookies nil)))
+   (cookies)))
 
 (defmethod header-value ((message http-message) header-name)
   (cdr (assoc header-name (headers-of message) :test #'string=)))
@@ -118,7 +118,6 @@
 
 (def (function e) request-parameter-value (name &optional (request *request*))
   (bind ((entry (assoc name (query-parameters-of request) :test #'string=)))
-    (break)
     (values (cdr entry) (not (null entry)))))
 
 (def (function e) map-request-parameters (visitor)
@@ -134,10 +133,11 @@
 
 (def (class* e) response (http-message)
   ((headers-are-sent nil :type boolean)
-   (external-format *external-format* :documentation "May or may not be used by some higher level functionalities")))
+   (external-format +external-format+ :documentation "May or may not be used by some higher level functionalities")))
 
 (def constructor response
-  (setf (header-value self +header/status+) +http-ok+))
+  (setf (header-value self +header/status+) +http-ok+)
+  (setf (cookies-of self) (list)))
 
 (defmethod encoding-name-of ((self response))
   (encoding-name-of (external-format-of self)))
@@ -252,17 +252,10 @@
 (def class* no-handler-response (response)
   ())
 
-(def constructor no-handler-response
-  (setf (header-value self +header/status+) +http-not-found+)
-  (setf (header-value self +header/content-type+) +utf-8-html-content-type+)
-  (setf (external-format-of self) (ensure-external-format :utf-8)))
-
-(def special-variable *no-handler-response* (make-instance 'no-handler-response))
-
 (defmethod send-response ((self no-handler-response))
-  (emit-http-response* ((headers-of self)
-                        (cookies-of self))
-    (with-simple-html-body (:title "Page not found")
+  (emit-http-response ((+header/status+       +http-not-found+
+                        +header/content-type+ +html-content-type+))
+    (with-html-document-body (:title "Page not found")
       <h1 "Page not found">
       <p ,(print-uri-to-string (uri-of *request*)) " was not found on this server">)))
 
@@ -320,7 +313,8 @@
     response))
 
 (defmethod send-response ((self redirect-response))
+  ;; can't use emit-http-response, because +header/content-location+ is not constant
   (emit-http-response* ((headers-of self)
                         (cookies-of self))
-    (with-simple-html-body (:title "Redirect")
+    (with-html-document-body (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
