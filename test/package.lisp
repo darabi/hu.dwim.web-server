@@ -14,6 +14,8 @@
    :iterate
    :closer-mop
    :iolib
+   :babel
+   :babel-streams
    :cl-syntax-sugar
    :cl-quasi-quote
    :cl-quasi-quote-xml
