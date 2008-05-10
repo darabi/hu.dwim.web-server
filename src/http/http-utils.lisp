@@ -44,9 +44,7 @@ POST params is made) named STRING (which defaults to the symbol
 name of SYMBOL) the variable SYMBOL is bound to the associated
 value (which is always a string) . If no parameter with that name
 was passed SYMBOL will be bound to DEFAULT-VALUE and the variable
-named SUPPLIED-SYMBOL-NAME will be bound to NIL.
-
-NB: Parameter names are matched case insensitively."
+named SUPPLIED-SYMBOL-NAME will be bound to NIL."
   (once-only (request)
     (bind (((:values bindings defaults)
             (iter (for entry :in args)
@@ -75,6 +73,7 @@ NB: Parameter names are matched case insensitively."
                               (setf ,variable-name ,default-value)) :into defaults)
                   (finally (return (values bindings defaults))))))
       `(bind ,bindings
+         ,request ;; suppress the warning
          ,@defaults
          ,@body))))
 
