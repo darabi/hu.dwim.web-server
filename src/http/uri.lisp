@@ -29,13 +29,14 @@
 (def print-object (uri :identity nil)
   (write-uri self *standard-output* nil))
 
-(def (function ie) make-uri (&key scheme host port path query query-parameters fragment)
+(def (function ie) make-uri (&key scheme host port path query fragment)
   (make-instance 'uri :scheme scheme :host host :port port :path path
-                 :query query :query-parameters query-parameters :fragment fragment))
+                 :query query :fragment fragment))
 
 (defmethod query-parameters-of :before ((self uri))
   (unless (slot-boundp self 'query-parameters)
-    (setf (query-parameters-of self) (parse-query-parameters (query-of self)))))
+    (setf (query-parameters-of self) (awhen (query-of self)
+                                       (parse-query-parameters it)))))
 
 (defun add-query-parameter-to-uri (uri name value)
   (setf (query-of uri) (nconc (query-of uri) (list (cons name value)))))
