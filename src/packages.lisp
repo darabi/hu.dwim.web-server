@@ -11,6 +11,7 @@
 
   (:use
    :common-lisp
+   :closer-mop
    :alexandria
    :cl-def
    :cl-yalog

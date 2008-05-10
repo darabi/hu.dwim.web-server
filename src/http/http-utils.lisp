@@ -17,10 +17,11 @@
                       (+css-mime-type+  +iso-8859-1-css-content-type+))))
       (concatenate 'string mime-type "; charset=" (string-downcase encoding))))
 
-(def (macro e) with-simple-html-body ((&key title) &body body)
+(def (macro e) with-simple-html-body ((&key title content-type) &body body)
   `<html
      <head
-       <meta (:content ,(header-value *response* +header/content-type+)
+       <meta (:content ,(or ,content-type
+                            (header-value *response* +header/content-type+))
               :http-equiv #.+header/content-type+)>
        <title ,,(or title "")>>
      <body ,,@body>>)

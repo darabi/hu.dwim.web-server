@@ -28,14 +28,6 @@
 ;;;;;;;;;;;
 ;;; Cookies
 
-(defmethod cookies-of :around ((request request))
-  (if (slot-boundp request 'cookies)
-      (call-next-method)
-      (setf (cookies-of request)
-            ;; if we called SAFE-PARSE-COOKIES here, then cookies that don't match the domain restrinctions were dropped.
-            ;; instead we parse all cookies and let the users control what they will accept.
-            (rfc2109:parse-cookies (header-value request "Cookie")))))
-
 (def (macro e) do-cookies ((cookie message) &body forms)
   `(dolist (,cookie (cookies-of ,message))
      ,@forms))
@@ -71,7 +63,7 @@
   (assert (rfc2109:cookie-p cookie))
   (push cookie (cookies-of response)))
 
-#+nil
+#+nil ;; TODO
 (defmethod remote-address :around ((message http-message))
   (declare (optimize speed))
   (let ((physical-remote-address (call-next-method)))
@@ -113,11 +105,21 @@
 (defmethod network-stream-of ((request request))
   (socket-of request))
 
-(defmethod remote-address-of ((message request))
-  (net.sockets:remote-host (socket-of message)))
+(defmethod remote-address-of ((request request))
+  (net.sockets:remote-host (socket-of request)))
 
-(def (function e) request-parameter-value (name)
-  (assoc name (query-parameters-of *request*) :test #'string=))
+(defmethod cookies-of :around ((request request))
+  (if (slot-boundp request 'cookies)
+      (call-next-method)
+      (setf (cookies-of request)
+            ;; if we called SAFE-PARSE-COOKIES here, then cookies that don't match the domain restrinctions were dropped.
+            ;; instead we parse all cookies and let the users control what they will accept.
+            (rfc2109:parse-cookies (header-value request "Cookie")))))
+
+(def (function e) request-parameter-value (name &optional (request *request*))
+  (bind ((entry (assoc name (query-parameters-of request) :test #'string=)))
+    (break)
+    (values (cdr entry) (not (null entry)))))
 
 (def (function e) map-request-parameters (visitor)
   (dolist* ((name . value) (query-parameters-of *request*))

@@ -9,7 +9,10 @@
   :compile-time-level (if *load-as-production-p* +debug+ +dribble+)
   :appender (make-instance 'brief-stream-log-appender :stream *debug-io*))
 
-(deflogger threads (wui))
-(deflogger http (wui))
 (deflogger rerl (wui))
-(deflogger server (wui))
+
+(deflogger http (rerl))
+(deflogger server (rerl))
+(deflogger app (rerl))
+
+(deflogger threads (wui))

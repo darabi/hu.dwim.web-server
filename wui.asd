@@ -85,6 +85,7 @@
                                (:file "error-handling")
                                (:file "request-parsing")
                                (:file "server")
+                               (:file "brokers")
                                (:file "file-serving"))
                   :depends-on ("packages" "loggers" "utils")))))
   :depends-on (:iterate
@@ -115,7 +116,8 @@
   ((:module :src
     :components ((:module "application"
                   :serial t
-                  :components ((:file "application"))))))
+                  :components ((:file "application")
+                               (:file "entry-point"))))))
   :depends-on (:wui-core
                :trivial-garbage
                ))
@@ -134,13 +136,12 @@
 
 (defsystem* :wui-test
   :components ((:module :test
+                :serial t
                 :components
                 ((:file "package")
                  (:file "test-environment" :depends-on ("package"))
-                 (:module "core"
-                          :depends-on ("test-environment")
-                          :serial t
-                          :components ((:file "server"))))))
+                 (:file "server")
+                 (:file "application"))))
   :depends-on (:wui :stefil :drakma))
 
 (defmethod perform ((op test-op) (system wui-system))

@@ -4,8 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(defgeneric handle-request (server request))
-
 (def (class* e) server ()
   ((host)
    (port)
@@ -19,10 +17,6 @@
    (occupied-worker-count 0)
    (started-at)
    (processed-request-count 0)))
-
-(def (class* e) broker-based-server (server)
-  ((brokers))
-  (:default-initargs :handler 'broker-based-server-handler))
 
 (def with-macro with-lock-held-on-server (server)
   (multiple-value-prog1
@@ -169,6 +163,7 @@
                                         (make-worker server))
                                       (incf (processed-request-count-of server)))
                                     (bind ((*server* server)
+                                           (*brokers* (list server))
                                            (*request* (read-request server stream-socket)))
                                       (loop
                                          (with-simple-restart (retry-handling "Try again handling this request")
@@ -214,72 +209,6 @@
 (defmethod read-request ((server server) stream)
   (let ((*request-content-length-limit* (request-content-length-limit-of server)))
     (read-http-request stream)))
-
-(def method handle-request :around ((server server) (request request))
-  (bind ((start-time (get-internal-real-time))
-         (remote-address (remote-address-of request))
-         (raw-uri (raw-uri-of request)))
-    (http.info "Handling request from ~S for ~S" remote-address raw-uri)
-    (call-next-method)
-    (bind ((seconds (/ (- (get-internal-real-time) start-time)
-                       internal-time-units-per-second)))
-      (when (> seconds 0.05)
-        (http.info "Handled request in ~,3f secs (request came from ~S for ~S)" seconds remote-address raw-uri)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; broker based dispatching
-
-(def class* broker ()
-  ()
-  (:metaclass closer-mop:funcallable-standard-class))
-
-(def class* broker-with-url-prefix (broker)
-  ((url-prefix))
-  (:metaclass closer-mop:funcallable-standard-class))
-
-(def (function o) matches-url-prefix? (url-prefix request)
-  (bind ((url-prefix (etypecase url-prefix
-                       (string url-prefix)
-                       (broker-with-url-prefix (url-prefix-of url-prefix))))
-         (query-path (path-of (uri-of request)))
-         ((:values matches? relative-path) (starts-with-subseq url-prefix query-path :return-suffix t)))
-    (values matches? relative-path)))
-
-(def function broker-based-server-handler ()
-  (handle-request *server* *request*))
-
-(def method handle-request ((server broker-based-server) (request request))
-  (debug-only (assert (not (boundp '*brokers*))))
-  (bind ((*brokers* (list server))
-         (response (handle-request-using-brokers request (brokers-of server) 0)))
-    (assert (typep response 'response))
-    (send-response response)))
-
-(def function handle-request-using-brokers (request brokers recursion-depth)
-  (cond
-    ((null brokers)
-     *no-handler-response*)
-    ((> recursion-depth 32)
-     (broker-recursion-limit-reached request))
-    (t
-     (dolist (broker brokers)
-       (bind ((result (funcall broker request)))
-         (etypecase result
-           (response
-            ;; yay! return with the response...
-            (return-from handle-request-using-brokers result))
-           (cons
-            ;; recurse with a new set of brokers provided by the previous broker.
-            ;; also record the broker who provided the last set of brokers.
-            (bind ((*brokers* (list* broker *brokers*)))
-              (handle-request-using-brokers request result (1+ recursion-depth))))
-           (request
-            ;; we've got a new request, start over the HANDLE-REQUEST-USING-BROKERS loop using the new set of brokers
-            (handle-request-using-brokers result brokers (1+ recursion-depth)))
-           (null
-            ;; no luck, go on...
-            ))))
-     *no-handler-response*)))
 
 
 ;;;;;;;;;;;;;;;;;

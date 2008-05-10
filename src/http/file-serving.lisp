@@ -4,25 +4,25 @@
 
 (in-package :hu.dwim.wui)
 
-(def class* file-serving-broker (broker-with-url-prefix)
+(def class* file-serving-broker (broker-with-path-prefix)
   ((root-directory))
-  (:metaclass closer-mop:funcallable-standard-class))
+  (:metaclass funcallable-standard-class))
 
-(def (function e) make-file-serving-broker (url-prefix root-directory)
-  (make-instance 'file-serving-broker :url-prefix url-prefix :root-directory root-directory))
+(def (function e) make-file-serving-broker (path-prefix root-directory)
+  (make-instance 'file-serving-broker :path-prefix path-prefix :root-directory root-directory))
 
 (def constructor file-serving-broker
-  (closer-mop:set-funcallable-instance-function
+  (set-funcallable-instance-function
     self
     (lambda (request)
-      (file-serving-handler request (root-directory-of self) (url-prefix-of self)))))
+      (file-serving-handler request (root-directory-of self) (path-prefix-of self)))))
 
-(def function file-serving-handler (request root-directory url-prefix)
-  (bind (((:values matches? relative-path) (matches-url-prefix? url-prefix request)))
+(def function file-serving-handler (request root-directory path-prefix)
+  (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? path-prefix request)))
     (when matches?
-      (file-serving-response-for-query-path url-prefix relative-path root-directory))))
+      (file-serving-response-for-query-path path-prefix relative-path root-directory))))
 
-(def function file-serving-response-for-query-path (url-prefix relative-path root-directory)
+(def function file-serving-response-for-query-path (path-prefix relative-path root-directory)
   ;; TODO this function could be cached
   (bind ((pathname (merge-pathnames relative-path root-directory))
          (truename (ignore-errors
@@ -30,7 +30,7 @@
     (when truename
       (cond
         ((cl-fad:directory-pathname-p truename)
-         (make-directory-index-response url-prefix relative-path root-directory truename))
+         (make-directory-index-response path-prefix relative-path root-directory truename))
         ((not (null (pathname-name pathname)))
          (make-file-serving-response truename))))))
 
@@ -52,16 +52,16 @@
 ;;; directory index
 
 (def class* directory-index-response (response)
-  ((url-prefix)
+  ((path-prefix)
    (root-directory)
    (relative-path)
    (directory)))
 
-(def (function e) make-directory-index-response (url-prefix relative-path root-directory
+(def (function e) make-directory-index-response (path-prefix relative-path root-directory
                                                  &optional (directory (merge-pathnames relative-path root-directory)))
   (aprog1
       (make-instance 'directory-index-response
-                     :url-prefix url-prefix :root-directory root-directory
+                     :path-prefix path-prefix :root-directory root-directory
                      :relative-path relative-path :directory directory)
     (setf (header-value it +header/content-type+) +utf-8-html-content-type+)))
 
@@ -71,7 +71,7 @@
     (with-simple-html-body (:title "foo")
       <table
         ,@(bind ((elements (cl-fad:list-directory (directory-of self)))
-                 (url-prefix (url-prefix-of self))
+                 (path-prefix (path-prefix-of self))
                  (relative-path (relative-path-of self))
                  ((:values directories files)
                   (iter (for element :in elements)
@@ -83,7 +83,7 @@
                   (for name = (lastcar (pathname-directory directory)))
                   <tr
                     <td
-                      <a (:href ,(concatenate-string url-prefix relative-path name "/"))
+                      <a (:href ,(concatenate-string path-prefix relative-path name "/"))
                         ,name "/">>>)
             (iter (for file :in files)
                   (for name = (apply 'concatenate-string
@@ -92,7 +92,7 @@
                                        (list "." it))))
                   <tr
                     <td
-                      <a (:href ,(concatenate-string url-prefix relative-path name))
+                      <a (:href ,(concatenate-string path-prefix relative-path name))
                         ,name>>
                     <td ,(princ-to-string (nix:stat-size (nix:stat (namestring file))))>>))>)))
 

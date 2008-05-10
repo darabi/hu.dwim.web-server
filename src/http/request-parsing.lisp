@@ -229,11 +229,11 @@
                (let ((boundary (cdr (assoc "boundary" attributes :test #'string=))))
                  ;; TODO DOS prevention: add support for rfc2388-binary to limit parsing length if the ContentLength header is fake, pass in *request-content-length-limit*
                  (return-from read-http-request-body
-                   ;; TODO what does it return? should it deal with initial-parameters?
+                   ;; TODO what does it return? it should deal with initial-parameters!
                    (rfc2388-binary:read-mime stream boundary #'rfc2388-callback))))
               (t (abort-server-request "Invalid request content type"))))))))
   (http.debug "Skipped parsing request body, raw Content-Type is [~S], raw Content-Length is [~S]" raw-content-type raw-content-length)
-  (list))
+  initial-parameters)
 
 (defmethod mime-part-body ((mime-part rfc2388-binary:mime-part))
   (rfc2388-binary:content mime-part))
