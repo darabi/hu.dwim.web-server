@@ -52,19 +52,18 @@
     (shutdown-test-server server)))
 
 (def (function o) request-echo-handler ()
-  (send-response
-   (make-functional-response ()
-     (emit-into-html-stream (network-stream-of *request*)
-       <html
-         <head
-         <title "URL echo server">>
-       <body
-         <p ,(print-uri-to-string (uri-of *request*))>
-         <table
-           ,@(iter (for (name . value) :in (headers-of *request*))
-                   <tr
-                     <td ,name>
-                     <td ,value>>)>>>))))
+  (send-response (make-request-echo-response)))
+
+(def (function o) make-request-echo-response ()
+  (make-functional-response ((+header/content-type+ #.(content-type-for +html-mime-type+ *encoding*)))
+    (emit-into-html-stream (network-stream-of *request*)
+      (with-simple-html-body (:title "URL echo server" :content-type #.(content-type-for +html-mime-type+ *encoding*))
+        <p ,(print-uri-to-string (uri-of *request*))>
+        <table
+          ,@(iter (for (name . value) :in (headers-of *request*))
+                  <tr
+                    <td ,name>
+                    <td ,value>>)>))))
 
 (defun start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
@@ -77,7 +76,7 @@
                                :maximum-worker-count maximum-worker-count)))
 
 (def (function o) functional-response-broker (request)
-  (make-functional-response ((+header/content-type+ (content-type-for +html-mime-type+)))
+  (make-functional-response ((+header/content-type+ (content-type-for +html-mime-type+ *encoding*)))
     (emit-into-html-stream (network-stream-of request)
       (with-simple-html-body (:title "foo")
         <p "foo">))))

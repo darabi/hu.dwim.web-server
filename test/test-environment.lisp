@@ -79,7 +79,7 @@
      :host (address-to-string *test-host*)
      :port *test-port*
      :path (concatenate 'string
-                        (url-prefix-of *test-application*)
+                        (path-prefix-of *test-application*)
                         (if (and (not (zerop (length concatenated-path)))
                                  (char= (elt concatenated-path 0) #\/))
                             (subseq concatenated-path 1)
