@@ -264,3 +264,28 @@
       <h1 "Page not found">
       <p ,(print-uri-to-string (uri-of *request*)) " was not found on this server">)))
 
+
+;;;;;;;;;;;;;;;;;;;;;
+;;; redirect response
+
+(def class* redirect-response (response)
+  ((target-uri :type string)))
+
+(def constructor redirect-response
+  (setf (header-value self +header/status+) +http-moved-temporarily+)
+  (setf (header-value self +header/content-type+) +utf-8-html-content-type+)
+  (setf (external-format-of self) (ensure-external-format :utf-8)))
+
+(def (function e) make-redirect-response (target-uri)
+  (setf target-uri (etypecase target-uri
+                     (uri (print-uri-to-string target-uri))
+                     (string target-uri)))
+  (bind ((response (make-instance 'redirect-response :target-uri target-uri)))
+    (setf (header-value response +header/location+) target-uri)
+    response))
+
+(defmethod send-response ((self redirect-response))
+  (emit-http-response* ((headers-of self)
+                        (cookies-of self))
+    (with-simple-html-body (:title "Redirect")
+      <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
