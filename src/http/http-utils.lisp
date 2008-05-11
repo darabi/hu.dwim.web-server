@@ -68,7 +68,7 @@ named SUPPLIED-SYMBOL-NAME will be bound to NIL."
                                              (symbol (string-downcase variable-name))
                                              (string variable-name))))
                   (collect `((:values ,variable-name ,supplied-variable-name)
-                             (request-parameter-value ,parameter-name ,request)) :into bindings)
+                             (request-parameter-value ,request ,parameter-name)) :into bindings)
                   (collect `(unless ,supplied-variable-name
                               (setf ,variable-name ,default-value)) :into defaults)
                   (finally (return (values bindings defaults))))))
@@ -77,3 +77,13 @@ named SUPPLIED-SYMBOL-NAME will be bound to NIL."
          ,@defaults
          ,@body))))
 
+(def (function eio) make-cookie (name value &key comment domain max-age path secure)
+  (rfc2109:make-cookie
+   :name name
+   :value (escape-as-uri value)
+   :comment comment
+   :domain domain
+   :max-age max-age
+   :path (awhen path
+           (escape-as-uri it))
+   :secure secure))

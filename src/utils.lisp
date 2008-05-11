@@ -11,6 +11,20 @@
 (deftype simple-ub8-vector (&optional (length '*))
   `(simple-array (unsigned-byte 8) (,length)))
 
+(def (function io) handle-otherwise (otherwise)
+  (cond
+    ((eq otherwise :error)
+     (error "Otherwise assertion failed"))
+    ((and (consp otherwise)
+          (member (first otherwise) '(:error :warn)))
+     (case (first otherwise)
+       (:error (apply #'error (second otherwise) (nthcdr 2 otherwise)))
+       (:warn (apply #'warn (second otherwise) (nthcdr 2 otherwise)))))
+    ((functionp otherwise)
+     (funcall otherwise))
+    (t
+     otherwise)))
+
 (def special-variable *temporary-file-unique-number* 0)
 
 (defun filename-for-temporary-file (&optional (prefix "wui-"))
@@ -33,17 +47,6 @@
     (until file)
     (finally (return (values file file-name)))))
 
-(defun new-random-key (hash-table key-length)
-  (iter (for key = (random-string key-length))
-        (for (values value foundp) = (gethash key hash-table))
-        (while foundp)
-        (finally (return key))))
-
-(defun insert-with-new-random-key (hash-table key-length value)
-  (bind ((key (new-random-key hash-table key-length)))
-    (setf (gethash key hash-table) value)
-    key))
-
 (def (function i) us-ascii-octets-to-string (vector)
   (coerce (babel:octets-to-string vector :encoding :us-ascii) 'simple-base-string))
 (def (function i) string-to-us-ascii-octets (string)
@@ -65,20 +68,13 @@
   (:method ((self babel-encodings:character-encoding))
     (babel-encodings:enc-name self)))
 
-(def (function o) concatenate-string (&rest args)
-  (declare (dynamic-extent args))
-  (apply #'concatenate 'string args))
-
-(def compiler-macro concatenate-string (&rest args)
-  `(concatenate 'string ,@args))
-
 #+sbcl
 (defmacro with-thread-name (name &body body)
   (with-unique-names (thread previous-name)
     `(let* ((,thread sb-thread:*current-thread*)
             (,previous-name (sb-thread:thread-name ,thread)))
        (setf (sb-thread:thread-name ,thread)
-             (concatenate 'string ,previous-name ,name))
+             (concatenate-string ,previous-name ,name))
        (unwind-protect
             (progn
               ,@body)
@@ -133,6 +129,60 @@
 (defmacro eval-always (&body body)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@body))
+
+(def (function i) is-lock-held? (lock)
+  #+sbcl (eq (sb-thread::mutex-value lock) (current-thread))
+  #-sbcl #t)
+
+;;;;;;;;;;;;;;;;
+;;; string utils
+
+(def (function o) concatenate-string (&rest args)
+  (declare (dynamic-extent args))
+  (apply #'concatenate 'string args))
+
+(def compiler-macro concatenate-string (&rest args)
+  `(concatenate 'string ,@args))
+
+(def (constant :test 'string=) +lower-case-ascii-alphabet+ (coerce "abcdefghijklmnopqrstuvwxyz" 'simple-base-string))
+(def (constant :test 'string=) +upper-case-ascii-alphabet+ (coerce "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 'simple-base-string))
+(def (constant :test 'string=) +ascii-alphabet+ (coerce (concatenate 'string +upper-case-ascii-alphabet+ +lower-case-ascii-alphabet+) 'simple-base-string))
+(def (constant :test 'string=) +alphanumeric-ascii-alphabet+ (coerce (concatenate 'string +ascii-alphabet+ "0123456789") 'simple-base-string))
+(def (constant :test 'string=) +base64-alphabet+ (coerce (concatenate 'string +alphanumeric-ascii-alphabet+ "+/") 'simple-base-string))
+
+(def (function o) random-string (&optional (length 32) (alphabet +ascii-alphabet+))
+  (etypecase alphabet
+    (simple-base-string
+     (random-simple-base-string length alphabet))
+    (string
+     (loop
+        :with result = (make-string length)
+        :with alphabet-length = (length alphabet)
+        :for i :below length
+        :do (setf (aref result i) (aref alphabet (random alphabet-length)))
+        :finally (return result)))))
+
+(def (function o) random-simple-base-string (&optional (length 32) (alphabet +ascii-alphabet+))
+  (declare (type array-index length)
+           (type simple-base-string alphabet))
+  (loop
+     :with result = (make-string length :element-type 'base-char)
+     :with alphabet-length = (length alphabet)
+     :for i :below length
+     :do (setf (aref result i) (aref alphabet (random alphabet-length)))
+     :finally (return result)))
+
+(def (function o) new-random-hash-table-key (hash-table key-length)
+  (iter (for key = (random-simple-base-string key-length))
+        (for (values value foundp) = (gethash key hash-table))
+        (when (not foundp)
+          (return key))))
+
+(def (function io) insert-with-new-random-hash-table-key (hash-table key-length value)
+  (bind ((key (new-random-hash-table-key hash-table key-length)))
+    (setf (gethash key hash-table) value)
+    (values key value)))
+
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;; xhtml generation

@@ -33,12 +33,15 @@
      ,@forms))
 
 (defun find-cookies (cookie &key accepted-domains otherwise)
+  (find-request-cookies *request* cookie :accepted-domains accepted-domains :otherwise otherwise))
+
+(defun find-request-cookies (request cookie &key accepted-domains otherwise)
   (setf accepted-domains (ensure-list accepted-domains))
   (or (bind ((cookie-name (cond ((stringp cookie) cookie)
                                 ((rfc2109:cookie-p cookie) (rfc2109:cookie-name cookie))
                                 (t (error "FIND-COOKIE only supports string and rfc2109:cookie struct as cookie name specifier"))))
              (result (list)))
-        (do-cookies (candidate *request*)
+        (do-cookies (candidate request)
           (when (and (string= cookie-name (rfc2109:cookie-name candidate))
                      (or (null accepted-domains)
                          (some (lambda (domain)
@@ -46,13 +49,15 @@
                                accepted-domains)))
             (push candidate result)))
         (nreverse result))
-      (if (functionp otherwise)
-          (funcall otherwise)
-          otherwise)))
+      (handle-otherwise otherwise)))
 
 (def (function e) cookie-value (cookie &key domain otherwise)
   "Return the uri-unescaped cookie value from *REQUEST* or OTHERWISE if not found."
-  (aif (find-cookies cookie :accepted-domains (ensure-list domain))
+  (request-cookie-value *request* cookie :domain domain :otherwise otherwise))
+
+(def (function e) request-cookie-value (request cookie &key domain otherwise)
+  "Return the uri-unescaped cookie value from REQUEST or OTHERWISE if not found."
+  (aif (find-request-cookies request cookie :accepted-domains (ensure-list domain))
        (unescape-as-uri (rfc2109:cookie-value (first it)))
        (if (functionp otherwise)
            (funcall otherwise)
@@ -116,12 +121,19 @@
             ;; instead we parse all cookies and let the users control what they will accept.
             (rfc2109:parse-cookies (header-value request "Cookie")))))
 
-(def (function e) request-parameter-value (name &optional (request *request*))
+(def (function e) parameter-value (name &optional default)
+  (bind (((:values value found?) (request-parameter-value *request* name)))
+    (values (if found? value default) found?)))
+
+(def (function e) map-parameters (visitor)
+  (map-request-parameters visitor *request*))
+
+(def (function e) request-parameter-value (request name)
   (bind ((entry (assoc name (query-parameters-of request) :test #'string=)))
     (values (cdr entry) (not (null entry)))))
 
-(def (function e) map-request-parameters (visitor)
-  (dolist* ((name . value) (query-parameters-of *request*))
+(def (function e) map-request-parameters (visitor request)
+  (dolist* ((name . value) (query-parameters-of request))
     (funcall visitor name value)))
 
 (defmethod close-request ((request request))

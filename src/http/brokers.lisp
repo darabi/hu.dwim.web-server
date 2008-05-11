@@ -21,27 +21,34 @@
          (remote-address (remote-address-of request))
          (raw-uri (raw-uri-of request)))
     (http.info "Handling request from ~S for ~S" remote-address raw-uri)
-    (call-next-method)
-    (bind ((seconds (/ (- (get-internal-real-time) start-time)
-                       internal-time-units-per-second)))
-      (when (> seconds 0.05)
-        (http.info "Handled request in ~,3f secs (request came from ~S for ~S)" seconds remote-address raw-uri)))))
+    (multiple-value-prog1
+        (call-next-method)
+      (bind ((seconds (/ (- (get-internal-real-time) start-time)
+                         internal-time-units-per-second)))
+        (when (> seconds 0.05)
+          (http.info "Handled request in ~,3f secs (request came from ~S for ~S)" seconds remote-address raw-uri))))))
 
 (def method handle-request ((server broker-based-server) (request request))
   (debug-only (assert (and (boundp '*brokers*) (eq (first *brokers*) server))))
-  (bind ((response (or (query-brokers-for-response request (brokers-of server))
-                       +no-handler-response+)))
+  (bind ((result (multiple-value-list
+                  (or (query-brokers-for-response request (brokers-of server))
+                      +no-handler-response+)))
+         (response (first result)))
     (assert (typep response 'response))
-    (send-response response)))
+    (send-response response)
+    (values-list result)))
 
 (def (function o) query-brokers-for-response (initial-request initial-brokers)
-  (or (iterate-brokers-for-response (lambda (broker request)
-                                      (funcall broker request))
-                                    initial-request
-                                    initial-brokers
-                                    initial-brokers
-                                    0)
-      +no-handler-response+))
+  (bind ((results (multiple-value-list
+                   (iterate-brokers-for-response (lambda (broker request)
+                                                   (funcall broker request))
+                                                 initial-request
+                                                 initial-brokers
+                                                 initial-brokers
+                                                 0))))
+    (if (first results)
+        (values-list results)
+        +no-handler-response+)))
 
 (def (function o) iterate-brokers-for-response (visitor request initial-brokers brokers recursion-depth)
   (declare (type fixnum recursion-depth))
@@ -53,18 +60,19 @@
      nil)
     (t
      (bind ((broker (first brokers))
-            (result (funcall visitor broker request)))
+            (result-values (multiple-value-list (funcall visitor broker request)))
+            (result (first result-values)))
        (typecase result
          (response
           ;; yay! return with the response...
-          result)
+          (values-list result-values))
          (cons
           ;; recurse with a new set of brokers provided by the previous broker.
           ;; also record the broker who provided the last set of brokers.
           (bind ((*brokers* (list* broker *brokers*)))
             (iterate-brokers-for-response visitor request initial-brokers result (1+ recursion-depth))))
          (request
-          ;; we've got a new request, start over using the new set of brokers
+          ;; we've got a new request, start over using the original set of brokers
           (iterate-brokers-for-response visitor result initial-brokers initial-brokers (1+ recursion-depth)))
          (t
           (iterate-brokers-for-response visitor request initial-brokers (rest brokers) recursion-depth)))))))
@@ -96,6 +104,9 @@
   ((path))
   (:metaclass funcallable-standard-class))
 
+(def print-object broker-with-path
+  (format *standard-output* "~S" (path-of self)))
+
 (defmethod matches-request? ((broker broker-with-path) request)
   (matches-request-uri-path? (path-of broker) request))
 
@@ -109,6 +120,9 @@
 (def class* broker-with-path-prefix (broker)
   ((path-prefix))
   (:metaclass funcallable-standard-class))
+
+(def print-object broker-with-path-prefix
+  (format *standard-output* "~S" (path-prefix-of self)))
 
 (defmethod matches-request? ((broker broker-with-path-prefix) request)
   (matches-request-uri-path-prefix? (path-of broker) request))
