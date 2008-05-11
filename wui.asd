@@ -116,7 +116,8 @@
   ((:module :src
     :components ((:module "application"
                   :serial t
-                  :components ((:file "application")
+                  :components ((:file "session")
+                               (:file "application")
                                (:file "entry-point"))))))
   :depends-on (:wui-core
                :trivial-garbage
