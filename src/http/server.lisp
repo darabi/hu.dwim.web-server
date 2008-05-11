@@ -7,6 +7,7 @@
 (def (class* e) server ()
   ((host)
    (port)
+   (host-header-fallback :documentation "Used when parsing the request and there's no Host header sent from the client.")
    (socket nil)
    (handler :type (or symbol function))
    (request-content-length-limit *request-content-length-limit*)
@@ -31,7 +32,12 @@
 
 (defmethod startup-server ((server server) &key (initial-worker-count 2) &allow-other-keys)
   (assert (host-of server))
+  (assert (port-of server))
   (setf (shutdown-initiated-p server) #f)
+  (setf (host-header-fallback-of server)
+        (print-uri-to-string (make-uri :scheme "http"
+                                       :host (host-of server)
+                                       :port (port-of server))))
   (with-lock-held-on-server server
     (loop
        (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" (host-of server) (port-of server))

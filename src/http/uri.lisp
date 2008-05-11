@@ -61,10 +61,18 @@
         (write-string "://" stream))
       (when host
         ;; don't escape host
-        (write-string host stream)
-        (when port
-          (write-string ":" stream)
-          (princ port stream)))
+        (etypecase host
+          (ipv6-address
+           (write-char #\[ stream)
+           (write-string (address-to-string host) stream)
+           (write-char #\] stream))
+          (ipv4-address
+           (write-string (address-to-string host) stream))
+          (string
+           (write-string host stream))))
+      (when port
+        (write-string ":" stream)
+        (princ port stream))
       (when path
         (out path)))))
 
@@ -133,7 +141,7 @@
   "Escapes all non alphanumeric characters in STRING following the URI convention. Returns a fresh string."
   (bind ((*print-pretty* #f)
          (*print-circle* #f))
-    (with-output-to-string (escaped)
+    (with-output-to-string (escaped nil :element-type 'base-char)
       (write-as-uri string escaped))))
 
 (def (function o) write-as-uri (string stream)
@@ -198,9 +206,7 @@
   (bind ((index 0)
          (length (length uri))
          (scheme nil)
-         (host nil)
-         (port nil)
-         (has-path? #f))
+         (has-host? #f))
     (labels ((next-position (char &rest without)
                (declare (dynamic-extent without))
                (bind ((result (position char uri :start index :test #'char=)))
@@ -214,18 +220,48 @@
                    (setf result nil)
                    result)
                  result))
-             (next-is (char)
-               (and (< index length)
-                    (char= char (elt uri index))))
-             (all-the-rest ()
-               (when (> length index)
-                 (subseq uri index)))
              (parse-scheme ()
                ;; TODO consider using cl-ppcre: (cl-ppcre:scan "\\[(.*)\\]" "asdf[::]ffff")
                (awhen (next-position #\: #\[)
                  (setf scheme (subseq uri index it))
                  (setf index (1+ it)))
                (parse-host))
+             (parse-host ()
+               (setf has-host? #t)))
+      (parse-scheme)
+      (bind ((result (make-uri :scheme scheme)))
+        (if has-host?
+            (progn
+              (assert (< index length))
+              (%parse-uri-host uri index result))
+            result)))))
+
+(def (function o) %parse-uri-host (host-string start uri)
+  (declare (type simple-base-string host-string))
+  (bind ((index start)
+         (length (length host-string))
+         (host nil)
+         (port nil)
+         (has-path? #f))
+    (labels ((next-position (char &rest without)
+               (declare (dynamic-extent without))
+               (bind ((result (position char host-string :start index :test #'char=)))
+                 (when (and result
+                            without
+                            (> result
+                               (loop
+                                  :for exception :in without
+                                  :maximize (or (position exception host-string :start index :test #'char=)
+                                                most-positive-fixnum))))
+                   (setf result nil)
+                   result)
+                 result))
+             (next-is (char)
+               (and (< index length)
+                    (char= char (elt host-string index))))
+             (all-the-rest ()
+               (when (> length index)
+                 (subseq host-string index)))
              (parse-host ()
                (loop
                   :repeat 2
@@ -235,45 +271,46 @@
                           (return)))
                ;; ipv6 addresses are wrapped in []
                (if (next-is #\[)
-                   (bind ((end-position (position #\] uri :start (1+ index))))
+                   (bind ((end-position (position #\] host-string :start (1+ index))))
                      (unless end-position
                        (uri-parse-error "No ']' at the end of a ipv6 address?"))
-                     (setf host (subseq uri index (1+ end-position)))
+                     (setf host (subseq host-string index (1+ end-position)))
                      (setf index (1+ end-position))
                      (acond
-                      ((next-position #\:)
-                       (setf index (1+ it))
-                       (parse-port))
-                      ((next-position #\/)
-                       (setf index it)
-                       (parse-path))
-                      (t (setf host (all-the-rest)))))
+                       ((next-position #\:)
+                        (setf index (1+ it))
+                        (parse-port))
+                       ((next-position #\/)
+                        (setf index it)
+                        (parse-path))
+                       (t (setf host (all-the-rest)))))
                    (acond
-                    ((next-position #\:)
-                     (setf host (subseq uri index it))
-                     (setf index (1+ it))
-                     (parse-port))
-                    ((next-position #\/)
-                     (setf host (subseq uri index it))
-                     (setf index it)
-                     (parse-path))
-                    (t (setf host (all-the-rest))))))
+                     ((next-position #\:)
+                      (setf host (subseq host-string index it))
+                      (setf index (1+ it))
+                      (parse-port))
+                     ((next-position #\/)
+                      (setf host (subseq host-string index it))
+                      (setf index it)
+                      (parse-path))
+                     (t (setf host (all-the-rest))))))
              (parse-port ()
                (aif (next-position #\/)
                     (progn
-                      (setf port (parse-integer uri :start index :end it))
+                      (setf port (parse-integer host-string :start index :end it))
                       (setf index it)
                       (parse-path))
-                    (setf port (parse-integer uri :start index :end length))))
+                    (setf port (parse-integer host-string :start index :end length))))
              (parse-path ()
                (setf has-path? #t)))
-      (parse-scheme)
-      (bind ((result (make-uri :scheme scheme :host host :port port)))
-        (if has-path?
-            (progn
-              (assert (< index length))
-              (%parse-uri-path uri index result))
-            result)))))
+      (parse-host)
+      (setf (host-of uri) host)
+      (setf (port-of uri) port)
+      (if has-path?
+          (progn
+            (assert (< index length))
+            (%parse-uri-path host-string index uri))
+          uri))))
 
 ;; %parse-uri is chopped into two, because %parse-uri-path comes useful when reading the http request
 (def (function o) %parse-uri-path (path-string start uri)

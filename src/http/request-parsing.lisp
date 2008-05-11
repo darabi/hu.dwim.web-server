@@ -25,11 +25,11 @@
       (flet ((header-value (name)
                (awhen (assoc name headers :test #'string=)
                  (cdr it))))
-        (bind ((host (or (header-value "Host")
-                         (address-to-string (host-of *server*))))
-               (uri (%parse-uri-path raw-uri 0 (parse-uri host)))
+        ;; TODO what about this coerce 'simple-base-string? what about non-unicode host names
+        (bind ((host (or (coerce (header-value "Host") 'simple-base-string)
+                         (host-header-fallback-of *server*)))
+               (uri (%parse-uri-path raw-uri 0 (%parse-uri-host host 0 (make-uri :scheme "http"))))
                (parameters (query-parameters-of uri)))
-          (setf (scheme-of uri) "http")
           (setf parameters (read-http-request-body stream
                                                    (header-value "Content-Length")
                                                    (header-value "Content-Type")
