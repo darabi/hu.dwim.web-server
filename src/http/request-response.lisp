@@ -247,6 +247,13 @@
        (setf (cookies-of ,response) (list ,@cookie-list))
        ,response)))
 
+(def (macro e) make-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
+  `(make-functional-response ((+header/content-type+ +html-content-type+
+                               ,@headers-as-plist)
+                              (,@cookie-list))
+     (emit-into-html-stream (network-stream-of *request*)
+       ,@body)))
+
 (def (function e) make-functional-response* (thunk &key headers cookies)
   (make-instance 'functional-response
                  :thunk thunk
