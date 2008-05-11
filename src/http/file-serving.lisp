@@ -45,7 +45,18 @@
   (make-instance 'file-serving-response :file-name file-name))
 
 (defmethod send-response ((self file-serving-response))
-  (serve-file (file-name-of self)))
+  (bind (((:values success? condition network-stream-dirty?)
+          (serve-file (file-name-of self) :signal-errors #f)))
+    (when (and (not success?)
+               (or (not (typep condition 'stream-error))
+                   (not (eq (stream-error-stream condition) (network-stream-of *request*)))))
+      (server.error "Failed to serve file ~S: ~A. Network stream dirty? ~S" (file-name-of self) condition network-stream-dirty?)
+      (unless network-stream-dirty?
+        (emit-http-response ((+header/status+       +http-not-found+
+                              +header/content-type+ +html-content-type+))
+          (with-html-document-body (:title "File serving error" :content-type +html-content-type+)
+            <h1 "File serving error">
+            <p "There was an error while trying to serve this file.">))))))
 
 
 ;;;;;;;;;;;;;;;;;;;
@@ -92,9 +103,9 @@
                                        (list "." it))))
                   <tr
                     <td
-                      <a (:href ,(concatenate-string path-prefix relative-path name))
+                      <a (:href ,(escape-as-uri (concatenate-string path-prefix relative-path name)))
                         ,name>>
-                    <td ,(princ-to-string (nix:stat-size (nix:stat (namestring file))))>>))>)))
+                    <td ,(princ-to-string (nix:stat-size (nix:lstat (namestring file))))>>))>)))
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; MIME stuff for serving static files

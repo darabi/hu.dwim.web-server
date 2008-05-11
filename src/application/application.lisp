@@ -98,7 +98,9 @@
 (def (function o) query-entry-points-for-response (application initial-request relative-path)
   (bind ((results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
-                                                   (funcall broker request application relative-path))
+                                                   (if (typep broker 'entry-point)
+                                                       (funcall broker request application relative-path)
+                                                       (funcall broker request)))
                                                  initial-request
                                                  (entry-points-of application)
                                                  (entry-points-of application)
