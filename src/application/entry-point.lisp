@@ -55,6 +55,14 @@
   (when (starts-with-subseq (path-prefix-of entry-point) relative-path)
     (produce-response entry-point request)))
 
+(def (function e) ensure-entry-point (application entry-point)
+  (setf (entry-points-of application)
+        (delete-if (lambda (old-entry-point)
+                     (entry-point-equals-for-redefinition old-entry-point entry-point))
+                   (entry-points-of application)))
+  (appendf (entry-points-of application) (list entry-point))
+  entry-point)
+
 (def (definer e) entry-point ((application &rest args &key
                                            (path nil path-p)
                                            (path-prefix nil path-prefix-p)
@@ -68,16 +76,10 @@
       (setf class ''path-entry-point))
     (when path-prefix-p
       (setf class ''path-prefix-entry-point)))
-  (with-unique-names (new-entry-point request)
-    (once-only (application)
-      `(bind ((,new-entry-point (make-instance
-                                 ,class ,@args
-                                 :handler (lambda (,request)
-                                            (with-request-params ,request ,request-lambda-list
-                                              ,@body)))))
-         (setf (entry-points-of ,application)
-               (delete-if (lambda (entry-point)
-                            (entry-point-equals-for-redefinition entry-point ,new-entry-point))
-                          (entry-points-of ,application)))
-         (appendf (entry-points-of ,application) (list ,new-entry-point))
-         ,new-entry-point))))
+  (with-unique-names (request)
+    `(ensure-entry-point ,application
+                         (make-instance
+                          ,class ,@args
+                          :handler (lambda (,request)
+                                     (with-request-params ,request ,request-lambda-list
+                                       ,@body))))))
