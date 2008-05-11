@@ -32,9 +32,12 @@
 
 (def entry-point (*session-application* :path "new/") ()
   (values (make-redirect-response (path-prefix-of *application*))
-          (list (lambda ()
-                  (with-lock-held-on-application *application*
-                    (make-new-session *application*))))))
+          (lambda ()
+            ;; we need to supply this in a callback that is called after the session
+            ;; has been released to avoid deadlocks by strictly following the
+            ;; app -> session locking order...
+            (with-lock-held-on-application *application*
+              (make-new-session *application*)))))
 
 (def function start-server-with-test-applications (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level

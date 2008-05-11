@@ -65,15 +65,15 @@
                  (values response post-session-callbacks))))
         (bind ((response (if session
                              (bind ((response nil)
-                                    (post-session-callbacks nil))
+                                    (post-session-callback nil))
                                (with-lock-held-on-session session
-                                 (setf (values response post-session-callbacks) (body)))
-                               (dolist (thunk post-session-callbacks)
-                                 (funcall thunk))
+                                 (setf (values response post-session-callback) (body)))
+                               (awhen post-session-callback
+                                 (funcall it))
                                response)
-                             (bind (((:values response post-session-callbacks) (body)))
-                               (dolist (thunk post-session-callbacks)
-                                 (funcall thunk))
+                             (bind (((:values response post-session-callback) (body)))
+                               (awhen post-session-callback
+                                 (funcall it))
                                response))))
           (when response
             (bind ((request-uri (uri-of request)))
