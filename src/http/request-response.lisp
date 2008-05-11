@@ -269,29 +269,32 @@
 
 (defmethod send-response ((self request-echo-response))
   (emit-http-response ((+header/content-type+ +html-content-type+))
-    (with-html-document-body (:title "URL echo server" :content-type +html-content-type+)
-      <p ,(print-uri-to-string (uri-of *request*))>
-      <hr>
-      <table
-        ,@(iter (for (name . value) :in (headers-of *request*))
-                <tr
-                  <td ,name>
-                  <td ,value>>)>
-      <hr>
-      <table
-        <thead
-          <tr ,@(iter (for title :in '("Domain" "Path" "Name" "Value" "Max-age" "Secure" "Comment"))
-                      (collect <td ,title>))>>
-        ,@(iter (for cookie :in (cookies-of *request*))
-                <tr
-                  ,@(iter (for reader :in '(rfc2109:cookie-domain
-                                            rfc2109:cookie-path
-                                            rfc2109:cookie-name
-                                            rfc2109:cookie-value
-                                            rfc2109:cookie-max-age
-                                            rfc2109:cookie-secure
-                                            rfc2109:cookie-comment))
-                          (collect <td ,(or (funcall reader cookie) "")>))>)>)))
+    (render-request *request*)))
+
+(def (function e) render-request (request)
+  (with-html-document-body (:title "URL echo server" :content-type +html-content-type+)
+    <p ,(print-uri-to-string (uri-of request))>
+    <hr>
+    <table
+      ,@(iter (for (name . value) :in (headers-of request))
+              <tr
+                <td ,name>
+                <td ,value>>)>
+    <hr>
+    <table
+      <thead
+        <tr ,@(iter (for title :in '("Domain" "Path" "Name" "Value" "Max-age" "Secure" "Comment"))
+                    (collect <td ,title>))>>
+      ,@(iter (for cookie :in (cookies-of request))
+              <tr
+                ,@(iter (for reader :in '(rfc2109:cookie-domain
+                                          rfc2109:cookie-path
+                                          rfc2109:cookie-name
+                                          rfc2109:cookie-value
+                                          rfc2109:cookie-max-age
+                                          rfc2109:cookie-secure
+                                          rfc2109:cookie-comment))
+                        (collect <td ,(or (funcall reader cookie) "")>))>)>))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;; redirect response
