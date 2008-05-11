@@ -353,9 +353,9 @@
              (parse-fragment ()
                (setf fragment (all-the-rest))))
       (parse-path)
-      (setf (path-of uri) path)
-      (setf (query-of uri) query)
-      (setf (fragment-of uri) fragment)
+      (setf (path-of uri) (when path (unescape-as-uri path)))
+      (setf (query-of uri) query) ; can't unescape as it's unparsed
+      (setf (fragment-of uri) (when fragment (unescape-as-uri fragment)))
       uri)))
 
 (def (function o) parse-query-parameters (param-string &optional (initial-parameters (list)))
