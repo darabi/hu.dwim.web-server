@@ -45,7 +45,7 @@
       (progn
         (threads.dribble "Entering with-lock-held-on-application for app ~S in thread ~S" application (current-thread))
         (with-recursive-lock-held ((lock-of application))
-          -body-))
+          (-body-)))
     (threads.dribble "Leaving with-lock-held-on-application for app ~S in thread ~S" application (current-thread))))
 
 (def (constructor o) (application path-prefix)

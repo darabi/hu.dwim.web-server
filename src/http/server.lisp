@@ -24,7 +24,7 @@
       (progn
         (threads.dribble "Entering with-lock-held-on-server for server ~S in thread ~S" server (current-thread))
         (with-recursive-lock-held ((lock-of server))
-          -body-))
+          (-body-)))
     (threads.dribble "Leaving with-lock-held-on-server for server ~S in thread ~S" server (current-thread))))
 
 (def (generic e) startup-server (server &key &allow-other-keys))

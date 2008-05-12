@@ -53,7 +53,7 @@
       (progn
         (threads.dribble "Entering with-lock-held-on-session for ~S in thread ~S" session (current-thread))
         (with-recursive-lock-held ((lock-of session))
-          -body-))
+          (-body-)))
     (threads.dribble "Leaving with-lock-held-on-session for ~S in thread ~S" session (current-thread))))
 
 (defmethod (setf id-of) :before (id (session session))
