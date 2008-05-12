@@ -29,19 +29,21 @@
         (bind ((host (or (coerce (header-value "Host") 'simple-base-string)
                          (host-header-fallback-of *server*)))
                (uri (%parse-uri-path raw-uri 0 (%parse-uri-host host 0 (make-uri :scheme "http"))))
-               (parameters (query-parameters-of uri)))
-          (setf parameters (read-http-request-body stream
-                                                   (header-value "Content-Length")
-                                                   (header-value "Content-Type")
-                                                   parameters))
-          (make-instance 'request
-                         :raw-uri raw-uri
-                         :uri uri
-                         :socket stream
-                         :query-parameters parameters
-                         :http-method (us-ascii-octets-to-string http-method)
-                         :http-version (us-ascii-octets-to-string version)
-                         :headers headers))))))
+               (uri-parameters (query-parameters-of uri)))
+          (http.dribble "Request query parameters from the uri: ~S" uri-parameters)
+          (bind ((parameters (read-http-request-body stream
+                                                     (header-value "Content-Length")
+                                                     (header-value "Content-Type")
+                                                     uri-parameters)))
+            (http.dribble "All the request query parameters: ~S" parameters)
+            (make-instance 'request
+                           :raw-uri raw-uri
+                           :uri uri
+                           :socket stream
+                           :query-parameters parameters
+                           :http-method (us-ascii-octets-to-string http-method)
+                           :http-version (us-ascii-octets-to-string version)
+                           :headers headers)))))))
 
 (declaim (ftype (function * simple-ub8-vector) read-http-request-line))
 
@@ -108,10 +110,6 @@
       (collect (cons (us-ascii-octets-to-string name)
                      (iso-8859-1-octets-to-string value))))))
 
-
-
-
-
 (defun make-cookie (name value &rest initargs &key (path nil path-p) &allow-other-keys)
   (apply #'rfc2109:make-cookie
          :name name
@@ -128,79 +126,67 @@
 
 
 
-
-
-;;;; Parsing HTTP request bodies.
-
-(defun rfc2388-callback (mime-part)
-  (declare (optimize speed))
-  (http.dribble "Processing mime part ~S." mime-part)
-  (let* ((header (rfc2388-binary:get-header mime-part "Content-Disposition"))
-         (disposition (rfc2388-binary:header-value header))
-         (name (rfc2388-binary:get-header-attribute header "name"))
-         (filename (rfc2388-binary:get-header-attribute header "filename")))
-    (http.dribble "Got a mime part. Disposition: ~S; Name: ~S; Filename: ~S" disposition name filename)
-    (http.dribble "Mime Part: ---~S---~%" (with-output-to-string (dump)
-                                                   (rfc2388-binary:print-mime-part mime-part dump)))
-    (cond
-      ((or (string-equal "file" disposition)
-           (not (null filename)))
-       (multiple-value-bind (file tmp-filename)
-           (open-temporary-file)
-         (setf (rfc2388-binary:content mime-part) file)
-         (http.dribble "Sending mime part data to file ~S (~S)." tmp-filename (rfc2388-binary:content mime-part))
-         (let* ((counter 0)
-                (buffer (make-array 8196 :element-type '(unsigned-byte 8)))
-                (buffer-length (length buffer))
-                (buffer-index 0))
-           (declare (type array-index buffer-length buffer-index counter))
+(def (function o) make-rfc2388-callback (form-data-accumulator file-accumulator)
+  (lambda (mime-part)
+    (http.dribble "Processing mime part ~S." mime-part)
+    (bind ((content-disposition-header (rfc2388-binary:get-header mime-part "Content-Disposition"))
+           (content-disposition (rfc2388-binary:header-value content-disposition-header))
+           (name (rfc2388-binary:get-header-attribute content-disposition-header "name"))
+           (filename (rfc2388-binary:get-header-attribute content-disposition-header "filename")))
+      (http.dribble "Got a mime part. Disposition: ~S; Name: ~S; Filename: ~S" content-disposition name filename)
+      (http.dribble "Mime Part:---~%~A---" (with-output-to-string (dump) (rfc2388-binary:print-mime-part mime-part dump)))
+      (cond
+        ((or (string-equal "file" content-disposition)
+             (not (null filename)))
+         (bind (((:values file tmp-filename) (open-temporary-file :name-prefix "wui-upload-")))
+           (setf (rfc2388-binary:content mime-part) file)
+           (http.dribble "Sending mime part data to file ~S (~S)" tmp-filename (rfc2388-binary:content mime-part))
+           (bind ((counter 0)
+                  (buffer (make-array 8196 :element-type '(unsigned-byte 8)))
+                  (buffer-length (length buffer))
+                  (buffer-index 0))
+             (declare (type array-index buffer-length buffer-index counter))
+             (values (lambda (byte)
+                       (declare (type (unsigned-byte 8) byte))
+                       ;;(http.dribble "File byte ~4,'0D: ~D~:[~; (~C)~]" counter byte (<= 32 byte 127) (code-char byte))
+                       (setf (aref buffer buffer-index) byte)
+                       (incf counter)
+                       (incf buffer-index)
+                       (when (>= buffer-index buffer-length)
+                         (write-sequence buffer file)
+                         (setf buffer-index 0)))
+                     (lambda ()
+                       (http.dribble "Done with file ~S" (rfc2388-binary:content mime-part))
+                       (unless (zerop buffer-index)
+                         (write-sequence buffer file :end buffer-index))
+                       (http.dribble "Closing ~S" (rfc2388-binary:content mime-part))
+                       (close file)
+                       (http.dribble "Closed, repoening")
+                       (setf (rfc2388-binary:content mime-part) tmp-filename)
+                       (http.dribble "Opened ~S" (rfc2388-binary:content mime-part))
+                       (funcall file-accumulator name mime-part)
+                       (values))
+                     (lambda ()
+                       (close file)
+                       (delete-file tmp-filename))))))
+        ((string-equal "form-data" content-disposition)
+         (http.dribble "Grabbing mime-part data as string.")
+         (setf (rfc2388-binary:content mime-part) (make-adjustable-vector 10 :element-type '(unsigned-byte 8)))
+         (bind ((counter 0))
+           (declare (type array-index counter))
            (values (lambda (byte)
                      (declare (type (unsigned-byte 8) byte))
-                     (http.dribble "File byte ~4,'0D: ~D~:[~; (~C)~]" counter byte (<= 32 byte 127) (code-char byte))
-                     (setf (aref buffer buffer-index) byte)
+                     (http.dribble "Form-data byte ~4,'0D: ~D~:[~; (~C)~]." counter byte (<= 32 byte 127) (code-char byte))
                      (incf counter)
-                     (incf buffer-index)
-                     (when (>= buffer-index buffer-length)
-                       (write-sequence buffer file)
-                       (setf buffer-index 0)))
+                     (vector-push-extend byte (rfc2388-binary:content mime-part)))
                    (lambda ()
-                     (http.dribble "Done with file ~S." (rfc2388-binary:content mime-part))
-                     (unless (zerop buffer-index)
-                       (write-sequence buffer file :end buffer-index))
-                     (http.dribble "Closing ~S." (rfc2388-binary:content mime-part))
-                     (close file)
-                     (http.dribble "Closed, repoening.")
-                     (setf (rfc2388-binary:content mime-part)
-                           (open tmp-filename
-                                 :direction :input
-                                 :element-type '(unsigned-byte 8)))
-                     (http.dribble "Opened ~S." (rfc2388-binary:content mime-part))
-                     (cons name mime-part))
-                   (lambda ()
-                     (close file)
-                     (delete-file tmp-filename))))))
-      ((string-equal "form-data" disposition)
-       (http.dribble "Grabbing mime-part data as string.")
-       (setf (rfc2388-binary:content mime-part) (make-array 10
-                                                            :element-type '(unsigned-byte 8)
-                                                            :adjustable t
-                                                            :fill-pointer 0))
-       (let ((counter 0))
-         (declare (type array-index counter))
-         (values (lambda (byte)
-                   (declare (type (unsigned-byte 8) byte))
-                   (http.dribble "Form-data byte ~4,'0D: ~D~:[~; (~C)~]."
-                                        counter byte (<= 32 byte 127)
-                                        (code-char byte))
-                   (incf counter)
-                   (vector-push-extend byte (rfc2388-binary:content mime-part)))
-                 (lambda ()
-                   (let ((content (utf-8-octets-to-string (rfc2388-binary:content mime-part))))
-                     (http.dribble "Done with form-data ~S: ~S" name content)
-                     (cons name content))))))
-      (t
-       (error "Don't know how to handle the mime-part ~S (disposition: ~S)"
-              mime-part header)))))
+                     ;; TODO fixed utf-8?
+                     (bind ((content (utf-8-octets-to-string (rfc2388-binary:content mime-part))))
+                       (http.dribble "Done with form-data ~S: ~S" name content)
+                       (funcall form-data-accumulator name content)
+                       (values))))))
+        (t
+         (error "Don't know how to handle the mime-part ~S (content-disposition: ~S)" mime-part content-disposition-header))))))
 
 (def (function o) read-http-request-body (stream raw-content-length raw-content-type initial-parameters)
   (when (and raw-content-length
@@ -214,32 +200,30 @@
           (bind (((:values content-type attributes) (rfc2388-binary:parse-header-value raw-content-type)))
             (switch (content-type :test #'string=)
               ("application/x-www-form-urlencoded"
+               ;; TODO dos prevention, lower limit here than *request-content-length-limit*, or separate for files
                (bind ((buffer (make-array content-length :element-type '(unsigned-byte 8))))
                  (read-sequence buffer stream)
-                 (return-from read-http-request-body
-                   (parse-query-parameters
-                    (aif (cdr (assoc "charset" attributes :test #'string=))
-                         (eswitch (it :test #'string=)
-                           ("ASCII"      (us-ascii-octets-to-string buffer))
-                           ("UTF-8"      (utf-8-octets-to-string buffer))
-                           ("ISO-8859-1" (iso-8859-1-octets-to-string buffer)))
-                         (iso-8859-1-octets-to-string buffer))
-                    initial-parameters))))
+                 (bind ((buffer-as-string
+                         (aif (cdr (assoc "charset" attributes :test #'string=))
+                              ;; TODO check the standard, disable unescape in parse-query-parameters if needed...
+                              (eswitch (it :test #'string-equal)
+                                ("utf-8"      (utf-8-octets-to-string buffer))
+                                ("ascii"      (us-ascii-octets-to-string buffer))
+                                ("iso-8859-1" (iso-8859-1-octets-to-string buffer)))
+                              (us-ascii-octets-to-string buffer))))
+                   (http.dribble "Parsing application/x-www-form-urlencoded body. Attributes: ~S, value: ~S" attributes buffer-as-string)
+                   (return-from read-http-request-body (parse-query-parameters buffer-as-string initial-parameters)))))
               ("multipart/form-data"
-               (let ((boundary (cdr (assoc "boundary" attributes :test #'string=))))
+               (http.dribble "Parsing multipart/form-data body. Attributes: ~S." attributes)
+               (bind ((boundary (cdr (assoc "boundary" attributes :test #'string=))))
                  ;; TODO DOS prevention: add support for rfc2388-binary to limit parsing length if the ContentLength header is fake, pass in *request-content-length-limit*
-                 (return-from read-http-request-body
-                   ;; TODO what does it return? it should deal with initial-parameters!
-                   (rfc2388-binary:read-mime stream boundary #'rfc2388-callback))))
+                 (rfc2388-binary:read-mime stream boundary
+                                           (make-rfc2388-callback
+                                            (lambda (name value)
+                                              (record-query-parameter (cons name value) initial-parameters))
+                                            (lambda (name file-mime-part)
+                                              (record-query-parameter (cons name file-mime-part) initial-parameters))))
+                 (return-from read-http-request-body initial-parameters)))
               (t (abort-server-request "Invalid request content type"))))))))
   (http.debug "Skipped parsing request body, raw Content-Type is [~S], raw Content-Length is [~S]" raw-content-type raw-content-length)
   initial-parameters)
-
-(defmethod mime-part-body ((mime-part rfc2388-binary:mime-part))
-  (rfc2388-binary:content mime-part))
-
-(defmethod mime-part-headers ((mime-part rfc2388-binary:mime-part))
-  (mapcar (lambda (header)
-            (cons (rfc2388-binary:header-name header)
-                  (rfc2388-binary:header-value header)))
-          (rfc2388-binary:headers mime-part)))

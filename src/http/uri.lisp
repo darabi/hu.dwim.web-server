@@ -358,8 +358,20 @@
       (setf (fragment-of uri) (when fragment (unescape-as-uri fragment)))
       uri)))
 
+(def macro record-query-parameter (param params)
+  (declare (type cons param))
+  (once-only (param)
+    `(bind ((entry (assoc (car ,param) ,params :test #'string=)))
+       (if entry
+           (progn
+             (unless (consp (cdr entry))
+               (setf (cdr entry) (list (cdr entry))))
+             (nconcf (cdr entry) (list (cdr ,param))))
+           (push ,param ,params))
+       ,params)))
+
 (def (function o) parse-query-parameters (param-string &optional (initial-parameters (list)))
-  "Parse PARAM-STRING into an alist. Contains a list as value when the given parameter was found more then once."
+  "Parse PARAM-STRING into an alist. Contains a list as value when the given parameter was found more than once."
   (declare (type simple-base-string param-string))
   (flet ((grab-param (start separator-position end)
            (declare (type array-index start end)
@@ -377,16 +389,7 @@
                   (unescaped-key (unescape-as-uri key))
                   (unescaped-value (unescape-as-uri value)))
              (http.dribble "Grabbed parameter ~S with value ~S" unescaped-key unescaped-value)
-             (cons unescaped-key unescaped-value)))
-         (record-param (param params)
-           (bind ((entry (assoc (car param) params :test #'string=)))
-             (if entry
-                 (progn
-                   (unless (consp (cdr entry))
-                     (setf (cdr entry) (list (cdr entry))))
-                   (nconcf (cdr entry) (list (cdr param))))
-                 (push param params)))
-           params))
+             (cons unescaped-key unescaped-value))))
     (when (and param-string
                (< 0 (length param-string)))
       (iter
@@ -397,13 +400,12 @@
         (for index :upfrom 0)
         (switch (char :test #'char=)
           (#\& ;; end of the current param
-           (setf result (record-param (grab-param start separator-position index) result))
+           (setf result (record-query-parameter (grab-param start separator-position index) result))
            (setf start (1+ index))
            (setf separator-position nil))
           (#\= ;; end of name
            (setf separator-position index)))
-        ;; automatic end of param string
         (finally
-         (return (record-param (grab-param start separator-position (1+ index)) result)))))))
+         (return (nreverse (record-query-parameter (grab-param start separator-position (1+ index)) result))))))))
 
 

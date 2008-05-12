@@ -105,7 +105,7 @@
    (http-version)
    (raw-uri)
    (uri)
-   (query-parameters :documentation "Holds the accumulated query parameters from the uri and/or the request body")))
+   (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")))
 
 (defmethod network-stream-of ((request request))
   (socket-of request))
@@ -128,15 +128,28 @@
 (def (function e) map-parameters (visitor)
   (map-request-parameters visitor *request*))
 
+(def (macro e) do-parameters ((name value) &body body)
+  `(map-request-parameters
+    (lambda (,name ,value)
+      ,@body)
+    *request*))
+
 (def (function e) request-parameter-value (request name)
   (bind ((entry (assoc name (query-parameters-of request) :test #'string=)))
     (values (cdr entry) (not (null entry)))))
 
 (def (function e) map-request-parameters (visitor request)
-  (dolist* ((name . value) (query-parameters-of request))
-    (funcall visitor name value)))
+  (bind ((result (list)))
+    (dolist* ((name . value) (query-parameters-of request))
+      (push (funcall visitor name value) result))
+    (nreverse result)))
 
 (defmethod close-request ((request request))
+  (map-request-parameters (lambda (name value)
+                            (declare (ignore name))
+                            (when (typep value 'rfc2388-binary:mime-part)
+                              (delete-file (rfc2388-binary:content value))))
+                          request)
   request)
 
 
