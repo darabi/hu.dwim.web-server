@@ -171,6 +171,11 @@
   (write-byte +carriage-return+ stream)
   (write-byte +linefeed+ stream))
 
+(def (function e) disallow-response-caching (response)
+  "Sets the appropiate response headers that will instruct the clients not to cache this response."
+  (setf (header-value response "Expires") #.(date:universal-time-to-http-date +epoch-start+)
+        (header-value response "Cache-Control") "no-store"))
+
 (def (function o) send-http-headers (headers &optional cookies)
   (flet ((write-header-line (name value stream)
            (write-sequence (string-to-us-ascii-octets name) stream)

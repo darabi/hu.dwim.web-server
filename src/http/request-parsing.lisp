@@ -118,14 +118,6 @@
              (list* :path (escape-as-uri path) initargs)
              initargs)))
 
-(defun disallow-response-caching (response)
-  "Sets the appropiate response headers that will instruct the clients not to cache this response."
-  (setf (header-value response "Expires") #.(date:universal-time-to-http-date +epoch-start+)
-        (header-value response "Cache-Control") "no-store"
-        (header-value response "Pragma") "no-cache"))
-
-
-
 (def (function o) make-rfc2388-callback (form-data-accumulator file-accumulator)
   (lambda (mime-part)
     (http.dribble "Processing mime part ~S." mime-part)
