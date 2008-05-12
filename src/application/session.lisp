@@ -14,9 +14,30 @@
 (def (special-variable e) *session*)
 (def (special-variable e) *frame*)
 
-(def class* session ()
-  ((id nil :type string)
-   (last-activity-at (get-internal-real-time))
+(def class* activity-monitor-mixin ()
+  ((last-activity-at (get-monotonic-time))
+   (time-to-live)))
+
+(def (generic e) notify-activity (thing)
+  (:method ((self activity-monitor-mixin))
+    (setf (last-activity-at-of self) (get-monotonic-time))))
+
+(def (generic e) time-since-last-activity (thing)
+  (:method ((self activity-monitor-mixin))
+    (- (get-monotonic-time) (last-activity-at-of self))))
+
+(def generic is-timed-out? (thing)
+  (:method ((self activity-monitor-mixin))
+    (> (time-since-last-activity self)
+       (time-to-live-of self))))
+
+
+;;;;;;;;;;;
+;;; session
+
+(def class* session (activity-monitor-mixin)
+  ((application nil)
+   (id nil :type string)
    (frame-id->frame (make-hash-table :test 'equal))
    (lock nil)))
 
@@ -44,29 +65,39 @@
 (def (function i) assert-session-lock-held (session)
   (assert (is-lock-held? (lock-of session)) () "You must have a lock on the session here"))
 
-(def class* frame ()
-  ((last-activity-at (get-internal-real-time))
-   (frame-index 0)
-   (action-id->action (make-hash-table :test 'equal))))
-
 (def (generic e) notify-session-expiration (application session)
   (:method (application (session session))
     ;; nop
     ))
 
-(def function notify-session-activity (session)
-  (setf (last-activity-at-of session) (get-internal-real-time)))
-
-(def function notify-frame-activity (frame)
-  (setf (last-activity-at-of frame) (get-internal-real-time)))
-
-(def (function o) find-application-session-from-request (application)
-  (bind (;;(request-uri (uri-of *request*))
-         (session-id (cookie-value +session-id-parameter-name+
-                                   ;; TODO how does it work? domain is not sent with the requests
-                                   ;;:domain (host-of request-uri)
-                                   )))
+(def (function o) find-session-from-request (application)
+  (bind ((session-id (cookie-value +session-id-parameter-name+)))
     (when session-id
+      (app.debug "Found session-id ~S" session-id)
       (bind ((session (gethash session-id (session-id->session-of application))))
-        ;; TODO expiration
-        session))))
+        (if (and session
+                 (not (is-timed-out? session)))
+            (progn
+              (app.debug "Looked up as valid session ~A" session)
+              session)
+            (values))))))
+
+
+;;;;;;;;;
+;;; frame
+
+(def class* frame (activity-monitor-mixin)
+  ((frame-index 0)
+   (action-id->action (make-hash-table :test 'equal))))
+
+(def (function o) find-frame-from-request (session)
+  (bind ((frame-id (parameter-value +frame-id-parameter-name+)))
+    (when frame-id
+      (app.debug "Found frame-id ~S" frame-id)
+      (bind ((frame (gethash frame-id (frame-id->frame-of session))))
+        (if (and frame
+                 (not (is-timed-out? frame)))
+            (progn
+              (app.debug "Looked up as valid frame ~A" frame)
+              frame)
+            (values))))))

@@ -5,8 +5,16 @@
 (in-package :hu.dwim.wui)
 
 (def (generic e) make-new-session (application))
+(def (generic e) register-session (application session))
+(def (generic e) delete-session (application session))
 
 (def (special-variable e) *maximum-number-of-sessions-per-application* most-positive-fixnum
+  "The default for the same slot in applications.")
+
+(def (special-variable e) *session-timeout* (* 30 60)
+  "The default for the same slot in applications.")
+
+(def (special-variable e) *frame-timeout* *session-timeout*
   "The default for the same slot in applications.")
 
 (def (special-variable e) *application*)
@@ -16,8 +24,9 @@
 
 (def class* application (broker-with-path-prefix)
   ((entry-points nil)
-   (session nil)
    (session-class)
+   (session-timeout *session-timeout*)
+   (frame-timeout *frame-timeout*)
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal))
    (lock))
@@ -52,42 +61,42 @@
    self (lambda (request)
           (application-handler self request))))
 
+(def (with-macro eo) with-looked-up-and-locked-session ()
+  (assert (and (boundp '*application*)
+               *application*
+               (boundp '*session*))
+          () "May not use WITH-LOOKED-UP-AND-LOCKED-SESSION outside the dynamic extent of an application")
+  (bind ((session (with-lock-held-on-application *application*
+                    (find-session-from-request *application*)
+                    ;; FIXME locking the session should happen inside the with-lock-held-on-application block
+                    )))
+    (setf *session* session)
+    (if session
+        (with-lock-held-on-session session
+          (bind ((*frame* (find-frame-from-request session)))
+            (-body-)))
+        (bind ((*frame* nil))
+          (-body-)))))
+
 (def (function o) application-handler (application request)
+  ;; TODO take care of session/frame timeout
   (bind ((*application* application)
-         (session nil))
-    (with-lock-held-on-application application
-      (setf session (find-application-session-from-request application)))
-    ;; TODO frame
-    (bind ((*session* session))
-      (flet ((body ()
-               (bind (((:values response post-session-callbacks)
-                       (handle-request application request)))
-                 (values response post-session-callbacks))))
-        (bind ((response (if session
-                             (bind ((response nil)
-                                    (post-session-callback nil))
-                               (with-lock-held-on-session session
-                                 (setf (values response post-session-callback) (body)))
-                               (awhen post-session-callback
-                                 (funcall it))
-                               response)
-                             (bind (((:values response post-session-callback) (body)))
-                               (awhen post-session-callback
-                                 (funcall it))
-                               response))))
-          (when response
-            (bind ((request-uri (uri-of request)))
-              (app.debug "Decorating response with the session cookie for session ~S" (session-of application))
-              (add-cookie (make-cookie
-                           +session-id-parameter-name+
-                           (aif (session-of application)
-                                (id-of it)
-                                "")
-                           :comment "WUI session id"
-                           :domain (concatenate-string "." (host-of request-uri))
-                           :path (path-prefix-of application))
-                          response)))
-          response)))))
+         (*session* nil) ; bind it here, so that with-looked-up-and-locked-session can setf it
+         (response (handle-request application request)))
+    (when (and response
+               *session*)
+      (bind ((request-uri (uri-of request)))
+        (app.debug "Decorating response with the session cookie for session ~S" *session*)
+        (add-cookie (make-cookie
+                     +session-id-parameter-name+
+                     (aif *session*
+                          (id-of it)
+                          "")
+                     :comment "WUI session id"
+                     :domain (concatenate-string "." (host-of request-uri))
+                     :path (path-prefix-of application))
+                    response)))
+    response))
 
 (defmethod handle-request ((application application) request)
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? application request)))
@@ -120,23 +129,32 @@ Custom implementations should look something like this:
 (defmethod session-class list ((application application))
   'session)
 
-(defmethod make-new-session :around (application)
-  (with-thread-name " / MAKE-NEW-SESSION"
-    (call-next-method)))
-
 (defmethod make-new-session ((application application))
+  (make-instance (session-class-of application)
+                 :time-to-live (session-timeout-of application)))
+
+(defmethod register-session ((application application) (session session))
   (assert-application-lock-held application)
+  (assert (null (application-of session)) () "The session ~A is already registered to an application" session)
+  (assert (or (not (boundp '*session*))
+              (null *session*)
+              (eq *session* session)))
   (bind ((session-id->session (session-id->session-of application)))
     (when (> (hash-table-count session-id->session)
              (maximum-number-of-sessions-of application))
       (too-many-sessions application))
     (bind (((:values session-id session)
-            (insert-with-new-random-hash-table-key session-id->session +session-id-length+
-                                                   (make-instance (session-class-of application)))))
+            (insert-with-new-random-hash-table-key session-id->session +session-id-length+ session)))
       (setf (id-of session) session-id)
-      (awhen (session-of application)
-        (notify-session-expiration application it)
-        (remhash (id-of it) session-id->session))
-      (setf (session-of application) session)
-      (app.dribble "New session with id ~S" (id-of session))
+      (setf (application-of session) application)
+      (app.dribble "Registered session with id ~S" (id-of session))
       session)))
+
+(defmethod delete-session ((application application) (session session))
+  (assert-application-lock-held application)
+  (assert (eq (application-of session) application))
+  (app.dribble "Deleting session with id ~S" (id-of session))
+  (bind ((session-id->session (session-id->session-of application)))
+    (remhash (id-of session) session-id->session))
+  (notify-session-expiration application session)
+  (values))

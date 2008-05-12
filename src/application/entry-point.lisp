@@ -64,12 +64,13 @@
   entry-point)
 
 (def (definer e) entry-point ((application &rest args &key
+                                           (lookup-and-lock-session #t)
                                            (path nil path-p)
                                            (path-prefix nil path-prefix-p)
                                            class &allow-other-keys)
                                request-lambda-list &body body)
   (declare (ignore path path-prefix))
-  (remove-from-plistf args :class)
+  (remove-from-plistf args :class :lookup-and-lock-session)
   (assert (not (and path-p path-prefix-p)))
   (unless class
     (when path-p
@@ -82,4 +83,8 @@
                           ,class ,@args
                           :handler (lambda (,request)
                                      (with-request-params ,request ,request-lambda-list
-                                       ,@body))))))
+                                       ,(if lookup-and-lock-session
+                                            `(with-looked-up-and-locked-session *application*
+                                               ,@body)
+                                            `(progn
+                                               ,@body))))))))

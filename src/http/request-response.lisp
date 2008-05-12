@@ -58,9 +58,7 @@
   "Return the uri-unescaped cookie value from REQUEST or OTHERWISE if not found."
   (aif (find-request-cookies request cookie :accepted-domains (ensure-list domain))
        (unescape-as-uri (rfc2109:cookie-value (first it)))
-       (if (functionp otherwise)
-           (funcall otherwise)
-           otherwise)))
+       (handle-otherwise otherwise)))
 
 (defun add-cookie (cookie &optional (response *response*))
   "Add cookie to the current response."
