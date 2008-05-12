@@ -39,7 +39,7 @@
             (make-instance 'request
                            :raw-uri raw-uri
                            :uri uri
-                           :socket stream
+                           :network-stream stream
                            :query-parameters parameters
                            :http-method (us-ascii-octets-to-string http-method)
                            :http-version (us-ascii-octets-to-string version)

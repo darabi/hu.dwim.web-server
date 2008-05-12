@@ -9,7 +9,6 @@
 (defgeneric send-response (response))
 (defgeneric send-headers (response))
 (defgeneric close-request (request))
-(defgeneric network-stream-of (message))
 (defgeneric remote-address-of (message))
 
 (def class* http-message ()
@@ -100,18 +99,15 @@
 ;;; Request
 
 (def (class* e) request (http-message)
-  ((socket)
+  ((network-stream)
    (http-method)
    (http-version)
    (raw-uri)
    (uri)
    (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")))
 
-(defmethod network-stream-of ((request request))
-  (socket-of request))
-
 (defmethod remote-address-of ((request request))
-  (net.sockets:remote-host (socket-of request)))
+  (net.sockets:remote-host (network-stream-of request)))
 
 (defmethod cookies-of :around ((request request))
   (if (slot-boundp request 'cookies)
