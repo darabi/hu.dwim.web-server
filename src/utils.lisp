@@ -35,9 +35,11 @@
 
 (defun open-temporary-file (&rest args &key
                             (element-type '(unsigned-byte 8))
-                            (direction :output))
+                            (direction :output)
+                            (name-prefix "wui-"))
+  (remove-from-plistf args :name-prefix)
   (iter
-    (for file-name = (filename-for-temporary-file))
+    (for file-name = (filename-for-temporary-file name-prefix))
     (for file = (apply #'open
                        file-name
                        :if-exists nil
