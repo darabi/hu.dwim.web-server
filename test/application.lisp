@@ -32,7 +32,7 @@
       <hr>
       <form (:method "post")
         <input (:name "input1"             :value ,(or (parameter-value "input1") "1"))>
-        <input (:name "input2-with-áccent" :value ,(or (parameter-value "input2-with-áccent") "\"Ááőűúéö\""))>
+        <input (:name "input2-with-áccent" :value ,(or (parameter-value "input2-with-áccent") "Ááő\"$&+ ?űúéö"))>
         <input (:type "submit")>>
       <form (:method "post" :enctype "multipart/form-data")
         <input (:name "file-input1" :type "file")>
@@ -56,21 +56,38 @@
       (emit-into-html-stream (network-stream-of *request*)
         (with-html-document-body ()
           <p "session: " ,(princ-to-string session)
-             ,@(unless session
-                 (list <a (:href ,(concatenate-string (path-prefix-of application)
-                                                      "new/"))
-                         "new session">))>
+          <a (:href ,(concatenate-string (path-prefix-of application)
+                                         (if session "delete/" "new/")))
+            ,(if session "drop session" "new session")>>
           <hr>
           (render-request *request*))))))
 
-(def entry-point (*session-application* :path "new/") ()
-  (values (make-redirect-response (path-prefix-of *application*))
-          (lambda ()
-            ;; we need to supply this in a callback that is called after the session
-            ;; has been released to avoid deadlocks by strictly following the
-            ;; app -> session locking order...
-            (with-lock-held-on-application *application*
-              (make-new-session *application*)))))
+(def entry-point (*session-application* :path "new/" :lookup-and-lock-session #f) ()
+  (bind ((new-session (make-new-session *application*))
+         (old-session nil))
+    (prog1
+        (with-looked-up-and-locked-session
+          ;; all this is not necessary here for building a simple redirect response,
+          ;; but it's here for demonstrational purposes.
+          (setf old-session *session*)
+          (setf *session* new-session)
+          (make-redirect-response (path-prefix-of *application*)))
+      ;; we may only lock the app again after our session's lock
+      ;; has been released. this is to avoid deadlocks by strictly following the
+      ;; app -> session locking order...
+      (with-lock-held-on-application *application*
+        (when old-session
+          (delete-session *application* old-session))
+        (register-session *application* new-session)))))
+
+(def entry-point (*session-application* :path "delete/" :lookup-and-lock-session #f) ()
+  (bind ((old-session nil))
+    (with-looked-up-and-locked-session
+      (setf old-session *session*))
+    (when old-session
+      (with-lock-held-on-application *application*
+        (delete-session *application* old-session)))
+    (make-redirect-response (path-prefix-of *application*))))
 
 (ensure-entry-point *session-application*
                     (make-file-serving-broker "/session/wui/" (project-relative-pathname "")))
