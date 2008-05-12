@@ -25,12 +25,16 @@
     (t
      otherwise)))
 
+(def special-variable *temporary-file-random* (princ-to-string (nix:getpid)))
 (def special-variable *temporary-file-unique-number* 0)
 
 (defun filename-for-temporary-file (&optional (prefix "wui-"))
   (concatenate 'string
                *directory-for-temporary-files*
                prefix
+               *temporary-file-random*
+               "-"
+               ;; TODO atomic-incf
                (princ-to-string (incf *temporary-file-unique-number*))))
 
 (defun open-temporary-file (&rest args &key
