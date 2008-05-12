@@ -97,6 +97,7 @@
                :net-telent-date
                :cl-fad
                :bordeaux-threads
+               :osicat
                :iolib
                :local-time
                :babel
