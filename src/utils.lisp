@@ -56,8 +56,9 @@
 (declaim (ftype (function () double-float) get-monotonic-time))
 (def (function eio) get-monotonic-time ()
   "Returns a time in seconds as a double-float that constantly grows (unaffected by setting the system clock)."
+  (declare (inline nix:clock-gettime))
   (bind (((:values seconds nano-seconds) (nix:clock-gettime nix:clock-monotonic)))
-    (+ seconds (coerce (/ 1000000000 nano-seconds) 'double-float))))
+    (+ seconds (/ nano-seconds 1000000000d0))))
 
 (def (function i) us-ascii-octets-to-string (vector)
   (coerce (babel:octets-to-string vector :encoding :us-ascii) 'simple-base-string))
