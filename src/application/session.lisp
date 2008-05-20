@@ -101,6 +101,7 @@
 (def class* frame (string-id-mixin activity-monitor-mixin)
   ((session nil)
    (frame-index 0)
+   (callback-id->callback (make-hash-table :test 'equal))
    (action-id->action (make-hash-table :test 'equal))
    (root-component nil)))
 

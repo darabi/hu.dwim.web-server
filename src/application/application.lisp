@@ -86,24 +86,27 @@
                     )))
     (setf *session* session)
     (if session
-        (with-lock-held-on-session (session)
-          (notify-activity session)
-          (bind ((frame (find-frame-from-request session)))
-            (if frame
-                (progn
-                  (notify-activity frame)
-                  (incf (frame-index-of frame))
-                  (bind ((expected-frame-index (1- (frame-index-of frame)))
-                         (incoming-frame-index (parse-integer (parameter-value +frame-index-parameter-name+) :junk-allowed #t)))
-                    (when (and incoming-frame-index
-                               (not (= incoming-frame-index expected-frame-index)))
-                      (frame-out-of-sync-error frame))))
-                (progn
-                  (setf frame (make-new-frame application session))
-                  (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
-                                                                             frame +frame-id-length+))))
-            (setf *frame* frame)
-            (-body-)))
+        (block looking-up-frame
+          (with-lock-held-on-session (session)
+            (notify-activity session)
+            (bind ((frame (find-frame-from-request session)))
+              (if frame
+                  (progn
+                    (notify-activity frame)
+                    ;; TODO only incf if an action was identified
+                    (incf (frame-index-of frame))
+                    (bind ((expected-frame-index (1- (frame-index-of frame)))
+                           (incoming-frame-index (parse-integer (parameter-value +frame-index-parameter-name+) :junk-allowed #t)))
+                      (if incoming-frame-index
+                          (when (not (= incoming-frame-index expected-frame-index))
+                            (frame-out-of-sync-error frame))
+                          (return-from looking-up-frame (make-redirect-response-with-frame-id-decorated frame)))))
+                  (progn
+                    (setf frame (make-new-frame application session))
+                    (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
+                                                                               frame +frame-id-length+))))
+              (setf *frame* frame)
+              (-body-))))
         (bind ((*frame* nil))
           (-body-)))))
 
@@ -186,7 +189,7 @@ Custom implementations should look something like this:
               (null *frame*)
               (eq *frame* frame)))
   (bind ((frame-id->frame (frame-id->frame-of session)))
-    ;; TODO purge sessions
+    ;; TODO purge frames
     (bind ((frame-id (insert-with-new-random-hash-table-key frame-id->frame frame +frame-id-length+)))
       (setf (id-of frame) frame-id)
       (setf (session-of frame) session)
@@ -261,20 +264,30 @@ Custom implementations should look something like this:
   (make-instance 'root-component-rendering-response :frame frame))
 
 (def method send-response ((self root-component-rendering-response))
-  (call-next-method)
   (bind ((*frame* (frame-of self))
          (*session* (session-of *frame*))
-         (*application* (application-of *session*)))
-    (emit-into-html-stream (network-stream-of *request*)
-      (render (root-component-of *frame*))))
+         (*application* (application-of *session*))
+         (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
+                                                       :initial-buffer-size 256)
+                 (clrhash (action-id->action-of *frame*))
+                 (clrhash (callback-id->callback-of *frame*))
+                 (emit-into-html-stream buffer-stream
+                   (render (root-component-of *frame*)))))
+         (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
+                                                          :initial-buffer-size 128)
+                    (setf (header-value self +header/content-length+) (princ-to-string (length body)))
+                    (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
+    ;; TODO use multiplexing when writing to the network stream, including the headers
+    (write-sequence headers (network-stream-of *request*))
+    (write-sequence body (network-stream-of *request*)))
   (values))
 
-(def (function e) make-redirect-response-with-frame-id-decorated ()
+(def (function e) make-redirect-response-with-frame-id-decorated (&optional (frame *frame*))
   (bind ((uri (clone-uri (uri-of *request*))))
-    (assert (and *frame* (not (null (id-of *frame*)))))
+    (assert (and frame (not (null (id-of frame)))))
     (decorate-uri uri *application*)
     (decorate-uri uri *session*)
-    (decorate-uri uri *frame*)
+    (decorate-uri uri frame)
     (make-redirect-response uri)))
 
 (def (function e) make-redirect-response-for-current-application ()
