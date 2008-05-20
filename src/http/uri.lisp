@@ -219,165 +219,20 @@
                  (write-next-byte +space+)))
         (parse)))))
 
-(def (function o) parse-uri (uri)
+(def (function io) parse-uri (uri)
   (%parse-uri (coerce uri 'simple-base-string)))
 
 (def (function o) %parse-uri (uri)
   (declare (type simple-base-string uri))
-  (bind ((index 0)
-         (length (length uri))
-         (scheme nil)
-         (has-host? #f))
-    (labels ((next-position (char &rest without)
-               (declare (dynamic-extent without))
-               (bind ((result (position char uri :start index :test #'char=)))
-                 (when (and result
-                            without
-                            (> result
-                               (loop
-                                  :for exception :in without
-                                  :maximize (or (position exception uri :start index :test #'char=)
-                                                most-positive-fixnum))))
-                   (setf result nil)
-                   result)
-                 result))
-             (parse-scheme ()
-               ;; TODO consider using cl-ppcre: (cl-ppcre:scan "\\[(.*)\\]" "asdf[::]ffff")
-               (awhen (next-position #\: #\[)
-                 (setf scheme (subseq uri index it))
-                 (setf index (1+ it)))
-               (parse-host))
-             (parse-host ()
-               (setf has-host? #t)))
-      (parse-scheme)
-      (bind ((result (make-uri :scheme scheme)))
-        (if has-host?
-            (progn
-              (assert (< index length))
-              (%parse-uri-host uri index result))
-            result)))))
-
-(def (function o) %parse-uri-host (host-string start uri)
-  (declare (type simple-base-string host-string))
-  (bind ((index start)
-         (length (length host-string))
-         (host nil)
-         (port nil)
-         (has-path? #f))
-    (labels ((next-position (char &rest without)
-               (declare (dynamic-extent without))
-               (bind ((result (position char host-string :start index :test #'char=)))
-                 (when (and result
-                            without
-                            (> result
-                               (loop
-                                  :for exception :in without
-                                  :maximize (or (position exception host-string :start index :test #'char=)
-                                                most-positive-fixnum))))
-                   (setf result nil)
-                   result)
-                 result))
-             (next-is (char)
-               (and (< index length)
-                    (char= char (elt host-string index))))
-             (all-the-rest ()
-               (when (> length index)
-                 (subseq host-string index)))
-             (parse-host ()
-               (loop
-                  :repeat 2
-                  :while (< index length)
-                  :do (if (next-is #\/)
-                          (incf index)
-                          (return)))
-               ;; ipv6 addresses are wrapped in []
-               (if (next-is #\[)
-                   (bind ((end-position (position #\] host-string :start (1+ index))))
-                     (unless end-position
-                       (uri-parse-error "No ']' at the end of a ipv6 address?"))
-                     (setf host (subseq host-string index (1+ end-position)))
-                     (setf index (1+ end-position))
-                     (acond
-                       ((next-position #\:)
-                        (setf index (1+ it))
-                        (parse-port))
-                       ((next-position #\/)
-                        (setf index it)
-                        (parse-path))
-                       (t (setf host (all-the-rest)))))
-                   (acond
-                     ((next-position #\:)
-                      (setf host (subseq host-string index it))
-                      (setf index (1+ it))
-                      (parse-port))
-                     ((next-position #\/)
-                      (setf host (subseq host-string index it))
-                      (setf index it)
-                      (parse-path))
-                     (t (setf host (all-the-rest))))))
-             (parse-port ()
-               (aif (next-position #\/)
-                    (progn
-                      (setf port (parse-integer host-string :start index :end it))
-                      (setf index it)
-                      (parse-path))
-                    (setf port (parse-integer host-string :start index :end length))))
-             (parse-path ()
-               (setf has-path? #t)))
-      (parse-host)
-      (setf (host-of uri) host)
-      (setf (port-of uri) port)
-      (if has-path?
-          (progn
-            (assert (< index length))
-            (%parse-uri-path host-string index uri))
-          uri))))
-
-;; %parse-uri is chopped into two, because %parse-uri-path comes useful when reading the http request
-(def (function o) %parse-uri-path (path-string start uri)
-  (declare (type simple-base-string path-string))
-  (bind ((index start)
-         (length (length path-string))
-         (path "")
-         (query nil)
-         (fragment nil))
-    (labels ((next-position (char &rest without)
-               (declare (dynamic-extent without))
-               (bind ((result (position char path-string :start index :test #'char=)))
-                 (when (and result
-                            without
-                            (> result
-                               (loop
-                                  :for exception :in without
-                                  :maximize (or (position exception path-string :start index :test #'char=)
-                                                most-positive-fixnum))))
-                   (setf result nil)
-                   result)
-                 result))
-             (all-the-rest ()
-               (when (> length index)
-                 (subseq path-string index)))
-             (parse-path ()
-               (aif (next-position #\?)
-                    (progn
-                      (setf path (subseq path-string index it))
-                      (setf index (1+ it))
-                      (parse-query))
-                    (setf path (all-the-rest))))
-             (parse-query ()
-               (aif (next-position #\#)
-                    (progn
-                      (setf query (subseq path-string index it))
-                      (setf index (1+ it))
-                      (parse-fragment))
-                    (setf query (all-the-rest))))
-             (parse-fragment ()
-               (setf fragment (all-the-rest))))
-      (parse-path)
-      (setf (path-of uri) (when path (unescape-as-uri path)))
-      (setf (query-of uri) query) ; can't unescape as it's unparsed
-      (setf (fragment-of uri) (when fragment (unescape-as-uri fragment)))
-      uri)))
+  ;; can't use :sharedp, because we expect the returned strings to be simple-base-string's
+  (bind ((pieces (nth-value 1 (cl-ppcre:scan-to-strings "^(([^:/?#]+):)?(//([^:/?#]*)(:([0-9]+))?)?([^?#]*)(\\?([^#]*))?(#(.*))?"
+                                                        uri :sharedp #f))))
+    (make-uri :scheme   (aref pieces 1)
+              :host     (aref pieces 3)
+              :port     (aref pieces 5)
+              :path     (aref pieces 6)
+              :query    (aref pieces 8)
+              :fragment (aref pieces 10))))
 
 (def macro record-query-parameter (param params)
   (declare (type cons param))
@@ -428,5 +283,3 @@
            (setf separator-position index)))
         (finally
          (return (nreverse (record-query-parameter (grab-param start separator-position (1+ index)) result))))))))
-
-
