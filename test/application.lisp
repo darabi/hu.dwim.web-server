@@ -1,5 +1,8 @@
 (in-package :wui-test)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; test application for basic app features
+
 (def special-variable *test-application* (make-application :path-prefix "/test/"))
 
 (def entry-point (*test-application* :path "params") ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
@@ -42,50 +45,78 @@
       <p "The parsed request: ">
       (render-request *request*))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; echo application to echo back the request
+
 (def special-variable *echo-application* (make-application :path-prefix "/echo/"))
 
 (def entry-point (*echo-application* :path-prefix "") ()
   +request-echo-response+)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; session application
+
+(def component test-window ()
+  ((id (random-simple-base-string))))
+
+(def method render ((self test-window))
+  (with-html-document-body ()
+    <p "session: " ,(princ-to-string *session*)>
+    <p "frame: " ,(princ-to-string *frame*)>
+    <p "root component: " ,(id-of self)>
+    <a (:href ,(concatenate-string (path-prefix-of *application*)
+                                   (if *session* "delete/" "new/")))
+      ,(if *session* "drop session" "new session")>
+    <hr>
+    (render-request *request*)))
+
 (def special-variable *session-application* (make-application :path-prefix "/session/"))
 
 (def entry-point (*session-application* :path "") ()
-  (bind ((session *session*)
-         (application *application*))
-    (make-functional-response ((+header/content-type+ +html-content-type+))
-      (emit-into-html-stream (network-stream-of *request*)
-        (with-html-document-body ()
-          <p "session: " ,(princ-to-string session)
-          <a (:href ,(concatenate-string (path-prefix-of application)
-                                         (if session "delete/" "new/")))
-            ,(if session "drop session" "new session")>>
-          <hr>
-          (render-request *request*))))))
+  (if *session*
+      (progn
+        (assert (and (boundp '*frame*)
+                     *frame*))
+        (unless (typep (root-component-of *frame*) 'test-window)
+          (setf (root-component-of *frame*) (make-instance 'test-window)))
+        (make-root-component-rendering-response *frame*))
+      (bind ((application *application*)) ; need to capture it in the closure
+        (make-functional-response ((+header/content-type+ +html-content-type+))
+          (emit-into-html-stream (network-stream-of *request*)
+            (with-html-document-body ()
+              <p "There's no session... "
+                <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
+                  "create new session">>))))))
 
 (def entry-point (*session-application* :path "new/" :lookup-and-lock-session #f) ()
   (bind ((new-session (make-new-session *application*))
          (old-session nil))
-    (prog1
-        (with-looked-up-and-locked-session
-          ;; all this is not necessary here for building a simple redirect response,
-          ;; but it's here for demonstrational purposes.
-          (setf old-session *session*)
-          (setf *session* new-session)
-          (make-redirect-response (path-prefix-of *application*)))
-      ;; we may only lock the app again after our session's lock
-      ;; has been released. this is to avoid deadlocks by strictly following the
-      ;; app -> session locking order...
-      (with-lock-held-on-application *application*
-        (when old-session
-          (delete-session *application* old-session))
-        (register-session *application* new-session)))))
+    (with-looked-up-and-locked-session
+      ;; this voodoo is not necessary here for building a simple redirect response,
+      ;; but it's here for demonstrational purposes.
+      (setf old-session *session*)
+      (setf *session* new-session))
+    ;; we may only lock the app again after our session's lock
+    ;; has been released to avoid deadlocks by strictly following the
+    ;; app -> session locking order...
+    (with-lock-held-on-application (*application*)
+      (when old-session
+        (delete-session *application* old-session))
+      (register-session *application* new-session))
+    (with-lock-held-on-session (new-session)
+      (bind ((new-frame (make-new-frame *application* new-session)))
+        (setf *frame* new-frame)
+        (register-frame *application* new-session new-frame)
+        (make-redirect-response-for-current-application)))))
 
 (def entry-point (*session-application* :path "delete/" :lookup-and-lock-session #f) ()
   (bind ((old-session nil))
     (with-looked-up-and-locked-session
       (setf old-session *session*))
     (when old-session
-      (with-lock-held-on-application *application*
+      (with-lock-held-on-application (*application*)
         (delete-session *application* old-session)))
     (make-redirect-response (path-prefix-of *application*))))
 
