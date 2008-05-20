@@ -333,6 +333,7 @@
                                     (seconds-until-expires #.(* 24 60 60))
                                     (signal-errors #t)
                                     &allow-other-keys)
+  (remove-from-plistf args :signal-errors)
   (bind ((network-stream-dirty? #f))
     (handler-bind ((serious-condition (lambda (error)
                                         (unless signal-errors
