@@ -51,6 +51,7 @@
                (or (not (typep condition 'stream-error))
                    (not (eq (stream-error-stream condition) (network-stream-of *request*)))))
       (server.error "Failed to serve file ~S: ~A. Network stream dirty? ~S" (file-name-of self) condition network-stream-dirty?)
+      (maybe-invoke-slime-debugger condition)
       (unless network-stream-dirty?
         (emit-http-response ((+header/status+       +http-not-found+
                               +header/content-type+ +html-content-type+))

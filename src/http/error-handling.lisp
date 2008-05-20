@@ -43,12 +43,27 @@
                     (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER"))))))))
     (funcall thunk)))
 
-(defun invoke-slime-debugger-if-possible (condition)
+(def function maybe-invoke-slime-debugger (condition &key (broker (when (boundp '*brokers*)
+                                                                    (first *brokers*)))
+                                                     (with-continue-restart #t))
+  (when (debug-on-error broker condition)
+    (typecase condition
+      ;; skip a few errors that we probably don't want to catch in the debugger...
+      (frame-out-of-sync-error)
+      (t (invoke-slime-debugger condition :with-continue-restart with-continue-restart)))))
+
+(def function invoke-slime-debugger (condition &key (with-continue-restart #t))
   (if (or swank::*emacs-connection*
           (swank::default-connection))
-      (progn
-        (server.debug "Invoking swank debugger for condition: ~A" condition)
-        (swank:swank-debugger-hook condition nil))
+      (flet ((body ()
+               (server.debug "Invoking swank debugger for condition: ~A" condition)
+               (swank:swank-debugger-hook condition nil)))
+        (if with-continue-restart
+            (restart-case
+                (body)
+              (continue ()
+                :report "Continue processing the error (and probably send an error page)"))
+            (body)))
       (server.debug "No Swank connection, not debugging error: ~A" condition)))
 
 (def function log-error-with-backtrace (error)
@@ -66,15 +81,7 @@
                           (terpri str))))))
 
 (defmethod handle-toplevel-condition :before (broker (error serious-condition))
-  (when (debug-on-error broker error)
-    (typecase error
-      ;; skip a few errors that we probably don't want to catch in the debugger...
-      (frame-out-of-sync-error)
-      (t (restart-case
-             (invoke-slime-debugger-if-possible error)
-           (continue ()
-             :report "Continue processing the error (and probably send an error page)"
-             (return-from handle-toplevel-condition)))))))
+  (maybe-invoke-slime-debugger error :broker broker))
 
 (defmethod handle-toplevel-condition (broker (error serious-condition))
   (log-error-with-backtrace error)
