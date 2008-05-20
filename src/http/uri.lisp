@@ -33,13 +33,33 @@
   (make-instance 'uri :scheme scheme :host host :port port :path path
                  :query query :fragment fragment))
 
+(def (function ie) clone-uri (uri)
+  (bind ((result (make-instance 'uri
+                                :scheme (scheme-of uri) :host (host-of uri) :port (port-of uri) :path (path-of uri)
+                                :query (query-of uri) :fragment (fragment-of uri))))
+    (when (slot-boundp uri 'query-parameters)
+      (setf (query-parameters-of result) (copy-alist (query-parameters-of uri))))
+    result))
+
 (defmethod query-parameters-of :before ((self uri))
   (unless (slot-boundp self 'query-parameters)
     (setf (query-parameters-of self) (awhen (query-of self)
                                        (parse-query-parameters it)))))
 
+(defun uri-query-parameter-value (uri name)
+  (cdr (assoc name (query-parameters-of uri) :test #'string=)))
+
+(defun (setf uri-query-parameter-value) (value uri name)
+  (bind ((entry (assoc name (query-parameters-of uri) :test #'string=)))
+    (if entry
+        (setf (cdr entry) value)
+        (add-query-parameter-to-uri uri name value))))
+
 (defun add-query-parameter-to-uri (uri name value)
-  (setf (query-of uri) (nconc (query-of uri) (list (cons name value)))))
+  (nconcf (query-parameters-of uri) (list (cons name value))))
+
+(defun clear-uri-query-parameters (uri)
+  (setf (query-parameters-of uri) '()))
 
 (defun append-path-to-uri (uri path)
   (setf (path-of uri) (concatenate 'string (path-of uri) path))
@@ -96,6 +116,7 @@
            (write-query-value (value)
              (out (typecase value
                     (number (princ-to-string value))
+                    (null "")
                     (t (string value))))))
     (iter (for (name . value) :in parameters)
           (write-char (if (first-iteration-p) #\? #\&) stream)
