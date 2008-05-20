@@ -346,9 +346,9 @@
     (setf (header-value response +header/location+) target-uri)
     response))
 
-(defmethod send-response ((self redirect-response))
+(def method send-response ((self redirect-response))
   ;; can't use emit-http-response, because +header/content-location+ is not constant
-  (emit-http-response* ((headers-of self)
-                        (cookies-of self))
+  (call-next-method)
+  (emit-into-html-stream (network-stream-of *request*)
     (with-html-document-body (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))

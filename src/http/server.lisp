@@ -38,7 +38,7 @@
         (print-uri-to-string (make-uri :scheme "http"
                                        :host (host-of server)
                                        :port (port-of server))))
-  (with-lock-held-on-server server
+  (with-lock-held-on-server (server)
     (loop
        (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" (host-of server) (port-of server))
          (server.debug "Binding socket to host ~A, port ~A" (host-of server) (port-of server))
@@ -108,7 +108,7 @@
               (when threaded?
                 (iter waiting-for-workers
                       (server.debug "Waiting for the workers of ~A to quit..." server)
-                      (with-lock-held-on-server server
+                      (with-lock-held-on-server (server)
                         (when (zerop (length (workers-of server)))
                           (return-from waiting-for-workers)))
                       (sleep 1))
@@ -119,7 +119,7 @@
   ((thread)))
 
 (defun make-worker (server)
-  (with-lock-held-on-server server
+  (with-lock-held-on-server (server)
     (let ((worker (make-instance 'worker)))
       (setf (thread-of worker)
             (make-thread (lambda ()
@@ -130,16 +130,16 @@
       worker)))
 
 (defun register-worker (worker server)
-  (with-lock-held-on-server server
+  (with-lock-held-on-server (server)
     (vector-push-extend worker (workers-of server))))
 
 (defun unregister-worker (worker server)
-  (with-lock-held-on-server server
+  (with-lock-held-on-server (server)
     (deletef (workers-of server) worker)))
 
 (defun worker-loop (server &optional (threaded? #f) worker)
   (assert (or (not threaded?) worker))
-  (with-lock-held-on-server server
+  (with-lock-held-on-server (server)
     ;; wait until the startup procedure finished
     )
   (unwind-protect
@@ -158,7 +158,7 @@
                              (unwind-protect
                                   (progn
                                     (server.dribble "Worker ~A is processing a request" worker)
-                                    (with-lock-held-on-server server
+                                    (with-lock-held-on-server (server)
                                       (incf (occupied-worker-count-of server))
                                       (when (and threaded?
                                                  (= (occupied-worker-count-of server)
@@ -176,7 +176,7 @@
                                            (funcall (handler-of server))
                                            (return)))
                                       (close-request *request*)))
-                               (with-lock-held-on-server server
+                               (with-lock-held-on-server (server)
                                  (decf (occupied-worker-count-of server)))))
                            (handle-request-error (condition)
                              (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition)

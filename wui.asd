@@ -119,7 +119,10 @@
                   :serial t
                   :components ((:file "session")
                                (:file "application")
-                               (:file "entry-point"))))))
+                               (:file "entry-point")
+                               (:file "component")
+                               (:file "action")
+                               (:file "error-handlers"))))))
   :depends-on (:wui-core
                :trivial-garbage
                ))

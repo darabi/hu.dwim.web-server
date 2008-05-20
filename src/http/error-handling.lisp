@@ -67,11 +67,14 @@
 
 (defmethod handle-toplevel-condition :before (broker (error serious-condition))
   (when (debug-on-error broker error)
-    (restart-case
-         (invoke-slime-debugger-if-possible error)
-      (continue ()
-        :report "Continue processing the error (and probably send an error page)"
-        (return-from handle-toplevel-condition)))))
+    (typecase error
+      ;; skip a few errors that we probably don't want to catch in the debugger...
+      (frame-out-of-sync-error)
+      (t (restart-case
+             (invoke-slime-debugger-if-possible error)
+           (continue ()
+             :report "Continue processing the error (and probably send an error page)"
+             (return-from handle-toplevel-condition)))))))
 
 (defmethod handle-toplevel-condition (broker (error serious-condition))
   (log-error-with-backtrace error)

@@ -25,6 +25,12 @@
     (t
      otherwise)))
 
+(def (function o) find-ancestor (node parent-function map-function)
+  (iter (for current-node :initially node :then (funcall parent-function current-node))
+        (while current-node)
+        (when (funcall map-function current-node)
+          (return current-node))))
+
 (def special-variable *temporary-file-random* (princ-to-string (nix:getpid)))
 (def special-variable *temporary-file-unique-number* 0)
 
@@ -191,7 +197,7 @@
         (when (not foundp)
           (return key))))
 
-(def (function io) insert-with-new-random-hash-table-key (hash-table key-length value)
+(def (function io) insert-with-new-random-hash-table-key (hash-table value key-length)
   (bind ((key (new-random-hash-table-key hash-table key-length)))
     (setf (gethash key hash-table) value)
     (values key value)))

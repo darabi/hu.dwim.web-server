@@ -4,9 +4,18 @@
 
 (in-package :hu.dwim.wui)
 
+(def constant +session-purge-time-interval+ 1)
+(def constant +session-purge-request-interval+ (if *load-as-production-p* 100 1))
+
 (def (generic e) make-new-session (application))
+(def (generic e) make-new-frame (application session))
 (def (generic e) register-session (application session))
+(def (generic e) register-frame (application session frame))
 (def (generic e) delete-session (application session))
+(def (generic e) purge-sessions (application)
+  (:method :around (application)
+    (with-thread-name " / PURGE-SESSIONS"
+      (call-next-method))))
 
 (def (special-variable e) *maximum-number-of-sessions-per-application* most-positive-fixnum
   "The default for the same slot in applications.")
@@ -24,9 +33,12 @@
 
 (def class* application (broker-with-path-prefix)
   ((entry-points nil)
+   (default-uri-scheme "http")
    (session-class)
    (session-timeout *session-timeout*)
    (frame-timeout *frame-timeout*)
+   (processed-request-count 0)
+   (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal))
    (lock))
@@ -64,48 +76,74 @@
 (def (with-macro eo) with-looked-up-and-locked-session ()
   (assert (and (boundp '*application*)
                *application*
-               (boundp '*session*))
+               (boundp '*session*)
+               (boundp '*frame*))
           () "May not use WITH-LOOKED-UP-AND-LOCKED-SESSION outside the dynamic extent of an application")
-  (bind ((session (with-lock-held-on-application *application*
-                    (find-session-from-request *application*)
+  (bind ((application *application*)
+         (session (with-lock-held-on-application (application)
+                    (find-session-from-request application)
                     ;; FIXME locking the session should happen inside the with-lock-held-on-application block
                     )))
     (setf *session* session)
     (if session
-        (with-lock-held-on-session session
-          (bind ((*frame* (find-frame-from-request session)))
+        (with-lock-held-on-session (session)
+          (notify-activity session)
+          (bind ((frame (find-frame-from-request session)))
+            (if frame
+                (progn
+                  (notify-activity frame)
+                  (incf (frame-index-of frame))
+                  (bind ((expected-frame-index (1- (frame-index-of frame)))
+                         (incoming-frame-index (parse-integer (parameter-value +frame-index-parameter-name+) :junk-allowed #t)))
+                    (when (and incoming-frame-index
+                               (not (= incoming-frame-index expected-frame-index)))
+                      (frame-out-of-sync-error frame))))
+                (progn
+                  (setf frame (make-new-frame application session))
+                  (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
+                                                                             frame +frame-id-length+))))
+            (setf *frame* frame)
             (-body-)))
         (bind ((*frame* nil))
           (-body-)))))
 
 (def (function o) application-handler (application request)
-  ;; TODO take care of session/frame timeout
   (bind ((*application* application)
-         (*session* nil) ; bind it here, so that with-looked-up-and-locked-session can setf it
-         (response (handle-request application request)))
-    (when (and response
-               *session*)
-      (bind ((request-uri (uri-of request)))
-        (app.debug "Decorating response with the session cookie for session ~S" *session*)
-        (add-cookie (make-cookie
-                     +session-id-parameter-name+
-                     (aif *session*
-                          (id-of it)
-                          "")
-                     :comment "WUI session id"
-                     :domain (concatenate-string "." (host-of request-uri))
-                     :path (path-prefix-of application))
-                    response)))
-    response))
+         ;; the request counter is not critical, so just ignore locking...
+         (request-counter (incf (processed-request-count-of application))))
+    (when (and (zerop (mod request-counter +session-purge-request-interval+)) ; get time less often
+               (> (- (get-monotonic-time)
+                     (sessions-last-purged-at-of application))
+                  +session-purge-time-interval+))
+      (purge-sessions application))
+    ;; bind *session* and *frame* here, so that WITH-LOOKED-UP-AND-LOCKED-SESSION and entry-points can setf it
+    (bind ((*session* nil)
+           (*frame* nil)
+           (response (handle-request application request)))
+      (when (and response
+                 *session*)
+        (bind ((request-uri (uri-of request)))
+          (app.debug "Decorating response with the session cookie for session ~S" *session*)
+          (add-cookie (make-cookie
+                       +session-id-parameter-name+
+                       (aif *session*
+                            (id-of it)
+                            "")
+                       :comment "WUI session id"
+                       :domain (concatenate-string "." (host-of request-uri))
+                       :path (path-prefix-of application))
+                      response)))
+      response)))
 
-(defmethod handle-request ((application application) request)
+(def method handle-request ((application application) request)
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? application request)))
     (when matches?
       (app.debug "~A matched with relative-path ~S, querying entry-points for response" application relative-path)
       (query-entry-points-for-response application request relative-path))))
 
 (def (function o) query-entry-points-for-response (application initial-request relative-path)
-  (bind ((results (multiple-value-list
+  (bind ((*brokers* (cons application *brokers*))
+         (results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
                                                    (if (typep broker 'entry-point)
                                                        (funcall broker request application relative-path)
@@ -126,14 +164,36 @@ Custom implementations should look something like this:
   'your-session-mixin)")
   (:method-combination list))
 
-(defmethod session-class list ((application application))
+(def method session-class list ((application application))
   'session)
 
-(defmethod make-new-session ((application application))
+(def method make-new-session ((application application))
   (make-instance (session-class-of application)
                  :time-to-live (session-timeout-of application)))
 
-(defmethod register-session ((application application) (session session))
+(def method make-new-frame ((application application) (session session))
+  (assert session)
+  (app.debug "Creating new frame for session ~A of app ~A" session application)
+  (assert-session-lock-held session)
+  (make-instance 'frame
+                 :time-to-live (frame-timeout-of application)
+                 :frame-index (incf (current-frame-index-of session))))
+
+(def method register-frame ((application application) (session session) (frame frame))
+  (assert-session-lock-held session)
+  (assert (null (session-of frame)) () "The frame ~A is already registered to a session" frame)
+  (assert (or (not (boundp '*frame*))
+              (null *frame*)
+              (eq *frame* frame)))
+  (bind ((frame-id->frame (frame-id->frame-of session)))
+    ;; TODO purge sessions
+    (bind ((frame-id (insert-with-new-random-hash-table-key frame-id->frame frame +frame-id-length+)))
+      (setf (id-of frame) frame-id)
+      (setf (session-of frame) session)
+      (app.dribble "Registered frame with id ~S" (id-of frame))
+      frame)))
+
+(def method register-session ((application application) (session session))
   (assert-application-lock-held application)
   (assert (null (application-of session)) () "The session ~A is already registered to an application" session)
   (assert (or (not (boundp '*session*))
@@ -143,18 +203,85 @@ Custom implementations should look something like this:
     (when (> (hash-table-count session-id->session)
              (maximum-number-of-sessions-of application))
       (too-many-sessions application))
-    (bind (((:values session-id session)
-            (insert-with-new-random-hash-table-key session-id->session +session-id-length+ session)))
+    (bind ((session-id (insert-with-new-random-hash-table-key session-id->session session +session-id-length+)))
       (setf (id-of session) session-id)
       (setf (application-of session) application)
       (app.dribble "Registered session with id ~S" (id-of session))
       session)))
 
-(defmethod delete-session ((application application) (session session))
+(def method delete-session ((application application) (session session))
   (assert-application-lock-held application)
   (assert (eq (application-of session) application))
   (app.dribble "Deleting session with id ~S" (id-of session))
   (bind ((session-id->session (session-id->session-of application)))
     (remhash (id-of session) session-id->session))
-  (notify-session-expiration application session)
   (values))
+
+(def (method o) purge-sessions ((application application))
+  (app.dribble "Purging the sessions of ~S" application)
+  ;; this method should be called while not holding any session or application lock
+  (assert (not (is-lock-held? (lock-of application))) () "You must NOT have a lock on the application when calling PURGE-SESSIONS (or on any of its sessions)!")
+  (setf (sessions-last-purged-at-of application) (get-monotonic-time))
+  (let ((deleted-sessions (list))
+        (live-sessions (list)))
+    (with-lock-held-on-application (application)
+      (iter (for (session-id session) :in-hashtable (session-id->session-of application))
+            (if (is-timed-out? session)
+                (handler-bind ((serious-condition
+                                (lambda (error)
+                                  (app.warn "Could not delete expired session ~A of application ~A, got error ~A" session application error)
+                                  (log-error-with-backtrace error))))
+                  (delete-session application session)
+                  (push session deleted-sessions))
+                (push session live-sessions))))
+    (dolist (session deleted-sessions)
+      (handler-bind ((serious-condition
+                      (lambda (error)
+                        (app.warn "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error)
+                        (log-error-with-backtrace error))))
+        (with-lock-held-on-session (session)
+          (notify-session-expiration application session))))
+    (dolist (session live-sessions)
+      (handler-bind ((serious-condition
+                      (lambda (error)
+                        (app.warn "Error happened while purging frames of ~A of application ~A. Got error ~A" session application error)
+                        (log-error-with-backtrace error))))
+        (with-lock-held-on-session (session)
+          (purge-frames application session))))
+    (values)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; app specific responses
+
+(def class* root-component-rendering-response (response)
+  ((frame)))
+
+(def function make-root-component-rendering-response (frame)
+  (make-instance 'root-component-rendering-response :frame frame))
+
+(def method send-response ((self root-component-rendering-response))
+  (call-next-method)
+  (bind ((*frame* (frame-of self))
+         (*session* (session-of *frame*))
+         (*application* (application-of *session*)))
+    (emit-into-html-stream (network-stream-of *request*)
+      (render (root-component-of *frame*))))
+  (values))
+
+(def (function e) make-redirect-response-with-frame-id-decorated ()
+  (bind ((uri (clone-uri (uri-of *request*))))
+    (assert (and *frame* (not (null (id-of *frame*)))))
+    (decorate-uri uri *application*)
+    (decorate-uri uri *session*)
+    (decorate-uri uri *frame*)
+    (make-redirect-response uri)))
+
+(def (function e) make-redirect-response-for-current-application ()
+  (bind ((uri (clone-uri (uri-of *request*))))
+    (clear-uri-query-parameters uri)
+    (setf (path-of uri) (path-prefix-of *application*))
+    (decorate-uri uri *application*)
+    (decorate-uri uri *session*)
+    (decorate-uri uri *frame*)
+    (make-redirect-response uri)))
