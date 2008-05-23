@@ -6,17 +6,20 @@
 
 (enable-sharp-boolean-syntax)
 
-(def constant +encoding+ :utf-8)
-
 (def (constant :test 'external-format-equal) +external-format+ (ensure-external-format +encoding+))
 
-(def special-variable *quasi-quoted-xml-transformation*
-  `(quasi-quoted-string ;; may (quasi-quoted-string :indent 2)
-    (quasi-quoted-binary :encoding ,+encoding+)
-    ;; disable lambda wrapping of xml fragments, which only works if the runtime order
-    ;; of the code is the same as the expected output order. this also means that ,@
-    ;; is kinda pointless in this setup.
-    (binary-emitting-form :stream-name *html-stream* :properly-ordered #t)))
+(def special-variable *html-stream*)
+(def special-variable *js-stream*)
+
+(def (macro e) with-collapsed-js-scripts (&body body)
+  `(bind ((result nil)
+          (script-body (with-output-to-sequence (*js-stream* :element-type 'character
+                                                             :external-format (external-format-of *response*))
+                         (setf result (multiple-value-list (progn ,@body))))))
+     (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
+     (write-sequence script-body *html-stream*)
+     (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)
+     (values-list result)))
 
 (def special-variable *request-content-length-limit* #.(* 5 1024 1024)
      "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
@@ -27,8 +30,6 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 
 (def (special-variable e) *directory-for-temporary-files* "/tmp/"
   "Used for file uploads, too.")
-
-(def special-variable *html-stream*)
 
 (def (special-variable e) *server*)
 (def (special-variable e) *request*)

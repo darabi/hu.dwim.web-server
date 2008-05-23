@@ -22,6 +22,7 @@
    :hu.dwim.wui.system
    :cl-quasi-quote
    :cl-quasi-quote-xml
+   :cl-quasi-quote-js
    :bordeaux-threads
    :trivial-garbage
    :iterate

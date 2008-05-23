@@ -70,9 +70,9 @@
   ((:module :src
     :components ((:file "packages")
                  (:file "duplicates" :depends-on ("packages"))
-                 (:file "variables" :depends-on ("packages" "duplicates"))
+                 (:file "configuration" :depends-on ("packages" "readers"))
+                 (:file "variables" :depends-on ("packages" "duplicates" "configuration"))
                  (:file "readers" :depends-on ("packages" "duplicates"))
-                 (:file "configuration" :depends-on ("packages" "readers" "variables"))
                  (:file "utils" :depends-on ("packages" "duplicates" "readers" "variables" "configuration"))
                  (:file "loggers" :depends-on ("packages" "configuration" "variables" "utils"))
                  (:module "http"
@@ -105,6 +105,7 @@
                :cl-yalog
                :cl-syntax-sugar
                :cl-quasi-quote-xml
+               :cl-quasi-quote-js
                ))
 
 (defsystem* :wui

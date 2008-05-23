@@ -212,8 +212,7 @@
 
 (def (macro e) emit-into-html-stream (stream &body body)
   `(bind ((*html-stream* ,stream))
-     (emit *quasi-quoted-xml-transformation*
-           (progn
+     (emit (progn
              ,@body))))
 
 (def (macro e) emit-http-response ((&optional headers-as-plist cookie-list) &body body)
