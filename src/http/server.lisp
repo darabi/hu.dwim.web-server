@@ -144,61 +144,62 @@
     )
   (unwind-protect
        (restart-case
-            (iter accepting
-                  (with socket = (socket-of server))
-                  (until (shutdown-initiated-p server))
-                  (for (values readable writable) = (wait-until-fd-ready (fd-of socket) :input 1))
-                  ;;(server.dribble "wait-until-fd-ready returned with readable ~S, writable ~S in thread ~A" readable writable (current-thread))
-                  (until (shutdown-initiated-p server))
-                  (unless readable
-                    (next-iteration))
-                  (for stream-socket = (accept-connection socket))
-                  (when stream-socket
-                    (flet ((serve-one-request ()
-                             (unwind-protect
-                                  (progn
-                                    (server.dribble "Worker ~A is processing a request" worker)
-                                    (with-lock-held-on-server (server)
-                                      (incf (occupied-worker-count-of server))
-                                      (when (and threaded?
-                                                 (= (occupied-worker-count-of server)
-                                                    (length (workers-of server)))
-                                                 (< (length (workers-of server))
-                                                    (maximum-worker-count-of server)))
-                                        (server.info "All ~A worker threads are occupied, starting a new one" (length (workers-of server)))
-                                        (make-worker server))
-                                      (incf (processed-request-count-of server)))
-                                    (bind ((*server* server)
-                                           (*brokers* (list server))
-                                           (*request* (read-request server stream-socket)))
-                                      (loop
-                                         (with-simple-restart (retry-handling "Try again handling this request")
-                                           (funcall (handler-of server))
-                                           (return)))
-                                      (close-request *request*)))
-                               (with-lock-held-on-server (server)
-                                 (decf (occupied-worker-count-of server)))))
-                           (handle-request-error (condition)
-                             (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition)
-                             (bind ((broker (when (boundp '*brokers*)
-                                              (first *brokers*))))
-                               (handle-toplevel-condition broker condition))
-                             (server.error "Should not get here, removing this worker...")
-                             (return-from accepting)))
-                      (unwind-protect
-                           (progn
-                             (call-as-server-request-handler #'serve-one-request
-                                                             stream-socket
-                                                             :error-handler #'handle-request-error)
-                             (server.dribble "Worker ~A finished processing a request" worker))
-                        (close stream-socket)))))
-        (remove-worker ()
-          :report (lambda (stream)
-                    (format stream "Stop and remove worker ~A" worker))
-          (values)))
+           (iter (with socket = (socket-of server))
+                 (until (shutdown-initiated-p server))
+                 (for (values readable writable) = (wait-until-fd-ready (fd-of socket) :input 1))
+                 ;;(server.dribble "wait-until-fd-ready returned with readable ~S, writable ~S in thread ~A" readable writable (current-thread))
+                 (until (shutdown-initiated-p server))
+                 (unless readable
+                   (next-iteration))
+                 (for stream-socket = (accept-connection socket))
+                 (when stream-socket
+                   (worker-loop/serve-one-request threaded? server worker stream-socket)))
+         (remove-worker ()
+           :report (lambda (stream)
+                     (format stream "Stop and remove worker ~A" worker))
+           (values)))
     (when worker
       (unregister-worker worker server))
     (server.dribble "Worker ~A is going away" worker)))
+
+(def function worker-loop/serve-one-request (threaded? server worker stream-socket)
+  (flet ((serve-one-request ()
+           (unwind-protect
+                (progn
+                  (server.dribble "Worker ~A is processing a request" worker)
+                  (with-lock-held-on-server (server)
+                    (incf (occupied-worker-count-of server))
+                    (when (and threaded?
+                               (= (occupied-worker-count-of server)
+                                  (length (workers-of server)))
+                               (< (length (workers-of server))
+                                  (maximum-worker-count-of server)))
+                      (server.info "All ~A worker threads are occupied, starting a new one" (length (workers-of server)))
+                      (make-worker server))
+                    (incf (processed-request-count-of server)))
+                  (bind ((*server* server)
+                         (*brokers* (list server))
+                         (*request* (read-request server stream-socket)))
+                    (loop
+                       (with-simple-restart (retry-handling "Try again handling this request")
+                         (funcall (handler-of server))
+                         (return)))
+                    (close-request *request*)))
+             (with-lock-held-on-server (server)
+               (decf (occupied-worker-count-of server)))))
+         (handle-request-error (condition)
+           (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition)
+           (bind ((broker (when (boundp '*brokers*)
+                            (first *brokers*))))
+             (handle-toplevel-condition broker condition))
+           (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
+    (unwind-protect
+         (progn
+           (call-as-server-request-handler #'serve-one-request
+                                           stream-socket
+                                           :error-handler #'handle-request-error)
+           (server.dribble "Worker ~A finished processing a request" worker))
+      (close stream-socket))))
 
 (defun call-as-server-request-handler (thunk network-stream &key (error-handler 'abort-server-request))
   (restart-case

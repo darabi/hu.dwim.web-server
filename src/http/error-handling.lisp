@@ -6,7 +6,10 @@
 
 (def special-variable *current-condition*)
 
-(def (generic e) handle-toplevel-condition (broker error))
+(def (generic e) handle-toplevel-condition (broker error)
+  (:method :around (broker error)
+    (with-thread-name " / HANDLE-TOPLEVEL-CONDITION"
+      (call-next-method))))
 
 (defun call-with-server-error-handler (thunk network-stream error-handler)
   (handler-bind

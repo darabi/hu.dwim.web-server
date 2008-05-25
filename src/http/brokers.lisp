@@ -4,9 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (constant e :test (constantly t)) +request-echo-response+ (make-instance 'request-echo-response))
-(def (constant e :test (constantly t)) +no-handler-response+   (make-instance 'no-handler-response))
-
 (defgeneric handle-request (thing request))
 
 (def (class* e) broker-based-server (server)
@@ -31,7 +28,7 @@
   (debug-only (assert (and (boundp '*brokers*) (eq (first *brokers*) server))))
   (bind ((result (multiple-value-list
                   (or (query-brokers-for-response request (brokers-of server))
-                      +no-handler-response+)))
+                      (make-no-handler-response))))
          (response (first result)))
     (assert (typep response 'response))
     (send-response response)
@@ -47,7 +44,7 @@
                                                  0))))
     (if (first results)
         (values-list results)
-        +no-handler-response+)))
+        (make-no-handler-response))))
 
 (def (function o) iterate-brokers-for-response (visitor request initial-brokers brokers recursion-depth)
   (declare (type fixnum recursion-depth))

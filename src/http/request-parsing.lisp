@@ -13,24 +13,37 @@
 (def function read-http-request (stream)
   (bind ((line (read-http-request-line stream :length-limit #.(* 4 1024)))
          (pieces (split-ub8-vector +space+ line))
-         ((http-method uri &optional version) pieces))
+         ((http-method uri-octets &optional version) pieces))
     (http.dribble "In READ-HTTP-REQUEST, first line in ISO-8859-1 is ~S" (iso-8859-1-octets-to-string line))
-    ;; uri's must be foo%12%34bar encoded utf-8 strings in us-ascii. processing anything else here would be ad-hoc...
+    ;; uri decoding: octets -> us-ascii -> foo%12%34bar unescape resulting in octets -> utf-8.
+    ;; processing anything else here would be ad-hoc...
     (bind ((headers (aprog1
                         (read-http-request-headers stream)
-                      (http.dribble "Request headers are ~S" it)))
-           (raw-uri (us-ascii-octets-to-string uri)))
-      ;; extend the parameters with the possible stuff in the request body
-      ;; making sure duplicate entries are recorded in a list keeping the original order.
+                      (http.dribble "Request headers are ~S" it))))
       (flet ((header-value (name)
                (awhen (assoc name headers :test #'string=)
                  (cdr it))))
         ;; TODO what about this coerce 'simple-base-string? what about non-unicode host names
-        (bind ((host (or (coerce (header-value "Host") 'simple-base-string)
+        (bind ((raw-uri (us-ascii-octets-to-string uri-octets))
+               (raw-uri-length (length raw-uri))
+               (host (or (header-value "Host")
                          (host-header-fallback-of *server*)))
-               (uri (%parse-uri-path raw-uri 0 (%parse-uri-host host 0 (make-uri :scheme "http"))))
+               (host-length (length host))
+               (scheme "http") ; TODO
+               (scheme-length (length scheme))
+               (uri-string (bind ((position 0)
+                                  (result (make-string (+ scheme-length #.(length "://") host-length raw-uri-length)
+                                                       :element-type 'base-char)))
+                             (replace result scheme)
+                             (replace result #.(coerce "://" 'simple-base-string) :start1 (incf position scheme-length))
+                             (replace result host :start1 (incf position #.(length "://")))
+                             (replace result raw-uri :start1 (incf position host-length))
+                             result))
+               (uri (%parse-uri uri-string))
                (uri-parameters (query-parameters-of uri)))
           (http.dribble "Request query parameters from the uri: ~S" uri-parameters)
+          ;; extend the parameters with the possible stuff in the request body
+          ;; making sure duplicate entries are recorded in a list keeping the original order.
           (bind ((parameters (read-http-request-body stream
                                                      (header-value "Content-Length")
                                                      (header-value "Content-Type")

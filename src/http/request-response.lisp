@@ -205,9 +205,11 @@
   (bind ((*response* response)
          (network-stream (network-stream-of *request*))
          (original-external-format (io.streams:external-format-of network-stream)))
-    (setf (io.streams:external-format-of network-stream) (external-format-of response))
-    (call-next-method)
-    (setf (io.streams:external-format-of network-stream) original-external-format)))
+    (unwind-protect
+         (progn
+           (setf (io.streams:external-format-of network-stream) (external-format-of response))
+           (call-next-method))
+      (setf (io.streams:external-format-of network-stream) original-external-format))))
 
 (defmethod send-response ((response response))
   (assert (not (headers-are-sent-p response)) () "The headers of ~A have already been sent, this is a program error." response)
@@ -282,6 +284,9 @@
 (def class* no-handler-response (response)
   ())
 
+(def (function e) make-no-handler-response ()
+  (make-instance 'no-handler-response))
+
 (defmethod send-response ((self no-handler-response))
   (emit-http-response ((+header/status+       +http-not-found+
                         +header/content-type+ +html-content-type+))
@@ -296,6 +301,9 @@
 (def class* request-echo-response (response)
   ()
   (:documentation "Render back the request details as a simple html page, mostly for debugging purposes."))
+
+(def (function e) make-request-echo-response ()
+  (make-instance 'request-echo-response))
 
 (defmethod send-response ((self request-echo-response))
   (emit-http-response ((+header/content-type+ +html-content-type+))
@@ -351,3 +359,17 @@
   (emit-into-html-stream (network-stream-of *request*)
     (with-html-document-body (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; do nothing response
+
+(def class* do-nothing-response (response)
+  ())
+
+(def (function e) make-do-nothing-response ()
+  (make-instance 'do-nothing-response))
+
+(def method send-response ((self do-nothing-response))
+  ;; nop
+  )
