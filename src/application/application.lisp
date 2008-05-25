@@ -73,12 +73,57 @@
    self (lambda (request)
           (application-handler self request))))
 
-(def (with-macro eo) with-looked-up-and-locked-session ()
+(def (generic e) call-as-handler-in-session (application session thunk)
+  (:method :around ((application application) (session session) thunk)
+    (with-lock-held-on-session (session)
+      (notify-activity session)
+      (call-next-method)))
+  (:method ((application application) (session session) thunk)
+    (bind ((frame (find-frame-from-request session)))
+      (if frame
+          (progn
+            (notify-activity frame)
+            (bind ((action (find-action-from-request frame))
+                   (incoming-frame-index (parameter-value +frame-index-parameter-name+)))
+              (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
+              (when (and (stringp incoming-frame-index)
+                         (zerop (length incoming-frame-index)))
+                (setf incoming-frame-index nil))
+              (cond
+                ((and action
+                      incoming-frame-index)
+                 (if (equal incoming-frame-index (next-frame-index-of frame))
+                     (progn
+                       (step-to-next-frame-index frame)
+                       (funcall action)
+                       ;; TODO what else?
+                       (values))
+                     (frame-out-of-sync-error frame)))
+                (incoming-frame-index
+                 (unless (equal incoming-frame-index (frame-index-of frame))
+                   (frame-out-of-sync-error frame)))
+                (t
+                 (return-from call-as-handler-in-session (make-redirect-response-with-frame-id-decorated frame))))))
+          (progn
+            (setf frame (make-new-frame application session))
+            (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
+                                                                       frame +frame-id-length+))
+            (register-frame application session frame)))
+      (setf *frame* frame)
+      (bind ((response (funcall thunk)))
+        (when response
+          ;; send the response now, while we still have the session lock
+          (app.debug "Calling send-response for ~A while still inside the WITH-LOCK-HELD-ON-SESSION dynamic scope" response)
+          (send-response response)
+          (make-do-nothing-response))))))
+
+(def (with-macro eo) with-session/frame/action-logic (&optional _)
+  (declare (ignore _)) ; to force an extra args param for the with-... macro
   (assert (and (boundp '*application*)
                *application*
                (boundp '*session*)
                (boundp '*frame*))
-          () "May not use WITH-LOOKED-UP-AND-LOCKED-SESSION outside the dynamic extent of an application")
+          () "May not use WITH-SESSION/FRAME/ACTION-LOGIC outside the dynamic extent of an application")
   (bind ((application *application*)
          (session (with-lock-held-on-application (application)
                     (find-session-from-request application)
@@ -86,27 +131,8 @@
                     )))
     (setf *session* session)
     (if session
-        (block looking-up-frame
-          (with-lock-held-on-session (session)
-            (notify-activity session)
-            (bind ((frame (find-frame-from-request session)))
-              (if frame
-                  (progn
-                    (notify-activity frame)
-                    ;; TODO only incf if an action was identified
-                    (incf (frame-index-of frame))
-                    (bind ((expected-frame-index (1- (frame-index-of frame)))
-                           (incoming-frame-index (parse-integer (parameter-value +frame-index-parameter-name+) :junk-allowed #t)))
-                      (if incoming-frame-index
-                          (when (not (= incoming-frame-index expected-frame-index))
-                            (frame-out-of-sync-error frame))
-                          (return-from looking-up-frame (make-redirect-response-with-frame-id-decorated frame)))))
-                  (progn
-                    (setf frame (make-new-frame application session))
-                    (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
-                                                                               frame +frame-id-length+))))
-              (setf *frame* frame)
-              (-body-))))
+        (call-as-handler-in-session application session (lambda ()
+                                                          (-body-)))
         (bind ((*frame* nil))
           (-body-)))))
 
@@ -119,14 +145,14 @@
                      (sessions-last-purged-at-of application))
                   +session-purge-time-interval+))
       (purge-sessions application))
-    ;; bind *session* and *frame* here, so that WITH-LOOKED-UP-AND-LOCKED-SESSION and entry-points can setf it
+    ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can setf it
     (bind ((*session* nil)
            (*frame* nil)
            (response (handle-request application request)))
       (when (and response
                  *session*)
         (bind ((request-uri (uri-of request)))
-          (app.debug "Decorating response with the session cookie for session ~S" *session*)
+          (app.debug "Decorating response ~A with the session cookie for session ~S" response *session*)
           (add-cookie (make-cookie
                        +session-id-parameter-name+
                        (aif *session*
@@ -157,7 +183,7 @@
                                                  0))))
     (if (first results)
         (values-list results)
-        +no-handler-response+)))
+        (make-no-handler-response))))
 
 (def (generic e) session-class (application)
   (:documentation "Returns a list of the session mixin classes.
@@ -179,8 +205,7 @@ Custom implementations should look something like this:
   (app.debug "Creating new frame for session ~A of app ~A" session application)
   (assert-session-lock-held session)
   (make-instance 'frame
-                 :time-to-live (frame-timeout-of application)
-                 :frame-index (incf (current-frame-index-of session))))
+                 :time-to-live (frame-timeout-of application)))
 
 (def method register-frame ((application application) (session session) (frame frame))
   (assert-session-lock-held session)
@@ -285,15 +310,12 @@ Custom implementations should look something like this:
 (def (function e) make-redirect-response-with-frame-id-decorated (&optional (frame *frame*))
   (bind ((uri (clone-uri (uri-of *request*))))
     (assert (and frame (not (null (id-of frame)))))
-    (decorate-uri uri *application*)
-    (decorate-uri uri *session*)
-    (decorate-uri uri frame)
+    (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
     (make-redirect-response uri)))
 
 (def (function e) make-redirect-response-for-current-application ()
   (bind ((uri (clone-uri (uri-of *request*))))
     (clear-uri-query-parameters uri)
-    (setf (path-of uri) (path-prefix-of *application*))
     (decorate-uri uri *application*)
     (decorate-uri uri *session*)
     (decorate-uri uri *frame*)

@@ -119,6 +119,7 @@
     :components ((:module "application"
                   :serial t
                   :components ((:file "session")
+                               (:file "frame")
                                (:file "application")
                                (:file "entry-point")
                                (:file "component")

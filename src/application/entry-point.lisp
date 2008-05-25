@@ -84,7 +84,7 @@
                           :handler (lambda (,request)
                                      (with-request-params ,request ,request-lambda-list
                                        ,(if lookup-and-lock-session
-                                            `(with-looked-up-and-locked-session *application*
+                                            `(with-session/frame/action-logic ()
                                                ,@body)
                                             `(progn
                                                ,@body))))))))

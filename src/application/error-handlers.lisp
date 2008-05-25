@@ -5,13 +5,21 @@
 (in-package :hu.dwim.wui)
 
 (def method handle-toplevel-condition ((application application) (error frame-out-of-sync-error))
-  (bind ((uri (clone-uri (uri-of *request*))))
-    (setf (uri-query-parameter-value uri +frame-index-parameter-name+) nil)
-    (bind ((uri-string (print-uri-to-string uri)))
-      (emit-http-response ((+header/status+       +http-not-acceptable+
-                            +header/content-type+ +html-content-type+))
-        (with-html-document-body (:content-type +html-content-type+)
-          <p "Frame out of sync... Please use the navigation actions provided by the application and avoid using the back button of your browser!">
-          <p "Your view will be refreshed within a few seconds, or you can "
-             <a (:href ,uri-string) "force the refresh now">
-             " using the previous link.">)))))
+  (bind ((refresh-uri (bind ((uri (clone-uri (uri-of *request*))))
+                        (setf (uri-query-parameter-value uri +frame-index-parameter-name+) nil)
+                        (setf (uri-query-parameter-value uri +action-id-parameter-name+) nil)
+                        uri))
+         (new-frame-uri (bind ((uri (clone-uri (uri-of *request*))))
+                          (clear-uri-query-parameters uri)
+                          (decorate-uri uri *application*)
+                          (decorate-uri uri *session*)
+                          uri)))
+    (emit-http-response ((+header/status+       +http-not-acceptable+
+                          +header/content-type+ +html-content-type+))
+      (with-html-document-body (:content-type +html-content-type+)
+        <p "Browser window out of sync with the server...">
+        <p "Please avoid using the back button of your "
+           "browser and/or opening links in new windows by copy-pasting or using the \"Open in new window\" feature "
+           "of your browser. To achieve the same effect, you can use the navigation actions provided by the application.">
+        <p <a (:href ,(print-uri-to-string refresh-uri)) "Bring me back to the application">>
+        <p <a (:href ,(print-uri-to-string new-frame-uri)) "Make this window another independent view of the application">>))))

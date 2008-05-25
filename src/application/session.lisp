@@ -4,15 +4,11 @@
 
 (in-package :hu.dwim.wui)
 
-(def (constant :test 'string=) +session-id-parameter-name+  "_s")
-(def (constant :test 'string=) +frame-id-parameter-name+    "_f")
-(def (constant :test 'string=) +frame-index-parameter-name+ "_x")
+(def (constant :test 'string=) +session-id-parameter-name+ "_s")
 
-(def constant +session-id-length+  32)
-(def constant +frame-id-length+    8)
+(def constant +session-id-length+ 32)
 
 (def (special-variable e) *session*)
-(def (special-variable e) *frame*)
 
 (def class* activity-monitor-mixin ()
   ((last-activity-at (get-monotonic-time))
@@ -35,6 +31,9 @@
   ((id nil :type string)))
 
 (def print-object (string-id-mixin :identity #t :type #f)
+  (print-object-for-string-id-mixin self))
+
+(def function print-object-for-string-id-mixin (self)
   (write-string (string (class-name (class-of self))))
   (write-string " ")
   (aif (id-of self)
@@ -77,7 +76,7 @@
 (def (function o) find-session-from-request (application)
   (bind ((session-id (cookie-value +session-id-parameter-name+)))
     (when session-id
-      (app.debug "Found session-id ~S" session-id)
+      (app.debug "Found session-id parameter ~S" session-id)
       (bind ((session (gethash session-id (session-id->session-of application))))
         (if (and session
                  (not (is-timed-out? session)))
@@ -85,51 +84,3 @@
               (app.debug "Looked up as valid session ~A" session)
               session)
             (values))))))
-
-
-;;;;;;;;;
-;;; frame
-
-(def generic purge-frames (application session))
-
-(def (condition* e) frame-out-of-sync-error (request-processing-error)
-  ((frame nil)))
-
-(def (function i) frame-out-of-sync-error (&optional (frame *frame*))
-  (error 'frame-out-of-sync-error :frame frame))
-
-(def class* frame (string-id-mixin activity-monitor-mixin)
-  ((session nil)
-   (frame-index 0)
-   (callback-id->callback (make-hash-table :test 'equal))
-   (action-id->action (make-hash-table :test 'equal))
-   (root-component nil)))
-
-(def print-object (frame :identity #t :type #f)
-  (write-string (string (class-name (class-of self))))
-  (write-string " ")
-  (aif (id-of self)
-       (write-string it)
-       "<no id yet>")
-  (write-string " ")
-  (princ (frame-index-of self)))
-
-(def (function o) find-frame-from-request (session)
-  (bind ((frame-id (parameter-value +frame-id-parameter-name+)))
-    (when frame-id
-      (app.debug "Found frame-id ~S" frame-id)
-      (bind ((frame (gethash frame-id (frame-id->frame-of session))))
-        (if (and frame
-                 (not (is-timed-out? frame)))
-            (progn
-              (app.debug "Looked up as valid frame ~A" frame)
-              frame)
-            (values))))))
-
-(def method purge-frames (application (session session))
-  (assert-session-lock-held session)
-  (bind ((frame-id->frame (frame-id->frame-of session)))
-    (iter (for (frame-id frame) :in-hashtable frame-id->frame)
-          (when (is-timed-out? frame)
-            (remhash frame-id frame-id->frame))))
-  (values))
