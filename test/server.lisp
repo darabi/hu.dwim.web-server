@@ -54,7 +54,7 @@
 (defun start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
     (start-server-with-handler (lambda ()
-                                 (send-response +request-echo-response+))
+                                 (send-response (make-request-echo-response)))
                                :maximum-worker-count maximum-worker-count)))
 
 (defun start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))

@@ -52,20 +52,30 @@
 (def special-variable *echo-application* (make-application :path-prefix "/echo/"))
 
 (def entry-point (*echo-application* :path-prefix "") ()
-  +request-echo-response+)
+  (make-request-echo-response))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; session application
 
 (def component test-window ()
-  ((id (random-simple-base-string))))
+  ((id (random-simple-base-string))
+   (counter 0)))
 
 (def method render ((self test-window))
   (with-html-document-body ()
     <p "session: " ,(princ-to-string *session*)>
     <p "frame: " ,(princ-to-string *frame*)>
     <p "root component: " ,(id-of self)>
+    ;;<span (:onclick `js-inline(alert "fooo")) "click-me!">
+    <p
+      "Counter: " ,(counter-of self)
+      <br>
+      <a (:href ,(action-href () (incf (counter-of self))))
+        "increment">
+      <br>
+      <a (:href ,(action-href () (decf (counter-of self))))
+        "decrement">>
     <a (:href ,(concatenate-string (path-prefix-of *application*)
                                    (if *session* "delete/" "new/")))
       ,(if *session* "drop session" "new session")>
@@ -93,11 +103,12 @@
 (def entry-point (*session-application* :path "new/" :lookup-and-lock-session #f) ()
   (bind ((new-session (make-new-session *application*))
          (old-session nil))
-    (with-looked-up-and-locked-session
+    (with-session/frame/action-logic ()
       ;; this voodoo is not necessary here for building a simple redirect response,
       ;; but it's here for demonstrational purposes.
       (setf old-session *session*)
-      (setf *session* new-session))
+      (setf *session* new-session)
+      (values))
     ;; we may only lock the app again after our session's lock
     ;; has been released to avoid deadlocks by strictly following the
     ;; app -> session locking order...
@@ -113,8 +124,9 @@
 
 (def entry-point (*session-application* :path "delete/" :lookup-and-lock-session #f) ()
   (bind ((old-session nil))
-    (with-looked-up-and-locked-session
-      (setf old-session *session*))
+    (with-session/frame/action-logic ()
+      (setf old-session *session*)
+      (values))
     (when old-session
       (with-lock-held-on-application (*application*)
         (delete-session *application* old-session)))
