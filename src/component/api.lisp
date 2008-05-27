@@ -55,3 +55,62 @@
 (def (generic e) component-value-of (component))
 
 (def (generic e) (setf component-value-of) (new-value component))
+
+;;;;;;
+;;; Viewer
+
+(def (generic e) make-viewer-component (thing &key type &allow-other-keys)
+  (:method (thing &key type &allow-other-keys)
+    (aprog1 (apply #'make-component-for-type (or type (type-of thing)))
+      (setf (component-value-of it) thing))))
+
+;;;;;;
+;;; Editor
+
+(def (generic e) make-editor-component (thing &key type &allow-other-keys)
+  (:method (thing &key type &allow-other-keys)
+    (aprog1 (apply #'make-component-for-type (or type (type-of thing)))
+      (setf (component-value-of it) thing)
+      (begin-editing it))))
+
+;;;;;;
+;;; Filter
+
+;; TODO:
+#+nil
+(def (generic e) make-filter-component (thing)
+  (:method ((class-name (eql t)))
+    ;; KLUDGE: take a filter form as parameter and use that
+    (make-filter-component (find-class 'standard-object)))
+
+  (:method ((class-name symbol))
+    (make-filter-component (find-class class-name)))
+
+  (:method ((class-name (eql 'boolean)))
+    (make-boolean-component :edited #t))
+
+  (:method ((type cons))
+    ;; KLUDGE:
+    (make-filter-component (first (remove 'null (remove 'or type)))))
+
+  (:method ((class built-in-class))
+    (make-instance 'string-component :edited #t))
+
+  (:method ((class (eql (find-class 'string))))
+    (make-instance 'string-component :edited #t))
+
+  (:method ((class (eql (find-class 'integer))))
+    (make-integer-component :edited #t))
+
+  (:method ((class standard-class))
+    (make-filter-instances-component :the-class class)))
+
+;;;;;;
+;;; Maker
+
+;; TODO:
+#+nil
+(def (generic e) make-maker-component (thing)
+  (:method ((class standard-class))
+    (aprog1 (make-new-instance-component :the-class class)
+      (begin-editing it))))

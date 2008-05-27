@@ -111,9 +111,6 @@
                                                              (bind ((instance (make-instance 'test-object :test-slot 1)))
                                                                (make-standard-object-slot-value-place-component instance 'test-slot))
                                                              (make-instance 'session-information-component))))))
-                ;;`ui(frame (:title "Test")
-                 ;;         (horizontal-list (counter)
-                   ;;                        (special-variable-place-component *test-string* (or null string))))))
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-functional-response ((+header/content-type+ +html-content-type+))

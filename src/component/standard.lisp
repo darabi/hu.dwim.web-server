@@ -17,25 +17,8 @@
 ;;; Top
 
 (def component top-component (content-component)
-  ())
-
-;;;;;;
-;;; Frame
-
-(def component frame-component (top-component)
-  ((stylesheets nil)
-   (title nil)))
-
-(def render frame-component ()
-  (with-slots (stylesheets title content) self
-    <html
-     <head
-      <meta (:http-equiv "Content-Type" :content "text/html; charset=utf-8")>
-      <title ,title>
-      ,@(mapcar (lambda (stylesheet)
-                  <link (:rel "stylesheet" :type "text/css" :href ,stylesheet)>)
-                stylesheets)>
-     <body ,(render content)>>))
+  ()
+  (:documentation "The top command will replace the content of a top-component with the component which the action refers to."))
 
 ;;;;;;
 ;;; Empty
@@ -82,3 +65,21 @@
 
 (def component detail-component ()
   ())
+
+;;;;;;
+;;; Frame
+
+(def component frame-component (top-component)
+  ((stylesheets nil)
+   (title nil)))
+
+(def render frame-component ()
+  (with-slots (stylesheets title content) self
+    <html
+     <head
+      <meta (:http-equiv "Content-Type" :content "text/html; charset=utf-8")>
+      <title ,title>
+      ,@(mapcar (lambda (stylesheet)
+                  <link (:rel "stylesheet" :type "text/css" :href ,stylesheet)>)
+                stylesheets)>
+     <body ,(render content)>>))

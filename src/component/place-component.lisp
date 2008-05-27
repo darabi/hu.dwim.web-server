@@ -19,6 +19,7 @@
           command-bar (make-instance 'command-bar-component :commands (list (make-begin-editing-command-component self)
                                                                             (make-save-editing-command-component self)
                                                                             (make-cancel-editing-command-component self)
+                                                                            (make-refresh-command-component self)
                                                                             #+nil
                                                                             (make-revert-command-component self)
                                                                             #+nil

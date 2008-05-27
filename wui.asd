@@ -128,6 +128,7 @@
                   :components ((:file "mop" )
                                (:file "component" :depends-on ("mop"))
                                (:file "standard" :depends-on ("component"))
+                               (:file "reference" :depends-on ("standard"))
                                (:file "list" :depends-on ("component"))
                                (:file "api" :depends-on ("component"))
                                (:file "place" :depends-on ("component" "api"))
