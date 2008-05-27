@@ -22,6 +22,14 @@
   ((id nil))
   (:metaclass funcallable-standard-class))
 
+(def function make-action-with-lambda (action-lambda)
+  (bind ((action (make-instance 'action)))
+    (set-funcallable-instance-function action action-lambda)
+    action))
+
+(def macro make-action (&body body)
+  `(make-action-with-lambda (lambda () ,@body)))
+
 (def print-object (action :identity #t :type #f)
   (print-object-for-string-id-mixin self))
 
@@ -65,11 +73,3 @@
 
 (def function action-to-href (action &key scheme)
   (print-uri-to-string (action-to-uri action :scheme scheme)))
-
-(def function make-action-with-lambda (action-lambda)
-  (bind ((action (make-instance 'action)))
-    (set-funcallable-instance-function action action-lambda)
-    action))
-
-(def macro make-action (&body body)
-  `(make-action-with-lambda (lambda () ,@body)))
