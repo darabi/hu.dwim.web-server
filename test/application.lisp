@@ -109,7 +109,11 @@
                                                              (bind ((test-boolean #t))
                                                                (make-lexical-variable-place-component test-boolean 'boolean))
                                                              (bind ((instance (make-instance 'test-object :test-slot 1)))
-                                                               (make-standard-object-slot-value-place-component instance 'test-slot))
+                                                               (make-instance 'vertical-list-component
+                                                                              :components
+                                                                              (list
+                                                                               (make-standard-object-slot-value-place-component instance 'test-slot)
+                                                                               (make-instance 'standard-object-component :instance instance))))
                                                              (make-instance 'session-information-component))))))
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure

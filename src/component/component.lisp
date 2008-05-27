@@ -18,6 +18,9 @@
   `(def method render ((self ,type))
      ,@forms))
 
+(def class* component ()
+  ((parent-component nil)))
+
 (def (special-variable e) *debug-component-hierarchy* #f)
 
 (def method render :around ((component component))
@@ -29,9 +32,6 @@
          ,@(when *debug-component-hierarchy*
                  (list <div (:class "debug-component-name") ,class-name>))
          ,(call-next-method)>))
-
-(def class* component ()
-  ((parent-component nil)))
 
 (def (type e) components ()
   'sequence)

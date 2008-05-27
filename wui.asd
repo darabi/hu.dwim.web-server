@@ -141,7 +141,9 @@
                                (:file "editable" :depends-on ("command"))
                                (:file "place-component" :depends-on ("editable" "api"))
                                (:file "atomic" :depends-on ("editable"))
-                               (:file "process" :depends-on ("command")))
+                               (:file "process" :depends-on ("command"))
+                               (:file "class" :depends-on ("reference"))
+                               (:file "object" :depends-on ("reference")))
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
