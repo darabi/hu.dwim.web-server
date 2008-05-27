@@ -122,9 +122,17 @@
                                (:file "frame")
                                (:file "application")
                                (:file "entry-point")
-                               (:file "component")
                                (:file "action")
-                               (:file "error-handlers"))))))
+                               (:file "error-handlers")))
+                 (:module "component"
+                  :components ((:file "mop" )
+                               (:file "component" :depends-on ("mop"))
+                               (:file "standard" :depends-on ("component"))
+                               (:file "list" :depends-on ("component"))
+                               (:file "place" :depends-on ("component"))
+                               (:file "command" :depends-on ("place"))
+                               (:file "editable" :depends-on ("command"))
+                               (:file "atomic" :depends-on ("editable")))))))
   :depends-on (:wui-core
                :trivial-garbage
                ))

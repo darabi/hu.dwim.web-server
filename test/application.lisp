@@ -71,10 +71,10 @@
     <p
       "Counter: " ,(counter-of self)
       <br>
-      <a (:href ,(action-href () (incf (counter-of self))))
+      <a (:href ,(action-to-href (make-action (incf (counter-of self)))))
         "increment">
       <br>
-      <a (:href ,(action-href () (decf (counter-of self))))
+      <a (:href ,(action-to-href (make-action (decf (counter-of self)))))
         "decrement">>
     <a (:href ,(concatenate-string (path-prefix-of *application*)
                                    (if *session* "delete/" "new/")))

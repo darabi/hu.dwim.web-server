@@ -52,24 +52,24 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def function %action-uri (action-lambda scheme)
-  (bind ((uri (clone-uri (uri-of *request*)))
-         (action (make-instance 'action)))
-    (set-funcallable-instance-function action action-lambda)
+(def function action-to-uri (action &key scheme)
+  (bind ((uri (clone-uri (uri-of *request*))))
     (register-action *frame* action)
     (decorate-uri uri *application*)
     (decorate-uri uri *session*)
     (decorate-uri uri *frame*)
     (decorate-uri uri action)
-    (awhen *component*
-      (dolist (component (nreverse (collect-component-ancestors it :include-self #t)))
-        (decorate-uri uri component)))
     (when scheme
       (setf (scheme-of uri) scheme))
     uri))
 
-(def macro action-uri ((&key scheme) &body body)
-  `(%action-uri (lambda () ,@body) ,scheme))
+(def function action-to-href (action &key scheme)
+  (print-uri-to-string (action-to-uri action :scheme scheme)))
 
-(def macro action-href ((&key scheme) &body body)
-  `(print-uri-to-string (%action-uri (lambda () ,@body) ,scheme)))
+(def function make-action-with-lambda (action-lambda)
+  (bind ((action (make-instance 'action)))
+    (set-funcallable-instance-function action action-lambda)
+    action))
+
+(def macro make-action (&body body)
+  `(make-action-with-lambda (lambda () ,@body)))
