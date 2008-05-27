@@ -4,6 +4,24 @@
 
 (in-package :hu.dwim.wui)
 
+(def macro delay (&body forms)
+  `(lambda ()
+     ,@forms))
+
+(def function force (value)
+  (if (functionp value)
+      (funcall value)
+      value))
+
+(def (function io) find-slot (class-or-name slot-name)
+  (find slot-name
+        (the list
+          (class-slots (if (symbolp class-or-name)
+                           (find-class class-or-name)
+                           class-or-name)))
+        :key 'slot-definition-name
+        :test 'eq))
+
 (def (generic e) debug-on-error (context error)
   (:method (context error)
     *debug-on-error*))
