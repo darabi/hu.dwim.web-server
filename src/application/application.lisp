@@ -290,6 +290,16 @@ Custom implementations should look something like this:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; app specific responses
 
+(def generic render (component))
+
+(def (function e) render-to-string (component)
+  (octets-to-string
+   (with-output-to-sequence (buffer-stream :external-format :utf-8
+                                           :initial-buffer-size 256)
+     (emit-into-html-stream buffer-stream
+       (render component)))
+   :encoding :utf-8))
+
 (def class* locked-session-response-mixin (response)
   ())
 
@@ -299,7 +309,6 @@ Custom implementations should look something like this:
 (def function make-root-component-rendering-response (frame)
   (make-instance 'root-component-rendering-response :frame frame))
 
-(def generic render (component))
 
 (def method send-response ((self root-component-rendering-response))
   (bind ((*frame* (frame-of self))
