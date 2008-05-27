@@ -106,6 +106,7 @@
                :cl-syntax-sugar
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
+               :cl-delico
                ))
 
 (defsystem* :wui
@@ -128,17 +129,19 @@
                   :components ((:file "mop" )
                                (:file "component" :depends-on ("mop"))
                                (:file "api" :depends-on ("component"))
+                               (:file "place" :depends-on ("component"))
+                               (:file "icon" :depends-on ("component"))
+                               (:file "command" :depends-on ("icon" "place"))
                                (:file "misc" :depends-on ("component"))
                                (:file "list" :depends-on ("component"))
                                (:file "table" :depends-on ("component"))
                                (:file "tree" :depends-on ("component"))
-                               (:file "place" :depends-on ("component" "api"))
-                               (:file "icon" :depends-on ("component"))
-                               (:file "command" :depends-on ("icon" "place"))
+                               (:file "menu" :depends-on ("command"))
                                (:file "reference" :depends-on ("command"))
                                (:file "editable" :depends-on ("command"))
                                (:file "place-component" :depends-on ("editable" "api"))
-                               (:file "atomic" :depends-on ("editable")))
+                               (:file "atomic" :depends-on ("editable"))
+                               (:file "process" :depends-on ("command")))
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage

@@ -26,6 +26,18 @@
   (bind ((*package* (find-package :keyword)))
     (format nil "~S" symbol)))
 
+(def function trim-suffix (suffix sequence)
+  (subseq sequence 0 (- (length sequence) (length suffix))))
+
+(def function every-type-p (type list)
+  (every (lambda (element)
+           (typep element type))
+         list))
+
+(def function optional-list (&rest elements)
+  (iter (for element :in elements)
+        (when element (collect element))))
+
 (def (generic e) debug-on-error (context error)
   (:method (context error)
     *debug-on-error*))
