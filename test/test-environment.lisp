@@ -58,6 +58,7 @@
       (declare (ignore url))
       (when expected-status
         (is (= status expected-status)))
+      #+nil
       (when parse-result-as
         (setf body (ecase parse-result-as
                      (:sexp (read-from-string body))
