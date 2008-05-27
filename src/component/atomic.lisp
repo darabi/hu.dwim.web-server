@@ -7,13 +7,15 @@
 ;;;;;;
 ;;; Atomic
 
-(def component atomic-component (editable-component detail-component key-mixin)
-  ((value)))
+(def component atomic-component (editable-component detail-component)
+  ((key "") ;; TODO: remove
+   (component-value)))
 
 (def method render :after ((component atomic-component))
   (when (edited-p component)
+    #+nil
     (register-parser component client-value
-      (setf (value-of component) (parse-component-value component client-value)))))
+                     (setf (component-value-of component) (parse-component-value component client-value)))))
 
 (def generic parse-component-value (component client-value))
 
@@ -55,8 +57,8 @@
   ())
 
 (def render t-component ()
-  (with-slots (edited value key) self
-    (bind ((printed-value (format nil "~S" value)))
+  (with-slots (edited component-value key) self
+    (bind ((printed-value (format nil "~S" component-value)))
       (if edited
           <input (:type "text" :name ,key :value ,printed-value)>
           <span ,printed-value>))))
@@ -90,9 +92,9 @@
   ())
 
 (def render boolean-component ()
-  (with-slots (edited value key) self
+  (with-slots (edited component-value key) self
     <input (:type "checkbox" :name ,key
-            ,(if value (make-xml-attribute "checked" "checked") +void+)
+            ,(if component-value (make-xml-attribute "checked" "checked") +void+)
             ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>))
 
 (def method parse-component-value ((component boolean-component) client-value)
@@ -133,10 +135,10 @@
   ())
 
 (def render string-component ()
-  (with-slots (edited value key) self
+  (with-slots (edited component-value key) self
     (if edited
-        <input (:type "text" :name ,key :value ,value)>
-        <span ,value>)))
+        <input (:type "text" :name ,key :value ,component-value)>
+        <span ,component-value>)))
 
 (def method parse-component-value ((component string-component) client-value)
   client-value)
@@ -170,10 +172,10 @@
   ())
 
 (def render integer-component ()
-  (with-slots (edited value key) self
+  (with-slots (edited component-value key) self
     (if edited
-        <input (:type "text" :name ,key :value ,(princ-to-string value))>
-        <span ,(princ-to-string value)>)))
+        <input (:type "text" :name ,key :value ,(princ-to-string component-value))>
+        <span ,(princ-to-string component-value)>)))
 
 (def method parse-component-value ((component integer-component) client-value)
   (if (string= client-value "")

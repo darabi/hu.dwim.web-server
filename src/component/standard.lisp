@@ -23,8 +23,8 @@
 ;;; Frame
 
 (def component frame-component (top-component)
-  ((stylesheets)
-   (title)))
+  ((stylesheets nil)
+   (title nil)))
 
 (def render frame-component ()
   (with-slots (stylesheets title content) self
@@ -35,11 +35,7 @@
       ,@(mapcar (lambda (stylesheet)
                   <link (:rel "stylesheet" :type "text/css" :href ,stylesheet)>)
                 stylesheets)>
-     <body
-      ;; KLUDGE: kill this hack and make state synchronization transparent
-      <form (:action "/" :method "post")
-            ,(render content)
-            <input (:type submit :value "Synchronize")>>>>))
+     <body ,(render content)>>))
 
 ;;;;;;
 ;;; Empty

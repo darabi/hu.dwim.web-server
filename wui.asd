@@ -129,10 +129,13 @@
                                (:file "component" :depends-on ("mop"))
                                (:file "standard" :depends-on ("component"))
                                (:file "list" :depends-on ("component"))
-                               (:file "place" :depends-on ("component"))
+                               (:file "api" :depends-on ("component"))
+                               (:file "place" :depends-on ("component" "api"))
                                (:file "command" :depends-on ("place"))
                                (:file "editable" :depends-on ("command"))
-                               (:file "atomic" :depends-on ("editable")))))))
+                               (:file "place-component" :depends-on ("editable" "api"))
+                               (:file "atomic" :depends-on ("editable")))
+                  :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
                ))

@@ -58,29 +58,38 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; session application
 
-(def component test-window ()
-  ((id (random-simple-base-string))
-   (counter 0)))
+(def special-variable *test-string* "Edit this text")
 
-(def method render ((self test-window))
-  (with-html-document-body ()
+(def class* test-object ()
+  ((test-slot :type (or null integer))))
+
+(def component session-information-component (content-component)
+  ((id (random-simple-base-string))))
+
+(def render session-information-component ()
+  <div
     <p "session: " ,(princ-to-string *session*)>
     <p "frame: " ,(princ-to-string *frame*)>
     <p "root component: " ,(id-of self)>
     ;;<span (:onclick `js-inline(alert "fooo")) "click-me!">
-    <p
-      "Counter: " ,(counter-of self)
-      <br>
-      <a (:href ,(action-to-href (make-action (incf (counter-of self)))))
-        "increment">
-      <br>
-      <a (:href ,(action-to-href (make-action (decf (counter-of self)))))
-        "decrement">>
-    <a (:href ,(concatenate-string (path-prefix-of *application*)
-                                   (if *session* "delete/" "new/")))
-      ,(if *session* "drop session" "new session")>
+    <a (:href ,(concatenate-string (path-prefix-of *application*) (if *session* "delete/" "new/")))
+    ,(if *session* "drop session" "new session")>
     <hr>
-    (render-request *request*)))
+    ,(render-request *request*)>)
+
+(def component counter-component ()
+  ((value 0)))
+
+(def render counter-component ()
+  (with-slots (value) self
+    <p
+      "Counter: " ,value
+      <br>
+      <a (:href ,(action-to-href (make-action (incf value))))
+      "increment">
+      <br>
+      <a (:href ,(action-to-href (make-action (decf value))))
+      "decrement">>))
 
 (def special-variable *session-application* (make-application :path-prefix "/session/"))
 
@@ -89,8 +98,22 @@
       (progn
         (assert (and (boundp '*frame*)
                      *frame*))
-        (unless (typep (root-component-of *frame*) 'test-window)
-          (setf (root-component-of *frame*) (make-instance 'test-window)))
+        (unless (root-component-of *frame*)
+          (setf (root-component-of *frame*)
+                (make-instance 'frame-component
+                               :title "Test"
+                               :content (make-instance 'vertical-list-component
+                                                       :components
+                                                       (list (make-instance 'counter-component)
+                                                             (make-special-variable-place-component '*test-string* '(or null string))
+                                                             (bind ((test-boolean #t))
+                                                               (make-lexical-variable-place-component test-boolean 'boolean))
+                                                             (bind ((instance (make-instance 'test-object :test-slot 1)))
+                                                               (make-standard-object-slot-value-place-component instance 'test-slot))
+                                                             (make-instance 'session-information-component))))))
+                ;;`ui(frame (:title "Test")
+                 ;;         (horizontal-list (counter)
+                   ;;                        (special-variable-place-component *test-string* (or null string))))))
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-functional-response ((+header/content-type+ +html-content-type+))

@@ -44,7 +44,7 @@
     (map-child-components component
                           (lambda (child)
                             (when (typep child 'editable-component)
-                              (funcall child function))))))
+                              (funcall function child))))))
 
 (def function map-editable-descendant-components (component function)
   (map-editable-child-components component (lambda (child)

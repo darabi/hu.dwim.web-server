@@ -29,13 +29,13 @@
   ((visible #t)
    (enabled #t)
    (icon :type component)
-   (action :type component)))
+   (action)))
 
 (def render command-component ()
   (with-slots (visible enabled icon action) self
     (if (force visible)
         (if (force enabled)
-            <a (:href ,(render action)) ,(render icon)>
+            <a (:href ,(action-to-href action)) ,(render icon)>
             (render icon))
         +void+)))
 
