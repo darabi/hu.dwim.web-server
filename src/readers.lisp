@@ -27,10 +27,10 @@
               ,(when (and (> (length key) 0)
                           (upper-case-p (elt key 0)))
                      `(setf str (capitalize-first-letter str)))
-              (if foundp
-                  (<:as-html str)
-                  (<:span :class +missing-resource-css-class+
-                          (<:as-html str))))
+              <span (:class ,(if foundp
+                                 ""
+                                 +missing-resource-css-class+))
+                ,str>)
            `(bind (((:values str foundp) (lookup-resource ,key nil)))
               (declare (ignorable foundp))
               ,(when (and (> (length key) 0)
