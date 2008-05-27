@@ -74,14 +74,14 @@
           (application-handler self request))))
 
 (def (generic e) call-as-handler-in-session (application session thunk)
-  (:method :around ((application application) (session session) thunk)
-    (with-lock-held-on-session (session)
-      (notify-activity session)
-      (call-next-method)))
+  (:method :before ((application application) (session session) thunk)
+    (assert-session-lock-held session)
+    (notify-activity session))
   (:method ((application application) (session session) thunk)
     (bind ((frame (find-frame-from-request session)))
       (if frame
           (progn
+            (setf *frame* frame)
             (notify-activity frame)
             (bind ((action (find-action-from-request frame))
                    (incoming-frame-index (parameter-value +frame-index-parameter-name+)))
@@ -96,8 +96,8 @@
                      (progn
                        (step-to-next-frame-index frame)
                        (funcall action)
-                       ;; TODO what else?
-                       (values))
+                       ;; TODO what else? what about the return value of the action?
+                       )
                      (frame-out-of-sync-error frame)))
                 (incoming-frame-index
                  (unless (equal incoming-frame-index (frame-index-of frame))
@@ -108,14 +108,17 @@
             (setf frame (make-new-frame application session))
             (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
                                                                        frame +frame-id-length+))
-            (register-frame application session frame)))
-      (setf *frame* frame)
+            (register-frame application session frame)
+            (setf *frame* frame)))
       (bind ((response (funcall thunk)))
-        (when response
-          ;; send the response now, while we still have the session lock
-          (app.debug "Calling send-response for ~A while still inside the WITH-LOCK-HELD-ON-SESSION dynamic scope" response)
-          (send-response response)
-          (make-do-nothing-response))))))
+        (if (and response
+                 (typep response 'locked-session-response-mixin))
+            (progn
+              (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's dynamic scope" response)
+              (decorate-application-response application response)
+              (send-response response)
+              (make-do-nothing-response))
+            response)))))
 
 (def (with-macro eo) with-session/frame/action-logic (&optional _)
   (declare (ignore _)) ; to force an extra args param for the with-... macro
@@ -131,10 +134,27 @@
                     )))
     (setf *session* session)
     (if session
-        (call-as-handler-in-session application session (lambda ()
-                                                          (-body-)))
+        (with-lock-held-on-session (session)
+          (call-as-handler-in-session application session (lambda ()
+                                                            (-body-))))
         (bind ((*frame* nil))
           (-body-)))))
+
+(def function decorate-application-response (application response)
+  (when (and response
+             *session*)
+    (bind ((request-uri (uri-of *request*)))
+      (app.debug "Decorating response ~A with the session cookie for session ~S" response *session*)
+      (add-cookie (make-cookie
+                   +session-id-parameter-name+
+                   (aif *session*
+                        (id-of it)
+                        "")
+                   :comment "WUI session id"
+                   :domain (concatenate-string "." (host-of request-uri))
+                   :path (path-prefix-of application))
+                  response)))
+  response)
 
 (def (function o) application-handler (application request)
   (bind ((*application* application)
@@ -149,19 +169,7 @@
     (bind ((*session* nil)
            (*frame* nil)
            (response (handle-request application request)))
-      (when (and response
-                 *session*)
-        (bind ((request-uri (uri-of request)))
-          (app.debug "Decorating response ~A with the session cookie for session ~S" response *session*)
-          (add-cookie (make-cookie
-                       +session-id-parameter-name+
-                       (aif *session*
-                            (id-of it)
-                            "")
-                       :comment "WUI session id"
-                       :domain (concatenate-string "." (host-of request-uri))
-                       :path (path-prefix-of application))
-                      response)))
+      (decorate-application-response application response)
       response)))
 
 (def method handle-request ((application application) request)
@@ -282,7 +290,10 @@ Custom implementations should look something like this:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; app specific responses
 
-(def class* root-component-rendering-response (response)
+(def class* locked-session-response-mixin (response)
+  ())
+
+(def class* root-component-rendering-response (locked-session-response-mixin)
   ((frame)))
 
 (def function make-root-component-rendering-response (frame)
