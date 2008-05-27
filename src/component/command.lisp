@@ -5,24 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Icon
-
-(def component icon-component ()
-  ((name)
-   (label nil)
-   (image-url nil)
-   (tooltip nil)))
-
-(def render icon-component ()
-  (with-slots (name label image-url tooltip) self
-    <span (:title ,(or tooltip ""))
-      ,@(when image-url (list <img (:src ,image-url)>))
-      ,@(when label (list label))>))
-
-(def (macro e) make-icon-component (name &rest args)
-  `(make-instance 'icon-component :name ,name ,@args))
-
-;;;;;;
 ;;; Command
 
 (def component command-component ()

@@ -299,6 +299,8 @@ Custom implementations should look something like this:
 (def function make-root-component-rendering-response (frame)
   (make-instance 'root-component-rendering-response :frame frame))
 
+(def generic render (component))
+
 (def method send-response ((self root-component-rendering-response))
   (bind ((*frame* (frame-of self))
          (*session* (session-of *frame*))
