@@ -28,16 +28,25 @@
              (css-name (subseq class-name 0 (- (length class-name) (length "-component")))))
         ;; TODO: this does not work for <tr> elements under tables (goes out of order into the output)
         <div (:class ,(concatenate 'string css-name (when (debug-component-hierarchy-p *frame*) " debug-component")))
-          ,@(when (debug-component-hierarchy-p *frame*)
-                  (list <div (:class "debug-component-name") ,class-name>))
+          ,(if (debug-component-hierarchy-p *frame*)
+               <div (:class "debug-component-name")
+                 ,class-name ,(if (typep component '(or icon-component command-component))
+                                  +void+
+                                  <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action component)))) "To REPL">)>
+               +void+)
           ,(call-next-method)>)
     (skip-rendering-component ()
       :report (lambda (stream)
                 (format stream "Skip rendering ~a and put an error marker in place" component))
       <div (:class "rendering-error") "Error during rendering " ,(princ-to-string component)>)))
 
-(restart-case 1
-  (r () :report (lambda (stream) (format stream "a")) (values nil t)))
+(def function make-copy-to-repl-action (component)
+  (make-action
+    (awhen (or swank::*emacs-connection*
+               (swank::default-connection))
+      (swank::with-connection (it)
+        (swank::present-in-emacs component)
+        (swank::present-in-emacs #.(string #\Newline))))))
 
 (def (type e) components ()
   'sequence)
