@@ -12,7 +12,7 @@
 
 (def class* super-test ()
   ((string-slot :type string)
-   (sister-slot :type sister-test)))
+   (sister-slot :type (or null sister-test))))
 
 (def class* sub-test (super-test)
   ((integer-slot :type integer)))
@@ -112,7 +112,7 @@
 (def function make-test-menu ()
   `ui(menu
       (menu-item (string "Debug")
-                 (menu-item (command (icon "Start Over") (action #+nil (reset-frame))))
+                 (menu-item (command (icon "Start Over") (action #+nil (value)))) ;; TODO
                  (menu-item (command (icon "Hierarchy") (action (setf (hu.dwim.wui::debug-component-hierarchy-p *frame*) (not (hu.dwim.wui::debug-component-hierarchy-p *frame*)))))))
       (menu-item (string "Simple")
                  (menu-item (replace-menu-target-command (icon "Hello World") (string "Hello World")))
@@ -131,12 +131,11 @@
                                                          ,(bind ((test-boolean #t)) (make-lexical-variable-place-component test-boolean 'boolean)))))
       (menu-item (string "Complex")
                  (menu-item (replace-menu-target-command (icon "Inspect") ,(make-viewer-component *server*)))
-                 #+nil (menu-item (replace-menu-target-command (icon "Filter") ,(make-filter-component (find-class 'super-test))))
+                 (menu-item (replace-menu-target-command (icon "Filter") ,(make-filter-component (find-class 'super-test))))
                  (menu-item (replace-menu-target-command (icon "List") ,(make-viewer-component *test-instances*)))
                  (menu-item (replace-menu-target-command (icon "Edit") ,(make-editor-component (first *test-instances*))))
-                 #+nil (menu-item (replace-menu-target-command (icon "New") ,(make-maker-component (find-class 'sub-test))))
+                 (menu-item (replace-menu-target-command (icon "New") ,(make-maker-component (find-class 'sub-test))))
                  ,(make-process-menu-item))
-      #+nil
       (menu-item (string "Demo")
                  (menu-item (string "Telephely")
                             (menu-item (replace-menu-target-command (icon "Felvétel") ,(make-maker-component (find-class 'telephely))))

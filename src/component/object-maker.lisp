@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Maker
 
-(def component standard-object-maker-component (content-component editing-component)
+(def component standard-object-maker-component (content-component editable-component)
   ((the-class)
    (command-bar :type component)))
 

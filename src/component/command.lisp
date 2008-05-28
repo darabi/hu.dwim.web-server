@@ -144,14 +144,14 @@
                      (setf (component-at-place original-place) replacement-component)))
          replace-command-args))
 
-(def function find-top-component (component)
+(def function find-top-component-content (component)
   (awhen (find-ancestor-component-with-type component 'top-component)
     (content-of it)))
 
 (def (function e) make-top-command-component (replacement-component)
   "The TOP command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT"
-  (bind ((original-component (delay (find-top-component replacement-component))))
+  (bind ((original-component (delay (find-top-component-content replacement-component))))
     (make-replace-and-push-back-command-component original-component  replacement-component
                                                   (list :icon (make-icon-component 'top :label "Top" :tooltip "Move to top")
-                                                        :visible (delay (not (eq replacement-component (find-top-component replacement-component)))))
+                                                        :visible (delay (not (eq replacement-component (find-top-component-content replacement-component)))))
                                                   (list :icon (make-icon-component 'back :label "Back" :tooltip "Move back from top")))))

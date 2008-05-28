@@ -49,7 +49,7 @@
 (def constructor standard-object-slot-value-filter-component ()
   (with-slots (slot slot-name label value) self
     (setf slot-name (slot-definition-name slot)
-          label (make-instance 'string-component :value (full-symbol-name slot-name))
+          label (make-instance 'string-component :component-value (full-symbol-name slot-name))
           value (make-filter-component (slot-definition-type slot)))))
 
 (def render standard-object-slot-value-filter-component ()

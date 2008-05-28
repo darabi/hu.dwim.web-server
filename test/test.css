@@ -15,6 +15,11 @@ td
     vertical-align: top;
 }
 
+.rendering-error
+{
+    color: red;
+}
+
 .debug-component
 {
     padding: 1px;

@@ -9,7 +9,7 @@
 
 (def component atomic-component (editable-component detail-component)
   ((key "") ;; TODO: remove
-   (component-value)))
+   (component-value nil)))
 
 (def method render :after ((component atomic-component))
   (when (edited-p component)

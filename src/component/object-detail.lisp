@@ -81,30 +81,30 @@
 
 (def component standard-object-slot-value-group-component (abstract-standard-object-component editable-component)
   ((slots nil)
-   (slot-value-details nil :type components)))
+   (slot-values nil :type components)))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-slot-value-group-component))
-  (with-slots (instance the-class slots slot-value-details) component
+  (with-slots (instance the-class slots slot-values) component
     (if instance
-        (setf slot-value-details
+        (setf slot-values
               (iter (for slot :in slots)
-                    (for slot-value-detail = (find slot slot-value-details :key #'component-value-of))
+                    (for slot-value-detail = (find slot slot-values :key #'component-value-of))
                     (if slot-value-detail
                         (setf (component-value-of slot-value-detail) instance
                               (slot-of slot-value-detail) slot)
                         (setf slot-value-detail (make-instance 'standard-object-slot-value-detail-component :the-class the-class :instance instance :slot slot)))
                     (collect slot-value-detail)))
-        (setf slot-value-details nil))))
+        (setf slot-values nil))))
 
 (def render standard-object-slot-value-group-component ()
-  (with-slots (slot-value-details) self
-    (if slot-value-details
+  (with-slots (slot-values) self
+    (if slot-values
         <table
           <thead
             <tr
               <th "Name">
               <th "Value">>>
-          <tbody ,@(mapcar #'render slot-value-details)>>
+          <tbody ,@(mapcar #'render slot-values)>>
         <span "There are none">)))
 
 ;;;;;;

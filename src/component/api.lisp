@@ -45,7 +45,7 @@
     (make-instance 'integer-component))
 
   (:method ((prototype list))
-    (make-instance 'string-component :component-value "TODO"))
+    (make-instance 'list-component))
 
   (:method ((prototype standard-slot-definition))
     (make-instance 'standard-slot-definition-component))
@@ -115,8 +115,7 @@
 ;;; Maker
 
 ;; TODO:
-#+nil
 (def (generic e) make-maker-component (thing)
   (:method ((class standard-class))
-    (aprog1 (make-new-instance-component :the-class class)
+    (aprog1 (make-instance 'standard-object-maker-component :the-class class)
       (begin-editing it))))

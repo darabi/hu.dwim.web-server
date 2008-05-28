@@ -23,13 +23,21 @@
 
 (def component list-component ()
   ((orientation :vertical :type (member :vertical :horizontal))
-   (elements)
-   (components :type components)))
+   (elements nil)
+   (components nil :type components)))
 
 (def constructor list-component ()
   (with-slots (elements components) self
-    (when (slot-boundp self 'elements)
-      (setf components (mapcar #'make-viewer-component elements)))))
+    (when elements
+      (setf (component-value-of self) elements))))
+
+(def method component-value-of ((component list-component))
+  (elements-of component))
+
+(def method (setf component-value-of) (new-value (component list-component))
+  (with-slots (elements components) component
+    (setf elements new-value)
+    (setf components (mapcar #'make-viewer-component new-value))))
 
 (def render list-component ()
   (with-slots (orientation components) self
