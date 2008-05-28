@@ -79,46 +79,51 @@
     (notify-activity session))
   (:method ((application application) (session session) thunk)
     (bind ((frame (find-frame-from-request session)))
-      (if frame
-          (progn
-            (setf *frame* frame)
-            (notify-activity frame)
-            (bind ((action (find-action-from-request frame))
-                   (incoming-frame-index (parameter-value +frame-index-parameter-name+)))
-              (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
-              (when (and (stringp incoming-frame-index)
-                         (zerop (length incoming-frame-index)))
-                (setf incoming-frame-index nil))
-              (cond
-                ((and action
-                      incoming-frame-index)
-                 (if (equal incoming-frame-index (next-frame-index-of frame))
-                     (progn
-                       (step-to-next-frame-index frame)
-                       (funcall action)
-                       ;; TODO what else? what about the return value of the action?
-                       )
-                     (frame-out-of-sync-error frame)))
-                (incoming-frame-index
-                 (unless (equal incoming-frame-index (frame-index-of frame))
-                   (frame-out-of-sync-error frame)))
-                (t
-                 (return-from call-as-handler-in-session (make-redirect-response-with-frame-id-decorated frame))))))
-          (progn
-            (setf frame (make-new-frame application session))
-            (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
-                                                                       frame +frame-id-length+))
-            (register-frame application session frame)
-            (setf *frame* frame)))
-      (bind ((response (funcall thunk)))
-        (if (and response
-                 (typep response 'locked-session-response-mixin))
+      (flet ((send-response-early (response)
+               (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's dynamic scope" response)
+               (decorate-application-response application response)
+               (send-response response)
+               (make-do-nothing-response)))
+        (if frame
             (progn
-              (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's dynamic scope" response)
-              (decorate-application-response application response)
-              (send-response response)
-              (make-do-nothing-response))
-            response)))))
+              (setf *frame* frame)
+              (notify-activity frame)
+              (process-client-state-sinks frame (query-parameters-of *request*))
+              (bind ((action (find-action-from-request frame))
+                     (incoming-frame-index (parameter-value +frame-index-parameter-name+)))
+                (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
+                (when (and (stringp incoming-frame-index)
+                           (zerop (length incoming-frame-index)))
+                  (setf incoming-frame-index nil))
+                (cond
+                  ((and action
+                        incoming-frame-index)
+                   (if (equal incoming-frame-index (next-frame-index-of frame))
+                       (progn
+                         (step-to-next-frame-index frame)
+                         (bind ((response (funcall action)))
+                           (when (typep response 'response)
+                             (return-from call-as-handler-in-session
+                               (if (typep response 'locked-session-response-mixin)
+                                   (send-response-early response)
+                                   response)))))
+                       (frame-out-of-sync-error frame)))
+                  (incoming-frame-index
+                   (unless (equal incoming-frame-index (frame-index-of frame))
+                     (frame-out-of-sync-error frame)))
+                  (t
+                   (return-from call-as-handler-in-session (make-redirect-response-with-frame-id-decorated frame))))))
+            (progn
+              (setf frame (make-new-frame application session))
+              (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
+                                                                         frame +frame-id-length+))
+              (register-frame application session frame)
+              (setf *frame* frame)))
+       (bind ((response (funcall thunk)))
+         (if (and response
+                  (typep response 'locked-session-response-mixin))
+             (send-response-early response)
+             response))))))
 
 (def (with-macro eo) with-session/frame/action-logic (&optional _)
   (declare (ignore _)) ; to force an extra args param for the with-... macro
