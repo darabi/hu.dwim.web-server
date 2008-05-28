@@ -36,11 +36,41 @@
                                 :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil))))))
 
 (def icon refresh "static/wui/icons/20x20/ying-yang-arrows.png")
+(defresources hu
+  (icon-label.refresh "Frissítés")
+  (icon-tooltip.refresh "A tartalom frissítése"))
+(defresources en
+  (icon-label.refresh "Refresh")
+  (icon-tooltip.refresh "Refresh content"))
 
 (def icon edit "static/wui/icons/20x20/pen-on-document.png")
+(defresources hu
+  (icon-label.edit "Szerkesztés")
+  (icon-tooltip.edit "Szerkesztés elkezdése"))
+(defresources en
+  (icon-label.edit "Edit")
+  (icon-tooltip.edit "Start editing"))
 
 (def icon save "static/wui/icons/20x20/disc-on-document.png")
+(defresources hu
+  (icon-label.save "Mentés")
+  (icon-tooltip.save "A változtatások mentése"))
+(defresources en
+  (icon-label.save "Save")
+  (icon-tooltip.save "Save changes"))
 
 (def icon cancel "static/wui/icons/20x20/yellow-x.png")
+(defresources hu
+  (icon-label.cancel "Elvetés")
+  (icon-tooltip.cancel "Változtatások elvetése"))
+(defresources en
+  (icon-label.cancel "Cancel")
+  (icon-tooltip.cancel "Revert changes"))
 
 (def icon delete "static/wui/icons/20x20/red-x.png")
+(defresources hu
+  (icon-label.delete "Törlés")
+  (icon-tooltip.delete "Az objektum törlése"))
+(defresources en
+  (icon-label.delete "Delete")
+  (icon-tooltip.delete "Delete object"))

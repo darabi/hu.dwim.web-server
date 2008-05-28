@@ -97,7 +97,7 @@
   "The BEGIN-EDITING command starts editing underneath the given EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (make-icon-component 'edit :label "Edit" :tooltip "Start editing")
+                 :icon (lookup-icon 'edit)
                  :visible (delay (not (edited-p editable)))
                  :action (make-action (begin-editing editable))))
 
@@ -105,7 +105,7 @@
   "The SAVE-EDITING command actually makes the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (make-icon-component 'save :label "Save" :tooltip "Save all changes")
+                 :icon (lookup-icon 'save)
                  :visible (delay (edited-p editable))
                  :action (make-action (save-editing editable))))
 
@@ -113,7 +113,7 @@
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (make-icon-component 'cancel :label "Cancel" :tooltip "Revert all changes")
+                 :icon (lookup-icon 'cancel)
                  :visible (delay (edited-p editable))
                  :action (make-action (cancel-editing editable))))
 
