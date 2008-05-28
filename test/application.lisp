@@ -54,42 +54,8 @@
 (def entry-point (*echo-application* :path-prefix "") ()
   (make-request-echo-response))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; session application
-
-(def special-variable *test-string* "Edit this text")
-
-(def class* test-object ()
-  ((test-slot :type (or null integer))))
-
-(def component session-information-component (content-component)
-  ((id (random-simple-base-string))))
-
-(def render session-information-component ()
-  <div
-    <p "session: " ,(princ-to-string *session*)>
-    <p "frame: " ,(princ-to-string *frame*)>
-    <p "root component: " ,(id-of self)>
-    ;;<span (:onclick `js-inline(alert "fooo")) "click-me!">
-    <a (:href ,(concatenate-string (path-prefix-of *application*) (if *session* "delete/" "new/")))
-    ,(if *session* "drop session" "new session")>
-    <hr>
-    ,(render-request *request*)>)
-
-(def component counter-component ()
-  ((value 0)))
-
-(def render counter-component ()
-  (with-slots (value) self
-    <p
-      "Counter: " ,value
-      <br>
-      <a (:href ,(action-to-href (make-action (incf value))))
-      "increment">
-      <br>
-      <a (:href ,(action-to-href (make-action (decf value))))
-      "decrement">>))
 
 (def special-variable *session-application* (make-application :path-prefix "/session/"))
 
@@ -99,22 +65,7 @@
         (assert (and (boundp '*frame*)
                      *frame*))
         (unless (root-component-of *frame*)
-          (setf (root-component-of *frame*)
-                (make-instance 'frame-component
-                               :title "Test"
-                               :content (make-instance 'vertical-list-component
-                                                       :components
-                                                       (list (make-instance 'counter-component)
-                                                             (make-special-variable-place-component '*test-string* '(or null string))
-                                                             (bind ((test-boolean #t))
-                                                               (make-lexical-variable-place-component test-boolean 'boolean))
-                                                             (bind ((instance (make-instance 'test-object :test-slot 1)))
-                                                               (make-instance 'vertical-list-component
-                                                                              :components
-                                                                              (list
-                                                                               (make-standard-object-slot-value-place-component instance 'test-slot)
-                                                                               (make-instance 'standard-object-component :instance instance))))
-                                                             (make-instance 'session-information-component))))))
+          (setf (root-component-of *frame*) (make-test-frame)))
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-functional-response ((+header/content-type+ +html-content-type+))
@@ -157,7 +108,7 @@
     (make-redirect-response (path-prefix-of *application*))))
 
 (ensure-entry-point *session-application*
-                    (make-file-serving-broker "/session/wui/" (project-relative-pathname "")))
+                    (make-file-serving-broker "/session/static/" (project-relative-pathname "")))
 
 (def function start-server-with-test-applications (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
@@ -168,4 +119,3 @@
                                      (make-redirect-broker "/test" "/test/")
                                      *test-application*)
                                :maximum-worker-count maximum-worker-count)))
-

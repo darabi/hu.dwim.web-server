@@ -1,0 +1,94 @@
+table
+{
+    border-collapse: collapse;
+}
+
+th
+{
+    background-color: lightgray;
+    border-style: solid;
+    border-width: 1px;
+}
+
+td
+{
+    vertical-align: top;
+}
+
+.debug-component
+{
+    padding: 1px;
+    border-color: lightgray;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.debug-component-name
+{
+    font-size: 10;
+    color: purple;
+}
+
+.class-detail
+{
+    border-style: solid;
+}
+
+.instance-detail
+{
+    border-style: solid;
+}
+
+.list
+{
+    border-style: dotted;
+}
+
+.instance-list-detail
+{
+    border-style: dotted;
+}
+
+.instance-list-table
+{
+    border-style: solid;
+    border-width: 1px;
+}
+
+.instance-list-table > thead > tr > th
+{
+    background-color: lightgray;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.instance-list-table > div > table > tbody > tr > td
+{
+    border-style: solid;
+    border-width: 1px;
+}
+
+.reference-list
+{
+    border-style: dotted;
+}
+
+.find-instance
+{
+    border-style: dashed;
+}
+
+.filter-instances
+{
+    border-style: dashed;
+}
+
+.command-bar
+{
+    border-style: double;
+}
+
+.command-bar td
+{
+    border-style: none;
+}

@@ -37,6 +37,13 @@
 
 (rename-package :hu.dwim.wui :hu.dwim.wui '(:wui))
 
+(defun setup-readtable ()
+  (hu.dwim.wui::setup-readtable)
+  (enable-quasi-quoted-ui-to-ui-emitting-form-syntax))
+
+(register-readtable-for-swank
+ '("HU.DWIM.WUI-TEST") 'setup-readtable)
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; import all the internal symbol of WUI
   (iter (for symbol :in-package #.(find-package :hu.dwim.wui) :external-only nil)

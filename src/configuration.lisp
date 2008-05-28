@@ -82,4 +82,4 @@
    :transformation-pipeline (make-xml-transformation-pipeline)))
 
 (register-readtable-for-swank
- '("HU.DWIM.WUI" "HU.DWIM.WUI-USER" "HU.DWIM.WUI-TEST") 'setup-readtable)
+ '("HU.DWIM.WUI" "HU.DWIM.WUI-USER") 'setup-readtable)

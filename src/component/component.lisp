@@ -18,9 +18,10 @@
   `(def method render ((self ,type))
      ,@forms))
 
-(def class* component ()
+(def component component (ui-syntax-node)
   ((parent-component nil)))
 
+;; TODO: make this part of the session (this way it changes the state for all sessions)
 (def (special-variable e) *debug-component-hierarchy* #f)
 
 (def method render :around ((component component))

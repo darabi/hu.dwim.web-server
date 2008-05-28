@@ -46,7 +46,8 @@
              class
              :direct-superclasses
              (append direct-superclasses
-                     (list (find-class 'component)))
+                     (unless (eq (getf initargs :name) 'component)
+                       (list (find-class 'component))))
              initargs)))
 
 (def method initialize-instance :around ((class component-class) &rest initargs &key direct-superclasses)

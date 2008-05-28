@@ -127,7 +127,8 @@
                                (:file "error-handlers")))
                  (:module "component"
                   :components ((:file "mop" )
-                               (:file "component" :depends-on ("mop"))
+                               (:file "syntax")
+                               (:file "component" :depends-on ("mop" "syntax"))
                                (:file "api" :depends-on ("component"))
                                (:file "place" :depends-on ("component"))
                                (:file "icon" :depends-on ("component"))
@@ -143,7 +144,8 @@
                                (:file "atomic" :depends-on ("editable"))
                                (:file "process" :depends-on ("command"))
                                (:file "class" :depends-on ("reference"))
-                               (:file "object" :depends-on ("reference")))
+                               (:file "object" :depends-on ("reference"))
+                               (:file "parser" :depends-on ("atomic" "reference" "object" "class" "process")))
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
@@ -162,12 +164,14 @@
     (call-next-method)))
 
 (defsystem* :wui-test
+  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
   :components ((:module :test
                 :serial t
                 :components
                 ((:file "package")
                  (:file "test-environment" :depends-on ("package"))
                  (:file "server")
+                 (:file "component")
                  (:file "application"))))
   :depends-on (:wui :stefil :drakma))
 
