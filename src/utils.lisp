@@ -215,24 +215,28 @@
         :do (setf (aref result i) (aref alphabet (random alphabet-length)))
         :finally (return result)))))
 
-(def (function o) random-simple-base-string (&optional (length 32) (alphabet +ascii-alphabet+))
+(def (function io) random-simple-base-string (&optional (length 32) (alphabet +ascii-alphabet+) prefix)
   (declare (type array-index length)
            (type simple-base-string alphabet))
+  (assert (or (null prefix)
+              (< (length prefix) length)))
   (loop
      :with result = (make-string length :element-type 'base-char)
      :with alphabet-length = (length alphabet)
-     :for i :below length
+     :initially (when prefix
+                  (replace result prefix))
+     :for i :from (if prefix (length prefix) 0) :below length
      :do (setf (aref result i) (aref alphabet (random alphabet-length)))
      :finally (return result)))
 
-(def (function o) new-random-hash-table-key (hash-table key-length)
-  (iter (for key = (random-simple-base-string key-length))
+(def (function io) new-random-hash-table-key (hash-table key-length &key prefix)
+  (iter (for key = (random-simple-base-string key-length +ascii-alphabet+ prefix))
         (for (values value foundp) = (gethash key hash-table))
         (when (not foundp)
           (return key))))
 
-(def (function io) insert-with-new-random-hash-table-key (hash-table value key-length)
-  (bind ((key (new-random-hash-table-key hash-table key-length)))
+(def (function io) insert-with-new-random-hash-table-key (hash-table value key-length &key prefix)
+  (bind ((key (new-random-hash-table-key hash-table key-length :prefix prefix)))
     (setf (gethash key hash-table) value)
     (values key value)))
 
