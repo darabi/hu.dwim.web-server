@@ -10,17 +10,17 @@
 (def component standard-object-table-component (table-component editable-component)
   ((instances)
    (slot-names)
-   (columns :type components)
-   (rows :type components)))
+   (columns nil :type components)
+   (rows nil :type components)))
 
 (def constructor standard-object-table-component ()
   (with-slots (instances slot-names columns rows) self
     (setf slot-names (delete-duplicates
                       (iter (for instance :in instances)
                             (appending (mapcar 'slot-definition-name (class-slots (class-of instance))))))
-          columns (cons (make-instance 'string-component :value "Commands")
+          columns (cons (make-instance 'label-component :component-value "Commands")
                         (mapcar (lambda (slot-name)
-                                  (make-instance 'string-component :value (full-symbol-name slot-name)))
+                                  (make-instance 'label-component :component-value (full-symbol-name slot-name)))
                                 slot-names))
           rows (mapcar (lambda (instance)
                          (make-instance 'standard-object-row-component :table-slot-names slot-names :instance instance))
@@ -32,8 +32,8 @@
 (def component standard-object-row-component (row-component editable-component)
   ((instance)
    (table-slot-names)
-   (command-bar :type component)
-   (cells :type components)))
+   (command-bar nil :type component)
+   (cells nil :type components)))
 
 (def constructor standard-object-row-component ()
   (with-slots (instance table-slot-names command-bar cells) self
@@ -47,7 +47,7 @@
                             (for slot = (find-slot class table-slot-name))
                             (collect (if slot
                                          (make-instance 'standard-object-slot-value-cell-component :instance instance :slot slot)
-                                         (make-instance 'cell-component :content (make-instance 'string-component :value "N/A")))))))))
+                                         (make-instance 'cell-component :content (make-instance 'string-component :component-value "N/A")))))))))
 
 (def function make-expand-row-command-component (component instance)
   (make-replace-and-push-back-command-component component (delay (make-instance 'entire-row-component :content (make-viewer-component instance :default-component-type 'detail-component)))

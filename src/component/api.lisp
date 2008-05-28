@@ -83,7 +83,7 @@
 ;;;;;;
 ;;; Filter
 
-;; TODO:
+;; TODO: join with make-component-for-type
 (def (generic e) make-filter-component (thing)
   (:method ((class-name (eql t)))
     ;; KLUDGE: take a filter form as parameter and use that

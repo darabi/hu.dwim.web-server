@@ -74,7 +74,7 @@
                              (bind ((component (value-of slot-value)))
                                (typecase component
                                  (atomic-component
-                                  (value-of component)))))
+                                  (component-value-of component)))))
                            slot-values)))
       (prog1-bind instances nil
         (sb-vm::map-allocated-objects

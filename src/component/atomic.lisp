@@ -8,8 +8,9 @@
 ;;; Atomic
 
 (def component atomic-component (editable-component detail-component)
-  ((client-state-sink nil)
-   (component-value nil)))
+  ((component-value nil)
+   (allow-nil-value #f :type boolean)
+   (client-state-sink nil)))
 
 (def method render :before ((component atomic-component))
   (when (edited-p component)
@@ -143,7 +144,35 @@
         <span ,component-value>)))
 
 (def method parse-component-value ((component string-component) client-value)
-  client-value)
+  (if (and (allow-nil-value-p component)
+           (string= client-value ""))
+      nil
+      client-value))
+
+;;;;;;
+;;; Number
+
+(def component number-component (atomic-component)
+  ())
+
+(def render number-component ()
+  (with-slots (edited component-value allow-nil-value client-state-sink) self
+    (bind ((printed-value
+            (if (and allow-nil-value
+                     (null component-value))
+                ""
+                (progn
+                  (assert (integerp component-value))
+                  (princ-to-string component-value)))))
+      (if edited
+          <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
+          <span ,printed-value>))))
+
+(def method parse-component-value ((component number-component) client-value)
+  (if (and (allow-nil-value-p component)
+           (string= client-value ""))
+      nil
+      (parse-number:parse-number client-value)))
 
 ;;;;;;
 ;;; Integer
@@ -170,19 +199,27 @@
 ;;;   unbound -> <unbound-marker> []
 ;;;   42      -> [42]
 
-(def component integer-component (atomic-component)
+(def component integer-component (number-component)
   ())
 
-(def render integer-component ()
-  (with-slots (edited component-value client-state-sink) self
-    (if edited
-        <input (:type "text" :name ,(id-of client-state-sink) :value ,(princ-to-string component-value))>
-        <span ,(princ-to-string component-value)>)))
-
 (def method parse-component-value ((component integer-component) client-value)
-  (if (string= client-value "")
-      client-value
+  (if (and (allow-nil-value-p component)
+           (string= client-value ""))
+      nil
       (parse-integer client-value)))
+
+
+;;;;;;
+;;; Float
+
+(def component float-component (number-component)
+  ())
+
+(def method parse-component-value ((component float-component) client-value)
+  (if (and (allow-nil-value-p component)
+           (string= client-value ""))
+      nil
+      (parse-number:parse-real-number client-value)))
 
 ;;;;;;
 ;;; Date
@@ -203,4 +240,25 @@
 
 ;; TODO:
 (def component timestamp-component (atomic-component)
+  ())
+
+;;;;;;
+;;; Member
+
+;; TODO:
+(def component member-component (atomic-component)
+  ())
+
+;;;;;;
+;;; Lisp form
+
+;; TODO:
+(def component lisp-form-component (atomic-component)
+  ())
+
+;;;;;;
+;;; Lisp form
+
+;; TODO:
+(def component ip-address-component (atomic-component)
   ())

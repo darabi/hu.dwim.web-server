@@ -45,7 +45,7 @@
           (unless command-bar
             (setf command-bar (make-alternator-command-bar-component component alternatives))))
         (setf alternatives nil
-              content nil))))
+              content (make-instance 'null-component)))))
 
 ;;;;;;
 ;;; Standard object detail
