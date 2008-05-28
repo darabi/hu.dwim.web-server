@@ -80,7 +80,6 @@
 ;;; Filter
 
 ;; TODO:
-#+nil
 (def (generic e) make-filter-component (thing)
   (:method ((class-name (eql t)))
     ;; KLUDGE: take a filter form as parameter and use that
@@ -90,7 +89,7 @@
     (make-filter-component (find-class class-name)))
 
   (:method ((class-name (eql 'boolean)))
-    (make-boolean-component :edited #t))
+    (make-instance 'boolean-component :edited #t))
 
   (:method ((type cons))
     ;; KLUDGE:
@@ -103,10 +102,10 @@
     (make-instance 'string-component :edited #t))
 
   (:method ((class (eql (find-class 'integer))))
-    (make-integer-component :edited #t))
+    (make-instance 'integer-component :edited #t))
 
   (:method ((class standard-class))
-    (make-filter-instances-component :the-class class)))
+    (make-instance 'standard-object-filter-component :the-class class)))
 
 ;;;;;;
 ;;; Maker

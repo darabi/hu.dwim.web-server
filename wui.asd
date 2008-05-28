@@ -144,8 +144,11 @@
                                (:file "atomic" :depends-on ("editable"))
                                (:file "process" :depends-on ("command"))
                                (:file "class" :depends-on ("reference"))
-                               (:file "object" :depends-on ("reference"))
-                               (:file "parser" :depends-on ("atomic" "reference" "object" "class" "process")))
+                               (:file "object-detail" :depends-on ("reference"))
+                               (:file "object-maker" :depends-on ("object-detail"))
+                               (:file "object-table" :depends-on ("object-detail" "table"))
+                               (:file "filter" :depends-on ("object-detail"))
+                               (:file "parser" :depends-on ("atomic" "reference" "object-detail" "filter" "class" "process")))
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
