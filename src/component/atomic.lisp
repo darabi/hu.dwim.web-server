@@ -8,14 +8,15 @@
 ;;; Atomic
 
 (def component atomic-component (editable-component detail-component)
-  ((key "") ;; TODO: remove
+  ((client-state-sink nil)
    (component-value nil)))
 
-(def method render :after ((component atomic-component))
+(def method render :before ((component atomic-component))
   (when (edited-p component)
-    #+nil
-    (register-parser component client-value
-                     (setf (component-value-of component) (parse-component-value component client-value)))))
+    (setf (client-state-sink-of component)
+          (register-client-state-sink *frame*
+                                      (lambda (client-value)
+                                        (setf (component-value-of component) (parse-component-value component client-value)))))))
 
 (def generic parse-component-value (component client-value))
 
@@ -57,10 +58,10 @@
   ())
 
 (def render t-component ()
-  (with-slots (edited component-value key) self
+  (with-slots (edited component-value client-state-sink) self
     (bind ((printed-value (format nil "~S" component-value)))
       (if edited
-          <input (:type "text" :name ,key :value ,printed-value)>
+          <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
           <span ,printed-value>))))
 
 (def method parse-component-value ((component t-component) client-value)
@@ -92,8 +93,9 @@
   ())
 
 (def render boolean-component ()
-  (with-slots (edited component-value key) self
-    <input (:type "checkbox" :name ,key
+  (with-slots (edited component-value client-state-sink) self
+    <input (:type "checkbox"
+            ,(if client-state-sink (make-xml-attribute "name" (id-of client-state-sink)) +void+)
             ,(if component-value (make-xml-attribute "checked" "checked") +void+)
             ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>))
 
@@ -135,9 +137,9 @@
   ())
 
 (def render string-component ()
-  (with-slots (edited component-value key) self
+  (with-slots (edited component-value client-state-sink) self
     (if edited
-        <input (:type "text" :name ,key :value ,component-value)>
+        <input (:type "text" :name (id-of client-state-sink) :value ,component-value)>
         <span ,component-value>)))
 
 (def method parse-component-value ((component string-component) client-value)
@@ -172,9 +174,9 @@
   ())
 
 (def render integer-component ()
-  (with-slots (edited component-value key) self
+  (with-slots (edited component-value client-state-sink) self
     (if edited
-        <input (:type "text" :name ,key :value ,(princ-to-string component-value))>
+        <input (:type "text" :name ,(id-of client-state-sink) :value ,(princ-to-string component-value))>
         <span ,(princ-to-string component-value)>)))
 
 (def method parse-component-value ((component integer-component) client-value)

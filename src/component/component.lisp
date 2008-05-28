@@ -34,7 +34,7 @@
     (skip-rendering-component ()
       :report (lambda (stream)
                 (format stream "Skip rendering ~a and put an error marker in place" component))
-      <div (:class "rendering-error") "Error rendering " ,(princ-to-string component)>)))
+      <div (:class "rendering-error") "Error during rendering " ,(princ-to-string component)>)))
 
 (restart-case 1
   (r () :report (lambda (stream) (format stream "a")) (values nil t)))

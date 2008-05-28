@@ -154,6 +154,5 @@
   (bind ((menu (make-test-menu))
          (menu-target `ui(empty)))
     (prog1 `ui(frame (:title "Demo" :stylesheets ("static/test/test.css"))
-                     (vertical-list (horizontal-list ,menu (top ,menu-target))
-                                    ,(make-instance 'session-information-component)))
+                     (horizontal-list ,menu (top ,menu-target)))
            (setf (hu.dwim.wui::target-place-of menu) (make-component-place menu-target)))))
