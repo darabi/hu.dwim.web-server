@@ -27,6 +27,8 @@
 
 (def render place-component ()
   (with-slots (edited content command-bar) self
+    (render content)
+    #+nil
     (render-vertical-list (list content command-bar))))
 
 (def function make-place-component-content (component)

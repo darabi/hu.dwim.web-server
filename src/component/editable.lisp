@@ -64,10 +64,10 @@
   nil)
 
 (def function has-edited-child-component-p (component)
-  (find-editable-child-component component #'edited-p))
+  (find-editable-child-component component (lambda (child) (typep child 'editable-component))))
 
 (def function has-edited-descendant-component-p (component)
-  (find-editable-descendant-component component #'edited-p))
+  (find-editable-descendant-component component (lambda (descendant) (typep descendant 'editable-component))))
 
 ;;;;;;
 ;;; Customization points

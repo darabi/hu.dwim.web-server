@@ -23,6 +23,7 @@
    :cl-quasi-quote
    :cl-quasi-quote-xml
    :cl-quasi-quote-js
+   :cl-delico
    :bordeaux-threads
    :trivial-garbage
    :iterate

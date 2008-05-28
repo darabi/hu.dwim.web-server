@@ -23,21 +23,26 @@
 ;;;;;;
 ;;; Standard class
 
-(def component standard-class-component (abstract-standard-class-component content-component #+nil alternator-component)
+(def component standard-class-component (abstract-standard-class-component alternator-component)
   ())
 
 (def method (setf component-value-of) :after (new-value (component standard-class-component))
-  (with-slots (the-class content) component
+  (with-slots (the-class alternatives content command-bar) component
     (if the-class
-        (if content
-            (setf (component-value-of content) the-class)
-            (progn
-              (setf content
-                    #+nil (make-instance 'standard-class-detail-component :the-class the-class)
-                    (make-instance 'standard-class-reference-component :target the-class))
-              (setf (expand-command-of content)
-                    (make-expand-reference-command-component content (delay (make-instance 'standard-class-detail-component :the-class the-class))))))
-        (setf content nil))))
+        (progn
+          (if alternatives
+              (dolist (alternative alternatives)
+                (setf (component-value-of alternative) the-class))
+              (setf alternatives (list (delay-alternative-component-type 'standard-class-detail-component :the-class the-class)
+                                       (delay-alternative-component 'standard-class-reference-component
+                                         (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-class-reference-component :target the-class))))))
+          (if content
+              (setf (component-value-of content) the-class)
+              (setf content (find-alternative-component alternatives 'reference-component)))
+          (unless command-bar
+            (setf command-bar (make-alternator-command-bar-component component alternatives))))
+        (setf alternatives nil
+              content nil))))
 
 ;;;;;;
 ;;; Standard class detail

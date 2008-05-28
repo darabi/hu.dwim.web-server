@@ -25,6 +25,8 @@
               (make-instance 'sub-test :string-slot "Hello World" :integer-slot 42 :sister-slot (make-instance 'sister-test :boolean-slot #t))
               (make-instance 'sub-test :string-slot "I'll be back" :integer-slot 42))))
 
+(make-test-instances)
+
 ;;;;;;
 ;;; Telephely
 
@@ -121,7 +123,6 @@
                                                          ,(make-special-variable-place-component '*test-string* '(or null string))))
                  (menu-item (replace-menu-target-command (icon "Lexical variable")
                                                          ,(bind ((test-boolean #t)) (make-lexical-variable-place-component test-boolean 'boolean)))))
-      #+nil
       (menu-item (string "Complex")
                  (menu-item (replace-menu-target-command (icon "Inspect") ,(make-viewer-component *server*)))
                  #+nil (menu-item (replace-menu-target-command (icon "Filter") ,(make-filter-component (find-class 'super-test))))

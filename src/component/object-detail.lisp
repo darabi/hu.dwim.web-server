@@ -26,16 +26,26 @@
 ;;;;;;
 ;;; Standard object
 
-(def component standard-object-component (abstract-standard-object-component content-component #+nil alternator-component editable-component)
+(def component standard-object-component (abstract-standard-object-component alternator-component editable-component)
   ())
 
 (def method (setf component-value-of) :after (new-value (component standard-object-component))
-  (with-slots (instance the-class alternatives content) component
+  (with-slots (instance the-class alternatives content command-bar) component
     (if instance
-        (if content
-            (setf (component-value-of content) instance)
-            (setf content (make-instance 'standard-object-detail-component :the-class the-class :instance instance)))
-        (setf content nil))))
+        (progn
+          (if alternatives
+              (dolist (alternative alternatives)
+                (setf (component-value-of alternative) instance))
+              (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
+                                       (delay-alternative-component 'standard-object-reference-component
+                                         (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-reference-component :target instance))))))
+          (if content
+              (setf (component-value-of content) instance)
+              (setf content (find-default-alternative-component alternatives)))
+          (unless command-bar
+            (setf command-bar (make-alternator-command-bar-component component alternatives))))
+        (setf alternatives nil
+              content nil))))
 
 ;;;;;;
 ;;; Standard object detail
@@ -110,7 +120,7 @@
     (if slot
         (if label
             (setf (component-value-of label) (full-symbol-name (slot-definition-name slot)))
-            (setf label (make-instance 'string-component :component-value (full-symbol-name (slot-definition-name slot)))))
+            (setf label (make-instance 'label-component :component-value (full-symbol-name (slot-definition-name slot)))))
         (setf label nil))
     (if instance
         (if value

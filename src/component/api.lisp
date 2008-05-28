@@ -16,9 +16,13 @@
 
   (:method ((type cons))
     ;; KLUDGE: use perec type system
-    (make-component-for-type (first (remove-if (lambda (element)
-                                                 (member element '(or unbound null)))
-                                               type))))
+    (bind ((main-type
+            (remove-if (lambda (element)
+                         (member element '(or unbound null)))
+                       type)))
+      (if (= 1 (length main-type))
+          (make-component-for-type (first main-type))
+          (make-component-for-type t))))
 
   (:method ((class built-in-class))
     (make-component-for-prototype
@@ -41,7 +45,7 @@
     (make-instance 'integer-component))
 
   (:method ((prototype list))
-    (error "TODO:"))
+    (make-instance 'string-component :component-value "TODO"))
 
   (:method ((prototype standard-slot-definition))
     (make-instance 'standard-slot-definition-component))

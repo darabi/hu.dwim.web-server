@@ -21,11 +21,11 @@
             (bind ((*process-component* self))
               (unless closure/cc
                 (setf closure/cc (cl-delico::make-closure/cc (cl-walker:walk-form `(lambda () ,form)))))
-              (cl-delico:with-call/cc
+              (with-call/cc
                 (funcall closure/cc)))))
     (unless (and content
                  answer-continuation)
-      (setf content (make-instance 'string-component :value "Process finished")))
+      (setf content (make-instance 'string-component :component-value "Process finished")))
     (call-next-method)))
 
 (def (macro e) make-process-component (&rest args &key form &allow-other-keys)
@@ -40,7 +40,7 @@
 (def (function e) answer (component value)
   (bind ((*process-component* (find-ancestor-component-with-type component 'process-component)))
     (setf (answer-continuation-of *process-component*)
-          (cl-delico:kall (answer-continuation-of *process-component*) value))))
+          (kall (answer-continuation-of *process-component*) value))))
 
 (def component answer-command-component (command-component)
   ((icon (make-icon-component 'answer :label "Answer"))

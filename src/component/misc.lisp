@@ -29,6 +29,15 @@
 (def render empty-component ()
   +void+)
 
+;;;;;;;
+;;; Label
+
+(def component label-component ()
+  ((component-value)))
+
+(def render label-component ()
+  <span ,(component-value-of self)>)
+
 ;;;;;;
 ;;; Delay
 

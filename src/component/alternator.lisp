@@ -4,33 +4,31 @@
 
 (in-package :hu.dwim.wui)
 
-;;; TODO: this is broken now, should we revive it?
+;;; TODO: review this
 
 ;;;;;;
 ;;; Alternator
 
 (def component alternator-component (editable-component)
-  ((thing)
-   (alternatives)
-   (content :type component)
-   (command-bar :type component))
-  (:render
-   (if (typep content 'reference-component)
-       (render content)
-       (render-vertical-list (list content command-bar)))))
+  ((alternatives nil)
+   (content nil :type component)
+   (command-bar nil :type component)))
 
-(def constructor alternator-component ()
-  (with-slots (alternatives content command-bar) self
-    (setf content (find-default-alternative-component alternatives))
-    (setf command-bar
-          (make-instance 'command-bar-component :commands (append (list (make-top-command-component self)
-                                                                        (make-refresh-command-component self)
-                                                                        (make-begin-editing-command-component self)
-                                                                        (make-save-editing-command-component self)
-                                                                        (make-cancel-editing-command-component self))
-                                                                  (mapcar (lambda (alternative)
-                                                                            (make-alternative-component-replace-command-component alternative))
-                                                                          alternatives))))))
+(def render alternator-component ()
+  (with-slots (content command-bar) self
+    (if (typep content 'reference-component)
+        (render content)
+        (render-vertical-list (list content command-bar)))))
+
+(def function make-alternator-command-bar-component (component alternatives)
+  (make-instance 'command-bar-component :commands (append (list (make-top-command-component component)
+                                                                (make-refresh-command-component component)
+                                                                (make-begin-editing-command-component component)
+                                                                (make-save-editing-command-component component)
+                                                                (make-cancel-editing-command-component component))
+                                                          (mapcar (lambda (alternative)
+                                                                    (make-alternative-component-replace-command-component component alternative))
+                                                                  alternatives))))
 
 (def function make-alternative-component-replace-command-component (component alternative)
   (make-replace-command-component (delay (content-of component)) alternative
@@ -67,18 +65,6 @@
 (def function find-default-alternative-component (alternatives)
   (find-alternative-component alternatives 'detail-component))
 
-#+nil
-(def (function e) make-alternator-component (thing &rest args &key (default-type 'component) &allow-other-keys)
-  (bind ((alternatives (make-alternative-components thing)))
-    (remove-from-plistf args :default-type)
-    (if (= 1 (length alternatives))
-        (force (first alternatives))
-        (apply #'make-instance 'alternator-component
-               :thing thing
-               :alternatives alternatives
-               :content (find-alternative-component alternatives default-type)
-               args))))
-
 (def macro delay-alternative-component (type &body forms)
   `(aprog1 (make-instance 'component-factory :the-class (find-class ,type))
      (set-funcallable-instance-function it (delay (or (component-of it)
@@ -92,7 +78,6 @@
         (make-expand-reference-command-component reference (delay (find-default-alternative-component (alternatives-of (parent-component-of reference))))))
   reference)
 
-;; TODO: use make-component-for-type?
 #+nil
 (def (generic e) make-alternative-components (thing)
   (:method (thing)
@@ -125,25 +110,25 @@
                   (delay-alternative-component-type 'list-component :elements list))
               (delay-alternative-component-type 'reference-list-component :targets list)
               (delay-alternative-component 'reference-component
-                (setf-expand-reference-to-default-alternative-command-component (make-reference-component :target list))))
+                (setf-expand-reference-to-default-alternative-command-component (make-instance 'reference-component :target list))))
         (call-next-method)))
 
   (:method ((slot standard-slot-definition))
     (list (delay-alternative-component-type 'slot-detail-component :slot slot)
           (delay-alternative-component 'slot-reference-component
-            (setf-expand-reference-to-default-alternative-command-component (make-slot-reference-component :target slot)))))
+            (setf-expand-reference-to-default-alternative-command-component (make-instance 'slot-reference-component :target slot)))))
 
   (:method ((class standard-class))
     (list (delay-alternative-component-type 'class-detail-component :the-class class)
           (delay-alternative-component 'class-reference-component
-            (setf-expand-reference-to-default-alternative-command-component (make-class-reference-component :target class)))))
+            (setf-expand-reference-to-default-alternative-command-component (make-instance 'class-reference-component :target class)))))
 
   (:method ((instance standard-object))
     (list (delay-alternative-component-type 'instance-detail-component :instance instance)
           (delay-alternative-component 'instance-reference-component
-            (setf-expand-reference-to-default-alternative-command-component (make-instance-reference-component :target instance)))))
+            (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-reference-component :target instance)))))
 
   (:method ((instance structure-object))
     (list (delay-alternative-component-type 'instance-detail-component :instance instance)
           (delay-alternative-component 'instance-reference-component
-            (setf-expand-reference-to-default-alternative-command-component (make-instance-reference-component :target instance))))))
+            (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-reference-component :target instance))))))
