@@ -46,7 +46,7 @@ a img
     border-style: solid;
 }
 
-.instance-detail
+.standard-object-detail
 {
     border-style: solid;
 }
@@ -56,25 +56,20 @@ a img
     border-style: dotted;
 }
 
-.instance-list-detail
-{
-    border-style: dotted;
-}
-
-.instance-list-table
+.standard-object-table
 {
     border-style: solid;
     border-width: 1px;
 }
 
-.instance-list-table > thead > tr > th
+.standard-object-table > thead > tr > th
 {
     background-color: lightgray;
     border-style: solid;
     border-width: 1px;
 }
 
-.instance-list-table > div > table > tbody > tr > td
+.standard-object-table > div > table > tbody > tr > td
 {
     border-style: solid;
     border-width: 1px;
@@ -85,12 +80,7 @@ a img
     border-style: dotted;
 }
 
-.find-instance
-{
-    border-style: dashed;
-}
-
-.filter-instances
+.standard-object-filter
 {
     border-style: dashed;
 }

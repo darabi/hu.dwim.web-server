@@ -12,8 +12,7 @@
    (the-class nil :type standard-class)))
 
 (def constructor abstract-standard-object-component ()
-  (when (instance-of self)
-    (setf (component-value-of self) (instance-of self))))
+  (setf (component-value-of self) (instance-of self)))
 
 (def method component-value-of ((component abstract-standard-object-component))
   (instance-of component))
@@ -35,17 +34,17 @@
         (progn
           (if alternatives
               (dolist (alternative alternatives)
-                (setf (component-value-of alternative) instance))
+                (setf (component-value-of (force alternative)) instance))
               (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
                                        (delay-alternative-component 'standard-object-reference-component
                                          (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-reference-component :target instance))))))
           (if content
               (setf (component-value-of content) instance)
-              (setf content (find-default-alternative-component alternatives)))
-          (unless command-bar
-            (setf command-bar (make-alternator-command-bar-component component alternatives))))
-        (setf alternatives nil
-              content (make-instance 'null-component)))))
+              (setf content (find-default-alternative-component alternatives))))
+        (setf alternatives (list (delay-alternative-component-type 'null-component))
+              content (find-default-alternative-component alternatives)))
+    (unless command-bar
+      (setf command-bar (make-alternator-command-bar-component component alternatives)))))
 
 ;;;;;;
 ;;; Standard object detail

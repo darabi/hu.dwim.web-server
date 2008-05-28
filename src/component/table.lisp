@@ -22,7 +22,9 @@
     <div
       <table
         <thead
-          <tr ,@(mapcar #'render columns)>>
+          <tr ,@(mapcar (lambda (column)
+                          <th ,(render column)>)
+                        columns)>>
       <tbody ,@(mapcar #'render
                        (subseq rows
                                (position-of page-navigation-bar)
@@ -40,7 +42,7 @@
   <th ,(call-next-method)>)
 
 (def component row-component ()
-  ((cells :type components)))
+  ((cells nil :type components)))
 
 (def render row-component ()
   <tr ,@(mapcar #'render (cells-of self))>)

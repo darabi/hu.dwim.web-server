@@ -16,13 +16,20 @@
 
   (:method ((type cons))
     ;; KLUDGE: use perec type system
-    (bind ((main-type
-            (remove-if (lambda (element)
-                         (member element '(or unbound null)))
-                       type)))
-      (if (= 1 (length main-type))
-          (make-component-for-type (first main-type))
-          (make-component-for-type t))))
+    (ecase (first type)
+      (or
+       (bind ((main-type
+               (remove-if (lambda (element)
+                            (member element '(or unbound null)))
+                          type)))
+         (if (= 1 (length main-type))
+             (make-component-for-type (first main-type))
+             (make-component-for-type t))))
+      (list
+       (bind ((main-type (second type)))
+         (if (subtypep main-type 'standard-object)
+             (make-instance 'standard-object-table-component)
+             (make-instance 'list-component))))))
 
   (:method ((class built-in-class))
     (make-component-for-prototype
@@ -68,8 +75,23 @@
 
 (def (generic e) make-viewer-component (thing &key type &allow-other-keys)
   (:method (thing &key type &allow-other-keys)
-    (aprog1 (make-component-for-type (or type (type-of thing)))
+    (aprog1 (make-component-for-type
+             (or type
+                 (if (and (typep thing 'proper-list)
+                          (every-type-p 'standard-object thing))
+                     '(list standard-object)
+                     (type-of thing))))
       (setf (component-value-of it) thing))))
+
+#+nil
+(if (typep list 'proper-list)
+    (list (if (every-type-p 'standard-object list)
+              (delay-alternative-component-type 'instance-list-table-component :instances list)
+              (delay-alternative-component-type 'list-component :elements list))
+          (delay-alternative-component-type 'reference-list-component :targets list)
+          (delay-alternative-component 'reference-component
+            (setf-expand-reference-to-default-alternative-command-component (make-instance 'reference-component :target list))))
+    (call-next-method))
 
 ;;;;;;
 ;;; Editor
