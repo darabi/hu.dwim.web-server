@@ -27,6 +27,9 @@
        (list nil)
        (t (closer-mop:class-prototype class)))))
 
+  (:method ((class (eql (find-class t))))
+    (make-instance 't-component))
+
   (:method ((class standard-class))
     (make-component-for-prototype (closer-mop:class-prototype class))))
 
@@ -61,7 +64,7 @@
 
 (def (generic e) make-viewer-component (thing &key type &allow-other-keys)
   (:method (thing &key type &allow-other-keys)
-    (aprog1 (apply #'make-component-for-type (or type (type-of thing)))
+    (aprog1 (make-component-for-type (or type (type-of thing)))
       (setf (component-value-of it) thing))))
 
 ;;;;;;
@@ -69,7 +72,7 @@
 
 (def (generic e) make-editor-component (thing &key type &allow-other-keys)
   (:method (thing &key type &allow-other-keys)
-    (aprog1 (apply #'make-component-for-type (or type (type-of thing)))
+    (aprog1 (make-component-for-type (or type (type-of thing)))
       (setf (component-value-of it) thing)
       (begin-editing it))))
 

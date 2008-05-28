@@ -51,5 +51,5 @@
   (with-slots (icon action value) self
     (setf action (make-action (answer self value)))))
 
-(def method collect-slots-for-syntax-node-emitting-form ((node answer-command-component))
+(def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node answer-command-component))
   (remove 'action (call-next-method) :key #'slot-definition-name))

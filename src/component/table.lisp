@@ -8,9 +8,9 @@
 ;;; Table
 
 (def component table-component ()
-  ((columns :type components)
-   (rows :type components)
-   (page-navigation-bar :type component)))
+  ((columns nil :type components)
+   (rows nil :type components)
+   (page-navigation-bar nil :type component)))
 
 (def constructor table-component ()
   (with-slots (page-navigation-bar) self

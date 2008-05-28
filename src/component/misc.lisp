@@ -8,7 +8,7 @@
 ;;; Content
 
 (def component content-component ()
-  ((content :type component)))
+  ((content nil :type component)))
 
 (def render content-component ()
   (render (content-of self)))

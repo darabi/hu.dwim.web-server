@@ -35,5 +35,5 @@
             (bind ((menu-component (find-ancestor-component-with-type self 'menu-component)))
               (setf (component-at-place (target-place-of menu-component)) component))))))
 
-(def method collect-slots-for-syntax-node-emitting-form ((node replace-menu-target-command-component))
+(def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node replace-menu-target-command-component))
   (remove 'action (call-next-method) :key #'slot-definition-name))

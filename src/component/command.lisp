@@ -90,7 +90,7 @@
                                       :icon (make-icon-component 'last :label "Last" :tooltip "Jump to last page")
                                       :enabled (delay (< position (- total-count page-count)))
                                       :action (make-action (setf position (- total-count page-count))))
-          jumper (make-instance 'integer-component :edited #t :value position))))
+          jumper (make-instance 'integer-component :edited #t :component-value position))))
 
 (def render page-navigation-bar-component ()
   (with-slots (first-command previous-command next-command last-command jumper) self
