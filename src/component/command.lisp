@@ -105,7 +105,7 @@
 
 (def (function e) make-refresh-command-component (component)
   (make-instance 'command-component
-                 :icon (make-icon-component 'refresh :label "Refresh" :tooltip "Refresh content")
+                 :icon (lookup-icon 'refresh)
                  :action (make-action (refresh-component component))))
 
 (def (function e) make-replace-command-component (original-component replacement-component &rest replace-command-args)

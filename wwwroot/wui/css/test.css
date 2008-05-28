@@ -15,6 +15,13 @@ td
     vertical-align: top;
 }
 
+/* firefox bug? the border from somewhere leaks here
+   so we need to explicitly reset it */
+a img
+{
+  border-width: 0px;
+}
+
 .rendering-error
 {
     color: red;

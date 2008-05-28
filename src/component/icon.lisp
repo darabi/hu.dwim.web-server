@@ -22,15 +22,25 @@
 (def (macro e) make-icon-component (name &rest args)
   `(make-instance 'icon-component :name ,name ,@args))
 
-(def definer icon (name image-url)
-  (bind ((icon-name (format-symbol *package* "*~A*" name))
-         (name-as-string (string-downcase name)))
-    `(def special-variable ,icon-name
-         (make-icon-component ',name
-                              :image-url ,image-url
-                              :label (delay (lookup-resource ,(format nil "icon-label.~A" name-as-string)))
-                              :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string)))))))
+(def special-variable *icons* (make-hash-table))
 
-;; TODO: a list of predefined icons
-#+nil
-(def icon save-icon "icons/disc.gif")
+(def function lookup-icon (name)
+  (gethash name *icons*))
+
+(def definer icon (name image-url)
+  (bind ((name-as-string (string-downcase name)))
+    `(setf (gethash ',name *icons*)
+           (make-icon-component ',name
+                                :image-url ,image-url
+                                :label (delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil))
+                                :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil))))))
+
+(def icon refresh "static/wui/icons/20x20/ying-yang-arrows.png")
+
+(def icon edit "static/wui/icons/20x20/pen-on-document.png")
+
+(def icon save "static/wui/icons/20x20/disc-on-document.png")
+
+(def icon cancel "static/wui/icons/20x20/yellow-x.png")
+
+(def icon delete "static/wui/icons/20x20/red-x.png")
