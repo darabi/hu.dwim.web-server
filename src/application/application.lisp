@@ -322,7 +322,7 @@ Custom implementations should look something like this:
          (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
                                                        :initial-buffer-size 256)
                  (clrhash (action-id->action-of *frame*))
-                 (clrhash (callback-id->callback-of *frame*))
+                 (clrhash (client-state-sink-id->client-state-sink-of *frame*))
                  (emit-into-html-stream buffer-stream
                    (render (root-component-of *frame*)))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)

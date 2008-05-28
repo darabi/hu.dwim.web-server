@@ -24,7 +24,7 @@
   ((session nil)
    (frame-index (random-simple-base-string +frame-index-length+))
    (next-frame-index (random-simple-base-string +frame-index-length+))
-   (callback-id->callback (make-hash-table :test 'equal))
+   (client-state-sink-id->client-state-sink (make-hash-table :test 'equal))
    (action-id->action (make-hash-table :test 'equal))
    (root-component nil)
    (debug-component-hierarchy #f :type boolean)))
@@ -59,3 +59,48 @@
 (def function step-to-next-frame-index (frame)
   (setf (frame-index-of frame) (next-frame-index-of frame))
   (setf (next-frame-index-of frame) (random-simple-base-string +frame-index-length+)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;; client state sinks
+
+(def constant +client-state-sink-id-length+ 8)
+
+(def class* client-state-sink (string-id-for-funcallable-mixin)
+  ()
+  (:metaclass funcallable-standard-class))
+
+(def (macro e) make-client-state-sink ((value-variable-name) &body body)
+  `(make-client-state-sink-using-lambda (lambda (,value-variable-name)
+                                          ,@body)))
+
+(def (function e) make-client-state-sink-using-lambda (client-state-sink-lambda)
+  (bind ((client-state-sink (make-instance 'client-state-sink)))
+    (set-funcallable-instance-function client-state-sink client-state-sink-lambda)
+    client-state-sink))
+
+(def (function e) register-client-state-sink (frame client-state-sink)
+  (assert (or (not (boundp '*frame*))
+              (null *frame*)
+              (eq *frame* frame)))
+  (assert-session-lock-held (session-of frame))
+  (bind ((client-state-sink-id->client-state-sink (client-state-sink-id->client-state-sink-of frame)))
+    (unless (typep client-state-sink 'client-state-sink)
+      (assert (functionp client-state-sink))
+      (setf client-state-sink (make-client-state-sink-using-lambda client-state-sink)))
+    (bind ((client-state-sink-id (insert-with-new-random-hash-table-key
+                                  client-state-sink-id->client-state-sink
+                                  client-state-sink
+                                  +client-state-sink-id-length+
+                                  :prefix #.(coerce "_cs_" 'simple-base-string))))
+      (setf (id-of client-state-sink) client-state-sink-id)
+      (app.dribble "Registered client-state-sink with id ~S in frame ~A" client-state-sink-id frame)
+      client-state-sink)))
+
+(def function process-client-state-sinks (frame query-parameters)
+  (bind ((client-state-sink-id->client-state-sink (client-state-sink-id->client-state-sink-of frame)))
+    (iter (for (name . value) :in query-parameters)
+          (app.dribble "Checking query parameter ~S if it's a client-state-sink" name)
+          (awhen (gethash name client-state-sink-id->client-state-sink)
+            (app.dribble "Query parameter ~S is a client-state-sink, calling it with value ~S" it value)
+            (funcall it value)))))
