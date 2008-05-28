@@ -104,6 +104,7 @@
                :babel-streams
                :cl-yalog
                :cl-syntax-sugar
+               :cl-l10n
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
                :cl-delico

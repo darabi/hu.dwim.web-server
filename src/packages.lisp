@@ -10,25 +10,26 @@
     #:make-hash-table)
 
   (:use
+   :hu.dwim.wui.system
    :common-lisp
    :closer-mop
    :alexandria
+   :metabang-bind
+   :defclass-star
+   :iterate
    :cl-def
    :cl-yalog
    :cl-syntax-sugar
-   :iolib
-   :defclass-star
-   :metabang-bind
-   :hu.dwim.wui.system
+   :cl-l10n
    :cl-quasi-quote
    :cl-quasi-quote-xml
    :cl-quasi-quote-js
    :cl-delico
    :bordeaux-threads
    :trivial-garbage
-   :iterate
    :babel
    :babel-streams
+   :iolib
    )
 
   (:shadowing-import-from :cl-syntax-sugar
