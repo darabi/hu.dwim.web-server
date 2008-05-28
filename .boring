@@ -13,4 +13,4 @@
 ^docs/html
 ^docs/pdf
 ^logs/
-^wwwroot/dojo/src/.*
+^wwwroot/dojo/.*
