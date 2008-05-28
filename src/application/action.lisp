@@ -18,20 +18,17 @@
               action)
             (values))))))
 
-(def class* action ()
-  ((id nil))
+(def class* action (string-id-for-funcallable-mixin)
+  ()
   (:metaclass funcallable-standard-class))
 
-(def function make-action-with-lambda (action-lambda)
+(def function make-action-using-lambda (action-lambda)
   (bind ((action (make-instance 'action)))
     (set-funcallable-instance-function action action-lambda)
     action))
 
 (def macro make-action (&body body)
-  `(make-action-with-lambda (lambda () ,@body)))
-
-(def print-object (action :identity #t :type #f)
-  (print-object-for-string-id-mixin self))
+  `(make-action-using-lambda (lambda () ,@body)))
 
 (def function register-action (frame action)
   (assert (or (not (boundp '*frame*))
@@ -41,7 +38,7 @@
   (bind ((action-id->action (action-id->action-of frame)))
     (bind ((action-id (insert-with-new-random-hash-table-key action-id->action action +action-id-length+)))
       (setf (id-of action) action-id)
-      (app.dribble "Registered action with id ~S in frame ~A" (id-of action) frame)
+      (app.dribble "Registered action with id ~S in frame ~A" action-id frame)
       action)))
 
 (def (generic e) decorate-uri (uri thing)

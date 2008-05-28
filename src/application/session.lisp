@@ -30,7 +30,14 @@
 (def class* string-id-mixin ()
   ((id nil :type string)))
 
+(def class* string-id-for-funcallable-mixin ()
+  ((id nil :type string))
+  (:metaclass funcallable-standard-class))
+
 (def print-object (string-id-mixin :identity #t :type #f)
+  (print-object-for-string-id-mixin self))
+
+(def print-object (string-id-for-funcallable-mixin :identity #t :type #f)
   (print-object-for-string-id-mixin self))
 
 (def function print-object-for-string-id-mixin (self)
