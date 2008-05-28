@@ -21,16 +21,13 @@
 (def component component (ui-syntax-node)
   ((parent-component nil)))
 
-;; TODO: make this part of the session (this way it changes the state for all sessions)
-(def (special-variable e) *debug-component-hierarchy* #f)
-
 (def method render :around ((component component))
      ;; TODO: maybe create a css-class-mixin?
      (bind ((class-name (string-downcase (symbol-name (class-name (class-of component)))))
             (css-name (subseq class-name 0 (- (length class-name) (length "-component")))))
        ;; TODO: this does not work for <tr> elements under tables (goes out of order into the output)
-       <div (:class ,(concatenate 'string css-name (when *debug-component-hierarchy* " debug-component")))
-         ,@(when *debug-component-hierarchy*
+       <div (:class ,(concatenate 'string css-name (when (debug-component-hierarchy-p *frame*) " debug-component")))
+         ,@(when (debug-component-hierarchy-p *frame*)
                  (list <div (:class "debug-component-name") ,class-name>))
          ,(call-next-method)>))
 

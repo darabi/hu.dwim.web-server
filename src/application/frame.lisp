@@ -26,7 +26,8 @@
    (next-frame-index (random-simple-base-string +frame-index-length+))
    (callback-id->callback (make-hash-table :test 'equal))
    (action-id->action (make-hash-table :test 'equal))
-   (root-component nil)))
+   (root-component nil)
+   (debug-component-hierarchy #f :type boolean)))
 
 (def print-object (frame :identity #t :type #f)
   (print-object-for-string-id-mixin self)
