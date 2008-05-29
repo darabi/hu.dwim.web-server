@@ -104,21 +104,23 @@
   ((slots nil)))
 
 (def constructor standard-slot-definition-table-component ()
-  (setf (columns-of self)
-        (list
-         (make-instance 'column-component :content (make-instance 'string-component :component-value "Name"))
-         (make-instance 'column-component :content (make-instance 'string-component :component-value "Type"))
-         (make-instance 'column-component :content (make-instance 'string-component :component-value "Readers"))
-         (make-instance 'column-component :content (make-instance 'string-component :component-value "Writers")))))
+  (with-slots (slots columns) self
+    (setf columns
+          (list
+           (make-instance 'column-component :content (make-instance 'label-component :component-value "Name"))
+           (make-instance 'column-component :content (make-instance 'label-component :component-value "Type"))
+           (make-instance 'column-component :content (make-instance 'label-component :component-value "Readers"))
+           (make-instance 'column-component :content (make-instance 'label-component :component-value "Writers"))))
+    (setf (component-value-of self) slots)))
 
-(def method (setf component-value-of) :after (new-value (component standard-slot-definition-table-component))
+(def method (setf component-value-of) (new-value (component standard-slot-definition-table-component))
   (with-slots (slots columns rows) component
     (setf rows
           (iter (for slot :in slots)
                 (for row = (find slot rows :key #'component-value-of))
                 (if row
                     (setf (component-value-of row) slot)
-                    (setf row (make-instance 'slot-list-row-component :slot slot)))
+                    (setf row (make-instance 'standard-slot-definition-row-component :slot slot)))
                 (collect row)))))
 
 ;;;;;;
@@ -131,10 +133,13 @@
    (readers nil :type component)
    (writers nil :type component)))
 
+(def constructor standard-slot-definition-row-component ()
+  (setf (component-value-of self) (slot-of self)))
+
 (def method component-value-of ((component standard-slot-definition-row-component))
   (slot-of component))
 
-(def method (setf component-value-of) :after (new-value (component standard-slot-definition-row-component))
+(def method (setf component-value-of) (new-value (component standard-slot-definition-row-component))
   (with-slots (slot label type readers writers cells) component
     (if slot
         (setf label (make-instance 'string-component :component-value (full-symbol-name (slot-definition-name slot)))

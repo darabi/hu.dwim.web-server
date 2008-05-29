@@ -32,13 +32,15 @@
   (with-slots (instance the-class alternatives content command-bar) component
     (if instance
         (progn
-          (if alternatives
+          (if (and alternatives
+                   (not (typep content 'null-component)))
               (dolist (alternative alternatives)
                 (setf (component-value-of (force alternative)) instance))
               (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
                                        (delay-alternative-component 'standard-object-reference-component
                                          (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-reference-component :target instance))))))
-          (if content
+          (if (and content
+                   (not (typep content 'null-component)))
               (setf (component-value-of content) instance)
               (setf content (find-default-alternative-component alternatives))))
         (setf alternatives (list (delay-alternative-component-type 'null-component))

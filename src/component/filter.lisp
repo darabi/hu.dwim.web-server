@@ -64,7 +64,7 @@
 (def (function e) make-filter-instances-command-component (component)
   (make-replace-and-push-back-command-component (result-of component) (delay (make-viewer-component (execute-filter component (the-class-of component))))
                                                 (list :icon (make-icon-component 'filter :label "Filter" :tooltip "Execute filter"))
-                                                (list :icon (make-icon-component 'back :label "Back" :tooltip "Back to filter"))))
+                                                (list :icon (clone-icon 'back))))
 
 (def generic execute-filter (component class)
   (:method ((component standard-object-filter-component) (class standard-class))

@@ -161,9 +161,7 @@
             (if (and allow-nil-value
                      (null component-value))
                 ""
-                (progn
-                  (assert (integerp component-value))
-                  (princ-to-string component-value)))))
+                (princ-to-string component-value))))
       (if edited
           <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
           <span ,printed-value>))))

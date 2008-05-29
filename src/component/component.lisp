@@ -22,7 +22,7 @@
   ((parent-component nil)))
 
 (def method render :around ((component component))
-  ;; TODO: maybe create a css-class-mixin?
+  ;; TODO: maybe create a style-class-mixin?
   (restart-case
       (bind ((class-name (string-downcase (symbol-name (class-name (class-of component)))))
              (css-name (subseq class-name 0 (- (length class-name) (length "-component")))))

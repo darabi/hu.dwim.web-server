@@ -4,7 +4,7 @@
 
 (in-package :hu.dwim.wui)
 
-;; TODO: a lot
+;; TODO: a lot is missing
 
 ;;;;;;
 ;;; Tree

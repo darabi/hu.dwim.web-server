@@ -41,14 +41,13 @@
 
 (def generic map-editable-child-components (component function)
   (:method ((component component) function)
-    (map-child-components component
-                          (lambda (child)
-                            (when (typep child 'editable-component)
-                              (funcall function child))))))
+    (map-child-components component (lambda (child)
+                                      (when (typep child 'editable-component)
+                                        (funcall function child))))))
 
 (def function map-editable-descendant-components (component function)
   (map-editable-child-components component (lambda (child)
-                                             (funcall function component)
+                                             (funcall function child)
                                              (map-editable-descendant-components child function))))
 
 (def function find-editable-child-component (component function)
@@ -64,10 +63,10 @@
   nil)
 
 (def function has-edited-child-component-p (component)
-  (find-editable-child-component component (lambda (child) (typep child 'editable-component))))
+  (find-editable-child-component component #'edited-p))
 
 (def function has-edited-descendant-component-p (component)
-  (find-editable-descendant-component component (lambda (descendant) (typep descendant 'editable-component))))
+  (find-editable-descendant-component component #'edited-p))
 
 ;;;;;;
 ;;; Customization points
@@ -97,7 +96,7 @@
   "The BEGIN-EDITING command starts editing underneath the given EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (lookup-icon 'edit)
+                 :icon (clone-icon 'edit)
                  :visible (delay (not (edited-p editable)))
                  :action (make-action (begin-editing editable))))
 
@@ -105,7 +104,7 @@
   "The SAVE-EDITING command actually makes the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (lookup-icon 'save)
+                 :icon (clone-icon 'save)
                  :visible (delay (edited-p editable))
                  :action (make-action (save-editing editable))))
 
@@ -113,7 +112,7 @@
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (lookup-icon 'cancel)
+                 :icon (clone-icon 'cancel)
                  :visible (delay (edited-p editable))
                  :action (make-action (cancel-editing editable))))
 

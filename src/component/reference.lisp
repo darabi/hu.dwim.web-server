@@ -20,7 +20,7 @@
 
 (def (function e) make-expand-reference-command-component (original-component replacement-component)
   (make-replace-command-component original-component replacement-component
-                                  :icon (make-icon-component 'expand :label (make-reference-label original-component) :tooltip "Show in detail")))
+                                  :icon (clone-icon 'expand :label (make-reference-label original-component))))
 
 ;;;;;;
 ;;; Reference list
@@ -64,4 +64,13 @@
   ())
 
 (def method make-reference-label ((reference standard-object-reference-component))
+  (princ-to-string (target-of reference)))
+
+;;;;;;
+;;; Standard object list reference
+
+(def component standard-object-list-reference-component (reference-component)
+  ())
+
+(def method make-reference-label ((reference standard-object-list-reference-component))
   (princ-to-string (target-of reference)))

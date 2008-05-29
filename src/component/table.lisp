@@ -22,9 +22,7 @@
     <div
       <table
         <thead
-          <tr ,@(mapcar (lambda (column)
-                          <th ,(render column)>)
-                        columns)>>
+          <tr ,@(mapcar #'render columns)>>
       <tbody ,@(mapcar #'render
                        (subseq rows
                                (position-of page-navigation-bar)

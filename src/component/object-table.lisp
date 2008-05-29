@@ -5,6 +5,36 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Standard object list
+
+(def component standard-object-list-component (alternator-component editable-component)
+  ((instances nil)))
+
+(def method component-value-of ((component standard-object-list-component))
+  (instances-of component))
+
+(def method (setf component-value-of) (new-value (component standard-object-list-component))
+  (with-slots (instances alternatives content command-bar) component
+    (setf instances new-value)
+    (if instances
+        (progn
+          (if (and alternatives
+                   (not (typep content 'empty-component)))
+              (dolist (alternative alternatives)
+                (setf (component-value-of (force alternative)) instances))
+              (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :instances instances)
+                                       (delay-alternative-component 'standard-object-list-reference-component
+                                         (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-list-reference-component :target instances))))))
+          (if (and content
+                   (not (typep content 'empty-component)))
+              (setf (component-value-of content) instances)
+              (setf content (find-default-alternative-component alternatives))))
+        (setf alternatives (list (delay-alternative-component-type 'empty-component))
+              content (find-default-alternative-component alternatives)))
+    (unless command-bar
+      (setf command-bar (make-alternator-command-bar-component component alternatives)))))
+
+;;;;;;
 ;;; Standard object table
 
 (def component standard-object-table-component (table-component editable-component)
@@ -12,22 +42,21 @@
    (slot-names nil)))
 
 (def constructor standard-object-table-component ()
-  (awhen (instances-of self)
-    (setf (component-value-of self) it)))
+  (setf (component-value-of self) (instances-of self)))
 
 (def method component-value-of ((component standard-object-table-component))
   (instances-of component))
 
 (def method (setf component-value-of) (new-value (component standard-object-table-component))
-  (with-slots (instances slot-names columns rows) component
+  (with-slots (instances slot-names command-bar columns rows) component
     (setf instances new-value)
     (if instances
         (setf slot-names (delete-duplicates
                           (iter (for instance :in instances)
                                 (appending (mapcar 'slot-definition-name (class-slots (class-of instance))))))
-              columns (cons (make-instance 'label-component :component-value "Commands")
+              columns (cons (make-instance 'column-component :content (make-instance 'label-component :component-value "Commands"))
                             (mapcar (lambda (slot-name)
-                                      (make-instance 'label-component :component-value (full-symbol-name slot-name)))
+                                      (make-instance 'column-component :content (make-instance 'label-component :component-value (full-symbol-name slot-name))))
                                     slot-names))
               rows (iter (for instance :in instances)
                          (for row = (find instance rows :key #'component-value-of))
@@ -74,10 +103,10 @@
               cells nil))))
 
 (def function make-expand-row-command-component (component instance)
-  (make-replace-and-push-back-command-component component (delay (make-instance 'entire-row-component :content (make-viewer-component instance :default-component-type 'detail-component)))
-                                                (list :icon (make-icon-component 'expand :label "Expand" :tooltip "Show in detail")
+  (make-replace-and-push-back-command-component component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer-component instance :default-component-type 'detail-component)))
+                                                (list :icon (clone-icon 'expand)
                                                       :visible (delay (not (has-edited-descendant-component-p component))))
-                                                (list :icon (make-icon-component 'collapse :label "Collapse" :tooltip "Collapse to row"))))
+                                                (list :icon (clone-icon 'collapse))))
 
 ;;;;;;
 ;;; Standard object slot value cell

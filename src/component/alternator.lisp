@@ -4,8 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-;;; TODO: review this
-
 ;;;;;;
 ;;; Alternator
 
@@ -25,7 +23,9 @@
                                                                 (make-refresh-command-component component)
                                                                 (make-begin-editing-command-component component)
                                                                 (make-save-editing-command-component component)
-                                                                (make-cancel-editing-command-component component))
+                                                                (make-cancel-editing-command-component component)
+                                                                #+nil
+                                                                (make-revert-command-component component))
                                                           (mapcar (lambda (alternative)
                                                                     (make-alternative-component-replace-command-component component alternative))
                                                                   alternatives))))
@@ -41,7 +41,7 @@
     (make-icon-component nil :label (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
 
   (:method ((prototype reference-component))
-    (make-icon-component 'collapse :label "Collapse" :tooltip "Collapse to reference")))
+    (clone-icon 'collapse)))
 
 (def method join-editing ((alternator alternator-component))
   (unless (typep (content-of alternator) 'reference-component)

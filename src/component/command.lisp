@@ -75,19 +75,19 @@
 (def constructor page-navigation-bar-component ()
   (with-slots (position page-count total-count first-command previous-command next-command last-command jumper) self
     (setf first-command (make-instance 'command-component
-                                       :icon (make-icon-component 'first :label "First" :tooltip "Jump to first page")
+                                       :icon (clone-icon 'first)
                                        :enabled (delay (> position 0))
                                        :action (make-action (setf position 0)))
           previous-command (make-instance 'command-component
-                                          :icon (make-icon-component 'previous :label "Previous" :tooltip "Move to previous page")
+                                          :icon (clone-icon 'previous)
                                           :enabled (delay (> position 0))
                                           :action (make-action (decf position (min position page-count))))
           next-command (make-instance 'command-component
-                                      :icon (make-icon-component 'next :label "Next" :tooltip "Move to next page")
+                                      :icon (clone-icon 'next)
                                       :enabled (delay (< position (- total-count page-count)))
                                       :action (make-action (incf position (min page-count (- total-count page-count)))))
           last-command (make-instance 'command-component
-                                      :icon (make-icon-component 'last :label "Last" :tooltip "Jump to last page")
+                                      :icon (clone-icon 'last)
                                       :enabled (delay (< position (- total-count page-count)))
                                       :action (make-action (setf position (- total-count page-count))))
           jumper (make-instance 'integer-component :edited #t :component-value position))))
@@ -105,7 +105,7 @@
 
 (def (function e) make-refresh-command-component (component)
   (make-instance 'command-component
-                 :icon (lookup-icon 'refresh)
+                 :icon (find-icon 'refresh)
                  :action (make-action (refresh-component component))))
 
 (def (function e) make-replace-command-component (original-component replacement-component &rest replace-command-args)
@@ -152,6 +152,6 @@
   "The TOP command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT"
   (bind ((original-component (delay (find-top-component-content replacement-component))))
     (make-replace-and-push-back-command-component original-component  replacement-component
-                                                  (list :icon (make-icon-component 'top :label "Top" :tooltip "Move to top")
+                                                  (list :icon (find-icon 'top)
                                                         :visible (delay (not (eq replacement-component (find-top-component-content replacement-component)))))
-                                                  (list :icon (make-icon-component 'back :label "Back" :tooltip "Move back from top")))))
+                                                  (list :icon (find-icon 'back)))))
