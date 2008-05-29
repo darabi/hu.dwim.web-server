@@ -89,8 +89,8 @@
 
 (def constructor broker
   (set-funcallable-instance-function
-    self (lambda (request)
-           (default-broker-handler self request))))
+    -self- (lambda (request)
+             (default-broker-handler -self- request))))
 
 (def function default-broker-handler (broker request)
   (when (matches-request? broker request)
@@ -101,7 +101,7 @@
   (:metaclass funcallable-standard-class))
 
 (def print-object broker-with-path
-  (format *standard-output* "~S" (path-of self)))
+  (format *standard-output* "~S" (path-of -self-)))
 
 (defmethod matches-request? ((broker broker-with-path) request)
   (matches-request-uri-path? (path-of broker) request))
@@ -118,7 +118,7 @@
   (:metaclass funcallable-standard-class))
 
 (def print-object broker-with-path-prefix
-  (format *standard-output* "~S" (path-prefix-of self)))
+  (format *standard-output* "~S" (path-prefix-of -self-)))
 
 (defmethod matches-request? ((broker broker-with-path-prefix) request)
   (matches-request-uri-path-prefix? (path-of broker) request))

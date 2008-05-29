@@ -59,7 +59,7 @@
   ())
 
 (def render t-component ()
-  (with-slots (edited component-value client-state-sink) self
+  (with-slots (edited component-value client-state-sink) -self-
     (bind ((printed-value (format nil "~S" component-value)))
       (if edited
           <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
@@ -94,7 +94,7 @@
   ())
 
 (def render boolean-component ()
-  (with-slots (edited component-value client-state-sink) self
+  (with-slots (edited component-value client-state-sink) -self-
     <input (:type "checkbox"
             ,(if client-state-sink (make-xml-attribute "name" (id-of client-state-sink)) +void+)
             ,(if component-value (make-xml-attribute "checked" "checked") +void+)
@@ -138,7 +138,7 @@
   ())
 
 (def render string-component ()
-  (with-slots (edited component-value client-state-sink) self
+  (with-slots (edited component-value client-state-sink) -self-
     (if edited
         <input (:type "text" :name (id-of client-state-sink) :value ,component-value)>
         <span ,component-value>)))
@@ -156,7 +156,7 @@
   ())
 
 (def render number-component ()
-  (with-slots (edited component-value allow-nil-value client-state-sink) self
+  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
     (bind ((printed-value
             (if (and allow-nil-value
                      (null component-value))

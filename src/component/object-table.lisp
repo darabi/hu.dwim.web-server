@@ -42,7 +42,7 @@
    (slot-names nil)))
 
 (def constructor standard-object-table-component ()
-  (setf (component-value-of self) (instances-of self)))
+  (setf (component-value-of -self-) (instances-of -self-)))
 
 (def method component-value-of ((component standard-object-table-component))
   (instances-of component))
@@ -77,8 +77,8 @@
    (command-bar nil :type component)))
 
 (def constructor standard-object-row-component ()
-  (awhen (instance-of self)
-    (setf (component-value-of self) it)))
+  (awhen (instance-of -self-)
+    (setf (component-value-of -self-) it)))
 
 (def method component-value-of ((component standard-object-row-component))
   (instance-of component))
@@ -116,8 +116,8 @@
    (slot)))
 
 (def constructor standard-object-slot-value-cell-component ()
-  (awhen (slot-of self)
-    (setf (component-value-of self) it)))
+  (awhen (slot-of -self-)
+    (setf (component-value-of -self-) it)))
 
 (def method component-value-of ((component standard-object-slot-value-cell-component))
   (slot-of component))

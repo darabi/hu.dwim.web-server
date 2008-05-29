@@ -35,10 +35,10 @@
   (:metaclass funcallable-standard-class))
 
 (def print-object (string-id-mixin :identity #t :type #f)
-  (print-object-for-string-id-mixin self))
+  (print-object-for-string-id-mixin -self-))
 
 (def print-object (string-id-for-funcallable-mixin :identity #t :type #f)
-  (print-object-for-string-id-mixin self))
+  (print-object-for-string-id-mixin -self-))
 
 (def function print-object-for-string-id-mixin (self)
   (write-string (string (class-name (class-of self))))

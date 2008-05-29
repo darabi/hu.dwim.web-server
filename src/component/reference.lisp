@@ -12,7 +12,7 @@
    (expand-command :type component)))
 
 (def render reference-component ()
-  (render (expand-command-of self)))
+  (render (expand-command-of -self-)))
 
 (def (generic e) make-reference-label (reference)
   (:method ((reference reference-component))
@@ -30,14 +30,14 @@
    (references :type components)))
 
 (def constructor reference-list-component ()
-  (with-slots (targets references) self
+  (with-slots (targets references) -self-
     (setf references
           (mapcar (lambda (target)
                     (make-viewer-component target :default-type 'reference-component))
                   targets))))
 
 (def render reference-list-component ()
-  <div ,@(mapcar #'render (references-of self))>)
+  <div ,@(mapcar #'render (references-of -self-))>)
 
 ;;;;;;
 ;;; Standard slot reference

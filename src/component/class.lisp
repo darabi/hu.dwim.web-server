@@ -11,8 +11,8 @@
   ((the-class nil :type (or null standard-class))))
 
 (def constructor abstract-standard-class-component ()
-  (when (the-class-of self)
-    (setf (component-value-of self) (the-class-of self))))
+  (when (the-class-of -self-)
+    (setf (component-value-of -self-) (the-class-of -self-))))
 
 (def method component-value-of ((component abstract-standard-class-component))
   (the-class-of component))
@@ -80,7 +80,7 @@
                  effective-slots nil))))
 
 (def render standard-class-detail-component ()
-  (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) self
+  (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-
     (bind ((class-name (full-symbol-name (class-name the-class))))
       <div
         <span "The class " <i ,class-name> " is an instance of " ,(render metaclass)>
@@ -104,14 +104,14 @@
   ((slots nil)))
 
 (def constructor standard-slot-definition-table-component ()
-  (with-slots (slots columns) self
+  (with-slots (slots columns) -self-
     (setf columns
           (list
            (make-instance 'column-component :content (make-instance 'label-component :component-value "Name"))
            (make-instance 'column-component :content (make-instance 'label-component :component-value "Type"))
            (make-instance 'column-component :content (make-instance 'label-component :component-value "Readers"))
            (make-instance 'column-component :content (make-instance 'label-component :component-value "Writers"))))
-    (setf (component-value-of self) slots)))
+    (setf (component-value-of -self-) slots)))
 
 (def method (setf component-value-of) (new-value (component standard-slot-definition-table-component))
   (with-slots (slots columns rows) component
@@ -134,7 +134,7 @@
    (writers nil :type component)))
 
 (def constructor standard-slot-definition-row-component ()
-  (setf (component-value-of self) (slot-of self)))
+  (setf (component-value-of -self-) (slot-of -self-)))
 
 (def method component-value-of ((component standard-slot-definition-row-component))
   (slot-of component))

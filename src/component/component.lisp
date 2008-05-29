@@ -7,15 +7,15 @@
 ;;;;;;
 ;;; Component
 
-(def definer component (name supers slots &rest options)
+(def (definer e) component (name supers slots &rest options)
   `(def class* ,name ,supers
      ,slots
      (:export-class-name-p #t)
      (:metaclass component-class)
      ,@options))
 
-(def definer render (type &body forms)
-  `(def method render ((self ,type))
+(def (definer e) render (type &body forms)
+  `(def method render ((-self- ,type))
      ,@forms))
 
 (def component component (ui-syntax-node)

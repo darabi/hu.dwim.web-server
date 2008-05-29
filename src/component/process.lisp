@@ -15,10 +15,10 @@
    (answer-continuation nil)))
 
 (def render process-component ()
-  (with-slots (form closure/cc answer-continuation content) self
+  (with-slots (form closure/cc answer-continuation content) -self-
     (unless content
       (setf answer-continuation
-            (bind ((*process-component* self))
+            (bind ((*process-component* -self-))
               (unless closure/cc
                 (setf closure/cc (cl-delico::make-closure/cc (cl-walker:walk-form `(lambda () ,form)))))
               (with-call/cc
@@ -48,8 +48,8 @@
    (value nil)))
 
 (def constructor answer-command-component ()
-  (with-slots (icon action value) self
-    (setf action (make-action (answer self value)))))
+  (with-slots (icon action value) -self-
+    (setf action (make-action (answer -self- value)))))
 
 (def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node answer-command-component))
   (remove 'action (call-next-method) :key #'slot-definition-name))

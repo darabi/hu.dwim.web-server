@@ -27,7 +27,7 @@
     (set-funcallable-instance-function action action-lambda)
     action))
 
-(def macro make-action (&body body)
+(def (macro e) make-action (&body body)
   `(make-action-using-lambda (lambda () ,@body)))
 
 (def function register-action (frame action)

@@ -13,7 +13,7 @@
    (command-bar nil :type component)))
 
 (def render alternator-component ()
-  (with-slots (content command-bar) self
+  (with-slots (content command-bar) -self-
     (if (typep content 'reference-component)
         (render content)
         (render-vertical-list (list content command-bar)))))

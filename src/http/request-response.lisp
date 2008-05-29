@@ -155,8 +155,8 @@
    (external-format +external-format+ :documentation "May or may not be used by some higher level functionalities")))
 
 (def constructor response
-  (setf (header-value self +header/status+) +http-ok+)
-  (setf (cookies-of self) (list)))
+  (setf (header-value -self- +header/status+) +http-ok+)
+  (setf (cookies-of -self-) (list)))
 
 (defmethod encoding-name-of ((self response))
   (encoding-name-of (external-format-of self)))
@@ -341,9 +341,9 @@
   ((target-uri :type string)))
 
 (def constructor redirect-response
-  (setf (header-value self +header/status+) +http-moved-temporarily+)
-  (setf (header-value self +header/content-type+) +utf-8-html-content-type+)
-  (setf (external-format-of self) (ensure-external-format :utf-8)))
+  (setf (header-value -self- +header/status+) +http-moved-temporarily+)
+  (setf (header-value -self- +header/content-type+) +utf-8-html-content-type+)
+  (setf (external-format-of -self-) (ensure-external-format :utf-8)))
 
 (def (function e) make-redirect-response (target-uri)
   (setf target-uri (etypecase target-uri

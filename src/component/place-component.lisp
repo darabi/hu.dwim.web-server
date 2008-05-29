@@ -14,19 +14,19 @@
   (:documentation "Place component is resposible for being able to edit any value that is valid according to the type."))
 
 (def constructor place-component ()
-  (with-slots (edited content command-bar) self
-    (setf content (make-place-component-content self)
-          command-bar (make-instance 'command-bar-component :commands (list (make-refresh-command-component self)
-                                                                            (make-begin-editing-command-component self)
-                                                                            (make-save-editing-command-component self)
-                                                                            (make-cancel-editing-command-component self)
+  (with-slots (edited content command-bar) -self-
+    (setf content (make-place-component-content -self-)
+          command-bar (make-instance 'command-bar-component :commands (list (make-refresh-command-component -self-)
+                                                                            (make-begin-editing-command-component -self-)
+                                                                            (make-save-editing-command-component -self-)
+                                                                            (make-cancel-editing-command-component -self-)
                                                                             #+nil
-                                                                            (make-revert-command-component self)
+                                                                            (make-revert-command-component -self-)
                                                                             #+nil
-                                                                            (make-makunbound-command-component self))))))
+                                                                            (make-makunbound-command-component -self-))))))
 
 (def render place-component ()
-  (with-slots (edited content command-bar) self
+  (with-slots (edited content command-bar) -self-
     (render content)
     #+nil
     (render-vertical-list (list content command-bar))))

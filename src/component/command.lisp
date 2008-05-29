@@ -14,7 +14,7 @@
    (action)))
 
 (def render command-component ()
-  (with-slots (visible enabled icon action) self
+  (with-slots (visible enabled icon action) -self-
     (if (force visible)
         (if (force enabled)
             <a (:href ,(action-to-href action)) ,(render icon)>
@@ -28,7 +28,7 @@
   ((commands :type components)))
 
 (def render command-bar-component ()
-  (with-slots (commands parent-component) self
+  (with-slots (commands parent-component) -self-
     (setf commands (sort-commands parent-component commands))
     (render-horizontal-list commands)))
 
@@ -73,7 +73,7 @@
    (jumper :type component)))
 
 (def constructor page-navigation-bar-component ()
-  (with-slots (position page-count total-count first-command previous-command next-command last-command jumper) self
+  (with-slots (position page-count total-count first-command previous-command next-command last-command jumper) -self-
     (setf first-command (make-instance 'command-component
                                        :icon (clone-icon 'first)
                                        :enabled (delay (> position 0))
@@ -93,7 +93,7 @@
           jumper (make-instance 'integer-component :edited #t :component-value position))))
 
 (def render page-navigation-bar-component ()
-  (with-slots (first-command previous-command next-command last-command jumper) self
+  (with-slots (first-command previous-command next-command last-command jumper) -self-
     (render-horizontal-list (list first-command previous-command jumper next-command last-command))))
 
 ;;;;;;

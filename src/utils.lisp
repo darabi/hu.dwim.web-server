@@ -118,6 +118,7 @@
 (defgeneric encoding-name-of (thing)
   (:method ((self external-format))
     (encoding-name-of (external-format-encoding self)))
+
   (:method ((self babel-encodings:character-encoding))
     (babel-encodings:enc-name self)))
 

@@ -14,7 +14,7 @@
    (root :type component)))
 
 (def render tree-component ()
-  (with-slots (columns root) self
+  (with-slots (columns root) -self-
     <table
       <thead
         <tr ,@(mapcar #'render columns)>>
@@ -25,6 +25,6 @@
    (cells :type components)))
 
 (def render node-component ()
-  (with-slots (children cells) self
+  (with-slots (children cells) -self-
     (append (list <tr ,(mapcar #'render cells)>)
             (mapcar #'render children))))

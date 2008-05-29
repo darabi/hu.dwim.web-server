@@ -12,7 +12,7 @@
    (menu-items nil :type components)))
 
 (def render menu-component ()
-  (with-slots (menu-items) self
+  (with-slots (menu-items) -self-
     <ul ,@(mapcar #'render menu-items)>))
 
 (def component menu-item-component ()
@@ -20,7 +20,7 @@
    (menu-items nil :type components)))
 
 (def render menu-item-component ()
-  (with-slots (command menu-items) self
+  (with-slots (command menu-items) -self-
     <li ,(render command)
         <ul ,@(mapcar #'render menu-items)>>))
 
@@ -29,10 +29,10 @@
    (component)))
 
 (def constructor replace-menu-target-command-component ()
-  (with-slots (action component) self
+  (with-slots (action component) -self-
     (setf action
           (make-action
-            (bind ((menu-component (find-ancestor-component-with-type self 'menu-component)))
+            (bind ((menu-component (find-ancestor-component-with-type -self- 'menu-component)))
               (setf (component-at-place (target-place-of menu-component)) component))))))
 
 (def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node replace-menu-target-command-component))

@@ -13,9 +13,9 @@
 
 (def constructor file-serving-broker
   (set-funcallable-instance-function
-    self
+    -self-
     (lambda (request)
-      (file-serving-handler request (root-directory-of self) (path-prefix-of self)))))
+      (file-serving-handler request (root-directory-of -self-) (path-prefix-of -self-)))))
 
 (def function file-serving-handler (request root-directory path-prefix)
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? path-prefix request)))

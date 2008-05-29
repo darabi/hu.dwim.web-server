@@ -12,7 +12,7 @@
    (the-class nil :type standard-class)))
 
 (def constructor abstract-standard-object-component ()
-  (setf (component-value-of self) (instance-of self)))
+  (setf (component-value-of -self-) (instance-of -self-)))
 
 (def method component-value-of ((component abstract-standard-object-component))
   (instance-of component))
@@ -70,7 +70,7 @@
         (setf slot-value-group nil))))
 
 (def render standard-object-detail-component ()
-  (with-slots (class slot-value-group) self
+  (with-slots (class slot-value-group) -self-
     <div
       <span "An instance of " ,(render class)>
       <div
@@ -98,7 +98,7 @@
         (setf slot-values nil))))
 
 (def render standard-object-slot-value-group-component ()
-  (with-slots (slot-values) self
+  (with-slots (slot-values) -self-
     (if slot-values
         <table
           <thead
@@ -130,7 +130,7 @@
         (setf value nil))))
 
 (def render standard-object-slot-value-detail-component ()
-  (with-slots (label value) self
+  (with-slots (label value) -self-
     <tr
       <td ,(render label)>
       <td ,(render value)>>))

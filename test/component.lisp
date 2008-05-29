@@ -59,15 +59,15 @@
   <div
     <p "session: " ,(princ-to-string *session*)>
     <p "frame: " ,(princ-to-string *frame*)>
-    <p "root component: " ,(princ-to-string self)>
+    <p "root component: " ,(princ-to-string -self-)>
     ;;<span (:onclick `js-inline(alert "fooo")) "click-me!">
     <a (:href ,(concatenate-string (path-prefix-of *application*) (if *session* "delete/" "new/")))
       ,(if *session* "drop session" "new session")>
     <hr>
     <form (:method "post")
       <input (:name ,(id-of (register-client-state-sink *frame* (lambda (value)
-                                                                  (setf (some-input-of self) value))))
-              :value ,(some-input-of self))>
+                                                                  (setf (some-input-of -self-) value))))
+              :value ,(some-input-of -self-))>
       <input (:type "submit")>>
     <hr>
     ,(render-request *request*)>)
@@ -76,7 +76,7 @@
   ((value 0)))
 
 (def render counter-component ()
-  (with-slots (value) self
+  (with-slots (value) -self-
     <p
       "Counter: " ,value
       <br>

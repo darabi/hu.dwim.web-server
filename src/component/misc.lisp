@@ -11,7 +11,7 @@
   ((content nil :type component)))
 
 (def render content-component ()
-  (render (content-of self)))
+  (render (content-of -self-)))
 
 (def method find-command-bar ((component content-component))
   (find-command-bar (content-of component)))
@@ -39,7 +39,7 @@
   ((component-value)))
 
 (def render label-component ()
-  <span ,(component-value-of self)>)
+  <span ,(component-value-of -self-)>)
 
 ;;;;;;
 ;;; Delay
@@ -49,7 +49,7 @@
   ((thunk)))
 
 (def render delay-component ()
-  (with-slots (thunk) self
+  (with-slots (thunk) -self-
     (render (funcall thunk))))
 
 ;;;;;;
@@ -60,7 +60,7 @@
    (body)))
 
 (def render wrapper-component ()
-  (with-slots (thunk body) self
+  (with-slots (thunk body) -self-
     (funcall thunk (lambda () (render body)))))
 
 (def (macro e) make-wrapper-component (&rest args &key wrap &allow-other-keys)
@@ -86,7 +86,7 @@
    (title nil)))
 
 (def render frame-component ()
-  (with-slots (stylesheets title content) self
+  (with-slots (stylesheets title content) -self-
     <html
      <head
       <meta (:http-equiv "Content-Type" :content "text/html; charset=utf-8")>

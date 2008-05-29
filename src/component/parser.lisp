@@ -46,6 +46,9 @@
 (def method parse-quasi-quoted-ui* ((first (eql 'delay-component)) whole)
   (make-instance 'delay-component :thunk (make-ui-unquote `(lambda () ,@(cdr whole)))))
 
+(def method parse-quasi-quoted-ui* ((first (eql 'label-component)) whole)
+  (make-instance 'label-component :component-value (second whole)))
+
 (def method parse-quasi-quoted-ui* ((first (eql 'boolean-component)) whole)
   (make-instance 'boolean-component :component-value (second whole)))
 

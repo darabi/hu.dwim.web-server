@@ -29,7 +29,7 @@
   (make-load-form-saving-slots self :environment env))
 
 (def print-object (uri :identity nil)
-  (write-uri self *standard-output* nil))
+  (write-uri -self- *standard-output* nil))
 
 (def (function ie) make-uri (&key scheme host port path query fragment)
   (make-instance 'uri :scheme scheme :host host :port port :path path

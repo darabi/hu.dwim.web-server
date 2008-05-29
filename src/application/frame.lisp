@@ -30,11 +30,11 @@
    (debug-component-hierarchy #f :type boolean)))
 
 (def print-object (frame :identity #t :type #f)
-  (print-object-for-string-id-mixin self)
+  (print-object-for-string-id-mixin -self-)
   (write-string " index: ")
-  (princ (frame-index-of self))
+  (princ (frame-index-of -self-))
   (write-string " actions: ")
-  (princ (hash-table-count (action-id->action-of self))))
+  (princ (hash-table-count (action-id->action-of -self-))))
 
 (def function toggle-debug-component-hierarchy (frame)
   (setf (debug-component-hierarchy-p frame) (not (debug-component-hierarchy-p frame))))

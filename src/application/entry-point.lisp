@@ -33,8 +33,8 @@
 
 (def constructor path-entry-point
   (set-funcallable-instance-function
-    self (lambda (request application relative-path)
-           (path-entry-point-handler self request application relative-path))))
+    -self- (lambda (request application relative-path)
+             (path-entry-point-handler -self- request application relative-path))))
 
 (def function path-entry-point-handler (entry-point request application relative-path)
   (declare (ignore application))
@@ -47,8 +47,8 @@
 
 (def constructor path-prefix-entry-point
   (set-funcallable-instance-function
-    self (lambda (request application relative-path)
-           (path-prefix-entry-point-handler self request application relative-path))))
+    -self- (lambda (request application relative-path)
+             (path-prefix-entry-point-handler -self- request application relative-path))))
 
 (def function path-prefix-entry-point-handler (entry-point request application relative-path)
   (declare (ignore application))

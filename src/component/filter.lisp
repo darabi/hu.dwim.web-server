@@ -15,7 +15,7 @@
    (command-bar :type component)))
 
 (def constructor standard-object-filter-component ()
-  (with-slots (the-class class slot-values result command-bar) self
+  (with-slots (the-class class slot-values result command-bar) -self-
     (setf class (make-viewer-component the-class :default-component-type 'reference-component)
           slot-values (make-instance 'standard-object-slot-value-group-component
                                      :instance nil
@@ -23,11 +23,11 @@
                                                             (make-instance 'standard-object-slot-value-filter-component :the-class the-class :slot slot))
                                                           (class-slots the-class)))
           result (make-instance 'empty-component)
-          command-bar (make-instance 'command-bar-component :commands (list (make-top-command-component self)
-                                                                            (make-filter-instances-command-component self))))))
+          command-bar (make-instance 'command-bar-component :commands (list (make-top-command-component -self-)
+                                                                            (make-filter-instances-command-component -self-))))))
 
 (def render standard-object-filter-component ()
-  (with-slots (the-class class slots-values slot-values result command-bar) self
+  (with-slots (the-class class slots-values slot-values result command-bar) -self-
     <div
       <span "Filter instances of " ,(render class)>
       <div
@@ -47,13 +47,13 @@
    (value nil :type component)))
 
 (def constructor standard-object-slot-value-filter-component ()
-  (with-slots (slot slot-name label value) self
+  (with-slots (slot slot-name label value) -self-
     (setf slot-name (slot-definition-name slot)
           label (make-instance 'string-component :component-value (full-symbol-name slot-name))
           value (make-filter-component (slot-definition-type slot)))))
 
 (def render standard-object-slot-value-filter-component ()
-  (with-slots (label value) self
+  (with-slots (label value) -self-
     <tr
       <td ,(render label)>
       <td ,(render value)>>))

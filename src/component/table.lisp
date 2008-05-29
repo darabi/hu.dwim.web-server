@@ -13,11 +13,11 @@
    (page-navigation-bar nil :type component)))
 
 (def constructor table-component ()
-  (with-slots (page-navigation-bar) self
+  (with-slots (page-navigation-bar) -self-
     (setf page-navigation-bar (make-instance 'page-navigation-bar-component :position 0 :page-count 10))))
 
 (def render table-component ()
-  (with-slots (columns rows page-navigation-bar) self
+  (with-slots (columns rows page-navigation-bar) -self-
     (setf (total-count-of page-navigation-bar) (length rows))
     <div
       <table
@@ -43,14 +43,14 @@
   ((cells nil :type components)))
 
 (def render row-component ()
-  <tr ,@(mapcar #'render (cells-of self))>)
+  <tr ,@(mapcar #'render (cells-of -self-))>)
 
 (def component entire-row-component (content-component)
   ())
 
 (def render entire-row-component ()
   <tr
-    <td (:colspan ,(length (columns-of (parent-component-of self))))
+    <td (:colspan ,(length (columns-of (parent-component-of -self-))))
       ,(call-next-method)>>)
 
 (def component cell-component (content-component)

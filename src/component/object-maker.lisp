@@ -12,11 +12,11 @@
    (command-bar :type component)))
 
 (def render standard-object-maker-component ()
-  (with-slots (content command-bar) self
+  (with-slots (content command-bar) -self-
     (render-vertical-list (list content command-bar))))
 
 (def constructor standard-object-maker-component ()
-  (with-slots (the-class content command-bar) self
+  (with-slots (the-class content command-bar) -self-
     (setf content (make-instance 'standard-object-detail-component :instance (make-instance the-class) :edited #t) ;; TODO: need a special component?
           command-bar (make-instance 'command-bar-component :commands (list (make-new-command-component the-class))))))
 

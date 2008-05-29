@@ -27,9 +27,9 @@
    (components nil :type components)))
 
 (def constructor list-component ()
-  (with-slots (elements components) self
+  (with-slots (elements components) -self-
     (when elements
-      (setf (component-value-of self) elements))))
+      (setf (component-value-of -self-) elements))))
 
 (def method component-value-of ((component list-component))
   (elements-of component))
@@ -40,7 +40,7 @@
     (setf components (mapcar #'make-viewer-component new-value))))
 
 (def render list-component ()
-  (with-slots (orientation components) self
+  (with-slots (orientation components) -self-
     (if (eq orientation :vertical)
         (render-vertical-list components)
         (render-horizontal-list components))))

@@ -14,7 +14,7 @@
    (tooltip nil)))
 
 (def render icon-component ()
-  (with-slots (name label image-url tooltip) self
+  (with-slots (name label image-url tooltip) -self-
     <span (:title ,(or (force tooltip) ""))
       ,@(when image-url (list <img (:src ,image-url)>))
       ,@(when label (list (force label)))>))
@@ -40,12 +40,20 @@
                                 :label (delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil))
                                 :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil))))))
 
-(def function clone-icon (name &rest args)
+(def (function e) clone-icon (name &rest args)
   (bind ((icon (find-icon name)))
     (apply #'make-instance 'icon-component :name name (append args (list :label (label-of icon) :image-url (image-url-of icon) :tooltip (tooltip-of icon))))))
 
 ;;;;;;
 ;;; Default icons
+
+(def icon logout "static/wui/icons/20x20/red-arrow-on-door.png")
+(defresources hu
+  (icon-label.logout "Kilépés")
+  (icon-tooltip.logout "A kapcsolat befejezése"))
+(defresources en
+  (icon-label.logout "Logout")
+  (icon-tooltip.logout "Close the current session"))
 
 (def icon refresh "static/wui/icons/20x20/ying-yang-arrows.png")
 (defresources hu

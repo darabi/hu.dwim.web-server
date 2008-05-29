@@ -62,16 +62,16 @@
 
 (def (constructor o) (application path-prefix)
   (assert path-prefix)
-  (setf (lock-of self) (make-recursive-lock (format nil "Application lock for ~A" path-prefix)))
-  (setf (session-class-of self)
+  (setf (lock-of -self-) (make-recursive-lock (format nil "Application lock for ~A" path-prefix)))
+  (setf (session-class-of -self-)
         (make-instance 'standard-class
-                       :direct-superclasses (mapcar #'find-class (session-class self))
+                       :direct-superclasses (mapcar #'find-class (session-class -self-))
                        :name (format-symbol :hu.dwim.wui "~A-SESSION-FOR-~A"
-                                            (class-name (class-of self))
+                                            (class-name (class-of -self-))
                                             (string-upcase path-prefix))))
   (set-funcallable-instance-function
-   self (lambda (request)
-          (application-handler self request))))
+   -self- (lambda (request)
+          (application-handler -self- request))))
 
 (def (generic e) call-as-handler-in-session (application session thunk)
   (:method :before ((application application) (session session) thunk)
