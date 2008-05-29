@@ -298,12 +298,18 @@ Custom implementations should look something like this:
 (def generic render (component))
 
 (def (function e) render-to-string (component)
-  (octets-to-string
-   (with-output-to-sequence (buffer-stream :external-format :utf-8
-                                           :initial-buffer-size 256)
-     (emit-into-html-stream buffer-stream
-       (render component)))
-   :encoding :utf-8))
+  (bind ((*request* (make-instance 'request :uri (parse-uri "")))
+         (*application* (make-instance 'application :path-prefix ""))
+         (*session* (make-instance 'session))
+         (*frame* (make-instance 'frame :session *session*)))
+    (setf (id-of *session*) "1234567890")
+    (with-lock-held-on-session (*session*)
+      (octets-to-string
+       (with-output-to-sequence (buffer-stream :external-format :utf-8
+                                               :initial-buffer-size 256)
+         (emit-into-html-stream buffer-stream
+           (render component)))
+       :encoding :utf-8))))
 
 (def class* locked-session-response-mixin (response)
   ())
