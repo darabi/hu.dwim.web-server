@@ -13,7 +13,7 @@
 (def render content-component ()
   (render (content-of self)))
 
-(def method find-command-bar ((component entire-row-component))
+(def method find-command-bar ((component content-component))
   (find-command-bar (content-of component)))
 
 ;;;;;;
