@@ -17,13 +17,14 @@
 (def class* sub-test (super-test)
   ((integer-slot :type integer)))
 
-(def special-variable *test-instances*)
+(def special-variable *test-instances* nil)
 
 (def function make-test-instances ()
   (setf *test-instances*
-        (list (make-instance 'super-test :string-slot "Hello World" :sister-slot (make-instance 'sister-test :boolean-slot #f))
-              (make-instance 'sub-test :string-slot "Hello World" :integer-slot 42 :sister-slot (make-instance 'sister-test :boolean-slot #t))
-              (make-instance 'sub-test :string-slot "I'll be back" :integer-slot 42))))
+        (append *test-instances*
+                (list (make-instance 'super-test :string-slot "Hello World" :sister-slot (make-instance 'sister-test :boolean-slot #f))
+                      (make-instance 'sub-test :string-slot "Hello World" :integer-slot 42 :sister-slot (make-instance 'sister-test :boolean-slot #t))
+                      (make-instance 'sub-test :string-slot "I'll be back" :integer-slot 42)))))
 
 (make-test-instances)
 

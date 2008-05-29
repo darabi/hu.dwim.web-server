@@ -110,7 +110,7 @@
 (ensure-entry-point *session-application*
                     (make-file-serving-broker "/session/static/" (project-relative-pathname "wwwroot/")))
 
-(def function start-server-with-test-applications (&key (maximum-worker-count 16) (log-level +dribble+))
+(def function start-server-with-test-applications (&key (maximum-worker-count 16) (log-level +debug+))
   (with-logger-level wui log-level
     (start-server-with-brokers (list (make-redirect-broker "/session" "/session/")
                                      *session-application*
