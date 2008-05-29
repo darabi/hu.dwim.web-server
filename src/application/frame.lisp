@@ -26,7 +26,7 @@
    (next-frame-index (random-simple-base-string +frame-index-length+))
    (client-state-sink-id->client-state-sink (make-hash-table :test 'equal))
    (action-id->action (make-hash-table :test 'equal))
-   (root-component nil)
+   (root-component nil :export #t)
    (debug-component-hierarchy #f :type boolean)))
 
 (def print-object (frame :identity #t :type #f)

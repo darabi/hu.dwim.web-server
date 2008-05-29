@@ -317,9 +317,8 @@ Custom implementations should look something like this:
 (def class* root-component-rendering-response (locked-session-response-mixin)
   ((frame)))
 
-(def function make-root-component-rendering-response (frame)
+(def (function e) make-root-component-rendering-response (frame)
   (make-instance 'root-component-rendering-response :frame frame))
-
 
 (def method send-response ((self root-component-rendering-response))
   (bind ((*frame* (frame-of self))
