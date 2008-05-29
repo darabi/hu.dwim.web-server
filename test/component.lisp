@@ -114,7 +114,7 @@
   `ui(menu
       (menu-item (string "Debug")
                  (menu-item (command (icon "Start Over") (action #+nil (value)))) ;; TODO
-                 (menu-item (command (icon "Hierarchy") (action (setf (hu.dwim.wui::debug-component-hierarchy-p *frame*) (not (hu.dwim.wui::debug-component-hierarchy-p *frame*)))))))
+                 (menu-item (command (icon "Hierarchy") (action (hu.dwim.wui::toggle-debug-component-hierarchy *frame*)))))
       (menu-item (string "Simple")
                  (menu-item (replace-menu-target-command (icon "Hello World") (string "Hello World")))
                  (menu-item (replace-menu-target-command (icon "Lexical Counter")

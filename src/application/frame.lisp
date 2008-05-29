@@ -36,6 +36,9 @@
   (write-string " actions: ")
   (princ (hash-table-count (action-id->action-of self))))
 
+(def function toggle-debug-component-hierarchy (frame)
+  (setf (debug-component-hierarchy-p frame) (not (debug-component-hierarchy-p frame))))
+
 (def (function o) find-frame-from-request (session)
   (bind ((frame-id (parameter-value +frame-id-parameter-name+)))
     (when frame-id
