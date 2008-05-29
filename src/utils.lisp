@@ -271,3 +271,36 @@
   "Execute BODY and wrap its html output in a TAG-NAME xml node with \"http://www.w3.org/1999/xhtml\" xml namespace."
   `<,,tag-name ("xmlns" #.+XHTML-NAMESPACE-URI+)
      ,,@body>)
+
+;;;;;;
+;;; Dynamic classes
+
+(def special-variable *dynamic-classes* (make-hash-table :test #'equal))
+
+(def function find-dynamic-class (class-names)
+  (assert (every-type-p 'symbol class-names))
+  (gethash class-names *dynamic-classes*))
+
+(def function (setf find-dynamic-class) (class class-names)
+  (assert (every-type-p 'symbol class-names))
+  (setf (gethash class-names *dynamic-classes*) class))
+
+(def function dynamic-class-name (class-names)
+  (format-symbol *package* "~{~A~^-~}" class-names))
+
+(def function dynamic-class-metaclass (class-names)
+  (bind ((metaclasses
+          (mapcar (lambda (class-name)
+                    (class-of (find-class class-name)))
+                  class-names)))
+    (every (lambda (metaclass)
+             (eq metaclass (first metaclasses)))
+           metaclasses)
+    (first metaclasses)))
+
+(def method make-instance ((class-names list) &rest args)
+  (bind ((class (find-dynamic-class class-names)))
+    (unless class
+      (setf class (ensure-class (dynamic-class-name class-names) :direct-superclasses class-names :metaclass (dynamic-class-metaclass class-names)))
+      (setf (find-dynamic-class class-names) class))
+    (apply #'make-instance class args)))
