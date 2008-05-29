@@ -27,7 +27,7 @@
   ())
 
 (def method (setf component-value-of) :after (new-value (component standard-class-component))
-  (with-slots (the-class alternatives content command-bar) component
+  (with-slots (the-class default-component-type alternatives content command-bar) component
     (if the-class
         (progn
           (if alternatives
@@ -38,7 +38,9 @@
                                          (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-class-reference-component :target the-class))))))
           (if content
               (setf (component-value-of content) the-class)
-              (setf content (find-alternative-component alternatives 'reference-component)))
+              (setf content (if default-component-type
+                                (find-alternative-component alternatives default-component-type)
+                                (find-default-alternative-component alternatives))))
           (unless command-bar
             (setf command-bar (make-alternator-command-bar-component component alternatives))))
         (setf alternatives nil

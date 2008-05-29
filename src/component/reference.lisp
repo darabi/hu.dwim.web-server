@@ -33,7 +33,7 @@
   (with-slots (targets references) -self-
     (setf references
           (mapcar (lambda (target)
-                    (make-viewer-component target :default-type 'reference-component))
+                    (make-viewer-component target :default-component-type 'reference-component))
                   targets))))
 
 (def render reference-list-component ()
@@ -74,3 +74,12 @@
 
 (def method make-reference-label ((reference standard-object-list-reference-component))
   (princ-to-string (target-of reference)))
+
+;;;;;;
+;;; Standard object filter reference
+
+(def component standard-object-filter-reference-component (reference-component)
+  ())
+
+(def method make-reference-label ((reference standard-object-filter-reference-component))
+  (full-symbol-name (class-name (target-of reference))))

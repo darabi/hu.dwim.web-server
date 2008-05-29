@@ -226,12 +226,18 @@
 (def component date-component (atomic-component)
   ())
 
+(def render date-component ()
+  <span "TODO: date-component">)
+
 ;;;;;;
 ;;; Time
 
 ;; TODO:
 (def component time-component (atomic-component)
   ())
+
+(def render time-component ()
+  <span "TODO: time-component">)
 
 ;;;;;;
 ;;; Timestamp
@@ -240,12 +246,20 @@
 (def component timestamp-component (atomic-component)
   ())
 
+(def render timestamp-component ()
+  <span "TODO: timestamp-component">)
+
+
 ;;;;;;
 ;;; Member
 
 ;; TODO:
 (def component member-component (atomic-component)
   ())
+
+(def render member-component ()
+  <span "TODO: member-component">)
+
 
 ;;;;;;
 ;;; Lisp form
@@ -254,9 +268,15 @@
 (def component lisp-form-component (atomic-component)
   ())
 
+(def render lisp-form-component ()
+  <span "TODO: lisp-form-component">)
+
 ;;;;;;
 ;;; Lisp form
 
 ;; TODO:
 (def component ip-address-component (atomic-component)
   ())
+
+(def render ip-address-component ()
+  <span "TODO: ip-address-component">)

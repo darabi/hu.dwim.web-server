@@ -60,7 +60,7 @@
     (if the-class
         (if class
             (setf (component-value-of class) the-class)
-            (setf class (make-viewer-component the-class)))
+            (setf class (make-viewer-component the-class :default-component-type 'reference-component)))
         (setf class nil))
     (if instance
         (if slot-value-group

@@ -7,8 +7,8 @@
 ;;;;;;
 ;;; API
 
-(def (function e) make-component-for-type (type)
-  (make-instance (find-component-type-for-type type)))
+(def (function e) make-component-for-type (type &rest args &key &allow-other-keys)
+  (apply #'make-instance (find-component-type-for-type type) args))
 
 (def (generic e) find-component-type-for-type (type)
   (:method ((type symbol))
@@ -30,9 +30,11 @@
   (:method ((class (eql (find-class t))))
     't-component)
 
+  (:method ((class structure-class))
+    (find-component-type-for-prototype (closer-mop:class-prototype class)))
+
   (:method ((class standard-class))
     (find-component-type-for-prototype (closer-mop:class-prototype class))))
-
 
 (def (function) find-component-type-for-compound-type (type)
   (find-component-type-for-compound-type* (first type) type))
@@ -54,8 +56,8 @@
           'standard-object-list-component
           'list-component))))
 
-(def (function e) make-component-for-prototype (type)
-  (make-instance (find-component-type-for-prototype type)))
+(def (function e) make-component-for-prototype (type &rest args &key &allow-other-keys)
+  (apply #'make-instance (find-component-type-for-prototype type) args))
 
 (def (generic e) find-component-type-for-prototype (type)
   (:method ((prototype string))
@@ -70,13 +72,16 @@
   (:method ((prototype standard-slot-definition))
     'standard-slot-definition-component)
 
+  (:method ((prototype structure-class))
+    'standard-class-component)
+
   (:method ((prototype standard-class))
     'standard-class-component)
 
-  (:method ((prototype standard-object))
+  (:method ((prototype structure-object))
     'standard-object-component)
 
-  (:method ((prototype structure-object))
+  (:method ((prototype standard-object))
     'standard-object-component))
 
 (def (generic e) component-value-of (component))
@@ -86,55 +91,92 @@
 ;;;;;;
 ;;; Viewer
 
-(def (generic e) make-viewer-component (thing &key type &allow-other-keys)
-  (:method (thing &key type &allow-other-keys)
-    (aprog1 (make-component-for-type
-             (or type
-                 (if (and (typep thing 'proper-list)
-                          (every-type-p 'standard-object thing))
-                     '(list standard-object)
-                     (type-of thing))))
+(def (generic e) make-viewer-component (thing &key &allow-other-keys)
+  (:method (thing &rest args &key type &allow-other-keys)
+    (aprog1 (apply #'make-component-for-type
+                   (or type
+                       (if (and (typep thing 'proper-list)
+                                (every-type-p 'standard-object thing))
+                           '(list standard-object)
+                           (type-of thing)))
+                   args)
       (setf (component-value-of it) thing))))
 
 ;;;;;;
 ;;; Editor
 
-(def (generic e) make-editor-component (thing &key type &allow-other-keys)
-  (:method (thing &key type &allow-other-keys)
-    (aprog1 (make-component-for-type (or type (type-of thing)))
-      (setf (component-value-of it) thing)
+(def (generic e) make-editor-component (thing &key &allow-other-keys)
+  (:method (thing &rest args &key &allow-other-keys)
+    (aprog1 (apply #'make-viewer-component thing args)
       (begin-editing it))))
 
 ;;;;;;
 ;;; Filter
 
 ;; TODO: join with make-component-for-type
-(def (generic e) make-filter-component (thing)
-  (:method ((class-name (eql t)))
+(def (generic e) make-filter-component (thing &key &allow-other-keys)
+  (:method ((class-name (eql t)) &rest args &key &allow-other-keys)
     ;; KLUDGE: take a filter form as parameter and use that
-    (make-filter-component (find-class 'standard-object)))
+    (apply #'make-filter-component (find-class 'standard-object) args))
 
-  (:method ((class-name symbol))
-    (make-filter-component (find-class class-name)))
+  (:method ((class-name (eql 'dmm::standard-text)) &key &allow-other-keys)
+    (make-instance 'string-component))
 
-  (:method ((class-name (eql 'boolean)))
+  (:method ((class-name (eql 'prc::timestamp)) &key &allow-other-keys)
+    (make-instance 'timestamp-component))
+
+  (:method ((class-name (eql 'prc::date)) &key &allow-other-keys)
+    (make-instance 'date-component))
+
+  (:method ((class-name (eql 'prc::time)) &key &allow-other-keys)
+    (make-instance 'time-component))
+
+  (:method ((class-name (eql 'prc::ip-address)) &key &allow-other-keys)
+    (make-instance 'time-component))
+
+  (:method ((class-name symbol) &rest args &key &allow-other-keys)
+    (apply #'make-filter-component (find-class class-name) args))
+
+  (:method ((class-name (eql 'boolean)) &key &allow-other-keys)
     (make-instance 'boolean-component :edited #t))
 
-  (:method ((type cons))
-    ;; KLUDGE:
-    (make-filter-component (first (remove 'null (remove 'or type)))))
+  (:method ((type cons) &rest args &key &allow-other-keys)
+    (apply #'make-filter-component-for-compound-type type args))
 
-  (:method ((class built-in-class))
+  (:method ((class built-in-class) &key &allow-other-keys)
     (make-instance 'string-component :edited #t))
 
-  (:method ((class (eql (find-class 'string))))
+  (:method ((class (eql (find-class 'string))) &key &allow-other-keys)
     (make-instance 'string-component :edited #t))
 
-  (:method ((class (eql (find-class 'integer))))
+  (:method ((class (eql (find-class 'integer))) &key &allow-other-keys)
     (make-instance 'integer-component :edited #t))
 
-  (:method ((class standard-class))
-    (make-instance 'standard-object-filter-component :the-class class)))
+  (:method ((class structure-class) &key &allow-other-keys)
+    (make-instance 'standard-object-filter-component :the-class class))
+
+  (:method ((class standard-class) &key default-component-type &allow-other-keys)
+    (make-instance 'standard-object-filter-component :the-class class :default-component-type default-component-type)))
+
+(def function make-filter-component-for-compound-type (type &rest args &key &allow-other-keys)
+  (apply #'make-filter-component-for-compound-type* (first type) type args))
+
+(def (generic e) make-filter-component-for-compound-type* (first type &key &allow-other-keys)
+  (:method ((first (eql 'prc::set)) (type cons) &key &allow-other-keys)
+    ;; TODO:
+    (make-instance 'null-component))
+
+  (:method ((first (eql 'or)) (type cons) &rest args &key &allow-other-keys)
+    ;; KLUDGE:
+    (apply #'make-filter-component (last-elt type) args))
+
+  (:method ((first (eql 'member)) (type cons) &key &allow-other-keys)
+    ;; TODO:
+    (make-instance 'member-component))
+
+  (:method ((first (eql 'prc::text)) (type cons) &key &allow-other-keys)
+    ;; TODO:
+    (make-instance 'string-component)))
 
 ;;;;;;
 ;;; Maker

@@ -8,7 +8,8 @@
 ;;; Alternator
 
 (def component alternator-component (editable-component)
-  ((alternatives nil)
+  ((default-component-type nil)
+   (alternatives nil)
    (content nil :type component)
    (command-bar nil :type component)))
 
