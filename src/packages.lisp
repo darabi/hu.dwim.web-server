@@ -36,6 +36,8 @@
    #:define-syntax)
 
   (:export
+   #:path-prefix-of
+   #:id-of
    ))
 
 (defpackage :hu.dwim.wui-user

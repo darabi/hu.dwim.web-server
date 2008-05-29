@@ -6,6 +6,8 @@
 
 ;; http://www.faqs.org/rfcs/rfc2396.html
 
+(export '(uri-of host-of scheme-of path-of fragment-of))
+
 (define-condition uri-parse-error (simple-parse-error)
   ())
 

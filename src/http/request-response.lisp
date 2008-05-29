@@ -4,12 +4,12 @@
 
 (in-package :hu.dwim.wui)
 
-(defgeneric header-value (message header-name))
-(defgeneric (setf header-value) (value message header-name))
+(def (generic e) header-value (message header-name))
+(def (generic e) (setf header-value) (value message header-name))
+(def (generic e) remote-host-of (message))
 (defgeneric send-response (response))
 (defgeneric send-headers (response))
 (defgeneric close-request (request))
-(defgeneric remote-address-of (message))
 
 (def class* http-message ()
   ((headers nil)
@@ -60,7 +60,7 @@
        (unescape-as-uri (rfc2109:cookie-value (first it)))
        (handle-otherwise otherwise)))
 
-(defun add-cookie (cookie &optional (response *response*))
+(def (function e) add-cookie (cookie &optional (response *response*))
   "Add cookie to the current response."
   (assert (rfc2109:cookie-p cookie))
   (push cookie (cookies-of response)))
@@ -104,8 +104,8 @@
    (uri)
    (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")))
 
-(defmethod remote-address-of ((request request))
-  (net.sockets:remote-host (network-stream-of request)))
+(defmethod remote-host-of ((request request))
+  (iolib:remote-host (network-stream-of request)))
 
 (defmethod cookies-of :around ((request request))
   (if (slot-boundp request 'cookies)

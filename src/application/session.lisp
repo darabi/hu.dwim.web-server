@@ -4,7 +4,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def (constant :test 'string=) +session-id-parameter-name+ "_s")
+(def (constant :test 'string=) +session-cookie-name+ "sid")
 
 (def constant +session-id-length+ 32)
 
@@ -81,7 +81,7 @@
     ))
 
 (def (function o) find-session-from-request (application)
-  (bind ((session-id (cookie-value +session-id-parameter-name+)))
+  (bind ((session-id (cookie-value +session-cookie-name+)))
     (when session-id
       (app.debug "Found session-id parameter ~S" session-id)
       (bind ((session (gethash session-id (session-id->session-of application))))

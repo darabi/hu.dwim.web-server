@@ -82,9 +82,10 @@
                          (make-instance
                           ,class ,@args
                           :handler (lambda (,request)
-                                     (with-request-params ,request ,request-lambda-list
-                                       ,(if lookup-and-lock-session
-                                            `(with-session/frame/action-logic ()
-                                               ,@body)
-                                            `(progn
-                                               ,@body))))))))
+                                     (block entry-point
+                                       (with-request-params ,request ,request-lambda-list
+                                         ,(if lookup-and-lock-session
+                                              `(with-session/frame/action-logic ()
+                                                 ,@body)
+                                              `(progn
+                                                 ,@body)))))))))

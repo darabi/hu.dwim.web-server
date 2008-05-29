@@ -28,8 +28,8 @@
 
 (def (special-variable e) *application*)
 
-(def (function e) make-application (&key (path-prefix ""))
-  (make-instance 'application :path-prefix path-prefix))
+(def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
+  (apply #'make-instance 'application :path-prefix path-prefix args))
 
 (def class* application (broker-with-path-prefix)
   ((entry-points nil)
@@ -47,7 +47,7 @@
 (def (function i) assert-application-lock-held (application)
   (assert (is-lock-held? (lock-of application)) () "You must have a lock on the application here"))
 
-(def with-macro with-lock-held-on-application (application)
+(def (with-macro e) with-lock-held-on-application (application)
   (debug-only*
     (iter (for (nil session) :in-hashtable (session-id->session-of application))
           (assert (not (is-lock-held? (lock-of session))) ()
@@ -145,13 +145,13 @@
         (bind ((*frame* nil))
           (-body-)))))
 
-(def function decorate-application-response (application response)
+(def (function e) decorate-application-response (application response)
   (when (and response
              *session*)
     (bind ((request-uri (uri-of *request*)))
       (app.debug "Decorating response ~A with the session cookie for session ~S" response *session*)
       (add-cookie (make-cookie
-                   +session-id-parameter-name+
+                   +session-cookie-name+
                    (aif *session*
                         (id-of it)
                         "")
@@ -340,10 +340,12 @@ Custom implementations should look something like this:
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
     (make-redirect-response uri)))
 
-(def (function e) make-redirect-response-for-current-application ()
+(def (function e) make-redirect-response-for-current-application (&optional relative-path)
   (bind ((uri (clone-uri (uri-of *request*))))
     (clear-uri-query-parameters uri)
     (decorate-uri uri *application*)
     (decorate-uri uri *session*)
     (decorate-uri uri *frame*)
+    (when relative-path
+      (append-path-to-uri uri relative-path))
     (make-redirect-response uri)))

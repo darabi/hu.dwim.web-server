@@ -19,7 +19,10 @@
    (started-at)
    (processed-request-count 0)))
 
-(def with-macro with-lock-held-on-server (server)
+(def (function e) is-server-running? (server)
+  (not (null (socket-of server))))
+
+(def (with-macro e) with-lock-held-on-server (server)
   (multiple-value-prog1
       (progn
         (threads.dribble "Entering with-lock-held-on-server for server ~S in thread ~S" server (current-thread))

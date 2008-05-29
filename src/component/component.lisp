@@ -72,7 +72,8 @@
                   (prin1 initarg)
                   (write-char #\Space)
                   (pprint-newline :fill)
-                  (prin1 value))))))))
+                  (prin1 value)))))))
+  self)
 
 ;;;;;;
 ;;; Parent child relationship
