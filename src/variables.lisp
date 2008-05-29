@@ -6,7 +6,7 @@
 
 (enable-sharp-boolean-syntax)
 
-(def (constant :test 'external-format-equal) +external-format+ (ensure-external-format +encoding+))
+(define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
 (def special-variable *html-stream*)
 (def special-variable *js-stream*)
