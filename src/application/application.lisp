@@ -345,7 +345,21 @@ Custom implementations should look something like this:
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
     (make-redirect-response uri)))
 
-(def (function e) make-redirect-response-for-current-application (&optional relative-path)
+(def (function e) make-uri-for-application (application &optional relative-path)
+  "Does not assume an application context and only use *session* & co. when available."
+  (bind ((uri (clone-uri (uri-of *request*))))
+    (clear-uri-query-parameters uri)
+    (decorate-uri uri application)
+    (when (boundp '*session*)
+      (decorate-uri uri *session*))
+    (when (boundp '*frame*)
+      (decorate-uri uri *frame*))
+    (when relative-path
+      (append-path-to-uri uri relative-path))
+    uri))
+
+(def (function e) make-uri-for-current-application (&optional relative-path)
+  "Expects a valid *session* environment."
   (bind ((uri (clone-uri (uri-of *request*))))
     (clear-uri-query-parameters uri)
     (decorate-uri uri *application*)
@@ -353,4 +367,7 @@ Custom implementations should look something like this:
     (decorate-uri uri *frame*)
     (when relative-path
       (append-path-to-uri uri relative-path))
-    (make-redirect-response uri)))
+    uri))
+
+(def (function e) make-redirect-response-for-current-application (&optional relative-path)
+  (make-redirect-response (make-uri-for-current-application relative-path)))
