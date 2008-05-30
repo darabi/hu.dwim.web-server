@@ -17,7 +17,7 @@
   (with-slots (visible enabled icon action) -self-
     (if (force visible)
         (if (force enabled)
-            <a (:href "#" :onClick `js-inline(submit-form ,(action-to-href action)))
+            <a (:href "#" :onclick `js-inline(submit-form ,(action-to-href action)))
               ,(render icon)>
             (render icon))
         +void+)))

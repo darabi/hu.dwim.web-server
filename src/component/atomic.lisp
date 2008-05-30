@@ -95,16 +95,17 @@
 
 (def render boolean-component ()
   (with-slots (edited component-value client-state-sink) -self-
-    <input (:type "checkbox"
-            ,(if client-state-sink (make-xml-attribute "name" (id-of client-state-sink)) +void+)
-            ,(if component-value (make-xml-attribute "checked" "checked") +void+)
-            ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>))
+    <div <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "#t" "#f"))>
+         <input (:type "checkbox"
+                ,(if component-value (make-xml-attribute "checked" "checked") +void+)
+                ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>>))
 
 (def method parse-component-value ((component boolean-component) client-value)
-  ;; TODO: browser does not send value when unchecked
-  (if (string= "1" client-value)
-      #t
-      #f))
+  (cond ((string= "#t" client-value)
+         #t)
+        ((string= "#f" client-value)
+         #f)
+        (t (error "Unknown boolean value ~A" client-value))))
 
 ;;;;;;
 ;;; String
@@ -138,16 +139,27 @@
   ())
 
 (def render string-component ()
-  (with-slots (edited component-value client-state-sink) -self-
-    (if edited
-        <input (:type "text" :name (id-of client-state-sink) :value ,component-value)>
-        <span ,component-value>)))
+  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
+    (bind ((printed-value
+            (if (and allow-nil-value
+                     (null component-value))
+                ""
+                component-value)))
+      (if edited
+          <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
+          <span ,printed-value>))))
 
 (def method parse-component-value ((component string-component) client-value)
   (if (and (allow-nil-value-p component)
            (string= client-value ""))
       nil
       client-value))
+
+;;;;;;
+;;; Symbol
+
+(def component symbol-component (string-component)
+  ())
 
 ;;;;;;
 ;;; Number

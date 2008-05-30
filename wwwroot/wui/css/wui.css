@@ -1,3 +1,17 @@
+.debug-component
+{
+    padding: 1px;
+    border-color: lightgray;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.debug-component-name
+{
+    font-size: 10;
+    color: purple;
+}
+
 .missing-resource
 {
   color: #ff0000;

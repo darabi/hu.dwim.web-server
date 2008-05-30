@@ -20,8 +20,9 @@
           content (if default-component-type
                       (find-alternative-component alternatives default-component-type)
                       (find-default-alternative-component alternatives))
-          command-bar (make-instance 'command-bar-component :commands (list (make-top-command-component -self-)
-                                                                            (make-filter-instances-command-component -self-))))))
+          command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command-component -self-)
+                                                                                    (make-filter-instances-command-component -self-))
+                                                                              (make-alternative-command-components -self- alternatives))))))
 
 ;;;;;;
 ;;; Standard object filter detail
@@ -73,6 +74,8 @@
           <thead
             <tr
               <th "Name">
+              <th>
+              <th>
               <th "Value">>>
           <tbody ,@(mapcar #'render slot-values)>>
         <span "There are none">)))
@@ -84,19 +87,30 @@
   ((the-class)
    (slot)
    (slot-name)
+   (negated #f :type boolean)
+   (condition :equal :type (member (:equal :like :less :less-or-equal :greater :greater-or-equal :between)))
    (label nil :type component)
    (value nil :type component)))
 
 (def constructor standard-object-slot-value-filter-component ()
-  (with-slots (slot slot-name label value) -self-
+  (with-slots (slot slot-name label negate condition value) -self-
     (setf slot-name (slot-definition-name slot)
-          label (make-instance 'string-component :component-value (full-symbol-name slot-name))
+          label (make-instance 'label-component :component-value (full-symbol-name slot-name))
           value (make-filter-component (slot-definition-type slot) :default-component-type 'reference-component))))
 
 (def render standard-object-slot-value-filter-component ()
-  (with-slots (label value) -self-
+  (with-slots (label negated condition value) -self-
     <tr (:class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
       <td ,(render label)>
+      <td ,(if negated
+               (render-icon (find-icon 'negated) :render-label #f)
+               (render-icon (find-icon 'ponated) :render-label #f))>
+      <td ,(render-icon
+            (find-icon
+             (ecase condition
+               (:equal 'equal)
+               (:like 'like)))
+            :render-label #f)>
       <td ,(render value)>>))
 
 ;;;;;;

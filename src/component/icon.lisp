@@ -14,10 +14,16 @@
    (tooltip nil)))
 
 (def render icon-component ()
-  (with-slots (name label image-url tooltip) -self-
+  (render-icon -self-))
+
+(def function render-icon (icon &key (render-label #t))
+  (with-slots (label image-url tooltip) icon
     <span (:title ,(or (force tooltip) ""))
-      ,@(when image-url (list <img (:src ,image-url)>))
-      ,@(when label (list (force label)))>))
+     ,@(when image-url
+             (list <img (:src ,image-url)>))
+     ,@(when (and label
+                  render-label)
+             (list (force label)))>))
 
 (def (macro e) make-icon-component (name &rest args)
   `(make-instance 'icon-component :name ,name ,@args))
@@ -166,3 +172,35 @@
 (defresources en
   (icon-label.filter "Filter")
   (icon-tooltip.filter "Execute the filter"))
+
+(def icon equal "static/wui/icons/20x20/equal-sign.png")
+(defresources hu
+  (icon-label.equal "Egyenlő")
+  (icon-tooltip.equal "Ellenőrzes egyenlőségre"))
+(defresources en
+  (icon-label.equal "Equal")
+  (icon-tooltip.equal "Compare for equality"))
+
+(def icon like "static/wui/icons/20x20/tilde.png")
+(defresources hu
+  (icon-label.like "Hasonló")
+  (icon-tooltip.like "Ellenőrzes hasonlóságra"))
+(defresources en
+  (icon-label.like "Like")
+  (icon-tooltip.like "Compare for like"))
+
+(def icon negated "static/wui/icons/20x20/no-entry.png") ;; TODO: find better icon
+(defresources hu
+  (icon-label.negated "Negált")
+  (icon-tooltip.negated "Negált feltétel"))
+(defresources en
+  (icon-label.negated "Negated")
+  (icon-tooltip.negated "Negate condition"))
+
+(def icon ponated "static/wui/icons/20x20/checkmark.png") ;; TODO: find better icon
+(defresources hu
+  (icon-label.ponate "Ponált")
+  (icon-tooltip.ponate "Ponált feltétel"))
+(defresources en
+  (icon-label.ponated "Ponated")
+  (icon-tooltip.ponated "Ponate condition"))

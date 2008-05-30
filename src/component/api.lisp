@@ -149,6 +149,12 @@
   (:method ((class (eql (find-class 'string))) &key &allow-other-keys)
     (make-instance 'string-component :edited #t))
 
+  (:method ((class (eql (find-class 'symbol))) &key &allow-other-keys)
+    (make-instance 'symbol-component :edited #t))
+
+  (:method ((class (eql (find-class 'fixnum))) &key &allow-other-keys)
+    (make-instance 'integer-component :edited #t))
+
   (:method ((class (eql (find-class 'integer))) &key &allow-other-keys)
     (make-instance 'integer-component :edited #t))
 
@@ -168,7 +174,10 @@
 
   (:method ((first (eql 'or)) (type cons) &rest args &key &allow-other-keys)
     ;; KLUDGE:
-    (apply #'make-filter-component (last-elt type) args))
+    (prog1-bind component (apply #'make-filter-component (last-elt type) args)
+      (if (and (typep component 'atomic-component)
+               (member 'null type))
+          (setf (allow-nil-value-p component) #t))))
 
   (:method ((first (eql 'member)) (type cons) &key &allow-other-keys)
     ;; TODO:
