@@ -31,8 +31,8 @@
 ;;; Syntax
 
 (define-syntax quasi-quoted-ui (&key (dispatched-quasi-quote-name "ui")
-                                     (start-character #\[)
-                                     (end-character #\])
+                                     start-character
+                                     end-character
                                      (unquote-character #\,)
                                      (splice-character #\@)
                                      (transformation-pipeline nil))

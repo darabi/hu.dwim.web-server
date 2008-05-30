@@ -70,6 +70,7 @@
 
 (defun setup-readtable ()
   (enable-sharp-boolean-syntax)
+  (enable-lambda-with-bang-args-syntax :start-character #\[ :end-character #\])
   (enable-readtime-wrapper-syntax)
   (enable-sharpquote<>-syntax)
   (enable-quasi-quoted-js-syntax
