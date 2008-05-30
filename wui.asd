@@ -108,6 +108,10 @@
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
                :cl-delico
+
+               ;; TODO these shouldn't be here
+               :dwim-meta-model
+               :cl-perec
                ))
 
 (defsystem* :wui
