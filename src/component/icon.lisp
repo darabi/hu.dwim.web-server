@@ -34,7 +34,7 @@
 (def function (setf find-icon) (icon name)
   (setf (gethash name *icons*) icon))
 
-(def definer icon (name image-url)
+(def (definer e) icon (name image-url)
   (bind ((name-as-string (string-downcase name)))
     `(setf (find-icon ',name)
            (make-icon-component ',name

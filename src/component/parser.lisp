@@ -64,8 +64,8 @@
 (def method parse-quasi-quoted-ui* ((first (eql 'horizontal-list-component)) whole)
   (make-instance 'horizontal-list-component :components (mapcar #'parse-quasi-quoted-ui (cdr whole))))
 
-(def method parse-quasi-quoted-ui* ((first (eql 'process-component)) whole)
-  (make-instance 'process-component :form (second whole)))
+(def method parse-quasi-quoted-ui* ((first (eql 'standard-process-component)) whole)
+  (make-instance 'standard-process-component :form (second whole)))
 
 (def method parse-quasi-quoted-ui* ((first (eql 'menu-component)) whole)
   (make-instance 'menu-component :menu-items (mapcar #'parse-quasi-quoted-ui (cdr whole))))

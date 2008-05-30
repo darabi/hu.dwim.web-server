@@ -35,7 +35,10 @@
     (find-component-type-for-prototype (closer-mop:class-prototype class)))
 
   (:method ((class standard-class))
-    (find-component-type-for-prototype (closer-mop:class-prototype class))))
+    (find-component-type-for-prototype (closer-mop:class-prototype class)))
+
+  (:method ((class prc::persistent-class))
+    'standard-object-component))
 
 (def (function) find-component-type-for-compound-type (type)
   (find-component-type-for-compound-type* (first type) type))
