@@ -44,13 +44,14 @@
 ;;;;;;
 ;;; Delay
 
-;; TODO: this probably has to be deleted, I don't like the way it works
-(def component delay-component ()
+(def component inline-component ()
   ((thunk)))
 
-(def render delay-component ()
-  (with-slots (thunk) -self-
-    (render (funcall thunk))))
+(def render inline-component ()
+  (funcall (thunk-of -self-)))
+
+(def (macro e) make-inline-component (&body forms)
+  `(make-instance 'inline-component :thunk (lambda () ,@forms)))
 
 ;;;;;;
 ;;; Wrapper

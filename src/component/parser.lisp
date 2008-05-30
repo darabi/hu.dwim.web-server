@@ -43,8 +43,8 @@
 (def method parse-quasi-quoted-ui* ((first (eql 'top-component)) whole)
   (make-instance 'top-component :content (parse-quasi-quoted-ui (second whole))))
 
-(def method parse-quasi-quoted-ui* ((first (eql 'delay-component)) whole)
-  (make-instance 'delay-component :thunk (make-ui-unquote `(lambda () ,@(cdr whole)))))
+(def method parse-quasi-quoted-ui* ((first (eql 'inline-component)) whole)
+  (make-instance 'inline-component :thunk (make-ui-unquote `(lambda () ,@(cdr whole)))))
 
 (def method parse-quasi-quoted-ui* ((first (eql 'label-component)) whole)
   (make-instance 'label-component :component-value (second whole)))
