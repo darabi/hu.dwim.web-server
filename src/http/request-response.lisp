@@ -199,12 +199,14 @@
       status)))
 
 (defmethod send-headers ((response response))
+  (http.debug "Sending headers of ~A" response)
   (send-http-headers (headers-of response) (cookies-of response)))
 
 (defmethod send-response :around ((response response))
   (bind ((*response* response)
          (network-stream (network-stream-of *request*))
          (original-external-format (io.streams:external-format-of network-stream)))
+    (http.debug "Sending response ~A" response)
     (unwind-protect
          (progn
            (setf (io.streams:external-format-of network-stream) (external-format-of response))
@@ -250,6 +252,12 @@
 (def (class* e) functional-response (response)
   ((thunk :type (or symbol function))))
 
+(def (function e) make-functional-response* (thunk &key headers cookies)
+  (make-instance 'functional-response
+                 :thunk thunk
+                 :headers headers
+                 :cookies cookies))
+
 (def (macro e) make-functional-response ((&optional headers-as-plist cookie-list) &body body)
   (with-unique-names (response)
     `(bind ((,response (make-functional-response* (lambda () ,@body)))
@@ -267,15 +275,49 @@
      (emit-into-html-stream (network-stream-of *request*)
        ,@body)))
 
-(def (function e) make-functional-response* (thunk &key headers cookies)
-  (make-instance 'functional-response
-                 :thunk thunk
-                 :headers headers
-                 :cookies cookies))
+(def (macro e) make-buffered-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
+  `(bind ((buffer (emit-into-html-stream-buffer
+                    ,@body)))
+     (make-byte-vector-response buffer
+                                (+header/content-type+ +html-content-type+
+                                 ,@headers-as-plist)
+                                (,@cookie-list))))
 
 (defmethod send-response ((response functional-response))
   (call-next-method)
   (funcall (thunk-of response)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; byte-vector-response
+
+(def (class* e) byte-vector-response (response)
+  ((body :type (or list vector))))
+
+(def (function e) make-byte-vector-response* (body &key headers cookies)
+  (make-instance 'byte-vector-response
+                 :body body
+                 :headers headers
+                 :cookies cookies))
+
+(def (macro e) make-byte-vector-response (body &optional headers-as-plist cookie-list)
+  (with-unique-names (response)
+    `(bind ((,response (make-byte-vector-response* ,body))
+            (*response* ,response))
+       ;; this way *response* is bound while evaluating the following
+       (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
+                                                  (collect `(cons ,name ,value)))))
+       (setf (cookies-of ,response) (list ,@cookie-list))
+       ,response)))
+
+(defmethod send-response ((response byte-vector-response))
+  (call-next-method)
+  (bind ((body (body-of response))
+         (network-stream (network-stream-of *request*)))
+    (if (consp body)
+        (dolist (piece body)
+          (write-sequence piece network-stream))
+        (write-sequence body network-stream))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;

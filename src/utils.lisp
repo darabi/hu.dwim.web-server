@@ -254,6 +254,13 @@
      (emit (progn
              ,@body))))
 
+(def (macro e) emit-into-html-stream-buffer (&body body)
+  (with-unique-names (buffer)
+    `(with-output-to-sequence (,buffer :external-format +external-format+)
+       (bind ((*html-stream* ,buffer))
+         (emit (progn
+                 ,@body))))))
+
 (def (macro e) emit-http-response ((&optional headers-as-plist cookie-list) &body body)
   "Emit a full http response and also bind html stream, so you are ready to output directly into the network stream."
   `(emit-into-html-stream (network-stream-of *request*)
