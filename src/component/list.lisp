@@ -37,7 +37,9 @@
 (def method (setf component-value-of) (new-value (component list-component))
   (with-slots (elements components) component
     (setf elements new-value)
-    (setf components (mapcar #'make-viewer-component new-value))))
+    (setf components (mapcar (lambda (element)
+                               (make-viewer-component element :default-component-type 'reference-component))
+                             new-value))))
 
 (def render list-component ()
   (with-slots (orientation components) -self-

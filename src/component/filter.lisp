@@ -8,13 +8,11 @@
 ;;; Standard object filter
 
 (def component standard-object-filter-component (alternator-component)
-  ((the-class)
-   (result :type component)))
+  ((the-class)))
 
 (def constructor standard-object-filter-component ()
-  (with-slots (the-class result default-component-type alternatives content command-bar) -self-
-    (setf result (make-instance 'empty-component)
-          alternatives (list (delay-alternative-component-type 'standard-object-filter-detail-component :the-class the-class)
+  (with-slots (the-class default-component-type alternatives content command-bar) -self-
+    (setf alternatives (list (delay-alternative-component-type 'standard-object-filter-detail-component :the-class the-class)
                              (delay-alternative-component 'standard-object-filter-reference-component
                                (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-filter-reference-component :target the-class))))
           content (if default-component-type
@@ -33,16 +31,23 @@
    (slot-value-group :type component)))
 
 (def constructor standard-object-filter-detail-component ()
-  (with-slots (the-class class slot-value-group result command-bar) -self-
+  (with-slots (the-class class slot-value-group command-bar) -self-
     (setf class (make-viewer-component the-class :default-component-type 'reference-component)
           slot-value-group (make-instance 'standard-object-slot-value-group-filter-component
-                                          :slots (class-slots the-class)
+                                          :slots (standard-object-filter-detail-slots the-class)
                                           :slot-values (mapcar (lambda (slot)
                                                                  (make-instance 'standard-object-slot-value-filter-component :the-class the-class :slot slot))
-                                                               (class-slots the-class))))))
+                                                               (standard-object-filter-detail-slots the-class))))))
+
+(def generic standard-object-filter-detail-slots (class)
+  (:method ((class standard-class))
+    (class-slots class))
+
+  (:method ((class prc::persistent-class))
+    (prc::persistent-effective-slots-of class)))
 
 (def render standard-object-filter-detail-component ()
-  (with-slots (the-class class slots-values slot-value-group result command-bar) -self-
+  (with-slots (the-class class slots-values slot-value-group command-bar) -self-
     <div
       <span "Filter instances of " ,(render class)>
       <div
@@ -83,45 +88,69 @@
 ;;;;;;
 ;;; Standard object slot value filter
 
+;; TODO: all predicates
+(def (constant :test 'equalp) +filter-predicates+ '(equal like #+nil (< <= > >= between)))
+
 (def component standard-object-slot-value-filter-component ()
   ((the-class)
    (slot)
    (slot-name)
    (negated #f :type boolean)
-   (condition :equal :type (member (:equal :like :less :less-or-equal :greater :greater-or-equal :between)))
+   (negate-command :type component)
+   (condition 'equal :type (member #.+filter-predicates+))
+   (condition-command :type component)
    (label nil :type component)
    (value nil :type component)))
 
 (def constructor standard-object-slot-value-filter-component ()
-  (with-slots (slot slot-name label negate condition value) -self-
+  (with-slots (slot slot-name negated negate-command condition condition-command label value) -self-
     (setf slot-name (slot-definition-name slot)
           label (make-instance 'label-component :component-value (full-symbol-name slot-name))
+          negate-command (make-instance 'command-component
+                                        :icon (make-negated/ponated-icon negated)
+                                        :action (make-action
+                                                  (setf negated (not negated))
+                                                  (setf (icon-of negate-command) (make-negated/ponated-icon negated))))
+          condition-command (make-instance 'command-component
+                                           :icon (make-condition-icon condition)
+                                           :action (make-action
+                                                     (setf condition (elt +filter-predicates+
+                                                                          (mod (1+ (position condition +filter-predicates+))
+                                                                               (length +filter-predicates+))))
+                                                     (setf (icon-of condition-command) (make-condition-icon condition))))
           value (make-filter-component (slot-definition-type slot) :default-component-type 'reference-component))))
 
+(def function make-negated/ponated-icon (negated)
+  (aprog1 (clone-icon (if negated 'negated 'ponated))
+    (setf (label-of it) nil)))
+
+(def function make-condition-icon (condition)
+  (aprog1 (clone-icon
+           (ecase condition
+             (equal 'equal)
+             (like 'like)))
+    (setf (label-of it) nil)))
+
 (def render standard-object-slot-value-filter-component ()
-  (with-slots (label negated condition value) -self-
+  (with-slots (label negate-command condition-command value) -self-
     <tr (:class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
       <td ,(render label)>
-      <td ,(if negated
-               (render-icon (find-icon 'negated) :render-label #f)
-               (render-icon (find-icon 'ponated) :render-label #f))>
-      <td ,(render-icon
-            (find-icon
-             (ecase condition
-               (:equal 'equal)
-               (:like 'like)))
-            :render-label #f)>
+      <td ,(render negate-command)>
+      <td ,(render condition-command)>
       <td ,(render value)>>))
 
 ;;;;;;
 ;;; Filter
 
 (def (function e) make-filter-instances-command-component (component)
-  (make-replace-and-push-back-command-component (result-of component) (delay (make-viewer-component (execute-filter component (the-class-of component))))
+  (make-replace-and-push-back-command-component component (delay (make-viewer-component (execute-filter component (the-class-of component))))
                                                 (list :icon (clone-icon 'filter))
                                                 (list :icon (clone-icon 'back))))
 
 (def generic execute-filter (component class)
+  (:method ((component standard-object-filter-component) class)
+    (execute-filter (content-of component) class))
+
   (:method ((component standard-object-filter-detail-component) (class standard-class))
     (bind ((slot-values (slot-values-of (slot-values-of component)))
            (slot-names (mapcar #'slot-name-of slot-values))
@@ -146,4 +175,10 @@
                                             (equal value (slot-value-using-class instance-class instance slot))))))
                                slot-names values))
                (push instance instances))))
-         :dynamic)))))
+         :dynamic))))
+
+  (:method ((component standard-object-filter-detail-component) (class prc::persistent-class))
+    (bind ((class-name (class-name (the-class-of component))))
+      (prc::select (instance)
+        (prc::from (instance prc::persistent-object))
+        (prc::where (typep instance class-name))))))

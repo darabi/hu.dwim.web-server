@@ -66,10 +66,13 @@
 (def method make-reference-label ((reference standard-object-reference-component))
   (princ-to-string (target-of reference)))
 
+(def method render :before ((self standard-object-reference-component))
+  (if (typep (target-of self) 'prc::persistent-object)
+      (prc::revive-instance (target-of self))))
 ;;;;;;
 ;;; Standard object list reference
 
-(def component standard-object-list-reference-component (reference-component)
+(def component standard-object-list-referenqce-component (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-object-list-reference-component))

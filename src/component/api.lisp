@@ -12,7 +12,8 @@
 
 (def (generic e) find-component-type-for-type (type)
   (:method ((type symbol))
-    (find-component-type-for-type (find-class type)))
+    (find-component-type-for-type (or (find-class type nil)
+                                      (find-class (prc::type-class-name-for type)))))
 
   (:method ((type (eql 'boolean)))
     'boolean-component)
@@ -41,10 +42,19 @@
 
 ;; KLUDGE: use perec type system
 (def (generic e) find-component-type-for-compound-type* (first type)
+  (:method ((first (eql 'member)) (type cons))
+    'member-component)
+
+  (:method ((first (eql 'prc::text)) (type cons))
+    'string-component)
+
+  (:method ((first (eql 'prc::integer)) (type cons))
+    'integer-component)
+
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type
             (remove-if (lambda (element)
-                         (member element '(or unbound null)))
+                         (member element '(or prc::unbound null)))
                        type)))
       (if (= 1 (length main-type))
           (find-component-type-for-type (first main-type))
@@ -54,7 +64,10 @@
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
           'standard-object-list-component
-          'list-component))))
+          'list-component)))
+
+  (:method ((first (eql 'prc::set)) (type cons))
+    'list-component))
 
 (def (function e) make-component-for-prototype (type &rest args &key &allow-other-keys)
   (apply #'make-instance (find-component-type-for-prototype type) args))
@@ -62,6 +75,15 @@
 (def (generic e) find-component-type-for-prototype (type)
   (:method ((prototype string))
     'string-component)
+
+  (:method ((prototype symbol))
+    'symbol-component)
+
+  (:method ((prototype prc::string-type))
+    'string-component)
+
+  (:method ((prototype prc::integer-type))
+    'integer-component)
 
   (:method ((prototype integer))
     'integer-component)
@@ -120,19 +142,19 @@
     (apply #'make-filter-component (find-class 'standard-object) args))
 
   (:method ((class-name (eql 'dmm::standard-text)) &key &allow-other-keys)
-    (make-instance 'string-component))
+    (make-instance 'string-component :edited #t))
 
   (:method ((class-name (eql 'prc::timestamp)) &key &allow-other-keys)
-    (make-instance 'timestamp-component))
+    (make-instance 'timestamp-component :edited #t))
 
   (:method ((class-name (eql 'prc::date)) &key &allow-other-keys)
-    (make-instance 'date-component))
+    (make-instance 'date-component :edited #t))
 
   (:method ((class-name (eql 'prc::time)) &key &allow-other-keys)
-    (make-instance 'time-component))
+    (make-instance 'time-component :edited #t))
 
   (:method ((class-name (eql 'prc::ip-address)) &key &allow-other-keys)
-    (make-instance 'time-component))
+    (make-instance 'ip-address-component :edited #t))
 
   (:method ((class-name symbol) &rest args &key &allow-other-keys)
     (apply #'make-filter-component (find-class class-name) args))

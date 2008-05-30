@@ -83,23 +83,29 @@
   ((instance)
    (slot)))
 
+(def function revive-slot-value-place-instance (place)
+  (bind ((instance (instance-of place)))
+    (if (typep instance 'prc::persistent-object)
+        (prc::revive-instance (instance-of place))
+        instance)))
+
 (def method place-type ((place slot-value-place))
   (slot-definition-type (slot-of place)))
 
 (def method place-bound-p ((place slot-value-place))
-  (bind ((instance (instance-of place)))
+  (bind ((instance (revive-slot-value-place-instance place)))
     (slot-boundp-using-class (class-of instance) instance (slot-of place))))
 
 (def method make-place-unbound ((place slot-value-place))
-  (bind ((instance (instance-of place)))
+  (bind ((instance (revive-slot-value-place-instance place)))
     (slot-makunbound-using-class (class-of instance) instance (slot-of place))))
 
 (def method value-at-place ((place slot-value-place))
-  (bind ((instance (instance-of place)))
+  (bind ((instance (revive-slot-value-place-instance place)))
     (slot-value-using-class (class-of instance) instance (slot-of place))))
 
 (def method (setf value-at-place) (new-value (place slot-value-place))
-  (bind ((instance (instance-of place)))
+  (bind ((instance (revive-slot-value-place-instance place)))
     (setf (slot-value-using-class (class-of instance) instance (slot-of place)) new-value)))
 
 (def (function e) make-slot-value-place (instance slot)

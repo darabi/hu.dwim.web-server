@@ -31,12 +31,11 @@
               (setf content (find-default-alternative-component alternatives))))
         (setf alternatives (list (delay-alternative-component-type 'empty-component))
               content (find-default-alternative-component alternatives)))
-    (unless command-bar
-      (setf command-bar (make-instance 'command-bar-component
-                                       :commands (append (list (make-top-command-component component)
-                                                               (make-refresh-command-component component))
-                                                         (make-editing-command-components component)
-                                                         (make-alternative-command-components component alternatives)))))))
+    (setf command-bar (make-instance 'command-bar-component
+                                     :commands (append (list (make-top-command-component component)
+                                                             (make-refresh-command-component component))
+                                                       (make-editing-command-components component)
+                                                       (make-alternative-command-components component alternatives))))))
 
 ;;;;;;
 ;;; Standard object table

@@ -14,15 +14,11 @@
    (tooltip nil)))
 
 (def render icon-component ()
-  (render-icon -self-))
-
-(def function render-icon (icon &key (render-label #t))
-  (with-slots (label image-url tooltip) icon
+  (with-slots (label image-url tooltip) -self-
     <span (:title ,(or (force tooltip) ""))
      ,@(when image-url
              (list <img (:src ,image-url)>))
-     ,@(when (and label
-                  render-label)
+     ,@(when label
              (list (force label)))>))
 
 (def (macro e) make-icon-component (name &rest args)
@@ -199,8 +195,8 @@
 
 (def icon ponated "static/wui/icons/20x20/checkmark.png") ;; TODO: find better icon
 (defresources hu
-  (icon-label.ponate "Ponált")
-  (icon-tooltip.ponate "Ponált feltétel"))
+  (icon-label.ponated "Ponált")
+  (icon-tooltip.ponated "Ponált feltétel"))
 (defresources en
   (icon-label.ponated "Ponated")
   (icon-tooltip.ponated "Ponate condition"))

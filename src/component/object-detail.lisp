@@ -22,6 +22,10 @@
     (setf instance new-value)
     (setf the-class (when new-value (class-of new-value)))))
 
+(def method render :before ((self abstract-standard-object-component))
+  (if (typep (instance-of self) 'prc::persistent-object)
+      (prc::revive-instance (instance-of self))))
+
 ;;;;;;
 ;;; Standard object
 
@@ -29,7 +33,7 @@
   ())
 
 (def method (setf component-value-of) :after (new-value (component standard-object-component))
-  (with-slots (instance the-class alternatives content command-bar) component
+  (with-slots (instance the-class default-component-type alternatives content command-bar) component
     (if instance
         (progn
           (if (and alternatives
@@ -42,15 +46,16 @@
           (if (and content
                    (not (typep content 'null-component)))
               (setf (component-value-of content) instance)
-              (setf content (find-default-alternative-component alternatives))))
+              (setf content (if default-component-type
+                                (find-alternative-component alternatives default-component-type)
+                                (find-default-alternative-component alternatives)))))
         (setf alternatives (list (delay-alternative-component-type 'null-component))
               content (find-default-alternative-component alternatives)))
-    (unless command-bar
-      (setf command-bar (make-instance 'command-bar-component
-                                       :commands (append (list (make-top-command-component component)
-                                                               (make-refresh-command-component component))
-                                                         (make-editing-command-components component)
-                                                         (make-alternative-command-components component alternatives)))))))
+    (setf command-bar (make-instance 'command-bar-component
+                                     :commands (append (list (make-top-command-component component)
+                                                             (make-refresh-command-component component))
+                                                       (make-editing-command-components component)
+                                                       (make-alternative-command-components component alternatives))))))
 
 ;;;;;;
 ;;; Standard object detail
@@ -69,9 +74,16 @@
     (if instance
         (if slot-value-group
             (setf (component-value-of slot-value-group) the-class
-                  (slots-of slot-value-group) (class-slots the-class))
-            (setf slot-value-group (make-instance 'standard-object-slot-value-group-component :the-class the-class :instance instance :slots (class-slots the-class))))
+                  (slots-of slot-value-group) (standard-object-detail-slots the-class instance))
+            (setf slot-value-group (make-instance 'standard-object-slot-value-group-component :the-class the-class :instance instance :slots (standard-object-detail-slots the-class instance))))
         (setf slot-value-group nil))))
+
+(def generic standard-object-detail-slots (class instance)
+  (:method ((class standard-class) (instance standard-object))
+    (class-slots class))
+
+  (:method ((class prc::persistent-class) (instance prc::persistent-object))
+    (prc::persistent-effective-slots-of class)))
 
 (def render standard-object-detail-component ()
   (with-slots (class slot-value-group) -self-
@@ -135,6 +147,6 @@
 
 (def render standard-object-slot-value-detail-component ()
   (with-slots (label value) -self-
-    <tr
+    <tr (:class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
       <td ,(render label)>
       <td ,(render value)>>))

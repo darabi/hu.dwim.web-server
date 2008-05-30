@@ -32,7 +32,7 @@
                <div (:class "debug-component-name")
                  ,class-name ,(if (typep component '(or icon-component command-component))
                                   +void+
-                                  <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action component)))) "To REPL">)>
+                                  <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action component)))) "REPL">)>
                +void+)
           ,(call-next-method)>)
     (skip-rendering-component ()
