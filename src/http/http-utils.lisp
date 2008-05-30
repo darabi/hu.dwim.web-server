@@ -28,7 +28,21 @@
                             (header-value *response* +header/content-type+))
               :http-equiv #.+header/content-type+)>
        <title ,,(or title "")>>
-     <body ,,@body>>)
+     <body ,@(list ,@body)>>)
+
+#||
+;; TODO
+(def (macro e) with-xhtml-document ((&key title content-type) &body body)
+  `(progn
+     (format *html-stream* "<?xml version=\"1.0\" encoding=\"~A\"?>" (encoding-name-of *response*))
+     <html
+       <head
+         <meta (:content ,(or ,content-type
+                              (header-value *response* +header/content-type+))
+                :http-equiv #.+header/content-type+)>
+         <title ,,(or title "")>>
+       <body ,,@body>>))
+||#
 
 (def (macro e) with-request-params (request args &body body)
   "Bind, according the REQUEST-LAMBDA-LIST the parameters in

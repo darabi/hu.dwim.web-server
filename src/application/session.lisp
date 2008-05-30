@@ -91,3 +91,6 @@
               (app.debug "Looked up as valid session ~A" session)
               session)
             (values))))))
+
+(def (function e) mark-session-expired (session)
+  (setf (last-activity-at-of session) most-negative-fixnum))

@@ -45,8 +45,7 @@
     (loop
        (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" (host-of server) (port-of server))
          (server.debug "Binding socket to host ~A, port ~A" (host-of server) (port-of server))
-         (bind ( ;;(net.sockets:*ipv6* nil) ; TODO: temporarily disable ipv6 because it fails
-                (socket-is-ok nil)
+         (bind ((socket-is-ok nil)
                 (socket (make-socket :connect :passive
                                      :local-host (host-of server)
                                      :local-port (port-of server)

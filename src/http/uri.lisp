@@ -60,10 +60,10 @@
 (defun add-query-parameter-to-uri (uri name value)
   (nconcf (query-parameters-of uri) (list (cons name value))))
 
-(defun clear-uri-query-parameters (uri)
+(def (function e) clear-uri-query-parameters (uri)
   (setf (query-parameters-of uri) '()))
 
-(defun append-path-to-uri (uri path)
+(def (function e) append-path-to-uri (uri path)
   (setf (path-of uri) (concatenate 'string (path-of uri) path))
   uri)
 
@@ -136,13 +136,13 @@
       (write-char #\# stream)
       (out it))))
 
-(defun print-uri-to-string (uri &optional (escape t))
+(def (function e) print-uri-to-string (uri &optional (escape t))
   (bind ((*print-pretty* #f)
          (*print-circle* #f))
     (with-output-to-string (string)
       (write-uri uri string escape))))
 
-(defun print-uri-to-string-sans-query (uri)
+(def function print-uri-to-string-sans-query (uri)
   (bind ((*print-pretty* #f)
          (*print-circle* #f))
     (with-output-to-string (string)
