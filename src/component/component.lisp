@@ -14,10 +14,6 @@
      (:metaclass component-class)
      ,@options))
 
-(def (definer e) render (type &body forms)
-  `(def method render ((-self- ,type))
-     ,@forms))
-
 (def component component (ui-syntax-node)
   ((parent-component nil)))
 

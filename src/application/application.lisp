@@ -295,7 +295,21 @@ Custom implementations should look something like this:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; app specific responses
 
-(def generic render (component))
+(def (generic e) render-js (component)
+  (:method (component)
+    (values)))
+
+(def (generic e) render (component)
+  (:method :before (component)
+    (render-js component)))
+
+(def (definer e) render (type &body forms)
+  `(def method render ((-self- ,type))
+     ,@forms))
+
+(def (definer e) render-js (type &body forms)
+  `(def method render-js ((-self- ,type))
+     ,@forms))
 
 (def (function e) render-to-string (component)
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
