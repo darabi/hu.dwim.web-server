@@ -276,12 +276,16 @@
        ,@body)))
 
 (def (macro e) make-buffered-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
-  `(bind ((buffer (emit-into-html-stream-buffer
-                    ,@body)))
-     (make-byte-vector-response buffer
-                                (+header/content-type+ +html-content-type+
-                                 ,@headers-as-plist)
-                                (,@cookie-list))))
+  (with-unique-names (response)
+    `(bind ((,response (make-byte-vector-response* nil))
+            (*response* ,response)
+            (buffer (emit-into-html-stream-buffer
+                      ,@body)))
+       (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
+                                                  (collect `(cons ,name ,value)))))
+       (setf (cookies-of ,response) (list ,@cookie-list))
+       (setf (body-of ,response) buffer)
+       ,response)))
 
 (defmethod send-response ((response functional-response))
   (call-next-method)
@@ -294,15 +298,16 @@
 (def (class* e) byte-vector-response (response)
   ((body :type (or list vector))))
 
-(def (function e) make-byte-vector-response* (body &key headers cookies)
+(def (function e) make-byte-vector-response* (bytes &key headers cookies)
   (make-instance 'byte-vector-response
-                 :body body
+                 :body bytes
                  :headers headers
                  :cookies cookies))
 
+#+nil ; TODO is it needed? broken this way. delme?
 (def (macro e) make-byte-vector-response (body &optional headers-as-plist cookie-list)
   (with-unique-names (response)
-    `(bind ((,response (make-byte-vector-response* ,body))
+    `(bind ((,response (make-byte-vector-response* nil))
             (*response* ,response))
        ;; this way *response* is bound while evaluating the following
        (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)

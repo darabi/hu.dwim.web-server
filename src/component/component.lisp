@@ -33,7 +33,7 @@
           ,(call-next-method)>)
     (skip-rendering-component ()
       :report (lambda (stream)
-                (format stream "Skip rendering ~a and put an error marker in place" component))
+                (format stream "Skip rendering ~A and put an error marker in place" component))
       <div (:class "rendering-error") "Error during rendering " ,(princ-to-string component)>)))
 
 (def function make-copy-to-repl-action (component)

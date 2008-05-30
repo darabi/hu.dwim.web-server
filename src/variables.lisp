@@ -16,12 +16,17 @@
          (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
                                                                               '(unsigned-byte 8)
                                                                               'character)
-                                                            :external-format (external-format-of *response*))
-                        (setf result (multiple-value-list (-body-))))))
-    (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
-    (write-sequence script-body *html-stream*)
-    (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)
-    (values-list result)))
+                                                            :external-format (if (boundp '*response*)
+                                                                                 (external-format-of *response*)
+                                                                                 +encoding+))
+                        (setf result (-body-)))))
+    (append
+     (ensure-list result)
+     (unless (zerop (length script-body))
+       (list (cl-quasi-quote::as-delayed-emitting
+               (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
+               (write-sequence script-body *html-stream*)
+               (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)))))))
 
 (def special-variable *request-content-length-limit* #.(* 5 1024 1024)
      "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
