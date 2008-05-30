@@ -72,7 +72,7 @@
 ;;;;;;
 ;;; Standard object list reference
 
-(def component standard-object-list-referenqce-component (reference-component)
+(def component standard-object-list-reference-component (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-object-list-reference-component))
