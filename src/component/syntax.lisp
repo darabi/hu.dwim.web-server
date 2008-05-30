@@ -39,8 +39,10 @@
   (set-quasi-quote-syntax-in-readtable
    (lambda (body dispatched?)
      (declare (ignore dispatched?))
-     (cl-quasi-quote::run-transformation-pipeline (make-ui-quasi-quote transformation-pipeline (parse-quasi-quoted-ui body))))
+     (bind ((toplevel? (= 1 *quasi-quote-nesting-level*)))
+       `(,(if toplevel? 'ui-quasi-quote/toplevel 'ui-quote) ,toplevel? ,body ,transformation-pipeline)))
    (lambda (form spliced)
+     `(ui-unquote ,form ,spliced)
      (make-ui-unquote form spliced))
    :nested-quasi-quote-wrapper
    (lambda (body dispatched?)
@@ -51,6 +53,16 @@
    :end-character end-character
    :unquote-character unquote-character
    :splice-character splice-character))
+
+(def cl-quasi-quote::reader-stub ui-quasi-quote (toplevel? body transformation-pipeline)
+  (bind ((expanded-body (cl-quasi-quote::recursively-macroexpand-reader-stubs body -environment-))
+         (quasi-quote-node (make-ui-quasi-quote transformation-pipeline (parse-quasi-quoted-ui expanded-body))))
+    (if toplevel?
+        (cl-quasi-quote::run-transformation-pipeline quasi-quote-node)
+        quasi-quote-node)))
+
+(def cl-quasi-quote::reader-stub ui-unquote (form spliced?)
+  (make-ui-unquote form spliced?))
 
 (define-syntax quasi-quoted-ui-to-ui-emitting-form ()
   (set-quasi-quoted-ui-syntax-in-readtable :transformation-pipeline (list (make-instance 'quasi-quoted-syntax-node-to-syntax-node-emitting-form))))
