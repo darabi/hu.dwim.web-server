@@ -32,7 +32,11 @@
         (setf alternatives (list (delay-alternative-component-type 'empty-component))
               content (find-default-alternative-component alternatives)))
     (unless command-bar
-      (setf command-bar (make-alternator-command-bar-component component alternatives)))))
+      (setf command-bar (make-instance 'command-bar-component
+                                       :commands (append (list (make-top-command-component component)
+                                                               (make-refresh-command-component component))
+                                                         (make-editing-command-components component)
+                                                         (make-alternative-command-components component alternatives)))))))
 
 ;;;;;;
 ;;; Standard object table
@@ -87,10 +91,8 @@
   (with-slots (instance table-slot-names command-bar cells) component
     (setf instance new-value)
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (list (make-expand-row-command-component component instance)
-                                                                                (make-begin-editing-command-component component)
-                                                                                (make-save-editing-command-component component)
-                                                                                (make-cancel-editing-command-component component)))
+        (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-expand-row-command-component component instance))
+                                                                                  (make-editing-command-components component)))
               cells (cons (make-instance 'cell-component :content command-bar)
                           (iter (for class = (class-of instance))
                                 (for table-slot-name :in table-slot-names)

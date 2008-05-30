@@ -158,3 +158,11 @@
 (defresources en
   (icon-label.last "Last")
   (icon-tooltip.last "Jump to last page"))
+
+(def icon filter "static/wui/icons/20x20/binocular.png")
+(defresources hu
+  (icon-label.filter "Keresés")
+  (icon-tooltip.filter "A keresés végrehajtása"))
+(defresources en
+  (icon-label.filter "Filter")
+  (icon-tooltip.filter "Execute the filter"))

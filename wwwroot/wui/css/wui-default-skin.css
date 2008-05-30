@@ -1,0 +1,29 @@
+/* odd even */
+
+tr.odd-row {
+  background-color: #ddffdd;
+}
+
+tr.even-row {
+  background-color: #ffffff;
+}
+
+tr.selected {
+  background-color: #bbbbbb;
+}
+
+tr.selected.highlighted.odd-row {
+  background-color: #bbbbbb;
+}
+
+tr.selected.highlighted.even-row {
+  background-color: #bbbbbb;
+}
+
+tr.highlighted.even-row {
+  background-color: #ccffff;
+}
+
+tr.highlighted.odd-row {
+  background-color: #ddddff;
+}

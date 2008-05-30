@@ -152,8 +152,8 @@
   (:method ((class (eql (find-class 'integer))) &key &allow-other-keys)
     (make-instance 'integer-component :edited #t))
 
-  (:method ((class structure-class) &key &allow-other-keys)
-    (make-instance 'standard-object-filter-component :the-class class))
+  (:method ((class structure-class) &key default-component-type &allow-other-keys)
+    (make-instance 'standard-object-filter-component :the-class class :default-component-type default-component-type))
 
   (:method ((class standard-class) &key default-component-type &allow-other-keys)
     (make-instance 'standard-object-filter-component :the-class class :default-component-type default-component-type)))

@@ -1,0 +1,11 @@
+.missing-resource
+{
+  color: #ff0000;
+}
+
+/* firefox bug? the border from somewhere leaks here
+   so we need to explicitly reset it */
+a img
+{
+  border-width: 0px;
+}

@@ -42,8 +42,14 @@
 (def component row-component ()
   ((cells nil :type components)))
 
+(def function odd/even-class (component components)
+  (if (zerop (mod (position component components) 2))
+      "even-row"
+      "odd-row"))
+
 (def render row-component ()
-  <tr ,@(mapcar #'render (cells-of -self-))>)
+  <tr (:class ,(odd/even-class -self- (rows-of (parent-component-of -self-))))
+    ,@(mapcar #'render (cells-of -self-))>)
 
 (def component entire-row-component (content-component)
   ())

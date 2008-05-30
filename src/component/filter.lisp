@@ -95,7 +95,7 @@
 
 (def render standard-object-slot-value-filter-component ()
   (with-slots (label value) -self-
-    <tr
+    <tr (:class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
       <td ,(render label)>
       <td ,(render value)>>))
 
@@ -104,7 +104,7 @@
 
 (def (function e) make-filter-instances-command-component (component)
   (make-replace-and-push-back-command-component (result-of component) (delay (make-viewer-component (execute-filter component (the-class-of component))))
-                                                (list :icon (make-icon-component 'filter :label "Filter" :tooltip "Execute filter"))
+                                                (list :icon (clone-icon 'filter))
                                                 (list :icon (clone-icon 'back))))
 
 (def generic execute-filter (component class)

@@ -89,10 +89,16 @@
 (def render frame-component ()
   (with-slots (stylesheets title content) -self-
     <html
-     <head
-      <meta (:http-equiv "Content-Type" :content "text/html; charset=utf-8")>
-      <title ,title>
-      ,@(mapcar (lambda (stylesheet)
-                  <link (:rel "stylesheet" :type "text/css" :href ,stylesheet)>)
-                stylesheets)>
-     <body ,(render content)>>))
+      <head
+        <meta (:http-equiv "Content-Type" :content "text/html; charset=utf-8")>
+        <title ,title>
+        ,@(mapcar (lambda (stylesheet)
+                    <link (:rel "stylesheet" :type "text/css" :href ,stylesheet)>)
+                  stylesheets)>
+     <body
+       `js(defun submit-form (href)
+            (let ((form (aref (slot-value document 'forms) 0)))
+              (setf (slot-value form 'action) href)
+              (form.submit)))
+       <form (:method "post")
+         ,(render content)>>>))

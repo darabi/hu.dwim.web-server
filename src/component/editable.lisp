@@ -131,3 +131,12 @@
                  :icon (make-icon-component 'revert :label "Revert" :tooltip "Revert all changes")
                  :visible (delay (edited-p editable))
                  :action (make-action (revert-editing editable))))
+
+(def (function e) make-editing-command-components (component)
+  (list (make-begin-editing-command-component component)
+        (make-save-editing-command-component component)
+        (make-cancel-editing-command-component component)
+        #+nil
+        (make-store-command-component component)
+        #+nil
+        (make-revert-command-component component)))

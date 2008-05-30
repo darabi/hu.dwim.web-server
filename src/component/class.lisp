@@ -42,7 +42,10 @@
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (unless command-bar
-            (setf command-bar (make-alternator-command-bar-component component alternatives))))
+            (setf command-bar (make-instance 'command-bar-component
+                                             :commands (append (list (make-top-command-component component)
+                                                                     (make-refresh-command-component component))
+                                                               (make-alternative-command-components component alternatives))))))
         (setf alternatives nil
               content nil))))
 

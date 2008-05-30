@@ -57,7 +57,7 @@
                     (embedded-in-xml? (format nil "~%<script>~%// <![CDATA[~%")))
    :output-postfix (when (and embedded-in-xml?
                               (not inline?))
-                     "~%// ]]>~%</script>~%")))
+                     (format nil "~%// ]]>~%</script>~%"))))
 
 (def function make-xml-transformation-pipeline ()
   (make-quasi-quoted-xm-to-form-emitting-transformation-pipeline

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Alternator
 
-(def component alternator-component (editable-component)
+(def component alternator-component ()
   ((default-component-type nil)
    (alternatives nil)
    (content nil :type component)
@@ -19,17 +19,10 @@
         (render content)
         (render-vertical-list (list content command-bar)))))
 
-(def function make-alternator-command-bar-component (component alternatives)
-  (make-instance 'command-bar-component :commands (append (list (make-top-command-component component)
-                                                                (make-refresh-command-component component)
-                                                                (make-begin-editing-command-component component)
-                                                                (make-save-editing-command-component component)
-                                                                (make-cancel-editing-command-component component)
-                                                                #+nil
-                                                                (make-revert-command-component component))
-                                                          (mapcar (lambda (alternative)
-                                                                    (make-alternative-component-replace-command-component component alternative))
-                                                                  alternatives))))
+(def function make-alternative-command-components (component alternatives)
+  (mapcar (lambda (alternative)
+            (make-alternative-component-replace-command-component component alternative))
+          alternatives))
 
 (def function make-alternative-component-replace-command-component (component alternative)
   (make-replace-command-component (delay (content-of component)) alternative
