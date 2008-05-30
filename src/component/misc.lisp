@@ -83,22 +83,16 @@
 ;;; Frame
 
 (def component frame-component (top-component)
-  ((stylesheets nil)
+  ((content-type +html-content-type+)
+   (stylesheet-uris nil)
    (title nil)))
 
 (def render frame-component ()
-  (with-slots (stylesheets title content) -self-
-    <html
-      <head
-        <meta (:http-equiv "Content-Type" :content "text/html; charset=utf-8")>
-        <title ,title>
-        ,@(mapcar (lambda (stylesheet)
-                    <link (:rel "stylesheet" :type "text/css" :href ,stylesheet)>)
-                  stylesheets)>
-     <body
-       `js(defun submit-form (href)
-            (let ((form (aref (slot-value document 'forms) 0)))
-              (setf (slot-value form 'action) href)
-              (form.submit)))
-       <form (:method "post")
-         ,(render content)>>>))
+  (with-html-document-body (:title (title-of -self-) :stylesheet-uris (stylesheet-uris-of -self-)
+                            :content-type (content-type-of -self-))
+    `js(defun submit-form (href)
+         (let ((form (aref (slot-value document 'forms) 0)))
+           (setf (slot-value form 'action) href)
+           (form.submit)))
+     <form (:method "post")
+      ,(render (content-of -self-))>))

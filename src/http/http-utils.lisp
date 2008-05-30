@@ -21,14 +21,23 @@
 (def (constant e :test 'string=) +html-content-type+ (content-type-for +html-mime-type+ +encoding+))
 (def (constant e :test 'string=) +xml-content-type+ (content-type-for +xml-mime-type+ +encoding+))
 
-(def (macro e) with-html-document-body ((&key title content-type) &body body)
-  `<html
+(def (with-macro* e) with-html-document-body (&key title (content-type +html-content-type+) stylesheet-uris)
+  (bind ((content-type (or (when (boundp '*response*)
+                             (header-value *response* +header/content-type+))
+                           content-type)))
+    <html
      <head
-       <meta (:content ,(or ,content-type
-                            (header-value *response* +header/content-type+))
-              :http-equiv #.+header/content-type+)>
-       <title ,,(or title "")>>
-     <body ,@(list ,@body)>>)
+      ,(when content-type
+         <meta (:http-equiv #.+header/content-type+ :content ,content-type)>)
+      <title ,title>
+      ,@(mapcar (lambda (stylesheet-uri)
+                  <link (:rel "stylesheet" :type "text/css"
+                         :href ,(if (stringp stylesheet-uri)
+                                    (escape-as-uri stylesheet-uri)
+                                    (print-uri-to-string stylesheet-uri)))>)
+                stylesheet-uris)>
+     <body ,@(with-collapsed-js-scripts
+              (list (-body-)))>>))
 
 #||
 ;; TODO

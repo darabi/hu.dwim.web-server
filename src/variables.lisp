@@ -11,15 +11,17 @@
 (def special-variable *html-stream*)
 (def special-variable *js-stream*)
 
-(def (macro e) with-collapsed-js-scripts (&body body)
-  `(bind ((result nil)
-          (script-body (with-output-to-sequence (*js-stream* :element-type 'character
-                                                             :external-format (external-format-of *response*))
-                         (setf result (multiple-value-list (progn ,@body))))))
-     (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
-     (write-sequence script-body *html-stream*)
-     (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)
-     (values-list result)))
+(def (with-macro e) with-collapsed-js-scripts ()
+  (bind ((result nil)
+         (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
+                                                                              '(unsigned-byte 8)
+                                                                              'character)
+                                                            :external-format (external-format-of *response*))
+                        (setf result (multiple-value-list (-body-))))))
+    (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
+    (write-sequence script-body *html-stream*)
+    (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)
+    (values-list result)))
 
 (def special-variable *request-content-length-limit* #.(* 5 1024 1024)
      "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
