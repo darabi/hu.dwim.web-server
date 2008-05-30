@@ -47,7 +47,7 @@
 (def (function i) assert-application-lock-held (application)
   (assert (is-lock-held? (lock-of application)) () "You must have a lock on the application here"))
 
-(def (with-macro e) with-lock-held-on-application (application)
+(def (with-macro* e) with-lock-held-on-application (application)
   (debug-only*
     (iter (for (nil session) :in-hashtable (session-id->session-of application))
           (assert (not (is-lock-held? (lock-of session))) ()
@@ -125,7 +125,7 @@
              (send-response-early response)
              response))))))
 
-(def (with-macro eo) with-session/frame/action-logic (&optional _)
+(def (with-macro* eo) with-session/frame/action-logic (&optional _)
   (declare (ignore _)) ; to force an extra args param for the with-... macro
   (assert (and (boundp '*application*)
                *application*

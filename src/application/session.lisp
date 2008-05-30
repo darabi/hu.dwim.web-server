@@ -58,7 +58,7 @@
    (frame-id->frame (make-hash-table :test 'equal))
    (lock nil)))
 
-(def with-macro with-lock-held-on-session (session)
+(def with-macro* with-lock-held-on-session (session)
   (multiple-value-prog1
       (progn
         (threads.dribble "Entering with-lock-held-on-session for ~S in thread ~S" session (current-thread))
