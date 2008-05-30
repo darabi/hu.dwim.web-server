@@ -350,10 +350,6 @@ Custom implementations should look something like this:
   (bind ((uri (clone-uri (uri-of *request*))))
     (clear-uri-query-parameters uri)
     (decorate-uri uri application)
-    (when (boundp '*session*)
-      (decorate-uri uri *session*))
-    (when (boundp '*frame*)
-      (decorate-uri uri *frame*))
     (when relative-path
       (append-path-to-uri uri relative-path))
     uri))
