@@ -275,6 +275,16 @@
      (send-http-headers ,headers ,cookies)
      ,@body))
 
+(def (macro e) emit-simple-html-document-response ((&key title status headers cookies) &body body)
+  `(emit-http-response* ((append
+                          ,@(when headers (list headers))
+                          ,@(when status `((list (cons +header/status+ ,status))))
+                          (list (cons +header/content-type+ +html-content-type+)))
+                         ,cookies)
+     (with-html-document (:content-type +html-content-type+ :title ,title)
+       ,@body)))
+
+#+nil ; TODO delme?
 (defmacro within-xhtml-tag (tag-name &body body)
   "Execute BODY and wrap its html output in a TAG-NAME xml node with \"http://www.w3.org/1999/xhtml\" xml namespace."
   `<,,tag-name ("xmlns" #.+XHTML-NAMESPACE-URI+)

@@ -14,12 +14,10 @@
                           (decorate-uri uri *application*)
                           (decorate-uri uri *session*)
                           uri)))
-    (emit-http-response ((+header/status+       +http-not-acceptable+
-                          +header/content-type+ +html-content-type+))
-      (with-html-document-body (:content-type +html-content-type+)
-        <p "Browser window out of sync with the server...">
-        <p "Please avoid using the back button of your "
-           "browser and/or opening links in new windows by copy-pasting or using the \"Open in new window\" feature "
-           "of your browser. To achieve the same effect, you can use the navigation actions provided by the application.">
-        <p <a (:href ,(print-uri-to-string refresh-uri)) "Bring me back to the application">>
-        <p <a (:href ,(print-uri-to-string new-frame-uri)) "Make this window another independent view of the application">>))))
+    (emit-simple-html-document-response (:status +http-not-acceptable+)
+      <p "Browser window out of sync with the server...">
+      <p "Please avoid using the back button of your "
+         "browser and/or opening links in new windows by copy-pasting or using the \"Open in new window\" feature "
+         "of your browser. To achieve the same effect, you can use the navigation actions provided by the application.">
+      <p <a (:href ,(print-uri-to-string refresh-uri)) "Bring me back to the application">>
+      <p <a (:href ,(print-uri-to-string new-frame-uri)) "Make this window another independent view of the application">>)))

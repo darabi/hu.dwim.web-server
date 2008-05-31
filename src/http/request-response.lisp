@@ -336,14 +336,16 @@
   ())
 
 (def (function e) make-no-handler-response ()
-  (make-instance 'no-handler-response))
+  (aprog1
+      (make-instance 'no-handler-response)
+    (setf (header-value it +header/status+) +http-not-found+)))
 
 (defmethod send-response ((self no-handler-response))
-  (emit-http-response ((+header/status+       +http-not-found+
-                        +header/content-type+ +html-content-type+))
-    (with-html-document-body (:title "Page not found")
-      <h1 "Page not found">
-      <p ,(print-uri-to-string (uri-of *request*)) " was not found on this server">)))
+  (emit-simple-html-document-response (:title "Page not found"
+                                       :headers (headers-of self)
+                                       :cookies (cookies-of self))
+    <h1 "Page not found">
+    <p ,(print-uri-to-string (uri-of *request*)) " was not found on this server">))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -361,7 +363,7 @@
     (render-request *request*)))
 
 (def (function e) render-request (request)
-  (with-html-document-body (:title "URL echo server" :content-type +html-content-type+)
+  (with-html-document (:title "URL echo server")
     <p ,(print-uri-to-string (uri-of request))>
     <hr>
     <table
@@ -408,7 +410,7 @@
   ;; can't use emit-http-response, because +header/content-location+ is not constant
   (call-next-method)
   (emit-into-html-stream (network-stream-of *request*)
-    (with-html-document-body (:title "Redirect")
+    (with-html-document (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
 
 

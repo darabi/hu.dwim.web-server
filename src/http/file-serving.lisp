@@ -53,11 +53,10 @@
       (server.error "Failed to serve file ~S: ~A. Network stream dirty? ~S" (file-name-of self) condition network-stream-dirty?)
       (maybe-invoke-slime-debugger condition)
       (unless network-stream-dirty?
-        (emit-http-response ((+header/status+       +http-not-found+
-                              +header/content-type+ +html-content-type+))
-          (with-html-document-body (:title "File serving error" :content-type +html-content-type+)
-            <h1 "File serving error">
-            <p "There was an error while trying to serve this file.">))))))
+        (emit-simple-html-document-response (:status +http-not-found+
+                                             :title "File serving error")
+          <h1 "File serving error">
+          <p "There was an error while trying to serve this file.">)))))
 
 
 ;;;;;;;;;;;;;;;;;;;
@@ -78,39 +77,40 @@
     (setf (header-value it +header/content-type+) +html-content-type+)))
 
 (defmethod send-response ((self directory-index-response))
-  (call-next-method)
-  (emit-into-html-stream (network-stream-of *request*)
-    (with-html-document-body (:title (concatenate-string "Directory index of \""
-                                                         (relative-path-of self)
-                                                         "\" under \""
-                                                         (path-prefix-of self)
-                                                         "\""))
-      <table
-        ,@(bind ((elements (cl-fad:list-directory (directory-of self)))
-                 (path-prefix (path-prefix-of self))
-                 (relative-path (relative-path-of self))
-                 ((:values directories files)
-                  (iter (for element :in elements)
-                        (if (cl-fad:directory-pathname-p element)
-                            (collect element :into dirs)
-                            (collect element :into files))
-                        (finally (return (values dirs files))))))
-            (iter (for directory :in directories)
-                  (for name = (lastcar (pathname-directory directory)))
-                  <tr
-                    <td
-                      <a (:href ,(concatenate-string path-prefix relative-path name "/"))
-                        ,name "/">>>)
-            (iter (for file :in files)
-                  (for name = (apply 'concatenate-string
-                                     (pathname-name file)
-                                     (awhen (pathname-type file)
-                                       (list "." it))))
-                  <tr
-                    <td
-                      <a (:href ,(escape-as-uri (concatenate-string path-prefix relative-path name)))
-                        ,name>>
-                    <td ,(princ-to-string (nix:stat-size (nix:lstat (namestring file))))>>))>)))
+  (emit-simple-html-document-response (:title (concatenate-string
+                                               "Directory index of \""
+                                               (relative-path-of self)
+                                               "\" under \""
+                                               (path-prefix-of self)
+                                               "\"")
+                                       :headers (headers-of self)
+                                       :cookies (cookies-of self))
+    <table
+      ,@(bind ((elements (cl-fad:list-directory (directory-of self)))
+               (path-prefix (path-prefix-of self))
+               (relative-path (relative-path-of self))
+               ((:values directories files)
+                (iter (for element :in elements)
+                      (if (cl-fad:directory-pathname-p element)
+                          (collect element :into dirs)
+                          (collect element :into files))
+                      (finally (return (values dirs files))))))
+          (iter (for directory :in directories)
+                (for name = (lastcar (pathname-directory directory)))
+                <tr
+                  <td
+                    <a (:href ,(concatenate-string path-prefix relative-path name "/"))
+                      ,name "/">>>)
+          (iter (for file :in files)
+                (for name = (apply 'concatenate-string
+                                   (pathname-name file)
+                                   (awhen (pathname-type file)
+                                     (list "." it))))
+                <tr
+                  <td
+                    <a (:href ,(escape-as-uri (concatenate-string path-prefix relative-path name)))
+                      ,name>>
+                  <td ,(princ-to-string (nix:stat-size (nix:lstat (namestring file))))>>))>))
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; MIME stuff for serving static files

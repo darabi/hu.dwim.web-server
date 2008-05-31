@@ -63,10 +63,9 @@
                                :maximum-worker-count maximum-worker-count)))
 
 (def (function o) functional-response-broker (request)
-  (make-functional-response ((+header/content-type+ +html-content-type+))
-    (emit-into-html-stream (network-stream-of request)
-      (with-html-document-body (:title "foo")
-        <p "foo">))))
+  (make-functional-response ()
+    (emit-simple-html-document-response (:title "foo")
+      <p "bar">)))
 
 (defun start-functional-response-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level

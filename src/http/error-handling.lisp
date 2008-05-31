@@ -109,11 +109,9 @@
 
 (defun render-standard-error-page (&key (message "An internal server error has occured.")
                                         (title message) (http-status-code +http-internal-server-error+))
-  (emit-http-response ((+header/status+       http-status-code
-                        +header/content-type+ +html-content-type+))
-    (with-html-document-body (:title title :content-type +html-content-type+)
-      <h1 ,title>
-      <p ,message>)))
+  (emit-simple-html-document-response (:status http-status-code :title title)
+    <h1 ,title>
+    <p ,message>))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

@@ -6,8 +6,8 @@
 (def special-variable *test-application* (make-application :path-prefix "/test/"))
 
 (def entry-point (*test-application* :path "params") ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
-  (make-functional-html-response ()
-    (with-html-document-body (:title "foo")
+  (make-functional-response ()
+    (emit-simple-html-document-response (:title "foo")
       <p "Parameters:"
         <a (:href ,(concatenate-string (path-prefix-of *test-application*)
                                        (if (or number? the-answer?)
@@ -68,12 +68,11 @@
           (setf (root-component-of *frame*) (make-test-frame)))
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure
-        (make-functional-response ((+header/content-type+ +html-content-type+))
-          (emit-into-html-stream (network-stream-of *request*)
-            (with-html-document-body ()
-              <p "There's no session... "
-                <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
-                  "create new session">>))))))
+        (make-functional-response ()
+          (emit-simple-html-document-response ()
+            <p "There's no session... "
+               <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
+                  "create new session">>)))))
 
 (def entry-point (*session-application* :path "new/" :lookup-and-lock-session #f) ()
   (bind ((new-session (make-new-session *application*))
