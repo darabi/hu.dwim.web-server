@@ -47,43 +47,49 @@
         (print-uri-to-string (make-uri :scheme "http"
                                        :host (host-of server)
                                        :port (port-of server))))
-  (with-lock-held-on-server (server)
-    (loop
-       (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" (host-of server) (port-of server))
-         (server.debug "Binding socket to host ~A, port ~A" (host-of server) (port-of server))
-         (bind ((socket-is-ok nil)
-                (socket (make-socket :connect :passive
-                                     :local-host (host-of server)
-                                     :local-port (port-of server)
-                                     :external-format +external-format+
-                                     :reuse-address #t)))
-           (unwind-protect
-                (progn
-                  (server.dribble "Setting socket ~A to be non-blocking" socket)
-                  (setf (io.streams:fd-non-blocking socket) #t)
-                  ;;(net.sockets:set-socket-option socket :receive-timeout :sec 1 :usec 0)
-                  (setf (socket-of server) socket)
-                  (setf socket-is-ok t)
-                  (return))
-             (when (and (not socket-is-ok)
-                        socket)
-               (close socket))))))
-    (if (zerop (maximum-worker-count-of server))
-        ;; run in single-threaded mode (mostly for profiling)
-        (worker-loop server #f)
-        (let ((ok nil))
-          (unwind-protect
-               (progn
-                 (server.debug "Spawning the initial workers")
-                 (iter (for n :from 0 :below initial-worker-count)
-                       (make-worker server))
-                 (setf (started-at-of server) (local-time:now))
-                 (server.debug "Server successfully started")
-                 (setf ok t))
-            (unless ok
-              (server.debug "Cleaning up after a failed server start")
-              (shutdown-server server :force #t))))))
-  server)
+  (restart-case
+      (bind ((swank::*sldb-quit-restart* (find-restart 'abort)))
+        (with-lock-held-on-server (server)
+          (loop
+             (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" (host-of server) (port-of server))
+               (server.debug "Binding socket to host ~A, port ~A" (host-of server) (port-of server))
+               (bind ((socket-is-ok nil)
+                      (socket (make-socket :connect :passive
+                                           :local-host (host-of server)
+                                           :local-port (port-of server)
+                                           :external-format +external-format+
+                                           :reuse-address #t)))
+                 (unwind-protect
+                      (progn
+                        (server.dribble "Setting socket ~A to be non-blocking" socket)
+                        (setf (io.streams:fd-non-blocking socket) #t)
+                        ;;(net.sockets:set-socket-option socket :receive-timeout :sec 1 :usec 0)
+                        (setf (socket-of server) socket)
+                        (setf socket-is-ok t)
+                        (return))
+                   (when (and (not socket-is-ok)
+                              socket)
+                     (close socket))))))
+          (if (zerop (maximum-worker-count-of server))
+              ;; run in single-threaded mode (mostly for profiling)
+              (worker-loop server #f)
+              (let ((ok nil))
+                (unwind-protect
+                     (progn
+                       (server.debug "Spawning the initial workers")
+                       (iter (for n :from 0 :below initial-worker-count)
+                             (make-worker server))
+                       (setf (started-at-of server) (local-time:now))
+                       (server.debug "Server successfully started")
+                       (setf ok t))
+                  (unless ok
+                    (server.debug "Cleaning up after a failed server start")
+                    (shutdown-server server :force #t))))))
+        server)
+    (abort ()
+      :report (lambda (stream)
+                (format stream "Give up starting server ~A" server))
+      (values))))
 
 (defmethod shutdown-server ((server server) &key force &allow-other-keys)
   (setf (shutdown-initiated-p server) #t)
@@ -211,7 +217,7 @@
 
 (defun call-as-server-request-handler (thunk network-stream &key (error-handler 'abort-server-request))
   (restart-case
-      (let ((swank::*sldb-quit-restart* 'abort-server-request))
+      (let ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
         (call-with-server-error-handler thunk network-stream error-handler))
     (abort-server-request ()
       :report "Abort processing this request by simply closing the network socket"
