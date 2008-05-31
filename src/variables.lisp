@@ -13,20 +13,20 @@
 
 (def (with-macro e) with-collapsed-js-scripts ()
   (bind ((result nil)
-         (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
-                                                                              '(unsigned-byte 8)
-                                                                              'character)
-                                                            :external-format (if (boundp '*response*)
-                                                                                 (external-format-of *response*)
-                                                                                 +encoding+))
+	 (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
+									      '(unsigned-byte 8)
+									      'character)
+							    :external-format (if (boundp '*response*)
+										 (external-format-of *response*)
+										 +encoding+))
                         (setf result (-body-)))))
     (append
      (ensure-list result)
      (unless (zerop (length script-body))
        (list (cl-quasi-quote::as-delayed-emitting
-               (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
-               (write-sequence script-body *html-stream*)
-               (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)))))))
+	       (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
+	       (write-sequence script-body *html-stream*)
+	       (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)))))))
 
 (def special-variable *request-content-length-limit* #.(* 5 1024 1024)
      "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
@@ -59,7 +59,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
   "The maximum size of the Accept-Language header value that is accepted.")
 
 (macrolet ((x (&body entries)
-             `(progn
+	     `(progn
                 ,@(iter (for (name value) :on entries :by #'cddr)
                         (collect `(def (constant :test #'string=) ,name ,value))
                         (collect `(export ',name))))))
@@ -125,16 +125,16 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (def constant +carriage-return+ 13)
 
 (macrolet ((x (&body defs)
-             `(progn
+	     `(progn
                 ,@(iter (for (name value reason-phrase) :on defs :by #'cdddr)
                         #+nil ;; not used anywhere
                         (collect `(def constant ,(format-symbol *package*
                                                                 "~A-CODE+"
                                                                 (subseq (string name) 0
                                                                         (1- (length (string name)))))
-                                      ,value))
+				      ,value))
                         (collect `(def (constant :test #'string=) ,name
-                                      ,(format nil "~A ~A" value reason-phrase)))))))
+				      ,(format nil "~A ~A" value reason-phrase)))))))
   (x
     +http-continue+                        100 "Continue"
     +http-switching-protocols+             101 "Switching Protocols"
