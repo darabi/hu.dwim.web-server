@@ -278,14 +278,16 @@
 (def (macro e) make-buffered-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
   (with-unique-names (response)
     `(bind ((,response (make-byte-vector-response* nil))
-            (*response* ,response)
-            (buffer (emit-into-html-stream-buffer
-                      ,@body)))
-       (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
-                                                  (collect `(cons ,name ,value)))))
-       (setf (cookies-of ,response) (list ,@cookie-list))
-       (setf (body-of ,response) buffer)
-       ,response)))
+            (*response* ,response))
+       ;; set a default content type header. do it early, so that it's already set when the body is rendered
+       (setf (header-value ,response +header/content-type+) (content-type-for +html-mime-type+))
+       (bind ((buffer (emit-into-html-stream-buffer
+                        ,@body)))
+         (appendf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
+                                                       (collect `(cons ,name ,value)))))
+         (setf (cookies-of ,response) (list ,@cookie-list))
+         (setf (body-of ,response) buffer)
+         ,response))))
 
 (defmethod send-response ((response functional-response))
   (call-next-method)
@@ -316,13 +318,15 @@
        ,response)))
 
 (defmethod send-response ((response byte-vector-response))
-  (call-next-method)
-  (bind ((body (body-of response))
-         (network-stream (network-stream-of *request*)))
-    (if (consp body)
-        (dolist (piece body)
-          (write-sequence piece network-stream))
-        (write-sequence body network-stream))))
+  (bind ((body (ensure-list (body-of response)))
+         (network-stream (network-stream-of *request*))
+         (length 0))
+    (dolist (piece body)
+      (incf length (length piece)))
+    (setf (header-value response +header/content-length+) (princ-to-string length))
+    (call-next-method)
+    (dolist (piece body)
+      (write-sequence piece network-stream))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -389,7 +393,7 @@
 
 (def constructor redirect-response
   (setf (header-value -self- +header/status+) +http-moved-temporarily+)
-  (setf (header-value -self- +header/content-type+) +utf-8-html-content-type+)
+  (setf (header-value -self- +header/content-type+) +html-content-type+)
   (setf (external-format-of -self-) (ensure-external-format :utf-8)))
 
 (def (function e) make-redirect-response (target-uri)
