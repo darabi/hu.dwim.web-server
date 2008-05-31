@@ -83,13 +83,16 @@
 ;;; Frame
 
 (def component frame-component (top-component)
-  ((content-type +html-content-type+)
+  ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
    (page-icon nil)
    (title nil)))
 
-(def render frame-component ()
-  (with-html-document-body (:title (title-of -self-) :stylesheet-uris (stylesheet-uris-of -self-)
+(def method render :around ((-self- frame-component))
+;; FIXME the :around on component screws it up, should not be called for frame-component.
+;; should be: (def render frame-component ()
+  (with-html-document-body (:title (title-of -self-)
+                            :stylesheet-uris (stylesheet-uris-of -self-)
                             :content-type (content-type-of -self-)
                             :page-icon (page-icon-of -self-))
     <form (:method "post")

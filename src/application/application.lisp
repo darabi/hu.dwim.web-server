@@ -332,7 +332,9 @@ Custom implementations should look something like this:
   ((frame)))
 
 (def (function e) make-root-component-rendering-response (frame)
-  (make-instance 'root-component-rendering-response :frame frame))
+  (aprog1
+      (make-instance 'root-component-rendering-response :frame frame)
+    (setf (header-value it +header/content-type+) +html-content-type+)))
 
 (def method send-response ((self root-component-rendering-response))
   (bind ((*frame* (frame-of self))

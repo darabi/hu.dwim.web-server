@@ -6,29 +6,78 @@
 
 (eval-when (:compile-toplevel :load-toplevel)
   (def (function eio) content-type-for (mime-type &optional (encoding (encoding-name-of *response*)))
+    ;; this is a somewhat ugly optimization: return constants for the most often used combinations
     (or (case encoding
-          (:utf-8    (switch (mime-type :test #'string=)
-                       (+html-mime-type+ +utf-8-html-content-type+)
-                       (+css-mime-type+  +utf-8-css-content-type+)))
-          (:us-ascii (switch (mime-type :test #'string=)
-                       (+html-mime-type+ +us-ascii-html-content-type+)
-                       (+css-mime-type+  +us-ascii-css-content-type+)))
-          (:iso8859-1 (switch (mime-type :test #'string=)
-                        (+html-mime-type+ +iso-8859-1-html-content-type+)
-                        (+css-mime-type+  +iso-8859-1-css-content-type+))))
+          (:utf-8    (case mime-type
+                       (+html-mime-type+  +utf-8-html-content-type+)
+                       (+xhtml-mime-type+ +utf-8-xhtml-content-type+)
+                       (+css-mime-type+   +utf-8-css-content-type+)
+                       (t (switch (mime-type :test #'string=)
+                            (+html-mime-type+  +utf-8-html-content-type+)
+                            (+xhtml-mime-type+ +utf-8-xhtml-content-type+)
+                            (+css-mime-type+   +utf-8-css-content-type+)))))
+          (:us-ascii (case mime-type
+                       (+html-mime-type+  +us-ascii-html-content-type+)
+                       (+xhtml-mime-type+ +us-ascii-xhtml-content-type+)
+                       (+css-mime-type+   +us-ascii-css-content-type+)
+                       (t (switch (mime-type :test #'string=)
+                            (+html-mime-type+  +us-ascii-html-content-type+)
+                            (+xhtml-mime-type+ +us-ascii-xhtml-content-type+)
+                            (+css-mime-type+   +us-ascii-css-content-type+)))))
+          (:iso8859-1 (case mime-type
+                        (+html-mime-type+  +iso-8859-1-html-content-type+)
+                        (+xhtml-mime-type+ +iso-8859-1-xhtml-content-type+)
+                        (+css-mime-type+   +iso-8859-1-css-content-type+)
+                        (t (switch (mime-type :test #'string=)
+                             (+html-mime-type+  +iso-8859-1-html-content-type+)
+                             (+xhtml-mime-type+ +iso-8859-1-xhtml-content-type+)
+                             (+css-mime-type+   +iso-8859-1-css-content-type+))))))
         (concatenate 'string mime-type "; charset=" (string-downcase encoding)))))
 
-(def (constant e :test 'string=) +html-content-type+ (content-type-for +html-mime-type+ +encoding+))
-(def (constant e :test 'string=) +xml-content-type+ (content-type-for +xml-mime-type+ +encoding+))
+(def (constant e :test 'string=) +html-content-type+  (content-type-for +html-mime-type+  +encoding+))
+(def (constant e :test 'string=) +xhtml-content-type+ (content-type-for +xhtml-mime-type+ +encoding+))
+(def (constant e :test 'string=) +xml-content-type+   (content-type-for +xml-mime-type+   +encoding+))
 
-(def (with-macro* e) with-html-document-body (&key title (content-type +html-content-type+) stylesheet-uris)
-  (bind ((content-type (or (when (boundp '*response*)
-                             (header-value *response* +header/content-type+))
-                           content-type)))
-    <html
+(def (constant e :test (constantly #t)) +xml-attribute/xhtml-xmlns+
+    (make-xml-attribute "xmlns" +xhtml-namespace-uri+))
+(def (constant e :test (constantly #t)) +xml-attribute/dojo-xmlns+
+    (make-xml-attribute "xmlns:dojo" +dojo-namespace-uri+))
+
+(def (with-macro* e) with-html-document (&key title
+                                              content-type
+                                              encoding
+                                              (html-tag-attributes '(#.+xml-attribute/xhtml-xmlns+
+                                                                     #.+xml-attribute/dojo-xmlns+))
+                                              (xhtml-doctype +xhtml-1.1-doctype+ xhtml-doctype-provided?)
+                                              page-icon
+                                              stylesheet-uris)
+  (bind ((response (when (boundp '*response*)
+                     *response*))
+         (encoding (or encoding
+                       (when response
+                         (encoding-name-of response))
+                       +encoding+))
+         (content-type (or content-type
+                           (when response
+                             (header-value response +header/content-type+)))))
+    (unless xhtml-doctype-provided?
+      ;; TODO gracefully fall back to plain html if the request is coming from a crippled browser
+      )
+    (when xhtml-doctype
+      (write-string "<?xml version=\"1.1\" encoding=\"" *html-stream*)
+      (write-string (string encoding) *html-stream*)
+      (write-string "\"?>" *html-stream*)
+      (write-char #\Newline *html-stream*)
+      (write-string "<!DOCTYPE html PUBLIC " *html-stream*)
+      (write-string xhtml-doctype *html-stream*)
+      (write-char #\> *html-stream*)
+      (write-char #\Newline *html-stream*))
+    <html (,@html-tag-attributes)
      <head
       ,(when content-type
          <meta (:http-equiv #.+header/content-type+ :content ,content-type)>)
+      ,(when page-icon
+         <link (:rel "icon" :type "image/x-icon" :href ,page-icon)>)
       <title ,title>
       ,@(mapcar (lambda (stylesheet-uri)
                   <link (:rel "stylesheet" :type "text/css"

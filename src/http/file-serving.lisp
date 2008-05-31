@@ -75,7 +75,7 @@
       (make-instance 'directory-index-response
                      :path-prefix path-prefix :root-directory root-directory
                      :relative-path relative-path :directory directory)
-    (setf (header-value it +header/content-type+) +utf-8-html-content-type+)))
+    (setf (header-value it +header/content-type+) +html-content-type+)))
 
 (defmethod send-response ((self directory-index-response))
   (call-next-method)

@@ -94,29 +94,54 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +header/server+              "Server"
    ))
 
-(def (constant :test #'string=) +utf-8-html-content-type+            "text/html; charset=utf-8")
-(def (constant :test #'string=) +utf-8-css-content-type+             "text/css; charset=utf-8")
-(def (constant :test #'string=) +utf-8-xml-content-type+             "text/xml; charset=utf-8")
-(def (constant :test #'string=) +utf-8-plain-text-content-type+      "text/xml; charset=utf-8")
-(def (constant :test #'string=) +us-ascii-html-content-type+         "text/plain; charset=us-ascii")
-(def (constant :test #'string=) +us-ascii-css-content-type+          "text/css; charset=us-ascii")
-(def (constant :test #'string=) +us-ascii-xml-content-type+          "text/xml; charset=us-ascii")
-(def (constant :test #'string=) +us-ascii-plain-text-content-type+   "text/plain; charset=us-ascii")
-(def (constant :test #'string=) +iso-8859-1-html-content-type+       "text/html; charset=iso-8859-1")
-(def (constant :test #'string=) +iso-8859-1-css-content-type+        "text/css; charset=iso-8859-1")
-(def (constant :test #'string=) +iso-8859-1-xml-content-type+        "text/xml; charset=iso-8859-1")
-(def (constant :test #'string=) +iso-8859-1-plain-text-content-type+ "text/plain; charset=iso-8859-1")
+(macrolet ((x (&rest pairs)
+	     `(progn
+                ,@(iter (for (name value) :on pairs :by #'cddr)
+                        (collect `(def (constant :test #'string=) ,name (coerce ,value 'simple-base-string)))))))
+  ;; constants for optimization
+  (x
+   +utf-8-html-content-type+            "text/html; charset=utf-8"
+   +utf-8-xhtml-content-type+           "application/xhtml+xml; charset=utf-8"
+   +utf-8-css-content-type+             "text/css; charset=utf-8"
+   +utf-8-xml-content-type+             "text/xml; charset=utf-8"
+   +utf-8-plain-text-content-type+      "text/plain; charset=utf-8"
 
-(def (constant :test #'string=) +html-mime-type+ "text/html")
-(def (constant :test #'string=) +xml-mime-type+ "text/xml")
-(def (constant :test #'string=) +css-mime-type+ "text/css")
-(def (constant :test #'string=) +plain-text-mime-type+ "text/plain")
+   +us-ascii-html-content-type+         "text/html; charset=us-ascii"
+   +us-ascii-xhtml-content-type+        "application/xhtml+xml; charset=us-ascii"
+   +us-ascii-css-content-type+          "text/css; charset=us-ascii"
+   +us-ascii-xml-content-type+          "text/xml; charset=us-ascii"
+   +us-ascii-plain-text-content-type+   "text/plain; charset=us-ascii"
+
+   +iso-8859-1-html-content-type+       "text/html; charset=iso-8859-1"
+   +iso-8859-1-xhtml-content-type+      "application/xhtml+xml; charset=iso-8859-1"
+   +iso-8859-1-css-content-type+        "text/css; charset=iso-8859-1"
+   +iso-8859-1-xml-content-type+        "text/xml; charset=iso-8859-1"
+   +iso-8859-1-plain-text-content-type+ "text/plain; charset=iso-8859-1"
+
+   +html-mime-type+       "text/html"
+   +xhtml-mime-type+      "application/xhtml+xml"
+   +xml-mime-type+        "text/xml"
+   +css-mime-type+        "text/css"
+   +plain-text-mime-type+ "text/plain"
+
+   +xhtml-1.0-strict-doctype+       "\"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""
+   +xhtml-1.0-transitional-doctype+ "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/transitional.dtd\""
+   +xhtml-1.0-frameset-doctype+     "\"-//W3C//DTD XHTML 1.0 Frameset//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd\""
+   +xhtml-1.1-doctype+              "\"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\""
+   ))
+
+(def (function io) mime-type= (a b)
+  (declare (type simple-base-string a b))
+  (or (eq a b)
+      (string= a b)))
+
 
 ;;;
 ;;; HTTP
 ;;;
 
-(def (constant :test #'string=) +xhtml-namespace-uri+ "http://www.w3.org/1999/xhtml")
+(def (constant :test 'string=) +xhtml-namespace-uri+ "http://www.w3.org/1999/xhtml")
+(def (constant :test 'string=) +dojo-namespace-uri+  "http://www.dojotoolkit.org/2004/dojoml")
 
 (def constant +space+           #.(char-code #\Space))
 (def constant +tab+             #.(char-code #\Tab))
