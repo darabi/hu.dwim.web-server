@@ -381,3 +381,6 @@ Custom implementations should look something like this:
 
 (def (function e) make-redirect-response-for-current-application (&optional relative-path)
   (make-redirect-response (make-uri-for-current-application relative-path)))
+
+(def (function e) make-static-content-uri-for-current-application (&optional relative-path)
+  (make-uri :path (concatenate-string (path-prefix-of *application*) relative-path)))
