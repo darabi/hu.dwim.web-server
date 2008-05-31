@@ -19,6 +19,12 @@
    (started-at)
    (processed-request-count 0)))
 
+(def print-object server
+  (write-string "host: ")
+  (princ (host-of -self-))
+  (write-string ", port: ")
+  (princ (port-of -self-)))
+
 (def (function e) is-server-running? (server)
   (not (null (socket-of server))))
 
