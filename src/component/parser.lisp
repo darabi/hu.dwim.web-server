@@ -8,7 +8,13 @@
 ;;; Parser
 
 (def function ui-syntax-node-name (name)
-  (format-symbol (find-package :hu.dwim.wui) "~A-COMPONENT" name))
+  (format-symbol #.(find-package :hu.dwim.wui) "~A-COMPONENT" name))
+
+(def function ui-syntax-node-designator? (name)
+  (and (symbolp name)
+       (bind ((class-name (ui-syntax-node-name name)))
+         (and (find-class class-name nil)
+              (subtypep class-name 'component)))))
 
 (def function parse-quasi-quoted-ui (form)
   (if (typep form 'qq::syntax-node)
@@ -58,11 +64,31 @@
 (def method parse-quasi-quoted-ui* ((first (eql 'integer-component)) whole)
   (make-instance 'integer-component :component-value (second whole)))
 
+(def function parse-quasi-quoted-ui*/component-with-args-and-body (type whole &optional (body-initarg :components))
+  (bind ((body (rest whole))
+         (attributes (pop body)))
+    (when (or (typep attributes '(or string syntax-node))
+              (not (listp attributes))
+              (ui-syntax-node-designator? (first attributes)))
+      (push attributes body)
+      (setf attributes nil))
+    (cond
+      ((eq body-initarg :child)
+       (unless (length= 1 body)
+         (error "More then one body specified for a component in `ui() syntax with a :child initarg?"))
+       (setf body (parse-quasi-quoted-ui (first body))))
+      (t
+       (setf body (mapcar #'parse-quasi-quoted-ui body))))
+    (apply #'make-instance type (list* body-initarg body attributes))))
+
 (def method parse-quasi-quoted-ui* ((first (eql 'vertical-list-component)) whole)
-  (make-instance 'vertical-list-component :components (mapcar #'parse-quasi-quoted-ui (cdr whole))))
+  (parse-quasi-quoted-ui*/component-with-args-and-body 'vertical-list-component whole))
 
 (def method parse-quasi-quoted-ui* ((first (eql 'horizontal-list-component)) whole)
-  (make-instance 'horizontal-list-component :components (mapcar #'parse-quasi-quoted-ui (cdr whole))))
+  (parse-quasi-quoted-ui*/component-with-args-and-body 'horizontal-list-component whole))
+
+(def method parse-quasi-quoted-ui* ((first (eql 'widget-component)) whole)
+  (parse-quasi-quoted-ui*/component-with-args-and-body 'widget-component whole :child))
 
 (def method parse-quasi-quoted-ui* ((first (eql 'standard-process-component)) whole)
   (make-instance 'standard-process-component :form (second whole)))
