@@ -22,6 +22,7 @@
 
 (def class* frame (string-id-mixin activity-monitor-mixin)
   ((session nil)
+   (unique-counter 0)
    (frame-index (random-simple-base-string +frame-index-length+))
    (next-frame-index (random-simple-base-string +frame-index-length+))
    (client-state-sink-id->client-state-sink (make-hash-table :test 'equal))
@@ -38,6 +39,10 @@
 
 (def function toggle-debug-component-hierarchy (frame)
   (setf (debug-component-hierarchy-p frame) (not (debug-component-hierarchy-p frame))))
+
+(def (function i) generate-frame-unique-string (&optional prefix (frame *frame*))
+  ;; TODO optimize
+  (format nil "~A~A" prefix (incf (unique-counter-of frame))))
 
 (def function recreate-frame ()
   (remhash (id-of *frame*) (frame-id->frame-of *session*))

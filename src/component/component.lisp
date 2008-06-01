@@ -4,7 +4,7 @@
 
 (in-package :hu.dwim.wui)
 
-;;;;;;
+;;;;;;;;;;;;;
 ;;; Component
 
 (def (definer e) component (name supers slots &rest options)
@@ -17,59 +17,29 @@
 (def component component (ui-syntax-node)
   ((parent-component nil)))
 
-(def method render :around ((component component))
-  ;; TODO: maybe create a style-class-mixin?
-  (restart-case
-      (bind ((class-name (string-downcase (symbol-name (class-name (class-of component)))))
-             (css-name (subseq class-name 0 (- (length class-name) (length "-component")))))
-        ;; TODO: this does not work for <tr> elements under tables (goes out of order into the output)
-        <div (:class ,(concatenate 'string css-name (when (debug-component-hierarchy-p *frame*) " debug-component")))
-          ,(if (debug-component-hierarchy-p *frame*)
-               <div (:class "debug-component-name")
-                 ,class-name ,(if (typep component '(or icon-component command-component))
-                                  +void+
-                                  <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action component)))) "REPL">)>
-               +void+)
-          ,(call-next-method)>)
-    (skip-rendering-component ()
-      :report (lambda (stream)
-                (format stream "Skip rendering ~A and put an error marker in place" component))
-      <div (:class "rendering-error") "Error during rendering " ,(princ-to-string component)>)))
+(def component component-remote-identity-mixin (component)
+  ((id nil)))
 
-(def function make-copy-to-repl-action (component)
-  (make-action
-    (awhen (or swank::*emacs-connection*
-               (swank::default-connection))
-      (swank::with-connection (it)
-        (swank::present-in-emacs component)
-        (swank::present-in-emacs #.(string #\Newline))))))
+(def method id-of :around ((self component-remote-identity-mixin))
+  (bind ((id (call-next-method)))
+    (unless id
+      (setf id (generate-frame-unique-string "c"))
+      (setf (id-of self) id))
+    id))
+
+(def component widget-component-mixin (component-remote-identity-mixin)
+  ((css-class nil :initarg :class)
+   (style nil)))
+
+(def component widget-component (widget-component-mixin)
+  ((child :type component)))
+
+(def render widget-component
+  <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))
+       ,(render (child-of -self-))>)
 
 (def (type e) components ()
   'sequence)
-
-(def method print-object ((self component) stream)
-  (bind ((*print-level* nil)
-         (*standard-output* stream))
-    (handler-bind ((error (lambda (error)
-                            (declare (ignore error))
-                            (write-string "<<error printing component>>")
-                            (return-from print-object))))
-      (pprint-logical-block (stream nil :prefix "#<" :suffix ">")
-        (pprint-indent :current 1 stream)
-        (iter (with class = (class-of self))
-              (with class-name = (symbol-name (class-name class)))
-              (initially (princ class-name))
-              (for slot :in (class-slots class))
-              (when (bound-child-component-slot-p class self slot)
-                (bind ((initarg (first (slot-definition-initargs slot)))
-                       (value (slot-value-using-class class self slot)))
-                  (write-char #\Space)
-                  (pprint-newline :fill)
-                  (prin1 initarg)
-                  (write-char #\Space)
-                  (pprint-newline :fill)
-                  (prin1 value)))))))
-  self)
 
 ;;;;;;
 ;;; Parent child relationship
