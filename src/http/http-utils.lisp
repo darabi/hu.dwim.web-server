@@ -38,6 +38,22 @@
 (def (constant e :test 'string=) +xhtml-content-type+ (content-type-for +xhtml-mime-type+ +encoding+))
 (def (constant e :test 'string=) +xml-content-type+   (content-type-for +xml-mime-type+   +encoding+))
 
+(def function emit-xhtml-prologue (encoding doctype &optional (stream *html-stream*))
+  (if (and (eq encoding :utf-8)
+           (eq doctype +xhtml-1.1-doctype+))
+      (write-string (coerce (format nil "<?xml version=\"1.1\" encoding=\"UTF-8\"?>~%<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
+                            'simple-base-string)
+                    stream)
+      (progn
+        (write-string "<?xml version=\"1.1\" encoding=\"" stream)
+        (write-string (string encoding) stream)
+        (write-string "\"?>" stream)
+        (write-char #\Newline stream)
+        (write-string "<!DOCTYPE html PUBLIC " stream)
+        (write-string doctype stream)
+        (write-char #\> stream)
+        (write-char #\Newline stream))))
+
 (def (with-macro* e) with-html-document (&key title
                                               content-type
                                               encoding
@@ -59,14 +75,7 @@
       ;; TODO gracefully fall back to plain html if the request is coming from a crippled browser
       )
     (when xhtml-doctype
-      (write-string "<?xml version=\"1.1\" encoding=\"" *html-stream*)
-      (write-string (string encoding) *html-stream*)
-      (write-string "\"?>" *html-stream*)
-      (write-char #\Newline *html-stream*)
-      (write-string "<!DOCTYPE html PUBLIC " *html-stream*)
-      (write-string xhtml-doctype *html-stream*)
-      (write-char #\> *html-stream*)
-      (write-char #\Newline *html-stream*))
+      (emit-xhtml-prologue encoding xhtml-doctype))
     <html (:xmlns     #.+xhtml-namespace-uri+
            xmlns:dojo #.+dojo-namespace-uri+)
      <head

@@ -90,14 +90,30 @@
    (title nil)))
 
 (def render frame-component ()
-  (with-html-document (:title (title-of -self-)
-                       :stylesheet-uris (stylesheet-uris-of -self-)
-                       :content-type (content-type-of -self-)
-                       :page-icon (page-icon-of -self-))
-    <form (:method "post")
-      ;; TODO move into a standalone js broker
-      `js(defun submit-form (href)
-           (let ((form (aref (slot-value document 'forms) 0)))
-             (setf (slot-value form 'action) href)
-             (form.submit)))
-      ,(render (content-of -self-))>))
+  (bind ((response (when (boundp '*response*)
+                     *response*))
+         (encoding (or (when response
+                         (encoding-name-of response))
+                       +encoding+)))
+    (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
+    <html (:xmlns     #.+xhtml-namespace-uri+
+           xmlns:dojo #.+dojo-namespace-uri+)
+      <head
+        <meta (:http-equiv #.+header/content-type+ :content ,(content-type-for +html-mime-type+ encoding))>
+        ,(awhen (page-icon-of -self-)
+           <link (:rel "icon" :type "image/x-icon" :href ,(ensure-uri-string it))>)
+        <title ,(title-of -self-)>
+        ,@(mapcar (lambda (stylesheet-uri)
+                    <link (:rel "stylesheet" :type "text/css"
+                                :href ,(ensure-uri-string stylesheet-uri))>)
+                  (stylesheet-uris-of -self-))>
+      <body (:class "rundra") ; FIXME css class temporarily here
+        <form (:method "post")
+          ,@(with-collapsed-js-scripts
+             <span
+              ;; TODO move into a standalone js broker
+              `js(defun submit-form (href)
+                   (let ((form (aref (slot-value document 'forms) 0)))
+                     (setf (slot-value form 'action) href)
+                     (form.submit)))>
+             (render (content-of -self-)))>>>))
