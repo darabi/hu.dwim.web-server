@@ -4,24 +4,33 @@
 
 (in-package :hu.dwim.wui)
 
-;;;;;;
+;;;;;;;;
 ;;; List
 
+(def function render-list (orientation elements &key id css-class style)
+  (check-type orientation (member :vertical :horizontal))
+  <div (:class `str("list " ,(if (eq orientation :vertical)
+                                 "vertical "
+                                 "horizontal ")
+                            ,@(ensure-list css-class))
+        :id ,id
+        :style ,style)
+    ,@(render-list-elements elements)>)
+
 (def function render-vertical-list (elements)
-  <table
-      ,@(mapcar (lambda (element)
-                  <tr
-                   <td ,(render element)>>)
-                elements)>)
+  (render-list :vertical elements))
 
 (def function render-horizontal-list (elements)
-  <table
-      <tr
-       ,@(mapcar (lambda (element)
-                   <td ,(render element)>)
-                 elements)>>)
+  (render-list :horizontal elements))
 
-(def component list-component ()
+(def function render-list-elements (elements)
+  (iter (for element :in elements)
+        (for index :upfrom 1)
+        ;; TODO this will be broken for ajax in this setup
+        (collect <div (:class ,(if (evenp index) "even" "odd"))
+                   ,(render element)>)))
+
+(def component list-component (widget-component-mixin)
   ((orientation :vertical :type (member :vertical :horizontal))
    (elements nil)
    (components nil :type components)))
@@ -42,10 +51,8 @@
                              new-value))))
 
 (def render list-component ()
-  (with-slots (orientation components) -self-
-    (if (eq orientation :vertical)
-        (render-vertical-list components)
-        (render-horizontal-list components))))
+  (with-slots (orientation components id css-class style) -self-
+    (render-list orientation components :id id :css-class css-class :style style)))
 
 (def component horizontal-list-component (list-component)
   ()
