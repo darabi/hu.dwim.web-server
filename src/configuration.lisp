@@ -40,6 +40,13 @@
 (def special-variable *transform-quasi-quote-to-binary* t)
 (def special-variable *quasi-quote-indentation-width* nil)
 
+(def function make-str-transformation-pipeline ()
+  (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
+   '*html-stream*
+   :binary *transform-quasi-quote-to-binary*
+   :encoding +encoding+
+   :with-inline-emitting *transform-quasi-quote-to-inline-emitting*))
+
 (def function make-js-transformation-pipeline (embedded-in-xml? &optional inline?)
   (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
    (if embedded-in-xml?
@@ -73,6 +80,8 @@
   (enable-lambda-with-bang-args-syntax :start-character #\[ :end-character #\])
   (enable-readtime-wrapper-syntax)
   (enable-sharpquote<>-syntax)
+  (enable-quasi-quoted-string-syntax
+   :transformation-pipeline (make-str-transformation-pipeline))
   (enable-quasi-quoted-js-syntax
    :transformation-pipeline (make-js-transformation-pipeline nil)
    :nested-transformation-pipeline (make-js-transformation-pipeline t))
