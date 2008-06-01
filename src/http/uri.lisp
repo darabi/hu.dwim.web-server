@@ -136,6 +136,11 @@
       (write-char #\# stream)
       (out it))))
 
+(def function ensure-uri-string (uri)
+  (if (stringp uri)
+      (escape-as-uri uri)
+      (print-uri-to-string uri)))
+
 (def (function e) print-uri-to-string (uri &optional (escape t))
   (bind ((*print-pretty* #f)
          (*print-circle* #f))
