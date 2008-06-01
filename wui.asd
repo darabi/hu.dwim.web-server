@@ -77,9 +77,9 @@
                  (:file "loggers" :depends-on ("packages" "configuration" "variables" "utils"))
                  (:module "http"
                   :serial t
-                  :components ((:file "http-utils")
+                  :components ((:file "uri")
+                               (:file "http-utils")
                                (:file "conditions")
-                               (:file "uri")
                                (:file "accept-headers")
                                (:file "request-response")
                                (:file "error-handling")
@@ -129,7 +129,8 @@
                                (:file "application")
                                (:file "entry-point")
                                (:file "action")
-                               (:file "error-handlers")))
+                               (:file "error-handlers")
+                               (:file "js-serving")))
                  (:module "component"
                   :components ((:file "mop" )
                                (:file "syntax")
@@ -139,6 +140,7 @@
                                (:file "icon" :depends-on ("component"))
                                (:file "command" :depends-on ("icon" "place"))
                                (:file "misc" :depends-on ("component"))
+                               (:file "debug" :depends-on ("component" "misc"))
                                (:file "list" :depends-on ("component"))
                                (:file "table" :depends-on ("component"))
                                (:file "tree" :depends-on ("component"))
