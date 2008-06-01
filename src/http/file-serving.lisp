@@ -29,6 +29,7 @@
                      (probe-file pathname))))
     (when truename
       (cond
+        ;; TODO FIXME /foo should redirect to /foo/ if it's a dir
         ((cl-fad:directory-pathname-p truename)
          (make-directory-index-response path-prefix relative-path root-directory truename))
         ((not (null (pathname-name pathname)))

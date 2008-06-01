@@ -268,6 +268,7 @@
        (setf (cookies-of ,response) (list ,@cookie-list))
        ,response)))
 
+;; TODO delme?
 (def (macro e) make-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
   `(make-functional-response ((+header/content-type+ +html-content-type+
                                ,@headers-as-plist)

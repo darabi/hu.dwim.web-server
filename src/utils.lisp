@@ -284,11 +284,6 @@
      (with-html-document (:content-type +html-content-type+ :title ,title)
        ,@body)))
 
-#+nil ; TODO delme?
-(defmacro within-xhtml-tag (tag-name &body body)
-  "Execute BODY and wrap its html output in a TAG-NAME xml node with \"http://www.w3.org/1999/xhtml\" xml namespace."
-  `<,,tag-name ("xmlns" #.+XHTML-NAMESPACE-URI+)
-     ,,@body>)
 
 ;;;;;;
 ;;; Dynamic classes

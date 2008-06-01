@@ -38,16 +38,11 @@
 (def (constant e :test 'string=) +xhtml-content-type+ (content-type-for +xhtml-mime-type+ +encoding+))
 (def (constant e :test 'string=) +xml-content-type+   (content-type-for +xml-mime-type+   +encoding+))
 
-(def (constant e :test (constantly #t)) +xml-attribute/xhtml-xmlns+
-    (make-xml-attribute "xmlns" +xhtml-namespace-uri+))
-(def (constant e :test (constantly #t)) +xml-attribute/dojo-xmlns+
-    (make-xml-attribute "xmlns:dojo" +dojo-namespace-uri+))
-
 (def (with-macro* e) with-html-document (&key title
                                               content-type
                                               encoding
-                                              (html-tag-attributes '(#.+xml-attribute/xhtml-xmlns+
-                                                                     #.+xml-attribute/dojo-xmlns+))
+                                              head
+                                              body-tag-attributes
                                               (xhtml-doctype +xhtml-1.1-doctype+ xhtml-doctype-provided?)
                                               page-icon
                                               stylesheet-uris)
@@ -72,7 +67,8 @@
       (write-string xhtml-doctype *html-stream*)
       (write-char #\> *html-stream*)
       (write-char #\Newline *html-stream*))
-    <html (,@html-tag-attributes)
+    <html (:xmlns     #.+xhtml-namespace-uri+
+           xmlns:dojo #.+dojo-namespace-uri+)
      <head
       ,(when content-type
          <meta (:http-equiv #.+header/content-type+ :content ,content-type)>)
@@ -84,9 +80,11 @@
                          :href ,(if (stringp stylesheet-uri)
                                     (escape-as-uri stylesheet-uri)
                                     (print-uri-to-string stylesheet-uri)))>)
-                stylesheet-uris)>
-     <body ,@(with-collapsed-js-scripts
-              (list (-body-)))>>))
+                stylesheet-uris)
+      ,@head>
+     <body (,@body-tag-attributes)
+       ,@(with-collapsed-js-scripts
+          (list (-body-)))>>))
 
 #||
 ;; TODO

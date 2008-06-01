@@ -4,7 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
-(enable-sharp-boolean-syntax)
+(def (special-variable e) *server*)
+(def (special-variable e) *request*)
+(def (special-variable e) *response*)
 
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
@@ -37,10 +39,6 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 
 (def (special-variable e) *directory-for-temporary-files* "/tmp/"
   "Used for file uploads, too.")
-
-(def (special-variable e) *server*)
-(def (special-variable e) *request*)
-(def (special-variable e) *response*)
 
 ;; *BROKERS* holds the "broker path" while processing the rules.
 ;; whenever a rule provides a new set of rules, it is pushed at the head of the *BROKERS* list.
