@@ -11,8 +11,10 @@
 
 (deflogger rerl (wui))
 
-(deflogger http (rerl))
+(deflogger http   (rerl))
+(deflogger app    (rerl))
+
 (deflogger server (rerl))
-(deflogger app (rerl))
+(deflogger files  (server))
 
 (deflogger threads (wui))

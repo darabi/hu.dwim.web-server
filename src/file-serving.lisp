@@ -4,9 +4,25 @@
 
 (in-package :hu.dwim.wui)
 
+(def class* file-serving-broker/cache-entry ()
+  ((file-path)
+   (file-write-date)
+   (bytes-to-respond)
+   (last-updated-at (get-monotonic-time))
+   (last-used-at (get-monotonic-time))))
+
+(def function make-file-serving-broker/cache-entry (file-path &optional file-write-date bytes-to-respond)
+  (make-instance 'file-serving-broker/cache-entry
+                 :file-path file-path
+                 :file-write-date file-write-date
+                 :bytes-to-respond bytes-to-respond))
+
 (def class* file-serving-broker (broker-with-path-prefix)
-  ((root-directory))
+  ((root-directory)
+   (file-path->cache-entry (make-hash-table :test 'equal)))
   (:metaclass funcallable-standard-class))
+
+;; TODO caching
 
 (def (function e) make-file-serving-broker (path-prefix root-directory)
   (make-instance 'file-serving-broker :path-prefix path-prefix :root-directory root-directory))
@@ -15,25 +31,34 @@
   (set-funcallable-instance-function
     -self-
     (lambda (request)
-      (file-serving-handler request (root-directory-of -self-) (path-prefix-of -self-)))))
+      (file-serving-handler -self- request (root-directory-of -self-) (path-prefix-of -self-)))))
 
-(def function file-serving-handler (request root-directory path-prefix)
+(def function file-serving-handler (broker request root-directory path-prefix)
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? path-prefix request)))
     (when matches?
-      (file-serving-response-for-query-path path-prefix relative-path root-directory))))
+      (make-file-serving-response-for-query-path broker path-prefix relative-path root-directory))))
 
-(def function file-serving-response-for-query-path (path-prefix relative-path root-directory)
-  ;; TODO this function could be cached
-  (bind ((pathname (merge-pathnames relative-path root-directory))
-         (truename (ignore-errors
-                     (probe-file pathname))))
-    (when truename
-      (cond
-        ;; TODO FIXME /foo should redirect to /foo/ if it's a dir
-        ((cl-fad:directory-pathname-p truename)
-         (make-directory-index-response path-prefix relative-path root-directory truename))
-        ((not (null (pathname-name pathname)))
-         (make-file-serving-response truename))))))
+(def generic make-file-serving-response-for-query-path (broker path-prefix relative-path root-directory)
+  (:method ((broker file-serving-broker) path-prefix relative-path root-directory)
+    (when (or (zerop (length relative-path))
+              (alphanumericp (elt relative-path 0)))
+      (bind ((pathname (merge-pathnames relative-path root-directory))
+             (truename (ignore-errors
+                         (probe-file pathname))))
+        (when truename
+          (make-file-serving-response-for-directory-entry broker truename path-prefix relative-path root-directory))))))
+
+(def generic make-file-serving-response-for-directory-entry (broker truename path-prefix relative-path root-directory)
+  (:method ((broker file-serving-broker) truename path-prefix relative-path root-directory)
+    (cond
+      ((cl-fad:directory-pathname-p truename)
+       (if (or (ends-with #\/ relative-path)
+               (zerop (length relative-path)))
+           (make-directory-index-response path-prefix relative-path root-directory truename)
+           (bind ((uri (clone-uri (uri-of *request*))))
+             (make-redirect-response (append-path-to-uri uri "/")))))
+      (t
+       (make-file-serving-response truename)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;

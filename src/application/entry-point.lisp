@@ -89,3 +89,9 @@
                                                  ,@body)
                                               `(progn
                                                  ,@body)))))))))
+
+(def (definer e) file-serving-entry-point (application path-prefix root-directory)
+  `(ensure-entry-point ,application (make-file-serving-broker ,path-prefix ,root-directory)))
+
+(def (definer e) js-file-serving-entry-point (application path-prefix root-directory)
+  `(ensure-entry-point ,application (make-js-file-serving-broker ,path-prefix ,root-directory)))

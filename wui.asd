@@ -73,6 +73,9 @@
                  (:file "configuration" :depends-on ("packages"))
                  (:file "variables" :depends-on ("packages" "duplicates" "configuration"))
                  (:file "utils" :depends-on ("packages" "duplicates" "variables" "configuration"))
+                 (:file "js-utils" :depends-on ("utils"))
+                 (:file "file-serving" :depends-on ("utils" "http"))
+                 (:file "js-serving" :depends-on ("utils" "js-utils" "file-serving"))
                  (:file "loggers" :depends-on ("packages" "configuration" "variables" "utils"))
                  (:module "http"
                   :serial t
@@ -84,8 +87,7 @@
                                (:file "error-handling")
                                (:file "request-parsing")
                                (:file "server")
-                               (:file "brokers")
-                               (:file "file-serving"))
+                               (:file "brokers"))
                   :depends-on ("packages" "loggers" "utils")))))
   :depends-on (:iterate
                :metabang-bind
@@ -128,8 +130,7 @@
                                (:file "application")
                                (:file "entry-point")
                                (:file "action")
-                               (:file "error-handlers")
-                               (:file "js-serving")))
+                               (:file "error-handlers")))
                  (:module "component"
                   :components ((:file "mop" )
                                (:file "syntax")
