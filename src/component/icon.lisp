@@ -9,15 +9,15 @@
 
 (def component icon-component ()
   ((name)
-   (label nil)
-   (image-url nil)
-   (tooltip nil)))
+   (label nil :export :accessor)
+   (image-path nil :export :accessor)
+   (tooltip nil :export :accessor)))
 
 (def render icon-component ()
-  (with-slots (label image-url tooltip) -self-
+  (with-slots (label image-path tooltip) -self-
     <span (:title ,(or (force tooltip) ""))
-     ,@(when image-url
-             (list <img (:src ,image-url)>))
+     ,@(when image-path
+             (list <img (:src ,image-path)>))
      ,@(when label
              (list (force label)))>))
 
@@ -26,7 +26,7 @@
 
 (def special-variable *icons* (make-hash-table))
 
-(def function find-icon (name)
+(def (function e) find-icon (name)
   (prog1-bind icon (gethash name *icons*)
     (unless icon
       (error "The icon ~A cannot be found" name))))
@@ -34,28 +34,36 @@
 (def function (setf find-icon) (icon name)
   (setf (gethash name *icons*) icon))
 
-(def (definer e) icon (name image-url)
+(def (definer e) icon (name image-path)
   (bind ((name-as-string (string-downcase name)))
     `(setf (find-icon ',name)
            (make-icon-component ',name
-                                :image-url ,image-url
+                                :image-path ,image-path
                                 :label (delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil))
                                 :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil))))))
 
 (def (function e) clone-icon (name &rest args)
   (bind ((icon (find-icon name)))
-    (apply #'make-instance 'icon-component :name name (append args (list :label (label-of icon) :image-url (image-url-of icon) :tooltip (tooltip-of icon))))))
+    (apply #'make-instance 'icon-component :name name (append args (list :label (label-of icon) :image-path (image-path-of icon) :tooltip (tooltip-of icon))))))
 
 ;;;;;;
 ;;; Default icons
 
+(def icon login "static/wui/icons/20x20/green-checkmark.png")
+(defresources hu
+  (icon-label.login "Belépés")
+  (icon-tooltip.login "Azonosítás és jogosultságok kérése"))
+(defresources en
+  (icon-label.login "Login")
+  (icon-tooltip.login "Gain privileges by authentication"))
+
 (def icon logout "static/wui/icons/20x20/red-arrow-on-door.png")
 (defresources hu
   (icon-label.logout "Kilépés")
-  (icon-tooltip.logout "A kapcsolat befejezése"))
+  (icon-tooltip.logout "A munka befejezése és a jogosultságok feladása"))
 (defresources en
   (icon-label.logout "Logout")
-  (icon-tooltip.logout "Close the current session"))
+  (icon-tooltip.logout "Leave the current session and remove all privileges previously gained by authentication"))
 
 (def icon refresh "static/wui/icons/20x20/ying-yang-arrows.png")
 (defresources hu
