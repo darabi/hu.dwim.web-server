@@ -44,10 +44,6 @@
   ;; TODO optimize
   (format nil "~A~A" prefix (incf (unique-counter-of frame))))
 
-(def function recreate-frame ()
-  (remhash (id-of *frame*) (frame-id->frame-of *session*))
-  (make-redirect-response-for-current-application))
-
 (def (function o) find-frame-from-request (session)
   (bind ((frame-id (parameter-value +frame-id-parameter-name+)))
     (when frame-id

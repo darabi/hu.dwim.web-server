@@ -18,6 +18,9 @@
   (:method ((self activity-monitor-mixin))
     (setf (last-activity-at-of self) (get-monotonic-time))))
 
+(def (function e) mark-expired (thing)
+  (setf (last-activity-at-of thing) most-negative-fixnum))
+
 (def (generic e) time-since-last-activity (thing)
   (:method ((self activity-monitor-mixin))
     (- (get-monotonic-time) (last-activity-at-of self))))
@@ -92,5 +95,3 @@
               session)
             (values))))))
 
-(def (function e) mark-session-expired (session)
-  (setf (last-activity-at-of session) most-negative-fixnum))

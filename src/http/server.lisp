@@ -195,7 +195,7 @@
                          (*brokers* (list server))
                          (*request* (read-request server stream-socket)))
                     (loop
-                       (with-simple-restart (retry-handling "Try again handling this request")
+                       (with-simple-restart (retry-handling-request "Try again handling this request")
                          (funcall (handler-of server))
                          (return)))
                     (close-request *request*)))
@@ -214,6 +214,9 @@
                                            :error-handler #'handle-request-error)
            (server.dribble "Worker ~A finished processing a request" worker))
       (close stream-socket))))
+
+(def function invoke-retry-handling-request-restart ()
+  (invoke-restart (find-restart 'retry-handling-request)))
 
 (defun call-as-server-request-handler (thunk network-stream &key (error-handler 'abort-server-request))
   (restart-case

@@ -85,34 +85,40 @@
                (send-response response)
                (make-do-nothing-response)))
         (if frame
-            (progn
-              (setf *frame* frame)
-              (notify-activity frame)
-              (process-client-state-sinks frame (query-parameters-of *request*))
-              (bind ((action (find-action-from-request frame))
-                     (incoming-frame-index (parameter-value +frame-index-parameter-name+)))
-                (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
-                (when (and (stringp incoming-frame-index)
-                           (zerop (length incoming-frame-index)))
-                  (setf incoming-frame-index nil))
-                (cond
-                  ((and action
-                        incoming-frame-index)
-                   (if (equal incoming-frame-index (next-frame-index-of frame))
-                       (progn
-                         (step-to-next-frame-index frame)
-                         (bind ((response (funcall action)))
-                           (when (typep response 'response)
-                             (return-from call-as-handler-in-session
-                               (if (typep response 'locked-session-response-mixin)
-                                   (send-response-early response)
-                                   response)))))
-                       (frame-out-of-sync-error frame)))
-                  (incoming-frame-index
-                   (unless (equal incoming-frame-index (frame-index-of frame))
-                     (frame-out-of-sync-error frame)))
-                  (t
-                   (return-from call-as-handler-in-session (make-redirect-response-with-frame-id-decorated frame))))))
+            (restart-case
+                (progn
+                  (setf *frame* frame)
+                  (notify-activity frame)
+                  (process-client-state-sinks frame (query-parameters-of *request*))
+                  (bind ((action (find-action-from-request frame))
+                         (incoming-frame-index (parameter-value +frame-index-parameter-name+)))
+                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
+                    (when (and (stringp incoming-frame-index)
+                               (zerop (length incoming-frame-index)))
+                      (setf incoming-frame-index nil))
+                    (cond
+                      ((and action
+                            incoming-frame-index)
+                       (if (equal incoming-frame-index (next-frame-index-of frame))
+                           (progn
+                             (step-to-next-frame-index frame)
+                             (bind ((response (funcall action)))
+                               (when (typep response 'response)
+                                 (return-from call-as-handler-in-session
+                                   (if (typep response 'locked-session-response-mixin)
+                                       (send-response-early response)
+                                       response)))))
+                           (frame-out-of-sync-error frame)))
+                      (incoming-frame-index
+                       (unless (equal incoming-frame-index (frame-index-of frame))
+                         (frame-out-of-sync-error frame)))
+                      (t
+                       (return-from call-as-handler-in-session (make-redirect-response-with-frame-id-decorated frame))))))
+              (delete-current-frame ()
+                :report (lambda (stream)
+                          (format stream "Delete frame ~A" frame))
+                (mark-expired frame)
+                (invoke-retry-handling-request-restart)))
             (progn
               (setf frame (make-new-frame application session))
               (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
@@ -139,11 +145,23 @@
                     )))
     (setf *session* session)
     (if session
-        (with-lock-held-on-session (session)
-          (call-as-handler-in-session application session (lambda ()
-                                                            (-body-))))
+        (restart-case
+            (with-lock-held-on-session (session)
+              (call-as-handler-in-session application session (lambda ()
+                                                                (-body-))))
+          (delete-current-session ()
+            :report (lambda (stream)
+                      (format stream "Delete session ~A" session))
+            (mark-expired session)
+            (invoke-retry-handling-request-restart)))
         (bind ((*frame* nil))
           (-body-)))))
+
+(def (function e) invoke-delete-current-frame-restart ()
+  (invoke-restart (find-restart 'delete-current-frame)))
+
+(def (function e) invoke-delete-current-session-restart ()
+  (invoke-restart (find-restart 'delete-current-session)))
 
 (def (function e) decorate-application-response (application response)
   (when (and response
@@ -386,3 +404,8 @@ Custom implementations should look something like this:
 
 (def (function e) make-static-content-uri-for-current-application (&optional relative-path)
   (make-uri :path (concatenate-string (path-prefix-of *application*) relative-path)))
+
+(def (function e) mark-all-sessions-expired (application)
+  (with-lock-held-on-application (application)
+    (iter (for (key session) :in-hashtable (session-id->session-of application))
+          (mark-expired session))))
