@@ -58,7 +58,7 @@
                                               content-type
                                               encoding
                                               head
-                                              body-tag-attributes
+                                              body-element-attributes
                                               (xhtml-doctype +xhtml-1.1-doctype+ xhtml-doctype-provided?)
                                               page-icon
                                               stylesheet-uris)
@@ -91,7 +91,7 @@
                                     (print-uri-to-string stylesheet-uri)))>)
                 stylesheet-uris)
       ,@head>
-     <body (,@body-tag-attributes)
+     <body (,@body-element-attributes)
        ,@(with-collapsed-js-scripts
           (list (-body-)))>>))
 
