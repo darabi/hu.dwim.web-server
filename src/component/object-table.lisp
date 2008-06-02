@@ -10,11 +10,14 @@
 (def component standard-object-list-component (alternator-component editable-component)
   ((instances nil)))
 
+(def constructor standard-object-list-component ()
+  (setf (component-value-of -self-) (instances-of -self-)))
+
 (def method component-value-of ((component standard-object-list-component))
   (instances-of component))
 
 (def method (setf component-value-of) (new-value (component standard-object-list-component))
-  (with-slots (instances alternatives content command-bar) component
+  (with-slots (instances default-component-type alternatives content command-bar) component
     (setf instances new-value)
     (if instances
         (progn
@@ -28,7 +31,9 @@
           (if (and content
                    (not (typep content 'empty-component)))
               (setf (component-value-of content) instances)
-              (setf content (find-default-alternative-component alternatives))))
+              (setf content (if default-component-type
+                                (find-alternative-component alternatives default-component-type)
+                                (find-default-alternative-component alternatives)))))
         (setf alternatives (list (delay-alternative-component-type 'empty-component))
               content (find-default-alternative-component alternatives)))
     (setf command-bar (make-instance 'command-bar-component
@@ -56,7 +61,7 @@
     (if instances
         (setf slot-names (delete-duplicates
                           (iter (for instance :in instances)
-                                (appending (mapcar 'slot-definition-name (class-slots (class-of instance))))))
+                                (appending (mapcar 'slot-definition-name (standard-object-table-slots (class-of instance) instance)))))
               columns (cons (make-instance 'column-component :content (make-instance 'label-component :component-value "Commands"))
                             (mapcar (lambda (slot-name)
                                       (make-instance 'column-component :content (make-instance 'label-component :component-value (full-symbol-name slot-name))))
@@ -70,6 +75,13 @@
         (setf slot-names nil
               columns nil
               rows nil))))
+
+(def generic standard-object-table-slots (class instance)
+  (:method ((class standard-class) (instance standard-object))
+    (class-slots class))
+
+  (:method ((class prc::persistent-class) (instance prc::persistent-object))
+    (prc::persistent-effective-slots-of class)))
 
 ;;;;;;
 ;;; Standard object row

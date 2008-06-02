@@ -23,8 +23,10 @@
     (setf the-class (when new-value (class-of new-value)))))
 
 (def method render :before ((self abstract-standard-object-component))
-  (if (typep (instance-of self) 'prc::persistent-object)
-      (prc::revive-instance (instance-of self))))
+  (bind ((instance (instance-of self)))
+    (if (and (typep instance 'prc::persistent-object)
+             (prc::persistent-p instance))
+        (prc::revive-instance (instance-of self)))))
 
 ;;;;;;
 ;;; Standard object
@@ -55,7 +57,33 @@
                                      :commands (append (list (make-top-command-component component)
                                                              (make-refresh-command-component component))
                                                        (make-editing-command-components component)
+                                                       (make-standard-object-command-components component)
                                                        (make-alternative-command-components component alternatives))))))
+
+(def (function e) make-new-instance-command-component (component)
+  (make-instance 'command-component
+                 :icon (clone-icon 'new)
+                 :visible (delay (not (edited-p component)))
+                 :action (make-action (break "TODO:"))))
+
+(def (function e) make-create-instance-command-component (component)
+  (make-instance 'command-component
+                 :icon (clone-icon 'create)
+                 :visible (delay (and (edited-p component)
+                                      (typep (instance-of component) 'prc::persistent-object)
+                                      (not (prc::persistent-p (instance-of component)))))
+                 :action (make-action (break "TODO:"))))
+
+(def (function e) make-delete-instance-command-component (component)
+  (make-instance 'command-component
+                 :icon (clone-icon 'delete)
+                 :visible (delay (not (edited-p component)))
+                 :action (make-action (break "TODO:"))))
+
+(def (function e) make-standard-object-command-components (component)
+  (list (make-new-instance-command-component component)
+        (make-create-instance-command-component component)
+        (make-delete-instance-command-component component)))
 
 ;;;;;;
 ;;; Standard object detail
@@ -83,7 +111,9 @@
     (class-slots class))
 
   (:method ((class prc::persistent-class) (instance prc::persistent-object))
-    (prc::persistent-effective-slots-of class)))
+    (iter (for slot :in (prc::persistent-effective-slots-of class))
+          (if (dmm::authorize-operation 'dmm::read-instance-property-operation :entity class :instance instance :property slot)
+              (collect slot)))))
 
 (def render standard-object-detail-component ()
   (with-slots (class slot-value-group) -self-

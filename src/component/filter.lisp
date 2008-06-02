@@ -22,6 +22,9 @@
                                                                                     (make-filter-instances-command-component -self-))
                                                                               (make-alternative-command-components -self- alternatives))))))
 
+(def function make-standard-object-filter-component (&rest args &key slots &allow-other-keys)
+  (make-instance 'standard-object-filter-component))
+
 ;;;;;;
 ;;; Standard object filter detail
 
@@ -32,19 +35,22 @@
 
 (def constructor standard-object-filter-detail-component ()
   (with-slots (the-class class slot-value-group command-bar) -self-
-    (setf class (make-viewer-component the-class :default-component-type 'reference-component)
-          slot-value-group (make-instance 'standard-object-slot-value-group-filter-component
-                                          :slots (standard-object-filter-detail-slots the-class)
-                                          :slot-values (mapcar (lambda (slot)
-                                                                 (make-instance 'standard-object-slot-value-filter-component :the-class the-class :slot slot))
-                                                               (standard-object-filter-detail-slots the-class))))))
+    (bind ((slots (standard-object-filter-detail-slots the-class)))
+      (setf class (make-viewer-component the-class :default-component-type 'reference-component)
+            slot-value-group (make-instance 'standard-object-slot-value-group-filter-component
+                                            :slots slots
+                                            :slot-values (mapcar (lambda (slot)
+                                                                   (make-instance 'standard-object-slot-value-filter-component :the-class the-class :slot slot))
+                                                                 slots))))))
 
 (def generic standard-object-filter-detail-slots (class)
   (:method ((class standard-class))
     (class-slots class))
 
   (:method ((class prc::persistent-class))
-    (prc::persistent-effective-slots-of class)))
+    (iter (for slot :in (prc::persistent-effective-slots-of class))
+          (if (dmm::authorize-operation 'dmm::filter-entity-property-operation :entity class :property slot)
+              (collect slot)))))
 
 (def render standard-object-filter-detail-component ()
   (with-slots (the-class class slots-values slot-value-group command-bar) -self-

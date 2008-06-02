@@ -8,6 +8,13 @@
 ;;; API
 
 (def (function e) make-component-for-type (type &rest args &key &allow-other-keys)
+  "A TYPE specifier is either
+     - a primitive type name such as boolean, integer, string
+     - a parameterized type specifier such as (integer 100 200) 
+     - a compound type specifier such as (or null string)
+     - a type alieas name refering to a parameterized or compound type
+     - a CLOS class name such as standard-object or audited-object
+     - a CLOS type instance parse from a compound type specifier such as #<INTEGER-TYPE 0x1232112>"
   (apply #'make-instance (find-component-type-for-type type) args))
 
 (def (generic e) find-component-type-for-type (type)
@@ -70,7 +77,7 @@
           'list-component)))
 
   (:method ((first (eql 'prc::set)) (type cons))
-    'list-component))
+    'standard-object-list-component))
 
 (def (function e) make-component-for-prototype (type &rest args &key &allow-other-keys)
   (apply #'make-instance (find-component-type-for-prototype type) args))
@@ -118,6 +125,7 @@
 
 (def (generic e) make-viewer-component (thing &key &allow-other-keys)
   (:method (thing &rest args &key type &allow-other-keys)
+    (remove-from-plistf args :type)
     (aprog1 (apply #'make-component-for-type
                    (or type
                        (if (and (typep thing 'proper-list)
@@ -138,56 +146,23 @@
 ;;;;;;
 ;;; Filter
 
-;; TODO: join with make-component-for-type
 (def (generic e) make-filter-component (thing &key &allow-other-keys)
-  (:method ((class-name (eql t)) &rest args &key &allow-other-keys)
-    ;; KLUDGE: take a filter form as parameter and use that
-    (apply #'make-filter-component (find-class 'standard-object) args))
+  (:method (type &key &allow-other-keys)
+    (prog1-bind component (make-instance (find-component-type-for-type type))
+      (begin-editing component)))
 
-  (:method ((class-name (eql 'dmm::standard-text)) &key &allow-other-keys)
-    (make-instance 'string-component :edited #t))
-
-  (:method ((class-name (eql 'prc::timestamp)) &key &allow-other-keys)
-    (make-instance 'timestamp-component :edited #t))
-
-  (:method ((class-name (eql 'prc::date)) &key &allow-other-keys)
-    (make-instance 'date-component :edited #t))
-
-  (:method ((class-name (eql 'prc::time)) &key &allow-other-keys)
-    (make-instance 'time-component :edited #t))
-
-  (:method ((class-name (eql 'prc::ip-address)) &key &allow-other-keys)
-    (make-instance 'ip-address-component :edited #t))
-
-  (:method ((class-name symbol) &rest args &key &allow-other-keys)
-    (apply #'make-filter-component (find-class class-name) args))
-
-  (:method ((class-name (eql 'boolean)) &key &allow-other-keys)
-    (make-instance 'boolean-component :edited #t))
+  (:method ((type symbol) &rest args &key &allow-other-keys)
+    (apply #'make-filter-component (or (find-class type nil)
+                                       (find-class (prc::type-class-name-for type))) args))
 
   (:method ((type cons) &rest args &key &allow-other-keys)
     (apply #'make-filter-component-for-compound-type type args))
 
-  (:method ((class built-in-class) &key &allow-other-keys)
-    (make-instance 'string-component :edited #t))
+  (:method ((class structure-class) &rest args &key &allow-other-keys)
+    (apply #'make-instance 'standard-object-filter-component :the-class class args))
 
-  (:method ((class (eql (find-class 'string))) &key &allow-other-keys)
-    (make-instance 'string-component :edited #t))
-
-  (:method ((class (eql (find-class 'symbol))) &key &allow-other-keys)
-    (make-instance 'symbol-component :edited #t))
-
-  (:method ((class (eql (find-class 'fixnum))) &key &allow-other-keys)
-    (make-instance 'integer-component :edited #t))
-
-  (:method ((class (eql (find-class 'integer))) &key &allow-other-keys)
-    (make-instance 'integer-component :edited #t))
-
-  (:method ((class structure-class) &key default-component-type &allow-other-keys)
-    (make-instance 'standard-object-filter-component :the-class class :default-component-type default-component-type))
-
-  (:method ((class standard-class) &key default-component-type &allow-other-keys)
-    (make-instance 'standard-object-filter-component :the-class class :default-component-type default-component-type)))
+  (:method ((class standard-class) &rest args &key &allow-other-keys)
+    (apply #'make-instance 'standard-object-filter-component :the-class class args)))
 
 (def function make-filter-component-for-compound-type (type &rest args &key &allow-other-keys)
   (apply #'make-filter-component-for-compound-type* (first type) type args))
@@ -218,5 +193,6 @@
 ;; TODO:
 (def (generic e) make-maker-component (thing)
   (:method ((class standard-class))
+    ;; TODO: persistent #f is sufficient?
     (aprog1 (make-instance 'standard-object-maker-component :the-class class)
       (begin-editing it))))

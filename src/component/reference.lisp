@@ -67,8 +67,10 @@
   (princ-to-string (target-of reference)))
 
 (def method render :before ((self standard-object-reference-component))
-  (if (typep (target-of self) 'prc::persistent-object)
-      (prc::revive-instance (target-of self))))
+  (bind ((instance (target-of self)))
+    (if (and (typep instance 'prc::persistent-object)
+             (prc::persistent-p instance))
+        (prc::revive-instance (target-of self)))))
 ;;;;;;
 ;;; Standard object list reference
 

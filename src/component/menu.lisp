@@ -15,14 +15,20 @@
   (with-slots (menu-items) -self-
     <ul ,@(mapcar #'render menu-items)>))
 
+;;;;;;
+;;; Menu item
+
 (def component menu-item-component ()
   ((command :type component)
    (menu-items nil :type components)))
 
 (def render menu-item-component ()
-  (with-slots (command menu-items) -self-
+  (with-slots (visible command menu-items) -self-
     <li ,(render command)
         <ul ,@(mapcar #'render menu-items)>>))
+
+;;;;;;
+;;; Replace menu target command
 
 (def component replace-menu-target-command-component (command-component)
   ((action)
@@ -37,3 +43,33 @@
 
 (def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node replace-menu-target-command-component))
   (remove 'action (call-next-method) :key #'slot-definition-name))
+
+;;;;;;
+;;; Standard object filter menu item
+
+(def component standard-object-filter-menu-item-component (menu-item-component)
+  ((the-class)))
+
+(def constructor standard-object-filter-menu-item-component ()
+  (with-slots (the-class command) -self-
+    (setf command (make-instance 'replace-menu-target-command-component
+                                 :icon (make-icon-component 'filter :label "Keresés")
+                                 :component (make-filter-component the-class)))))
+
+(def (function e) make-standard-object-filter-menu-item-component (class-name)
+  (make-instance 'standard-object-filter-menu-item-component :the-class (find-class class-name)))
+
+;;;;;;
+;;; Standard object maker menu item
+
+(def component standard-object-maker-menu-item-component (menu-item-component)
+  ((the-class)))
+
+(def constructor standard-object-maker-menu-item-component ()
+  (with-slots (the-class visible command) -self-
+    (setf command (make-instance 'replace-menu-target-command-component
+                                 :icon (make-icon-component 'new :label "Új")
+                                 :component (make-maker-component the-class)))))
+
+(def (function e) make-standard-object-maker-menu-item-component (class-name)
+  (make-instance 'standard-object-maker-menu-item-component :the-class (find-class class-name)))

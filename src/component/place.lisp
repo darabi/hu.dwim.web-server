@@ -85,7 +85,8 @@
 
 (def function revive-slot-value-place-instance (place)
   (bind ((instance (instance-of place)))
-    (if (typep instance 'prc::persistent-object)
+    (if (and (typep instance 'prc::persistent-object)
+             (prc::persistent-p instance))
         (prc::revive-instance (instance-of place))
         instance)))
 

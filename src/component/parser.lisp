@@ -101,6 +101,10 @@
                  :command (parse-quasi-quoted-ui (second whole))
                  :menu-items (mapcar #'parse-quasi-quoted-ui (cddr whole))))
 
+(def method parse-quasi-quoted-ui* ((first (eql 'standard-object-filter-menu-item-component)) whole)
+  (make-instance 'standard-object-filter-menu-item-component
+                 :the-class (find-class (second whole))))
+
 (def method parse-quasi-quoted-ui* ((first (eql 'replace-menu-target-command-component)) whole)
   (make-instance 'replace-menu-target-command-component :icon (parse-quasi-quoted-ui (second whole)) :component (parse-quasi-quoted-ui (third whole))))
 

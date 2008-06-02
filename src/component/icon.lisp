@@ -97,6 +97,22 @@
   (icon-label.cancel "Cancel")
   (icon-tooltip.cancel "Revert changes"))
 
+(def icon new "static/wui/icons/20x20/document.png")
+(defresources hu
+  (icon-label.new "Új")
+  (icon-tooltip.new "Új objektum elkezdése"))
+(defresources en
+  (icon-label.new "New")
+  (icon-tooltip.new "Start editing new object"))
+
+(def icon create "static/wui/icons/20x20/disc-on-document.png")
+(defresources hu
+  (icon-label.create "Létrehozás")
+  (icon-tooltip.create "Új objektum felvétele"))
+(defresources en
+  (icon-label.create "Create")
+  (icon-tooltip.create "Create object"))
+
 (def icon delete "static/wui/icons/20x20/red-x.png")
 (defresources hu
   (icon-label.delete "Törlés")

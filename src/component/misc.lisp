@@ -73,12 +73,38 @@
                              ,wrap))
                   ,@args))
 
+;;;;;;;;;
+;;; Remote identity
+
+(def component remote-identity-component-mixin (component)
+  ((id nil)))
+
+(def method id-of :around ((self remote-identity-component-mixin))
+  (bind ((id (call-next-method)))
+    (unless id
+      (setf id (generate-frame-unique-string "c"))
+      (setf (id-of self) id))
+    id))
+
+;;;;;;;;;
+;;; Widget
+
+(def component widget-component-mixin (remote-identity-component-mixin)
+  ((css-class nil :initarg :class)
+   (style nil)))
+
+(def component widget-component (widget-component-mixin)
+  ((child :type component)))
+
+(def render widget-component ()
+  <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))
+       ,(render (child-of -self-))>)
+
 ;;;;;;
 ;;; Detail
 
 (def component detail-component ()
   ())
-
 
 ;;;;;;;;;
 ;;; Frame

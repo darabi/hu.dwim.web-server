@@ -17,27 +17,6 @@
 (def component component (ui-syntax-node)
   ((parent-component nil)))
 
-(def component component-remote-identity-mixin (component)
-  ((id nil)))
-
-(def method id-of :around ((self component-remote-identity-mixin))
-  (bind ((id (call-next-method)))
-    (unless id
-      (setf id (generate-frame-unique-string "c"))
-      (setf (id-of self) id))
-    id))
-
-(def component widget-component-mixin (component-remote-identity-mixin)
-  ((css-class nil :initarg :class)
-   (style nil)))
-
-(def component widget-component (widget-component-mixin)
-  ((child :type component)))
-
-(def render widget-component
-  <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))
-       ,(render (child-of -self-))>)
-
 (def (type e) components ()
   'sequence)
 

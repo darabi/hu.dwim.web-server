@@ -10,7 +10,7 @@
 (def component command-component ()
   ((visible #t)
    (enabled #t)
-   (icon :type component)
+   (icon nil :type component)
    (action)))
 
 (def render command-component ()
@@ -45,7 +45,7 @@
     (sort commands #'<
           :key (lambda (command)
                  (or (position (name-of (icon-of command))
-                               '(answer back top collapse collapse-all expand-all refresh edit save cancel store revert)
+                               '(answer back top collapse collapse-all expand-all refresh new edit save cancel store revert delete)
                                :test #'equal)
                      most-positive-fixnum)))))
 

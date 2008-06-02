@@ -17,7 +17,7 @@
 
 (def constructor standard-object-maker-component ()
   (with-slots (the-class content command-bar) -self-
-    (setf content (make-instance 'standard-object-detail-component :instance (make-instance the-class) :edited #t) ;; TODO: need a special component?
+    (setf content (make-instance 'standard-object-detail-component :instance (make-instance the-class :persistent #f) :edited #t) ;; TODO: need a special component?
           command-bar (make-instance 'command-bar-component :commands (list (make-new-command-component the-class))))))
 
 (def (function e) make-new-command-component (class)
