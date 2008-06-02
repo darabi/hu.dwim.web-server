@@ -120,6 +120,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +xhtml-mime-type+      "application/xhtml+xml"
    +xml-mime-type+        "text/xml"
    +css-mime-type+        "text/css"
+   +javascript-mime-type+ "text/javascript"
    +plain-text-mime-type+ "text/plain"
 
    +xhtml-1.0-strict-doctype+       "\"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""

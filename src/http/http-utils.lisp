@@ -34,9 +34,10 @@
                              (+css-mime-type+   +iso-8859-1-css-content-type+))))))
         (concatenate 'string mime-type "; charset=" (string-downcase encoding)))))
 
-(def (constant e :test 'string=) +html-content-type+  (content-type-for +html-mime-type+  +encoding+))
-(def (constant e :test 'string=) +xhtml-content-type+ (content-type-for +xhtml-mime-type+ +encoding+))
-(def (constant e :test 'string=) +xml-content-type+   (content-type-for +xml-mime-type+   +encoding+))
+(def (constant e :test 'string=) +html-content-type+         (content-type-for +html-mime-type+         +encoding+))
+(def (constant e :test 'string=) +xhtml-content-type+        (content-type-for +xhtml-mime-type+        +encoding+))
+(def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +encoding+))
+(def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +encoding+))
 
 (def function emit-xhtml-prologue (encoding doctype &optional (stream *html-stream*))
   (if (and (eq encoding :utf-8)
