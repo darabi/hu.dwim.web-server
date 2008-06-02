@@ -48,10 +48,10 @@
     (setf (query-parameters-of self) (awhen (query-of self)
                                        (parse-query-parameters it)))))
 
-(defun uri-query-parameter-value (uri name)
+(def (function e) uri-query-parameter-value (uri name)
   (cdr (assoc name (query-parameters-of uri) :test #'string=)))
 
-(defun (setf uri-query-parameter-value) (value uri name)
+(def (function e) (setf uri-query-parameter-value) (value uri name)
   (bind ((entry (assoc name (query-parameters-of uri) :test #'string=)))
     (if entry
         (setf (cdr entry) value)
