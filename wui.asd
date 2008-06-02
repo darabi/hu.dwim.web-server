@@ -70,10 +70,9 @@
   ((:module :src
     :components ((:file "packages")
                  (:file "duplicates" :depends-on ("packages"))
-                 (:file "configuration" :depends-on ("packages" "readers"))
+                 (:file "configuration" :depends-on ("packages"))
                  (:file "variables" :depends-on ("packages" "duplicates" "configuration"))
-                 (:file "readers" :depends-on ("packages" "duplicates"))
-                 (:file "utils" :depends-on ("packages" "duplicates" "readers" "variables" "configuration"))
+                 (:file "utils" :depends-on ("packages" "duplicates" "variables" "configuration"))
                  (:file "loggers" :depends-on ("packages" "configuration" "variables" "utils"))
                  (:module "http"
                   :serial t

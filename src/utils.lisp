@@ -188,6 +188,28 @@
   #+sbcl (eq (sb-thread::mutex-value lock) (current-thread))
   #-sbcl #t)
 
+(def (constant :test 'string=) +missing-resource-css-class+ (coerce "missing-resource" 'simple-base-string))
+
+(def function localized-string-reader (stream c1 c2)
+  (declare (ignore c2))
+  (unread-char c1 stream)
+  (let ((key (read stream)))
+    (if (ends-with-subseq "<>" key)
+        `(bind (((:values str foundp) (lookup-resource ,(subseq key 0 (- (length key) 2)) nil)))
+           ,(when (and (> (length key) 0)
+                       (upper-case-p (elt key 0)))
+                  `(setf str (capitalize-first-letter str)))
+           <span (:class ,(unless foundp
+                                  +missing-resource-css-class+))
+                 ,str>)
+        `(bind (((:values str foundp) (lookup-resource ,key nil)))
+           (declare (ignorable foundp))
+           ,(when (and (> (length key) 0)
+                       (upper-case-p (elt key 0)))
+                  `(when foundp
+                     (setf str (capitalize-first-letter str))))
+           str))))
+
 ;;;;;;;;;;;;;;;;
 ;;; string utils
 

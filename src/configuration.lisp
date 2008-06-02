@@ -75,6 +75,22 @@
    :indentation-width *quasi-quote-indentation-width*
    :encoding +encoding+))
 
+(define-syntax js-sharpquote ()
+  (set-dispatch-macro-character
+   #\# #\"
+   (lambda (s c1 c2)
+     (declare (ignore c2))
+     (unread-char c1 s)
+     (let ((key (read s)))
+       `(ucw.i18n.lookup ,key)))))
+
+(define-syntax sharpquote<> ()
+  "Enable quote reader for the rest of the file (being loaded or compiled).
+#\"my i18n text\" parts will be replaced by a LOOKUP-RESOURCE call for the string."
+  ;; the reader itself needs the <> syntax, so it's in utils.lisp
+  (set-dispatch-macro-character #\# #\" (lambda (stream c1 c2)
+                                          (localized-string-reader stream c1 c2))))
+
 (defun setup-readtable ()
   (enable-sharp-boolean-syntax)
   (enable-lambda-with-bang-args-syntax :start-character #\[ :end-character #\])
