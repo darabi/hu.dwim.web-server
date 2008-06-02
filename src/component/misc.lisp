@@ -113,9 +113,19 @@
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
    (page-icon nil)
-   (title nil)))
+   (title nil)
+   (dojo-skin-name "tundra")
+   (dojo-path "static/dojo/dojo/")
+   (dojo-file-name "dojo.js")
+   (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
+   (debug-client-side #f :type boolean :accessor debug-client-side?)
+   (%cached-dojo-uri nil)))
 
 (def render frame-component ()
+  (unless (%cached-dojo-uri-of -self-)
+    (setf (%cached-dojo-uri-of -self-) (concatenate-string (path-prefix-of *application*)
+                                                           (dojo-path-of -self-)
+                                                           (dojo-file-name-of -self-))))
   (bind ((response (when (boundp '*response*)
                      *response*))
          (encoding (or (when response
@@ -132,8 +142,15 @@
         ,@(mapcar (lambda (stylesheet-uri)
                     <link (:rel "stylesheet" :type "text/css"
                                 :href ,(ensure-uri-string stylesheet-uri))>)
-                  (stylesheet-uris-of -self-))>
-      <body (:class "rundra") ; FIXME css class temporarily here
+                  (stylesheet-uris-of -self-))
+        <script (:type         #.+javascript-mime-type+
+                 :src          ,(%cached-dojo-uri-of -self-)
+                 :djConfig     ,(format nil "parseOnLoad: ~A, isDebug: ~A"
+                                        (to-js-boolean (parse-dojo-widgets-on-load? -self-))
+                                        (to-js-boolean (debug-client-side? -self-))))
+                 ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
+                 "">>
+      <body (:class ,(dojo-skin-name-of -self-))
         <form (:method "post")
           ,@(with-collapsed-js-scripts
              <span
