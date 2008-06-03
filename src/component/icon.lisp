@@ -232,3 +232,11 @@
 (defresources en
   (icon-label.view "View")
   (icon-tooltip.view "Change view"))
+
+(def icon finish "static/wui/icons/20x20/checkmark.png")
+(defresources hu
+  (icon-label.finish "Befejezés")
+  (icon-tooltip.finish "A varázsló befejezése"))
+(defresources en
+  (icon-label.finish "Finish")
+  (icon-tooltip.finish "Finish wizard"))

@@ -75,16 +75,21 @@
   (list (make-new-instance-command-component component)
         (make-delete-instance-command-component component)))
 
+(def method add-user-message ((self standard-object-component) message &rest args)
+  (apply #'add-user-message (content-of self) message args))
+
 ;;;;;;
 ;;; Standard object detail
 
 (def component standard-object-detail-component (abstract-standard-object-component editable-component detail-component)
-  ((class nil :accessor nil :type component)
+  ((user-message-collector :type component)
+   (class nil :accessor nil :type component)
    (slot-value-group nil :type component))
   (:documentation "Component for an instance of STANDARD-OBJECT in detail"))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-detail-component))
-  (with-slots (instance the-class class slot-value-group) component
+  (with-slots (instance the-class user-message-collector class slot-value-group) component
+    (setf user-message-collector (make-instance 'user-message-collector-component))
     (if the-class
         (if class
             (setf (component-value-of class) the-class)
@@ -107,12 +112,16 @@
               (collect slot)))))
 
 (def render standard-object-detail-component ()
-  (with-slots (class slot-value-group) -self-
+  (with-slots (user-message-collector class slot-value-group) -self-
     <div
+     ,(render user-message-collector)
       <span "An instance of " ,(render class)>
       <div
         <h3 "Slots">
         ,(render slot-value-group)>>))
+
+(def method add-user-message ((self standard-object-detail-component) message &rest args)
+  (apply #'add-user-message (user-message-collector-of self) message args))
 
 ;;;;;;
 ;;; Standard object slot value group

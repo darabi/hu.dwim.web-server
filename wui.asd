@@ -149,6 +149,8 @@
                                (:file "editable" :depends-on ("command"))
                                (:file "place-component" :depends-on ("editable" "factory"))
                                (:file "atomic" :depends-on ("editable"))
+                               (:file "user-message" :depends-on ("component"))
+                               (:file "wizard" :depends-on ("component"))
                                (:file "process" :depends-on ("command"))
                                (:file "alternator" :depends-on ("reference" "command"))
                                (:file "class" :depends-on ("alternator" "reference"))
