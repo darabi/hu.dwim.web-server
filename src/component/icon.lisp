@@ -224,3 +224,11 @@
 (defresources en
   (icon-label.ponated "Ponated")
   (icon-tooltip.ponated "Ponate condition"))
+
+(def icon view "static/wui/icons/20x20/eye.png")
+(defresources hu
+  (icon-label.view "Nézet")
+  (icon-tooltip.view "Nézet váltás"))
+(defresources en
+  (icon-label.view "View")
+  (icon-tooltip.view "Change view"))

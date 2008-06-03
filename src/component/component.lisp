@@ -20,6 +20,10 @@
 (def (type e) components ()
   'sequence)
 
+(def (generic e) component-value-of (component))
+
+(def (generic e) (setf component-value-of) (new-value component))
+
 ;;;;;;
 ;;; Parent child relationship
 

@@ -90,8 +90,6 @@
           <thead
             <tr
               <th "Name">
-              <th>
-              <th>
               <th "Value">>>
           <tbody ,@(mapcar #'render slot-values)>>
         <span "There are none">)))

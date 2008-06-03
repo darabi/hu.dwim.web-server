@@ -56,9 +56,15 @@
   ()
   (:default-initargs :orientation :horizontal))
 
+(def (function e) make-horizontal-list-component (&rest components)
+  (make-instance 'horizontal-list-component :components components))
+
 ;;;;;;
 ;;; Vertical list
 
 (def component vertical-list-component (list-component)
   ()
   (:default-initargs :orientation :vertical))
+
+(def (function e) make-vertical-list-component (&rest components)
+  (make-instance 'vertical-list-component :components components))

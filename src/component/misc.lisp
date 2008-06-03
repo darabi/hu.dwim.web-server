@@ -106,6 +106,8 @@
 (def component detail-component ()
   ())
 
+;;;;;;
+;;; Value
 
 (def component value-component ()
   ())

@@ -78,7 +78,8 @@
   ())
 
 (def method make-reference-label ((reference standard-object-list-reference-component))
-  (princ-to-string (target-of reference)))
+  (bind ((*print-length* 3))
+    (princ-to-string (target-of reference))))
 
 ;;;;;;
 ;;; Standard object filter reference

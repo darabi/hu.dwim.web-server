@@ -7,20 +7,23 @@
 ;;;;;;
 ;;; Standard object filter
 
-(def component standard-object-filter-component (alternator-component)
-  ((the-class)))
+(def component standard-object-filter-component (abstract-standard-class-component alternator-component)
+  ())
 
-(def constructor standard-object-filter-component ()
-  (with-slots (the-class default-component-type alternatives content command-bar) -self-
-    (setf alternatives (list (delay-alternative-component-type 'standard-object-filter-detail-component :the-class the-class)
-                             (delay-alternative-component 'standard-object-filter-reference-component
-                               (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-filter-reference-component :target the-class))))
-          content (if default-component-type
-                      (find-alternative-component alternatives default-component-type)
-                      (find-default-alternative-component alternatives))
-          command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command-component -self-)
-                                                                                    (make-filter-instances-command-component -self-))
-                                                                              (make-alternative-command-components -self- alternatives))))))
+(def method (setf component-value-of) :after (new-value (self standard-object-filter-component))
+  (with-slots (the-class default-component-type alternatives content command-bar) self
+    (if the-class
+        (setf alternatives (list (delay-alternative-component-type 'standard-object-filter-detail-component :the-class the-class)
+                                 (delay-alternative-component 'standard-object-filter-reference-component
+                                   (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-filter-reference-component :target the-class))))
+              content (if default-component-type
+                          (find-alternative-component alternatives default-component-type)
+                          (find-default-alternative-component alternatives)))
+        (setf alternatives nil
+              content nil))
+    (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command-component self)
+                                                                                    (make-filter-instances-command-component self))
+                                                                              (make-alternative-command-components self alternatives))))))
 
 (def function make-standard-object-filter-component (&rest args &key slots &allow-other-keys)
   (make-instance 'standard-object-filter-component))
@@ -28,13 +31,12 @@
 ;;;;;;
 ;;; Standard object filter detail
 
-(def component standard-object-filter-detail-component ()
-  ((the-class)
-   (class :accessor nil :type component)
+(def component standard-object-filter-detail-component (abstract-standard-class-component detail-component)
+  ((class :accessor nil :type component)
    (slot-value-group :type component)))
 
-(def constructor standard-object-filter-detail-component ()
-  (with-slots (the-class class slot-value-group command-bar) -self-
+(def method (setf component-value-of) :after (new-value (self standard-object-filter-detail-component))
+  (with-slots (the-class class slot-value-group command-bar) self
     (setf class (make-viewer-component the-class :default-component-type 'reference-component)
           slot-value-group (make-instance 'standard-object-slot-value-group-filter-component :the-class the-class :slots (standard-object-filter-detail-slots the-class)))))
 
@@ -61,8 +63,8 @@
 (def component standard-object-slot-value-group-filter-component (abstract-standard-slot-definition-group-component)
   ((slot-values nil :type components)))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-slot-value-group-filter-component))
-  (with-slots (the-class slots slot-values) component
+(def method (setf component-value-of) :after (new-value (self standard-object-slot-value-group-filter-component))
+  (with-slots (the-class slots slot-values) self
     (setf slot-values
           (iter (for slot :in slots)
                 (for slot-value = (find slot slot-values :key #'component-value-of))
@@ -90,10 +92,8 @@
 ;; TODO: all predicates
 (def (constant :test 'equalp) +filter-predicates+ '(equal like #+nil (< <= > >= between)))
 
-(def component standard-object-slot-value-filter-component ()
-  ((the-class)
-   (slot)
-   (slot-name)
+(def component standard-object-slot-value-filter-component (abstract-standard-slot-definition-component)
+  ((slot-name)
    (negated #f :type boolean)
    (negate-command :type component)
    (condition 'equal :type (member #.+filter-predicates+))
@@ -101,8 +101,8 @@
    (label nil :type component)
    (value nil :type component)))
 
-(def constructor standard-object-slot-value-filter-component ()
-  (with-slots (slot slot-name negated negate-command condition condition-command label value) -self-
+(def method (setf component-value-of) :after (new-value (self standard-object-slot-value-filter-component))
+  (with-slots (slot slot-name negated negate-command condition condition-command label value) self
     (setf slot-name (slot-definition-name slot)
           label (make-instance 'label-component :component-value (full-symbol-name slot-name))
           negate-command (make-instance 'command-component
