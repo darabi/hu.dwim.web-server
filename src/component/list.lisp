@@ -7,29 +7,6 @@
 ;;;;;;;;
 ;;; List
 
-(def function render-list (orientation elements &key id css-class style)
-  (check-type orientation (member :vertical :horizontal))
-  <div (:class `str("list " ,(if (eq orientation :vertical)
-                                 "vertical "
-                                 "horizontal ")
-                            ,@(ensure-list css-class))
-        :id ,id
-        :style ,style)
-    ,@(render-list-elements elements)>)
-
-(def function render-vertical-list (elements)
-  (render-list :vertical elements))
-
-(def function render-horizontal-list (elements)
-  (render-list :horizontal elements))
-
-(def function render-list-elements (elements)
-  (iter (for element :in elements)
-        (for index :upfrom 1)
-        ;; TODO this will be broken for ajax in this setup
-        (collect <div (:class ,(if (evenp index) "even" "odd"))
-                   ,(render element)>)))
-
 (def component list-component (widget-component-mixin value-component)
   ((elements nil)
    (orientation :vertical :type (member :vertical :horizontal))
@@ -46,13 +23,41 @@
                                  (make-viewer-component element :default-component-type 'reference-component))
                                new-value)))))
 
+(def function render-list (orientation elements &key id css-class style)
+  (check-type orientation (member :vertical :horizontal))
+  <table (:class `str("list " ,(ecase orientation
+                                      (:vertical "vertical ")
+                                      (:horizontal "horizontal "))
+                              ,@(ensure-list css-class))
+          :id ,id
+          :style ,style)
+    ,@(ecase orientation
+             (:vertical (mapcar (lambda (element)
+                                  <tr <td ,(render element)>>)
+                                elements))
+             (:horizontal (list <tr ,@(mapcar (lambda (element)
+                                                <td ,(render element)>)
+                                              elements) >)))>)
+
+(def function render-vertical-list (elements)
+  (render-list :vertical elements))
+
+(def function render-horizontal-list (elements)
+  (render-list :horizontal elements))
+
 (def render list-component ()
   (with-slots (orientation components id css-class style) -self-
     (render-list orientation components :id id :css-class css-class :style style)))
 
+;;;;;;
+;;; Horizontal list
+
 (def component horizontal-list-component (list-component)
   ()
   (:default-initargs :orientation :horizontal))
+
+;;;;;;
+;;; Vertical list
 
 (def component vertical-list-component (list-component)
   ()

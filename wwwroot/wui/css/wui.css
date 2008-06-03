@@ -21,6 +21,13 @@
    list container
 */
 
+table.list.vertical
+{
+    width: 100%;
+}
+
+/* TODO: does not work
+
 div.list.horizontal > div
 {
   display: block;
@@ -31,3 +38,5 @@ div.list.vertical > div
 {
   display: block;
 }
+
+*/
