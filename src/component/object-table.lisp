@@ -32,6 +32,7 @@
               (dolist (alternative alternatives)
                 (setf (component-value-of (force alternative)) instances))
               (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :instances instances)
+                                       (delay-alternative-component-type 'list-component :elements instances)
                                        (delay-alternative-component 'standard-object-list-reference-component
                                          (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-list-reference-component :target instances))))))
           (if (and content
