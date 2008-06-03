@@ -46,7 +46,7 @@
 
   (:method ((class prc::persistent-class))
     (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (if (dmm::authorize-operation 'dmm::filter-entity-property-operation :entity class :property slot)
+          (if (dmm::authorize-operation 'dmm::filter-entity-property-operation :-entity- class :-property- slot)
               (collect slot)))))
 
 (def render standard-object-filter-detail-component ()

@@ -108,7 +108,7 @@
 
   (:method ((class prc::persistent-class) (instance prc::persistent-object))
     (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (if (dmm::authorize-operation 'dmm::read-instance-property-operation :entity class :instance instance :property slot)
+          (if (dmm::authorize-operation 'dmm::read-instance-property-operation :-entity- class :-instance- instance :-property- slot)
               (collect slot)))))
 
 (def render standard-object-detail-component ()
