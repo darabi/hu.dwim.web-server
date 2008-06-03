@@ -30,15 +30,10 @@
         (collect <div (:class ,(if (evenp index) "even" "odd"))
                    ,(render element)>)))
 
-(def component list-component (widget-component-mixin)
-  ((orientation :vertical :type (member :vertical :horizontal))
-   (elements nil)
+(def component list-component (widget-component-mixin value-component)
+  ((elements nil)
+   (orientation :vertical :type (member :vertical :horizontal))
    (components nil :type components)))
-
-(def constructor list-component ()
-  (with-slots (elements components) -self-
-    (when elements
-      (setf (component-value-of -self-) elements))))
 
 (def method component-value-of ((component list-component))
   (elements-of component))
@@ -46,9 +41,10 @@
 (def method (setf component-value-of) (new-value (component list-component))
   (with-slots (elements components) component
     (setf elements new-value)
-    (setf components (mapcar (lambda (element)
-                               (make-viewer-component element :default-component-type 'reference-component))
-                             new-value))))
+    (unless components
+      (setf components (mapcar (lambda (element)
+                                 (make-viewer-component element :default-component-type 'reference-component))
+                               new-value)))))
 
 (def render list-component ()
   (with-slots (orientation components id css-class style) -self-

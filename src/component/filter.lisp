@@ -35,13 +35,8 @@
 
 (def constructor standard-object-filter-detail-component ()
   (with-slots (the-class class slot-value-group command-bar) -self-
-    (bind ((slots (standard-object-filter-detail-slots the-class)))
-      (setf class (make-viewer-component the-class :default-component-type 'reference-component)
-            slot-value-group (make-instance 'standard-object-slot-value-group-filter-component
-                                            :slots slots
-                                            :slot-values (mapcar (lambda (slot)
-                                                                   (make-instance 'standard-object-slot-value-filter-component :the-class the-class :slot slot))
-                                                                 slots))))))
+    (setf class (make-viewer-component the-class :default-component-type 'reference-component)
+          slot-value-group (make-instance 'standard-object-slot-value-group-filter-component :the-class the-class :slots (standard-object-filter-detail-slots the-class)))))
 
 (def generic standard-object-filter-detail-slots (class)
   (:method ((class standard-class))
@@ -63,20 +58,18 @@
 ;;;;;;
 ;;; Standard object slot value group
 
-(def component standard-object-slot-value-group-filter-component ()
-  ((slots nil)
-   (slot-values nil :type components)))
+(def component standard-object-slot-value-group-filter-component (abstract-standard-slot-definition-group-component)
+  ((slot-values nil :type components)))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-slot-value-group-filter-component))
-     (with-slots (instance the-class slots slot-values) component
-       (setf slot-values
-             (iter (for slot :in slots)
-                   (for slot-value-detail = (find slot slot-values :key #'component-value-of))
-                   (if slot-value-detail
-                       (setf (component-value-of slot-value-detail) instance
-                             (slot-of slot-value-detail) slot)
-                       (setf slot-value-detail (make-instance 'standard-object-slot-value-detail-component :the-class the-class :instance instance :slot slot)))
-                   (collect slot-value-detail)))))
+  (with-slots (the-class slots slot-values) component
+    (setf slot-values
+          (iter (for slot :in slots)
+                (for slot-value = (find slot slot-values :key #'component-value-of))
+                (if slot-value
+                    (setf (component-value-of slot-value) slot)
+                    (setf slot-value (make-instance 'standard-object-slot-value-filter-component :the-class the-class :slot slot)))
+                (collect slot-value)))))
 
 (def render standard-object-slot-value-group-filter-component ()
   (with-slots (slot-values) -self-

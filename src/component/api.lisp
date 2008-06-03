@@ -191,8 +191,12 @@
 ;;; Maker
 
 ;; TODO:
-(def (generic e) make-maker-component (thing)
-  (:method ((class standard-class))
+(def (generic e) make-maker-component (thing &key &allow-other-keys)
+  (:method (type &key &allow-other-keys)
+    (prog1-bind component (make-instance (find-component-type-for-type type))
+      (begin-editing component)))
+
+  (:method ((class standard-class) &rest args &key &allow-other-keys)
     ;; TODO: persistent #f is sufficient?
-    (aprog1 (make-instance 'standard-object-maker-component :the-class class)
+    (aprog1 (apply #'make-instance 'standard-object-maker-component :the-class class args)
       (begin-editing it))))

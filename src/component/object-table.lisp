@@ -7,16 +7,22 @@
 ;;;;;;
 ;;; Standard object list
 
-(def component standard-object-list-component (alternator-component editable-component)
+(def component abstract-standard-object-list-component (value-component)
   ((instances nil)))
 
-(def constructor standard-object-list-component ()
-  (setf (component-value-of -self-) (instances-of -self-)))
-
-(def method component-value-of ((component standard-object-list-component))
+(def method component-value-of ((component abstract-standard-object-list-component))
   (instances-of component))
 
-(def method (setf component-value-of) (new-value (component standard-object-list-component))
+(def method (setf component-value-of) (new-value (component abstract-standard-object-list-component))
+  (setf (instances-of component) new-value))
+
+;;;;;;
+;;; Standard object list
+
+(def component standard-object-list-component (abstract-standard-object-list-component alternator-component editable-component)
+  ())
+
+(def method (setf component-value-of) :after (new-value (component standard-object-list-component))
   (with-slots (instances default-component-type alternatives content command-bar) component
     (setf instances new-value)
     (if instances
@@ -45,17 +51,10 @@
 ;;;;;;
 ;;; Standard object table
 
-(def component standard-object-table-component (table-component editable-component)
-  ((instances nil)
-   (slot-names nil)))
+(def component standard-object-table-component (abstract-standard-object-list-component table-component editable-component)
+  ((slot-names nil)))
 
-(def constructor standard-object-table-component ()
-  (setf (component-value-of -self-) (instances-of -self-)))
-
-(def method component-value-of ((component standard-object-table-component))
-  (instances-of component))
-
-(def method (setf component-value-of) (new-value (component standard-object-table-component))
+(def method (setf component-value-of) :after (new-value (component standard-object-table-component))
   (with-slots (instances slot-names command-bar columns rows) component
     (setf instances new-value)
     (if instances
@@ -86,19 +85,11 @@
 ;;;;;;
 ;;; Standard object row
 
-(def component standard-object-row-component (row-component editable-component)
-  ((instance)
-   (table-slot-names)
+(def component standard-object-row-component (abstract-standard-object-component row-component editable-component)
+  ((table-slot-names)
    (command-bar nil :type component)))
 
-(def constructor standard-object-row-component ()
-  (awhen (instance-of -self-)
-    (setf (component-value-of -self-) it)))
-
-(def method component-value-of ((component standard-object-row-component))
-  (instance-of component))
-
-(def method (setf component-value-of) (new-value (component standard-object-row-component))
+(def method (setf component-value-of) :after (new-value (component standard-object-row-component))
   (with-slots (instance table-slot-names command-bar cells) component
     (setf instance new-value)
     (if instance
@@ -124,18 +115,10 @@
 ;;;;;;
 ;;; Standard object slot value cell
 
-(def component standard-object-slot-value-cell-component (cell-component editable-component)
-  ((instance)
-   (slot)))
+(def component standard-object-slot-value-cell-component (abstract-standard-object-slot-value-component cell-component editable-component)
+  ())
 
-(def constructor standard-object-slot-value-cell-component ()
-  (awhen (slot-of -self-)
-    (setf (component-value-of -self-) it)))
-
-(def method component-value-of ((component standard-object-slot-value-cell-component))
-  (slot-of component))
-
-(def method (setf component-value-of) (new-value (component standard-object-slot-value-cell-component))
+(def method (setf component-value-of) :after (new-value (component standard-object-slot-value-cell-component))
   (with-slots (instance slot content) component
     (if slot
         (setf content (make-instance 'place-component :place (make-slot-value-place instance slot)))

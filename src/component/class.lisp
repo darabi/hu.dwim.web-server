@@ -7,12 +7,9 @@
 ;;;;;;
 ;;; Abstract standard class
 
-(def component abstract-standard-class-component ()
-  ((the-class nil :type (or null standard-class))))
-
-(def constructor abstract-standard-class-component ()
-  (when (the-class-of -self-)
-    (setf (component-value-of -self-) (the-class-of -self-))))
+(def component abstract-standard-class-component (value-component)
+  ((the-class nil :type (or null standard-class)))
+  (:documentation "Base class with a STANDARD-CLASS component value"))
 
 (def method component-value-of ((component abstract-standard-class-component))
   (the-class-of component))
@@ -24,7 +21,8 @@
 ;;; Standard class
 
 (def component standard-class-component (abstract-standard-class-component alternator-component)
-  ())
+  ()
+  (:documentation "Component for an instance of STANDARD-CLASS in various alternative views"))
 
 (def method (setf component-value-of) :after (new-value (component standard-class-component))
   (with-slots (the-class default-component-type alternatives content command-bar) component
@@ -56,7 +54,8 @@
    (direct-subclasses nil :type component)
    (direct-superclasses nil :type component)
    (direct-slots nil :type component)
-   (effective-slots nil :type component)))
+   (effective-slots nil :type component))
+  (:documentation "Component for an instance of STANDARD-CLASS in detail"))
 
 (def method (setf component-value-of) :after (new-value (component standard-class-detail-component))
      (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) component
@@ -102,22 +101,35 @@
           ,(render effective-slots)>>)))
 
 ;;;;;;
+;;; Abstract standard slot definition detail
+
+(def component abstract-standard-slot-definition-group-component (value-component)
+  ((the-class nil :type (or null standard-class))
+   (slots nil :type list))
+  (:documentation "Base class with a list of STANDARD-SLOT-DEFINITIONs component value"))
+
+(def method component-value-of ((component abstract-standard-slot-definition-group-component))
+  (slots-of component))
+
+(def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-group-component))
+  (setf (slots-of component) new-value))
+
+;;;;;;
 ;;; Standard slot definition table
 
-(def component standard-slot-definition-table-component (table-component)
-  ((slots nil)))
+(def component standard-slot-definition-table-component (abstract-standard-slot-definition-group-component table-component)
+  ()
+  (:documentation "Component for a list of STANDARD-SLOT-DEFINITIONs instances as a table"))
 
 (def constructor standard-slot-definition-table-component ()
-  (with-slots (slots columns) -self-
-    (setf columns
-          (list
-           (make-instance 'column-component :content (make-instance 'label-component :component-value "Name"))
-           (make-instance 'column-component :content (make-instance 'label-component :component-value "Type"))
-           (make-instance 'column-component :content (make-instance 'label-component :component-value "Readers"))
-           (make-instance 'column-component :content (make-instance 'label-component :component-value "Writers"))))
-    (setf (component-value-of -self-) slots)))
+  (setf (columns-of -self-)
+        (list
+         (make-instance 'column-component :content (make-instance 'label-component :component-value "Name"))
+         (make-instance 'column-component :content (make-instance 'label-component :component-value "Type"))
+         (make-instance 'column-component :content (make-instance 'label-component :component-value "Readers"))
+         (make-instance 'column-component :content (make-instance 'label-component :component-value "Writers")))))
 
-(def method (setf component-value-of) (new-value (component standard-slot-definition-table-component))
+(def method (setf component-value-of) :after (new-value (component standard-slot-definition-table-component))
   (with-slots (slots columns rows) component
     (setf rows
           (iter (for slot :in slots)
@@ -128,22 +140,30 @@
                 (collect row)))))
 
 ;;;;;;
-;;; Standard slot definition row
+;;; Abstract standard slot definition
 
-(def component standard-slot-definition-row-component (row-component)
-  ((slot nil)
-   (label nil :type component)
-   (type nil :accessor nil :type component)
-   (readers nil :type component)
-   (writers nil :type component)))
+(def component abstract-standard-slot-definition-component (value-component)
+  ((the-class nil :type (or null standard-class))
+   (slot nil :type (or null standard-slot-definition)))
+  (:documentation "Base class with a STANDARD-SLOT-DEFINITION component value"))
 
-(def constructor standard-slot-definition-row-component ()
-  (setf (component-value-of -self-) (slot-of -self-)))
-
-(def method component-value-of ((component standard-slot-definition-row-component))
+(def method component-value-of ((component abstract-standard-slot-definition-component))
   (slot-of component))
 
-(def method (setf component-value-of) (new-value (component standard-slot-definition-row-component))
+(def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-component))
+  (setf (slot-of component) new-value))
+
+;;;;;;
+;;; Standard slot definition row
+
+(def component standard-slot-definition-row-component (abstract-standard-slot-definition-component row-component)
+  ((label nil :type component)
+   (type nil :accessor nil :type component)
+   (readers nil :type component)
+   (writers nil :type component))
+  (:documentation "Component for a STANDARD-SLOT-DEFINITION as a table row"))
+
+(def method (setf component-value-of) :after (new-value (component standard-slot-definition-row-component))
   (with-slots (slot label type readers writers cells) component
     (if slot
         (setf label (make-instance 'string-component :component-value (full-symbol-name (slot-definition-name slot)))
@@ -162,10 +182,15 @@
 ;;;;;;
 ;;; Standard slot definition
 
-;; TODO:
-(def component standard-slot-definition-component ()
-  ())
+;; TODO: fill in stuff
+(def component standard-slot-definition-component (abstract-standard-slot-definition-component alternator-component)
+  ()
+  (:documentation "Component for an instance of STANDARD-SLOT-DEFINITION in various alternative views"))
 
-;; TODO:
-(def component standard-slot-definition-detail-component (detail-component)
-  ())
+;;;;;;
+;;; Standard slot definition detail
+
+;; TODO: fill in stuff
+(def component standard-slot-definition-detail-component (abstract-standard-slot-definition-component detail-component)
+  ()
+  (:documentation "Component for an instance of STANDARD-SLOT-DEFINITION in detail"))

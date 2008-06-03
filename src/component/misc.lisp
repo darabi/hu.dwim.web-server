@@ -106,6 +106,13 @@
 (def component detail-component ()
   ())
 
+
+(def component value-component ()
+  ())
+
+(def constructor value-component ()
+  (setf (component-value-of -self-) (component-value-of -self-)))
+
 ;;;;;;;;;
 ;;; Frame
 

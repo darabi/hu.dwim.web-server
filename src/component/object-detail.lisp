@@ -7,12 +7,10 @@
 ;;;;;;
 ;;; Abstract standard object
 
-(def component abstract-standard-object-component ()
+(def component abstract-standard-object-component (value-component)
   ((instance nil :type (or null standard-object))
-   (the-class nil :type standard-class)))
-
-(def constructor abstract-standard-object-component ()
-  (setf (component-value-of -self-) (instance-of -self-)))
+   (the-class nil :type standard-class))
+  (:documentation "Base class with a STANDARD-OBJECT component value"))
 
 (def method component-value-of ((component abstract-standard-object-component))
   (instance-of component))
@@ -32,7 +30,8 @@
 ;;; Standard object
 
 (def component standard-object-component (abstract-standard-object-component alternator-component editable-component)
-  ())
+  ()
+  (:documentation "Component for an instance of STANDARD-OBJECT in various alternative views"))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-component))
   (with-slots (instance the-class default-component-type alternatives content command-bar) component
@@ -66,14 +65,6 @@
                  :visible (delay (not (edited-p component)))
                  :action (make-action (break "TODO:"))))
 
-(def (function e) make-create-instance-command-component (component)
-  (make-instance 'command-component
-                 :icon (clone-icon 'create)
-                 :visible (delay (and (edited-p component)
-                                      (typep (instance-of component) 'prc::persistent-object)
-                                      (not (prc::persistent-p (instance-of component)))))
-                 :action (make-action (break "TODO:"))))
-
 (def (function e) make-delete-instance-command-component (component)
   (make-instance 'command-component
                  :icon (clone-icon 'delete)
@@ -82,7 +73,6 @@
 
 (def (function e) make-standard-object-command-components (component)
   (list (make-new-instance-command-component component)
-        (make-create-instance-command-component component)
         (make-delete-instance-command-component component)))
 
 ;;;;;;
@@ -90,7 +80,8 @@
 
 (def component standard-object-detail-component (abstract-standard-object-component editable-component detail-component)
   ((class nil :accessor nil :type component)
-   (slot-value-group nil :type component)))
+   (slot-value-group nil :type component))
+  (:documentation "Component for an instance of STANDARD-OBJECT in detail"))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-detail-component))
   (with-slots (instance the-class class slot-value-group) component
@@ -126,9 +117,9 @@
 ;;;;;;
 ;;; Standard object slot value group
 
-(def component standard-object-slot-value-group-component (abstract-standard-object-component editable-component)
-  ((slots nil)
-   (slot-values nil :type components)))
+(def component standard-object-slot-value-group-component (abstract-standard-slot-definition-group-component abstract-standard-object-component editable-component)
+  ((slot-values nil :type components))
+  (:documentation "Component for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-slot-value-group-component))
   (with-slots (instance the-class slots slot-values) component
@@ -137,8 +128,8 @@
               (iter (for slot :in slots)
                     (for slot-value-detail = (find slot slot-values :key #'component-value-of))
                     (if slot-value-detail
-                        (setf (component-value-of slot-value-detail) instance
-                              (slot-of slot-value-detail) slot)
+                        (setf (component-value-of slot-value-detail) slot
+                              (instance-of slot-value-detail) instance)
                         (setf slot-value-detail (make-instance 'standard-object-slot-value-detail-component :the-class the-class :instance instance :slot slot)))
                     (collect slot-value-detail)))
         (setf slot-values nil))))
@@ -155,12 +146,18 @@
         <span "There are none">)))
 
 ;;;;;;
+;;; Abstract object slot value
+
+(def component abstract-standard-object-slot-value-component (abstract-standard-slot-definition-component abstract-standard-object-component)
+  ())
+
+;;;;;;
 ;;; Standard object slot value detail
 
-(def component standard-object-slot-value-detail-component (abstract-standard-object-component editable-component)
-  ((slot)
-   (label nil :type component)
-   (value nil :type component)))
+(def component standard-object-slot-value-detail-component (abstract-standard-object-slot-value-component editable-component)
+  ((label nil :type component)
+   (value nil :type component))
+  (:documentation "Component for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-slot-value-detail-component))
   (with-slots (instance the-class slot label value) component

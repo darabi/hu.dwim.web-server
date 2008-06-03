@@ -88,3 +88,12 @@
 
 (def method make-reference-label ((reference standard-object-filter-reference-component))
   (full-symbol-name (class-name (target-of reference))))
+
+;;;;;;
+;;; Standard object maker reference
+
+(def component standard-object-maker-reference-component (reference-component)
+  ())
+
+(def method make-reference-label ((reference standard-object-maker-reference-component))
+  (full-symbol-name (class-name (target-of reference))))
