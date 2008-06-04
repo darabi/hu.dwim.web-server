@@ -99,8 +99,8 @@
               <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "#t" "#f"))>
               +void+)
          <input (:type "checkbox"
-                ,(if component-value (make-xml-attribute "checked" "checked") +void+)
-                ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>>))
+                       ,(if component-value (make-xml-attribute "checked" "checked") +void+)
+                       ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>>))
 
 (def method parse-component-value ((component boolean-component) client-value)
   (cond ((string= "#t" client-value)
@@ -140,22 +140,34 @@
 (def component string-component (atomic-component)
   ())
 
-(def render string-component ()
-  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
+(def function render-string-component (self type)
+  (with-slots (edited component-value allow-nil-value client-state-sink) self
     (bind ((printed-value
             (if (and allow-nil-value
                      (null component-value))
                 ""
                 component-value)))
       (if edited
-          <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
+          <input (:type ,type :name ,(id-of client-state-sink) :value ,printed-value)>
           <span ,printed-value>))))
+
+(def render string-component ()
+  (render-string-component -self- "text"))
 
 (def method parse-component-value ((component string-component) client-value)
   (if (and (allow-nil-value-p component)
            (string= client-value ""))
       nil
       client-value))
+
+;;;;;;
+;;; Password
+
+(def component password-component (string-component)
+  ())
+
+(def render password-component ()
+  (render-string-component -self- "password"))
 
 ;;;;;;
 ;;; Symbol
