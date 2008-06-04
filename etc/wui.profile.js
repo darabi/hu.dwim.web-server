@@ -4,6 +4,7 @@ dependencies ={
         name: "dojo.basic.js",
         dependencies: [
             "dijit.Button",
+            "dijit.form.SimpleTextarea",
             "dojox.wire.Wire",
             "dojox.wire.XmlWire",
             //"explosive.space.Modulator"

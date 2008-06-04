@@ -14,7 +14,7 @@
    (lock (make-recursive-lock "WUI server lock"))
    (shutdown-initiated #f :type boolean)
    (workers (make-adjustable-vector 16))
-   (maximum-worker-count 16)
+   (maximum-worker-count 16 :export :accessor)
    (occupied-worker-count 0)
    (started-at)
    (processed-request-count 0)))
