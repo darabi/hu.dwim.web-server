@@ -33,6 +33,15 @@
 (def render user-message-collector-component ()
   (render-user-messages -self-))
 
+(def (function e) add-user-information (collector message)
+  (add-user-message collector message :category :information))
+
+(def (function e) add-user-warning (collector message)
+  (add-user-message collector message :category :warning))
+
+(def (function e) add-user-error (collector message)
+  (add-user-message collector message :category :error))
+
 (def (generic e) add-user-message (collector message &rest args)
   (:method ((collector user-message-collector-component-mixin) message &rest args)
     (setf (messages-of collector)
