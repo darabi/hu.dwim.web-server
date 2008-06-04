@@ -81,7 +81,9 @@
     (class-slots class))
 
   (:method ((class prc::persistent-class) (instance prc::persistent-object))
-    (prc::persistent-effective-slots-of class)))
+    (iter (for slot :in (prc::persistent-effective-slots-of class))
+          (when (dmm::authorize-operation 'dmm::read-instance-property-operation :-entity- class :-instance- instance :-property- slot)
+            (collect slot)))))
 
 ;;;;;;
 ;;; Standard object row
