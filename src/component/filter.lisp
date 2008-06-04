@@ -8,10 +8,11 @@
 ;;; Standard object filter
 
 (def component standard-object-filter-component (abstract-standard-class-component alternator-component)
-  ())
+  ((result :type component)))
 
 (def method (setf component-value-of) :after (new-value (self standard-object-filter-component))
-  (with-slots (the-class default-component-type alternatives content command-bar) self
+  (with-slots (result the-class default-component-type alternatives content command-bar) self
+    (setf result (make-instance 'empty-component))
     (if the-class
         (setf alternatives (list (delay-alternative-component-type 'standard-object-filter-detail-component :the-class the-class)
                                  (delay-alternative-component 'standard-object-filter-reference-component
@@ -22,11 +23,14 @@
         (setf alternatives nil
               content nil))
     (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command-component self)
-                                                                                    (make-filter-instances-command-component self))
+                                                                                    (make-filter-instances-command-component self result))
                                                                               (make-alternative-command-components self alternatives))))))
 
-(def function make-standard-object-filter-component (&rest args &key slots &allow-other-keys)
-  (make-instance 'standard-object-filter-component))
+(def render standard-object-filter-component ()
+  (with-slots (result content command-bar) -self-
+    (if (typep content '(or reference-component atomic-component empty-component))
+        (render content)
+        (render-vertical-list (list content command-bar result)))))
 
 ;;;;;;
 ;;; Standard object filter detail
@@ -141,10 +145,14 @@
 ;;;;;;
 ;;; Filter
 
-(def (function e) make-filter-instances-command-component (component)
-  (make-replace-and-push-back-command-component component (delay (make-viewer-component (execute-filter component (the-class-of component))))
+(def (function e) make-filter-instances-command-component (filter result)
+  (make-replace-and-push-back-command-component result (delay (make-filter-result-component filter (execute-filter filter (the-class-of filter))))
                                                 (list :icon (clone-icon 'filter))
                                                 (list :icon (clone-icon 'back))))
+
+(def (generic e) make-filter-result-component (filter result)
+  (:method ((filter standard-object-filter-component) (result list))
+    (make-viewer-component result)))
 
 (def generic execute-filter (component class)
   (:method ((component standard-object-filter-component) class)
