@@ -68,6 +68,30 @@
   (icon-label.logout "Logout")
   (icon-tooltip.logout "Leave the current session and remove all privileges previously gained by authentication"))
 
+(def icon impersonalization "static/wui/icons/20x20/vcr-play-with-people.png")
+(defresources hu
+  (icon-label.impersonalization "Megszemélyesítés")
+  (icon-tooltip.impersonalization "A kiválasztott alany megszemélyesítése"))
+(defresources en
+  (icon-label.impersonalization "Impersonalization")
+  (icon-tooltip.impersonalization "Impersonalize the selected subject"))
+
+(def icon cancel-impersonalization "static/wui/icons/20x20/vcr-backward-with-people.png")
+(defresources hu
+  (icon-label.cancel-impersonalization "Megszemélyesítés megszüntetése")
+  (icon-tooltip.cancel-impersonalization "Visszatérés az eredeti alanyhoz"))
+(defresources en
+  (icon-label.cancel-impersonalization "Cancel impersonalization")
+  (icon-tooltip.cancel-impersonalization "Return back to the original subject"))
+
+(def icon change-password "static/wui/icons/20x20/green-checkmark.png")
+(defresources hu
+  (icon-label.change-password "Jelszó megváltoztatása")
+  (icon-tooltip.change-password "A munka befejezése és a jogosultságok feladása"))
+(defresources en
+  (icon-label.change-password "Change password")
+  (icon-tooltip.change-password "Leave the current session and remove all privileges previously gained by authentication"))
+
 (def icon refresh "static/wui/icons/20x20/ying-yang-arrows.png")
 (defresources hu
   (icon-label.refresh "Frissítés")
