@@ -66,7 +66,9 @@
                                  :component (make-filter-component the-class)))))
 
 (def (function e) make-standard-object-filter-menu-item-component (class-name)
-  (make-instance 'standard-object-filter-menu-item-component :the-class (find-class class-name)))
+  (bind ((class (find-class class-name)))
+    (when (dmm::authorize-operation 'dmm::filter-entity-operation :-entity- class)
+      (make-instance 'standard-object-filter-menu-item-component :the-class class))))
 
 ;;;;;;
 ;;; Standard object maker menu item
@@ -81,4 +83,6 @@
                                  :component (make-maker-component the-class)))))
 
 (def (function e) make-standard-object-maker-menu-item-component (class-name)
-  (make-instance 'standard-object-maker-menu-item-component :the-class (find-class class-name)))
+  (bind ((class (find-class class-name)))
+    (when (dmm::authorize-operation 'dmm::create-entity-operation :-entity- class)
+      (make-instance 'standard-object-maker-menu-item-component :the-class class))))
