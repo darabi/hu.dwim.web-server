@@ -123,14 +123,6 @@
       (collect (cons (us-ascii-octets-to-string name)
                      (iso-8859-1-octets-to-string value))))))
 
-(defun make-cookie (name value &rest initargs &key (path nil path-p) &allow-other-keys)
-  (apply #'rfc2109:make-cookie
-         :name name
-         :value (escape-as-uri value)
-         (if path-p
-             (list* :path (escape-as-uri path) initargs)
-             initargs)))
-
 (def (function o) make-rfc2388-callback (form-data-accumulator file-accumulator)
   (lambda (mime-part)
     (http.dribble "Processing mime part ~S." mime-part)
