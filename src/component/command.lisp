@@ -13,12 +13,19 @@
    (icon nil :type component)
    (action)))
 
+(def (macro e) command (icon action)
+  `(make-instance 'command-component :icon ,icon :action ,action))
+
 (def render command-component ()
   (with-slots (visible enabled icon action) -self-
     (if (force visible)
         (if (force enabled)
-            <a (:href "#" :onclick `js-inline(submit-form ,(action-to-href action)))
-              ,(render icon)>
+            (bind ((href
+                    (etypecase action
+                      (action (action-to-href action))
+                      (uri (print-uri-to-string action)))))
+              <a (:href "#" :onclick `js-inline(submit-form ,href))
+                 ,(render icon)>)
             (render icon))
         +void+)))
 

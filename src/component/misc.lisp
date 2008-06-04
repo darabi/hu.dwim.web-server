@@ -23,6 +23,9 @@
   ()
   (:documentation "The top command will replace the content of a top-component with the component which the action refers to."))
 
+(def (macro e) top (&body content)
+  `(make-instance 'top-component :content ,(the-only-element content)))
+
 ;;;;;;
 ;;; Empty
 
@@ -32,11 +35,17 @@
 (def render empty-component ()
   +void+)
 
+(def (macro e) empty ()
+  '(make-instance 'empty-component))
+
 ;;;;;;;
 ;;; Label
 
 (def component label-component ()
   ((component-value)))
+
+(def (macro e) label (text)
+  `(make-instance 'label-component :component-value ,text))
 
 (def render label-component ()
   <span ,(component-value-of -self-)>)
@@ -47,11 +56,11 @@
 (def component inline-component ()
   ((thunk)))
 
+(def (macro e) inline-component (&body forms)
+  `(make-instance 'inline-component :thunk (lambda () ,@forms)))
+
 (def render inline-component ()
   (funcall (thunk-of -self-)))
-
-(def (macro e) make-inline-component (&body forms)
-  `(make-instance 'inline-component :thunk (lambda () ,@forms)))
 
 ;;;;;;
 ;;; Wrapper
@@ -89,16 +98,19 @@
 ;;;;;;;;;
 ;;; Widget
 
-(def component widget-component-mixin (remote-identity-component-mixin)
-  ((css-class nil :initarg :class)
+(def component style-component-mixin (remote-identity-component-mixin)
+  ((class nil :accessor style-class-of :initarg :class)
    (style nil)))
 
-(def component widget-component (widget-component-mixin)
-  ((child :type component)))
+(def component style-component (style-component-mixin content-component)
+  ())
 
-(def render widget-component ()
-  <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))
-       ,(render (child-of -self-))>)
+(def render style-component-mixin ()
+  <div (:id ,(id-of -self-) :class ,(style-class-of -self-) :style ,(style-of -self-))
+       ,(call-next-method) >)
+
+(def (macro e) style ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'style-component ,@args :content ,(the-only-element content)))
 
 ;;;;;;
 ;;; Detail
@@ -131,26 +143,27 @@
    (%cached-dojo-uri nil)))
 
 (def render frame-component ()
-  (unless (%cached-dojo-uri-of -self-)
-    (setf (%cached-dojo-uri-of -self-) (concatenate-string (path-prefix-of *application*)
-                                                           (dojo-path-of -self-)
-                                                           (dojo-file-name-of -self-))))
-  (bind ((response (when (boundp '*response*)
+  (bind ((path-prefix (path-prefix-of *application*))
+         (response (when (boundp '*response*)
                      *response*))
          (encoding (or (when response
                          (encoding-name-of response))
                        +encoding+)))
+    (unless (%cached-dojo-uri-of -self-)
+      (setf (%cached-dojo-uri-of -self-) (concatenate-string path-prefix
+                                                             (dojo-path-of -self-)
+                                                             (dojo-file-name-of -self-))))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
     <html (:xmlns     #.+xhtml-namespace-uri+
            xmlns:dojo #.+dojo-namespace-uri+)
       <head
         <meta (:http-equiv #.+header/content-type+ :content ,(content-type-for +html-mime-type+ encoding))>
         ,(awhen (page-icon-of -self-)
-           <link (:rel "icon" :type "image/x-icon" :href ,(ensure-uri-string it))>)
+           <link (:rel "icon" :type "image/x-icon" :href ,(concatenate-string path-prefix (ensure-uri-string it)))>)
         <title ,(title-of -self-)>
         ,@(mapcar (lambda (stylesheet-uri)
                     <link (:rel "stylesheet" :type "text/css"
-                                :href ,(ensure-uri-string stylesheet-uri))>)
+                                :href ,(concatenate-string path-prefix (ensure-uri-string stylesheet-uri)))>)
                   (stylesheet-uris-of -self-))
         <script (:type         #.+javascript-mime-type+
                  :src          ,(%cached-dojo-uri-of -self-)
@@ -169,3 +182,6 @@
                      (setf (slot-value form 'action) href)
                      (form.submit)))>
              (render (content-of -self-)))>>>))
+
+(def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'frame-component ,@args :content ,(the-only-element content)))

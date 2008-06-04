@@ -16,10 +16,22 @@
 (def component user-message-collector-component (user-message-collector-component-mixin)
   ())
 
+(def (function e) render-user-messages (user-message-collector)
+  (bind ((messages (messages-of user-message-collector)))
+    (setf (messages-of user-message-collector) (delete-if (complement #'permanent-p) messages))
+    (flet ((render-message-category (category)
+             (aif (filter category messages :key #'category-of)
+                  <div (:class ,(concatenate-string "user-messages " (string-downcase category) "s"))
+                       ,(render-vertical-list it)>
+                  +void+)))
+      (if messages
+          <div ,(render-message-category :information)
+               ,(render-message-category :warning)
+               ,(render-message-category :error)>
+          +void+))))
+
 (def render user-message-collector-component ()
-  (with-slots (messages) -self-
-    (prog1 (render-vertical-list messages)
-      (setf messages (delete-if (complement #'permanent-p) messages)))))
+  (render-user-messages -self-))
 
 (def (generic e) add-user-message (collector message &rest args)
   (:method ((collector user-message-collector-component-mixin) message &rest args)
@@ -37,5 +49,5 @@
 
 (def render user-message-component ()
   (with-slots (category message args) -self-
-    <span (:class ,(string-downcase category))
-          ,message>))
+    <div (:class ,(string-downcase category))
+         ,message>))

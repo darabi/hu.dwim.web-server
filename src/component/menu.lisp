@@ -8,8 +8,11 @@
 ;;; Menu
 
 (def component menu-component ()
-  ((target-place :type place)
+  ((target-place :type place :export :accessor)
    (menu-items nil :type components)))
+
+(def (macro e) menu (&body menu-items)
+  `(make-instance 'menu-component :menu-items (optional-list ,@menu-items)))
 
 (def render menu-component ()
   (with-slots (menu-items) -self-
@@ -21,6 +24,9 @@
 (def component menu-item-component ()
   ((command :type component)
    (menu-items nil :type components)))
+
+(def (macro e) menu-item (command &body menu-items)
+  `(make-instance 'menu-item-component :command ,command :menu-items (optional-list ,@menu-items)))
 
 (def render menu-item-component ()
   (with-slots (visible command menu-items) -self-
@@ -40,6 +46,9 @@
           (make-action
             (bind ((menu-component (find-ancestor-component-with-type -self- 'menu-component)))
               (setf (component-at-place (target-place-of menu-component)) component))))))
+
+(def (macro e) replace-menu-target-command (icon component)
+  `(make-instance 'replace-menu-target-command-component :icon ,icon :component ,component))
 
 (def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node replace-menu-target-command-component))
   (remove 'action (call-next-method) :key #'slot-definition-name))

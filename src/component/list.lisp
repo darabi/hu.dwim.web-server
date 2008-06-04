@@ -59,6 +59,9 @@
 (def (function e) make-horizontal-list-component (&rest components)
   (make-instance 'horizontal-list-component :components components))
 
+(def (macro e) horizontal-list ((&rest args &key &allow-other-keys) &body components)
+  `(make-instance 'horizontal-list-component ,@args :components (list ,@components)))
+
 ;;;;;;
 ;;; Vertical list
 
@@ -68,3 +71,6 @@
 
 (def (function e) make-vertical-list-component (&rest components)
   (make-instance 'vertical-list-component :components components))
+
+(def (macro e) vertical-list ((&rest args &key &allow-other-keys) &body components)
+  `(make-instance 'vertical-list-component ,@args :components (list ,@components)))

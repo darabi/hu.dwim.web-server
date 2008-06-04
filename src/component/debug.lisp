@@ -10,7 +10,8 @@
       ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
       (if (typep self '(or frame-component row-component))
           (call-next-method)
-          (if (debug-component-hierarchy-p *frame*)
+          (if (and *frame*
+                   (debug-component-hierarchy-p *frame*))
               (bind ((class-name (string-downcase (symbol-name (class-name (class-of self))))))
                 <div (:class "debug-component")
                   <div (:class "debug-component-name")

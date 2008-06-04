@@ -17,9 +17,12 @@
   (with-slots (label image-path tooltip) -self-
     <span (:title ,(or (force tooltip) ""))
      ,@(when image-path
-             (list <img (:src ,image-path)>))
+             (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>))
      ,@(when label
              (list (force label)))>))
+
+(def (macro e) icon (name &rest args)
+  `(make-instance 'icon-component :name ,name ,@args))
 
 (def (macro e) make-icon-component (name &rest args)
   `(make-instance 'icon-component :name ,name ,@args))

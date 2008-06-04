@@ -346,6 +346,39 @@ Custom implementations should look something like this:
 (def class* locked-session-response-mixin (response)
   ())
 
+;;;;;
+;;; Component rendering response
+
+(def class* component-rendering-response (locked-session-response-mixin)
+  ((application)
+   (component)))
+
+(def (function e) make-component-rendering-response (component)
+  (aprog1
+      (make-instance 'component-rendering-response :application *application* :component component)
+    (setf (header-value it +header/content-type+) +html-content-type+)))
+
+;; TODO: factor with root-component-rendering-response
+(def method send-response ((self component-rendering-response))
+  (bind ((*frame* nil)
+         (*session* nil)
+         (*application* (application-of self))
+         (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
+                                                       :initial-buffer-size 256)
+                 (emit-into-html-stream buffer-stream
+                   (render (component-of self)))))
+         (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
+                                                          :initial-buffer-size 128)
+                    (setf (header-value self +header/content-length+) (princ-to-string (length body)))
+                    (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
+    ;; TODO use multiplexing when writing to the network stream, including the headers
+    (write-sequence headers (network-stream-of *request*))
+    (write-sequence body (network-stream-of *request*)))
+  (values))
+
+;;;;;
+;;; Root component rendering response
+
 (def class* root-component-rendering-response (locked-session-response-mixin)
   ((frame)))
 
