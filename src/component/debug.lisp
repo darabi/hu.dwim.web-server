@@ -5,7 +5,6 @@
 (in-package :hu.dwim.wui)
 
 (def method render :around ((self component))
-  ;; TODO: maybe create a style-class-mixin?
   (restart-case
       ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
       (if (typep self '(or frame-component row-component))
@@ -57,4 +56,3 @@
                   (pprint-newline :fill)
                   (prin1 value)))))))
   self)
-

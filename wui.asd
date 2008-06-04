@@ -152,7 +152,7 @@
                                (:file "user-message" :depends-on ("component"))
                                (:file "wizard" :depends-on ("component"))
                                (:file "process" :depends-on ("command"))
-                               (:file "alternator" :depends-on ("reference" "command"))
+                               (:file "alternator" :depends-on ("reference" "command" "misc"))
                                (:file "class" :depends-on ("alternator" "reference"))
                                (:file "object-detail" :depends-on ("alternator" "reference"))
                                (:file "object-maker" :depends-on ("object-detail"))

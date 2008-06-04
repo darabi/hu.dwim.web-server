@@ -87,8 +87,8 @@
 (def method parse-quasi-quoted-ui* ((first (eql 'horizontal-list-component)) whole)
   (parse-quasi-quoted-ui*/component-with-args-and-body 'horizontal-list-component whole))
 
-(def method parse-quasi-quoted-ui* ((first (eql 'widget-component)) whole)
-  (parse-quasi-quoted-ui*/component-with-args-and-body 'widget-component whole :child))
+(def method parse-quasi-quoted-ui* ((first (eql 'style-component)) whole)
+  (parse-quasi-quoted-ui*/component-with-args-and-body 'style-component whole :child))
 
 (def method parse-quasi-quoted-ui* ((first (eql 'standard-process-component)) whole)
   (make-instance 'standard-process-component :form (second whole)))

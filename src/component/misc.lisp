@@ -99,7 +99,7 @@
 ;;; Widget
 
 (def component style-component-mixin (remote-identity-component-mixin)
-  ((class nil :accessor style-class-of :initarg :class)
+  ((style-class nil)
    (style nil)))
 
 (def component style-component (style-component-mixin content-component)

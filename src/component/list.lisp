@@ -7,7 +7,7 @@
 ;;;;;;;;
 ;;; List
 
-(def component list-component (widget-component-mixin value-component)
+(def component list-component (style-component-mixin value-component)
   ((elements nil)
    (orientation :vertical :type (member :vertical :horizontal))
    (components nil :type components)))
@@ -23,12 +23,12 @@
                                  (make-viewer-component element :default-component-type 'reference-component))
                                new-value)))))
 
-(def function render-list (orientation elements &key id css-class style)
+(def function render-list (orientation elements &key id style-class style)
   (check-type orientation (member :vertical :horizontal))
   <table (:class `str("list " ,(ecase orientation
                                       (:vertical "vertical ")
                                       (:horizontal "horizontal "))
-                              ,@(ensure-list css-class))
+                              ,@(ensure-list style-class))
           :id ,id
           :style ,style)
     ,@(ecase orientation
@@ -46,8 +46,8 @@
   (render-list :horizontal elements))
 
 (def render list-component ()
-  (with-slots (orientation components id css-class style) -self-
-    (render-list orientation components :id id :css-class css-class :style style)))
+  (with-slots (orientation components id style-class style) -self-
+    (render-list orientation components :id id :style-class style-class :style style)))
 
 ;;;;;;
 ;;; Horizontal list
