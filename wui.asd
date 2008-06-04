@@ -95,6 +95,7 @@
                :defclass-star
                :alexandria
                :rfc2109
+               :rfc2388-binary
                :net-telent-date
                :cl-fad
                :bordeaux-threads
