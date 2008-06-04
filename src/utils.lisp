@@ -38,6 +38,13 @@
   (iter (for element :in elements)
         (when element (collect element))))
 
+(def function the-only-element (elements)
+  (assert (= 1 (length elements)))
+  (first elements))
+
+(def function filter (element list &key (key #'identity) (test #'eq))
+  (remove element list :key key :test-not test))
+
 (def (generic e) debug-on-error (context error)
   (:method (context error)
     *debug-on-error*))
