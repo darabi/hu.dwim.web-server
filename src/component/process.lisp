@@ -46,7 +46,7 @@
   (:method ((component standard-process-component) value)
     (bind ((*standard-process-component* component))
       (setf (answer-continuation-of *standard-process-component*)
-            (kall (answer-continuation-of *standard-process-component*) value)))))
+            (kall (answer-continuation-of *standard-process-component*) (force value))))))
 
 ;;;;;;
 ;;; Answer command
@@ -58,7 +58,7 @@
 
 (def constructor answer-command-component ()
   (with-slots (icon action value) -self-
-    (setf action (make-action (answer -self- (force value))))))
+    (setf action (make-action (answer -self- value)))))
 
 (def (macro e) answer-command (icon &body forms)
   `(make-instance 'answer-command-component :icon ,icon :value (delay ,@forms)))
@@ -82,7 +82,9 @@
               (nth-value 1 (rdbms::with-transaction
                              (prc::revive-instance process)
                              (dmm::with-new-persistent-process-context (:renderer -self- :process process) ;; TODO: rename renderer to component
-                               (dmm::start-persistent-process-in-context)))))))
+                               (if (dmm::persistent-process-in-progress-p process)
+                                   (dmm::continue-persistent-process-in-context)
+                                   (dmm::start-persistent-process-in-context))))))))
     (unless (and content answer-continuation)
       (setf content (make-instance 'label-component :component-value "Process finished")))
     (call-next-method)))
@@ -126,7 +128,56 @@
       (dmm::with-new-persistent-process-context (:renderer component :process (process-of component))
         (dmm::process-event (process-of component) 'dmm::process-state 'dmm::continue)
         (setf (answer-continuation-of *standard-process-component*)
-              (kall (answer-continuation-of *standard-process-component*) value))))))
+              (kall (answer-continuation-of *standard-process-component*) (force value)))))))
+
+;;;;;;
+;;; Command
+
+(def icon start-process "static/wui/icons/20x20/vcr-play.png")
+(defresources hu
+  (icon-label.start-process "Elindítás")
+  (icon-tooltip.start-process "A folyamat elindítása"))
+(defresources en
+  (icon-label.start-process "Start")
+  (icon-tooltip.start-process "Start the process"))
+
+(def icon continue-process "static/wui/icons/20x20/vcr-play.png")
+(defresources hu
+  (icon-label.continue-process "Folytatás")
+  (icon-tooltip.continue-process "A folyamat folytatása"))
+(defresources en
+  (icon-label.continue-process "Continue")
+  (icon-tooltip.continue-process "Continue the process"))
+
+(def method make-standard-object-commands ((component standard-object-component) (class dmm::persistent-process) (instance prc::persistent-object))
+  (optional-list (make-new-instance-command component)
+                 (make-delete-instance-command component)
+                 (when (dmm::persistent-process-initializing-p instance)
+                   (make-start-persistent-process-command component instance))
+                 (when (dmm::persistent-process-in-progress-p instance)
+                   (make-continue-persistent-process-command component instance))))
+
+(def method make-standard-object-maker-commands ((component standard-object-maker-component) (class dmm::persistent-process))
+  (list (make-start-persistent-process-command component (delay (execute-maker component (the-class-of component))))))
+
+(def method make-standard-object-row-commands ((component standard-object-row-component) (class dmm::persistent-process) (instance prc::persistent-object))
+  (optional-list (make-expand-row-command component instance)
+                 (when (dmm::persistent-process-initializing-p instance)
+                   (make-start-persistent-process-command component instance))
+                 (when (dmm::persistent-process-in-progress-p instance)
+                   (make-continue-persistent-process-command component instance
+                                                             (lambda (process-component)
+                                                               (make-instance 'entire-row-component :content process-component))))))
+
+(def (function e) make-start-persistent-process-command (component instance)
+  (make-replace-command component (delay (make-instance 'persistent-process-component :process (force instance)))
+                        :icon (clone-icon 'start-process)))
+
+(def (function e) make-continue-persistent-process-command (component instance &optional (wrapper-thunk #'identity))
+  (make-replace-command component (delay (funcall wrapper-thunk (make-instance 'persistent-process-component :process instance)))
+                        :icon (clone-icon 'continue-process)))
+;;;;;;
+;;; Localization
 
 (defresources hu
   (process.message.waiting-for-other-subject "A folyamat jelenleg máshoz tartozik.")

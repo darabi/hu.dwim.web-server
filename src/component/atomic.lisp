@@ -143,8 +143,7 @@
 (def function render-string-component (self type)
   (with-slots (edited component-value allow-nil-value client-state-sink) self
     (bind ((printed-value
-            (if (and allow-nil-value
-                     (null component-value))
+            (if (null component-value)
                 ""
                 component-value)))
       (if edited
@@ -184,8 +183,7 @@
 (def render number-component ()
   (with-slots (edited component-value allow-nil-value client-state-sink) -self-
     (bind ((printed-value
-            (if (and allow-nil-value
-                     (null component-value))
+            (if (null component-value)
                 ""
                 (princ-to-string component-value))))
       (if edited
@@ -193,8 +191,7 @@
           <span ,printed-value>))))
 
 (def method parse-component-value ((component number-component) client-value)
-  (if (and (allow-nil-value-p component)
-           (string= client-value ""))
+  (if (string= client-value "")
       nil
       (parse-number:parse-number client-value)))
 
@@ -227,8 +224,7 @@
   ())
 
 (def method parse-component-value ((component integer-component) client-value)
-  (if (and (allow-nil-value-p component)
-           (string= client-value ""))
+  (if (string= client-value "")
       nil
       (parse-integer client-value)))
 
@@ -240,8 +236,7 @@
   ())
 
 (def method parse-component-value ((component float-component) client-value)
-  (if (and (allow-nil-value-p component)
-           (string= client-value ""))
+  (if (string= client-value "")
       nil
       (parse-number:parse-real-number client-value)))
 

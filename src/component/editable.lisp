@@ -92,7 +92,7 @@
 ;;;;;;
 ;;; Commands
 
-(def (function e) make-begin-editing-command-component (editable)
+(def (function e) make-begin-editing-command (editable)
   "The BEGIN-EDITING command starts editing underneath the given EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
@@ -100,7 +100,7 @@
                  :visible (delay (not (edited-p editable)))
                  :action (make-action (begin-editing editable))))
 
-(def (function e) make-save-editing-command-component (editable)
+(def (function e) make-save-editing-command (editable)
   "The SAVE-EDITING command actually makes the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
@@ -109,7 +109,7 @@
                  :action (make-action (save-editing editable)
                                       (add-user-message editable "Successfully saved changes"))))
 
-(def (function e) make-cancel-editing-command-component (editable)
+(def (function e) make-cancel-editing-command (editable)
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
@@ -117,7 +117,7 @@
                  :visible (delay (edited-p editable))
                  :action (make-action (cancel-editing editable))))
 
-(def (function e) make-store-editing-command-component (editable)
+(def (function e) make-store-editing-command (editable)
   "The STORE-EDITING command actually stores the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
@@ -126,7 +126,7 @@
                  :action (make-action (store-editing editable)
                                       (add-user-message editable "Successfully stored changes"))))
 
-(def (function e) make-revert-editing-command-component (editable)
+(def (function e) make-revert-editing-command (editable)
   "The REVERT-EDITING command rolls back the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
@@ -134,11 +134,11 @@
                  :visible (delay (edited-p editable))
                  :action (make-action (revert-editing editable))))
 
-(def (function e) make-editing-command-components (component)
-  (list (make-begin-editing-command-component component)
-        (make-save-editing-command-component component)
-        (make-cancel-editing-command-component component)
+(def (function e) make-editing-commands (component)
+  (list (make-begin-editing-command component)
+        (make-save-editing-command component)
+        (make-cancel-editing-command component)
         #+nil
-        (make-store-command-component component)
+        (make-store-command component)
         #+nil
-        (make-revert-command-component component)))
+        (make-revert-command component)))

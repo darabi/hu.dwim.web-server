@@ -54,8 +54,8 @@
   (declare (dynamic-extent initargs))
   (shared-initialize-around-component-class class direct-superclasses #'call-next-method initargs))
 
-(defmethod reinitialize-instance :around ((class component-class) &rest initargs
-                                          &key (direct-superclasses '() direct-superclasses-p))
+(def method reinitialize-instance :around ((class component-class) &rest initargs
+                                           &key (direct-superclasses '() direct-superclasses-p))
   (declare (dynamic-extent initargs))
   (if direct-superclasses-p
       (shared-initialize-around-component-class class direct-superclasses #'call-next-method initargs)

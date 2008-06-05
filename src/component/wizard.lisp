@@ -35,19 +35,19 @@
 
 (def constructor wizard-navigation-bar-component ()
   (with-slots (finish-command cancel-command) -self-
-    (setf finish-command (make-finish-wizard-command-component -self-)
-          cancel-command (make-cancel-wizard-command-component -self-))))
+    (setf finish-command (make-finish-wizard-command -self-)
+          cancel-command (make-cancel-wizard-command -self-))))
 
 (def render wizard-navigation-bar-component ()
   (with-slots (first-command previous-command next-command last-command finish-command cancel-command) -self-
     (render-horizontal-list (list first-command previous-command next-command last-command finish-command cancel-command))))
 
-(def (function e) make-finish-wizard-command-component (wizard)
+(def (function e) make-finish-wizard-command (wizard)
   (make-instance 'command-component
                  :icon (clone-icon 'finish)
                  :action (make-action (finish-wizard wizard))))
 
-(def (function e) make-cancel-wizard-command-component (wizard)
+(def (function e) make-cancel-wizard-command (wizard)
   (make-instance 'command-component
                  :icon (clone-icon 'cancel)
                  :action (make-action (cancel-wizard wizard))))

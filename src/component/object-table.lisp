@@ -34,7 +34,7 @@
               (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :instances instances)
                                        (delay-alternative-component-type 'list-component :elements instances)
                                        (delay-alternative-component 'standard-object-list-reference-component
-                                         (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-list-reference-component :target instances))))))
+                                         (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-list-reference-component :target instances))))))
           (if (and content
                    (not (typep content 'empty-component)))
               (setf (component-value-of content) instances)
@@ -44,10 +44,10 @@
         (setf alternatives (list (delay-alternative-component-type 'empty-component))
               content (find-default-alternative-component alternatives)))
     (setf command-bar (make-instance 'command-bar-component
-                                     :commands (append (list (make-top-command-component component)
-                                                             (make-refresh-command-component component))
-                                                       (make-editing-command-components component)
-                                                       (make-alternative-command-components component alternatives))))))
+                                     :commands (append (list (make-top-command component)
+                                                             (make-refresh-command component))
+                                                       (make-editing-commands component)
+                                                       (make-alternative-commands component alternatives))))))
 
 ;;;;;;
 ;;; Standard object table
@@ -92,12 +92,12 @@
   ((table-slot-names)
    (command-bar nil :type component)))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-row-component))
-  (with-slots (instance table-slot-names command-bar cells) component
+(def method (setf component-value-of) :after (new-value (self standard-object-row-component))
+  (with-slots (the-class instance table-slot-names command-bar cells) self
     (setf instance new-value)
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-expand-row-command-component component instance))
-                                                                                  (make-editing-command-components component)))
+        (setf command-bar (make-instance 'command-bar-component :commands (append (make-standard-object-row-commands self the-class instance)
+                                                                                  (make-editing-commands self)))
               cells (cons (make-instance 'cell-component :content command-bar)
                           (iter (for class = (class-of instance))
                                 (for table-slot-name :in table-slot-names)
@@ -109,11 +109,15 @@
         (setf command-bar nil
               cells nil))))
 
-(def function make-expand-row-command-component (component instance)
-  (make-replace-and-push-back-command-component component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer-component instance :default-component-type 'detail-component)))
-                                                (list :icon (clone-icon 'expand)
-                                                      :visible (delay (not (has-edited-descendant-component-p component))))
-                                                (list :icon (clone-icon 'collapse))))
+(def generic make-standard-object-row-commands (component class instance)
+  (:method ((component standard-object-row-component) (class standard-class) (instance standard-object))
+    (list (make-expand-row-command component instance))))
+
+(def function make-expand-row-command (component instance)
+  (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer-component instance :default-component-type 'detail-component)))
+                                      (list :icon (clone-icon 'expand)
+                                            :visible (delay (not (has-edited-descendant-component-p component))))
+                                      (list :icon (clone-icon 'collapse))))
 
 ;;;;;;
 ;;; Standard object slot value cell

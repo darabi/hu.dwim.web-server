@@ -19,16 +19,16 @@
         (render content)
         (render-vertical-list (list content command-bar)))))
 
-(def function make-alternative-command-components (component alternatives)
+(def function make-alternative-commands (component alternatives)
   (mapcar (lambda (alternative)
-            (make-alternative-component-replace-command-component component alternative))
+            (make-alternative-component-replace-command component alternative))
           alternatives))
 
-(def function make-alternative-component-replace-command-component (component alternative)
-  (make-replace-command-component (delay (content-of component)) alternative
-                                  :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
-                                                       (not (eq (force alternative) (content-of component)))))
-                                  :icon (make-alternative-component-replace-command-icon-component (class-prototype (the-class-of alternative)))))
+(def function make-alternative-component-replace-command (component alternative)
+  (make-replace-command (delay (content-of component)) alternative
+                        :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
+                                             (not (eq (force alternative) (content-of component)))))
+                        :icon (make-alternative-component-replace-command-icon-component (class-prototype (the-class-of alternative)))))
 
 (def generic make-alternative-component-replace-command-icon-component (prototype)
   (:method ((prototype component))
@@ -67,7 +67,7 @@
 (def macro delay-alternative-component-type (type &rest args)
   `(delay-alternative-component ,type (make-instance ,type ,@args)))
 
-(def function setf-expand-reference-to-default-alternative-command-component (reference)
+(def function setf-expand-reference-to-default-alternative-command (reference)
   (setf (expand-command-of reference)
-        (make-expand-reference-command-component reference (delay (find-default-alternative-component (alternatives-of (parent-component-of reference))))))
+        (make-expand-reference-command reference (delay (find-default-alternative-component (alternatives-of (parent-component-of reference))))))
   reference)

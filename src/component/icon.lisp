@@ -16,10 +16,13 @@
 (def render icon-component ()
   (with-slots (label image-path tooltip) -self-
     <span (:title ,(or (force tooltip) ""))
-     ,@(when image-path
-             (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>))
-     ,@(when label
-             (list (force label)))>))
+          ,(if image-path
+               <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>
+               +void+)
+          " "
+          ,(if label
+               (force label)
+               +void+)>))
 
 (def (macro e) icon (name &rest args)
   `(make-instance 'icon-component :name ,name ,@args))
@@ -51,6 +54,7 @@
 
 ;;;;;;
 ;;; Default icons
+;;; TODO: move the icons where they are used?
 
 (def icon login "static/wui/icons/20x20/green-checkmark.png")
 (defresources hu

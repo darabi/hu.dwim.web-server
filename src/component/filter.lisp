@@ -16,15 +16,15 @@
     (if the-class
         (setf alternatives (list (delay-alternative-component-type 'standard-object-filter-detail-component :the-class the-class)
                                  (delay-alternative-component 'standard-object-filter-reference-component
-                                   (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-filter-reference-component :target the-class))))
+                                   (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-filter-reference-component :target the-class))))
               content (if default-component-type
                           (find-alternative-component alternatives default-component-type)
                           (find-default-alternative-component alternatives)))
         (setf alternatives nil
               content nil))
-    (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command-component self)
-                                                                                    (make-filter-instances-command-component self result))
-                                                                              (make-alternative-command-components self alternatives))))))
+    (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command self)
+                                                                                    (make-filter-instances-command self result))
+                                                                              (make-alternative-commands self alternatives))))))
 
 (def render standard-object-filter-component ()
   (with-slots (result content command-bar) -self-
@@ -145,10 +145,10 @@
 ;;;;;;
 ;;; Filter
 
-(def (function e) make-filter-instances-command-component (filter result)
-  (make-replace-and-push-back-command-component result (delay (make-filter-result-component filter (execute-filter filter (the-class-of filter))))
-                                                (list :icon (clone-icon 'filter))
-                                                (list :icon (clone-icon 'back))))
+(def (function e) make-filter-instances-command (filter result)
+  (make-replace-and-push-back-command result (delay (make-filter-result-component filter (execute-filter filter (the-class-of filter))))
+                                      (list :icon (clone-icon 'filter))
+                                      (list :icon (clone-icon 'back))))
 
 (def (generic e) make-filter-result-component (filter result)
   (:method ((filter standard-object-filter-component) (result list))

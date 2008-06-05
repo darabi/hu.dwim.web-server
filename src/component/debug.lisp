@@ -7,7 +7,7 @@
 (def method render :around ((self component))
   (restart-case
       ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
-      (if (typep self '(or frame-component row-component))
+      (if (typep self 'row-component)
           (call-next-method)
           (if (and *frame*
                    (debug-component-hierarchy-p *frame*))
@@ -15,9 +15,10 @@
                 <div (:class "debug-component")
                   <div (:class "debug-component-name")
                        ,class-name
-                       ,(unless (typep self '(or icon-component command-component))
-                                <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action self))))
-                                   "REPL">)>
+                       ,(if (typep self '(or icon-component command-component))
+                            <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action self))))
+                               "REPL">
+                            +void+)>
                   ,(call-next-method)>)
               (call-next-method)))
     (skip-rendering-component ()

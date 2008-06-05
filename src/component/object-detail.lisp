@@ -43,37 +43,38 @@
                 (setf (component-value-of (force alternative)) instance))
               (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
                                        (delay-alternative-component 'standard-object-reference-component
-                                         (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-reference-component :target instance))))))
+                                         (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-reference-component :target instance))))))
           (if (and content
                    (not (typep content 'null-component)))
               (setf (component-value-of content) instance)
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
-                                (find-default-alternative-component alternatives)))))
+                                (find-default-alternative-component alternatives))))
+          (setf command-bar (make-instance 'command-bar-component
+                                           :commands (append (list (make-top-command component)
+                                                                   (make-refresh-command component))
+                                                             (make-editing-commands component)
+                                                             (make-standard-object-commands component the-class instance)
+                                                             (make-alternative-commands component alternatives)))))
         (setf alternatives (list (delay-alternative-component-type 'null-component))
-              content (find-default-alternative-component alternatives)))
-    (setf command-bar (make-instance 'command-bar-component
-                                     :commands (append (list (make-top-command-component component)
-                                                             (make-refresh-command-component component))
-                                                       (make-editing-command-components component)
-                                                       (make-standard-object-command-components component)
-                                                       (make-alternative-command-components component alternatives))))))
+              content (find-default-alternative-component alternatives)))))
 
-(def (function e) make-new-instance-command-component (component)
+(def (generic e) make-standard-object-commands (component class instance)
+  (:method ((component standard-object-component) (class standard-class) (instance standard-object))
+    (list (make-new-instance-command component)
+          (make-delete-instance-command component))))
+
+(def (function e) make-new-instance-command (component)
   (make-instance 'command-component
                  :icon (clone-icon 'new)
                  :visible (delay (not (edited-p component)))
                  :action (make-action (break "TODO:"))))
 
-(def (function e) make-delete-instance-command-component (component)
+(def (function e) make-delete-instance-command (component)
   (make-instance 'command-component
                  :icon (clone-icon 'delete)
                  :visible (delay (not (edited-p component)))
                  :action (make-action (break "TODO:"))))
-
-(def (function e) make-standard-object-command-components (component)
-  (list (make-new-instance-command-component component)
-        (make-delete-instance-command-component component)))
 
 (def method add-user-message ((self standard-object-component) message &rest args)
   (apply #'add-user-message (content-of self) message args))

@@ -16,10 +16,10 @@
 (def constructor place-component ()
   (with-slots (edited content command-bar) -self-
     (setf content (make-place-component-content -self-)
-          command-bar (make-instance 'command-bar-component :commands (append (list (make-refresh-command-component -self-)
+          command-bar (make-instance 'command-bar-component :commands (append (list (make-refresh-command -self-)
                                                                                     #+nil
-                                                                                    (make-makunbound-command-component -self-))
-                                                                              (make-editing-command-components -self-))))))
+                                                                                    (make-makunbound-command -self-))
+                                                                              (make-editing-commands -self-))))))
 
 (def render place-component ()
   (with-slots (edited content command-bar) -self-
@@ -57,13 +57,13 @@
 (def method store-editing :after ((place-component place-component))
   (setf (value-at-place (place-of place-component)) (component-value-of (content-of place-component))))
 
-(def (function e) make-makunbound-command-component (place-component)
-  (make-replace-command-component (delay (content-of place-component))
-                                  (delay (make-place-component-content place-component))
-                                  :icon (make-icon-component 'makunbound :label "Makunbound")
-                                  :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
+(def (function e) make-makunbound-command (place-component)
+  (make-replace-command (delay (content-of place-component))
+                        (delay (make-place-component-content place-component))
+                        :icon (make-icon-component 'makunbound :label "Makunbound")
+                        :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
 
-(def (function e) make-revert-command-component (place-component)
+(def (function e) make-revert-command (place-component)
   (make-instance 'command-component
                  :icon (make-icon-component 'revert :label "Revert")
                  :action (make-action (revert-place-component-content place-component))))

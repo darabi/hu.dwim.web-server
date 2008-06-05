@@ -56,6 +56,9 @@
   (:method ((type prc::member-type))
     'member-component)
 
+  (:method ((type prc:serialized-type))
+    't-component)
+
   (:method ((type prc::set-type))
     'standard-object-list-component)
 
@@ -200,6 +203,9 @@
 
   (:method ((type prc::member-type))
     'member-component)
+
+  (:method ((type prc:serialized-type))
+    't-component)
 
   (:method ((type prc::ip-address-type))
     'ip-address-component)

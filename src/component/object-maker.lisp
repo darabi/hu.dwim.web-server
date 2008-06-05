@@ -19,23 +19,27 @@
                 (setf (component-value-of alternative) the-class))
               (setf alternatives (list (delay-alternative-component-type 'standard-object-maker-detail-component :the-class the-class)
                                        (delay-alternative-component 'standard-object-maker-reference-component
-                                         (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-object-maker-reference-component :target the-class))))))
+                                         (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-maker-reference-component :target the-class))))))
           (if content
               (setf (component-value-of content) the-class)
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (list (make-create-instance-command-component component))
-                                                             (make-alternative-command-components component alternatives)))))
+                                           :commands (append (make-standard-object-maker-commands component the-class)
+                                                             (make-alternative-commands component alternatives)))))
         (setf alternatives nil
               content nil))))
 
-(def (function e) make-create-instance-command-component (component)
+(def generic make-standard-object-maker-commands (component class)
+  (:method ((component standard-object-maker-component) (class standard-class))
+    (list (make-create-instance-command component))))
+
+(def (function e) make-create-instance-command (component)
   (make-instance 'command-component
                  :icon (clone-icon 'create)
                  :visible (delay (edited-p component))
-                 :action (make-action (break "TODO:"))))
+                 :action (make-action (execute-maker component (the-class-of component)))))
 
 ;;;;;;
 ;;; Standard object maker detail
@@ -56,7 +60,7 @@
 
   (:method ((class prc::persistent-class))
     (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (if (dmm::authorize-operation 'dmm::write-entity-property-operation :-entity- class :-property- slot)
+          (if (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot)
               (collect slot)))))
 
 (def render standard-object-maker-detail-component ()
@@ -111,3 +115,33 @@
     <tr (:class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
       <td ,(render label)>
       <td ,(render value)>>))
+
+;;;;;;
+;;; Execute maker
+
+(def generic execute-maker (component class)
+  (:method ((component standard-object-maker-component) (class standard-class))
+    (apply #'make-instance (the-class-of component)
+           (execute-maker (content-of component) class)))
+
+  (:method ((component standard-object-maker-detail-component) (class standard-class))
+    (execute-maker (slot-value-group-of component) class))
+
+  (:method ((component standard-object-slot-value-group-maker-component) (class standard-class))
+    (iter (for slot-value :in (slot-values-of component))
+          (appending (execute-maker slot-value class))))
+
+  (:method ((component standard-object-slot-value-maker-detail-component) (class standard-class))
+    (bind ((slot (slot-of component))
+           (value (value-of component)))
+      (when (and (typep value 'atomic-component)
+                 (edited-p value))
+        (list (first (slot-definition-initargs slot))
+              (execute-maker value class)))))
+
+  (:method ((component atomic-component) (class standard-class))
+    (component-value-of component))
+
+  (:method ((component standard-object-maker-component) (class prc::persistent-class))
+    (rdbms::with-transaction
+      (call-next-method))))

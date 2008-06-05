@@ -33,16 +33,16 @@
                 (setf (component-value-of alternative) the-class))
               (setf alternatives (list (delay-alternative-component-type 'standard-class-detail-component :the-class the-class)
                                        (delay-alternative-component 'standard-class-reference-component
-                                         (setf-expand-reference-to-default-alternative-command-component (make-instance 'standard-class-reference-component :target the-class))))))
+                                         (setf-expand-reference-to-default-alternative-command (make-instance 'standard-class-reference-component :target the-class))))))
           (if content
               (setf (component-value-of content) the-class)
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (list (make-top-command-component component)
-                                                                   (make-refresh-command-component component))
-                                                             (make-alternative-command-components component alternatives)))))
+                                           :commands (append (list (make-top-command component)
+                                                                   (make-refresh-command component))
+                                                             (make-alternative-commands component alternatives)))))
         (setf alternatives nil
               content nil))))
 

@@ -18,9 +18,9 @@
   (:method ((reference reference-component))
     (princ-to-string (target-of reference))))
 
-(def (function e) make-expand-reference-command-component (original-component replacement-component)
-  (make-replace-command-component original-component replacement-component
-                                  :icon (clone-icon 'expand :label (make-reference-label original-component))))
+(def (function e) make-expand-reference-command (original-component replacement-component)
+  (make-replace-command original-component replacement-component
+                        :icon (clone-icon 'expand :label (make-reference-label original-component))))
 
 ;;;;;;
 ;;; Reference list
