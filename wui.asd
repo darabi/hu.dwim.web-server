@@ -157,7 +157,7 @@
                                (:file "object-detail" :depends-on ("alternator" "reference"))
                                (:file "object-maker" :depends-on ("object-detail" "atomic"))
                                (:file "object-table" :depends-on ("object-detail" "table"))
-                               (:file "process" :depends-on ("command" "object-maker"))
+                               (:file "process" :depends-on ("command" "object-maker" "object-table"))
                                (:file "filter" :depends-on ("object-detail"))
                                (:file "parser" :depends-on ("atomic" "reference" "object-detail" "filter" "class" "process")))
                   :depends-on ("application")))))
