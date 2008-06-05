@@ -29,7 +29,7 @@
 ;;;;;;
 ;;; Standard object
 
-(def component standard-object-component (abstract-standard-object-component alternator-component editable-component)
+(def component standard-object-component (abstract-standard-object-component alternator-component editable-component user-message-collector-component-mixin)
   ()
   (:documentation "Component for an instance of STANDARD-OBJECT in various alternative views"))
 
@@ -59,8 +59,15 @@
         (setf alternatives (list (delay-alternative-component-type 'null-component))
               content (find-default-alternative-component alternatives)))))
 
+(def render standard-object-component ()
+  <div ,(render-user-messages -self-)
+       ,(call-next-method)>)
+
 (def (generic e) make-standard-object-commands (component class instance)
   (:method ((component standard-object-component) (class standard-class) (instance standard-object))
+    (list (make-new-instance-command component)))
+
+  (:method ((component standard-object-component) (class prc::persistent-class) (instance prc::persistent-object))
     (list (make-new-instance-command component)
           (make-delete-instance-command component))))
 
@@ -74,23 +81,20 @@
   (make-instance 'command-component
                  :icon (clone-icon 'delete)
                  :visible (delay (not (edited-p component)))
-                 :action (make-action (break "TODO:"))))
-
-(def method add-user-message ((self standard-object-component) message &rest args)
-  (apply #'add-user-message (content-of self) message args))
+                 :action (make-action (rdbms::with-transaction
+                                        (prc::purge-instance (instance-of component))
+                                        (setf (component-value-of component) nil)))))
 
 ;;;;;;
 ;;; Standard object detail
 
 (def component standard-object-detail-component (abstract-standard-object-component editable-component detail-component)
-  ((user-message-collector :type component)
-   (class nil :accessor nil :type component)
+  ((class nil :accessor nil :type component)
    (slot-value-group nil :type component))
   (:documentation "Component for an instance of STANDARD-OBJECT in detail"))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-detail-component))
-  (with-slots (instance the-class user-message-collector class slot-value-group) component
-    (setf user-message-collector (make-instance 'user-message-collector-component))
+  (with-slots (instance the-class class slot-value-group) component
     (if the-class
         (if class
             (setf (component-value-of class) the-class)
@@ -109,20 +113,16 @@
 
   (:method ((class prc::persistent-class) (instance prc::persistent-object))
     (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (when (dmm::authorize-operation 'dmm::read-instance-property-operation :-entity- class :-instance- instance :-property- slot)
+          (when (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot)
             (collect slot)))))
 
 (def render standard-object-detail-component ()
-  (with-slots (user-message-collector class slot-value-group) -self-
+  (with-slots (class slot-value-group) -self-
     <div
-     ,(render user-message-collector)
       <span "An instance of " ,(render class)>
       <div
         <h3 "Slots">
         ,(render slot-value-group)>>))
-
-(def method add-user-message ((self standard-object-detail-component) message &rest args)
-  (apply #'add-user-message (user-message-collector-of self) message args))
 
 ;;;;;;
 ;;; Standard object slot value group

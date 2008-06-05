@@ -107,7 +107,7 @@
                  :icon (clone-icon 'save)
                  :visible (delay (edited-p editable))
                  :action (make-action (save-editing editable)
-                                      (add-user-message editable "Successfully saved changes"))))
+                                      (add-user-information editable "Successfully saved changes"))))
 
 (def (function e) make-cancel-editing-command (editable)
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
@@ -124,7 +124,7 @@
                  :icon (make-icon-component 'store :label "Store" :tooltip "Store all changes")
                  :visible (delay (edited-p editable))
                  :action (make-action (store-editing editable)
-                                      (add-user-message editable "Successfully stored changes"))))
+                                      (add-user-information editable "Successfully stored changes"))))
 
 (def (function e) make-revert-editing-command (editable)
   "The REVERT-EDITING command rolls back the changes present under an EDITABLE-COMPNENT"

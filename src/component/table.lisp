@@ -54,10 +54,13 @@
 (def component entire-row-component (content-component)
   ())
 
-(def render entire-row-component ()
+(def function render-entire-row (table body-thunk)
   <tr
-    <td (:colspan ,(length (columns-of (parent-component-of -self-))))
-      ,(call-next-method)>>)
+   <td (:colspan ,(length (columns-of table)))
+       ,(funcall body-thunk)>>)
+
+(def render entire-row-component ()
+  (render-entire-row (parent-component-of -self-) #'call-next-method))
 
 (def component cell-component (content-component)
   ())

@@ -19,7 +19,7 @@
 ;;;;;;
 ;;; Standard object list
 
-(def component standard-object-list-component (abstract-standard-object-list-component alternator-component editable-component)
+(def component standard-object-list-component (abstract-standard-object-list-component alternator-component editable-component user-message-collector-component-mixin)
   ())
 
 (def method (setf component-value-of) :after (new-value (component standard-object-list-component))
@@ -48,6 +48,10 @@
                                                              (make-refresh-command component))
                                                        (make-editing-commands component)
                                                        (make-alternative-commands component alternatives))))))
+
+(def render standard-object-list-component ()
+  <div ,(render-user-messages -self-)
+       ,(call-next-method)>)
 
 ;;;;;;
 ;;; Standard object table
@@ -82,13 +86,13 @@
 
   (:method ((class prc::persistent-class) (instance prc::persistent-object))
     (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (when (dmm::authorize-operation 'dmm::read-instance-property-operation :-entity- class :-instance- instance :-property- slot)
+          (when (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot)
             (collect slot)))))
 
 ;;;;;;
 ;;; Standard object row
 
-(def component standard-object-row-component (abstract-standard-object-component row-component editable-component)
+(def component standard-object-row-component (abstract-standard-object-component row-component editable-component user-message-collector-component-mixin)
   ((table-slot-names)
    (command-bar nil :type component)))
 
@@ -108,6 +112,13 @@
                                              (make-instance 'cell-component :content (make-instance 'label-component :component-value "N/A")))))))
         (setf command-bar nil
               cells nil))))
+
+(def render standard-object-row-component ()
+  (when (messages-of -self-)
+    (render-entire-row (parent-component-of -self-)
+                       (lambda ()
+                         (render-user-messages -self-))))
+  (call-next-method))
 
 (def generic make-standard-object-row-commands (component class instance)
   (:method ((component standard-object-row-component) (class standard-class) (instance standard-object))

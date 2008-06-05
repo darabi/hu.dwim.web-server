@@ -15,7 +15,7 @@
 
 (def render alternator-component ()
   (with-slots (content command-bar) -self-
-    (if (typep content '(or reference-component atomic-component empty-component))
+    (if (typep content '(or reference-component atomic-component))
         (render content)
         (render-vertical-list (list content command-bar)))))
 

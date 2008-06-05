@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object maker
 
-(def component standard-object-maker-component (abstract-standard-class-component alternator-component editable-component)
+(def component standard-object-maker-component (abstract-standard-class-component alternator-component editable-component user-message-collector-component-mixin)
   ())
 
 (def method (setf component-value-of) :after (new-value (component standard-object-maker-component))
@@ -31,6 +31,10 @@
         (setf alternatives nil
               content nil))))
 
+(def render standard-object-maker-component ()
+  <div ,(render-user-messages -self-)
+       ,(call-next-method)>)
+
 (def generic make-standard-object-maker-commands (component class)
   (:method ((component standard-object-maker-component) (class standard-class))
     (list (make-create-instance-command component))))
@@ -39,7 +43,8 @@
   (make-instance 'command-component
                  :icon (clone-icon 'create)
                  :visible (delay (edited-p component))
-                 :action (make-action (execute-maker component (the-class-of component)))))
+                 :action (make-action (execute-maker component (the-class-of component))
+                                      (add-user-information component "Az új objektum sikeresen létrehozva"))))
 
 ;;;;;;
 ;;; Standard object maker detail
@@ -121,27 +126,31 @@
 
 (def generic execute-maker (component class)
   (:method ((component standard-object-maker-component) (class standard-class))
-    (apply #'make-instance (the-class-of component)
-           (execute-maker (content-of component) class)))
-
-  (:method ((component standard-object-maker-detail-component) (class standard-class))
-    (execute-maker (slot-value-group-of component) class))
-
-  (:method ((component standard-object-slot-value-group-maker-component) (class standard-class))
-    (iter (for slot-value :in (slot-values-of component))
-          (appending (execute-maker slot-value class))))
-
-  (:method ((component standard-object-slot-value-maker-detail-component) (class standard-class))
-    (bind ((slot (slot-of component))
-           (value (value-of component)))
-      (when (and (typep value 'atomic-component)
-                 (edited-p value))
-        (list (first (slot-definition-initargs slot))
-              (execute-maker value class)))))
-
-  (:method ((component atomic-component) (class standard-class))
-    (component-value-of component))
+    (execute-maker* component))
 
   (:method ((component standard-object-maker-component) (class prc::persistent-class))
     (rdbms::with-transaction
       (call-next-method))))
+
+(def generic execute-maker* (component)
+  (:method ((component standard-object-maker-component))
+    (apply #'make-instance (the-class-of component)
+           (execute-maker* (content-of component))))
+
+  (:method ((component standard-object-maker-detail-component))
+    (execute-maker* (slot-value-group-of component)))
+
+  (:method ((component standard-object-slot-value-group-maker-component))
+    (iter (for slot-value :in (slot-values-of component))
+          (appending (execute-maker* slot-value))))
+
+  (:method ((component standard-object-slot-value-maker-detail-component))
+    (bind ((slot (slot-of component))
+           (value (value-of component)))
+      ;; TODO: recurse
+      (when (typep value 'atomic-component)
+        (list (first (slot-definition-initargs slot))
+              (execute-maker* value)))))
+
+  (:method ((component atomic-component))
+    (component-value-of component)))

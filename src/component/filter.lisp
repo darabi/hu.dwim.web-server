@@ -23,12 +23,12 @@
         (setf alternatives nil
               content nil))
     (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command self)
-                                                                                    (make-filter-instances-command self result))
+                                                                                    (make-filter-instances-command self (delay (result-of self))))
                                                                               (make-alternative-commands self alternatives))))))
 
 (def render standard-object-filter-component ()
   (with-slots (result content command-bar) -self-
-    (if (typep content '(or reference-component atomic-component empty-component))
+    (if (typep content '(or reference-component atomic-component))
         (render content)
         (render-vertical-list (list content command-bar result)))))
 
@@ -152,10 +152,16 @@
 
 (def (generic e) make-filter-result-component (filter result)
   (:method ((filter standard-object-filter-component) (result list))
-    (make-viewer-component result)))
+    (prog1-bind component
+        (make-viewer-component result :type `(list ,(class-name (the-class-of filter))))
+      (unless result
+        (add-user-warning component "No matches were found")))))
+
+(def function execute-filter (component class)
+  )
 
 (def generic execute-filter (component class)
-  (:method ((component standard-object-filter-component) class)
+  (:method ((component standard-object-filter-component) (class standard-class))
     (execute-filter (content-of component) class))
 
   (:method ((component standard-object-filter-detail-component) (class standard-class))
@@ -184,8 +190,61 @@
                (push instance instances))))
          :dynamic))))
 
-  (:method ((component standard-object-filter-detail-component) (class prc::persistent-class))
-    (bind ((class-name (class-name (the-class-of component))))
-      (prc::select (instance)
-        (prc::from (instance prc::persistent-object))
-        (prc::where (typep instance class-name))))))
+  (:method ((component standard-object-filter-component) (class prc::persistent-class))
+    (prc::execute-query (build-filter-query component))))
+
+(def class* filter-query ()
+  ((query nil)
+   (query-variable-stack nil)))
+
+(def generic build-filter-query (component)
+  (:method ((component standard-object-filter-component))
+    (bind ((filter-query (make-instance 'filter-query :query (prc::make-instance 'prc::query))))
+      (build-filter-query* component filter-query)
+      (query-of filter-query))))
+
+(def generic build-filter-query* (component filter-query)
+  (:method ((component standard-object-filter-component) filter-query)
+    (build-filter-query* (content-of component) filter-query))
+
+  (:method ((component standard-object-filter-detail-component) filter-query)
+    (bind ((query (query-of filter-query))
+           (query-variable
+            (prc::add-query-variable (query-of filter-query)
+                                     (gensym (symbol-name (class-name (the-class-of component)))))))
+      (unless (query-variable-stack-of filter-query)
+        (prc::add-collect query query-variable))
+      (push query-variable (query-variable-stack-of filter-query))
+      (prc::add-assert query `(typep ,query-variable ',(class-name (the-class-of component))))
+      (build-filter-query* (slot-value-group-of component) filter-query)))
+
+  (:method ((component standard-object-filter-reference-component) filter-query)
+    (values))
+
+  (:method ((component standard-object-slot-value-group-filter-component) filter-query)
+    (dolist (slot-value (slot-values-of component))
+      (build-filter-query* slot-value filter-query)))
+
+  (:method ((component standard-object-slot-value-filter-component) filter-query)
+    (bind ((value-component (value-of component)))
+      ;; TODO: recurse
+      (when (typep value-component 'atomic-component)
+        (bind ((value (build-filter-query* value-component filter-query)))
+          (when (and value
+                     (not (string= value "")))
+            (bind ((predicate-name
+                    (ecase (condition-of component)
+                      (equal 'equal)
+                      (like 'prc::re-like)))
+                   (ponated-predicate
+                    (list predicate-name
+                          (list (prc::reader-name-of (slot-of component))
+                                (first (query-variable-stack-of filter-query)))
+                          value)))
+              (prc::add-assert (query-of filter-query)
+                               (if (negated-p component)
+                                   `(not ,ponated-predicate)
+                                   ponated-predicate))))))))
+
+  (:method ((component atomic-component) filter-query)
+    (component-value-of component)))
