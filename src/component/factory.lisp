@@ -97,7 +97,7 @@
   (:method ((first (eql 'list)) (type cons))
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
-          'standard-object-list-component
+          `(standard-object-list-component :the-class ,(find-class main-type))
           'list-component))))
 
 (def (function e) make-inspector-component-for-prototype (prototype &rest args &key &allow-other-keys)

@@ -11,6 +11,12 @@
   ((target)
    (expand-command :type component)))
 
+(def method component-value-of ((self reference-component))
+  (target-of self))
+
+(def method (setf component-value-of) (new-value (self reference-component))
+  (setf (target-of self) new-value))
+
 (def render reference-component ()
   (render (expand-command-of -self-)))
 

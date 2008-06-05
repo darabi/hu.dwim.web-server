@@ -19,30 +19,27 @@
 ;;;;;;
 ;;; Standard object list
 
-(def component standard-object-list-component (abstract-standard-object-list-component alternator-component editable-component user-message-collector-component-mixin)
+(def component standard-object-list-component (abstract-standard-object-list-component abstract-standard-class-component
+                                               alternator-component editable-component user-message-collector-component-mixin)
   ())
 
 (def method (setf component-value-of) :after (new-value (component standard-object-list-component))
-  (with-slots (instances default-component-type alternatives content command-bar) component
+  (with-slots (instances the-class default-component-type alternatives content command-bar) component
     (setf instances new-value)
-    (if instances
-        (progn
-          (if (and alternatives
-                   (not (typep content 'empty-component)))
-              (dolist (alternative alternatives)
-                (setf (component-value-of (force alternative)) instances))
-              (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :instances instances)
-                                       (delay-alternative-component-type 'list-component :elements instances)
-                                       (delay-alternative-component 'standard-object-list-reference-component
-                                         (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-list-reference-component :target instances))))))
-          (if (and content
-                   (not (typep content 'empty-component)))
-              (setf (component-value-of content) instances)
-              (setf content (if default-component-type
-                                (find-alternative-component alternatives default-component-type)
-                                (find-default-alternative-component alternatives)))))
-        (setf alternatives (list (delay-alternative-component-type 'empty-component))
-              content (find-default-alternative-component alternatives)))
+    (if (and alternatives
+             (not (typep content 'empty-component)))
+        (dolist (alternative alternatives)
+          (setf (component-value-of (force alternative)) instances))
+        (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :the-class the-class :instances instances)
+                                 (delay-alternative-component-type 'list-component :elements instances)
+                                 (delay-alternative-component 'standard-object-list-reference-component
+                                   (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-list-reference-component :target instances))))))
+    (if (and content
+             (not (typep content 'empty-component)))
+        (setf (component-value-of content) instances)
+        (setf content (if default-component-type
+                          (find-alternative-component alternatives default-component-type)
+                          (find-default-alternative-component alternatives))))
     (setf command-bar (make-instance 'command-bar-component
                                      :commands (append (list (make-top-command component)
                                                              (make-refresh-command component))
@@ -56,35 +53,33 @@
 ;;;;;;
 ;;; Standard object table
 
-(def component standard-object-table-component (abstract-standard-object-list-component table-component editable-component)
+(def component standard-object-table-component (abstract-standard-object-list-component abstract-standard-class-component table-component editable-component)
   ((slot-names nil)))
 
 (def method (setf component-value-of) :after (new-value (component standard-object-table-component))
-  (with-slots (instances slot-names command-bar columns rows) component
+  (with-slots (instances the-class slot-names command-bar columns rows) component
     (setf instances new-value)
-    (if instances
-        (setf slot-names (delete-duplicates
-                          (iter (for instance :in instances)
-                                (appending (mapcar 'slot-definition-name (standard-object-table-slots (class-of instance) instance)))))
-              columns (cons (make-instance 'column-component :content (make-instance 'label-component :component-value "Commands"))
-                            (mapcar (lambda (slot-name)
-                                      (make-instance 'column-component :content (make-instance 'label-component :component-value (full-symbol-name slot-name))))
-                                    slot-names))
-              rows (iter (for instance :in instances)
-                         (for row = (find instance rows :key #'component-value-of))
-                         (if row
-                             (setf (component-value-of row) instance)
-                             (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
-                         (collect row)))
-        (setf slot-names nil
-              columns nil
-              rows nil))))
+    (setf slot-names (delete-duplicates
+                      (append
+                       (mapcar #'slot-definition-name (standard-object-table-slots the-class nil))
+                       (iter (for instance :in instances)
+                             (appending (mapcar #'slot-definition-name (standard-object-table-slots (class-of instance) instance))))))
+          columns (cons (make-instance 'column-component :content (make-instance 'label-component :component-value "Commands"))
+                        (mapcar (lambda (slot-name)
+                                  (make-instance 'column-component :content (make-instance 'label-component :component-value (full-symbol-name slot-name))))
+                                slot-names))
+          rows (iter (for instance :in instances)
+                     (for row = (find instance rows :key #'component-value-of))
+                     (if row
+                         (setf (component-value-of row) instance)
+                         (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
+                     (collect row)))))
 
 (def generic standard-object-table-slots (class instance)
   (:method ((class standard-class) (instance standard-object))
     (class-slots class))
 
-  (:method ((class prc::persistent-class) (instance prc::persistent-object))
+  (:method ((class prc::persistent-class) instance)
     (iter (for slot :in (prc::persistent-effective-slots-of class))
           (when (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot)
             (collect slot)))))
@@ -106,7 +101,9 @@
                           (iter (for class = (class-of instance))
                                 (for table-slot-name :in table-slot-names)
                                 (for slot = (find-slot class table-slot-name))
-                                (for cell = (find slot cells :key #'component-value-of))
+                                (for cell = (find slot cells :key (lambda (cell)
+                                                                    (when (typep cell 'standard-object-slot-value-cell-component)
+                                                                      (component-value-of cell)))))
                                 (collect (if slot
                                              (make-instance 'standard-object-slot-value-cell-component :instance instance :slot slot)
                                              (make-instance 'cell-component :content (make-instance 'label-component :component-value "N/A")))))))
