@@ -82,7 +82,7 @@
                              ,wrap))
                   ,@args))
 
-;;;;;;;;;
+;;;;;;
 ;;; Remote identity
 
 (def component remote-identity-component-mixin (component)
@@ -111,6 +111,18 @@
 
 (def (macro e) style ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'style-component ,@args :content ,(the-only-element content)))
+
+;;;;;;
+;;; Container
+
+(def component container-component ()
+  ((contents :type components)))
+
+(def render container-component ()
+  <div ,@(mapcar #'render (contents-of -self-))>)
+
+(def (macro e) container (&body contents)
+  `(make-instance 'container-component :contents (list ,@contents)))
 
 ;;;;;;
 ;;; Detail
