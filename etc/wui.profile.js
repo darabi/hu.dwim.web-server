@@ -4,9 +4,12 @@ dependencies ={
         name: "dojo.js",
         dependencies: [
             "dojo.parser",
-            "dijit.form.DateTextBox",
             "dijit.Button",
+            "dijit.form.DateTextBox",
+            "dijit.form.TimeTextBox",
+            "dijit.form.TextBox",
             "dijit.form.SimpleTextarea",
+            "dijit.form.NumberTextarea",
             "dojox.wire.Wire",
             "dojox.wire.XmlWire",
             //"explosive.space.Modulator"
