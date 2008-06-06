@@ -226,7 +226,7 @@
                  (write-next-byte +space+)))
         (parse)))))
 
-(def (function io) parse-uri (uri)
+(def (function eio) parse-uri (uri)
   (%parse-uri (coerce uri 'simple-base-string)))
 
 (def (function o) %parse-uri (uri)
