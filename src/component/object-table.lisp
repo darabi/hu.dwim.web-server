@@ -83,9 +83,12 @@
     (class-slots class))
 
   (:method ((class prc::persistent-class) instance)
-    (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (when (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot)
-            (collect slot)))))
+    (remove-if #'persistent-object-slot-p (call-next-method)))
+
+  (:method ((class dmm::entity) instance)
+    (filter-if (lambda (slot)
+                 (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
+               (call-next-method))))
 
 ;;;;;;
 ;;; Standard object row
@@ -122,7 +125,13 @@
 
 (def generic make-standard-object-row-commands (component class instance)
   (:method ((component standard-object-row-component) (class standard-class) (instance standard-object))
-    (list (make-expand-row-command component instance))))
+    (append (make-editing-commands component)
+            (list (make-expand-row-command component instance))))
+
+  (:method ((component standard-object-row-component) (class prc::persistent-class) (instance prc::persistent-object))
+    (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
+              (make-editing-commands component))
+            (list (make-expand-row-command component instance)))))
 
 (def function make-expand-row-command (component instance)
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer-component instance :default-component-type 'detail-component)))

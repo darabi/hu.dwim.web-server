@@ -65,9 +65,12 @@
     (class-slots class))
 
   (:method ((class prc::persistent-class))
-    (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (if (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot)
-              (collect slot)))))
+    (remove-if #'persistent-object-slot-p (call-next-method)))
+
+  (:method ((class dmm::entity))
+    (filter-if (lambda (slot)
+                 (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot))
+               (call-next-method))))
 
 (def render standard-object-maker-detail-component ()
   (with-slots (the-class class slots-values slot-value-group command-bar) -self-

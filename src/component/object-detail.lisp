@@ -113,9 +113,12 @@
     (class-slots class))
 
   (:method ((class prc::persistent-class) (instance prc::persistent-object))
-    (iter (for slot :in (prc::persistent-effective-slots-of class))
-          (when (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot)
-            (collect slot)))))
+    (remove-if #'persistent-object-slot-p (call-next-method)))
+
+  (:method ((class dmm::entity) (instance prc::persistent-object))
+    (filter-if (lambda (slot)
+                 (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
+               (call-next-method))))
 
 (def render standard-object-detail-component ()
   (with-slots (class slot-value-group) -self-

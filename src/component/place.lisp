@@ -90,6 +90,10 @@
         (prc::revive-instance (instance-of place))
         instance)))
 
+;; TODO: move to perec
+(def function persistent-object-slot-p (slot)
+  (member (slot-definition-name slot) '(prc::oid prc::persistent prc::transaction prc::transaction-event)))
+
 (def generic slot-type (slot)
   (:method ((slot standard-effective-slot-definition))
     (slot-definition-type slot))
