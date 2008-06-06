@@ -35,8 +35,7 @@
          list))
 
 (def function optional-list (&rest elements)
-  (iter (for element :in elements)
-        (when element (collect element))))
+  (remove nil elements))
 
 (def function the-only-element (elements)
   (assert (= 1 (length elements)))
@@ -44,6 +43,9 @@
 
 (def function filter (element list &key (key #'identity) (test #'eq))
   (remove element list :key key :test-not test))
+
+(def function filter-if (predicate list &key (key #'identity))
+  (remove-if (complement predicate) list :key key))
 
 (def (generic e) debug-on-error (context error)
   (:method (context error)
