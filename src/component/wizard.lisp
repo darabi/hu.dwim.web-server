@@ -44,10 +44,10 @@
 
 (def (function e) make-finish-wizard-command (wizard)
   (make-instance 'command-component
-                 :icon (clone-icon 'finish)
+                 :icon (icon finish)
                  :action (make-action (finish-wizard wizard))))
 
 (def (function e) make-cancel-wizard-command (wizard)
   (make-instance 'command-component
-                 :icon (clone-icon 'cancel)
+                 :icon (icon cancel)
                  :action (make-action (cancel-wizard wizard))))

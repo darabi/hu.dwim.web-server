@@ -96,7 +96,7 @@
   "The BEGIN-EDITING command starts editing underneath the given EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (clone-icon 'edit)
+                 :icon (icon edit)
                  :visible (delay (not (edited-p editable)))
                  :action (make-action (begin-editing editable))))
 
@@ -104,7 +104,7 @@
   "The SAVE-EDITING command actually makes the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (clone-icon 'save)
+                 :icon (icon save)
                  :visible (delay (edited-p editable))
                  :action (make-action (save-editing editable)
                                       (add-user-information editable "Successfully saved changes"))))
@@ -113,7 +113,7 @@
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (clone-icon 'cancel)
+                 :icon (icon cancel)
                  :visible (delay (edited-p editable))
                  :action (make-action (cancel-editing editable))))
 
@@ -121,7 +121,7 @@
   "The STORE-EDITING command actually stores the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (make-icon-component 'store :label "Store" :tooltip "Store all changes")
+                 :icon (icon store :label "Store" :tooltip "Store all changes")
                  :visible (delay (edited-p editable))
                  :action (make-action (store-editing editable)
                                       (add-user-information editable "Successfully stored changes"))))
@@ -130,7 +130,7 @@
   "The REVERT-EDITING command rolls back the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (make-icon-component 'revert :label "Revert" :tooltip "Revert all changes")
+                 :icon (icon revert :label "Revert" :tooltip "Revert all changes")
                  :visible (delay (edited-p editable))
                  :action (make-action (revert-editing editable))))
 

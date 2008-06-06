@@ -40,7 +40,8 @@
           (if (and alternatives
                    (not (typep content 'null-component)))
               (dolist (alternative alternatives)
-                (setf (component-value-of (force alternative)) instance))
+                (when (typep (component-of alternative) 'component)
+                  (setf (component-value-of (force alternative)) instance)))
               (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
                                        (delay-alternative-component 'standard-object-reference-component
                                          (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-reference-component :target instance))))))
@@ -73,13 +74,13 @@
 
 (def (function e) make-new-instance-command (component)
   (make-instance 'command-component
-                 :icon (clone-icon 'new)
+                 :icon (icon new)
                  :visible (delay (not (edited-p component)))
                  :action (make-action (break "TODO:"))))
 
 (def (function e) make-delete-instance-command (component)
   (make-instance 'command-component
-                 :icon (clone-icon 'delete)
+                 :icon (icon delete)
                  :visible (delay (not (edited-p component)))
                  :action (make-action (rdbms::with-transaction
                                         (prc::purge-instance (instance-of component))

@@ -32,10 +32,10 @@
 
 (def generic make-alternative-component-replace-command-icon-component (prototype)
   (:method ((prototype component))
-    (clone-icon 'view :label (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
+    (icon view :label (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
 
   (:method ((prototype reference-component))
-    (clone-icon 'collapse)))
+    (icon collapse)))
 
 (def method join-editing ((alternator alternator-component))
   (unless (typep (content-of alternator) 'reference-component)

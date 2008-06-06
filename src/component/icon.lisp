@@ -25,17 +25,26 @@
                +void+)>))
 
 (def (macro e) icon (name &rest args)
-  `(make-instance 'icon-component :name ,name ,@args))
+  `(make-icon-component ',name ,@args))
 
-(def (macro e) make-icon-component (name &rest args)
-  `(make-instance 'icon-component :name ,name ,@args))
+(def (function e) make-icon-component (name &rest args)
+  (bind ((icon (find-icon name :otherwise nil)))
+    (if icon
+        (apply #'make-instance 'icon-component
+               :name name (append args
+                                  (list :label (label-of icon)
+                                        :image-path (image-path-of icon)
+                                        :tooltip (tooltip-of icon))))
+        (if args
+            (apply #'make-instance 'icon-component :name name args)
+            (error "The icon ~A cannot be found and no arguments were specified" name)))))
 
 (def special-variable *icons* (make-hash-table))
 
-(def (function e) find-icon (name)
+(def (function e) find-icon (name &key (otherwise '(:error "The icon ~A cannot be found" name)))
   (prog1-bind icon (gethash name *icons*)
     (unless icon
-      (error "The icon ~A cannot be found" name))))
+      (handle-otherwise otherwise))))
 
 (def function (setf find-icon) (icon name)
   (setf (gethash name *icons*) icon))
@@ -43,14 +52,11 @@
 (def (definer e) icon (name image-path)
   (bind ((name-as-string (string-downcase name)))
     `(setf (find-icon ',name)
-           (make-icon-component ',name
-                                :image-path ,image-path
-                                :label (delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil))
-                                :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil))))))
-
-(def (function e) clone-icon (name &rest args)
-  (bind ((icon (find-icon name)))
-    (apply #'make-instance 'icon-component :name name (append args (list :label (label-of icon) :image-path (image-path-of icon) :tooltip (tooltip-of icon))))))
+           (make-instance 'icon-component
+                          :name ',name
+                          :image-path ,image-path
+                          :label (delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil))
+                          :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil))))))
 
 ;;;;;;
 ;;; Default icons

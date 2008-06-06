@@ -87,73 +87,55 @@
       "decrement">>))
 
 (def function make-process-menu-item ()
-  `ui(menu-item
-      (replace-menu-target-command (icon "Process")
-                                   (process
-                                    ,`(iter (with step = "starting")
-                                            (repeat 3)
-                                            (setf step (call `ui(vertical-list
-                                                                 (string ,(concatenate 'string "Odd page after " step))
-                                                                 (process
-                                                                  ,`(progn
-                                                                      (call `ui(vertical-list
-                                                                                (string "First")
-                                                                                (answer-command)))
-                                                                      (call `ui(vertical-list
-                                                                                (string "Second")
-                                                                                (answer-command)))
-                                                                      (call `ui(vertical-list
-                                                                                (string "Third")
-                                                                                (answer-command)))))
-                                                                 (answer-command "Odd"))))
-                                            (setf step (call `ui(vertical-list
-                                                                 (string ,(concatenate 'string "Even page after " step))
-                                                                 (answer-command "Even")))))))))
+  (menu-item (replace-menu-target-command (icon "Process")
+                                          (standard-process
+                                            (iter (with step = "starting")
+                                                  (repeat 3)
+                                                  (setf step (call (vertical-list ()
+                                                                     (label (concatenate 'string "Odd page after " step))
+                                                                     (standard-process
+                                                                       (progn
+                                                                         (call (label "First")
+                                                                               (answer-command))
+                                                                         (call (label "Second")
+                                                                               (answer-command))
+                                                                         (call (labelstring "Third")
+                                                                               (answer-command)))))
+                                                                   (answer-command "Odd")))
+                                                  (setf step (call (label (concatenate 'string "Even page after " step))
+                                                                   (answer-command "Even"))))))))
 
 (def function make-test-menu ()
-  `ui(menu
-      (menu-item (string "Debug")
-                 (menu-item (command (icon "Start Over") (action #+nil (value)))) ;; TODO
-                 (menu-item (command (icon "Hierarchy") (action (hu.dwim.wui::toggle-debug-component-hierarchy *frame*)))))
-      (menu-item (string "Simple")
-                 (menu-item (replace-menu-target-command (icon "Hello World") (string "Hello World")))
-                 (menu-item (replace-menu-target-command (icon "Lexical Counter")
-                                                         ,(bind ((counter 0))
-                                                                `ui(vertical-list
-                                                                    (delay `ui(string ,(princ-to-string counter)))
-                                                                    (command-bar
-                                                                     (command (icon "Increment") (action (incf counter)))
-                                                                     (command (icon "Decrement") (action (decf counter))))))))
-                 (menu-item (replace-menu-target-command (icon "Counter Component")
-                                                         ,(make-instance 'counter-component)))
-                 (menu-item (replace-menu-target-command (icon "Special variable")
-                                                         ,(make-special-variable-place-component '*test-string* '(or null string))))
-                 (menu-item (replace-menu-target-command (icon "Lexical variable")
-                                                         ,(bind ((test-boolean #t)) (make-lexical-variable-place-component test-boolean 'boolean)))))
-      (menu-item (string "Complex")
-                 (menu-item (replace-menu-target-command (icon "Inspect") ,(make-viewer-component *server*)))
-                 (menu-item (replace-menu-target-command (icon "Filter") ,(make-filter-component (find-class 'super-test))))
-                 (menu-item (replace-menu-target-command (icon "List") ,(make-viewer-component *test-instances*)))
-                 (menu-item (replace-menu-target-command (icon "Edit") ,(make-editor-component (first *test-instances*))))
-                 (menu-item (replace-menu-target-command (icon "New") ,(make-maker-component (find-class 'sub-test))))
-                 ,(make-process-menu-item))
-      (menu-item (string "Demo")
-                 (menu-item (string "Telephely")
-                            (menu-item (replace-menu-target-command (icon "Felvétel") ,(make-maker-component (find-class 'telephely))))
-                            (menu-item (replace-menu-target-command (icon "Karbantartás") ,(make-filter-component (find-class 'telephely)))))
-                 (menu-item (string "Terem")
-                            (menu-item (replace-menu-target-command (icon "Felvétel") ,(make-maker-component (find-class 'terem))))
-                            (menu-item (replace-menu-target-command (icon "Karbantartás") ,(make-filter-component (find-class 'terem)))))
-                 (menu-item (string "Polc")
-                            (menu-item (replace-menu-target-command (icon "Felvétel") ,(make-maker-component (find-class 'polc))))
-                            (menu-item (replace-menu-target-command (icon "Karbantartás") ,(make-filter-component (find-class 'polc)))))
-                 (menu-item (string "Hely")
-                            (menu-item (replace-menu-target-command (icon "Felvétel") ,(make-maker-component (find-class 'hely))))
-                            (menu-item (replace-menu-target-command (icon "Karbantartás") ,(make-filter-component (find-class 'hely))))))))
+  (menu nil
+    (menu "Debug"
+      (menu-item (command (icon "Start Over") (make-action (setf (root-component-of *frame*) nil))))
+      (menu-item (command (icon "Hierarchy") (make-action (hu.dwim.wui::toggle-debug-component-hierarchy *frame*)))))
+    (menu "Simple"
+      (menu-item (replace-menu-target-command (icon "Hello World") (string "Hello World")))
+      (menu-item (replace-menu-target-command (icon "Lexical Counter")
+                                              (bind ((counter 0))
+                                                (vertical-list ()
+                                                  (delay (label (princ-to-string counter)))
+                                                  (command-bar
+                                                    (command (icon "Increment") (make-action (incf counter)))
+                                                    (command (icon "Decrement") (make-action (decf counter))))))))
+      (menu-item (replace-menu-target-command (icon "Counter Component")
+                                              (make-instance 'counter-component)))
+      (menu-item (replace-menu-target-command (icon "Special variable")
+                                              (make-special-variable-place-component '*test-string* '(or null string))))
+      (menu-item (replace-menu-target-command (icon "Lexical variable")
+                                              (bind ((test-boolean #t)) (make-lexical-variable-place-component test-boolean 'boolean)))))
+    (menu "Complex"
+      (menu-item (replace-menu-target-command (icon "Inspect") (make-viewer-component *server*)))
+      (menu-item (replace-menu-target-command (icon "Filter") (make-filter-component (find-class 'super-test))))
+      (menu-item (replace-menu-target-command (icon "List") (make-viewer-component *test-instances*)))
+      (menu-item (replace-menu-target-command (icon "Edit") (make-editor-component (first *test-instances*))))
+      (menu-item (replace-menu-target-command (icon "New") (make-maker-component (find-class 'sub-test))))
+      (make-process-menu-item))))
 
 (def function make-test-frame ()
   (bind ((menu (make-test-menu))
-         (menu-target `ui(empty)))
-    (prog1 `ui(frame (:title "Demo" :stylesheets ("static/wui/css/test.css"))
-                     (horizontal-list ,menu (top ,menu-target)))
-           (setf (hu.dwim.wui::target-place-of menu) (make-component-place menu-target)))))
+         (menu-target (empty)))
+    (prog1 (frame (:title "Demo" :stylesheets '("static/wui/css/test.css"))
+             (horizontal-list () menu (top menu-target)))
+      (setf (target-place-of menu) (make-component-place menu-target)))))

@@ -13,7 +13,11 @@
 (def component standard-process-component (content-component user-message-collector-component-mixin)
   ((form)
    (closure/cc nil)
-   (answer-continuation nil)))
+   (answer-continuation nil)
+   (command-bar :type component)))
+
+(def (macro e) standard-process (&body forms)
+  `(make-instance 'standard-process-component :form '(progn ,@forms)))
 
 (def render standard-process-component ()
   (with-slots (form closure/cc answer-continuation content) -self-
@@ -34,9 +38,18 @@
   (remove-from-plistf args :form)
   `(make-instance 'standard-process-component :form ',form ,@args))
 
-(def (macro e) call (component)
+(defun/cc replace-answer-commands (component answer-commands)
+  (bind ((command-bar (command-bar-of component)))
+    (setf (commands-of command-bar)
+          (append (remove-if (lambda (command)
+                               (typep command 'answer-command-component))
+                             (commands-of command-bar))
+                  answer-commands))))
+
+(def (macro e) call (component answer-commands)
   `(let/cc k
      (setf (content-of *standard-process-component*) ,component)
+     (replace-answer-commands *standard-process-component* (ensure-list ,answer-commands))
      k))
 
 (def (generic e) answer (component value)
@@ -52,7 +65,7 @@
 ;;; Answer command
 
 (def component answer-command-component (command-component)
-  ((icon (make-icon-component 'answer :label "Answer"))
+  ((icon (icon answer :label "Answer"))
    (action)
    (value nil)))
 
@@ -74,8 +87,14 @@
 (def component persistent-process-component (standard-process-component)
   ((process)))
 
+(def constructor persistent-process-component ()
+  (setf (command-bar-of -self-) (command-bar
+                                  (make-top-command -self-)
+                                  (make-cancel-persistent-process-command -self-)
+                                  (make-pause-persistent-process-command -self-))))
+
 (def render persistent-process-component ()
-  (with-slots (process answer-continuation content) -self-
+  (with-slots (process command-bar answer-continuation content) -self-
     (unless content
       (setf answer-continuation
             (bind ((*standard-process-component* -self-))
@@ -88,12 +107,16 @@
                                    (dmm::start-persistent-process-in-context))))))))
     (unless (and content answer-continuation)
       (setf content (make-instance 'label-component :component-value "Process finished")))
-    (call-next-method)))
+    <div
+     ,(render-user-messages -self-)
+     ,(render content)
+     ,(render command-bar) >))
 
-(def macro dmm:show-to-subject (component &optional subject)
+(def macro dmm:show-to-subject (component answer-commands &optional subject)
   "Shows a user interface component to the given subject."
   (once-only (subject)
     `(dmm::show-and-wait ,component
+                         ,answer-commands
                          (or (not ,subject)
                              (and (dmm::has-authenticated-session)
                                   (eq ,subject (dmm::current-effective-subject))))
@@ -101,9 +124,10 @@
                                         :subject (or ,subject
                                                      (dmm::current-effective-subject))))))
 
-(def macro dmm:show-to-subject-expression (component &optional expression)
+(def macro dmm:show-to-subject-expression (component answer-commands &optional expression)
   "Shows a user interface component to any one of the subjects matching to the given expression"
   `(dmm::show-and-wait ,component
+                       ,answer-commands
                        (and (dmm::has-authenticated-session)
                             (bind ((dmm::-authenticated-subject- (dmm::current-authenticated-subject))
                                    (dmm::-effective-subject- (dmm::current-effective-subject)))
@@ -112,14 +136,15 @@
                            (dmm::make-wait-for-expression :wait-for-subject #t :expression ',expression))))
 
 ;; TODO: defun/cc?
-(def macro dmm:show-and-wait (component &optional (condition t) (wait-reason nil))
+(def macro dmm:show-and-wait (component answer-commands &optional (condition t) (wait-reason nil))
   `(progn
      (dmm::persistent-process-wait dmm::*process* ,wait-reason)
      (call (if ,condition
                ,component
                (progn
                  (add-user-information *standard-process-component* #"process.message.waiting-for-other-subject")
-                 (empty))))
+                 (empty)))
+           ,answer-commands)
      (assert (eq (dmm::element-name-of (dmm::process-state-of dmm::*process*)) 'dmm::running))))
 
 (def method answer ((component persistent-process-component) value)
@@ -151,6 +176,22 @@
   (icon-label.continue-process "Continue")
   (icon-tooltip.continue-process "Continue the process"))
 
+(def icon cancel-process "static/wui/icons/20x20/red-x.png")
+(defresources hu
+  (icon-label.cancel-process "Elvetés")
+  (icon-tooltip.cancel-process "A folyamat elvetése"))
+(defresources en
+  (icon-label.cancel-process "Cancel")
+  (icon-tooltip.cancel-process "Cancel the process"))
+
+(def icon pause-process "static/wui/icons/20x20/stop-sign.png")
+(defresources hu
+  (icon-label.pause-process "Felfüggesztés")
+  (icon-tooltip.pause-process "A folyamat felüggesztése"))
+(defresources en
+  (icon-label.pause-process "Pause")
+  (icon-tooltip.pause-process "Pause the process"))
+
 (def method make-standard-object-commands ((component standard-object-component) (class dmm::persistent-process) (instance prc::persistent-object))
   (optional-list (make-new-instance-command component)
                  (make-delete-instance-command component)
@@ -171,13 +212,26 @@
                                                              (lambda (process-component)
                                                                (make-instance 'entire-row-component :content process-component))))))
 
-(def (function e) make-start-persistent-process-command (component instance)
-  (make-replace-command component (delay (make-instance 'persistent-process-component :process (force instance)))
-                        :icon (clone-icon 'start-process)))
+(def (function e) make-start-persistent-process-command (component process)
+  (make-replace-command component (delay (make-instance 'persistent-process-component :process (force process)))
+                        :icon (icon start-process)))
 
-(def (function e) make-continue-persistent-process-command (component instance &optional (wrapper-thunk #'identity))
-  (make-replace-command component (delay (funcall wrapper-thunk (make-instance 'persistent-process-component :process instance)))
-                        :icon (clone-icon 'continue-process)))
+(def (function e) make-continue-persistent-process-command (component process &optional (wrapper-thunk #'identity))
+  (make-replace-command component (delay (funcall wrapper-thunk (make-instance 'persistent-process-component :process process)))
+                        :icon (icon continue-process)))
+
+(def (function e) make-cancel-persistent-process-command (component)
+  (command (icon cancel-process)
+           (make-action (rdbms::with-transaction
+                          (prc::revive-instance (process-of component))
+                          (dmm::cancel-persistent-process (process-of component))))))
+
+(def (function e) make-pause-persistent-process-command (component)
+  (command (icon pause-process)
+           (make-action (rdbms::with-transaction
+                          (prc::revive-instance (process-of component))
+                          (dmm::pause-persistent-process (process-of component))))))
+
 ;;;;;;
 ;;; Localization
 

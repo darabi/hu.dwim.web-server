@@ -124,11 +124,11 @@
           value (make-filter-component (slot-definition-type slot) :default-component-type 'reference-component))))
 
 (def function make-negated/ponated-icon (negated)
-  (aprog1 (clone-icon (if negated 'negated 'ponated))
+  (aprog1 (make-icon-component (if negated 'negated 'ponated))
     (setf (label-of it) nil)))
 
 (def function make-condition-icon (condition)
-  (aprog1 (clone-icon
+  (aprog1 (make-icon-component
            (ecase condition
              (equal 'equal)
              (like 'like)))
@@ -147,8 +147,8 @@
 
 (def (function e) make-filter-instances-command (filter result)
   (make-replace-and-push-back-command result (delay (make-filter-result-component filter (execute-filter filter (the-class-of filter))))
-                                      (list :icon (clone-icon 'filter))
-                                      (list :icon (clone-icon 'back))))
+                                      (list :icon (icon filter))
+                                      (list :icon (icon back))))
 
 (def (generic e) make-filter-result-component (filter result)
   (:method ((filter standard-object-filter-component) (result list))

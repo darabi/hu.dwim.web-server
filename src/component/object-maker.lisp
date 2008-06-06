@@ -41,7 +41,7 @@
 
 (def (function e) make-create-instance-command (component)
   (make-instance 'command-component
-                 :icon (clone-icon 'create)
+                 :icon (icon create)
                  :visible (delay (edited-p component))
                  ;; TODO: put transaction here?! how do we dispatch
                  :action (make-action (execute-maker component (the-class-of component))

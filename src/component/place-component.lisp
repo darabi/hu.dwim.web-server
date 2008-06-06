@@ -60,10 +60,10 @@
 (def (function e) make-makunbound-command (place-component)
   (make-replace-command (delay (content-of place-component))
                         (delay (make-place-component-content place-component))
-                        :icon (make-icon-component 'makunbound :label "Makunbound")
+                        :icon (icon makunbound :label "Makunbound")
                         :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
 
 (def (function e) make-revert-command (place-component)
   (make-instance 'command-component
-                 :icon (make-icon-component 'revert :label "Revert")
+                 :icon (icon revert :label "Revert")
                  :action (make-action (revert-place-component-content place-component))))

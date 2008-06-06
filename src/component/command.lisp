@@ -35,6 +35,9 @@
 (def component command-bar-component ()
   ((commands :type components)))
 
+(def (macro e) command-bar (&body commands)
+  `(make-instance 'command-bar-component :commands (list ,@commands)))
+
 (def render command-bar-component ()
   (with-slots (commands parent-component) -self-
     (setf commands (sort-commands parent-component commands))
@@ -83,19 +86,19 @@
 (def constructor page-navigation-bar-component ()
   (with-slots (position page-count total-count first-command previous-command next-command last-command jumper) -self-
     (setf first-command (make-instance 'command-component
-                                       :icon (clone-icon 'first)
+                                       :icon (icon first)
                                        :enabled (delay (> position 0))
                                        :action (make-action (setf position 0)))
           previous-command (make-instance 'command-component
-                                          :icon (clone-icon 'previous)
+                                          :icon (icon previous)
                                           :enabled (delay (> position 0))
                                           :action (make-action (decf position (min position page-count))))
           next-command (make-instance 'command-component
-                                      :icon (clone-icon 'next)
+                                      :icon (icon next)
                                       :enabled (delay (< position (- total-count page-count)))
                                       :action (make-action (incf position (min page-count (- total-count page-count)))))
           last-command (make-instance 'command-component
-                                      :icon (clone-icon 'last)
+                                      :icon (icon last)
                                       :enabled (delay (< position (- total-count page-count)))
                                       :action (make-action (setf position (- total-count page-count))))
           jumper (make-instance 'integer-component :edited #t :component-value position))))
@@ -113,7 +116,7 @@
 
 (def (function e) make-refresh-command (component)
   (make-instance 'command-component
-                 :icon (find-icon 'refresh)
+                 :icon (icon refresh)
                  :action (make-action (refresh-component component))))
 
 (def (function e) make-replace-command (original-component replacement-component &rest replace-command-args)
@@ -160,6 +163,6 @@
   "The TOP command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT"
   (bind ((original-component (delay (find-top-component-content replacement-component))))
     (make-replace-and-push-back-command original-component  replacement-component
-                                        (list :icon (find-icon 'top)
+                                        (list :icon (icon top)
                                               :visible (delay (not (eq replacement-component (find-top-component-content replacement-component)))))
-                                        (list :icon (find-icon 'back)))))
+                                        (list :icon (icon back)))))

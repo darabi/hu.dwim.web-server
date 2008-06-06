@@ -19,10 +19,11 @@
 
 (def (function e) make-menu-component (label menu-items)
   (bind ((menu-items (remove nil menu-items)))
-    (make-instance 'menu-component
-                   :icon (when label
-                           (clone-icon 'menu :label label :tooltip nil))
-                   :menu-items menu-items)))
+    (when menu-items
+      (make-instance 'menu-component
+                     :icon (when label
+                             (icon menu :label label :tooltip nil))
+                     :menu-items menu-items))))
 
 (def (macro e) menu (label &body menu-items)
   `(make-menu-component ,label (list ,@menu-items)))
@@ -92,7 +93,7 @@
 (def constructor standard-object-filter-menu-item-component ()
   (with-slots (the-class command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (clone-icon 'filter)
+                                 :icon (icon filter)
                                  :component (make-filter-component the-class)))))
 
 (def (function e) make-standard-object-filter-menu-item-component (class-name)
@@ -112,7 +113,7 @@
 (def constructor standard-object-maker-menu-item-component ()
   (with-slots (the-class visible command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (clone-icon 'new)
+                                 :icon (icon new)
                                  :component (make-maker-component the-class)))))
 
 (def (function e) make-standard-object-maker-menu-item-component (class-name)
@@ -132,7 +133,7 @@
 (def constructor persistent-process-starter-menu-item-component ()
   (with-slots (the-class visible command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (clone-icon 'new)
+                                 :icon (icon new)
                                  :component (make-maker-component the-class)))))
 
 (def (function e) make-persistent-process-starter-menu-item-component (class-name)

@@ -29,7 +29,8 @@
     (if (and alternatives
              (not (typep content 'empty-component)))
         (dolist (alternative alternatives)
-          (setf (component-value-of (force alternative)) instances))
+          (when (typep (component-of alternative) 'component)
+            (setf (component-value-of (force alternative)) instances)))
         (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :the-class the-class :instances instances)
                                  (delay-alternative-component-type 'list-component :elements instances)
                                  (delay-alternative-component 'standard-object-list-reference-component
@@ -61,7 +62,9 @@
     (setf instances new-value)
     (setf slot-names (delete-duplicates
                       (append
-                       (mapcar #'slot-definition-name (standard-object-table-slots the-class nil))
+                       (mapcar #'slot-definition-name
+                               (when the-class
+                                 (standard-object-table-slots the-class nil)))
                        (iter (for instance :in instances)
                              (appending (mapcar #'slot-definition-name (standard-object-table-slots (class-of instance) instance))))))
           columns (cons (make-instance 'column-component :content (make-instance 'label-component :component-value "Commands"))
@@ -76,7 +79,7 @@
                      (collect row)))))
 
 (def generic standard-object-table-slots (class instance)
-  (:method ((class standard-class) (instance standard-object))
+  (:method ((class standard-class) instance)
     (class-slots class))
 
   (:method ((class prc::persistent-class) instance)
@@ -123,9 +126,9 @@
 
 (def function make-expand-row-command (component instance)
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer-component instance :default-component-type 'detail-component)))
-                                      (list :icon (clone-icon 'expand)
+                                      (list :icon (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))
-                                      (list :icon (clone-icon 'collapse))))
+                                      (list :icon (icon collapse))))
 
 ;;;;;;
 ;;; Standard object slot value cell

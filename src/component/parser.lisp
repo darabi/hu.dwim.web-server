@@ -35,7 +35,7 @@
   (make-ui-unquote `(make-action ,@(cdr whole))))
 
 (def method parse-quasi-quoted-ui* ((first (eql 'icon-component)) whole)
-  (make-icon-component nil :label (second whole) :image-path (third whole) :tooltip (fourth whole)))
+  (make-instance 'icon-component nil :label (second whole) :image-path (third whole) :tooltip (fourth whole)))
 
 (def method parse-quasi-quoted-ui* ((first (eql 'command-component)) whole)
   (make-instance 'command-component :icon (parse-quasi-quoted-ui (second whole)) :action (parse-quasi-quoted-ui (third whole))))
