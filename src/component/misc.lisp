@@ -195,7 +195,8 @@
                    (let ((form (aref (slot-value document 'forms) 0)))
                      (setf (slot-value form 'action) href)
                      (form.submit)))>
-             (render (content-of -self-)))>>>))
+             (with-dojo-widget-collector
+               (render (content-of -self-))))>>>))
 
 (def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'frame-component ,@args :content ,(the-only-element content)))

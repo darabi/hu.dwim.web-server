@@ -4,6 +4,8 @@
 
 (in-package :hu.dwim.wui)
 
+;; TODO the way widgets are rendered needs to be factored more
+
 ;;;;;;
 ;;; Atomic
 
@@ -142,12 +144,18 @@
 
 (def function render-string-component (self type)
   (with-slots (edited component-value allow-nil-value client-state-sink) self
-    (bind ((printed-value
-            (if (null component-value)
-                ""
-                component-value)))
+    (bind ((printed-value (if (null component-value)
+                              ""
+                              component-value))
+           (id (generate-frame-unique-string "_w")))
       (if edited
-          <input (:type ,type :name ,(id-of client-state-sink) :value ,printed-value)>
+          (render-dojo-widget (id)
+            ;; TODO dojoRows  3
+            <input (:type      ,type
+                    :id        ,id
+                    :name      ,(id-of client-state-sink)
+                    :value     ,printed-value
+                    dojoType  #.+dijit/text-box+)>)
           <span ,printed-value>))))
 
 (def render string-component ()
@@ -182,12 +190,17 @@
 
 (def render number-component ()
   (with-slots (edited component-value allow-nil-value client-state-sink) -self-
-    (bind ((printed-value
-            (if (null component-value)
-                ""
-                (princ-to-string component-value))))
+    (bind ((printed-value (if (null component-value)
+                              ""
+                              (princ-to-string component-value)))
+           (id (generate-frame-unique-string "_w")))
       (if edited
-          <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
+          (render-dojo-widget (id)
+            <input (:type      "text"
+                    :id        ,id
+                    :name      ,(id-of client-state-sink)
+                    :value     ,printed-value
+                    :dojoType  #.+dijit/number-text-box+)>)
           <span ,printed-value>))))
 
 (def method parse-component-value ((component number-component) client-value)
@@ -243,22 +256,69 @@
 ;;;;;;
 ;;; Date
 
-;; TODO:
 (def component date-component (atomic-component)
   ())
 
 (def render date-component ()
-  <span "TODO: date-component">)
+  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
+    (bind ((wrong-value? (and (not allow-nil-value)
+                              (not component-value)))
+           (printed-value (or (when component-value
+                                (local-time:format-rfc3339-timestring component-value))
+                              (if (or allow-nil-value
+                                      edited)
+                                  ""
+                                  #"wrong-atomic-component-value")))
+           (id (generate-frame-unique-string "_w")))
+      (if edited
+          (render-dojo-widget (id)
+            <input (:type      "text"
+                    :id        ,id
+                    :name      ,(id-of client-state-sink)
+                    :value     ,printed-value
+                    :dojoType  #.+dijit/date-text-box+)>)
+          <span (:class ,(when wrong-value? "wrong"))
+            ,printed-value>))))
+
+(def method parse-component-value ((component date-component) client-value)
+  (unless (string= client-value "")
+    (bind ((result (local-time:parse-rfc3339-timestring client-value :allow-missing-time-part-p #t)))
+      (local-time:with-decoded-local-time (:hour hour :minute minute :sec sec :nsec nsec) result
+        (unless (and (zerop hour)
+                     (zerop minute)
+                     (zerop sec)
+                     (zerop nsec))
+          ;; TODO add validation error
+          (setf result nil)))
+      result)))
 
 ;;;;;;
 ;;; Time
 
-;; TODO:
 (def component time-component (atomic-component)
   ())
 
 (def render time-component ()
-  <span "TODO: time-component">)
+  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
+    (bind ((wrong-value? (and (not allow-nil-value)
+                              (not component-value)))
+           (printed-value (or (when component-value
+                                (local-time:format-rfc3339-timestring component-value :omit-date-part-p #t))
+                              (if (or allow-nil-value
+                                      edited)
+                                  ""
+                                  #"wrong-atomic-component-value")))
+           (id (generate-frame-unique-string "_w")))
+      (if edited
+          (render-dojo-widget (id)
+            <input (:type      "text"
+                    :id        ,id
+                    :name      ,(id-of client-state-sink)
+                    :value     ,printed-value
+                    :dojoType  #.+dijit/time-text-box+)>)
+          <span (:class ,(when wrong-value? "wrong"))
+            ,printed-value>))))
+
 
 ;;;;;;
 ;;; Timestamp
@@ -269,6 +329,11 @@
 
 (def render timestamp-component ()
   <span "TODO: timestamp-component">)
+
+(def method parse-component-value ((component timestamp-component) client-value)
+  (unless (string= client-value "")
+    ;; TODO check for errors, add user message
+    (local-time:parse-rfc3339-timestring client-value)))
 
 
 ;;;;;;
