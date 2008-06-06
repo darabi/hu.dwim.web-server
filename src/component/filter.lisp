@@ -157,9 +157,6 @@
       (unless result
         (add-user-warning component "No matches were found")))))
 
-(def function execute-filter (component class)
-  )
-
 (def generic execute-filter (component class)
   (:method ((component standard-object-filter-component) (class standard-class))
     (execute-filter (content-of component) class))

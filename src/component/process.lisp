@@ -79,6 +79,7 @@
     (unless content
       (setf answer-continuation
             (bind ((*standard-process-component* -self-))
+              ;; TODO: put this to the action start or continue (also the transaction)
               (nth-value 1 (rdbms::with-transaction
                              (prc::revive-instance process)
                              (dmm::with-new-persistent-process-context (:renderer -self- :process process) ;; TODO: rename renderer to component
@@ -123,6 +124,7 @@
 
 (def method answer ((component persistent-process-component) value)
   (bind ((*standard-process-component* component))
+    ;; TODO: move it up to the action
     (rdbms::with-transaction
       (prc::revive-instance (process-of component))
       (dmm::with-new-persistent-process-context (:renderer component :process (process-of component))

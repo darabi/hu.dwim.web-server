@@ -43,6 +43,7 @@
   (make-instance 'command-component
                  :icon (clone-icon 'create)
                  :visible (delay (edited-p component))
+                 ;; TODO: put transaction here?! how do we dispatch
                  :action (make-action (execute-maker component (the-class-of component))
                                       (add-user-information component "Az új objektum sikeresen létrehozva"))))
 
@@ -129,6 +130,7 @@
     (execute-maker* component))
 
   (:method ((component standard-object-maker-component) (class prc::persistent-class))
+    ;; TODO: move to action and kill this generism
     (rdbms::with-transaction
       (call-next-method))))
 
