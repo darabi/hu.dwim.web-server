@@ -121,7 +121,7 @@
                                                                           (mod (1+ (position condition +filter-predicates+))
                                                                                (length +filter-predicates+))))
                                                      (setf (icon-of condition-command) (make-condition-icon condition))))
-          value (make-filter-component (slot-definition-type slot) :default-component-type 'reference-component))))
+          value (make-filter-component (slot-type slot) :default-component-type 'reference-component))))
 
 (def function make-negated/ponated-icon (negated)
   (aprog1 (make-icon-component (if negated 'negated 'ponated))

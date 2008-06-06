@@ -90,8 +90,15 @@
         (prc::revive-instance (instance-of place))
         instance)))
 
+(def generic slot-type (slot)
+  (:method ((slot standard-effective-slot-definition))
+    (slot-definition-type slot))
+
+  (:method ((slot prc::persistent-effective-slot-definition))
+    (prc::canonical-type-of slot)))
+
 (def method place-type ((place slot-value-place))
-  (slot-definition-type (slot-of place)))
+  (slot-type (slot-of place)))
 
 (def method place-bound-p ((place slot-value-place))
   (bind ((instance (revive-slot-value-place-instance place)))

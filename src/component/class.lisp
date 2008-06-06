@@ -167,7 +167,7 @@
   (with-slots (slot label type readers writers cells) component
     (if slot
         (setf label (make-instance 'string-component :component-value (full-symbol-name (slot-definition-name slot)))
-              type (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-definition-type slot))))
+              type (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-type slot))))
               readers (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-definition-readers slot))))
               writers (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-definition-writers slot))))
               cells (mapcar (lambda (content)
