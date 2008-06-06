@@ -154,7 +154,8 @@
    (debug-client-side #f :type boolean :accessor debug-client-side?)))
 
 (def render frame-component ()
-  (bind ((path-prefix (path-prefix-of *application*))
+  (bind ((application *application*)
+         (path-prefix (path-prefix-of application))
          (response (when (boundp '*response*)
                      *response*))
          (encoding (or (when response
@@ -179,9 +180,10 @@
                                                     (dojo-file-name-of -self-)
                                                     (when debug-client-side?
                                                       ".uncompressed.js"))
-                 :djConfig     ,(format nil "parseOnLoad: ~A, isDebug: ~A"
+                 :djConfig     ,(format nil "parseOnLoad: ~A, isDebug: ~A, locale: ~A"
                                         (to-js-boolean (parse-dojo-widgets-on-load? -self-))
-                                        (to-js-boolean debug-client-side?)))
+                                        (to-js-boolean debug-client-side?)
+                                        (to-js-literal (default-locale-of application))))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">>
       <body (:class ,(dojo-skin-name-of -self-))

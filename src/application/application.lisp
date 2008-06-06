@@ -34,6 +34,7 @@
 (def class* application (broker-with-path-prefix)
   ((entry-points nil)
    (default-uri-scheme "http")
+   (default-locale "en")
    (session-class)
    (session-timeout *session-timeout*)
    (frame-timeout *frame-timeout*)
