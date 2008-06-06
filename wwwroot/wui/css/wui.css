@@ -36,3 +36,29 @@ div.list.vertical > div
 {
   display: block;
 }
+
+/*
+  hierarchy
+*/
+
+.hierarchy table
+{
+    margin: 10px;
+}
+
+.hierarchy .leaf td
+{
+    border-style: none;
+}
+
+.hierarchy td
+{
+    border-width: 1px;
+    border-style: solid;
+    border-collapse: collapse;
+}
+
+.hierarchy .node thead
+{
+    background-color: lightskyblue;
+}
