@@ -1,8 +1,10 @@
 dependencies ={
     layers:  [
         {
-        name: "dojo.basic.js",
+        name: "dojo.js",
         dependencies: [
+            "dojo.parser",
+            "dijit.form.DateTextBox",
             "dijit.Button",
             "dijit.form.SimpleTextarea",
             "dojox.wire.Wire",

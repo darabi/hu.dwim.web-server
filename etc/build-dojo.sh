@@ -38,8 +38,7 @@ cp "$WUI_HOME/etc/wui.profile.js" "$DOJO_HOME/util/buildscripts/profiles/wui.pro
 cd "$DOJO_HOME/util/buildscripts"
 ./build.sh profile="wui" action="release"
 
-rm -rf "$WUI_HOME/wwwroot/dojo/src/"
-rm -f "$WUI_HOME/wwwroot/dijit"
+rm -rf "$WUI_HOME/wwwroot/dojo/"
 
 cp -r "$DOJO_HOME/release/dojo/" "$WUI_HOME/wwwroot/"
 #cp "$DOJO_HOME/release/dojo/iframe_history.html" "$WUI_HOME/wwwroot/dojo/"
