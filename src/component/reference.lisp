@@ -15,7 +15,8 @@
   (target-of self))
 
 (def method (setf component-value-of) (new-value (self reference-component))
-  (setf (target-of self) new-value))
+  (setf (target-of self) new-value)
+  (setf (label-of (icon-of (expand-command-of self))) (make-reference-label self)))
 
 (def render reference-component ()
   (render (expand-command-of -self-)))

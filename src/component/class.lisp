@@ -24,13 +24,12 @@
   ()
   (:documentation "Component for an instance of STANDARD-CLASS in various alternative views"))
 
-(def method (setf component-value-of) :after (new-value (component standard-class-component))
-  (with-slots (the-class default-component-type alternatives content command-bar) component
+(def method (setf component-value-of) :after (new-value (self standard-class-component))
+  (with-slots (the-class default-component-type alternatives content command-bar) self
     (if the-class
         (progn
           (if alternatives
-              (dolist (alternative alternatives)
-                (setf (component-value-of alternative) the-class))
+              (setf (component-value-for-alternatives self) the-class)
               (setf alternatives (list (delay-alternative-component-type 'standard-class-detail-component :the-class the-class)
                                        (delay-alternative-component 'standard-class-reference-component
                                          (setf-expand-reference-to-default-alternative-command (make-instance 'standard-class-reference-component :target the-class))))))
@@ -40,9 +39,10 @@
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (list (make-top-command component)
-                                                                   (make-refresh-command component))
-                                                             (make-alternative-commands component alternatives)))))
+                                           :commands (append (list (make-open-in-new-frame-command self)
+                                                                   (make-top-command self)
+                                                                   (make-refresh-command self))
+                                                             (make-alternative-commands self alternatives)))))
         (setf alternatives nil
               content nil))))
 

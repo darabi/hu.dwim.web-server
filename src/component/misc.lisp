@@ -14,7 +14,9 @@
   (render (content-of -self-)))
 
 (def method find-command-bar ((component content-component))
-  (find-command-bar (content-of component)))
+  (or (call-next-method)
+      (awhen (content-of component)
+        (find-command-bar it))))
 
 ;;;;;;
 ;;; Top

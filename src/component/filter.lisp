@@ -22,7 +22,8 @@
                           (find-default-alternative-component alternatives)))
         (setf alternatives nil
               content nil))
-    (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-top-command self)
+    (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-open-in-new-frame-command self)
+                                                                                    (make-top-command self)
                                                                                     (make-filter-instances-command self (delay (result-of self))))
                                                                               (make-alternative-commands self alternatives))))))
 

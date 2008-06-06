@@ -10,13 +10,12 @@
 (def component standard-object-maker-component (abstract-standard-class-component alternator-component editable-component user-message-collector-component-mixin)
   ())
 
-(def method (setf component-value-of) :after (new-value (component standard-object-maker-component))
-  (with-slots (the-class default-component-type alternatives content command-bar) component
+(def method (setf component-value-of) :after (new-value (self standard-object-maker-component))
+  (with-slots (the-class default-component-type alternatives content command-bar) self
     (if the-class
         (progn
           (if alternatives
-              (dolist (alternative alternatives)
-                (setf (component-value-of alternative) the-class))
+              (setf (component-value-for-alternatives self) the-class)
               (setf alternatives (list (delay-alternative-component-type 'standard-object-maker-detail-component :the-class the-class)
                                        (delay-alternative-component 'standard-object-maker-reference-component
                                          (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-maker-reference-component :target the-class))))))
@@ -26,8 +25,11 @@
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (make-standard-object-maker-commands component the-class)
-                                                             (make-alternative-commands component alternatives)))))
+                                           :commands (append (list (make-open-in-new-frame-command self)
+                                                                   (make-top-command self)
+                                                                   (make-refresh-command self))
+                                                             (make-standard-object-maker-commands self the-class)
+                                                             (make-alternative-commands self alternatives)))))
         (setf alternatives nil
               content nil))))
 

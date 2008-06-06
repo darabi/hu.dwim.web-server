@@ -23,33 +23,42 @@
                                                alternator-component editable-component user-message-collector-component-mixin)
   ())
 
-(def method (setf component-value-of) :after (new-value (component standard-object-list-component))
-  (with-slots (instances the-class default-component-type alternatives content command-bar) component
+(def method (setf component-value-of) :after (new-value (self standard-object-list-component))
+  (with-slots (instances the-class default-component-type alternatives content command-bar) self
     (setf instances new-value)
-    (if (and alternatives
-             (not (typep content 'empty-component)))
-        (dolist (alternative alternatives)
-          (when (typep (component-of alternative) 'component)
-            (setf (component-value-of (force alternative)) instances)))
+    (if alternatives
+        (setf (component-value-for-alternatives self) instances)
         (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :the-class the-class :instances instances)
                                  (delay-alternative-component-type 'list-component :elements instances)
                                  (delay-alternative-component 'standard-object-list-reference-component
-                                   (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-list-reference-component :target instances))))))
-    (if (and content
-             (not (typep content 'empty-component)))
+                                   (setf-expand-reference-to-default-alternative-command
+                                    (make-instance 'standard-object-list-reference-component :target instances))))))
+    (if content
         (setf (component-value-of content) instances)
         (setf content (if default-component-type
                           (find-alternative-component alternatives default-component-type)
                           (find-default-alternative-component alternatives))))
     (setf command-bar (make-instance 'command-bar-component
-                                     :commands (append (list (make-top-command component)
-                                                             (make-refresh-command component))
-                                                       (make-editing-commands component)
-                                                       (make-alternative-commands component alternatives))))))
+                                     :commands (append (list (make-open-in-new-frame-command self)
+                                                             (make-top-command self)
+                                                             (make-refresh-command self))
+                                                       (make-standard-object-list-commands self the-class)
+                                                       (make-alternative-commands self alternatives))))))
 
 (def render standard-object-list-component ()
   <div ,(render-user-messages -self-)
        ,(call-next-method)>)
+
+(def generic make-standard-object-list-commands (component class)
+  (:method ((component standard-object-list-component) class)
+    nil)
+
+  (:method ((component standard-object-list-component) (class standard-class))
+    (make-editing-commands component))
+
+  (:method ((component standard-object-list-component) (class prc::persistent-class))
+    (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
+      (make-editing-commands component))))
 
 ;;;;;;
 ;;; Standard object table
@@ -101,8 +110,7 @@
   (with-slots (the-class instance table-slot-names command-bar cells) self
     (setf instance new-value)
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (append (make-standard-object-row-commands self the-class instance)
-                                                                                  (make-editing-commands self)))
+        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-row-commands self the-class instance))
               cells (cons (make-instance 'cell-component :content command-bar)
                           (iter (for class = (class-of instance))
                                 (for table-slot-name :in table-slot-names)

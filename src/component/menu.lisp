@@ -38,7 +38,7 @@
               +void+)
          <ul ,@(mapcar #'render (menu-items-of -self-))>>))
 
-(def icon menu "static/wui/icons/20x20/file-download.png") ;; TODO: icon
+(def icon menu "static/wui/icons/20x20/open-folder.png") ;; TODO: icon
 
 ;;;;;;
 ;;; Menu item
@@ -68,15 +68,16 @@
    (component)))
 
 (def constructor replace-menu-target-command-component ()
-  (with-slots (action component) -self-
-    (setf action
-          (make-action
-            (bind ((menu-component
-                    (find-ancestor-component -self-
-                                             (lambda (ancestor)
-                                               (and (typep ancestor 'menu-component)
-                                                    (target-place-of ancestor))))))
-              (setf (component-at-place (target-place-of menu-component)) (force component)))))))
+  (setf (action-of -self-)
+        (make-action
+          (bind ((menu-component
+                  (find-ancestor-component -self-
+                                           (lambda (ancestor)
+                                             (and (typep ancestor 'menu-component)
+                                                  (target-place-of ancestor)))))
+                 (component (force (component-of -self-))))
+            (setf (component-of -self-) component
+                  (component-at-place (target-place-of menu-component)) component)))))
 
 (def (macro e) replace-menu-target-command (icon component)
   `(make-instance 'replace-menu-target-command-component :icon ,icon :component (delay ,component)))

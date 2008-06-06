@@ -344,7 +344,9 @@
   ())
 
 (def render member-component ()
-  <span "TODO: member-component">)
+  (if (edited-p -self-)
+      <span "TODO: member-component">
+      <span ,(princ-to-string (component-value-of -self-))>))
 
 
 ;;;;;;

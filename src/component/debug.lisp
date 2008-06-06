@@ -13,18 +13,28 @@
                    (debug-component-hierarchy-p *frame*))
               (bind ((class-name (string-downcase (symbol-name (class-name (class-of self))))))
                 <div (:class "debug-component")
-                  <div (:class "debug-component-name")
-                       ,class-name
-                       ,(if (typep self '(or icon-component command-component))
-                            <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action self))))
-                               "REPL">
-                            +void+)>
-                  ,(call-next-method)>)
+                     <div (:class "debug-component-name")
+                          ,class-name
+                          ,(if (typep self '(or icon-component command-component))
+                               +void+
+                               <span <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action self)))) "REPL">
+                                     " "
+                                     <a (:href ,(action-to-href (register-action *frame* (make-inspect-in-repl-action self)))) "INSPECT">>)>
+                     ,(call-next-method)>)
               (call-next-method)))
     (skip-rendering-component ()
       :report (lambda (stream)
                 (format stream "Skip rendering ~A and put an error marker in place" self))
       <div (:class "rendering-error") "Error during rendering " ,(princ-to-string self)>)))
+
+(def function make-inspect-in-repl-action (component)
+  (make-action
+    (awhen (or swank::*emacs-connection*
+               (swank::default-connection))
+      (swank::with-connection (it)
+        (bind ((swank::*buffer-package* *package*)
+               (swank::*buffer-readtable* *readtable*))
+          (swank::inspect-in-emacs component))))))
 
 (def function make-copy-to-repl-action (component)
   (make-action

@@ -33,15 +33,13 @@
   ()
   (:documentation "Component for an instance of STANDARD-OBJECT in various alternative views"))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-component))
-  (with-slots (instance the-class default-component-type alternatives content command-bar) component
+(def method (setf component-value-of) :after (new-value (self standard-object-component))
+  (with-slots (instance the-class default-component-type alternatives content command-bar) self
     (if instance
         (progn
           (if (and alternatives
                    (not (typep content 'null-component)))
-              (dolist (alternative alternatives)
-                (when (typep (component-of alternative) 'component)
-                  (setf (component-value-of (force alternative)) instance)))
+              (setf (component-value-for-alternatives self) instance)
               (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
                                        (delay-alternative-component 'standard-object-reference-component
                                          (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-reference-component :target instance))))))
@@ -52,11 +50,11 @@
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (list (make-top-command component)
-                                                                   (make-refresh-command component))
-                                                             (make-editing-commands component)
-                                                             (make-standard-object-commands component the-class instance)
-                                                             (make-alternative-commands component alternatives)))))
+                                           :commands (append (list (make-open-in-new-frame-command self)
+                                                                   (make-top-command self)
+                                                                   (make-refresh-command self))
+                                                             (make-standard-object-commands self the-class instance)
+                                                             (make-alternative-commands self alternatives)))))
         (setf alternatives (list (delay-alternative-component-type 'null-component))
               content (find-default-alternative-component alternatives)))))
 
@@ -66,11 +64,16 @@
 
 (def (generic e) make-standard-object-commands (component class instance)
   (:method ((component standard-object-component) (class standard-class) (instance standard-object))
-    (list (make-new-instance-command component)))
+    (list (make-editing-commands component)
+          (make-new-instance-command component)))
 
   (:method ((component standard-object-component) (class prc::persistent-class) (instance prc::persistent-object))
-    (list (make-new-instance-command component)
-          (make-delete-instance-command component))))
+    (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
+              (make-editing-commands component))
+            (optional-list (when (dmm::authorize-operation 'dmm::create-entity-operation :-entity- class)
+                             (make-new-instance-command component))
+                           (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)
+                             (make-delete-instance-command component))))))
 
 (def (function e) make-new-instance-command (component)
   (make-instance 'command-component

@@ -37,6 +37,12 @@
   (:method ((prototype reference-component))
     (icon collapse)))
 
+(def function (setf component-value-for-alternatives) (new-value alternator)
+  (dolist (alternative (alternatives-of alternator))
+    (bind ((component (component-of alternative)))
+      (when component
+        (setf (component-value-of component) new-value)))))
+
 (def method join-editing ((alternator alternator-component))
   (unless (typep (content-of alternator) 'reference-component)
     (call-next-method)))

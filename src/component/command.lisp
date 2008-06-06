@@ -13,8 +13,8 @@
    (icon nil :type component)
    (action)))
 
-(def (macro e) command (icon action)
-  `(make-instance 'command-component :icon ,icon :action ,action))
+(def (macro e) command (icon action &rest args &key &allow-other-keys)
+  `(make-instance 'command-component :icon ,icon :action ,action ,@args))
 
 (def render command-component ()
   (with-slots (visible enabled icon action) -self-
@@ -55,7 +55,7 @@
     (sort commands #'<
           :key (lambda (command)
                  (or (position (name-of (icon-of command))
-                               '(answer back top collapse collapse-all expand-all refresh new edit save cancel store revert delete)
+                               '(answer back open-in-new-frame top collapse collapse-all expand-all refresh new edit save cancel store revert delete)
                                :test #'equal)
                      most-positive-fixnum)))))
 
@@ -166,3 +166,9 @@
                                         (list :icon (icon top)
                                               :visible (delay (not (eq replacement-component (find-top-component-content replacement-component)))))
                                         (list :icon (icon back)))))
+
+(def (function e) make-open-in-new-frame-command (component)
+  (make-instance 'command-component
+                 :icon (icon open-in-new-frame)
+                 ;; TODO: open a new frame with the component
+                 :action (make-action #+nil (eseho:make-eseho-frame-component-with-content (clone-component component)))))

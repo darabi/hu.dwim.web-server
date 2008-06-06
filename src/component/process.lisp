@@ -38,7 +38,11 @@
   (remove-from-plistf args :form)
   `(make-instance 'standard-process-component :form ',form ,@args))
 
-(defun/cc replace-answer-commands (component answer-commands)
+(def function clear-process-component (component)
+  (setf (content-of component) (empty))
+  (replace-answer-commands component nil))
+
+(def function replace-answer-commands (component answer-commands)
   (bind ((command-bar (command-bar-of component)))
     (setf (commands-of command-bar)
           (append (remove-if (lambda (command)
@@ -89,28 +93,33 @@
 
 (def constructor persistent-process-component ()
   (setf (command-bar-of -self-) (command-bar
+                                  (make-open-in-new-frame-command -self-)
                                   (make-top-command -self-)
+                                  (make-refresh-command -self-)
                                   (make-cancel-persistent-process-command -self-)
                                   (make-pause-persistent-process-command -self-))))
 
 (def render persistent-process-component ()
   (with-slots (process command-bar answer-continuation content) -self-
-    (unless content
-      (setf answer-continuation
-            (bind ((*standard-process-component* -self-))
-              ;; TODO: put this to the action start or continue (also the transaction)
-              (nth-value 1 (rdbms::with-transaction
-                             (prc::revive-instance process)
-                             (dmm::with-new-persistent-process-context (:renderer -self- :process process) ;; TODO: rename renderer to component
-                               (if (dmm::persistent-process-in-progress-p process)
-                                   (dmm::continue-persistent-process-in-context)
-                                   (dmm::start-persistent-process-in-context))))))))
-    (unless (and content answer-continuation)
-      (setf content (make-instance 'label-component :component-value "Process finished")))
+    (prc::revive-instance process)
+    (when (typep content 'empty-component)
+      (add-user-information -self- (process.message.report-process-state process)))
     <div
      ,(render-user-messages -self-)
      ,(render content)
      ,(render command-bar) >))
+
+(def function roll-persistent-process (component thunk)
+  (setf (content-of component) nil)
+  (bind ((*standard-process-component* component)
+         (process (process-of component)))
+    (setf (answer-continuation-of component)
+          (rdbms::with-transaction
+            (prc::with-revived-instance process
+              (bind ((dmm::*process* process))
+                (funcall thunk process)))))
+    (unless (content-of component)
+      (clear-process-component component))))
 
 (def macro dmm:show-to-subject (component answer-commands &optional subject)
   "Shows a user interface component to the given subject."
@@ -139,23 +148,18 @@
 (def macro dmm:show-and-wait (component answer-commands &optional (condition t) (wait-reason nil))
   `(progn
      (dmm::persistent-process-wait dmm::*process* ,wait-reason)
-     (call (if ,condition
-               ,component
-               (progn
-                 (add-user-information *standard-process-component* #"process.message.waiting-for-other-subject")
-                 (empty)))
-           ,answer-commands)
-     (assert (eq (dmm::element-name-of (dmm::process-state-of dmm::*process*)) 'dmm::running))))
+     (if ,condition
+         (call ,component ,answer-commands)
+         (let/cc k
+           (add-user-information *standard-process-component* #"process.message.waiting-for-other-subject")
+           k))
+     (assert (dmm::persistent-process-running-p dmm::*process*))))
 
 (def method answer ((component persistent-process-component) value)
-  (bind ((*standard-process-component* component))
-    ;; TODO: move it up to the action
-    (rdbms::with-transaction
-      (prc::revive-instance (process-of component))
-      (dmm::with-new-persistent-process-context (:renderer component :process (process-of component))
-        (dmm::process-event (process-of component) 'dmm::process-state 'dmm::continue)
-        (setf (answer-continuation-of *standard-process-component*)
-              (kall (answer-continuation-of *standard-process-component*) (force value)))))))
+  (roll-persistent-process component
+                           (lambda (process)
+                             (dmm::process-event process 'dmm::process-state 'dmm::continue)
+                             (kall (answer-continuation-of *standard-process-component*) (force value)))))
 
 ;;;;;;
 ;;; Command
@@ -193,50 +197,69 @@
   (icon-tooltip.pause-process "Pause the process"))
 
 (def method make-standard-object-commands ((component standard-object-component) (class dmm::persistent-process) (instance prc::persistent-object))
-  (optional-list (make-new-instance-command component)
-                 (make-delete-instance-command component)
-                 (when (dmm::persistent-process-initializing-p instance)
-                   (make-start-persistent-process-command component instance))
-                 (when (dmm::persistent-process-in-progress-p instance)
-                   (make-continue-persistent-process-command component instance))))
+  ;; TODO: move prc::with-revived-instance?
+  (prc::with-revived-instance instance
+    (optional-list (make-new-instance-command component)
+                   (make-delete-instance-command component)
+                   (when (dmm::persistent-process-initializing-p instance)
+                     (make-start-persistent-process-command component instance))
+                   (when (dmm::persistent-process-in-progress-p instance)
+                     (make-continue-persistent-process-command component instance)))))
 
 (def method make-standard-object-maker-commands ((component standard-object-maker-component) (class dmm::persistent-process))
   (list (make-start-persistent-process-command component (delay (execute-maker component (the-class-of component))))))
 
 (def method make-standard-object-row-commands ((component standard-object-row-component) (class dmm::persistent-process) (instance prc::persistent-object))
-  (optional-list (make-expand-row-command component instance)
-                 (when (dmm::persistent-process-initializing-p instance)
-                   (make-start-persistent-process-command component instance))
-                 (when (dmm::persistent-process-in-progress-p instance)
-                   (make-continue-persistent-process-command component instance
-                                                             (lambda (process-component)
-                                                               (make-instance 'entire-row-component :content process-component))))))
+  (prc::with-revived-instance instance
+    (optional-list (make-expand-row-command component instance)
+                   (when (dmm::persistent-process-initializing-p instance)
+                     (make-start-persistent-process-command component instance))
+                   (when (dmm::persistent-process-in-progress-p instance)
+                     (make-continue-persistent-process-command component instance
+                                                               (lambda (process-component)
+                                                                 (make-instance 'entire-row-component :content process-component)))))))
 
 (def (function e) make-start-persistent-process-command (component process)
-  (make-replace-command component (delay (make-instance 'persistent-process-component :process (force process)))
-                        :icon (icon start-process)))
+  (make-replace-and-push-back-command component (delay (prog1-bind process-component (make-instance 'persistent-process-component :process (force process))
+                                                         (roll-persistent-process process-component
+                                                                                  (lambda (process)
+                                                                                    (nth-value 1 (dmm::start-persistent-process process))))))
+                                      (list :icon (icon start-process))
+                                      (list :icon (icon back))))
 
 (def (function e) make-continue-persistent-process-command (component process &optional (wrapper-thunk #'identity))
-  (make-replace-command component (delay (funcall wrapper-thunk (make-instance 'persistent-process-component :process process)))
-                        :icon (icon continue-process)))
+  (make-replace-and-push-back-command component (delay (bind ((process-component (make-instance 'persistent-process-component :process process)))
+                                                         (roll-persistent-process process-component
+                                                                                  (lambda (process)
+                                                                                    (nth-value 1 (dmm::continue-persistent-process process))))
+                                                         (funcall wrapper-thunk process-component)))
+                                      (list :icon (icon continue-process) :visible (delay (prc::revive-instance process)
+                                                                                          (dmm::persistent-process-in-progress-p process)))
+                                      (list :icon (icon back))))
 
 (def (function e) make-cancel-persistent-process-command (component)
   (command (icon cancel-process)
            (make-action (rdbms::with-transaction
                           (prc::revive-instance (process-of component))
-                          (dmm::cancel-persistent-process (process-of component))))))
+                          (dmm::cancel-persistent-process (process-of component))
+                          (clear-process-component component)))
+           :visible (delay (or (dmm::persistent-process-paused-p (process-of component))
+                               (dmm::persistent-process-in-progress-p (process-of component))))))
 
 (def (function e) make-pause-persistent-process-command (component)
   (command (icon pause-process)
            (make-action (rdbms::with-transaction
                           (prc::revive-instance (process-of component))
-                          (dmm::pause-persistent-process (process-of component))))))
+                          (dmm::pause-persistent-process (process-of component))
+                          (clear-process-component component)))
+           :visible (delay (or (dmm::persistent-process-paused-p (process-of component))
+                               (dmm::persistent-process-in-progress-p (process-of component))))))
 
 ;;;;;;
 ;;; Localization
 
 (defresources hu
-  (process.message.waiting-for-other-subject "A folyamat jelenleg máshoz tartozik.")
+  (process.message.waiting-for-other-subject "A folyamat jelenleg másra várakozik.")
   (process.message.waiting "A folyamat jelenleg várakozik.")
   (process.message.report-process-state (process)
     (ecase (dmm::element-name-of (dmm::process-state-of process))

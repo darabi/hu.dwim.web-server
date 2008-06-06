@@ -166,6 +166,14 @@
   (icon-label.top "Top")
   (icon-tooltip.top "Move to top"))
 
+(def icon open-in-new-frame "static/wui/icons/20x20/split-vertically.png")
+(defresources hu
+  (icon-label.open-in-new-frame "Ablak")
+  (icon-tooltip.open-in-new-frame "Az objektum új ablakban való megnyitása"))
+(defresources en
+  (icon-label.open-in-new-frame "Frame")
+  (icon-tooltip.open-in-new-frame "Open object in new frame"))
+
 (def icon back "static/wui/icons/20x20/green-double-left-arrow.png")
 (defresources hu
   (icon-label.back "Vissza")
@@ -246,7 +254,7 @@
   (icon-label.like "Like")
   (icon-tooltip.like "Compare for like"))
 
-(def icon negated "static/wui/icons/20x20/no-entry.png") ;; TODO: find better icon
+(def icon negated "static/wui/icons/20x20/thumb-down.png")
 (defresources hu
   (icon-label.negated "Negált")
   (icon-tooltip.negated "Negált feltétel"))
@@ -254,7 +262,7 @@
   (icon-label.negated "Negated")
   (icon-tooltip.negated "Negate condition"))
 
-(def icon ponated "static/wui/icons/20x20/checkmark.png") ;; TODO: find better icon
+(def icon ponated "static/wui/icons/20x20/thumb-up.png")
 (defresources hu
   (icon-label.ponated "Ponált")
   (icon-tooltip.ponated "Ponált feltétel"))
