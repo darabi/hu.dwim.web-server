@@ -151,8 +151,7 @@
    (dojo-path "static/dojo/dojo/")
    (dojo-file-name "dojo.js")
    (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
-   (debug-client-side #f :type boolean :accessor debug-client-side?)
-   (%cached-dojo-uri nil)))
+   (debug-client-side #f :type boolean :accessor debug-client-side?)))
 
 (def render frame-component ()
   (bind ((path-prefix (path-prefix-of *application*))
@@ -160,11 +159,8 @@
                      *response*))
          (encoding (or (when response
                          (encoding-name-of response))
-                       +encoding+)))
-    (unless (%cached-dojo-uri-of -self-)
-      (setf (%cached-dojo-uri-of -self-) (concatenate-string path-prefix
-                                                             (dojo-path-of -self-)
-                                                             (dojo-file-name-of -self-))))
+                       +encoding+))
+         (debug-client-side? (debug-client-side? -self-)))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
     <html (:xmlns     #.+xhtml-namespace-uri+
            xmlns:dojo #.+dojo-namespace-uri+)
@@ -178,10 +174,14 @@
                                 :href ,(concatenate-string path-prefix (ensure-uri-string stylesheet-uri)))>)
                   (stylesheet-uris-of -self-))
         <script (:type         #.+javascript-mime-type+
-                 :src          ,(%cached-dojo-uri-of -self-)
+                 :src          ,(concatenate-string path-prefix
+                                                    (dojo-path-of -self-)
+                                                    (dojo-file-name-of -self-)
+                                                    (when debug-client-side?
+                                                      ".uncompressed.js"))
                  :djConfig     ,(format nil "parseOnLoad: ~A, isDebug: ~A"
                                         (to-js-boolean (parse-dojo-widgets-on-load? -self-))
-                                        (to-js-boolean (debug-client-side? -self-))))
+                                        (to-js-boolean debug-client-side?)))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">>
       <body (:class ,(dojo-skin-name-of -self-))
