@@ -20,10 +20,9 @@
   (with-slots (visible enabled icon action) -self-
     (if (force visible)
         (if (force enabled)
-            (bind ((href
-                    (etypecase action
-                      (action (action-to-href action))
-                      (uri (print-uri-to-string action)))))
+            (bind ((href (etypecase action
+                           (action (action-to-href action))
+                           (uri (print-uri-to-string action)))))
               <a (:href "#" :onclick `js-inline(submit-form ,href))
                  ,(render icon)>)
             (render icon))

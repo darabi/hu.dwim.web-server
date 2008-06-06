@@ -40,7 +40,7 @@
 (def function toggle-debug-component-hierarchy (frame)
   (setf (debug-component-hierarchy-p frame) (not (debug-component-hierarchy-p frame))))
 
-(def (function i) generate-frame-unique-string (&optional (prefix "_u") (frame *frame*))
+(def (function ei) generate-frame-unique-string (&optional (prefix "_u") (frame *frame*))
   ;; TODO optimize
   (format nil "~A~A" prefix (incf (unique-counter-of frame))))
 

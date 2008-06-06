@@ -4,7 +4,7 @@ dependencies ={
         name: "dojo.js",
         dependencies: [
             "dojo.parser",
-            "dijit.Button",
+            "dijit.form.Button",
             "dijit.form.DateTextBox",
             "dijit.form.TimeTextBox",
             "dijit.form.TextBox",
