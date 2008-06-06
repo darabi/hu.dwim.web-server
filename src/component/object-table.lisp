@@ -78,7 +78,7 @@
                              (appending (mapcar #'slot-definition-name (standard-object-table-slots (class-of instance) instance))))))
           columns (cons (make-instance 'column-component :content (make-instance 'label-component :component-value "Commands"))
                         (mapcar (lambda (slot-name)
-                                  (make-instance 'column-component :content (make-instance 'label-component :component-value (full-symbol-name slot-name))))
+                                  (make-instance 'column-component :content (make-instance 'label-component :component-value (qualified-symbol-name slot-name))))
                                 slot-names))
           rows (iter (for instance :in instances)
                      (for row = (find instance rows :key #'component-value-of))

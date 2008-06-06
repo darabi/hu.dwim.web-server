@@ -53,7 +53,7 @@
   ())
 
 (def method make-reference-label ((reference standard-slot-definition-reference-component))
-  (full-symbol-name (slot-definition-name (target-of reference))))
+  (qualified-symbol-name (slot-definition-name (target-of reference))))
 
 ;;;;;;
 ;;; Standard class reference
@@ -62,7 +62,7 @@
   ())
 
 (def method make-reference-label ((reference standard-class-reference-component))
-  (full-symbol-name (class-name (target-of reference))))
+  (qualified-symbol-name (class-name (target-of reference))))
 
 ;;;;;;
 ;;; Standard object reference
@@ -95,7 +95,7 @@
   ())
 
 (def method make-reference-label ((reference standard-object-filter-reference-component))
-  (full-symbol-name (class-name (target-of reference))))
+  (qualified-symbol-name (class-name (target-of reference))))
 
 ;;;;;;
 ;;; Standard object maker reference
@@ -104,4 +104,4 @@
   ())
 
 (def method make-reference-label ((reference standard-object-maker-reference-component))
-  (full-symbol-name (class-name (target-of reference))))
+  (qualified-symbol-name (class-name (target-of reference))))

@@ -112,7 +112,7 @@
 (def method (setf component-value-of) :after (new-value (self standard-object-slot-value-filter-component))
   (with-slots (slot slot-name negated negate-command condition condition-command label value) self
     (setf slot-name (slot-definition-name slot)
-          label (make-instance 'label-component :component-value (full-symbol-name slot-name))
+          label (make-instance 'label-component :component-value (qualified-symbol-name slot-name))
           negate-command (make-instance 'command-component
                                         :icon (make-negated/ponated-icon negated)
                                         :action (make-action

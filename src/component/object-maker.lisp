@@ -118,7 +118,7 @@
 
 (def constructor standard-object-slot-value-maker-detail-component ()
   (with-slots (slot label value) -self-
-    (setf label (make-instance 'label-component :component-value (full-symbol-name (slot-definition-name slot)))
+    (setf label (make-instance 'label-component :component-value (qualified-symbol-name (slot-definition-name slot)))
           value (make-maker-component (slot-type slot) :default-component-type 'reference-component))))
 
 (def render standard-object-slot-value-maker-detail-component ()

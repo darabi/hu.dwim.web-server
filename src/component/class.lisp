@@ -84,7 +84,7 @@
 
 (def render standard-class-detail-component ()
   (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-
-    (bind ((class-name (full-symbol-name (class-name the-class))))
+    (bind ((class-name (qualified-symbol-name (class-name the-class))))
       <div
         <span "The class " <i ,class-name> " is an instance of " ,(render metaclass)>
         <div
@@ -166,7 +166,7 @@
 (def method (setf component-value-of) :after (new-value (component standard-slot-definition-row-component))
   (with-slots (slot label type readers writers cells) component
     (if slot
-        (setf label (make-instance 'string-component :component-value (full-symbol-name (slot-definition-name slot)))
+        (setf label (make-instance 'string-component :component-value (qualified-symbol-name (slot-definition-name slot)))
               type (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-type slot))))
               readers (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-definition-readers slot))))
               writers (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-definition-writers slot))))

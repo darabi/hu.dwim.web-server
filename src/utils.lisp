@@ -22,7 +22,7 @@
         :key 'slot-definition-name
         :test 'eq))
 
-(def function full-symbol-name (symbol)
+(def function qualified-symbol-name (symbol)
   (bind ((*package* (find-package :keyword)))
     (format nil "~S" symbol)))
 

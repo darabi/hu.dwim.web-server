@@ -180,8 +180,8 @@
   (with-slots (instance the-class slot label value) component
     (if slot
         (if label
-            (setf (component-value-of label) (full-symbol-name (slot-definition-name slot)))
-            (setf label (make-instance 'label-component :component-value (full-symbol-name (slot-definition-name slot)))))
+            (setf (component-value-of label) (qualified-symbol-name (slot-definition-name slot)))
+            (setf label (make-instance 'label-component :component-value (qualified-symbol-name (slot-definition-name slot)))))
         (setf label nil))
     (if instance
         (if value
