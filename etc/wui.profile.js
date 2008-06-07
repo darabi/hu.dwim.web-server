@@ -10,6 +10,7 @@ dependencies ={
             "dijit.form.TextBox",
             "dijit.form.SimpleTextarea",
             "dijit.form.NumberTextarea",
+            "dojox.widget.DynamicTooltip",
             "dojox.wire.Wire",
             "dojox.wire.XmlWire",
             //"explosive.space.Modulator"
