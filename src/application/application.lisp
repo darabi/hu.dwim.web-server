@@ -353,20 +353,40 @@ Custom implementations should look something like this:
 
 (def class* component-rendering-response (locked-session-response-mixin)
   ((application)
+   (session)
+   (frame)
    (component)))
 
-(def (function e) make-component-rendering-response (component)
+(def (function e) make-component-rendering-response (component &key (application *application*) (session *session*) (frame *frame*)
+                                                               (encoding +encoding+) (content-type (content-type-for +html-mime-type+ encoding)))
   (aprog1
-      (make-instance 'component-rendering-response :application *application* :component component)
-    (setf (header-value it +header/content-type+) +html-content-type+)))
+      (make-instance 'component-rendering-response
+                     :component component
+                     :application application
+                     :session session
+                     :frame frame)
+    (setf (header-value it +header/content-type+) content-type)))
 
-;; TODO: factor with root-component-rendering-response
+(def (function e) make-root-component-rendering-response (frame &key (encoding +encoding+) (content-type (content-type-for +html-mime-type+ encoding)))
+  (bind ((session (session-of frame))
+         (application (application-of session)))
+    (make-component-rendering-response (root-component-of frame)
+                                       :application application
+                                       :session session
+                                       :frame frame
+                                       :encoding encoding
+                                       :content-type content-type)))
+
 (def method send-response ((self component-rendering-response))
-  (bind ((*frame* nil)
-         (*session* nil)
+  (bind ((*frame* (frame-of self))
+         (*session* (session-of self))
          (*application* (application-of self))
          (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
                                                        :initial-buffer-size 256)
+                 (when (and (not (request-for-delayed-content?))
+                            *frame*)
+                   (clrhash (action-id->action-of *frame*))
+                   (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
                    (render (component-of self)))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
@@ -378,36 +398,9 @@ Custom implementations should look something like this:
     (write-sequence body (network-stream-of *request*)))
   (values))
 
-;;;;;
-;;; Root component rendering response
 
-(def class* root-component-rendering-response (locked-session-response-mixin)
-  ((frame)))
-
-(def (function e) make-root-component-rendering-response (frame)
-  (aprog1
-      (make-instance 'root-component-rendering-response :frame frame)
-    (setf (header-value it +header/content-type+) +html-content-type+)))
-
-(def method send-response ((self root-component-rendering-response))
-  (bind ((*frame* (frame-of self))
-         (*session* (session-of *frame*))
-         (*application* (application-of *session*))
-         (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
-                                                       :initial-buffer-size 256)
-                 (unless (request-for-delayed-content?)
-                   (clrhash (action-id->action-of *frame*))
-                   (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
-                 (emit-into-html-stream buffer-stream
-                   (render (root-component-of *frame*)))))
-         (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
-                                                          :initial-buffer-size 128)
-                    (setf (header-value self +header/content-length+) (princ-to-string (length body)))
-                    (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
-    ;; TODO use multiplexing when writing to the network stream, including the headers
-    (write-sequence headers (network-stream-of *request*))
-    (write-sequence body (network-stream-of *request*)))
-  (values))
+;;;;;;;;;
+;;; utils
 
 (def (function e) make-redirect-response-with-frame-id-decorated (&optional (frame *frame*))
   (bind ((uri (clone-uri (uri-of *request*))))
