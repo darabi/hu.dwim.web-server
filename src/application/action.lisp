@@ -7,6 +7,14 @@
 (def (constant :test 'string=) +action-id-parameter-name+  "_a")
 (def constant +action-id-length+ 8)
 
+(def (constant :test 'string=) +delayed-content-parameter-name+  "_delayed")
+
+(def function request-for-delayed-content? (&optional (request *request*))
+  "A delayed content request is supposed to render stuff to the same frame that was delayed at the main request (i.e. tooltips)."
+  (bind ((value (request-parameter-value request +delayed-content-parameter-name+)))
+    (and value
+         (not (string= value "")))))
+
 (def (function o) find-action-from-request (frame)
   (bind ((action-id (parameter-value +action-id-parameter-name+)))
     (when action-id
@@ -29,6 +37,9 @@
 
 (def (macro e) make-action (&body body)
   `(make-action-using-lambda (lambda () ,@body)))
+
+(def (macro e) make-action-href ((&key scheme delayed-content) &body body)
+  `(action-to-href (make-action ,@body) :delayed-content ,delayed-content :scheme ,scheme))
 
 (def function register-action (frame action)
   (assert (or (not (boundp '*frame*))
@@ -57,7 +68,7 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def function action-to-uri (action &key scheme)
+(def (function e) action-to-uri (action &key scheme delayed-content)
   (bind ((uri (clone-uri (uri-of *request*))))
     (register-action *frame* action)
     (decorate-uri uri *application*)
@@ -66,7 +77,9 @@
     (decorate-uri uri action)
     (when scheme
       (setf (scheme-of uri) scheme))
+    (setf (uri-query-parameter-value uri +delayed-content-parameter-name+)
+          (if delayed-content "t" nil))
     uri))
 
-(def function action-to-href (action &key scheme)
-  (print-uri-to-string (action-to-uri action :scheme scheme)))
+(def (function e) action-to-href (action &key scheme delayed-content)
+  (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content)))

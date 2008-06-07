@@ -102,7 +102,8 @@
                             incoming-frame-index)
                        (if (equal incoming-frame-index (next-frame-index-of frame))
                            (progn
-                             (step-to-next-frame-index frame)
+                             (unless (request-for-delayed-content?)
+                               (step-to-next-frame-index frame))
                              (bind ((response (funcall action)))
                                (when (typep response 'response)
                                  (return-from call-as-handler-in-session
@@ -394,8 +395,9 @@ Custom implementations should look something like this:
          (*application* (application-of *session*))
          (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
                                                        :initial-buffer-size 256)
-                 (clrhash (action-id->action-of *frame*))
-                 (clrhash (client-state-sink-id->client-state-sink-of *frame*))
+                 (unless (request-for-delayed-content?)
+                   (clrhash (action-id->action-of *frame*))
+                   (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
                    (render (root-component-of *frame*)))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
