@@ -15,14 +15,15 @@
 
 (def render icon-component ()
   (with-slots (label image-path tooltip) -self-
-    <span (:title ,(or (force tooltip) ""))
-          ,(if image-path
-               <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>
-               +void+)
-          " "
-          ,(if label
-               (force label)
-               +void+)>))
+    (render-icon image-path :label label :tooltip tooltip)))
+
+(def function render-icon (image-path &key label tooltip)
+  <span (:title ,(force tooltip))
+        ,@(when image-path
+            (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>
+                  <span " ">))
+        ,(when label
+           (force label))>)
 
 (def (macro e) icon (name &rest args)
   `(make-icon-component ',name ,@args))

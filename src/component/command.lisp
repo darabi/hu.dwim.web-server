@@ -29,7 +29,12 @@
                    (id (when tooltip-emitter
                          (generate-frame-unique-string))))
               <a (:id ,id :href "#" :onclick `js-inline(submit-form ,href))
-                 ,(render icon)>
+                 ,(if (typep icon 'icon-component)
+                      (render-icon (image-path-of icon)
+                                   :label (label-of icon)
+                                   :tooltip (unless tooltip-emitter
+                                              (tooltip-of icon)))
+                      (render icon))>
               (when tooltip-emitter
                 ;; TODO this could be collected and emitted using a (map ... data) to spare some space
                 `js(on-load
