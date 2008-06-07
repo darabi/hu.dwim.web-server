@@ -147,6 +147,7 @@
 (def component frame-component (top-component)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
+   (script-uris nil)
    (page-icon nil)
    (title nil)
    (dojo-skin-name "tundra")
@@ -187,7 +188,13 @@
                                         (to-js-boolean debug-client-side?)
                                         (to-js-literal (default-locale-of application))))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
-                 "">>
+                 "">
+        ,@(mapcar (lambda (script-uri)
+                    <script (:type         #.+javascript-mime-type+
+                             :src          ,(concatenate-string path-prefix script-uri))
+                            ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
+                            "">)
+                  (script-uris-of -self-))>
       <body (:class ,(dojo-skin-name-of -self-))
         <form (:method "post")
           ,@(with-collapsed-js-scripts
