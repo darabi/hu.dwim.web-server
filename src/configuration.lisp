@@ -62,9 +62,11 @@
                     ;; then?
                     (inline?          (format nil "javascript: "))
                     (embedded-in-xml? (format nil "~%<script>~%// <![CDATA[~%")))
-   :output-postfix (when (and embedded-in-xml?
-                              (not inline?))
-                     (format nil "~%// ]]>~%</script>~%"))))
+   :output-postfix (cond
+                     ((and embedded-in-xml?
+                           (not inline?))
+                      (format nil "~%// ]]>~%</script>~%"))
+                     ((not embedded-in-xml?) (format nil ";~%")))))
 
 (def function make-xml-transformation-pipeline ()
   (make-quasi-quoted-xm-to-form-emitting-transformation-pipeline
