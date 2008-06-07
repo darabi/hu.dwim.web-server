@@ -38,8 +38,13 @@
 (def (macro e) make-action (&body body)
   `(make-action-using-lambda (lambda () ,@body)))
 
+(def (macro e) make-action-uri ((&key scheme delayed-content) &body body)
+  `(action-to-uri (make-action ,@body) :delayed-content ,delayed-content :scheme ,scheme))
+
 (def (macro e) make-action-href ((&key scheme delayed-content) &body body)
-  `(action-to-href (make-action ,@body) :delayed-content ,delayed-content :scheme ,scheme))
+  `(print-uri-to-string
+    (make-action-uri (:scheme ,scheme :delayed-content ,delayed-content)
+      ,@body)))
 
 (def function register-action (frame action)
   (assert (or (not (boundp '*frame*))
