@@ -10,6 +10,7 @@
 (def component command-component ()
   ((visible #t)
    (enabled #t)
+   (tooltip-emitter nil)
    (icon nil :type component)
    (action)))
 
@@ -17,14 +18,28 @@
   `(make-instance 'command-component :icon ,icon :action ,action ,@args))
 
 (def render command-component ()
-  (with-slots (visible enabled icon action) -self-
+  (with-slots (visible enabled icon action tooltip-emitter) -self-
     (if (force visible)
         (if (force enabled)
             (bind ((href (etypecase action
                            (action (action-to-href action))
-                           (uri (print-uri-to-string action)))))
-              <a (:href "#" :onclick `js-inline(submit-form ,href))
-                 ,(render icon)>)
+                           ;; TODO wastes of resources. store back the printed uri? see below also...
+                           (uri (print-uri-to-string action))
+                           (string action)))
+                   (id (when tooltip-emitter
+                         (generate-frame-unique-string))))
+              <a (:id ,id :href "#" :onclick `js-inline(submit-form ,href))
+                 ,(render icon)>
+              (when tooltip-emitter
+                ;; TODO this could be collected and emitted using a (map ... data) to spare some space
+                `js(on-load
+                    (new dojox.widget.DynamicTooltip
+                         (create :connectId (array ,id)
+                                 :position (array "below" "right")
+                                 :href ,(etypecase tooltip-emitter
+                                          (action (action-to-href tooltip-emitter :delayed-content #t))
+                                          (uri (print-uri-to-string tooltip-emitter))
+                                          (string tooltip-emitter)))))))
             (render icon))
         +void+)))
 
