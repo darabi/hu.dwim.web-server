@@ -59,8 +59,9 @@
               content (find-default-alternative-component alternatives)))))
 
 (def render standard-object-component ()
-  <div ,(render-user-messages -self-)
-       ,(call-next-method)>)
+  <div (:class "standard-object")
+    ,(render-user-messages -self-)
+    ,(call-next-method)>)
 
 (def (generic e) make-standard-object-commands (component class instance)
   (:method ((component standard-object-component) (class standard-class) (instance standard-object))

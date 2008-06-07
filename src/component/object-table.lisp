@@ -46,8 +46,9 @@
                                                        (make-alternative-commands self alternatives))))))
 
 (def render standard-object-list-component ()
-  <div ,(render-user-messages -self-)
-       ,(call-next-method)>)
+  <div (:class "standard-object-list")
+    ,(render-user-messages -self-)
+    ,(call-next-method)>)
 
 (def generic make-standard-object-list-commands (component class)
   (:method ((component standard-object-list-component) class)

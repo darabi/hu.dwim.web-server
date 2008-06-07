@@ -62,3 +62,23 @@ div.list.vertical > div
 {
     background-color: lightskyblue;
 }
+
+/*
+  standard object
+*/
+
+.standard-object > table.list
+{
+    /* this is needed when used in tooltips */
+    width: auto;
+}
+
+/*
+  standard object list
+*/
+
+.standard-object-list > table.list
+{
+    /* this is needed when used in tooltips */
+    width: auto;
+}
