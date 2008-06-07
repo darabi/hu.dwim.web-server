@@ -9,13 +9,14 @@
 (macrolet ((x (&body entries)
              `(progn
                 ,@(iter (for (name dojo-name) :on entries :by #'cddr)
-                        (collect `(def (constant :test 'string=) ,name ,dojo-name))))))
+                        (collect `(def (constant e :test 'string=) ,name ,dojo-name))))))
   (x
    +dijit/date-text-box+         "dijit.form.DateTextBox"
    +dijit/simple-text-area+      "dijit.form.SimpleTextarea"
    +dijit/text-box+              "dijit.form.TextBox"
    +dijit/time-text-box+         "dijit.form.TimeTextBox"
    +dijit/number-text-box+       "dijit.form.NumberTextBox"
+   +dijit/tooltip-dialog+        "dijit.TooltipDialog"
    ))
 
 (def with-macro with-dojo-widget-collector ()

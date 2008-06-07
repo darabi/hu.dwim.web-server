@@ -21,17 +21,6 @@
 (def function broker-based-server-handler ()
   (handle-request *server* *request*))
 
-(def method handle-request :around ((server server) (request request))
-  (bind ((start-time (get-monotonic-time))
-         (remote-host (remote-host-of request))
-         (raw-uri (raw-uri-of request)))
-    (http.info "Handling request from ~S for ~S" remote-host raw-uri)
-    (multiple-value-prog1
-        (call-next-method)
-      (bind ((seconds (- (get-monotonic-time) start-time)))
-        (when (> seconds 0.05)
-          (http.info "Handled request in ~,3f secs (request came from ~S for ~S)" seconds remote-host raw-uri))))))
-
 (def method handle-request ((server broker-based-server) (request request))
   (debug-only (assert (and (boundp '*brokers*) (eq (first *brokers*) server))))
   (bind ((result (multiple-value-list

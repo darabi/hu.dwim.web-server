@@ -234,6 +234,17 @@
   (let ((*request-content-length-limit* (request-content-length-limit-of server)))
     (read-http-request stream)))
 
+(def method handle-request :around ((server server) (request request))
+  (bind ((start-time (get-monotonic-time))
+         (remote-host (remote-host-of request))
+         (raw-uri (raw-uri-of request)))
+    (http.info "Handling request from ~S for ~S, method ~S" remote-host raw-uri (http-method-of request))
+    (multiple-value-prog1
+        (call-next-method)
+      (bind ((seconds (- (get-monotonic-time) start-time)))
+        (when (> seconds 0.05)
+          (http.info "Handled request in ~,3f secs (request came from ~S for ~S)" seconds remote-host raw-uri))))))
+
 
 ;;;;;;;;;;;;;;;;;
 ;;; serving stuff

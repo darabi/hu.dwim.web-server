@@ -79,7 +79,7 @@
   (make-instance 'command-component
                  :icon (icon new)
                  :visible (delay (not (edited-p component)))
-                 :action (make-action (break "TODO:"))))
+                 :action (make-action (not-yet-implemented))))
 
 (def (function e) make-delete-instance-command (component)
   (make-instance 'command-component

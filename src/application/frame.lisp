@@ -65,6 +65,7 @@
   (values))
 
 (def function step-to-next-frame-index (frame)
+  (app.debug "Stepping to next frame index. From ~S to next ~S, frame is ~A" (frame-index-of frame) (next-frame-index-of frame) frame)
   (setf (frame-index-of frame) (next-frame-index-of frame))
   (setf (next-frame-index-of frame) (random-simple-base-string +frame-index-length+)))
 
