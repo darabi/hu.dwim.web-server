@@ -124,10 +124,10 @@
 (def constructor standard-slot-definition-table-component ()
   (setf (columns-of -self-)
         (list
-         (make-instance 'column-component :content (make-instance 'label-component :component-value "Name"))
-         (make-instance 'column-component :content (make-instance 'label-component :component-value "Type"))
-         (make-instance 'column-component :content (make-instance 'label-component :component-value "Readers"))
-         (make-instance 'column-component :content (make-instance 'label-component :component-value "Writers")))))
+         (column (label #"Column.name"))
+         (column (label #"Column.type"))
+         (column (label #"Column.readers"))
+         (column (label #"Column.writers")))))
 
 (def method (setf component-value-of) :after (new-value (component standard-slot-definition-table-component))
   (with-slots (slots columns rows) component

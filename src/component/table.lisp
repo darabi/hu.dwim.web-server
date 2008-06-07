@@ -36,6 +36,9 @@
 (def component column-component (content-component)
   ())
 
+(def macro column (content)
+  `(make-instance 'column-component :content ,content))
+
 (def render column-component ()
   <th ,(call-next-method)>)
 

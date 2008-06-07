@@ -165,6 +165,11 @@
   (setq vector (subseq vector 0 size))
   vector)
 
+(def function owner-class-of-effective-slot-definition (effective-slot)
+  "Returns the class to which the given slot belongs."
+  #+sbcl(slot-value effective-slot 'sb-pcl::%class)
+  #-sbcl(not-yet-implemented))
+
 (def (function io) make-adjustable-vector (initial-length &key (element-type t))
   (declare (type array-index initial-length))
   (make-array initial-length :adjustable #t :fill-pointer 0 :element-type element-type))

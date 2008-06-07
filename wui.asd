@@ -124,7 +124,9 @@
   :test-system :wui-test
   :components
   ((:module :src
-    :components ((:module "application"
+    :serial t
+    :components ((:file "l10n")
+                 (:module "application"
                   :serial t
                   :components ((:file "session")
                                (:file "frame")

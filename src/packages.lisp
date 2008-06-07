@@ -21,6 +21,7 @@
    :cl-yalog
    :cl-syntax-sugar
    :cl-l10n
+   :cl-l10n.lang
    :cl-quasi-quote
    :cl-quasi-quote-xml
    :cl-quasi-quote-js
