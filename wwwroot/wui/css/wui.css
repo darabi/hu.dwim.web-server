@@ -1,3 +1,10 @@
+
+a:link,
+a:visited
+{
+  color: inherit;
+}
+
 .debug-component
 {
     padding: 1px;
@@ -43,8 +50,15 @@ div.list.vertical > div
 
 .hierarchy table
 {
-    margin: 10px;
+    margin: 1em;
 }
+
+/* this screws up opera
+.hierarchy table.node
+{
+    width: 100%;
+}
+*/
 
 .hierarchy .leaf td
 {
@@ -53,6 +67,7 @@ div.list.vertical > div
 
 .hierarchy td
 {
+    white-space: nowrap;
     border-width: 1px;
     border-style: solid;
     border-collapse: collapse;
@@ -81,4 +96,13 @@ div.list.vertical > div
 {
     /* this is needed when used in tooltips */
     width: auto;
+}
+
+/*
+  command bar
+*/
+
+.command-bar td
+{
+    white-space: nowrap;
 }

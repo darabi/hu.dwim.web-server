@@ -46,3 +46,12 @@ td
 {
     vertical-align: top;
 }
+
+/*
+  command bar
+*/
+
+.command-bar a
+{
+    margin-right: 1em;
+}
