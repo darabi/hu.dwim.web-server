@@ -95,10 +95,10 @@
   (member (slot-definition-name slot) '(prc::oid prc::persistent prc::transaction prc::transaction-event)))
 
 (def generic slot-type (slot)
-  (:method ((slot standard-effective-slot-definition))
+  (:method ((slot standard-slot-definition))
     (slot-definition-type slot))
 
-  (:method ((slot prc::persistent-effective-slot-definition))
+  (:method ((slot prc::persistent-slot-definition))
     (prc::canonical-type-of slot)))
 
 (def method place-type ((place slot-value-place))
