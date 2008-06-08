@@ -101,14 +101,14 @@
 ;;; Widget
 
 (def component style-component-mixin (remote-identity-component-mixin)
-  ((style-class nil)
+  ((css-class nil)
    (style nil)))
 
 (def component style-component (style-component-mixin content-component)
   ())
 
 (def render style-component-mixin ()
-  <div (:id ,(id-of -self-) :class ,(style-class-of -self-) :style ,(style-of -self-))
+  <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))
        ,(call-next-method) >)
 
 (def (macro e) style ((&rest args &key &allow-other-keys) &body content)

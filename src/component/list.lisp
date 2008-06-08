@@ -23,12 +23,12 @@
                                  (make-viewer-component element :default-component-type 'reference-component))
                                new-value)))))
 
-(def function render-list (orientation elements &key id style-class style)
+(def function render-list (orientation elements &key id css-class style)
   (check-type orientation (member :vertical :horizontal))
   <table (:class `str("list " ,(ecase orientation
                                       (:vertical "vertical ")
                                       (:horizontal "horizontal "))
-                              ,@(ensure-list style-class))
+                              ,@(ensure-list css-class))
           :id ,id
           :style ,style)
     ,@(ecase orientation
@@ -39,15 +39,15 @@
                                                 <td ,(render element)>)
                                               elements) >)))>)
 
-(def function render-vertical-list (elements)
-  (render-list :vertical elements))
+(def function render-vertical-list (elements &key id css-class style)
+  (render-list :vertical elements :id id :css-class css-class :style style))
 
-(def function render-horizontal-list (elements)
-  (render-list :horizontal elements))
+(def function render-horizontal-list (elements &key id css-class style)
+  (render-list :horizontal elements :id id :css-class css-class :style style))
 
 (def render list-component ()
-  (with-slots (orientation components id style-class style) -self-
-    (render-list orientation components :id id :style-class style-class :style style)))
+  (with-slots (orientation components id css-class style) -self-
+    (render-list orientation components :id id :css-class css-class :style style)))
 
 ;;;;;;
 ;;; Horizontal list
