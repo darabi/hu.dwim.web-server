@@ -4,28 +4,28 @@
 
 (in-package :hu.dwim.wui)
 
-(def method render :around ((self component))
+(def render :around component
   (restart-case
       ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
-      (if (typep self 'row-component)
+      (if (typep -self- 'row-component)
           (call-next-method)
           (if (and *frame*
                    (debug-component-hierarchy-p *frame*))
-              (bind ((class-name (string-downcase (symbol-name (class-name (class-of self))))))
+              (bind ((class-name (string-downcase (symbol-name (class-name (class-of -self-))))))
                 <div (:class "debug-component")
                      <div (:class "debug-component-name")
                           ,class-name
-                          ,(if (typep self '(or icon-component command-component))
+                          ,(if (typep -self- '(or icon-component command-component))
                                +void+
-                               <span <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action self)))) "REPL">
+                               <span <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action -self-)))) "REPL">
                                      " "
-                                     <a (:href ,(action-to-href (register-action *frame* (make-inspect-in-repl-action self)))) "INSPECT">>)>
+                                     <a (:href ,(action-to-href (register-action *frame* (make-inspect-in-repl-action -self-)))) "INSPECT">>)>
                      ,(call-next-method)>)
               (call-next-method)))
     (skip-rendering-component ()
       :report (lambda (stream)
-                (format stream "Skip rendering ~A and put an error marker in place" self))
-      <div (:class "rendering-error") "Error during rendering " ,(princ-to-string self)>)))
+                (format stream "Skip rendering ~A and put an error marker in place" -self-))
+      <div (:class "rendering-error") "Error during rendering " ,(princ-to-string -self-)>)))
 
 (def function make-inspect-in-repl-action (component)
   (make-action

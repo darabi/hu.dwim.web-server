@@ -126,6 +126,7 @@
   ((:module :src
     :serial t
     :components ((:file "l10n")
+                 (:file "contextl-integration")
                  (:module "application"
                   :serial t
                   :components ((:file "session")
@@ -166,6 +167,7 @@
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
+               :contextl
                ))
 
 #+nil

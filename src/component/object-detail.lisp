@@ -20,11 +20,11 @@
     (setf instance new-value)
     (setf the-class (when new-value (class-of new-value)))))
 
-(def method render :before ((self abstract-standard-object-component))
-  (bind ((instance (instance-of self)))
+(def render :before abstract-standard-object-component
+  (bind ((instance (instance-of -self-)))
     (if (and (typep instance 'prc::persistent-object)
              (prc::persistent-p instance))
-        (prc::revive-instance (instance-of self)))))
+        (prc::revive-instance (instance-of -self-)))))
 
 ;;;;;;
 ;;; Standard object

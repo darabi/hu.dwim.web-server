@@ -14,12 +14,12 @@
    (allow-nil-value #f :type boolean)
    (client-state-sink nil)))
 
-(def method render :before ((component atomic-component))
-  (when (edited-p component)
-    (setf (client-state-sink-of component)
+(def render :before atomic-component
+  (when (edited-p -self-)
+    (setf (client-state-sink-of -self-)
           (register-client-state-sink *frame*
                                       (lambda (client-value)
-                                        (setf (component-value-of component) (parse-component-value component client-value)))))))
+                                        (setf (component-value-of -self-) (parse-component-value -self- client-value)))))))
 
 (def generic parse-component-value (component client-value))
 

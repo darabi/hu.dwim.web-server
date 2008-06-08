@@ -319,13 +319,20 @@ Custom implementations should look something like this:
   (:method (component)
     (values)))
 
-(def (generic e) render (component)
+(def (layered-function e) render (component)
   (:method :before (component)
     (render-js component)))
 
-(def (definer e) render (type &body forms)
-  `(def method render ((-self- ,type))
-     ,@forms))
+(def (definer e) render (&body forms)
+  (bind ((layer (when (member (first forms) '(:in-layer :in))
+                  (pop forms)
+                  (pop forms)))
+         (qualifier (when (or (keywordp (first forms))
+                              (member (first forms) '(and or progn append nconc)))
+                      (pop forms)))
+         (type (pop forms)))
+    `(def layered-method render ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
+       ,@forms)))
 
 (def (definer e) render-js (type &body forms)
   `(def method render-js ((-self- ,type))
@@ -352,7 +359,8 @@ Custom implementations should look something like this:
 ;;; Component rendering response
 
 (def class* component-rendering-response (locked-session-response-mixin)
-  ((application)
+  ((layer-context (current-layer-context))
+   (application)
    (session)
    (frame)
    (component)))
@@ -383,12 +391,13 @@ Custom implementations should look something like this:
          (*application* (application-of self))
          (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
                                                        :initial-buffer-size 256)
-                 (when (and (not (request-for-delayed-content?))
-                            *frame*)
+                 (when (and *frame*
+                            (not (request-for-delayed-content?)))
                    (clrhash (action-id->action-of *frame*))
                    (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
-                   (render (component-of self)))))
+                   (funcall-with-layer-context (layer-context-of self)
+                                               (lambda () (render (component-of self)))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 128)
                     (setf (header-value self +header/content-length+) (princ-to-string (length body)))
