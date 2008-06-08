@@ -24,13 +24,48 @@
                   str)
               found?))))
 
-(defun localized-slot-name<> (slot &rest args)
+(def function localized-slot-name<> (slot &rest args)
   (bind (((:values str found) (apply #'localized-slot-name slot args)))
-    <span (:class ,(concatenate-string "label " (unless found
-                                                  +missing-resource-css-class+)
+    <span (:class ,(concatenate-string "slot-name "
+                                       (unless found
+                                         +missing-resource-css-class+)
                             ;; TODO this is fragile here, should use a public api in dmm
                             ;; something like associationp
                             ;;(when (typep slot 'dmm:effective-association-end)
                             ;;  "association")
                             ))
           ,str>))
+
+(def function localized-class-name (class &key capitalize-first-letter with-article plural)
+  (assert (typep class 'class))
+  (bind (((:values class-name found?) (localize class)))
+    (when plural
+      (setf class-name (plural-of class-name)))
+    (when with-article
+      (setf class-name (concatenate-string (if plural
+                                               (definite-article-for class-name)
+                                               (indefinite-article-for class-name))
+                                           " "
+                                           class-name)))
+    (values (if capitalize-first-letter
+                (capitalize-first-letter class-name)
+                class-name)
+            found?)))
+
+(def function localized-class-name<> (class &key capitalize-first-letter with-indefinite-article)
+  (assert (typep class 'class))
+  (bind (((:values class-name found?) (localize class)))
+    (when with-indefinite-article
+      (bind ((article (indefinite-article-for class-name)))
+        (write (if capitalize-first-letter
+                   (capitalize-first-letter article)
+                   article)
+               :stream *html-stream*)
+        (write-char #\Space *html-stream*)))
+    <span (:class ,(concatenate-string "class-name "
+                                       (unless found?
+                                         +missing-resource-css-class+)))
+          ,(if (and capitalize-first-letter
+                    (not with-indefinite-article))
+               (capitalize-first-letter class-name)
+               class-name)>))

@@ -127,8 +127,8 @@
 
 (def render standard-object-detail-component ()
   (with-slots (class slot-value-group) -self-
-    <div
-      <span "An instance of " ,(render class)>
+    <div (:class "standard-object")
+      <span ,(render class)>
       <div
         <h3 "Slots">
         ,(render slot-value-group)>>))

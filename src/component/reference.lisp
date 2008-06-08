@@ -66,7 +66,7 @@
   ())
 
 (def method make-reference-label ((reference standard-class-reference-component))
-  (qualified-symbol-name (class-name (target-of reference))))
+  (localized-class-name (target-of reference) :with-article #t :capitalize-first-letter #t))
 
 ;;;;;;
 ;;; Standard object reference
