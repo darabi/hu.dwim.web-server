@@ -92,6 +92,20 @@
                                           (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
                                       (collect row))))))
 
+(def render :in passive-components-layer standard-object-table-component
+  (bind ((first-column (first-elt (columns-of -self-)))
+         (was-visible? (visible-p first-column)))
+    (unwind-protect
+         (progn
+           (setf (visible-p first-column) #f)
+           (call-next-method))
+      (setf (visible-p first-column) was-visible?))))
+
+(def layered-method render-table-cell :in passive-components-layer ((table standard-object-table-component) row column cell)
+  (unless (eq (first-elt (columns-of table)) column)
+    ;; leave out the first column, which is the command column
+    (call-next-method)))
+
 (def generic standard-object-table-slots (class instance)
   (:method ((class standard-class) instance)
     (class-slots class))

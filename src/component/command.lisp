@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+(def (layer e) passive-components-layer ()
+  ())
+
 ;;;;;;
 ;;; Command
 
@@ -19,36 +22,41 @@
 
 (def render command-component ()
   (with-slots (visible enabled icon action tooltip-emitter) -self-
-    (if (force visible)
-        (if (force enabled)
-            (bind ((href (etypecase action
-                           (action (action-to-href action))
-                           ;; TODO wastes of resources. store back the printed uri? see below also...
-                           (uri (print-uri-to-string action))
-                           (string action)))
-                   (id (when tooltip-emitter
-                         (generate-frame-unique-string))))
-              <a (:id ,id
-                  :href "#"
-                  :title ,(when (and (not tooltip-emitter)
-                                     (typep icon 'icon-component))
-                            (tooltip-of icon))
-                  :onclick `js-inline(submit-form ,href))
-                 ,(if (typep icon 'icon-component)
-                      (render-icon (image-path-of icon) :label (label-of icon))
-                      (render icon))>
-              (when tooltip-emitter
-                ;; TODO this could be collected and emitted using a (map ... data) to spare some space
-                `js(on-load
-                    (new dojox.widget.DynamicTooltip
-                         (create :connectId (array ,id)
-                                 :position (array "below" "right")
-                                 :href ,(etypecase tooltip-emitter
-                                          (action (action-to-href tooltip-emitter :delayed-content #t))
-                                          (uri (print-uri-to-string tooltip-emitter))
-                                          (string tooltip-emitter)))))))
-            (render icon))
-        +void+)))
+    (when (force visible)
+      (if (force enabled)
+          (bind ((href (etypecase action
+                         (action (action-to-href action))
+                         ;; TODO wastes of resources. store back the printed uri? see below also...
+                         (uri (print-uri-to-string action))
+                         (string action)))
+                 (id (when tooltip-emitter
+                       (generate-frame-unique-string))))
+            ;; render the `js first, so the return value contract of qq is kept.
+            (when tooltip-emitter
+              ;; TODO this could be collected and emitted using a (map ... data) to spare some space
+              `js(on-load
+                  (new dojox.widget.DynamicTooltip
+                       (create :connectId (array ,id)
+                               :position (array "below" "right")
+                               :href ,(etypecase tooltip-emitter
+                                        (action (action-to-href tooltip-emitter :delayed-content #t))
+                                        (uri (print-uri-to-string tooltip-emitter))
+                                        (string tooltip-emitter))))))
+            <a (:id ,id
+                :href "#"
+                :title ,(when (and (not tooltip-emitter)
+                                   (typep icon 'icon-component))
+                          (force (tooltip-of icon)))
+                :onclick `js-inline(submit-form ,href))
+               ,(if (typep icon 'icon-component)
+                    (render-icon (image-path-of icon) :label (label-of icon))
+                    (render icon))>)
+          (render icon)))))
+
+(def render :in passive-components-layer command-component
+  (with-slots (visible icon) -self-
+    (when (force visible)
+      (render icon))))
 
 ;;;;;;
 ;;; Command bar
@@ -62,7 +70,10 @@
 (def render command-bar-component ()
   (with-slots (commands parent-component) -self-
     (setf commands (sort-commands parent-component commands))
-    (render-horizontal-list commands)))
+    (render-horizontal-list commands :css-class "command-bar")))
+
+(def render :in passive-components-layer command-bar-component
+  (values))
 
 (def generic find-command-bar (component)
   (:method ((component component))

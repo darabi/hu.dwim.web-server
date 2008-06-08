@@ -21,6 +21,10 @@
 (def render reference-component ()
   (render (expand-command-of -self-)))
 
+(def render :in passive-components-layer reference-component
+  ;; TODO this is not too nice this way
+  <span ,(force (label-of (icon-of (expand-command-of -self-))))>)
+
 (def (generic e) make-reference-label (reference)
   (:method ((reference reference-component))
     (princ-to-string (target-of reference))))
