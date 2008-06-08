@@ -44,6 +44,7 @@
 ;;; Label
 
 (def component label-component ()
+  ;; TODO rename the component-value slot
   ((component-value)))
 
 (def (macro e) label (text)

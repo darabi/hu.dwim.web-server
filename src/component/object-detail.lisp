@@ -42,7 +42,8 @@
               (setf (component-value-for-alternatives self) instance)
               (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
                                        (delay-alternative-component 'standard-object-reference-component
-                                         (setf-expand-reference-to-default-alternative-command (make-instance 'standard-object-reference-component :target instance))))))
+                                         (setf-expand-reference-to-default-alternative-command
+                                          (make-instance 'standard-object-reference-component :target instance))))))
           (if (and content
                    (not (typep content 'null-component)))
               (setf (component-value-of content) instance)

@@ -11,16 +11,16 @@
 ;;; Command
 
 (def component command-component ()
-  ((visible #t)
-   (enabled #t)
-   (tooltip-emitter nil)
+  ((visible #t :type boolean)
+   (enabled #t :type boolean)
+   (tooltip-emitter nil) ;; TODO mutually exclusive with tooltip, store at the same place
    (icon nil :type component)
    (action)))
 
 (def (macro e) command (icon action &rest args &key &allow-other-keys)
   `(make-instance 'command-component :icon ,icon :action ,action ,@args))
 
-(def render command-component ()
+(def render command-component
   (with-slots (visible enabled icon action tooltip-emitter) -self-
     (when (force visible)
       (if (force enabled)
@@ -67,7 +67,7 @@
 (def (macro e) command-bar (&body commands)
   `(make-instance 'command-bar-component :commands (list ,@commands)))
 
-(def render command-bar-component ()
+(def render command-bar-component
   (with-slots (commands parent-component) -self-
     (setf commands (sort-commands parent-component commands))
     (render-horizontal-list commands :css-class "command-bar")))

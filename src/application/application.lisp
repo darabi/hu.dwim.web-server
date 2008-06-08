@@ -323,6 +323,11 @@ Custom implementations should look something like this:
   (:method :before (component)
     (render-js component)))
 
+;; TODO support it?
+#+nil
+(def (render :in passive-components-layer) command-bar-component
+  (values))
+
 (def (definer e) render (&body forms)
   (bind ((layer (when (member (first forms) '(:in-layer :in))
                   (pop forms)
