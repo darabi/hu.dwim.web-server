@@ -69,24 +69,28 @@
 
 (def method (setf component-value-of) :after (new-value (component standard-object-table-component))
   (with-slots (instances the-class slot-names command-bar columns rows) component
-    (setf instances new-value)
-    (setf slot-names (delete-duplicates
-                      (append
-                       (mapcar #'slot-definition-name
-                               (when the-class
-                                 (standard-object-table-slots the-class nil)))
-                       (iter (for instance :in instances)
-                             (appending (mapcar #'slot-definition-name (standard-object-table-slots (class-of instance) instance))))))
-          columns (cons (make-instance 'column-component :content (make-instance 'label-component :component-value "Commands"))
-                        (mapcar (lambda (slot-name)
-                                  (make-instance 'column-component :content (make-instance 'label-component :component-value (qualified-symbol-name slot-name))))
-                                slot-names))
-          rows (iter (for instance :in instances)
-                     (for row = (find instance rows :key #'component-value-of))
-                     (if row
-                         (setf (component-value-of row) instance)
-                         (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
-                     (collect row)))))
+    (bind ((slot-name->slot (list)))
+      (flet ((register-slot (slot)
+               (bind ((slot-name (slot-definition-name slot)))
+                 (unless (member slot-name slot-name->slot :test #'eq :key #'car)
+                   (push (cons slot-name slot) slot-name->slot)))))
+        (when the-class
+          (mapcar #'register-slot (standard-object-table-slots the-class nil)))
+        (dolist (instance instances)
+          (dolist (slot (standard-object-table-slots (class-of instance) instance))
+            (register-slot slot))))
+      (setf instances new-value)
+      (setf (slot-names-of component) (mapcar #'car slot-name->slot))
+      (setf (columns-of component) (list*
+                                    (column (label #"Object-table.column.commands"))
+                                    (mapcar [column (label (localized-slot-name (cdr !1)))]
+                                            slot-name->slot)))
+      (setf (rows-of component) (iter (for instance :in instances)
+                                      (for row = (find instance rows :key #'component-value-of))
+                                      (if row
+                                          (setf (component-value-of row) instance)
+                                          (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
+                                      (collect row))))))
 
 (def generic standard-object-table-slots (class instance)
   (:method ((class standard-class) instance)
@@ -99,6 +103,12 @@
     (filter-if (lambda (slot)
                  (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
                (call-next-method))))
+
+(defresources hu
+  (object-table.column.commands "műveletek"))
+
+(defresources en
+  (object-table.column.commands "commands"))
 
 ;;;;;;
 ;;; Standard object row
@@ -121,7 +131,7 @@
                                                                       (component-value-of cell)))))
                                 (collect (if slot
                                              (make-instance 'standard-object-slot-value-cell-component :instance instance :slot slot)
-                                             (make-instance 'cell-component :content (make-instance 'label-component :component-value "N/A")))))))
+                                             (make-instance 'cell-component :content (label "N/A")))))))
         (setf command-bar nil
               cells nil))))
 

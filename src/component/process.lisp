@@ -29,7 +29,7 @@
               (with-call/cc
                 (funcall closure/cc)))))
     (unless (and content answer-continuation)
-      (setf content (make-instance 'label-component :component-value "Process finished")))
+      (setf content (label "Process finished")))
     <div
      ,(render-user-messages -self-)
      ,(render content)>))
