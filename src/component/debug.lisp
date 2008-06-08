@@ -6,22 +6,21 @@
 
 (def render :around component
   (restart-case
-      ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
-      (if (typep -self- 'row-component)
-          (call-next-method)
-          (if (and *frame*
-                   (debug-component-hierarchy-p *frame*))
-              (bind ((class-name (string-downcase (symbol-name (class-name (class-of -self-))))))
-                <div (:class "debug-component")
-                     <div (:class "debug-component-name")
-                          ,class-name
-                          ,(if (typep -self- '(or icon-component command-component))
-                               +void+
-                               <span <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action -self-)))) "REPL">
-                                     " "
-                                     <a (:href ,(action-to-href (register-action *frame* (make-inspect-in-repl-action -self-)))) "INSPECT">>)>
-                     ,(call-next-method)>)
-              (call-next-method)))
+      (if (and *debug-component-hierarchy*
+               ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
+               (not (typep -self- '(or frame-component row-component))))
+          (bind ((class-name (string-downcase (symbol-name (class-name (class-of -self-)))))
+                 (*debug-component-hierarchy* (and *debug-component-hierarchy*
+                                                   (not (typep -self- 'command-component)))))
+            <div (:class "debug-component")
+              <div (:class "debug-component-name")
+                ,class-name
+                <span
+                  <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action -self-)))) "REPL">
+                  " "
+                  <a (:href ,(action-to-href (register-action *frame* (make-inspect-in-repl-action -self-)))) "INSPECT">>>
+              ,(call-next-method)>)
+          (call-next-method))
     (skip-rendering-component ()
       :report (lambda (stream)
                 (format stream "Skip rendering ~A and put an error marker in place" -self-))

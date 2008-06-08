@@ -358,6 +358,8 @@ Custom implementations should look something like this:
 ;;;;;
 ;;; Component rendering response
 
+(def special-variable *debug-component-hierarchy* #f)
+
 (def class* component-rendering-response (locked-session-response-mixin)
   ((layer-context (current-layer-context))
    (application)
@@ -389,6 +391,7 @@ Custom implementations should look something like this:
   (bind ((*frame* (frame-of self))
          (*session* (session-of self))
          (*application* (application-of self))
+         (*debug-component-hierarchy* (if *frame* (debug-component-hierarchy-p *frame*) *debug-component-hierarchy*))
          (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
                                                        :initial-buffer-size 256)
                  (when (and *frame*
