@@ -252,6 +252,10 @@
 (def (class* e) functional-response (response)
   ((thunk :type (or symbol function))))
 
+(defmethod send-response ((response functional-response))
+  (call-next-method)
+  (funcall (thunk-of response)))
+
 (def (function e) make-functional-response* (thunk &key headers cookies)
   (make-instance 'functional-response
                  :thunk thunk
@@ -289,10 +293,6 @@
          (setf (cookies-of ,response) (list ,@cookie-list))
          (setf (body-of ,response) buffer)
          ,response))))
-
-(defmethod send-response ((response functional-response))
-  (call-next-method)
-  (funcall (thunk-of response)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;

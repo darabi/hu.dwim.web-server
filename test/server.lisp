@@ -45,8 +45,8 @@
          (startup-test-server server)
          (break "Server running at ~A. Continue the debugger to stop it.~%~
                  You may stress test it with something like:~%~
-                 siege -c100 -t10S http://localhost:9010/ (add -b for full throttle benchmarking)~%~
-                 httperf --rate 1000 --num-conn 10000 --port 9010 --server localhost --uri /foo/bar/~%~
+                 siege -c100 -t10S http://localhost:8080/ (add -b for full throttle benchmarking)~%~
+                 httperf --rate 1000 --num-conn 10000 --port 8080 --server localhost --uri /foo/bar/~%~
                  "
                 +test-server-base-url+))
     (shutdown-test-server server)))

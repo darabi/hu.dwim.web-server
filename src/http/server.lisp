@@ -208,7 +208,8 @@
              (handle-toplevel-condition broker condition))
            (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
     (unwind-protect
-         (with-thread-name " / serving request"
+         (with-thread-name (concatenate-string " / serving request "
+                                               (princ-to-string (processed-request-count-of server)))
            (call-as-server-request-handler #'serve-one-request
                                            stream-socket
                                            :error-handler #'handle-request-error)

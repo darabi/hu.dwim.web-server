@@ -69,6 +69,7 @@
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-functional-response ()
+          ;; TODO this is wrong, sends the header twice. add a functional-raw-response or something like that
           (emit-simple-html-document-response ()
             <p "There's no session... "
                <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
