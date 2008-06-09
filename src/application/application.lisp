@@ -393,6 +393,7 @@ Custom implementations should look something like this:
                                        :content-type content-type)))
 
 (def method send-response ((self component-rendering-response))
+  (disallow-response-caching self)
   (bind ((*frame* (frame-of self))
          (*session* (session-of self))
          (*application* (application-of self))
