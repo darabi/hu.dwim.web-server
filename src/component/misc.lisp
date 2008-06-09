@@ -170,13 +170,22 @@
     <html (:xmlns     #.+xhtml-namespace-uri+
            xmlns:dojo #.+dojo-namespace-uri+)
       <head
-        <meta (:http-equiv #.+header/content-type+ :content ,(content-type-for +html-mime-type+ encoding))>
+        <meta (:http-equiv #.+header/content-type+
+               :content ,(content-type-for +html-mime-type+ encoding))>
         ,(awhen (page-icon-of -self-)
-           <link (:rel "icon" :type "image/x-icon" :href ,(concatenate-string path-prefix (ensure-uri-string it)))>)
+           <link (:rel "icon"
+                  :type "image/x-icon"
+                  :href ,(concatenate-string path-prefix
+                                             (etypecase it
+                                               (string it)
+                                               (uri (print-uri-to-string it)))))>)
         <title ,(title-of -self-)>
         ,@(mapcar (lambda (stylesheet-uri)
-                    <link (:rel "stylesheet" :type "text/css"
-                                :href ,(concatenate-string path-prefix (ensure-uri-string stylesheet-uri)))>)
+                    <link (:rel "stylesheet"
+                           :type "text/css"
+                           :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
+                                                                    (string stylesheet-uri)
+                                                                    (uri (print-uri-to-string stylesheet-uri)))))>)
                   (stylesheet-uris-of -self-))
         <script (:type         #.+javascript-mime-type+
                  :src          ,(concatenate-string path-prefix
