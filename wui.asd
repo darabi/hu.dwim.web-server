@@ -213,9 +213,16 @@
 
 ;;; Integration with other systems
 
-#+nil
-(defsystem-connection wui-and-contextl
-  :requires (:wui :contextl)
+
+(defsystem* wui-and-cl-perec
+  :depends-on (:wui :cl-perec)
   :components ((:module :src
-                        :components ((:file "contextl-integration")))))
+                        :components ((:file "cl-perec-integration")))))
+
+#+nil ; TODO asdf-system-connections is broken
+(defsystem-connection wui-and-cl-perec
+  :depends-on (:wui :cl-perec)
+  :requires (:wui :wui-core :cl-perec)
+  :components ((:module :src
+                        :components ((:file "cl-perec-integration")))))
 

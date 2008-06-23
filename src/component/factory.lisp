@@ -21,49 +21,18 @@
       (remove-from-plistf args :default-component-type))
     (apply #'make-instance component-type (append args additional-args))))
 
+(def function find-type-by-name (name)
+  (find-class name #f))
+
 (def (generic e) find-inspector-component-type-for-type (type)
   (:method ((type symbol))
-    (find-inspector-component-type-for-type (or (find-class type nil)
-                                                (prc::find-type type))))
-
-  (:method ((type prc::persistent-type))
-    (error "Unknown type ~A" type))
+    (find-inspector-component-type-for-type (find-type-by-name type)))
 
   (:method ((type (eql 'boolean)))
     'boolean-component)
 
   (:method ((class (eql (find-class t))))
     't-component)
-
-  (:method ((type prc::boolean-type))
-    'boolean-component)
-
-  (:method ((type prc::integer-type))
-    'integer-component)
-
-  (:method ((type prc::text-type))
-    'string-component)
-
-  (:method ((type prc::date-type))
-    'date-component)
-
-  (:method ((type prc::time-type))
-    'time-component)
-
-  (:method ((type prc::timestamp-type))
-    'timestamp-component)
-
-  (:method ((type prc::member-type))
-    'member-component)
-
-  (:method ((type prc:serialized-type))
-    't-component)
-
-  (:method ((type prc::set-type))
-    'standard-object-list-component)
-
-  (:method ((type prc::ip-address-type))
-    'ip-address-component)
 
   (:method ((class built-in-class))
     (find-inspector-component-type-for-prototype
@@ -85,9 +54,6 @@
   (find-inspector-component-type-for-compound-type* (first type) type))
 
 (def (generic e) find-inspector-component-type-for-compound-type* (first type)
-  (:method (first type)
-    (find-inspector-component-type-for-type (prc::parse-type type)))
-
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
@@ -97,7 +63,7 @@
   (:method ((first (eql 'list)) (type cons))
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
-          `(standard-object-list-component :the-class ,(find-class main-type))
+          `(standard-object-list-component :the-class ,(find-type-by-name main-type))
           'list-component))))
 
 (def (function e) make-inspector-component-for-prototype (prototype &rest args &key &allow-other-keys)
@@ -176,42 +142,7 @@
 
 (def (generic e) find-filter-component-type-for-type (type)
   (:method ((type symbol))
-    (find-filter-component-type-for-type
-     (or (find-class type nil)
-         (prc::find-type type))))
-
-  (:method ((type prc::persistent-type))
-    (error "Unknown type ~A" type))
-
-  (:method ((type prc::boolean-type))
-    'boolean-component)
-
-  (:method ((type prc::integer-type))
-    'integer-component)
-
-  (:method ((type prc::text-type))
-    'string-component)
-
-  (:method ((type prc::date-type))
-    'date-component)
-
-  (:method ((type prc::time-type))
-    'time-component)
-
-  (:method ((type prc::timestamp-type))
-    'timestamp-component)
-
-  (:method ((type prc::member-type))
-    'member-component)
-
-  (:method ((type prc:serialized-type))
-    't-component)
-
-  (:method ((type prc::ip-address-type))
-    'ip-address-component)
-
-  (:method ((type prc::set-type))
-    `(label-component :component-value "TODO"))
+    (find-filter-component-type-for-type (find-type-by-name type)))
 
   (:method ((class built-in-class))
     (find-filter-component-type-for-prototype
@@ -233,9 +164,6 @@
   (find-filter-component-type-for-compound-type* (first type) type))
 
 (def (generic e) find-filter-component-type-for-compound-type* (first type)
-  (:method (first type)
-    (find-filter-component-type-for-type (prc::parse-type type)))
-
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
@@ -285,9 +213,7 @@
     (find-inspector-component-type-for-type type))
 
   (:method ((type symbol))
-    (find-maker-component-type-for-type
-     (or (find-class type nil)
-         (prc::find-type type))))
+    (find-maker-component-type-for-type (find-type-by-name type)))
 
   (:method ((type cons))
     (find-maker-component-type-for-compound-type type))
@@ -302,9 +228,6 @@
   (find-maker-component-type-for-compound-type* (first type) type))
 
 (def (generic e) find-maker-component-type-for-compound-type* (first type)
-  (:method (first type)
-    (find-maker-component-type-for-type (prc::parse-type type)))
-
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
@@ -317,5 +240,5 @@
 ;; TODO: KLUDGE:
 (def function find-main-type-in-or-type (type)
   (remove-if (lambda (element)
-               (member element '(or prc::unbound null)))
+               (member element '(or null)))
              type))
