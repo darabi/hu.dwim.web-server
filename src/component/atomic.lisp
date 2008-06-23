@@ -264,7 +264,7 @@
     (bind ((wrong-value? (and (not allow-nil-value)
                               (not component-value)))
            (printed-value (or (when component-value
-                                (local-time:format-rfc3339-timestring component-value))
+                                (local-time:format-rfc3339-timestring nil component-value))
                               (if (or allow-nil-value
                                       edited)
                                   ""
@@ -282,8 +282,8 @@
 
 (def method parse-component-value ((component date-component) client-value)
   (unless (string= client-value "")
-    (bind ((result (local-time:parse-rfc3339-timestring client-value :allow-missing-time-part-p #t)))
-      (local-time:with-decoded-local-time (:hour hour :minute minute :sec sec :nsec nsec) result
+    (bind ((result (local-time:parse-rfc3339-timestring client-value :allow-missing-time-part #t)))
+      (local-time:with-decoded-timestamp (:hour hour :minute minute :sec sec :nsec nsec) result
         (unless (and (zerop hour)
                      (zerop minute)
                      (zerop sec)
@@ -303,7 +303,7 @@
     (bind ((wrong-value? (and (not allow-nil-value)
                               (not component-value)))
            (printed-value (or (when component-value
-                                (local-time:format-rfc3339-timestring component-value :omit-date-part-p #t))
+                                (local-time:format-rfc3339-timestring nil component-value :omit-date-part #t))
                               (if (or allow-nil-value
                                       edited)
                                   ""

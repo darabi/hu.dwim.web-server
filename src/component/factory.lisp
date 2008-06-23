@@ -186,7 +186,7 @@
   (:method ((prototype number))
     'number-component)
 
-  (:method ((prototype local-time:local-time))
+  (:method ((prototype local-time:timestamp))
     'timestamp-component)
 
   (:method ((prototype structure-object))

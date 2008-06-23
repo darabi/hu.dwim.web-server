@@ -71,7 +71,7 @@
 
 (def function log-error-with-backtrace (error)
   (server.error "~%*** At: ~A~%*** In thread: ~A~%*** Error:~%~A~%*** Backtrace is:~%~A"
-                (local-time:format-rfc3339-timestring (local-time:now))
+                (local-time:format-rfc3339-timestring nil (local-time:now))
                 (thread-name (current-thread))
                 error
                 (let ((backtrace (collect-backtrace error))
