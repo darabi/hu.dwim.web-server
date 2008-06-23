@@ -50,7 +50,7 @@
     (class-slots class))
 
   (:method ((class prc::persistent-class))
-    (remove-if #'persistent-object-slot-p (call-next-method)))
+    (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
   (:method ((class dmm::entity))
     (filter-if (lambda (slot)
