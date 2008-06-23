@@ -277,6 +277,18 @@
     (setf (gethash key hash-table) value)
     (values key value)))
 
+(def constant +integer-names-to-cache+ 128)
+
+(def (constant :test 'equalp) +cached-integer-names+
+    (coerce (iter (for idx :from 0 :below +integer-names-to-cache+)
+                  (collect (coerce (princ-to-string idx) 'simple-base-string)))
+            `(simple-array string (,+integer-names-to-cache+))))
+
+(def (function io) integer-to-string (integer)
+  (declare (type fixnum integer))
+  (if (< integer +integer-names-to-cache+)
+      (aref +cached-integer-names+ integer)
+      (princ-to-string integer)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;; xhtml generation
