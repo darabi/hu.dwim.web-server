@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Standard object list
+;;; Abstract standard object list
 
 (def component abstract-standard-object-list-component (value-component)
   ((instances nil)))
@@ -83,6 +83,7 @@
       (setf (slot-names-of component) (mapcar #'car slot-name->slot))
       (setf (columns-of component) (list*
                                     (column (label #"Object-table.column.commands"))
+                                    (column (label #"Object-table.column.type"))
                                     (mapcar [column (label (localized-slot-name (cdr !1)))]
                                             slot-name->slot)))
       (setf (rows-of component) (iter (for instance :in instances)
@@ -119,10 +120,12 @@
                (call-next-method))))
 
 (defresources hu
-  (object-table.column.commands "műveletek"))
+  (object-table.column.commands "műveletek")
+  (object-table.column.type "típus"))
 
 (defresources en
-  (object-table.column.commands "commands"))
+  (object-table.column.commands "commands")
+  (object-table.column.type "type"))
 
 ;;;;;;
 ;;; Standard object row
@@ -136,16 +139,17 @@
     (setf instance new-value)
     (if instance
         (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-row-commands self the-class instance))
-              cells (cons (make-instance 'cell-component :content command-bar)
-                          (iter (for class = (class-of instance))
-                                (for table-slot-name :in table-slot-names)
-                                (for slot = (find-slot class table-slot-name))
-                                (for cell = (find slot cells :key (lambda (cell)
-                                                                    (when (typep cell 'standard-object-slot-value-cell-component)
-                                                                      (component-value-of cell)))))
-                                (collect (if slot
-                                             (make-instance 'standard-object-slot-value-cell-component :instance instance :slot slot)
-                                             (make-instance 'cell-component :content (label "N/A")))))))
+              cells (list* (make-instance 'cell-component :content command-bar)
+                           (make-instance 'cell-component :content (make-instance 'standard-class-component :the-class the-class :default-component-type 'reference-component))
+                           (iter (for class = (class-of instance))
+                                 (for table-slot-name :in table-slot-names)
+                                 (for slot = (find-slot class table-slot-name))
+                                 (for cell = (find slot cells :key (lambda (cell)
+                                                                     (when (typep cell 'standard-object-slot-value-cell-component)
+                                                                       (component-value-of cell)))))
+                                 (collect (if slot
+                                              (make-instance 'standard-object-slot-value-cell-component :instance instance :slot slot)
+                                              (make-instance 'cell-component :content (label "N/A")))))))
         (setf command-bar nil
               cells nil))))
 

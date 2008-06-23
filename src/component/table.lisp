@@ -63,7 +63,6 @@
               (when (force (visible-p column))
                 (collect (render-table-cell table row column cell))))>))
 
-#+nil ; TODO delme?
 (def render row-component ()
   (render-table-row (parent-component-of -self-) -self-))
 
@@ -86,8 +85,10 @@
 
 (def layered-function render-table-cell (table row column cell)
   (:method (table row column cell)
-    <td ,(render cell)>))
+    <td ,(render (content-of cell)) >))
 
-#+nil ; TODO delme?
 (def render cell-component ()
-  <td ,(call-next-method)>)
+  (bind ((row (parent-component-of -self-))
+         (table (parent-component-of row))
+         (column (elt (position -self- (cells-of row)) (columns-of table))))
+    (render-table-cell table row column -self-)))

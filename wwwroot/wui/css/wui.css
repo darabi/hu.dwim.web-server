@@ -45,27 +45,27 @@ div.list.vertical > div
 }
 
 /*
-  hierarchy
+  standard-object-tree-nested-box
 */
 
-.hierarchy table
+.standard-object-tree-nested-box table
 {
     margin: 1em;
 }
 
 /* this screws up opera
-.hierarchy table.node
+.standard-object-tree-nested-box table.node
 {
     width: 100%;
 }
 */
 
-.hierarchy .leaf td
+.standard-object-tree-nested-box .leaf td
 {
     border-style: none;
 }
 
-.hierarchy td
+.standard-object-tree-nested-box td
 {
     white-space: nowrap;
     border-width: 1px;
@@ -73,7 +73,7 @@ div.list.vertical > div
     border-collapse: collapse;
 }
 
-.hierarchy .node thead
+.standard-object-tree-nested-box .node thead
 {
     background-color: lightskyblue;
 }

@@ -93,6 +93,15 @@
     (princ-to-string (target-of reference))))
 
 ;;;;;;
+;;; Standard object tree reference
+
+(def component standard-object-tree-reference-component (reference-component)
+  ())
+
+(def method make-reference-label ((reference standard-object-tree-reference-component))
+  (concatenate-string "Tree rooted at: " (princ-to-string (target-of reference))))
+
+;;;;;;
 ;;; Standard object filter reference
 
 (def component standard-object-filter-reference-component (reference-component)

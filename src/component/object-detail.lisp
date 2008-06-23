@@ -40,10 +40,7 @@
           (if (and alternatives
                    (not (typep content 'null-component)))
               (setf (component-value-for-alternatives self) instance)
-              (setf alternatives (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
-                                       (delay-alternative-component 'standard-object-reference-component
-                                         (setf-expand-reference-to-default-alternative-command
-                                          (make-instance 'standard-object-reference-component :target instance))))))
+              (setf alternatives (make-standard-object-alternatives instance)))
           (if (and content
                    (not (typep content 'null-component)))
               (setf (component-value-of content) instance)
@@ -63,6 +60,13 @@
   <div (:class "standard-object")
     ,(render-user-messages -self-)
     ,(call-next-method)>)
+
+(def (generic e) make-standard-object-alternatives (instance)
+  (:method ((instance standard-object))
+    (list (delay-alternative-component-type 'standard-object-detail-component :instance instance)
+          (delay-alternative-component 'standard-object-reference-component
+            (setf-expand-reference-to-default-alternative-command
+             (make-instance 'standard-object-reference-component :target instance))))))
 
 (def (generic e) make-standard-object-commands (component class instance)
   (:method ((component standard-object-component) (class standard-class) (instance standard-object))
