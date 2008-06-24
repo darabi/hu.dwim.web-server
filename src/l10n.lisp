@@ -69,3 +69,53 @@
                     (not with-indefinite-article))
                (capitalize-first-letter class-name)
                class-name)>))
+
+(def function localized-boolean-value (value)
+  (bind (((:values str found?) (localize (if value "boolean-value.true" "boolean-value.false"))))
+    (values str found?)))
+
+(def function localized-boolean-value<> (value)
+  (bind (((:values str found?) (localized-boolean-value value)))
+    <span (:class ,(append
+                    (unless found?
+                      +missing-resource-css-class+)
+                    (list "boolean")))
+      ,str>))
+
+(def function localized-enumeration-member (member-value &key class slot capitalize-first-letter)
+  ;; TODO fails with 'person 'sex: '(OR NULL SEX-TYPE)
+  (unless class
+    (setf class (when slot
+                  (owner-class-of-effective-slot-definition slot))))
+  (bind ((member-name (cond ((symbolp member-value)
+                             (symbol-name member-value))
+                            ;; TODO ? ((typep member-value 'dmm:named-element)
+                            ;; (element-name-of member-value))
+                            (t (write-to-string member-value))))
+         (slot-definition-type (when slot
+                                 (slot-definition-type slot)))
+         (class-name (when class
+                       (class-name class)))
+         (slot-name (when slot
+                      (symbol-name (slot-definition-name slot))))
+         ((:values str found?)
+          (lookup-first-matching-resource
+            (when (and class-name
+                       slot-name)
+              class-name slot-name member-name)
+            (when slot-name
+              slot-name member-name)
+            (when (and slot-definition-type
+                       ;; TODO strip off (or null ...) from the type
+                       (symbolp slot-definition-type))
+              slot-definition-type member-name)
+            ("member-type-value" member-name))))
+    (when capitalize-first-letter
+      (setf str (capitalize-first-letter str)))
+    (values str found?)))
+
+(def function localized-enumeration-member<> (member-value &key class slot capitalize-first-letter)
+  (bind (((:values str found?) (localized-enumeration-member member-value :class class :slot slot
+                                                             :capitalize-first-letter capitalize-first-letter)))
+    <span (:class ,(unless found? +missing-resource-css-class+))
+      ,str>))
