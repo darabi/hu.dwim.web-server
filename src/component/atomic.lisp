@@ -354,9 +354,9 @@
         "")))
 
 (def render member-component ()
-  (with-readonly-slots (component-value) -self-
+  (bind (((:read-only-slots component-value) -self-))
     (if (edited-p -self-)
-        (with-readonly-slots (id possible-values allow-nil-value comparator key client-name-generator) -self-
+        (bind (((:read-only-slots id possible-values allow-nil-value comparator key client-name-generator) -self-))
           (render-dojo-widget (id)
             <select (:id       ,id
                      :dojoType #.+dijit/filtering-select+
@@ -377,7 +377,7 @@
         <span ,(princ-to-string component-value)>)))
 
 (def method parse-component-value ((component member-component) client-value)
-  (with-readonly-slots (possible-values allow-nil-value) component
+  (bind (((:read-only-slots possible-values allow-nil-value) component))
     (bind ((index (parse-integer client-value)))
       (if (and allow-nil-value
                (= index 0))
