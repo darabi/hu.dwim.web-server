@@ -230,22 +230,17 @@
     (bind ((value-component (value-of component)))
       ;; TODO: recurse
       (when (typep value-component 'atomic-component)
-        (bind ((value (build-filter-query* value-component filter-query)))
+        (bind ((value (component-value-of value-component)))
           (when (and value
                      (not (string= value "")))
-            (bind ((predicate-name
-                    (ecase (condition-of component)
-                      (equal 'equal)
-                      (like 'prc::re-like)))
-                   (ponated-predicate
-                    (list predicate-name
-                          (list (prc::reader-name-of (slot-of component))
-                                (first (query-variable-stack-of filter-query)))
-                          value)))
+            (bind ((predicate-name (ecase (condition-of component)
+                                     (equal 'equal)
+                                     (like 'prc::re-like)))
+                   (ponated-predicate `(,predicate-name
+                                        (,(prc::reader-name-of (slot-of component))
+                                         ,(first (query-variable-stack-of filter-query)))
+                                        (quote ,value))))
               (prc::add-assert (query-of filter-query)
                                (if (negated-p component)
                                    `(not ,ponated-predicate)
-                                   ponated-predicate))))))))
-
-  (:method ((component atomic-component) filter-query)
-    (component-value-of component)))
+                                   ponated-predicate)))))))))
