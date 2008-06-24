@@ -15,6 +15,8 @@
    +dijit/simple-text-area+      "dijit.form.SimpleTextarea"
    +dijit/text-box+              "dijit.form.TextBox"
    +dijit/time-text-box+         "dijit.form.TimeTextBox"
+   +dijit/combo-box+             "dijit.form.ComboBox"
+   +dijit/filtering-select+      "dijit.form.FilteringSelect"
    +dijit/number-text-box+       "dijit.form.NumberTextBox"
    +dijit/tooltip-dialog+        "dijit.TooltipDialog"
    ))

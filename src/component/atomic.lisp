@@ -97,12 +97,13 @@
 
 (def render boolean-component ()
   (with-slots (edited component-value client-state-sink) -self-
-    <div ,(if edited
-              <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "#t" "#f"))>
-              +void+)
-         <input (:type "checkbox"
-                       ,(if component-value (make-xml-attribute "checked" "checked") +void+)
-                       ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>>))
+    <div
+      ,(if edited
+           <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "#t" "#f"))>
+           +void+)
+      <input (:type "checkbox"
+              ,(if component-value (make-xml-attribute "checked" "checked") +void+)
+              ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>>))
 
 (def method parse-component-value ((component boolean-component) client-value)
   (cond ((string= "#t" client-value)

@@ -30,9 +30,7 @@
   (subseq sequence 0 (- (length sequence) (length suffix))))
 
 (def function every-type-p (type list)
-  (every (lambda (element)
-           (typep element type))
-         list))
+  (every [typep !1 type] list))
 
 (def function optional-list (&rest elements)
   (remove nil elements))
@@ -202,7 +200,7 @@
   #+sbcl (eq (sb-thread::mutex-value lock) (current-thread))
   #-sbcl #t)
 
-(def (constant :test 'string=) +missing-resource-css-class+ (coerce "missing-resource" 'simple-base-string))
+(def (constant e :test 'string=) +missing-resource-css-class+ (coerce "missing-resource" 'simple-base-string))
 
 (def function localized-string-reader (stream c1 c2)
   (declare (ignore c2))
