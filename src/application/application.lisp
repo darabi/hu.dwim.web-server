@@ -392,6 +392,8 @@ Custom implementations should look something like this:
                                        :encoding encoding
                                        :content-type content-type)))
 
+(def (constant :test 'string=) +ajax-aware-client-parameter-name+ "_j")
+
 (def method send-response ((self component-rendering-response))
   (disallow-response-caching self)
   (bind ((*frame* (frame-of self))

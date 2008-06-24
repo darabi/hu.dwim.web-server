@@ -25,7 +25,7 @@
     (when (force visible)
       (if (force enabled)
           (bind ((href (etypecase action
-                         (action (action-to-href action))
+                         (action (action-to-href action :ajax-aware #f)) ;; TODO: set this to #t to allow sending ajax responses
                          ;; TODO wastes of resources. store back the printed uri? see below also...
                          (uri (print-uri-to-string action))
                          (string action)))

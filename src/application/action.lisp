@@ -73,7 +73,7 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def (function e) action-to-uri (action &key scheme delayed-content)
+(def (function e) action-to-uri (action &key scheme delayed-content ajax-aware)
   (bind ((uri (clone-uri (uri-of *request*))))
     (register-action *frame* action)
     (decorate-uri uri *application*)
@@ -84,7 +84,9 @@
       (setf (scheme-of uri) scheme))
     (setf (uri-query-parameter-value uri +delayed-content-parameter-name+)
           (if delayed-content "t" nil))
+    (setf (uri-query-parameter-value uri +ajax-aware-client-parameter-name+)
+          (if ajax-aware "t" nil))
     uri))
 
-(def (function e) action-to-href (action &key scheme delayed-content)
-  (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content)))
+(def (function e) action-to-href (action &key scheme delayed-content ajax-aware)
+  (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content :ajax-aware ajax-aware)))
