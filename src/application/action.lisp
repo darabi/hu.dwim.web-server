@@ -4,10 +4,10 @@
 
 (in-package :hu.dwim.wui)
 
-(def (constant :test 'string=) +action-id-parameter-name+  "_a")
+(def (constant :test 'string=) +action-id-parameter-name+ "_a")
 (def constant +action-id-length+ 8)
 
-(def (constant :test 'string=) +delayed-content-parameter-name+  "_d")
+(def (constant :test 'string=) +delayed-content-parameter-name+ "_d")
 
 (def function request-for-delayed-content? (&optional (request *request*))
   "A delayed content request is supposed to render stuff to the same frame that was delayed at the main request (i.e. tooltips)."

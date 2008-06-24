@@ -49,6 +49,7 @@
                           (force (tooltip-of icon)))
                 :onclick `js-inline(submit-form ,href))
                ,(if (typep icon 'icon-component)
+                    ;; NOTE: avoid rendering tooltip for Opera browser
                     (render-icon (image-path-of icon) :label (label-of icon))
                     (render icon))>)
           (render icon)))))
