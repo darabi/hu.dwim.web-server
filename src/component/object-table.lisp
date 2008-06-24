@@ -70,42 +70,27 @@
 (def method (setf component-value-of) :after (new-value (component standard-object-table-component))
   (with-slots (instances the-class slot-names command-bar columns rows) component
     (bind ((slot-name->slot (list)))
+      ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
       (flet ((register-slot (slot)
                (bind ((slot-name (slot-definition-name slot)))
                  (unless (member slot-name slot-name->slot :test #'eq :key #'car)
                    (push (cons slot-name slot) slot-name->slot)))))
         (when the-class
-          (mapcar #'register-slot (standard-object-table-slots the-class nil)))
+          (mapc #'register-slot (standard-object-table-slots the-class nil)))
         (dolist (instance instances)
-          (dolist (slot (standard-object-table-slots (class-of instance) instance))
-            (register-slot slot))))
-      (setf instances new-value)
-      (setf (slot-names-of component) (mapcar #'car slot-name->slot))
-      (setf (columns-of component) (list*
-                                    (column (label #"Object-table.column.commands"))
-                                    (column (label #"Object-table.column.type"))
-                                    (mapcar [column (label (localized-slot-name (cdr !1)))]
-                                            slot-name->slot)))
-      (setf (rows-of component) (iter (for instance :in instances)
-                                      (for row = (find instance rows :key #'component-value-of))
-                                      (if row
-                                          (setf (component-value-of row) instance)
-                                          (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
-                                      (collect row))))))
-
-(def render :in passive-components-layer standard-object-table-component
-  (bind ((first-column (first-elt (columns-of -self-)))
-         (was-visible? (visible-p first-column)))
-    (unwind-protect
-         (progn
-           (setf (visible-p first-column) #f)
-           (call-next-method))
-      (setf (visible-p first-column) was-visible?))))
-
-(def layered-method render-table-cell :in passive-components-layer ((table standard-object-table-component) row column cell)
-  (unless (eq (first-elt (columns-of table)) column)
-    ;; leave out the first column, which is the command column
-    (call-next-method)))
+          (mapc #'register-slot (standard-object-table-slots (class-of instance) instance))))
+      (setf slot-names (mapcar #'car slot-name->slot))
+      (setf columns (list*
+                     (column (label #"Object-table.column.commands") :visible (delay (not (layer-active-p 'passive-components-layer))))
+                     (column (label #"Object-table.column.type"))
+                     (mapcar [column (label (localized-slot-name (cdr !1)))]
+                             slot-name->slot)))
+      (setf rows (iter (for instance :in instances)
+                       (for row = (find instance rows :key #'component-value-of))
+                       (if row
+                           (setf (component-value-of row) instance)
+                           (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
+                       (collect row))))))
 
 (def generic standard-object-table-slots (class instance)
   (:method ((class standard-class) instance)

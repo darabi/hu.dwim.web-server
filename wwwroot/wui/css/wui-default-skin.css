@@ -47,6 +47,68 @@ td
     vertical-align: top;
 }
 
+/* tree */
+
+table.tree tr td.expander img
+{
+  padding-right: 6px;
+}
+
+table.tree tr td.non-expandable
+{
+  padding-left: 17px; /* 11px missing img + 6px right padding */
+}
+
+table.tree tr.level-0 td.expander
+{
+  padding-left: 0em;
+}
+
+table.tree tr.level-1 td.expander
+{
+  padding-left: 1em;
+}
+
+table.tree tr.level-2 td.expander
+{
+  padding-left: 2em;
+}
+
+table.tree tr.level-3 td.expander
+{
+  padding-left: 3em;
+}
+
+table.tree tr.level-4 td.expander
+{
+  padding-left: 4em;
+}
+
+table.tree tr.level-5 td.expander
+{
+  padding-left: 5em;
+}
+
+table.tree tr.level-6 td.expander
+{
+  padding-left: 6em;
+}
+
+table.tree tr.level-7 td.expander
+{
+  padding-left: 7em;
+}
+
+table.tree tr.level-8 td.expander
+{
+  padding-left: 8em;
+}
+
+table.tree tr.level-9 td.expander
+{
+  padding-left: 9em;
+}
+
 /*
   command bar
 */

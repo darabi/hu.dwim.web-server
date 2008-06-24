@@ -44,6 +44,7 @@
         (swank::present-in-emacs #.(string #\Newline))))))
 
 (def special-variable *component-print-object-level* 0)
+
 (def special-variable *component-print-object-depth* 3)
 
 (def method print-object ((self component) stream)

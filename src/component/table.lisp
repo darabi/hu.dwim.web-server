@@ -21,7 +21,7 @@
     (with-slots (columns rows page-navigation-bar) table
       (setf (total-count-of page-navigation-bar) (length rows))
       <div
-       <table
+       <table (:class "table")
            <thead
             <tr ,@(mapcar #'render columns)>>
          <tbody
@@ -36,15 +36,21 @@
             (render page-navigation-bar)
             +void+)>)))
 
+;;;;;;
+;;; Column
+
 (def component column-component (content-component)
   ((visible #t :type boolean)))
 
-(def macro column (content)
-  `(make-instance 'column-component :content ,content))
+(def macro column (content &rest args)
+  `(make-instance 'column-component :content ,content ,@args))
 
 (def render column-component ()
-  (when (visible-p -self-)
+  (when (force (visible-p -self-))
     <th ,(call-next-method)>))
+
+;;;;;;
+;;; Row
 
 (def component row-component ()
   ((cells nil :type components)))
@@ -66,6 +72,9 @@
 (def render row-component ()
   (render-table-row (parent-component-of -self-) -self-))
 
+;;;;;;
+;;; Entire row
+
 (def component entire-row-component (content-component)
   ())
 
@@ -80,6 +89,9 @@
 (def render entire-row-component ()
   (render-entire-row (parent-component-of -self-) #'call-next-method))
 
+;;;;;;
+;;; Cell
+
 (def component cell-component (content-component)
   ())
 
@@ -88,7 +100,4 @@
     <td ,(render (content-of cell)) >))
 
 (def render cell-component ()
-  (bind ((row (parent-component-of -self-))
-         (table (parent-component-of row))
-         (column (elt (position -self- (cells-of row)) (columns-of table))))
-    (render-table-cell table row column -self-)))
+  <td ,(call-next-method)>)

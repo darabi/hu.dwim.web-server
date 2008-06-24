@@ -15,8 +15,9 @@
   (target-of self))
 
 (def method (setf component-value-of) (new-value (self reference-component))
-  (setf (target-of self) new-value)
-  (setf (label-of (icon-of (expand-command-of self))) (make-reference-label self)))
+  (with-slots (target expand-command) self
+    (setf target new-value)
+    (setf (label-of (icon-of expand-command)) (make-reference-label target self))))
 
 (def render reference-component ()
   (render (expand-command-of -self-)))
@@ -25,13 +26,13 @@
   ;; TODO this is not too nice this way
   <span ,(force (label-of (icon-of (expand-command-of -self-))))>)
 
-(def (generic e) make-reference-label (reference)
-  (:method ((reference reference-component))
-    (princ-to-string (target-of reference))))
+(def (generic e) make-reference-label (target component)
+  (:method (target (component reference-component))
+    (princ-to-string (target-of component))))
 
 (def (function e) make-expand-reference-command (original-component replacement-component)
   (make-replace-command original-component replacement-component
-                        :icon (icon expand :label (make-reference-label original-component))))
+                        :icon (icon expand :label (make-reference-label (target-of original-component) original-component))))
 
 ;;;;;;
 ;;; Reference list
@@ -56,8 +57,8 @@
 (def component standard-slot-definition-reference-component (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-slot-definition-reference-component))
-  (qualified-symbol-name (slot-definition-name (target-of reference))))
+(def method make-reference-label ((slot standard-slot-definition) (reference standard-slot-definition-reference-component))
+  (qualified-symbol-name (slot-definition-name slot)))
 
 ;;;;;;
 ;;; Standard class reference
@@ -65,8 +66,8 @@
 (def component standard-class-reference-component (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-class-reference-component))
-  (localized-class-name (target-of reference) :with-article #t :capitalize-first-letter #t))
+(def method make-reference-label ((class standard-class) (reference standard-class-reference-component))
+  (localized-class-name class :with-article #t :capitalize-first-letter #t))
 
 ;;;;;;
 ;;; Standard object reference
@@ -74,8 +75,8 @@
 (def component standard-object-reference-component (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-reference-component))
-  (princ-to-string (target-of reference)))
+(def method make-reference-label ((instance standard-object) (reference standard-object-reference-component))
+  (princ-to-string instance))
 
 (def render :before standard-object-reference-component
   (bind ((instance (target-of -self-)))
@@ -88,9 +89,9 @@
 (def component standard-object-list-reference-component (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-list-reference-component))
+(def method make-reference-label ((list list) (reference standard-object-list-reference-component))
   (bind ((*print-length* 3))
-    (princ-to-string (target-of reference))))
+    (princ-to-string list)))
 
 ;;;;;;
 ;;; Standard object tree reference
@@ -98,8 +99,8 @@
 (def component standard-object-tree-reference-component (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-tree-reference-component))
-  (concatenate-string "Tree rooted at: " (princ-to-string (target-of reference))))
+(def method make-reference-label ((instance standard-object) (reference standard-object-tree-reference-component))
+  (concatenate-string "Tree rooted at: " (princ-to-string instance)))
 
 ;;;;;;
 ;;; Standard object filter reference
@@ -107,8 +108,8 @@
 (def component standard-object-filter-reference-component (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-filter-reference-component))
-  (qualified-symbol-name (class-name (target-of reference))))
+(def method make-reference-label ((class standard-class) (reference standard-object-filter-reference-component))
+  (qualified-symbol-name (class-name class)))
 
 ;;;;;;
 ;;; Standard object maker reference
@@ -116,5 +117,5 @@
 (def component standard-object-maker-reference-component (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-maker-reference-component))
-  (qualified-symbol-name (class-name (target-of reference))))
+(def method make-reference-label ((class standard-class) (reference standard-object-maker-reference-component))
+  (qualified-symbol-name (class-name class)))
