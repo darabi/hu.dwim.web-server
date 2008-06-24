@@ -43,8 +43,12 @@
         (swank::present-in-emacs component)
         (swank::present-in-emacs #.(string #\Newline))))))
 
+(def special-variable *component-print-object-level* 0)
+(def special-variable *component-print-object-depth* 3)
+
 (def method print-object ((self component) stream)
   (bind ((*print-level* nil)
+         (*component-print-object-level* (1+ *component-print-object-level*))
          (*standard-output* stream))
     (handler-bind ((error (lambda (error)
                             (declare (ignore error))
@@ -64,5 +68,7 @@
                   (prin1 initarg)
                   (write-char #\Space)
                   (pprint-newline :fill)
-                  (prin1 value)))))))
+                  (if (<= *component-print-object-level* *component-print-object-depth*)
+                      (prin1 value)
+                      (princ "#"))))))))
   self)
