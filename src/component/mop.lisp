@@ -38,9 +38,10 @@
 ;;; Ensure standard-component is among the supers of the instances of component-class
 (def function shared-initialize-around-component-class (class direct-superclasses next-method initargs)
   (declare (dynamic-extent initargs))
-  (if (loop :for class :in direct-superclasses
-            :thereis (ignore-errors
-                       (subtypep class (find-class 'component))))
+  (if (or (eq class (find-class 'component))
+          (loop :for class :in direct-superclasses
+             :thereis (ignore-errors
+                        (subtypep class (find-class 'component)))))
       (funcall next-method)
       (apply next-method
              class
