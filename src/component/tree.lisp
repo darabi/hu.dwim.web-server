@@ -9,7 +9,7 @@
 
 (def special-variable *tree-level*)
 
-(def component tree-component ()
+(def component tree-component (remote-identity-component-mixin)
   ((columns nil :type components)
    (root-node nil :type component)))
 
@@ -28,7 +28,7 @@
 ;;;;;;
 ;;; Node
 
-(def component node-component ()
+(def component node-component (remote-identity-component-mixin)
   ((child-nodes nil :type components)
    (cells nil :type components)
    (expanded #t :type boolean)))

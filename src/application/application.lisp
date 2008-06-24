@@ -410,6 +410,11 @@ Custom implementations should look something like this:
 
 (def (constant :test 'string=) +ajax-aware-client-parameter-name+ "_j")
 
+(def function ajax-aware-client? (&optional (request *request*))
+  (bind ((value (request-parameter-value request +ajax-aware-client-parameter-name+)))
+    (and value
+         (not (string= value "")))))
+
 (def method send-response ((self component-rendering-response))
   (disallow-response-caching self)
   (bind ((*frame* (frame-of self))
@@ -425,9 +430,8 @@ Custom implementations should look something like this:
                  (emit-into-html-stream buffer-stream
                    (funcall-with-layer-context (layer-context-of self)
                                                (lambda ()
-                                                 (bind ((component (component-of self))
-                                                        (ajax (parameter-value +ajax-aware-client-parameter-name+)))
-                                                   (if ajax
+                                                 (bind ((component (component-of self)))
+                                                   (if (ajax-aware-client?)
                                                        (bind ((dirty-components (collect-smallest-covering-set-for-dirty-descendant-components component)))
                                                          <ajax-response
                                                           ,@(with-collapsed-js-scripts
