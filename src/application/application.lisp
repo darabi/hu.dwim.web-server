@@ -315,18 +315,9 @@ Custom implementations should look something like this:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; app specific responses
 
-(def (generic e) render-js (component)
-  (:method (component)
-    (values)))
-
 (def (layered-function e) render (component)
-  (:method :before (component)
-    (render-js component)))
-
-;; TODO support it?
-#+nil
-(def (render :in passive-components-layer) command-bar-component
-  (values))
+  (:method :around (component)
+    (call-in-rendering-environment component #'call-next-method)))
 
 (def (definer e) render (&body forms)
   (bind ((layer (when (member (first forms) '(:in-layer :in))
