@@ -356,7 +356,8 @@
 (def render member-component ()
   (bind (((:read-only-slots component-value) -self-))
     (if (edited-p -self-)
-        (bind (((:read-only-slots id possible-values allow-nil-value comparator key client-name-generator) -self-))
+        (bind ((id (id-of -self-))
+               ((:read-only-slots possible-values allow-nil-value comparator key client-name-generator) -self-))
           (render-dojo-widget (id)
             <select (:id       ,id
                      :dojoType #.+dijit/filtering-select+
