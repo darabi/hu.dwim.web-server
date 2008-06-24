@@ -330,9 +330,34 @@ Custom implementations should look something like this:
     `(def layered-method render ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
        ,@forms)))
 
-(def (definer e) render-js (type &body forms)
-  `(def method render-js ((-self- ,type))
-     ,@forms))
+(def (generic e) call-in-rendering-environment (component thunk)
+  (:method (component thunk)
+    (funcall thunk)))
+
+(def (definer e) call-in-rendering-environment (&body forms)
+  (bind ((qualifier (when (or (keywordp (first forms))
+                              (member (first forms) '(and or progn append nconc)))
+                      (pop forms)))
+         (type (pop forms))
+         (unused (gensym)))
+    `(def method call-in-rendering-environment ,@(when qualifier (list qualifier)) ((-self- ,type) ,unused)
+          ,@forms)))
+
+;; TODO: move?
+(def function collect-path-to-root-component (component)
+  (iter (for ancestor-component :initially component :then (parent-component-of ancestor-component))
+        (while ancestor-component)
+        (collect ancestor-component)))
+
+(def function render-with-restored-rendering-environment (component)
+  (bind ((path (nreverse (cdr (collect-path-to-root-component component)))))
+    (labels ((%render-with-restored-rendering-environment (remaining-path)
+               (if remaining-path
+                   (call-in-rendering-environment (car remaining-path)
+                                                  (lambda ()
+                                                    (%render-with-restored-rendering-environment (cdr remaining-path))))
+                   (render component))))
+      (%render-with-restored-rendering-environment path))))
 
 (def (function e) render-to-string (component)
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
@@ -399,7 +424,16 @@ Custom implementations should look something like this:
                    (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
                    (funcall-with-layer-context (layer-context-of self)
-                                               (lambda () (render (component-of self)))))))
+                                               (lambda ()
+                                                 (bind ((component (component-of self))
+                                                        (ajax (parameter-value +ajax-aware-client-parameter-name+)))
+                                                   (if ajax
+                                                       (bind ((dirty-components (collect-smallest-covering-set-for-dirty-descendant-components component)))
+                                                         <ajax-response
+                                                          ,@(with-collapsed-js-scripts
+                                                             <dom-replacements
+                                                              ,@(mapcar #'render-with-restored-rendering-environment dirty-components)>)>)
+                                                       (render component))))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 128)
                     (setf (header-value self +header/content-length+) (princ-to-string (length body)))

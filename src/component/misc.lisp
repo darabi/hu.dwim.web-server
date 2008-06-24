@@ -89,7 +89,8 @@
 ;;; Remote identity
 
 (def component remote-identity-component-mixin (component)
-  ((id nil)))
+  ((id nil)
+   (dirty #t :type boolean)))
 
 (def method id-of :around ((self remote-identity-component-mixin))
   (bind ((id (call-next-method)))
@@ -97,6 +98,25 @@
       (setf id (generate-frame-unique-string "c"))
       (setf (id-of self) id))
     id))
+
+(def render :after remote-identity-component-mixin ()
+  (setf (dirty-p -self-) #f))
+
+(def (function e) mark-dirty (component)
+  (setf (dirty-p component) #t))
+
+(def function collect-smallest-covering-set-for-dirty-descendant-components (component)
+  (prog1-bind dirty-components nil
+    (labels ((traverse (parent-component)
+               (if (and (typep parent-component 'remote-identity-component-mixin)
+                        (dirty-p parent-component))
+                   (push parent-component dirty-components)
+                   (map-child-components parent-component #'traverse))))
+      (traverse component))))
+
+(def method (setf slot-value-using-class) :after (new-value (class component-class) (instance remote-identity-component-mixin) (slot standard-effective-slot-definition))
+  (unless (eq 'dirty (slot-definition-name slot))
+    (setf (dirty-p instance) #t)))
 
 ;;;;;;;;;
 ;;; Widget
