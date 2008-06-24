@@ -29,14 +29,14 @@
   `(make-menu-component ,label (list ,@menu-items)))
 
 (def function render-menu-items (menu-items)
-  (mapcar #'render ))
+  (mapcar #'render menu-items))
 
 (def render menu-component ()
-  (bind ((icon (icon-of -self-)))
+  (bind (((:read-only-slots icon menu-items) -self-))
     <div ,(if icon
               (render icon)
               +void+)
-         <ul ,@(mapcar #'render (menu-items-of -self-))>>))
+         <ul ,@(mapcar #'render menu-items)>>))
 
 (def icon menu "static/wui/icons/20x20/open-folder.png") ;; TODO: icon
 
@@ -56,7 +56,7 @@
   `(make-menu-item-component ,command ,@menu-items))
 
 (def render menu-item-component ()
-  (with-slots (visible command menu-items) -self-
+  (with-slots (command menu-items) -self-
     <div ,(render command)
          <ul ,@(mapcar #'render menu-items)>>))
 
@@ -112,7 +112,7 @@
   ((the-class)))
 
 (def constructor standard-object-maker-menu-item-component ()
-  (with-slots (the-class visible command) -self-
+  (with-slots (the-class command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
                                  :icon (icon new)
                                  :component (make-maker-component the-class)))))
@@ -132,7 +132,7 @@
   ((the-class)))
 
 (def constructor persistent-process-starter-menu-item-component ()
-  (with-slots (the-class visible command) -self-
+  (with-slots (the-class command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
                                  :icon (icon new)
                                  :component (make-maker-component the-class)))))
