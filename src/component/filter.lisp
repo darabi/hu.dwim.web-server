@@ -180,7 +180,7 @@
            (declare (ignore type size))
            (bind ((instance-class (class-of instance)))
              (when (and (typep instance class)
-                        (not (eq instance (closer-mop:class-prototype instance-class)))
+                        (not (eq instance (class-prototype instance-class)))
                         (every (lambda (slot-name value)
                                  (or (not value)
                                      (bind ((slot (find-slot instance-class slot-name)))

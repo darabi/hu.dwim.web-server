@@ -39,16 +39,16 @@
      (case (class-name class)
        (string "42")
        (list nil)
-       (t (closer-mop:class-prototype class)))))
+       (t (class-prototype class)))))
 
   (:method ((type cons))
     (find-inspector-component-type-for-compound-type type))
 
   (:method ((class structure-class))
-    (find-inspector-component-type-for-prototype (closer-mop:class-prototype class)))
+    (find-inspector-component-type-for-prototype (class-prototype class)))
 
   (:method ((class standard-class))
-    (find-inspector-component-type-for-prototype (closer-mop:class-prototype class))))
+    (find-inspector-component-type-for-prototype (class-prototype class))))
 
 (def (function) find-inspector-component-type-for-compound-type (type)
   (find-inspector-component-type-for-compound-type* (first type) type))
@@ -149,16 +149,16 @@
      (case (class-name class)
        (string "42")
        (list nil)
-       (t (closer-mop:class-prototype class)))))
+       (t (class-prototype class)))))
 
   (:method ((type cons))
     (find-filter-component-type-for-compound-type type))
 
   (:method ((class structure-class))
-    (find-filter-component-type-for-prototype (closer-mop:class-prototype class)))
+    (find-filter-component-type-for-prototype (class-prototype class)))
 
   (:method ((class standard-class))
-    (find-filter-component-type-for-prototype (closer-mop:class-prototype class))))
+    (find-filter-component-type-for-prototype (class-prototype class))))
 
 (def function find-filter-component-type-for-compound-type (type)
   (find-filter-component-type-for-compound-type* (first type) type))

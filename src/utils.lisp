@@ -22,6 +22,15 @@
         :key 'slot-definition-name
         :test 'eq))
 
+(def (function i) class-prototype (class)
+  (closer-mop:class-prototype (ensure-finalized class)))
+
+(def (function i) class-slots (class)
+  (closer-mop:class-slots (ensure-finalized class)))
+
+(def (function i) class-precedence-list (class)
+  (closer-mop:class-precedence-list (ensure-finalized class)))
+
 (def function qualified-symbol-name (symbol)
   (bind ((*package* (find-package :keyword)))
     (format nil "~S" symbol)))

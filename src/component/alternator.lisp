@@ -59,7 +59,6 @@
                           alternatives)
             (force it)))
         (bind ((class (find-class type)))
-          (ensure-finalized class)
           (class-precedence-list class))))
 
 (def function find-default-alternative-component (alternatives)

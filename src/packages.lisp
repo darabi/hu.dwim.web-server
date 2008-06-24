@@ -33,6 +33,12 @@
    :iolib
    )
 
+  (:shadow
+   #:class-prototype
+   #:class-slots
+   #:class-precedence-list
+   )
+
   (:shadowing-import-from :cl-syntax-sugar
    #:define-syntax)
 

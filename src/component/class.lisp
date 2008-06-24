@@ -74,8 +74,8 @@
                  (setf (component-value-of direct-slots) (class-direct-slots the-class))
                  (setf direct-slots (make-instance 'standard-slot-definition-table-component :slots (class-direct-slots the-class))))
              (if effective-slots
-                 (setf (component-value-of effective-slots) (progn (ensure-finalized the-class) (class-slots the-class)))
-                 (setf effective-slots (make-instance 'standard-slot-definition-table-component :slots (progn (ensure-finalized the-class) (class-slots the-class))))))
+                 (setf (component-value-of effective-slots) (class-slots the-class))
+                 (setf effective-slots (make-instance 'standard-slot-definition-table-component :slots (class-slots the-class)))))
            (setf metaclass nil
                  direct-subclasses nil
                  direct-superclasses nil
