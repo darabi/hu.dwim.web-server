@@ -72,6 +72,11 @@
         (when (funcall map-function current-node)
           (return current-node))))
 
+(def macro with-readonly-slots (slots instance &body body)
+  ;; TODO possible optimization due to being read-only
+  `(with-slots ,slots ,instance
+     ,@body))
+
 (def special-variable *temporary-file-random* (princ-to-string (nix:getpid)))
 (def special-variable *temporary-file-unique-number* 0)
 
