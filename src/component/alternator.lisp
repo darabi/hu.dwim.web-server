@@ -27,7 +27,7 @@
 (def function make-alternative-component-replace-command (component alternative)
   (make-replace-command (delay (content-of component)) alternative
                         :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
-                                             (not (eq (force alternative) (content-of component)))))
+                                             (not (eq (the-class-of alternative) (class-of (content-of component))))))
                         :icon (make-alternative-component-replace-command-icon-component (class-prototype (the-class-of alternative)))))
 
 (def generic make-alternative-component-replace-command-icon-component (prototype)
