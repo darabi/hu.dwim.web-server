@@ -32,7 +32,7 @@
     'timestamp-component)
 
   (:method ((type cl-perec:member-type))
-    'member-component)
+    (list 'member-component :possible-values (cl-perec:members-of type)))
 
   (:method ((type cl-perec:serialized-type))
     't-component)
@@ -73,7 +73,7 @@
     'timestamp-component)
 
   (:method ((type cl-perec:member-type))
-    'member-component)
+    (list 'member-component :possible-values (cl-perec:members-of type) :allow-nil-value #t))
 
   (:method ((type cl-perec:serialized-type))
     't-component)

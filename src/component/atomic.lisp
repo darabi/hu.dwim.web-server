@@ -339,14 +339,52 @@
 ;;;;;;
 ;;; Member
 
-;; TODO:
-(def component member-component (atomic-component)
-  ())
+(def component member-component (atomic-component style-component-mixin)
+  ((possible-values)
+   (comparator #'equal)
+   (key #'identity)
+   ;; TODO we need to get the class and slot here somehow
+   (client-name-generator [localized-member-component-value nil nil !1])))
+
+(def generic localized-member-component-value (class slot value)
+  (:method (class slot value)
+    (if value
+        (localized-enumeration-member value :class class :slot slot :capitalize-first-letter #t)
+        "")))
 
 (def render member-component ()
-  (if (edited-p -self-)
-      <span "TODO: member-component">
-      <span ,(princ-to-string (component-value-of -self-))>))
+  (with-readonly-slots (component-value) -self-
+    (if (edited-p -self-)
+        (with-readonly-slots (id possible-values allow-nil-value comparator key client-name-generator) -self-
+          (render-dojo-widget (id)
+            <select (:id       ,id
+                     :dojoType #.+dijit/filtering-select+
+                     :name     ,(id-of (client-state-sink-of -self-)))
+              ,@(iter (for index :upfrom 0)
+                      (generate el :in-sequence possible-values)
+                      (for possible-value = (funcall key (if (first-time-p)
+                                                             (if allow-nil-value
+                                                                 nil
+                                                                 (next el))
+                                                             (next el))))
+                      (for client-name = (funcall client-name-generator possible-value))
+                      (for client-value = (integer-to-string index))
+                      (collect <option (:value ,client-value
+                                        ,(when (funcall comparator component-value possible-value)
+                                           (make-xml-attribute "selected" "yes")))
+                                 ,client-name>))>))
+        <span ,(princ-to-string component-value)>)))
+
+(def method parse-component-value ((component member-component) client-value)
+  (with-readonly-slots (possible-values allow-nil-value) component
+    (bind ((index (parse-integer client-value)))
+      (if (and allow-nil-value
+               (= index 0))
+          nil
+          (progn
+            (decf index)
+            (assert (< index (length possible-values)))
+            (elt possible-values index))))))
 
 
 ;;;;;;
