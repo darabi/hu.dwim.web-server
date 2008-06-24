@@ -15,12 +15,15 @@
 
 (def render tree-component ()
   (with-slots (columns root-node) -self-
-    (bind ((*tree-level* 0))
-      <table (:class "tree")
-          <thead
-           <tr <th>
-               ,@(mapcar #'render columns)>>
-        <tbody ,@(render root-node)>>)))
+    <table (:class "tree")
+      <thead
+       <tr <th>
+           ,@(mapcar #'render columns)>>
+      <tbody ,@(render root-node)>>))
+
+(def call-in-rendering-environment tree-component ()
+  (bind ((*tree-level* -1))
+    (call-next-method)))
 
 ;;;;;;
 ;;; Node
@@ -45,8 +48,11 @@
                                +void+)>
                       ,@(mapcar #'render cells)>)
             (when expanded
-              (bind ((*tree-level* (1+ *tree-level*)))
-                (mappend #'render child-nodes))))))
+              (mappend #'render child-nodes)))))
+
+(def call-in-rendering-environment node-component ()
+  (bind ((*tree-level* (1+ *tree-level*)))
+    (call-next-method)))
 
 ;;;;;;
 ;;; Entire node
