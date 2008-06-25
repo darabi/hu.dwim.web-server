@@ -4,6 +4,10 @@
 
 (in-package :hu.dwim.wui)
 
+(def (js-lisp-macro-alias e) awhen)
+(def (js-lisp-macro-alias e) aif)
+(def (js-lisp-macro-alias e) acond)
+
 (def (js-macro e) |in-package| (package)
   (declare (ignore package))
   (values))
