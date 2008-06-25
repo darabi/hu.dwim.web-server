@@ -137,8 +137,7 @@
                                (:file "error-handlers")))
                  (:module "component"
                   :components ((:file "mop" )
-                               (:file "syntax")
-                               (:file "component" :depends-on ("mop" "syntax"))
+                               (:file "component" :depends-on ("mop"))
                                (:file "factory" :depends-on ("component"))
                                (:file "place" :depends-on ("component"))
                                (:file "icon" :depends-on ("component"))
@@ -163,8 +162,7 @@
                                (:file "object-table" :depends-on ("object-detail" "table"))
                                (:file "object-tree" :depends-on ("object-detail" "tree"))
                                (:file "process" :depends-on ("command" "object-maker" "object-table" "object-tree"))
-                               (:file "filter" :depends-on ("object-detail"))
-                               (:file "parser" :depends-on ("atomic" "reference" "object-detail" "filter" "class" "process")))
+                               (:file "filter" :depends-on ("object-detail")))
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
