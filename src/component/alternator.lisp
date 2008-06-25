@@ -24,6 +24,11 @@
             (make-alternative-component-replace-command component alternative))
           alternatives))
 
+(def function make-alternator-command-bar (component alternatives commands)
+  (make-instance 'command-bar-component
+                 :commands (append commands (make-alternative-commands component alternatives))
+                 :visible (delay (not (typep (content-of component) 'reference-component)))))
+
 (def function make-alternative-component-replace-command (component alternative)
   (make-replace-command (delay (content-of component)) alternative
                         :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))

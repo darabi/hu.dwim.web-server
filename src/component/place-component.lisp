@@ -16,10 +16,12 @@
 (def constructor place-component ()
   (with-slots (edited content command-bar) -self-
     (setf content (make-place-component-content -self-)
-          command-bar (make-instance 'command-bar-component :commands (append (list (make-refresh-command -self-)
-                                                                                    #+nil
-                                                                                    (make-makunbound-command -self-))
-                                                                              (make-editing-commands -self-))))))
+          command-bar nil
+          #+nil ;; TODO:
+          (make-instance 'command-bar-component :commands (append (list (make-refresh-command -self-)
+                                                                        #+nil
+                                                                        (make-makunbound-command -self-))
+                                                                  (make-editing-commands -self-))))))
 
 (def render place-component ()
   (with-slots (edited content command-bar) -self-

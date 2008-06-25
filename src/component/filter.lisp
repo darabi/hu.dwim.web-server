@@ -22,10 +22,10 @@
                           (find-default-alternative-component alternatives)))
         (setf alternatives nil
               content nil))
-    (setf command-bar (make-instance 'command-bar-component :commands (append (list (make-open-in-new-frame-command self)
-                                                                                    (make-top-command self)
-                                                                                    (make-filter-instances-command self (delay (result-of self))))
-                                                                              (make-alternative-commands self alternatives))))))
+    (setf command-bar (make-alternator-command-bar self alternatives
+                                                   (list (make-open-in-new-frame-command self)
+                                                         (make-top-command self)
+                                                         (make-filter-instances-command self (delay (result-of self))))))))
 
 (def render standard-object-filter-component ()
   (with-slots (result content command-bar) -self-

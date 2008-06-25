@@ -29,7 +29,8 @@
 ;;;;;;
 ;;; Standard object
 
-(def component standard-object-component (abstract-standard-object-component alternator-component editable-component user-message-collector-component-mixin)
+(def component standard-object-component (abstract-standard-object-component alternator-component editable-component
+                                          user-message-collector-component-mixin remote-identity-component-mixin)
   ()
   (:documentation "Component for an instance of STANDARD-OBJECT in various alternative views"))
 
@@ -47,19 +48,19 @@
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
-          (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (list (make-open-in-new-frame-command self)
-                                                                   (make-top-command self)
-                                                                   (make-refresh-command self))
-                                                             (make-standard-object-commands self the-class instance)
-                                                             (make-alternative-commands self alternatives)))))
+          (setf command-bar (make-alternator-command-bar self alternatives
+                                                         (append (list (make-open-in-new-frame-command self)
+                                                                       (make-top-command self)
+                                                                       (make-refresh-command self))
+                                                                 (make-standard-object-commands self the-class instance)))))
         (setf alternatives (list (delay-alternative-component-type 'null-component))
               content (find-default-alternative-component alternatives)))))
 
 (def render standard-object-component ()
-  <div (:class "standard-object")
-    ,(render-user-messages -self-)
-    ,(call-next-method)>)
+  (with-slots (id) -self-
+    <div (:id ,id :class "standard-object")
+         ,(render-user-messages -self-)
+         ,(call-next-method)>))
 
 (def (generic e) make-standard-object-alternatives (instance)
   (:method ((instance standard-object))

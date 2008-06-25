@@ -48,11 +48,10 @@
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
-          (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (list (make-open-in-new-frame-command self)
-                                                                   (make-top-command self)
-                                                                   (make-refresh-command self))
-                                                             (make-alternative-commands self alternatives)))))
+          (setf command-bar (make-alternator-command-bar self alternatives
+                                                         (list (make-open-in-new-frame-command self)
+                                                               (make-top-command self)
+                                                               (make-refresh-command self)))))
         (setf alternatives (list (delay-alternative-component-type 'null-component))
               content (find-default-alternative-component alternatives)))))
 
@@ -148,7 +147,7 @@
 
 (def render standard-object-tree-node-component ()
   (when (messages-of -self-)
-    (render-entire-node (parent-component-of -self-)
+    (render-entire-node -self- (find-ancestor-component-with-type -self- 'tree-component)
                         (lambda ()
                           (render-user-messages -self-))))
   (call-next-method))
@@ -168,7 +167,6 @@
                                       (list :icon (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))
                                       (list :icon (icon collapse))))
-
 
 ;;;;;;
 ;;; Standard object tree nested box

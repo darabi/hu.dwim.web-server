@@ -359,7 +359,16 @@ Custom implementations should look something like this:
                    (render component))))
       (%render-with-restored-rendering-environment path))))
 
-(def (function e) render-to-string (component)
+(def function ajax-aware-render (component ajax-aware-client?)
+  (if ajax-aware-client?
+      (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
+        <ajax-response
+         ,@(with-collapsed-js-scripts
+            <dom-replacements
+             ,@(mappend [ensure-list (render-with-restored-rendering-environment !1)] dirty-components)>)>)
+      (render component)))
+
+(def (function e) render-to-string (component &key (ajax-aware-client #f))
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
          (*application* (make-instance 'application :path-prefix ""))
          (*session* (make-instance 'session))
@@ -370,7 +379,7 @@ Custom implementations should look something like this:
        (with-output-to-sequence (buffer-stream :external-format :utf-8
                                                :initial-buffer-size 256)
          (emit-into-html-stream buffer-stream
-           (render component)))
+           (ajax-aware-render component ajax-aware-client)))
        :encoding :utf-8))))
 
 (def class* locked-session-response-mixin (response)
@@ -429,15 +438,7 @@ Custom implementations should look something like this:
                    (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
                    (funcall-with-layer-context (layer-context-of self)
-                                               (lambda ()
-                                                 (bind ((component (component-of self)))
-                                                   (if (ajax-aware-client?)
-                                                       (bind ((dirty-components (collect-smallest-covering-set-for-dirty-descendant-components component)))
-                                                         <ajax-response
-                                                          ,@(with-collapsed-js-scripts
-                                                             <dom-replacements
-                                                              ,@(mapcar #'render-with-restored-rendering-environment dirty-components)>)>)
-                                                       (render component))))))))
+                                               (lambda () (ajax-aware-render (component-of self) (ajax-aware-client?)))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 128)
                     (setf (header-value self +header/content-length+) (princ-to-string (length body)))

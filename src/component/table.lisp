@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Table
 
-(def component table-component ()
+(def component table-component (remote-identity-component-mixin)
   ((columns nil :type components)
    (rows nil :type components)
    (page-navigation-bar nil :type component)))
@@ -40,19 +40,18 @@
 ;;; Column
 
 (def component column-component (content-component)
-  ((visible #t :type boolean)))
+  ())
 
 (def macro column (content &rest args)
   `(make-instance 'column-component :content ,content ,@args))
 
 (def render column-component ()
-  (when (force (visible-p -self-))
-    <th ,(call-next-method)>))
+  <th ,(call-next-method)>)
 
 ;;;;;;
 ;;; Row
 
-(def component row-component ()
+(def component row-component (remote-identity-component-mixin)
   ((cells nil :type components)))
 
 (def function odd/even-class (component components)
@@ -75,16 +74,15 @@
 ;;;;;;
 ;;; Entire row
 
-(def component entire-row-component (content-component)
+(def component entire-row-component (remote-identity-component-mixin content-component)
   ())
 
 (def layered-method render-table-row ((table table-component) (row entire-row-component))
   (render row))
 
 (def function render-entire-row (table body-thunk)
-  <tr
-   <td (:colspan ,(length (columns-of table)))
-       ,(funcall body-thunk)>>)
+  <tr <td (:colspan ,(length (columns-of table)))
+          ,(funcall body-thunk)>>)
 
 (def render entire-row-component ()
   (render-entire-row (parent-component-of -self-) #'call-next-method))

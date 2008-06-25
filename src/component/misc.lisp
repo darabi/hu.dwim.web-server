@@ -21,7 +21,7 @@
 ;;;;;;
 ;;; Top
 
-(def component top-component (content-component)
+(def component top-component (remote-identity-component-mixin content-component)
   ()
   (:documentation "The top command will replace the content of a top-component with the component which the action refers to."))
 
@@ -89,48 +89,49 @@
 ;;; Remote identity
 
 (def component remote-identity-component-mixin (component)
-  ((id nil)
-   (dirty #t :type boolean)))
+  ((id nil)))
 
-(def method id-of :around ((self remote-identity-component-mixin))
-  (bind ((id (call-next-method)))
-    (unless id
-      (setf id (generate-frame-unique-string "c"))
-      (setf (id-of self) id))
-    id))
+(def render :before remote-identity-component-mixin ()
+  (with-slots (id) -self-
+    (when (and *frame*
+               (not id))
+      (setf id (generate-frame-unique-string "c")))))
 
-(def render :after remote-identity-component-mixin ()
-  (setf (dirty-p -self-) #f))
-
-(def (function e) mark-dirty (component)
-  (setf (dirty-p component) #t))
-
-(def function collect-smallest-covering-set-for-dirty-descendant-components (component)
-  (prog1-bind dirty-components nil
-    (labels ((traverse (parent-component)
-               (if (and (typep parent-component 'remote-identity-component-mixin)
-                        (dirty-p parent-component))
-                   (push parent-component dirty-components)
-                   (map-child-components parent-component #'traverse))))
-      (traverse component))))
-
-(def method (setf slot-value-using-class) :after (new-value (class component-class) (instance remote-identity-component-mixin) (slot standard-effective-slot-definition))
-  (unless (eq 'dirty (slot-definition-name slot))
-    (setf (dirty-p instance) #t)))
+(def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
+  (prog1-bind covering-components nil
+    (labels ((traverse-1 (parent-component)
+               (if (typep parent-component 'remote-identity-component-mixin)
+                   (catch parent-component
+                     (traverse-2 parent-component))
+                   (traverse-2 parent-component)))
+             (traverse-2 (parent-component)
+               ;; TODO: typep instead of find-slot
+               (when (force (visible-p parent-component))
+                 (if (dirty-p parent-component)
+                     (bind ((remote-identity-component
+                             (if (typep parent-component 'remote-identity-component-mixin)
+                                 parent-component
+                                 (find-ancestor-component-with-type parent-component 'remote-identity-component-mixin))))
+                       (assert remote-identity-component nil "There is no ancestor component with remote identity for ~A" parent-component)
+                       (pushnew remote-identity-component covering-components)
+                       (throw remote-identity-component nil))
+                     (map-child-components parent-component #'traverse-1)))))
+      (traverse-1 component))))
 
 ;;;;;;;;;
-;;; Widget
+;;; Style
 
-(def component style-component-mixin (remote-identity-component-mixin)
+(def component style-component-mixin ()
   ((css-class nil)
-   (style nil)))
-
-(def component style-component (style-component-mixin content-component)
-  ())
+   (style nil)
+   (id nil)))
 
 (def render style-component-mixin ()
   <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))
        ,(call-next-method) >)
+
+(def component style-component (style-component-mixin content-component)
+  ())
 
 (def (macro e) style ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'style-component ,@args :content ,(the-only-element content)))

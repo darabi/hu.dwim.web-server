@@ -14,8 +14,8 @@
    (root-node nil :type component)))
 
 (def render tree-component ()
-  (with-slots (columns root-node) -self-
-    <table (:class "tree")
+  (with-slots (columns root-node id) -self-
+    <table (:id ,id :class "tree")
       <thead
        <tr <th>
            ,@(mapcar #'render columns)>>
@@ -34,8 +34,8 @@
    (expanded #t :type boolean)))
 
 (def render node-component ()
-  (with-slots (child-nodes cells expanded) -self-
-    (append (list <tr (:class ,(concatenate-string "level-" (integer-to-string *tree-level*)))
+  (with-slots (child-nodes cells expanded id) -self-
+    (append (list <tr (:id ,id :class ,(concatenate-string "level-" (integer-to-string *tree-level*)))
                       <td (:class ,(if child-nodes
                                        "expander"
                                        "non-expandable"))
@@ -57,13 +57,14 @@
 ;;;;;;
 ;;; Entire node
 
-(def component entire-node-component ()
+(def component entire-node-component (remote-identity-component-mixin content-component)
   ())
 
-(def function render-entire-node (tree body-thunk)
-  <tr
-   <td (:colspan ,(length (columns-of tree)))
-       ,(funcall body-thunk)>>)
+(def function render-entire-node (node tree body-thunk)
+  (with-slots (id) node
+    (list <tr (:id ,id)
+              <td (:colspan ,(length (columns-of tree)))
+                  ,(funcall body-thunk)>>)))
 
 (def render entire-node-component ()
-  (render-entire-node (parent-component-of -self-) #'call-next-method))
+  (render-entire-node -self- (find-ancestor-component-with-type -self- 'tree-component) #'call-next-method))

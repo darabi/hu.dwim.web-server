@@ -38,8 +38,7 @@
 (rename-package :hu.dwim.wui :hu.dwim.wui '(:wui))
 
 (defun setup-readtable ()
-  (hu.dwim.wui::setup-readtable)
-  (enable-quasi-quoted-ui-to-ui-emitting-form-syntax))
+  (hu.dwim.wui::setup-readtable))
 
 (register-readtable-for-swank
  '("HU.DWIM.WUI-TEST") 'setup-readtable)

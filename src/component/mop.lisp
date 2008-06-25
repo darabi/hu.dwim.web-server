@@ -36,9 +36,9 @@
       (call-next-method)))
 
 ;;; Ensure standard-component is among the supers of the instances of component-class
-(def function shared-initialize-around-component-class (class direct-superclasses next-method initargs)
+(def function shared-initialize-around-component-class (class class-name direct-superclasses next-method initargs)
   (declare (dynamic-extent initargs))
-  (if (or (eq class (find-class 'component))
+  (if (or (eq class-name 'component)
           (loop :for class :in direct-superclasses
              :thereis (ignore-errors
                         (subtypep class (find-class 'component)))))
@@ -51,14 +51,14 @@
                        (list (find-class 'component))))
              initargs)))
 
-(def method initialize-instance :around ((class component-class) &rest initargs &key direct-superclasses)
+(def method initialize-instance :around ((class component-class) &rest initargs &key name direct-superclasses)
   (declare (dynamic-extent initargs))
-  (shared-initialize-around-component-class class direct-superclasses #'call-next-method initargs))
+  (shared-initialize-around-component-class class name direct-superclasses #'call-next-method initargs))
 
 (def method reinitialize-instance :around ((class component-class) &rest initargs
                                            &key (direct-superclasses '() direct-superclasses-p))
   (declare (dynamic-extent initargs))
   (if direct-superclasses-p
-      (shared-initialize-around-component-class class direct-superclasses #'call-next-method initargs)
+      (shared-initialize-around-component-class class (class-name class) direct-superclasses #'call-next-method initargs)
       ;; if direct superclasses are not explicitly passed we _must_ not change anything
       (call-next-method)))

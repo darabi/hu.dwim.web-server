@@ -340,7 +340,7 @@
 ;;;;;;
 ;;; Member
 
-(def component member-component (atomic-component style-component-mixin)
+(def component member-component (atomic-component style-component-mixin remote-identity-component-mixin)
   ((possible-values)
    (comparator #'equal)
    (key #'identity)

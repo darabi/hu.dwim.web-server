@@ -7,7 +7,7 @@
 ;;;;;;;;
 ;;; List
 
-(def component list-component (style-component-mixin value-component)
+(def component list-component (style-component value-component)
   ((elements nil)
    (orientation :vertical :type (member :vertical :horizontal))
    (components nil :type components)))

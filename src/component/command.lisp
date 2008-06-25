@@ -11,8 +11,7 @@
 ;;; Command
 
 (def component command-component ()
-  ((visible #t :type boolean)
-   (enabled #t :type boolean)
+  ((enabled #t :type boolean)
    (tooltip-emitter nil) ;; TODO mutually exclusive with tooltip, store at the same place
    (icon nil :type component)
    (action)))
@@ -21,43 +20,37 @@
   `(make-instance 'command-component :icon ,icon :action ,action ,@args))
 
 (def render command-component
-  (with-slots (visible enabled icon action tooltip-emitter) -self-
-    (when (force visible)
-      (if (force enabled)
-          (bind ((href (etypecase action
-                         (action (action-to-href action :ajax-aware #f)) ;; TODO: set this to #t to allow sending ajax responses
-                         ;; TODO wastes of resources. store back the printed uri? see below also...
-                         (uri (print-uri-to-string action))
-                         (string action)))
-                 (id (when tooltip-emitter
-                       (generate-frame-unique-string))))
-            ;; render the `js first, so the return value contract of qq is kept.
-            (when tooltip-emitter
-              ;; TODO this could be collected and emitted using a (map ... data) to spare some space
-              `js(on-load
-                  (new dojox.widget.DynamicTooltip
-                       (create :connectId (array ,id)
-                               :position (array "below" "right")
-                               :href ,(etypecase tooltip-emitter
-                                        (action (action-to-href tooltip-emitter :delayed-content #t))
-                                        (uri (print-uri-to-string tooltip-emitter))
-                                        (string tooltip-emitter))))))
-            <a (:id ,id
-                :href "#"
-                :title ,(when (and (not tooltip-emitter)
-                                   (typep icon 'icon-component))
-                          (force (tooltip-of icon)))
-                :onclick `js-inline(submit-form ,href))
-               ,(if (typep icon 'icon-component)
-                    ;; NOTE: avoid rendering tooltip for Opera browser
-                    (render-icon (image-path-of icon) :label (label-of icon))
-                    (render icon))>)
-          (render icon)))))
+  (with-slots (enabled icon action tooltip-emitter) -self-
+    (if (force enabled)
+        (bind ((href (etypecase action
+                       (action (action-to-href action :ajax-aware #f)) ;; TODO: set this to #t to allow sending ajax responses
+                       ;; TODO wastes of resources. store back the printed uri? see below also...
+                       (uri (print-uri-to-string action))
+                       (string action)))
+               (id (when tooltip-emitter
+                     (generate-frame-unique-string))))
+          ;; render the `js first, so the return value contract of qq is kept.
+          (when tooltip-emitter
+            ;; TODO this could be collected and emitted using a (map ... data) to spare some space
+            `js(on-load
+                (new dojox.widget.DynamicTooltip
+                     (create :connectId (array ,id)
+                             :position (array "below" "right")
+                             :href ,(etypecase tooltip-emitter
+                                               (action (action-to-href tooltip-emitter :delayed-content #t))
+                                               (uri (print-uri-to-string tooltip-emitter))
+                                               (string tooltip-emitter))))))
+          <a (:id ,id
+                  :href "#"
+                  :title ,(when (and (not tooltip-emitter)
+                                     (typep icon 'icon-component))
+                                (force (tooltip-of icon)))
+                  :onclick `js-inline(submit-form ,href))
+             ,(render icon)>)
+        (render icon))))
 
 (def render :in passive-components-layer command-component
-  (with-slots (visible icon) -self-
-    (when (force visible)
-      (render icon))))
+  (render (icon-of -self-)))
 
 ;;;;;;
 ;;; Command bar

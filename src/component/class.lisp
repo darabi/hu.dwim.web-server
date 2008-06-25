@@ -38,11 +38,10 @@
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
-          (setf command-bar (make-instance 'command-bar-component
-                                           :commands (append (list (make-open-in-new-frame-command self)
-                                                                   (make-top-command self)
-                                                                   (make-refresh-command self))
-                                                             (make-alternative-commands self alternatives)))))
+          (setf command-bar (make-alternator-command-bar self alternatives
+                                                         (list (make-open-in-new-frame-command self)
+                                                               (make-top-command self)
+                                                               (make-refresh-command self)))))
         (setf alternatives nil
               content nil))))
 
