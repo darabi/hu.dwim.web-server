@@ -417,7 +417,7 @@ Custom implementations should look something like this:
                                        :encoding encoding
                                        :content-type content-type)))
 
-(def special-variable *default-ajax-aware* #f)
+(def special-variable *default-ajax-aware-client* #f)
 
 (def (constant :test 'string=) +ajax-aware-client-parameter-name+ "_j")
 
