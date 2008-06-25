@@ -160,6 +160,7 @@
                                (:file "object-maker" :depends-on ("object-detail" "atomic"))
                                (:file "object-table" :depends-on ("object-detail" "table"))
                                (:file "object-tree" :depends-on ("object-detail" "tree"))
+                               (:file "pivot-table" :depends-on ("component"))
                                (:file "process" :depends-on ("command" "object-maker" "object-table" "object-tree"))
                                (:file "filter" :depends-on ("object-detail")))
                   :depends-on ("application")))))
