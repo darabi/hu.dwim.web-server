@@ -12,39 +12,24 @@
 
 (def component command-component ()
   ((enabled #t :type boolean)
-   (tooltip-emitter nil) ;; TODO mutually exclusive with tooltip, store at the same place
    (icon nil :type component)
-   (action)))
+   (action)
+   (js nil)))
 
 (def (macro e) command (icon action &rest args &key &allow-other-keys)
   `(make-instance 'command-component :icon ,icon :action ,action ,@args))
 
-(def render command-component
-  (with-slots (enabled icon action tooltip-emitter) -self-
+(def render command-component ()
+  (with-slots (enabled icon action js) -self-
     (if (force enabled)
         (bind ((href (etypecase action
                        (action (action-to-href action))
                        ;; TODO wastes of resources. store back the printed uri? see below also...
-                       (uri (print-uri-to-string action))
-                       (string action)))
-               (id (when tooltip-emitter
-                     (generate-frame-unique-string))))
-          ;; render the `js first, so the return value contract of qq is kept.
-          (when tooltip-emitter
-            ;; TODO this could be collected and emitted using a (map ... data) to spare some space
-            `js(on-load
-                (new dojox.widget.DynamicTooltip
-                     (create :connectId (array ,id)
-                             :position (array "below" "right")
-                             :href ,(etypecase tooltip-emitter
-                                               (action (action-to-href tooltip-emitter :delayed-content #t))
-                                               (uri (print-uri-to-string tooltip-emitter))
-                                               (string tooltip-emitter))))))
-          <a (:id ,id :href "#"
-              :title ,(when (and (not tooltip-emitter)
-                                 (typep icon 'icon-component))
-                            (force (tooltip-of icon)))
-              :onclick `js-inline(submit-form ,href))
+                       (uri (print-uri-to-string action))))
+               (onclick-js (or js
+                               (lambda (href)
+                                 `js-inline(submit-form ,href)))))
+          <a (:href "#" :onclick ,(progn (funcall onclick-js href) nil)) ;; TODO: why the hell do we need that nil over there?
              ,(render icon)>)
         (render icon))))
 
@@ -197,6 +182,7 @@
 (def (function e) make-open-in-new-frame-command (component)
   (make-instance 'command-component
                  :icon (icon open-in-new-frame)
+                 :js (lambda (href) `js-inline(window.open ,href))
                  :action (make-action
                            (bind ((clone (clone-component component))
                                   (*frame* (make-new-frame *application* *session*)))

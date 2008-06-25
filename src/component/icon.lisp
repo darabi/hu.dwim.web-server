@@ -18,12 +18,26 @@
     (render-icon image-path :label label :tooltip tooltip)))
 
 (def function render-icon (image-path &key label tooltip)
-  <span (:title ,(force tooltip))
-        ,@(when image-path
-            (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>
-                  <span " ">))
-        ,(when label
-           (force label))>)
+  (bind ((tooltip (force tooltip))
+         (delayed-content-tooltip? (and tooltip
+                                        (not (stringp tooltip))))
+         (id (when delayed-content-tooltip?
+               (generate-frame-unique-string))))
+    ;; render the `js first, so the return value contract of qq is kept.
+    (when delayed-content-tooltip?
+      ;; TODO this could be collected and emitted using a (map ... data) to spare some space
+      `js(on-load
+          (new dojox.widget.DynamicTooltip
+               (create :connectId (array ,id)
+                       :position (array "below" "right")
+                       :href ,(etypecase tooltip
+                                         (action (action-to-href tooltip :delayed-content #t))
+                                         (uri (print-uri-to-string tooltip)))))))
+    <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip))
+          ,@(when image-path
+                  (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))> " "))
+          ,(when label
+                 (force label))>))
 
 (def (macro e) icon (name &rest args)
   `(make-icon-component ',name ,@args))
