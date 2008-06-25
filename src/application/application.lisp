@@ -115,7 +115,7 @@
                        (unless (equal incoming-frame-index (frame-index-of frame))
                          (frame-out-of-sync-error frame)))
                       (t
-                       (return-from call-as-handler-in-session (make-redirect-response-with-frame-id-decorated frame))))))
+                       (return-from call-as-handler-in-session (make-redirect-response-with-frame-index-decorated frame))))))
               (delete-current-frame ()
                 :report (lambda (stream)
                           (format stream "Delete frame ~A" frame))
@@ -454,9 +454,16 @@ Custom implementations should look something like this:
 ;;;;;;;;;
 ;;; utils
 
+(def (function e) make-redirect-response-with-frame-index-decorated (&optional (frame *frame*))
+  (bind ((uri (clone-uri (uri-of *request*))))
+    (assert (and frame (not (null (id-of frame)))))
+    (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
+    (make-redirect-response uri)))
+
 (def (function e) make-redirect-response-with-frame-id-decorated (&optional (frame *frame*))
   (bind ((uri (clone-uri (uri-of *request*))))
     (assert (and frame (not (null (id-of frame)))))
+    (setf (uri-query-parameter-value uri +frame-id-parameter-name+) (id-of frame))
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
     (make-redirect-response uri)))
 

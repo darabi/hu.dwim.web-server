@@ -188,16 +188,7 @@
          (while parent)
          (collect parent))))
 
-(def (function e) clone-component (component)
-  (iter (with class = (class-of component))
-        (with new-component = (allocate-instance class))
-        (for slot :in (class-slots class))
-        (when (bound-child-component-slot-p class component slot)
-          (bind ((value (slot-value-using-class class component slot)))
-            (setf (slot-value-using-class class new-component slot)
-                  (typecase value
-                    (component
-                     (clone-component value))
-                    (list
-                     (mapcar #'clone-component value))
-                    (t value)))))))
+(def (generic e) clone-component (component)
+  (:method ((self component))
+    (prog1-bind clone (make-instance (class-of self))
+      (setf (component-value-of clone) (component-value-of self)))))

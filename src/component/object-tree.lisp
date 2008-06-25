@@ -17,6 +17,10 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-object-tree-component))
   (setf (root-of component) new-value))
 
+(def method clone-component ((self abstract-standard-object-tree-component))
+  (prog1-bind clone (call-next-method)
+    (setf (children-provider-of clone) (children-provider-of self))))
+
 (def special-variable *standard-object-tree-level* 0)
 
 ;;;;;;

@@ -40,12 +40,11 @@
                                                (action (action-to-href tooltip-emitter :delayed-content #t))
                                                (uri (print-uri-to-string tooltip-emitter))
                                                (string tooltip-emitter))))))
-          <a (:id ,id
-                  :href "#"
-                  :title ,(when (and (not tooltip-emitter)
-                                     (typep icon 'icon-component))
-                                (force (tooltip-of icon)))
-                  :onclick `js-inline(submit-form ,href))
+          <a (:id ,id :href "#"
+              :title ,(when (and (not tooltip-emitter)
+                                 (typep icon 'icon-component))
+                            (force (tooltip-of icon)))
+              :onclick `js-inline(submit-form ,href))
              ,(render icon)>)
         (render icon))))
 
@@ -193,8 +192,17 @@
                                               :visible (delay (not (eq replacement-component (find-top-component-content replacement-component)))))
                                         (list :icon (icon back)))))
 
+(def (generic e) make-frame-component-with-content (application content))
+
 (def (function e) make-open-in-new-frame-command (component)
   (make-instance 'command-component
                  :icon (icon open-in-new-frame)
-                 ;; TODO: open a new frame with the component
-                 :action (make-action #+nil (eseho:make-eseho-frame-component-with-content (clone-component component)))))
+                 :action (make-action
+                           (bind ((clone (clone-component component))
+                                  (*frame* (make-new-frame *application* *session*)))
+                             (setf (component-value-of clone) (component-value-of component))
+                             (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*)
+                                                                                          *frame* +frame-id-length+))
+                             (register-frame *application* *session* *frame*)
+                             (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
+                             (make-redirect-response-with-frame-id-decorated *frame*)))))
