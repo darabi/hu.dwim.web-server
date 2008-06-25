@@ -364,7 +364,7 @@ Custom implementations should look something like this:
       (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
         <ajax-response
          ,@(with-collapsed-js-scripts
-            <dom-replacements
+            <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
              ,@(mappend [ensure-list (render-with-restored-rendering-environment !1)] dirty-components)>)>)
       (render component)))
 
@@ -416,6 +416,8 @@ Custom implementations should look something like this:
                                        :frame frame
                                        :encoding encoding
                                        :content-type content-type)))
+
+(def special-variable *default-ajax-aware* #f)
 
 (def (constant :test 'string=) +ajax-aware-client-parameter-name+ "_j")
 

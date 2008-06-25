@@ -38,12 +38,12 @@
 (def (macro e) make-action (&body body)
   `(make-action-using-lambda (lambda () ,@body)))
 
-(def (macro e) make-action-uri ((&key scheme delayed-content) &body body)
-  `(action-to-uri (make-action ,@body) :delayed-content ,delayed-content :scheme ,scheme))
+(def (macro e) make-action-uri ((&key scheme delayed-content (ajax-aware *default-ajax-aware*)) &body body)
+  `(action-to-uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content :ajax-aware ,ajax-aware))
 
-(def (macro e) make-action-href ((&key scheme delayed-content) &body body)
+(def (macro e) make-action-href ((&key scheme delayed-content (ajax-aware *default-ajax-aware*)) &body body)
   `(print-uri-to-string
-    (make-action-uri (:scheme ,scheme :delayed-content ,delayed-content)
+    (make-action-uri (:scheme ,scheme :delayed-content ,delayed-content :ajax-aware ,ajax-aware)
       ,@body)))
 
 (def function register-action (frame action)
@@ -73,7 +73,7 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def (function e) action-to-uri (action &key scheme delayed-content ajax-aware)
+(def (function e) action-to-uri (action &key scheme delayed-content (ajax-aware *default-ajax-aware*))
   (bind ((uri (clone-uri (uri-of *request*))))
     (register-action *frame* action)
     (decorate-uri uri *application*)
@@ -88,5 +88,5 @@
           (if ajax-aware "t" nil))
     uri))
 
-(def (function e) action-to-href (action &key scheme delayed-content ajax-aware)
+(def (function e) action-to-href (action &key scheme delayed-content (ajax-aware *default-ajax-aware*))
   (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content :ajax-aware ajax-aware)))
