@@ -113,8 +113,9 @@
         (setf class nil))
     (if instance
         (if slot-value-group
-            (setf (component-value-of slot-value-group) the-class
-                  (slots-of slot-value-group) (standard-object-detail-slots the-class instance))
+            (setf (component-value-of slot-value-group) (standard-object-detail-slots the-class instance)
+                  (instance-of slot-value-group) instance
+                  (the-class-of slot-value-group) the-class)
             (setf slot-value-group (make-instance 'standard-object-slot-value-group-component :the-class the-class :instance instance :slots (standard-object-detail-slots the-class instance))))
         (setf slot-value-group nil))))
 

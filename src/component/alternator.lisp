@@ -13,6 +13,10 @@
    (content nil :type component)
    (command-bar nil :type component)))
 
+(def method clone-component ((self alternator-component))
+  (prog1-bind clone (call-next-method)
+    (setf (default-component-type-of clone) (default-component-type-of self))))
+
 (def render alternator-component ()
   (with-slots (content command-bar) -self-
     (if (typep content '(or reference-component atomic-component))

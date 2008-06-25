@@ -190,5 +190,9 @@
 
 (def (generic e) clone-component (component)
   (:method ((self component))
-    (prog1-bind clone (make-instance (class-of self))
+    (make-instance (class-of self)))
+
+  (:method :around ((self component))
+    ;; this must be done at last after all primary method customization
+    (prog1-bind clone (call-next-method)
       (setf (component-value-of clone) (component-value-of self)))))

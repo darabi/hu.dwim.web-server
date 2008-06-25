@@ -7,15 +7,8 @@
 ;;;;;;
 ;;; Abstract standard object tree
 
-(def component abstract-standard-object-tree-component (value-component)
-  ((root nil :type (or null standard-object))
-   (children-provider :type (or symbol function))))
-
-(def method component-value-of ((component abstract-standard-object-tree-component))
-  (root-of component))
-
-(def method (setf component-value-of) (new-value (component abstract-standard-object-tree-component))
-  (setf (root-of component) new-value))
+(def component abstract-standard-object-tree-component (abstract-standard-object-component)
+  ((children-provider nil :type (or symbol function))))
 
 (def method clone-component ((self abstract-standard-object-tree-component))
   (prog1-bind clone (call-next-method)
@@ -26,29 +19,28 @@
 ;;;;;;
 ;;; Standard object tree
 
-(def component standard-object-tree-component (abstract-standard-object-tree-component abstract-standard-class-component
-                                               alternator-component editable-component user-message-collector-component-mixin)
+(def component standard-object-tree-component (abstract-standard-object-tree-component alternator-component editable-component user-message-collector-component-mixin)
   ()
   (:documentation "Component for a tree of STANDARD-OBJECTs in various alternative views"))
 
 (def (macro e) standard-object-tree-component (root children-provider &rest args)
-  `(make-instance 'standard-object-tree-component :root ,root :children-provider ,children-provider ,@args))
+  `(make-instance 'standard-object-tree-component :instance ,root :children-provider ,children-provider ,@args))
 
 (def method (setf component-value-of) :after (new-value (self standard-object-tree-component))
-  (with-slots (root children-provider default-component-type alternatives content command-bar) self
-    (if root
+  (with-slots (instance children-provider default-component-type alternatives content command-bar) self
+    (if instance
         (progn
           (if (and alternatives
                    (not (typep content 'null-component)))
-              (setf (component-value-for-alternatives self) root)
-              (setf alternatives (list (delay-alternative-component-type 'standard-object-tree-table-component :root root :children-provider children-provider)
-                                       (delay-alternative-component-type 'standard-object-tree-nested-box-component :root root :children-provider children-provider)
+              (setf (component-value-for-alternatives self) instance)
+              (setf alternatives (list (delay-alternative-component-type 'standard-object-tree-table-component :instance instance :children-provider children-provider)
+                                       (delay-alternative-component-type 'standard-object-tree-nested-box-component :instance instance :children-provider children-provider)
                                        (delay-alternative-component 'standard-object-tree-reference-component
                                          (setf-expand-reference-to-default-alternative-command
-                                          (make-instance 'standard-object-tree-reference-component :target root))))))
+                                          (make-instance 'standard-object-tree-reference-component :target instance))))))
           (if (and content
                    (not (typep content 'null-component)))
-              (setf (component-value-of content) root)
+              (setf (component-value-of content) instance)
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
@@ -67,25 +59,25 @@
 ;;;;;;
 ;;; Standard object tree table
 
-(def component standard-object-tree-table-component (abstract-standard-object-tree-component abstract-standard-class-component tree-component editable-component)
+(def component standard-object-tree-table-component (abstract-standard-object-tree-component tree-component editable-component)
   ((slot-names nil)))
 
 ;; TODO: factor out common parts with standard-object-table-component
 (def method (setf component-value-of) :after (new-value (component standard-object-tree-table-component))
-  (with-slots (root root-node children-provider the-class slot-names command-bar columns) component
+  (with-slots (instance root-node children-provider the-class slot-names command-bar columns) component
     (bind ((slot-name->slot (list)))
       ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
       (labels ((register-slot (slot)
                  (bind ((slot-name (slot-definition-name slot)))
                    (unless (member slot-name slot-name->slot :test #'eq :key #'car)
                      (push (cons slot-name slot) slot-name->slot))))
-               (register-node (node)
+               (register-instance (node)
                  (dolist (child (funcall children-provider node))
                    (mapc #'register-slot (standard-object-tree-table-slots (class-of child) child))
-                   (register-node child))))
+                   (register-instance child))))
         (when the-class
           (mapc #'register-slot (standard-object-tree-table-slots the-class nil)))
-        (register-node root))
+        (register-instance instance))
       (setf slot-names (mapcar #'car slot-name->slot))
       (setf columns (list*
                      (column (label #"Object-tree-table.column.commands") :visible (delay (not (layer-active-p 'passive-components-layer))))
@@ -93,8 +85,8 @@
                      (mapcar [column (label (localized-slot-name (cdr !1)))]
                              slot-name->slot)))
       (setf root-node (if root-node
-                          (setf (component-value-of root-node) root)
-                          (make-instance 'standard-object-tree-node-component :instance root :children-provider children-provider :table-slot-names slot-names))))))
+                          (setf (component-value-of root-node) instance)
+                          (make-instance 'standard-object-tree-node-component :instance instance :children-provider children-provider :table-slot-names slot-names))))))
 
 (def generic standard-object-tree-table-slots (class instance)
   (:method ((class standard-class) instance)
@@ -119,8 +111,7 @@
 ;;;;;;
 ;;; Standard object node
 
-(def component standard-object-tree-node-component (abstract-standard-object-component abstract-standard-object-tree-component
-                                                    node-component editable-component user-message-collector-component-mixin)
+(def component standard-object-tree-node-component (abstract-standard-object-tree-component node-component editable-component user-message-collector-component-mixin)
   ((table-slot-names)
    (command-bar nil :type component)))
 
@@ -179,7 +170,7 @@
   ())
 
 (def (macro e) standard-object-tree-nested-box-component (root children-provider &rest args)
-  `(make-instance 'standard-object-tree-nested-box-component :root ,root :children-provider ,children-provider ,@args))
+  `(make-instance 'standard-object-tree-nested-box-component :instance ,root :children-provider ,children-provider ,@args))
 
 (def render standard-object-tree-nested-box-component ()
   (labels ((render-node (node)
@@ -200,6 +191,6 @@
                    <table (:class "leaf")
                      <tr <td ,(render-standard-object-tree-nested-box-node -self- node)>>>))))
     <div (:class "standard-object-tree-nested-box")
-         ,(render-node (root-of -self-))>))
+         ,(render-node (instance-of -self-))>))
 
 (def (generic e) render-standard-object-tree-nested-box-node (component node))
