@@ -229,12 +229,6 @@
       <body (:class ,(dojo-skin-name-of -self-))
         <form (:method "post")
           ,@(with-collapsed-js-scripts
-             <span
-              ;; TODO move into a standalone js broker
-              `js(defun submit-form (href)
-                   (let ((form (aref (slot-value document 'forms) 0)))
-                     (setf (slot-value form 'action) href)
-                     (form.submit)))>
              (with-dojo-widget-collector
                (render (content-of -self-))))>>>))
 

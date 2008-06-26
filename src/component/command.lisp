@@ -28,7 +28,7 @@
                        (uri (print-uri-to-string action))))
                (onclick-js (or js
                                (lambda (href)
-                                 `js-inline(submit-form ,href)))))
+                                 `js-inline(wui.submit-form ,href)))))
           <a (:href "#" :onclick ,(progn (funcall onclick-js href) nil)) ;; TODO: why the hell do we need that nil over there?
              ,(render icon)>)
         (render icon))))
