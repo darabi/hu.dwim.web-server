@@ -360,9 +360,7 @@
                                     (content-disposition-filename nil content-disposition-filename-p)
                                     content-disposition-size
                                     (encoding :utf-8)
-                                    (seconds-until-expires (if *debug-on-error*
-                                                               60
-                                                               #.(* 24 60 60)))
+                                    (seconds-until-expires #.(* 12 60 60))
                                     (signal-errors #t)
                                     &allow-other-keys)
   (remove-from-plistf args :signal-errors)
