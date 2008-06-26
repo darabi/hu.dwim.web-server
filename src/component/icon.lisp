@@ -269,6 +269,38 @@
   (icon-label.like "Like")
   (icon-tooltip.like "Compare for like"))
 
+(def icon < "static/wui/icons/20x20/less-than-sign.png")
+(defresources hu
+  (icon-label.< "Kisebb")
+  (icon-tooltip.< "Ellenőrzes kisebbre"))
+(defresources en
+  (icon-label.< "Less")
+  (icon-tooltip.< "Compare for less then"))
+
+(def icon <= "static/wui/icons/20x20/less-than-or-equal-sign.png")
+(defresources hu
+  (icon-label.<= "Kisebb vagy egyenlő")
+  (icon-tooltip.<= "Ellenőrzes kisebbre vagy egyenlőre"))
+(defresources en
+  (icon-label.<= "Less or equal")
+  (icon-tooltip.<= "Compare for less than or equal"))
+
+(def icon > "static/wui/icons/20x20/greater-than-sign.png")
+(defresources hu
+  (icon-label.> "Nagyobb")
+  (icon-tooltip.> "Ellenőrzes nagyobbra"))
+(defresources en
+  (icon-label.> "Greater")
+  (icon-tooltip.> "Compare for greater then"))
+
+(def icon >= "static/wui/icons/20x20/greater-than-or-equal-sign.png")
+(defresources hu
+  (icon-label.>= "Nagyobb vagy egyenlő")
+  (icon-tooltip.>= "Ellenőrzes nagyobb vagy egyenlőre"))
+(defresources en
+  (icon-label.>= "Greater or equal")
+  (icon-tooltip.>= "Compare for greater than or equal"))
+
 (def icon negated "static/wui/icons/20x20/thumb-down.png")
 (defresources hu
   (icon-label.negated "Negált")

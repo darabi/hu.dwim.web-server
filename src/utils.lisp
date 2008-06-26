@@ -4,11 +4,11 @@
 
 (in-package :hu.dwim.wui)
 
-(def macro delay (&body forms)
+(def (macro e) delay (&body forms)
   `(lambda ()
      ,@forms))
 
-(def function force (value)
+(def (function e) force (value)
   (if (functionp value)
       (funcall value)
       value))

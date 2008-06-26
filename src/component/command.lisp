@@ -69,7 +69,7 @@
                                :test #'equal)
                      most-positive-fixnum)))))
 
-(def function push-command (command component)
+(def (function e) push-command (command component)
   "Push a new COMMAND into the COMMAND-BAR of COMPONENT"
   (bind ((command-bar (find-command-bar component)))
     (assert command-bar nil "No command bar found, no place to push ~A in ~A" command component)

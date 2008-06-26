@@ -9,6 +9,7 @@
 
 (def component alternator-component ()
   ((default-component-type nil)
+   (alternatives-factory nil :type function)
    (alternatives nil)
    (content nil :type component)
    (command-bar nil :type component)))
@@ -73,12 +74,12 @@
 (def function find-default-alternative-component (alternatives)
   (find-alternative-component alternatives 'detail-component))
 
-(def macro delay-alternative-component (type &body forms)
+(def (macro e) delay-alternative-component (type &body forms)
   `(aprog1 (make-instance 'component-factory :the-class (find-class ,type))
      (set-funcallable-instance-function it (delay (or (component-of it)
                                                       (setf (component-of it) (progn ,@forms)))))))
 
-(def macro delay-alternative-component-type (type &rest args)
+(def (macro e) delay-alternative-component-type (type &rest args)
   `(delay-alternative-component ,type (make-instance ,type ,@args)))
 
 (def function setf-expand-reference-to-default-alternative-command (reference)

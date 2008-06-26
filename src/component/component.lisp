@@ -18,7 +18,7 @@
 ;;; Component
 
 (def component component ()
-  ((parent-component nil)
+  ((parent-component nil :export :accessor)
    (visible #t :type boolean)
    (dirty #t :type boolean)))
 

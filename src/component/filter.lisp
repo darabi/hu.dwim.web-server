@@ -8,7 +8,8 @@
 ;;; Standard object filter
 
 (def component standard-object-filter-component (abstract-standard-class-component alternator-component)
-  ((result :type component)))
+  ((result :type component)
+   (result-component-factory #'make-standard-object-filter-result-component :type function)))
 
 (def method (setf component-value-of) :after (new-value (self standard-object-filter-component))
   (with-slots (result the-class default-component-type alternatives content command-bar) self
@@ -25,7 +26,7 @@
     (setf command-bar (make-alternator-command-bar self alternatives
                                                    (list (make-open-in-new-frame-command self)
                                                          (make-top-command self)
-                                                         (make-filter-instances-command self (delay (result-of self))))))))
+                                                         (make-standard-object-filter-execute-command self (delay (result-of self))))))))
 
 (def render standard-object-filter-component ()
   (with-slots (result content command-bar) -self-
@@ -98,19 +99,19 @@
 ;;; Standard object slot value filter
 
 ;; TODO: all predicates
-(def (constant :test 'equalp) +filter-predicates+ '(equal like #+nil (< <= > >= between)))
+(def (constant :test 'equalp) +filter-predicates+ '(equal like < <= > >= #+nil(between)))
 
 (def component standard-object-slot-value-filter-component (abstract-standard-slot-definition-component)
   ((slot-name)
    (negated #f :type boolean)
    (negate-command :type component)
-   (condition 'equal :type (member #.+filter-predicates+))
-   (condition-command :type component)
+   (predicate 'equal :type (member #.+filter-predicates+))
+   (predicate-command :type component)
    (label nil :type component)
    (value nil :type component)))
 
 (def method (setf component-value-of) :after (new-value (self standard-object-slot-value-filter-component))
-  (with-slots (slot slot-name negated negate-command condition condition-command label value) self
+  (with-slots (slot slot-name negated negate-command predicate predicate-command label value) self
     (setf slot-name (slot-definition-name slot)
           label (label (localized-slot-name slot))
           negate-command (make-instance 'command-component
@@ -118,43 +119,40 @@
                                         :action (make-action
                                                   (setf negated (not negated))
                                                   (setf (icon-of negate-command) (make-negated/ponated-icon negated))))
-          condition-command (make-instance 'command-component
-                                           :icon (make-condition-icon condition)
+          predicate-command (make-instance 'command-component
+                                           :icon (make-predicate-icon predicate)
                                            :action (make-action
-                                                     (setf condition (elt +filter-predicates+
-                                                                          (mod (1+ (position condition +filter-predicates+))
+                                                     (setf predicate (elt +filter-predicates+
+                                                                          (mod (1+ (position predicate +filter-predicates+))
                                                                                (length +filter-predicates+))))
-                                                     (setf (icon-of condition-command) (make-condition-icon condition))))
+                                                     (setf (icon-of predicate-command) (make-predicate-icon predicate))))
           value (make-filter-component (slot-type slot) :default-component-type 'reference-component))))
 
 (def function make-negated/ponated-icon (negated)
   (aprog1 (make-icon-component (if negated 'negated 'ponated))
     (setf (label-of it) nil)))
 
-(def function make-condition-icon (condition)
-  (aprog1 (make-icon-component
-           (ecase condition
-             (equal 'equal)
-             (like 'like)))
+(def function make-predicate-icon (predicate)
+  (aprog1 (make-icon-component predicate)
     (setf (label-of it) nil)))
 
 (def render standard-object-slot-value-filter-component ()
-  (with-slots (label negate-command condition-command value) -self-
+  (with-slots (label negate-command predicate-command value) -self-
     <tr (:class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
       <td ,(render label)>
       <td ,(render negate-command)>
-      <td ,(render condition-command)>
+      <td ,(render predicate-command)>
       <td ,(render value)>>))
 
 ;;;;;;
 ;;; Filter
 
-(def (function e) make-filter-instances-command (filter result)
-  (make-replace-and-push-back-command result (delay (make-filter-result-component filter (execute-filter filter (the-class-of filter))))
+(def (function e) make-standard-object-filter-execute-command (filter result)
+  (make-replace-and-push-back-command result (delay (funcall (result-component-factory-of filter) filter (execute-filter filter (the-class-of filter))))
                                       (list :icon (icon filter))
                                       (list :icon (icon back))))
 
-(def (generic e) make-filter-result-component (filter result)
+(def (generic e) make-standard-object-filter-result-component (filter result)
   (:method ((filter standard-object-filter-component) (result list))
     (prog1-bind component
         (make-viewer-component result :type `(list ,(class-name (the-class-of filter))))
@@ -232,13 +230,15 @@
       (when (typep value-component 'atomic-component)
         (bind ((value (component-value-of value-component)))
           (when (and value
-                     (not (string= value "")))
-            (bind ((predicate-name (ecase (condition-of component)
-                                     (equal 'equal)
-                                     (like 'prc::re-like)))
+                     (or (not (stringp value))
+                         (not (string= value ""))))
+            (bind ((predicate (predicate-of component))
+                   (predicate-name (if (eq 'like predicate)
+                                       'prc::re-like
+                                       predicate))
                    (ponated-predicate `(,predicate-name
                                         (,(prc::reader-name-of (slot-of component))
-                                         ,(first (query-variable-stack-of filter-query)))
+                                          ,(first (query-variable-stack-of filter-query)))
                                         (quote ,value))))
               (prc::add-assert (query-of filter-query)
                                (if (negated-p component)

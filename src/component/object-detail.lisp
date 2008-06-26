@@ -32,6 +32,7 @@
 (def component standard-object-component (abstract-standard-object-component alternator-component editable-component
                                           user-message-collector-component-mixin remote-identity-component-mixin)
   ()
+  (:default-initargs :alternatives-factory #'make-standard-object-alternatives)
   (:documentation "Component for an instance of STANDARD-OBJECT in various alternative views"))
 
 (def method (setf component-value-of) :after (new-value (self standard-object-component))
@@ -41,7 +42,7 @@
           (if (and alternatives
                    (not (typep content 'null-component)))
               (setf (component-value-for-alternatives self) instance)
-              (setf alternatives (make-standard-object-alternatives instance)))
+              (setf alternatives (funcall (alternatives-factory-of self) instance)))
           (if (and content
                    (not (typep content 'null-component)))
               (setf (component-value-of content) instance)

@@ -32,19 +32,19 @@ tr.highlighted.odd-row {
 
 table
 {
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 th
 {
-    background-color: lightgray;
-    border-style: solid;
-    border-width: 1px;
+  background-color: lightgray;
+  border-style: solid;
+  border-width: 1px;
 }
 
 td
 {
-    vertical-align: top;
+  vertical-align: top;
 }
 
 /* tree */
@@ -107,6 +107,68 @@ table.tree tr.level-8 td.expander
 table.tree tr.level-9 td.expander
 {
   padding-left: 9em;
+}
+
+table.pivot
+{
+  border-style: solid;
+  border-width: 1px;
+}
+
+table.pivot td
+{
+  vertical-align: middle;
+  text-align: center;
+}
+
+table.pivot td.header
+{
+  background-color: lightgreen;
+}
+
+table.pivot td.axis
+{
+  background-color: lightgreen;
+  padding: 3px;
+  border-style: dotted;
+  border-width: 1px;
+}
+
+table.pivot td.separator
+{
+  background-color: lightyellow;
+}
+
+table.pivot td.row-tooltip
+{
+  background-color: yellow;
+  height: 5px;
+  border-style: solid;
+  border-width: 1px;
+}
+
+table.pivot td.column-tooltip
+{
+  background-color: yellow;
+  width: 5px;
+  border-style: solid;
+  border-width: 1px;
+}
+
+table.pivot td.data
+{
+  padding: 3px;
+  border-style: dotted;
+  border-width: 1px;
+}
+
+table.pivot td.total
+{
+  font-weight: bold;
+  padding: 3px;
+  background-color: yellow;
+  border-style: dotted;
+  border-width: 1px;
 }
 
 /*

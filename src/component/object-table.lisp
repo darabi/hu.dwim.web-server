@@ -21,18 +21,15 @@
 
 (def component standard-object-list-component (abstract-standard-object-list-component abstract-standard-class-component
                                                alternator-component editable-component user-message-collector-component-mixin)
-  ())
+  ()
+  (:default-initargs :alternatives-factory #'make-standard-object-list-alternatives))
 
 (def method (setf component-value-of) :after (new-value (self standard-object-list-component))
   (with-slots (instances the-class default-component-type alternatives content command-bar) self
     (setf instances new-value)
     (if alternatives
         (setf (component-value-for-alternatives self) instances)
-        (setf alternatives (list (delay-alternative-component-type 'standard-object-table-component :the-class the-class :instances instances)
-                                 (delay-alternative-component-type 'list-component :elements instances)
-                                 (delay-alternative-component 'standard-object-list-reference-component
-                                   (setf-expand-reference-to-default-alternative-command
-                                    (make-instance 'standard-object-list-reference-component :target instances))))))
+        (setf alternatives (funcall (alternatives-factory-of self) the-class instances)))
     (if content
         (setf (component-value-of content) instances)
         (setf content (if default-component-type
@@ -48,6 +45,14 @@
   <div (:class "standard-object-list")
     ,(render-user-messages -self-)
     ,(call-next-method)>)
+
+(def (generic e) make-standard-object-list-alternatives (class instances)
+  (:method (class instances)
+    (list (delay-alternative-component-type 'standard-object-table-component :the-class class :instances instances)
+          (delay-alternative-component-type 'list-component :elements instances)
+          (delay-alternative-component 'standard-object-list-reference-component
+            (setf-expand-reference-to-default-alternative-command
+             (make-instance 'standard-object-list-reference-component :target instances))))))
 
 (def generic make-standard-object-list-commands (component class)
   (:method ((component standard-object-list-component) class)
