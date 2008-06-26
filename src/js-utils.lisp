@@ -24,3 +24,12 @@
        `(dojo.by-id ,(FIRST THINGS))}
       {(with-readtable-case :preserve)
        `(map 'dojo.by-id ,THINGS)}))
+
+(def (js-macro e) |defun*| (name args &body body)
+  (bind ((name-pieces (cl-ppcre:split "\\." (symbol-name name))))
+    (if (length= 1 name-pieces)
+        {(with-readtable-case :preserve) `(defun ,NAME ,ARGS ,@BODY)}
+        {(with-readtable-case :preserve)
+         `(progn
+            (setf ,NAME (lambda ,ARGS
+                          ,@BODY)))})))
