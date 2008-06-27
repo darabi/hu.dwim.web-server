@@ -19,6 +19,18 @@
   (:method ((type cl-perec:integer-type))
     'integer-component)
 
+  (:method ((type cl-perec:float-type))
+    'float-component)
+
+  (:method ((type cl-perec:float-32-type))
+    'float-component)
+
+  (:method ((type cl-perec:float-64-type))
+    'float-component)
+
+  (:method ((type cl-perec:number-type))
+    'number-component)
+
   (:method ((type cl-perec:text-type))
     'string-component)
 
@@ -59,6 +71,18 @@
 
   (:method ((type cl-perec:integer-type))
     'integer-component)
+
+  (:method ((type cl-perec:float-type))
+    'float-component)
+
+  (:method ((type cl-perec:float-32-type))
+    'float-component)
+
+  (:method ((type cl-perec:float-64-type))
+    'float-component)
+
+  (:method ((type cl-perec:number-type))
+    'number-component)
 
   (:method ((type cl-perec:text-type))
     'string-component)
