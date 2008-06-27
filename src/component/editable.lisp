@@ -31,8 +31,10 @@
 
 (def (function e) save-editing (editable)
   (assert (typep editable 'editable-component))
-  (store-editing editable)
-  (leave-editing editable))
+  ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
+  (rdbms::with-transaction
+    (store-editing editable)
+    (leave-editing editable)))
 
 (def (function e) cancel-editing (editable)
   (assert (typep editable 'editable-component))
