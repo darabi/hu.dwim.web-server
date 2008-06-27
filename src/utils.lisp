@@ -32,8 +32,7 @@
   (closer-mop:class-precedence-list (ensure-finalized class)))
 
 (def function qualified-symbol-name (symbol)
-  (bind ((*package* (find-package :keyword)))
-    (format nil "~S" symbol)))
+  (concatenate 'string (package-name (symbol-package symbol)) "::" (symbol-name symbol)))
 
 (def function trim-suffix (suffix sequence)
   (subseq sequence 0 (- (length sequence) (length suffix))))

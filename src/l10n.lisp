@@ -5,7 +5,9 @@
 (in-package :hu.dwim.wui)
 
 (defmethod localize ((class class))
-  (lookup-resource (concatenate-string "class-name." (string-downcase (class-name class))) nil))
+  (lookup-first-matching-resource
+    ("class-name" (string-downcase (qualified-symbol-name (class-name class))))
+    ("class-name" (string-downcase (class-name class)))))
 
 (def (generic e) localized-slot-name (slot &key capitalize-first-letter prefix-with)
 

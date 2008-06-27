@@ -67,7 +67,7 @@
   ())
 
 (def method make-reference-label ((class standard-class) (reference standard-class-reference-component))
-  (localized-class-name class :with-article #t :capitalize-first-letter #t))
+  (localized-class-name class :capitalize-first-letter #t))
 
 ;;;;;;
 ;;; Standard object reference
@@ -109,7 +109,7 @@
   ())
 
 (def method make-reference-label ((class standard-class) (reference standard-object-filter-reference-component))
-  (qualified-symbol-name (class-name class)))
+  (localized-class-name class :capitalize-first-letter #t))
 
 ;;;;;;
 ;;; Standard object maker reference
@@ -118,4 +118,4 @@
   ())
 
 (def method make-reference-label ((class standard-class) (reference standard-object-maker-reference-component))
-  (qualified-symbol-name (class-name class)))
+  (localized-class-name class :capitalize-first-letter #t))
