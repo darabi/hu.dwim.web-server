@@ -196,26 +196,33 @@
   ((query nil)
    (query-variable-stack nil)))
 
+(def function call-with-new-query-variable (component filter-query thunk)
+  (bind ((query (query-of filter-query))
+         (query-variable
+          (prc::add-query-variable (query-of filter-query)
+                                   (gensym (symbol-name (class-name (the-class-of component)))))))
+    (push query-variable (query-variable-stack-of filter-query))
+    (prc::add-assert query `(typep ,query-variable ',(class-name (the-class-of component))))
+    (funcall thunk query-variable)
+    (pop (query-variable-stack-of filter-query))))
+
 (def generic build-filter-query (component)
   (:method ((component standard-object-filter-component))
-    (bind ((filter-query (make-instance 'filter-query :query (prc::make-instance 'prc::query))))
-      (build-filter-query* component filter-query)
-      (query-of filter-query))))
+    (bind ((query (prc::make-instance 'prc::query))
+           (filter-query (make-instance 'filter-query :query query)))
+      (call-with-new-query-variable component filter-query
+                                    (lambda (query-variable)
+                                      (prc::add-collect query query-variable)
+                                      (build-filter-query* component filter-query)))
+      ;;(break "~A" query)
+      query)))
 
 (def generic build-filter-query* (component filter-query)
   (:method ((component standard-object-filter-component) filter-query)
     (build-filter-query* (content-of component) filter-query))
 
   (:method ((component standard-object-filter-detail-component) filter-query)
-    (bind ((query (query-of filter-query))
-           (query-variable
-            (prc::add-query-variable (query-of filter-query)
-                                     (gensym (symbol-name (class-name (the-class-of component)))))))
-      (unless (query-variable-stack-of filter-query)
-        (prc::add-collect query query-variable))
-      (push query-variable (query-variable-stack-of filter-query))
-      (prc::add-assert query `(typep ,query-variable ',(class-name (the-class-of component))))
-      (build-filter-query* (slot-value-group-of component) filter-query)))
+    (build-filter-query* (slot-value-group-of component) filter-query))
 
   (:method ((component standard-object-filter-reference-component) filter-query)
     (values))
@@ -226,21 +233,29 @@
 
   (:method ((component standard-object-slot-value-filter-component) filter-query)
     (bind ((value-component (value-of component)))
-      ;; TODO: recurse
-      (when (typep value-component 'atomic-component)
-        (bind ((value (component-value-of value-component)))
-          (when (and value
-                     (or (not (stringp value))
-                         (not (string= value ""))))
-            (bind ((predicate (predicate-of component))
-                   (predicate-name (if (eq 'like predicate)
-                                       'prc::re-like
-                                       predicate))
-                   (ponated-predicate `(,predicate-name
-                                        (,(prc::reader-name-of (slot-of component))
-                                          ,(first (query-variable-stack-of filter-query)))
-                                        (quote ,value))))
-              (prc::add-assert (query-of filter-query)
-                               (if (negated-p component)
-                                   `(not ,ponated-predicate)
-                                   ponated-predicate)))))))))
+      (cond ((typep value-component 'atomic-component)
+             (bind ((value (component-value-of value-component)))
+               (when (and value
+                          (or (not (stringp value))
+                              (not (string= value ""))))
+                 (bind ((predicate (predicate-of component))
+                        (predicate-name (if (eq 'like predicate)
+                                            'prc::re-like
+                                            predicate))
+                        (ponated-predicate `(,predicate-name
+                                             (,(prc::reader-name-of (slot-of component))
+                                               ,(first (query-variable-stack-of filter-query)))
+                                             (quote ,value))))
+                   (prc::add-assert (query-of filter-query)
+                                    (if (negated-p component)
+                                        `(not ,ponated-predicate)
+                                        ponated-predicate))))))
+            ((and (typep value-component 'standard-object-filter-component)
+                  (not (typep (content-of value-component) 'standard-object-filter-reference-component)))
+             (call-with-new-query-variable value-component filter-query
+                                           (lambda (query-variable)
+                                             (prc::add-assert (query-of filter-query)
+                                                              `(eq ,query-variable
+                                                                   (,(prc::reader-name-of (slot-of component))
+                                                                    ,(second (query-variable-stack-of filter-query)))))
+                                             (build-filter-query* value-component filter-query))))))))
