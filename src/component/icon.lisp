@@ -15,9 +15,22 @@
 
 (def render icon-component ()
   (with-slots (label image-path tooltip) -self-
-    (render-icon image-path :label label :tooltip tooltip)))
+    (render-icon -self- image-path :label label :tooltip tooltip)))
 
-(def function render-icon (image-path &key label tooltip)
+(def layered-function render-icon-label (icon label)
+  (:method (icon label)
+    ;; TODO: use a flag in the component to mark the label as important (so cannot be hidden) and forget about typep here
+    (when (and (dmm::has-authenticated-session)
+               (typep (parent-component-of (parent-component-of icon)) 'command-bar-component))
+      (bind ((effective-subject (dmm::current-effective-subject))
+             (subject-preferences (when effective-subject
+                                    (dmm::subject-preferences-of effective-subject))))
+        (when (and subject-preferences
+                   (not (dmm::display-command-labels-of subject-preferences)))
+          (return-from render-icon-label nil))))
+    label))
+
+(def function render-icon (icon image-path &key label tooltip)
   (bind ((tooltip (force tooltip))
          (delayed-content-tooltip? (and tooltip
                                         (not (stringp tooltip))))
@@ -37,7 +50,7 @@
           ,@(when image-path
                   (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))> " "))
           ,(when label
-                 (force label))>))
+                 (render-icon-label icon (force label)))>))
 
 (def (macro e) icon (name &rest args)
   `(make-icon-component ',name ,@args))
