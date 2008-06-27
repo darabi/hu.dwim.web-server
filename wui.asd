@@ -148,6 +148,7 @@
                                (:file "table" :depends-on ("component"))
                                (:file "pivot-table" :depends-on ("icon"))
                                (:file "tree" :depends-on ("component"))
+                               (:file "pie-chart" :depends-on ("component"))
                                (:file "menu" :depends-on ("command"))
                                (:file "reference" :depends-on ("command"))
                                (:file "editable" :depends-on ("command"))
