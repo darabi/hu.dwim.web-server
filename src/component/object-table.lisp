@@ -16,6 +16,10 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-object-list-component))
   (setf (instances-of component) new-value))
 
+(def render :before abstract-standard-object-list-component
+  (with-slots (instances) -self-
+    (setf instances (mapcar #'reuse-standard-object-instance instances))))
+
 ;;;;;;
 ;;; Standard object list
 

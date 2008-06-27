@@ -64,14 +64,18 @@
 (def function (setf find-icon) (icon name)
   (setf (gethash name *icons*) icon))
 
-(def (definer e) icon (name image-path)
+(def (definer e) icon (name image-path &key (label nil label-p) (tooltip nil tooltip-p))
   (bind ((name-as-string (string-downcase name)))
     `(setf (find-icon ',name)
            (make-instance 'icon-component
                           :name ',name
                           :image-path ,image-path
-                          :label (delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil))
-                          :tooltip (delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil))))))
+                          :label ,(if label-p
+                                      label
+                                      `(delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil)))
+                          :tooltip ,(if tooltip-p
+                                        tooltip
+                                        `(delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil)))))))
 
 ;;;;;;
 ;;; Default icons
