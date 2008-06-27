@@ -42,7 +42,8 @@
 
 (def generic make-alternative-component-replace-command-icon-component (prototype)
   (:method ((prototype component))
-    (icon view :label (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
+    (bind ((name (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
+      (icon view :label name :tooltip name)))
 
   (:method ((prototype reference-component))
     (icon collapse)))
