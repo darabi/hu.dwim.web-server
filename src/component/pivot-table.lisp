@@ -72,6 +72,8 @@
                                                                                                         (refresh)))))))
                                         :children (axes-command-bars (rest axes) primary-axes-slot-name secondary-axes-slot-name))))))
              (refresh ()
+               ;; TODO: here?
+               (setf instances (mapcar #'reuse-standard-object-instance instances))
                ;; TODO: which one and why?
                (refresh-component self)
                (setf (component-value-of self) (component-value-of self))))

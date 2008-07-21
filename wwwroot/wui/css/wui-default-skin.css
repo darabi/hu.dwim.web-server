@@ -162,6 +162,11 @@ table.extended-table > tbody > tr > td.data
   border-width: 1px;
 }
 
+table.extended-table > tbody > tr > td.hidden
+{
+  background-color: lightgray;
+}
+
 table.extended-table > tbody > tr > td.total
 {
   font-weight: bold;

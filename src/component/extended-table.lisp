@@ -53,8 +53,8 @@
                                     (label "-")
                                     (label "+"))
                                 (make-action
-                                 (setf (expanded-p header)
-                                       (not (expanded-p header)))))))
+                                  (setf (expanded-p header)
+                                        (not (expanded-p header)))))))
              (render-top-left-header ()
                <td (:class "header" :rowspan ,column-headers-depth :colspan ,row-headers-depth)>)
              (render-column-headers ()
@@ -96,10 +96,15 @@
                                      (render-cell row-path column-path))
                                    column-headers))
              (render-cell (row-path column-path)
-               <td (:class "data")
-                   ,(when (and (every #'expanded-p row-path)
-                               (every #'expanded-p column-path))
-                          (render (elt cells (cell-index row-path column-path)))) >))
+               (bind ((expanded (and (every #'expanded-p row-path)
+                                     (every #'expanded-p column-path)))
+                      (cell (elt cells (cell-index row-path column-path)))
+                      (empty? (typep cell 'empty-component)))
+                 <td (:class ,(if (and (not empty?) (not expanded))
+                                  "hidden data"
+                                  "data"))
+                     ,(when expanded
+                            (render cell)) >)))
       <table (:class "extended-table")
         <tbody
          ,@(render-column-headers)
