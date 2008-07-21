@@ -30,8 +30,7 @@
 
 (def component node-component (remote-identity-component-mixin)
   ((child-nodes nil :type components)
-   (cells nil :type components)
-   (expanded #t :type boolean)))
+   (cells nil :type components)))
 
 (def render node-component ()
   (with-slots (child-nodes cells expanded id) -self-

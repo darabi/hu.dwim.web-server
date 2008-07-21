@@ -23,6 +23,7 @@
 ;;; Editable
 
 (def component editable-component ()
+  ;; TODO: reuse the flags slot
   ((edited #f :type boolean :documentation "TRUE indicates the component is currently being edited, FALSE otherwise.")))
 
 (def (function e) begin-editing (editable)

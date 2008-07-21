@@ -19,8 +19,10 @@
 
 (def component component ()
   ((parent-component nil :export :accessor)
-   (visible #t :type boolean)
-   (dirty #t :type boolean)))
+   ;; TODO: use only one slot for these flags
+   (visible #t :type boolean :documentation "True means the component must be visible on the client side, while false means the opposite.")
+   (expanded #t :type boolean :documentation "True mans the component should display itself with full detail, while false means it should be minimized.")
+   (dirty #t :type boolean :documentation "True means the component must be sent to the client to refresh its content.")))
 
 (def render :around component ()
   (if (force (visible-p -self-))

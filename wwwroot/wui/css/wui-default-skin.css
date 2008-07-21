@@ -109,24 +109,19 @@ table.tree > tbody > tr.level-9 > td.expander
   padding-left: 9em;
 }
 
-table.pivot
+table.extended-table
 {
   border-style: solid;
   border-width: 1px;
 }
 
-table.pivot > tbody > tr > td
+table.extended-table > tbody > tr > td
 {
   vertical-align: middle;
   text-align: center;
 }
 
-table.pivot > tbody> tr > td.header
-{
-  background-color: lightgreen;
-}
-
-table.pivot > tbody > tr > td.axis
+table.extended-table > tbody> tr > td.header
 {
   background-color: lightgreen;
   padding: 3px;
@@ -134,12 +129,17 @@ table.pivot > tbody > tr > td.axis
   border-width: 1px;
 }
 
-table.pivot > tbody > tr > td.separator
+table.extended-table > tbody > tr > td.axis
+{
+  background-color: lightgreen;
+}
+
+table.extended-table > tbody > tr > td.separator
 {
   background-color: yellow;
 }
 
-table.pivot > tbody > tr > td.row-tooltip
+table.extended-table > tbody > tr > td.row-tooltip
 {
   background-color: yellow;
   height: 5px;
@@ -147,7 +147,7 @@ table.pivot > tbody > tr > td.row-tooltip
   border-width: 1px;
 }
 
-table.pivot > tbody > tr > td.column-tooltip
+table.extended-table > tbody > tr > td.column-tooltip
 {
   background-color: yellow;
   width: 5px;
@@ -155,14 +155,14 @@ table.pivot > tbody > tr > td.column-tooltip
   border-width: 1px;
 }
 
-table.pivot > tbody > tr > td.data
+table.extended-table > tbody > tr > td.data
 {
   padding: 3px;
   border-style: dotted;
   border-width: 1px;
 }
 
-table.pivot > tbody > tr > td.total
+table.extended-table > tbody > tr > td.total
 {
   font-weight: bold;
   padding: 3px;

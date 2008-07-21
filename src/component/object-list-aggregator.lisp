@@ -13,13 +13,12 @@
 (def method (setf component-value-of) :after (new-value (self standard-object-list-aggregator-component))
   (with-slots (slot-values instances the-class) self
     (setf slot-values
-          (iter (for slot :in (class-slots the-class))
-                (when (subtypep (slot-definition-type slot) 'number)
-                  (for slot-value = (find slot slot-values :key #'component-value-of))
-                  (if slot-value
-                      (setf (component-value-of slot-value) instances)
-                      (setf slot-value (make-instance 'standard-object-list-slot-value-aggregator-component :instances instances :slot slot)))
-                  (collect slot-value))))))
+          (iter (for slot :in (standard-object-aggregated-slots the-class))
+                (for slot-value = (find slot slot-values :key #'component-value-of))
+                (if slot-value
+                    (setf (component-value-of slot-value) instances)
+                    (setf slot-value (make-instance 'standard-object-list-slot-value-aggregator-component :instances instances :slot slot)))
+                (collect slot-value)))))
 
 (def render standard-object-list-aggregator-component ()
   (bind (((:read-only-slots slot-values instances) -self-))
@@ -36,6 +35,12 @@
                         <tr (:class ,(odd/even-class slot-value slot-values))
                             ,@(render slot-value)>)
                       slot-values)>>>))
+
+(def generic standard-object-aggregated-slots (class)
+  (:method ((class standard-class))
+    (filter-if (lambda (slot)
+                 (subtypep (slot-definition-type slot) 'number))
+               (class-slots class))))
 
 ;;;;;;
 ;;; Standard object list slot value aggregator

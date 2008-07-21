@@ -7,142 +7,120 @@
 ;;;;;;
 ;;; Pivot table
 
-(def component pivot-table-component ()
+;; TODO: what about the css classes in render? axis, header, tooltip, etc. how do we put those in place?
+(def component pivot-table-component (extended-table-component)
   ((row-axes nil :type components)
    (column-axes nil :type components)
-   (show-row-total #t :type boolean)
-   (show-column-total #t :type boolean)
-   (cells nil :type components)
-   (row-total-cells nil :type components)
-   (column-total-cells nil :type components)
-   (grand-total-cell nil :type component)))
+   (cell-axes nil :type components) ;; TODO: implement
+   (cells nil :type components)))
 
 (def constructor pivot-table-component ()
-  (setf-cell-indexing-multipliers -self-))
+  (refresh-component -self-))
 
-(def function setf-cell-indexing-multipliers (self)
-  (bind ((multiplier 1))
-    (iter (for column-axis :in (reverse (column-axes-of self)))
-          (setf (cell-indexing-multiplier-of column-axis) multiplier)
-          (setf multiplier (* multiplier (length (categories-of column-axis)))))
-    (iter (for row-axis :in (reverse (row-axes-of self)))
-          (setf (cell-indexing-multiplier-of row-axis) multiplier)
-          (setf multiplier (* multiplier (length (categories-of row-axis)))))))
+;; TODO: why is this refresh-component and not (setf component-value-of)?
+(def method refresh-component :before ((self pivot-table-component))
+  (with-slots (row-axes row-headers column-axes column-headers instances) self
+    (labels ((swap (axes p1 p2)
+               (bind ((tmp (elt axes p1)))
+                 (setf (elt axes p1) (elt axes p2))
+                 (setf (elt axes p2) tmp)
+                 axes))
+             (axes-headers (axes &optional path)
+               (unless (null axes)
+                 (mapcar (lambda (category)
+                           (make-instance 'table-header-component
+                                          :content (clone-component (content-of category))
+                                          :children (axes-headers (rest axes) (cons category path))
+                                          :expanded (find-if (lambda (instance)
+                                                               (every (lambda (c)
+                                                                        (funcall (predicate-of c) instance))
+                                                                      (cons category path)))
+                                                             instances)))
+                         (categories-of (first axes)))))
+             (axes-command-bars (axes primary-axes-slot-name secondary-axes-slot-name)
+               (bind ((row-axes? (eq primary-axes-slot-name 'row-axes)))
+                 (unless (null axes)
+                   (list (make-instance 'table-header-component
+                                        :content (make-instance 'command-bar-component
+                                                                :commands (bind ((axis (first axes))
+                                                                                 (primary-axes (slot-value self primary-axes-slot-name))
+                                                                                 (secondary-axes (slot-value self secondary-axes-slot-name))
+                                                                                 (position (position axis primary-axes)))
+                                                                            (optional-list (command (if row-axes?
+                                                                                                        (icon rotate-clockwise :label nil)
+                                                                                                        (icon rotate-counter-clockwise :label nil))
+                                                                                                    (make-action
+                                                                                                      (setf (slot-value self primary-axes-slot-name) (remove axis primary-axes))
+                                                                                                      (setf (slot-value self secondary-axes-slot-name) (cons axis secondary-axes))
+                                                                                                      (refresh)))
+                                                                                           (unless (zerop position)
+                                                                                             (command (if row-axes?
+                                                                                                          (icon move-left :label nil)
+                                                                                                          (icon move-up :label nil))
+                                                                                                      (make-action
+                                                                                                        ;; TODO: this impl is really stupid
+                                                                                                        (setf (slot-value self primary-axes-slot-name) (swap primary-axes position (1- position)))
+                                                                                                        (refresh))))
+                                                                                           (unless (= position
+                                                                                                      (1- (length primary-axes)))
+                                                                                             (command (if row-axes?
+                                                                                                          (icon move-right :label nil)
+                                                                                                          (icon move-down :label nil))
+                                                                                                      (make-action
+                                                                                                        ;; TODO: this impl is really ugly
+                                                                                                        (setf (slot-value self primary-axes-slot-name) (swap primary-axes position (1+ position)))
+                                                                                                        (refresh)))))))
+                                        :children (axes-command-bars (rest axes) primary-axes-slot-name secondary-axes-slot-name))))))
+             (refresh ()
+               ;; TODO: which one and why?
+               (refresh-component self)
+               (setf (component-value-of self) (component-value-of self))))
+      (setf row-headers (append (axes-command-bars row-axes 'row-axes 'column-axes)
+                                (axes-headers row-axes)))
+      (setf column-headers (append (axes-command-bars column-axes 'column-axes 'row-axes)
+                                   (axes-headers column-axes))))))
 
-(def function count-axes-cartesian-product (axes)
-  (reduce #'* axes :key [length (categories-of !1)]))
-
-(def render pivot-table-component ()
-  (bind (((:read-only-slots column-axes row-axes show-row-total show-column-total cells row-total-cells column-total-cells grand-total-cell) -self-))
-    (labels ((render-row-axis (row-path) ;; e.g. row-path = '("Budapesti" "Céges"), row-axes = '(("Budapesti" "Vidéki") ("Magán" "Céges"))
-               <tr ,@(iter (for (category . rest) :on row-path)
-                           (for axes :on row-axes)
-                           (when (every (lambda (c a)
-                                          (eq c (first (categories-of a))))
-                                        rest (cdr axes))
-                             <td (:class "axis" :rowspan ,(count-axes-cartesian-product (cdr axes)))
-                                 ,(render category)>))
-                   <td (:class "separator")>
-                   ,@(when cells
-                           (traverse nil column-axes
-                                     (lambda (column-path)
-                                       <td (:class "data")
-                                           ,(render (elt cells (pivot-table-cell-index -self- row-path column-path)))>)))
-                   ,(when (and show-row-total
-                               row-total-cells)
-                          <td (:class "total data")
-                              ,(render (elt row-total-cells (/ (pivot-table-path-cell-index row-axes row-path)
-                                                               (cell-indexing-multiplier-of (last-elt row-axes)))))>)>)
-             (traverse (path remaining visitor)
-               (if remaining
-                   (bind ((categories (categories-of (car remaining))))
-                     (dolist (category categories)
-                       (traverse (cons category path) (cdr remaining) visitor)))
-                   (list (funcall visitor (reverse path))))))
-      <table (:class "pivot")
-        <tbody
-         ,@(iter (with total-count = (count-axes-cartesian-product column-axes))
-                 (for count :initially 1 :then (* count (length (categories-of column-axis))))
-                 (for column-axis :in column-axes)
-                 (for i :from 0)
-                 (bind ((i i)) ;; TODO: fuck iterate
-                   <tr ,(when (first-iteration-p)
-                              <td (:class "header" :colspan ,(max 1 (length row-axes)) :rowspan ,(max 1 (length column-axes)))
-                                  "Pivot">)
-                       <td (:class "column-tooltip" :title "TODO: Tooltip")
-                           ,(render (command (icon rotate-counter-clockwise)
-                                             (make-action
-                                               (bind ((axis (elt column-axes i)))
-                                                 (setf (row-axes-of -self-) (cons axis row-axes))
-                                                 (setf (column-axes-of -self-) (remove axis column-axes))
-                                                 (setf-cell-indexing-multipliers -self-)
-                                                 (setf (component-value-of -self-) (component-value-of -self-))))))>
-                       ,@(iter (repeat count)
-                               (appending (mapcar (lambda (category)
-                                                    <td (:class "axis" :colspan ,(/ total-count count (length (categories-of column-axis))))
-                                                        ,(render category)>)
-                                                  (categories-of column-axis))))
-                       ,(when (first-iteration-p)
-                              <td (:class "total" :rowspan ,(length column-axes))
-                                  "Összesen">)>))
-         <tr ,@(iter (for i :from 0 :below (length row-axes))
-                     (bind ((i i)) ;; TODO: fuck iterate
-                       (collect <td (:class "row-tooltip" :title "TODO: Tooltip")
-                                    ,(render (command (icon rotate-clockwise)
-                                                      (make-action
-                                                        (bind ((axis (elt row-axes i)))
-                                                          (setf (row-axes-of -self-) (remove axis row-axes))
-                                                          (setf (column-axes-of -self-) (cons axis column-axes))
-                                                          (setf-cell-indexing-multipliers -self-)
-                                                          (setf (component-value-of -self-) (component-value-of -self-))))))>)))
-             <td (:class "separator")>
-             <td (:class "separator" :colspan ,(count-axes-cartesian-product column-axes))>
-             ,(when show-row-total
-                    <td (:class "separator")>) >
-         ,@(traverse nil row-axes #'render-row-axis)
-         ,(when show-column-total
-                <tr <td (:class "total" :colspan ,(max 1 (length row-axes)))
-                        "Összesen">
-                    <td (:class "separator")>
-                    ,@(when column-total-cells
-                            (traverse nil column-axes
-                                      (lambda (column-path)
-                                        <td (:class "total data")
-                                            ,(render (elt column-total-cells (pivot-table-path-cell-index column-axes column-path)))>)))
-                    ,(when show-row-total
-                           <td (:class "grand total data")
-                               ,(render grand-total-cell)>)>)>>)))
-
-(def function pivot-table-cell-index (pivot-table row-path column-path)
-  (+ (pivot-table-path-cell-index (row-axes-of pivot-table) row-path)
-     (pivot-table-path-cell-index (column-axes-of pivot-table) column-path)))
-
-(def function pivot-table-path-cell-index (axes path)
-  (iter (with index = 0)
-        (for axis :in axes)
-        (for category :in path)
-        (for category-index = (position category (categories-of axis)))
-        (incf index (* category-index (cell-indexing-multiplier-of axis)))
-        (finally (return index))))
-
-(def icon rotate-clockwise "static/wui/icons/20x20/clockwise-arrow.png" :label nil)
+(def icon rotate-clockwise "static/wui/icons/20x20/clockwise-arrow.png")
 (defresources hu
   (icon-tooltip.rotate-clockwise "Elforgatás a másik tengelyre"))
 (defresources en
   (icon-tooltip.rotate-clockwise "Rotate to other axis"))
 
-(def icon rotate-counter-clockwise "static/wui/icons/20x20/counter-clockwise-arrow.png" :label nil)
+(def icon rotate-counter-clockwise "static/wui/icons/20x20/counter-clockwise-arrow.png")
 (defresources hu
-  (icon-tooltip.rotate-clockwise "Elforgatás a másik tengelyre"))
+  (icon-tooltip.rotate-counter-clockwise "Elforgatás a másik tengelyre"))
 (defresources en
-  (icon-tooltip.rotate-clockwise "Rotate to other axis"))
+  (icon-tooltip.rotate-counter-clockwise "Rotate to other axis"))
+
+(def icon move-up "static/wui/icons/20x20/up-arrow.png")
+(defresources hu
+  (icon-tooltip.move-up "Mozgatás felfelé"))
+(defresources en
+  (icon-tooltip.move-up "Move up"))
+
+(def icon move-down "static/wui/icons/20x20/down-arrow.png")
+(defresources hu
+  (icon-tooltip.move-down "Mozgatás lefelé"))
+(defresources en
+  (icon-tooltip.move-down "Move down"))
+
+(def icon move-left "static/wui/icons/20x20/left-arrow.png")
+(defresources hu
+  (icon-tooltip.move-left "Mozgatás balra"))
+(defresources en
+  (icon-tooltip.move-left "Move left"))
+
+(def icon move-right "static/wui/icons/20x20/right-arrow.png")
+(defresources hu
+  (icon-tooltip.move-right "Mozgatás jobbra"))
+(defresources en
+  (icon-tooltip.move-right "Move right"))
 
 ;;;;;;
 ;;; Pivot table axis
 
 (def component pivot-table-axis-component ()
-  ((categories nil :type component)
-   (cell-indexing-multiplier :type integer)))
+  ((categories nil :type component)))
 
 ;;;;;
 ;;; Pivot table category
