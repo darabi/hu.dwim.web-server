@@ -149,6 +149,15 @@
   `(make-instance 'container-component :contents (list ,@contents)))
 
 ;;;;;;
+;;; Styled container
+
+(def component styled-container-component (style-component-mixin container-component)
+  ())
+
+(def (macro e) styled-container ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'styled-container-component ,@args :contents (list ,@contents)))
+
+;;;;;;
 ;;; Detail
 
 (def component detail-component ()

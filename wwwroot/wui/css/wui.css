@@ -7,21 +7,21 @@ a:visited
 
 .debug-component
 {
-    padding: 1px;
-    border-color: lightgray;
-    border-width: 1px;
-    border-style: solid;
+  padding: 1px;
+  border-color: lightgray;
+  border-width: 1px;
+  border-style: solid;
 }
 
 .debug-component-name
 {
-    font-size: 10px;
-    color: purple;
+  font-size: 10px;
+  color: purple;
 }
 
 .missing-resource
 {
-    color: #ff0000;
+  color: #ff0000;
 }
 
 /*
@@ -30,7 +30,12 @@ a:visited
 
 table.list.vertical
 {
-    width: 100%;
+  width: 100%;
+}
+
+table.list > tbody > tr > td
+{
+  padding: 0px;
 }
 
 div.list.horizontal > div
@@ -50,32 +55,32 @@ div.list.vertical > div
 
 .standard-object-tree-nested-box table
 {
-    margin: 1em;
+  margin: 1em;
 }
 
 /* this screws up opera
 .standard-object-tree-nested-box table.node
 {
-    width: 100%;
+  width: 100%;
 }
 */
 
 .standard-object-tree-nested-box .leaf td
 {
-    border-style: none;
+  border-style: none;
 }
 
 .standard-object-tree-nested-box td
 {
-    white-space: nowrap;
-    border-width: 1px;
-    border-style: solid;
-    border-collapse: collapse;
+  white-space: nowrap;
+  border-width: 1px;
+  border-style: solid;
+  border-collapse: collapse;
 }
 
 .standard-object-tree-nested-box .node thead
 {
-    background-color: lightskyblue;
+  background-color: lightskyblue;
 }
 
 /*
@@ -84,8 +89,8 @@ div.list.vertical > div
 
 .standard-object > table.list
 {
-    /* this is needed when used in tooltips */
-    width: auto;
+  /* this is needed when used in tooltips */
+  width: auto;
 }
 
 /*
@@ -94,8 +99,8 @@ div.list.vertical > div
 
 .standard-object-list > table.list
 {
-    /* this is needed when used in tooltips */
-    width: auto;
+  /* this is needed when used in tooltips */
+  width: auto;
 }
 
 /*
@@ -104,5 +109,5 @@ div.list.vertical > div
 
 .command-bar td
 {
-    white-space: nowrap;
+  white-space: nowrap;
 }
