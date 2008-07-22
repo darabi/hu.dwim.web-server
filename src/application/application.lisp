@@ -42,7 +42,8 @@
    (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal))
-   (lock))
+   (lock)
+   (running-in-test-mode :type boolean :export :accessor))
   (:metaclass funcallable-standard-class))
 
 (def (function i) assert-application-lock-held (application)
