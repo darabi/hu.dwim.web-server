@@ -33,6 +33,10 @@
   (with-slots (instance) -self-
     (setf instance (reuse-standard-object-instance instance))))
 
+(def method refresh-component :before ((self abstract-standard-object-component))
+  (with-slots (instance) self
+    (setf instance (reuse-standard-object-instance instance))))
+
 ;;;;;;
 ;;; Standard object
 

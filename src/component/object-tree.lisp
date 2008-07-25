@@ -14,6 +14,10 @@
   (prog1-bind clone (call-next-method)
     (setf (children-provider-of clone) (children-provider-of self))))
 
+(def method refresh-component ((self abstract-standard-object-tree-component))
+  (setf (component-value-of self) (component-value-of self))
+  (call-next-method))
+
 (def special-variable *standard-object-tree-level* 0)
 
 ;;;;;;
@@ -76,7 +80,7 @@
                    (mapc #'register-slot (standard-object-tree-table-slots (class-of child) child))
                    (register-instance child))))
         (when the-class
-          (mapc #'register-slot (standard-object-tree-table-slots the-class nil)))
+          (mapc #'register-slot (standard-object-tree-table-slots the-class (class-prototype the-class))))
         (register-instance instance))
       (setf slot-names (mapcar #'car slot-name->slot))
       (setf columns (list*
@@ -84,11 +88,11 @@
                      (column (label #"Object-tree-table.column.type"))
                      (mapcar [column (label (localized-slot-name (cdr !1)))]
                              slot-name->slot)))
-      (setf root-node (if root-node
-                          (setf (component-value-of root-node) instance)
-                          (make-instance 'standard-object-tree-node-component :instance instance :children-provider children-provider :table-slot-names slot-names))))))
+      (if root-node
+          (setf (component-value-of root-node) instance)
+          (setf root-node (make-instance 'standard-object-tree-node-component :instance instance :children-provider children-provider :table-slot-names slot-names))))))
 
-(def generic standard-object-tree-table-slots (class instance)
+(def (generic e) standard-object-tree-table-slots (class instance)
   (:method ((class standard-class) instance)
     (class-slots class))
 

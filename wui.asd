@@ -142,6 +142,7 @@
                                (:file "place" :depends-on ("component"))
                                (:file "icon" :depends-on ("component"))
                                (:file "command" :depends-on ("icon" "place"))
+                               (:file "tesites" :depends-on ("component"))
                                (:file "dojo" :depends-on ("component"))
                                (:file "misc" :depends-on ("component" "dojo"))
                                (:file "list" :depends-on ("component"))

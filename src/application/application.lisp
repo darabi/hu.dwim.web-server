@@ -342,7 +342,7 @@ Custom implementations should look something like this:
          (type (pop forms))
          (unused (gensym)))
     `(def method call-in-rendering-environment ,@(when qualifier (list qualifier)) ((-self- ,type) ,unused)
-          ,@forms)))
+        ,@forms)))
 
 ;; TODO: move?
 (def function collect-path-to-root-component (component)

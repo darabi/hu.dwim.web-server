@@ -320,7 +320,6 @@
           <span (:class ,(when wrong-value? "wrong"))
             ,printed-value>))))
 
-
 ;;;;;;
 ;;; Timestamp
 
@@ -335,7 +334,6 @@
   (unless (string= client-value "")
     ;; TODO check for errors, add user message
     (local-time:parse-rfc3339-timestring client-value)))
-
 
 ;;;;;;
 ;;; Member
@@ -378,16 +376,16 @@
         <span ,(princ-to-string component-value)>)))
 
 (def method parse-component-value ((component member-component) client-value)
-  (bind (((:read-only-slots possible-values allow-nil-value) component))
-    (bind ((index (parse-integer client-value)))
-      (if (and allow-nil-value
-               (= index 0))
-          nil
-          (progn
-            (decf index)
-            (assert (< index (length possible-values)))
-            (elt possible-values index))))))
-
+  (bind (((:read-only-slots possible-values allow-nil-value) component)
+         (index (parse-integer client-value)))
+    (if (and allow-nil-value
+             (= index 0))
+        nil
+        (progn
+          (when allow-nil-value
+            (decf index))
+          (assert (< index (length possible-values)))
+          (elt possible-values index)))))
 
 ;;;;;;
 ;;; Lisp form

@@ -34,7 +34,11 @@
          (type (place-type place))
          (content (make-inspector-component type :default-component-type 'reference-component)))
     (when (place-bound-p place)
-      (setf (component-value-of content) (value-at-place place)))
+      (bind ((value (value-at-place place)))
+        (setf (component-value-of content)
+              (if (prc::values-having-validity-p value)
+                  (prc::single-values-having-validity-value value)
+                  value))))
     content))
 
 (def (function e) make-special-variable-place-component (name type)
