@@ -59,7 +59,7 @@
 (def component temporal-selector-component ()
   ((t-value)))
 
-(def call-in-rendering-environment temporal-selector-component ()
+(def call-in-component-environment temporal-selector-component ()
   (rdbms:with-transaction* (:default-terminal-action :rollback :t (t-value-of -self-))
     (call-next-method)))
 
@@ -67,36 +67,26 @@
 ;;; Validity selector
 
 (def component validity-selector-component (content-component)
-  ((range :type component)
-   (refresh-command :type component)))
+  ((range :type component)))
 
 (def constructor validity-selector-component ()
-  (setf (refresh-command-of -self-) (make-validity-selector-refresh-command -self-))
   (begin-editing (range-of -self-)))
 
-(def (macro e) validity-selector ((&key validity-start validity-end) &body forms)
+(def (macro e) validity-selector ((&key validity validity-start validity-end) &body forms)
   `(make-instance 'validity-selector-component
                   :content (progn ,@forms)
-                  :range (timestamp-range :range-start ,validity-start :range-end ,validity-end)))
+                  :range (timestamp-range :range-start ,(if validity
+                                                            (prc::first-moment-for-partial-timestamp validity)
+                                                            validity-start)
+                                          :range-end ,(if validity
+                                                          (prc::last-moment-for-partial-timestamp validity)
+                                                          validity-end))))
 
-(def function call-with-selected-validity-range (component thunk)
-  
-  (bind (((:values validity-start validity-end) (compute-timestamp-range (range-of component))))
-    (prc::call-with-validity-range validity-start validity-end thunk)))
-
-(def call-in-rendering-environment validity-selector-component ()
-  (call-with-selected-validity-range -self- #'call-next-method))
+(def call-in-component-environment validity-selector-component ()
+  (bind (((:values validity-start validity-end) (compute-timestamp-range (range-of -self-))))
+    (prc::call-with-validity-range validity-start validity-end #'call-next-method)))
 
 (def render validity-selector-component ()
-  (bind (((:read-only-slots range refresh-command) -self-))
+  (bind (((:read-only-slots range) -self-))
     <div ,(render range)
-         ,(render refresh-command)
          ,(call-next-method)>))
-
-(def method refresh-component ((self validity-selector-component))
-  (call-with-selected-validity-range self #'call-next-method))
-
-(def function make-validity-selector-refresh-command (component)
-  (command (icon refresh)
-           (make-action
-             (refresh-component component))))

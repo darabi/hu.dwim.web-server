@@ -14,10 +14,6 @@
   (prog1-bind clone (call-next-method)
     (setf (children-provider-of clone) (children-provider-of self))))
 
-(def method refresh-component ((self abstract-standard-object-tree-component))
-  (setf (component-value-of self) (component-value-of self))
-  (call-next-method))
-
 (def special-variable *standard-object-tree-level* 0)
 
 ;;;;;;
@@ -30,7 +26,7 @@
 (def (macro e) standard-object-tree-component (root children-provider &rest args)
   `(make-instance 'standard-object-tree-component :instance ,root :children-provider ,children-provider ,@args))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-tree-component))
+(def method refresh-component ((self standard-object-tree-component))
   (with-slots (instance children-provider default-component-type alternatives content command-bar) self
     (if instance
         (progn
@@ -67,7 +63,7 @@
   ((slot-names nil)))
 
 ;; TODO: factor out common parts with standard-object-table-component
-(def method (setf component-value-of) :after (new-value (component standard-object-tree-table-component))
+(def method refresh-component ((component standard-object-tree-table-component))
   (with-slots (instance root-node children-provider the-class slot-names command-bar columns) component
     (bind ((slot-name->slot (list)))
       ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
@@ -119,9 +115,8 @@
   ((table-slot-names)
    (command-bar nil :type component)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-tree-node-component))
+(def method refresh-component ((self standard-object-tree-node-component))
   (with-slots (children-provider the-class instance table-slot-names command-bar child-nodes cells) self
-    (setf instance new-value)
     (if instance
         (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-tree-node-commands self the-class instance))
               child-nodes (iter (for child :in (funcall (children-provider-of self) instance))

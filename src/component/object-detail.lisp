@@ -46,7 +46,7 @@
   (:default-initargs :alternatives-factory #'make-standard-object-alternatives)
   (:documentation "Component for an instance of STANDARD-OBJECT in various alternative views"))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-component))
+(def method refresh-component ((self standard-object-component))
   (with-slots (instance the-class default-component-type alternatives content command-bar) self
     (if instance
         (progn
@@ -116,7 +116,7 @@
    (slot-value-group nil :type component))
   (:documentation "Component for an instance of STANDARD-OBJECT in detail"))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-detail-component))
+(def method refresh-component ((component standard-object-detail-component))
   (with-slots (instance the-class class slot-value-group) component
     (if the-class
         (if class
@@ -158,7 +158,7 @@
   ((slot-values nil :type components))
   (:documentation "Component for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-slot-value-group-component))
+(def method refresh-component ((component standard-object-slot-value-group-component))
   (with-slots (instance the-class slots slot-values) component
     (if instance
         (setf slot-values
@@ -196,7 +196,7 @@
    (value nil :type component))
   (:documentation "Component for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-slot-value-detail-component))
+(def method refresh-component ((component standard-object-slot-value-detail-component))
   (with-slots (instance the-class slot label value) component
     (if slot
         (if label

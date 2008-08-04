@@ -53,7 +53,7 @@
 (def function revert-place-component-content (place-component)
   (setf (content-of place-component) (make-place-component-content place-component)))
 
-(def method refresh-component :after ((place-component place-component))
+(def method refresh-component ((place-component place-component))
   (unless (edited-p place-component)
     (revert-place-component-content place-component)))
 

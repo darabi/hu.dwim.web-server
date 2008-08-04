@@ -19,15 +19,19 @@
 
 (def component component ()
   ((parent-component nil :export :accessor)
-   ;; TODO: use only one slot for these flags
+   ;; TODO: use only one slot for these flags (beware of boolean like slots which might have delayed computations inside)
    (visible #t :type boolean :documentation "True means the component must be visible on the client side, while false means the opposite.")
    (expanded #t :type boolean :documentation "True mans the component should display itself with full detail, while false means it should be minimized.")
-   (dirty #t :type boolean :documentation "True means the component must be sent to the client to refresh its content.")))
+   (dirty #t :type boolean :documentation "True means the component must be sent to the client to refresh its content.")
+   (outdated #t :type boolean :documentation "True means the component must be refreshed before render.")))
 
 (def render :around component ()
   (if (force (visible-p -self-))
-      (prog1 (render-with-debug-component-hierarchy -self- #'call-next-method)
-        (setf (dirty-p -self-) #f))
+      (progn
+        (when (outdated-p -self-)
+          (refresh-component -self-))
+        (prog1 (render-with-debug-component-hierarchy -self- #'call-next-method)
+          (setf (dirty-p -self-) #f)))
       +void+))
 
 (def (type e) components ()
@@ -35,7 +39,9 @@
 
 (def (generic e) component-value-of (component))
 
-(def (generic e) (setf component-value-of) (new-value component))
+(def (generic e) (setf component-value-of) (new-value component)
+  (:method :after (new-value (component component))
+    (setf (outdated-p component) #t)))
 
 (def (function e) mark-dirty (component)
   (setf (dirty-p component) #t))

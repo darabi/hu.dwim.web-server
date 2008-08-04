@@ -34,13 +34,15 @@
   (assert (typep editable 'editable-component))
   ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
   (rdbms::with-transaction
-    (store-editing editable)
-    (leave-editing editable)))
+    (with-restored-component-environment editable
+      (store-editing editable)
+      (leave-editing editable))))
 
 (def (function e) cancel-editing (editable)
   (assert (typep editable 'editable-component))
-  (revert-editing editable)
-  (leave-editing editable))
+  (with-restored-component-environment editable
+    (revert-editing editable)
+    (leave-editing editable)))
 
 (def generic map-editable-child-components (component function)
   (:method ((component component) function)

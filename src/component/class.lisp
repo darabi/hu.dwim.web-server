@@ -24,7 +24,7 @@
   ()
   (:documentation "Component for an instance of STANDARD-CLASS in various alternative views"))
 
-(def method (setf component-value-of) :after (new-value (self standard-class-component))
+(def method refresh-component ((self standard-class-component))
   (with-slots (the-class default-component-type alternatives content command-bar) self
     (if the-class
         (progn
@@ -56,7 +56,7 @@
    (effective-slots nil :type component))
   (:documentation "Component for an instance of STANDARD-CLASS in detail"))
 
-(def method (setf component-value-of) :after (new-value (component standard-class-detail-component))
+(def method refresh-component ((component standard-class-detail-component))
      (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) component
        (if the-class
            (progn
@@ -128,7 +128,7 @@
          (column (label #"Column.readers"))
          (column (label #"Column.writers")))))
 
-(def method (setf component-value-of) :after (new-value (component standard-slot-definition-table-component))
+(def method refresh-component ((component standard-slot-definition-table-component))
   (with-slots (slots columns rows) component
     (setf rows
           (iter (for slot :in slots)
@@ -162,7 +162,7 @@
    (writers nil :type component))
   (:documentation "Component for a STANDARD-SLOT-DEFINITION as a table row"))
 
-(def method (setf component-value-of) :after (new-value (component standard-slot-definition-row-component))
+(def method refresh-component ((component standard-slot-definition-row-component))
   (with-slots (slot label type readers writers cells) component
     (if slot
         (setf label (make-instance 'string-component :component-value (qualified-symbol-name (slot-definition-name slot)))

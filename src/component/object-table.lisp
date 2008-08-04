@@ -28,9 +28,8 @@
   ()
   (:default-initargs :alternatives-factory #'make-standard-object-list-alternatives))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-list-component))
+(def method refresh-component ((self standard-object-list-component))
   (with-slots (instances the-class default-component-type alternatives content command-bar) self
-    (setf instances new-value)
     (if alternatives
         (setf (component-value-for-alternatives self) instances)
         (setf alternatives (funcall (alternatives-factory-of self) the-class instances)))
@@ -75,7 +74,7 @@
 (def component standard-object-table-component (abstract-standard-object-list-component abstract-standard-class-component table-component editable-component)
   ((slot-names nil)))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-table-component))
+(def method refresh-component ((component standard-object-table-component))
   (with-slots (instances the-class slot-names command-bar columns rows) component
     (bind ((slot-name->slot (list)))
       ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
@@ -127,9 +126,8 @@
   ((table-slot-names)
    (command-bar nil :type component)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-row-component))
+(def method refresh-component ((self standard-object-row-component))
   (with-slots (the-class instance table-slot-names command-bar cells) self
-    (setf instance new-value)
     (if instance
         (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-row-commands self the-class instance))
               cells (list* (make-instance 'cell-component :content command-bar)
@@ -175,7 +173,7 @@
 (def component standard-object-slot-value-cell-component (abstract-standard-object-slot-value-component cell-component editable-component)
   ())
 
-(def method (setf component-value-of) :after (new-value (component standard-object-slot-value-cell-component))
+(def method refresh-component ((component standard-object-slot-value-cell-component))
   (with-slots (instance slot content) component
     (if slot
         (setf content (make-instance 'place-component :place (make-slot-value-place instance slot)))

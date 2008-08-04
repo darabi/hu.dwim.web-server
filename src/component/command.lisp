@@ -121,8 +121,11 @@
 ;;; Generic commands
 
 (def generic refresh-component (component)
-  (:method ((component component))
-    (map-child-components component #'refresh-component)))
+  (:method ((self component))
+    (values))
+
+  (:method :after ((self component))
+    (setf (outdated-p self) #f)))
 
 (def (function e) make-refresh-command (component)
   (make-instance 'command-component

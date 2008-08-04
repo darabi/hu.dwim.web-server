@@ -10,7 +10,7 @@
 (def component standard-object-maker-component (abstract-standard-class-component alternator-component editable-component user-message-collector-component-mixin)
   ())
 
-(def method (setf component-value-of) :after (new-value (self standard-object-maker-component))
+(def method refresh-component ((self standard-object-maker-component))
   (with-slots (the-class default-component-type alternatives content command-bar) self
     (if the-class
         (progn
@@ -87,7 +87,7 @@
 (def component standard-object-slot-value-group-maker-component (abstract-standard-slot-definition-group-component)
   ((slot-values nil :type components)))
 
-(def method (setf component-value-of) :after (new-value (component standard-object-slot-value-group-maker-component))
+(def method refresh-component ((component standard-object-slot-value-group-maker-component))
   (with-slots (the-class slots slot-values) component
     (setf slot-values
           (iter (for slot :in slots)

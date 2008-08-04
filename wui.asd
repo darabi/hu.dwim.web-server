@@ -158,7 +158,7 @@
                                (:file "place-component" :depends-on ("editable" "factory" "atomic"))
                                (:file "user-message" :depends-on ("component"))
                                (:file "wizard" :depends-on ("component"))
-                               (:file "alternator" :depends-on ("reference" "command" "misc"))
+                               (:file "alternator" :depends-on ("reference" "command" "misc" "atomic"))
                                (:file "class" :depends-on ("alternator" "reference" "table"))
                                (:file "object-detail" :depends-on ("alternator" "reference"))
                                (:file "object-maker" :depends-on ("object-detail" "atomic"))

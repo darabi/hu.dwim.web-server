@@ -10,7 +10,7 @@
 (def component standard-object-list-aggregator-component (abstract-standard-object-list-component abstract-standard-class-component)
   ((slot-values nil :type components)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-list-aggregator-component))
+(def method refresh-component ((self standard-object-list-aggregator-component))
   (with-slots (slot-values instances the-class) self
     (setf slot-values
           (iter (for slot :in (standard-object-aggregated-slots the-class))
@@ -51,7 +51,7 @@
    (average)
    (sum)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-list-slot-value-aggregator-component))
+(def method refresh-component ((self standard-object-list-slot-value-aggregator-component))
   (bind (((:read-only-slots instances slot) self))
     (setf instances (mapcar #'reuse-standard-object-instance instances))
     (iter (with slot-name = (slot-definition-name slot))

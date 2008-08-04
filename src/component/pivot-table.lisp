@@ -17,8 +17,7 @@
 (def constructor pivot-table-component ()
   (refresh-component -self-))
 
-;; TODO: why is this refresh-component and not (setf component-value-of)?
-(def method refresh-component :before ((self pivot-table-component))
+(def method refresh-component ((self pivot-table-component))
   (with-slots (row-axes row-headers column-axes column-headers instances) self
     (labels ((swap (axes p1 p2)
                (bind ((tmp (elt axes p1)))
@@ -74,9 +73,7 @@
              (refresh ()
                ;; TODO: here?
                (setf instances (mapcar #'reuse-standard-object-instance instances))
-               ;; TODO: which one and why?
-               (refresh-component self)
-               (setf (component-value-of self) (component-value-of self))))
+               (refresh-component self)))
       (setf row-headers (append (axes-command-bars row-axes 'row-axes 'column-axes)
                                 (axes-headers row-axes)))
       (setf column-headers (append (axes-command-bars column-axes 'column-axes 'row-axes)

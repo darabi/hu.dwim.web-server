@@ -21,7 +21,7 @@
            ,@(mapcar #'render columns)>>
       <tbody ,@(render root-node)>>))
 
-(def call-in-rendering-environment tree-component ()
+(def call-in-component-environment tree-component ()
   (bind ((*tree-level* -1))
     (call-next-method)))
 
@@ -49,7 +49,7 @@
             (when expanded
               (mappend #'render child-nodes)))))
 
-(def call-in-rendering-environment node-component ()
+(def call-in-component-environment node-component ()
   (bind ((*tree-level* (1+ *tree-level*)))
     (call-next-method)))
 

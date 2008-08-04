@@ -15,7 +15,7 @@
   (when lists
     (apply #'map-product function (car lists) (cdr lists))))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-list-pivot-table-component))
+(def method refresh-component ((self standard-object-list-pivot-table-component))
      (bind (((:read-only-slots row-axes column-axes column-leaf-count) self)
             ((:slots instances) self))
        (setf instances (mapcar #'reuse-standard-object-instance instances))

@@ -11,7 +11,7 @@
   ((result :type component)
    (result-component-factory #'make-standard-object-filter-result-component :type function)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-filter-component))
+(def method refresh-component ((self standard-object-filter-component))
   (with-slots (result the-class default-component-type alternatives content command-bar) self
     (setf result (make-instance 'empty-component))
     (if the-class
@@ -41,7 +41,7 @@
   ((class :accessor nil :type component)
    (slot-value-group :type component)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-filter-detail-component))
+(def method refresh-component ((self standard-object-filter-detail-component))
   (with-slots (the-class class slot-value-group command-bar) self
     (setf class (make-viewer-component the-class :default-component-type 'reference-component)
           slot-value-group (make-instance 'standard-object-slot-value-group-filter-component :the-class the-class :slots (standard-object-filter-detail-slots the-class)))))
@@ -72,7 +72,7 @@
 (def component standard-object-slot-value-group-filter-component (abstract-standard-slot-definition-group-component)
   ((slot-values nil :type components)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-slot-value-group-filter-component))
+(def method refresh-component ((self standard-object-slot-value-group-filter-component))
   (with-slots (the-class slots slot-values) self
     (setf slot-values
           (iter (for slot :in slots)
@@ -110,7 +110,7 @@
    (label nil :type component)
    (value nil :type component)))
 
-(def method (setf component-value-of) :after (new-value (self standard-object-slot-value-filter-component))
+(def method refresh-component ((self standard-object-slot-value-filter-component))
   (with-slots (slot slot-name negated negate-command predicate predicate-command label value) self
     (setf slot-name (slot-definition-name slot)
           label (label (localized-slot-name slot))

@@ -318,7 +318,7 @@ Custom implementations should look something like this:
 
 (def (layered-function e) render (component)
   (:method :around (component)
-    (call-in-rendering-environment component #'call-next-method)))
+    (call-in-component-environment component #'call-next-method)))
 
 (def (definer e) render (&body forms)
   (bind ((layer (when (member (first forms) '(:in-layer :in))
@@ -331,17 +331,20 @@ Custom implementations should look something like this:
     `(def layered-method render ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
        ,@forms)))
 
-(def (generic e) call-in-rendering-environment (component thunk)
+(def (generic e) call-in-component-environment (component thunk)
   (:method (component thunk)
     (funcall thunk)))
 
-(def (definer e) call-in-rendering-environment (&body forms)
+(def macro with-component-environment (component &body forms)
+  `(call-in-component-environment ,component (lambda () ,@forms)))
+
+(def (definer e) call-in-component-environment (&body forms)
   (bind ((qualifier (when (or (keywordp (first forms))
                               (member (first forms) '(and or progn append nconc)))
                       (pop forms)))
          (type (pop forms))
          (unused (gensym)))
-    `(def method call-in-rendering-environment ,@(when qualifier (list qualifier)) ((-self- ,type) ,unused)
+    `(def method call-in-component-environment ,@(when qualifier (list qualifier)) ((-self- ,type) ,unused)
         ,@forms)))
 
 ;; TODO: move?
@@ -350,15 +353,17 @@ Custom implementations should look something like this:
         (while ancestor-component)
         (collect ancestor-component)))
 
-(def function render-with-restored-rendering-environment (component)
+(def function call-with-restored-component-environment (component thunk)
   (bind ((path (nreverse (cdr (collect-path-to-root-component component)))))
-    (labels ((%render-with-restored-rendering-environment (remaining-path)
+    (labels ((%call-with-restored-component-environment (remaining-path)
                (if remaining-path
-                   (call-in-rendering-environment (car remaining-path)
-                                                  (lambda ()
-                                                    (%render-with-restored-rendering-environment (cdr remaining-path))))
-                   (render component))))
-      (%render-with-restored-rendering-environment path))))
+                   (with-component-environment (car remaining-path)
+                     (%call-with-restored-component-environment (cdr remaining-path)))
+                   (funcall thunk))))
+      (%call-with-restored-component-environment path))))
+
+(def macro with-restored-component-environment (component &body forms)
+  `(call-with-restored-component-environment ,component (lambda () ,@forms)))
 
 (def function ajax-aware-render (component ajax-aware-client?)
   (if ajax-aware-client?
@@ -366,7 +371,9 @@ Custom implementations should look something like this:
         <ajax-response
          ,@(with-collapsed-js-scripts
             <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
-             ,@(mappend [ensure-list (render-with-restored-rendering-environment !1)] dirty-components)>)>)
+             ,@(mappend [ensure-list (with-restored-component-environment !1
+                                        (render component))]
+                        dirty-components)>)>)
       (render component)))
 
 (def (function e) render-to-string (component &key (ajax-aware-client #f))
