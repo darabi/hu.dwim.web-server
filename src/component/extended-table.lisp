@@ -16,9 +16,6 @@
    (column-leaf-count :type integer)
    (cells nil :type components)))
 
-(def constructor extended-table-component ()
-  (refresh-component -self-))
-
 (def method refresh-component ((self extended-table-component))
   (with-slots (row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count cells) self
     (flet ((setf-indices (headers)

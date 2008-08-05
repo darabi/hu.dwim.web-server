@@ -14,9 +14,6 @@
    (cell-axes nil :type components) ;; TODO: implement
    (cells nil :type components)))
 
-(def constructor pivot-table-component ()
-  (refresh-component -self-))
-
 (def method refresh-component ((self pivot-table-component))
   (with-slots (row-axes row-headers column-axes column-headers instances) self
     (labels ((swap (axes p1 p2)

@@ -117,16 +117,13 @@
 ;;; Standard slot definition table
 
 (def component standard-slot-definition-table-component (abstract-standard-slot-definition-group-component table-component)
-  ()
+  ((columns
+    (list
+     (column (label #"Column.name"))
+     (column (label #"Column.type"))
+     (column (label #"Column.readers"))
+     (column (label #"Column.writers")))))
   (:documentation "Component for a list of STANDARD-SLOT-DEFINITIONs instances as a table"))
-
-(def constructor standard-slot-definition-table-component ()
-  (setf (columns-of -self-)
-        (list
-         (column (label #"Column.name"))
-         (column (label #"Column.type"))
-         (column (label #"Column.readers"))
-         (column (label #"Column.writers")))))
 
 (def method refresh-component ((component standard-slot-definition-table-component))
   (with-slots (slots columns rows) component

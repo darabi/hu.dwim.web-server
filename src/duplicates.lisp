@@ -70,3 +70,29 @@ that it creates a fresh binding."
   (when datum-p
     (setf datum (concatenate-string "Not yet implemented: " datum)))
   (apply #'cerror "Ignore and continue" datum args))
+
+(defun map-subclasses (class fn &key proper?)
+  "Applies fn to each subclass of class. If proper? is true, then
+the class itself is not included in the mapping. Proper? defaults to nil."
+  (let ((mapped (make-hash-table :test #'eq)))
+    (labels ((mapped-p (class)
+               (gethash class mapped))
+             (do-it (class root)
+               (unless (mapped-p class)
+                 (setf (gethash class mapped) t)
+                 (unless (and proper? root)
+                   (funcall fn class))
+                 (mapc (lambda (class)
+                         (do-it class nil))
+                       (class-direct-subclasses class)))))
+      (do-it (etypecase class
+               (symbol (find-class class))
+               (class class)) t))))
+
+(defun subclasses (class &key (proper? t))
+  "Returns all of the subclasses of the class including the class itself."
+  (let ((result nil))
+    (map-subclasses class (lambda (class)
+                            (push class result))
+                    :proper? proper?)
+    (nreverse result)))

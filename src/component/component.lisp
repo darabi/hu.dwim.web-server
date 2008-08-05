@@ -130,9 +130,14 @@
     (mark-dirty instance)))
 
 (def method (setf slot-value-using-class) :after (new-value (class component-class) (instance component) (slot component-effective-slot-definition))
+  (setf-parent-component-references new-value instance))
+
+(def (function o) setf-parent-component-references (new-value instance &optional parent-component-slot-index)
   (macrolet ((setf-parent (child)
                ;; TODO: (assert (not (parent-component-of child)) nil "The ~A is already under a parent" child)
-               `(setf (parent-component-of ,child) instance)))
+               `(if parent-component-slot-index
+                    (setf (standard-instance-access ,child parent-component-slot-index) instance)
+                    (setf (parent-component-of ,child) instance))))
     (typecase new-value
       (component
        (setf-parent new-value))

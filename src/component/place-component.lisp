@@ -8,9 +8,9 @@
 ;;; Place component
 
 (def component place-component (editable-component)
-  ((place)
-   (content :type component)
-   (command-bar :type component))
+  ((place nil)
+   (content nil :type component)
+   (command-bar nil :type component))
   (:documentation "Place component is resposible for being able to edit any value that is valid according to the type."))
 
 (def constructor place-component ()

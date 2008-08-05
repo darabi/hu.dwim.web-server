@@ -48,7 +48,7 @@
 (def constructor standard-object-filter-detail-component ()
   (with-slots (the-class class-selector) -self-
     (setf class-selector
-          (when-bind subclasses (moptilities:subclasses the-class)
+          (when-bind subclasses (subclasses the-class)
             (make-instance 'member-component
                            :edited #t
                            :allow-nil-value #t

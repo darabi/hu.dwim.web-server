@@ -137,7 +137,8 @@
                                (:file "error-handlers")))
                  (:module "component"
                   :components ((:file "mop" )
-                               (:file "component" :depends-on ("mop"))
+                               (:file "constructor")
+                               (:file "component" :depends-on ("mop" "constructor"))
                                (:file "factory" :depends-on ("component"))
                                (:file "place" :depends-on ("component"))
                                (:file "icon" :depends-on ("component"))
