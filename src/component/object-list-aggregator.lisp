@@ -13,7 +13,7 @@
 (def method refresh-component ((self standard-object-list-aggregator-component))
   (with-slots (slot-values instances the-class) self
     (setf slot-values
-          (iter (for slot :in (standard-object-aggregated-slots the-class))
+          (iter (for slot :in (collect-standard-object-aggregated-slots the-class))
                 (for slot-value = (find slot slot-values :key #'component-value-of))
                 (if slot-value
                     (setf (component-value-of slot-value) instances)
@@ -36,7 +36,7 @@
                             ,@(render slot-value)>)
                       slot-values)>>>))
 
-(def generic standard-object-aggregated-slots (class)
+(def generic collect-standard-object-aggregated-slots (class)
   (:method ((class standard-class))
     (filter-if (lambda (slot)
                  (subtypep (slot-definition-type slot) 'number))

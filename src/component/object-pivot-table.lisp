@@ -50,7 +50,7 @@
               (or (find-if (of-type 'standard-object-list-pivot-table-aggregator-category-component) row-path)
                   (find-if (of-type 'standard-object-list-pivot-table-aggregator-category-component) column-path))))
         (if aggregator-category
-            (bind ((aggregated-slots (standard-object-aggregated-slots class))
+            (bind ((aggregated-slots (collect-standard-object-aggregated-slots class))
                    (slot-name (slot-definition-name (first aggregated-slots))))
               (assert (length= 1 aggregated-slots))
               ;; TODO: make it a command which expands to the standard object list table (maybe aggregator list?)

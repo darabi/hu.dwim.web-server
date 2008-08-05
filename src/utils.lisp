@@ -53,6 +53,11 @@
 (def function filter-if (predicate list &key (key #'identity))
   (remove-if (complement predicate) list :key key))
 
+(def function filter-slots (names slots)
+  (filter-if (lambda (slot)
+               (member (slot-definition-name slot) names))
+             slots))
+
 (def (generic e) debug-on-error (context error)
   (:method (context error)
     *debug-on-error*))

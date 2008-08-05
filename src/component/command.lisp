@@ -164,20 +164,24 @@
                                                (append back-command-args
                                                        `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
                                                                                (eq (force replacement-component) (component-at-place original-place)))))))))
+                     ;; FIXME: TODO: KLUDGE: uncommented, because command-bar is usually created from refresh and is not available after make-instance
+                     (ensure-uptodate replacement-component)
                      (push-command back-command replacement-component)
                      (setf (component-at-place original-place) replacement-component)))
          replace-command-args))
 
-(def function find-top-component-content (component)
+(def (function e) find-top-component-content (component)
   (awhen (find-ancestor-component-with-type component 'top-component)
     (content-of it)))
+
+(def (function e) top-component-p (component)
+  (eq component (find-top-component-content component)))
 
 (def (function e) make-top-command (replacement-component)
   "The TOP command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT"
   (bind ((original-component (delay (find-top-component-content replacement-component))))
     (make-replace-and-push-back-command original-component  replacement-component
-                                        (list :icon (icon top)
-                                              :visible (delay (not (eq replacement-component (find-top-component-content replacement-component)))))
+                                        (list :icon (icon top) :visible (delay (not (top-component-p replacement-component))))
                                         (list :icon (icon back)))))
 
 (def (generic e) make-frame-component-with-content (application content))

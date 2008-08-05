@@ -19,7 +19,7 @@
     :type boolean)
    (unit
     :year
-    :type (member :year :quarter-year :month :weak :day :hour :minute :second))
+    :type (member :year :month :weak :day :hour :minute :second))
    (range
     (make-instance 'member-component
                    ;; TODO: kill this hack

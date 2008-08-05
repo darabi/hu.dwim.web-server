@@ -40,7 +40,7 @@
 ;;; Column
 
 (def component column-component (content-component)
-  ())
+  ((cell-factory nil :type (or null function))))
 
 (def macro column (content &rest args)
   `(make-instance 'column-component :content ,content ,@args))
@@ -60,6 +60,12 @@
       "odd-row"))
 
 (def layered-function render-table-row (table row)
+  (:method :around (table row)
+    (ensure-uptodate row)
+    (if (force (visible-p row))
+        (call-next-method)
+        +void+))
+
   (:method ((table table-component) (row row-component))
     (assert (eq (parent-component-of row) table))
     <tr (:class ,(odd/even-class row (rows-of table)))
@@ -94,6 +100,9 @@
   ())
 
 (def layered-function render-table-cell (table row column cell)
+  (:method :before (table row column cell)
+    (ensure-uptodate cell))
+  
   (:method (table row column cell)
     <td ,(render (content-of cell)) >))
 

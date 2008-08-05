@@ -11,6 +11,9 @@
   ((result :type component)
    (result-component-factory #'make-standard-object-filter-result-component :type function)))
 
+(def (macro e) standard-object-filter-component (the-class)
+  `(make-instance 'standard-object-filter-component :the-class ,the-class))
+
 (def method refresh-component ((self standard-object-filter-component))
   (with-slots (result the-class default-component-type alternatives content command-bar) self
     (setf result (make-instance 'empty-component))
@@ -38,30 +41,44 @@
 ;;; Standard object filter detail
 
 (def component standard-object-filter-detail-component (abstract-standard-class-component detail-component)
-  ((class :accessor nil :type component)
+  ((class-selector :type component)
+   (class :accessor nil :type component)
    (slot-value-group :type component)))
+
+(def constructor standard-object-filter-detail-component ()
+  (with-slots (the-class class-selector) -self-
+    (setf class-selector
+          (when-bind subclasses (moptilities:subclasses the-class)
+            (make-instance 'member-component
+                           :edited #t
+                           :allow-nil-value #t
+                           :component-value the-class
+                           :possible-values subclasses)))))
 
 (def method refresh-component ((self standard-object-filter-detail-component))
   (with-slots (the-class class slot-value-group command-bar) self
     (setf class (make-viewer-component the-class :default-component-type 'reference-component)
-          slot-value-group (make-instance 'standard-object-slot-value-group-filter-component :the-class the-class :slots (standard-object-filter-detail-slots the-class)))))
+          slot-value-group (make-instance 'standard-object-slot-value-group-filter-component :the-class the-class :slots (collect-standard-object-filter-detail-slots the-class (class-prototype the-class))))))
 
-(def generic standard-object-filter-detail-slots (class)
-  (:method ((class standard-class))
+(def (generic e) collect-standard-object-filter-detail-slots (class instance)
+  (:method ((class standard-class) (instance standard-object))
     (class-slots class))
 
-  (:method ((class prc::persistent-class))
+  (:method ((class prc::persistent-class) (instance prc::persistent-object))
     (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
-  (:method ((class dmm::entity))
+  (:method ((class dmm::entity) (instance prc::persistent-object))
     (filter-if (lambda (slot)
                  (dmm::authorize-operation 'dmm::filter-entity-property-operation :-entity- class :-property- slot))
                (call-next-method))))
 
 (def render standard-object-filter-detail-component ()
-  (with-slots (the-class class slots-values slot-value-group command-bar) -self-
+  (with-slots (the-class class-selector class slots-values slot-value-group command-bar) -self-
     <div
-      <span "Filter instances of " ,(render class)>
+      <div "Filter instances of " ,(render class)>
+      ,(if class-selector
+           (render class-selector)
+           +void+)
       <div
         <h3 "Slots">
         ,(render slot-value-group)>>))
@@ -222,6 +239,9 @@
     (build-filter-query* (content-of component) filter-query))
 
   (:method ((component standard-object-filter-detail-component) filter-query)
+    (when-bind class-selector (class-selector-of component)
+      (when-bind selected-class (component-value-of class-selector)
+        (prc::add-assert (query-of filter-query) `(typep ,(first (query-variable-stack-of filter-query)) ,selected-class))))
     (build-filter-query* (slot-value-group-of component) filter-query))
 
   (:method ((component standard-object-filter-reference-component) filter-query)
@@ -257,5 +277,5 @@
                                              (prc::add-assert (query-of filter-query)
                                                               `(eq ,query-variable
                                                                    (,(prc::reader-name-of (slot-of component))
-                                                                    ,(second (query-variable-stack-of filter-query)))))
+                                                                     ,(second (query-variable-stack-of filter-query)))))
                                              (build-filter-query* value-component filter-query))))))))

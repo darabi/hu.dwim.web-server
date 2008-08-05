@@ -10,6 +10,9 @@
 (def component standard-object-maker-component (abstract-standard-class-component alternator-component editable-component user-message-collector-component-mixin)
   ())
 
+(def (macro e) standard-object-maker-component (the-class)
+  `(make-instance 'standard-object-maker-component :the-class ,the-class))
+
 (def method refresh-component ((self standard-object-maker-component))
   (with-slots (the-class default-component-type alternatives content command-bar) self
     (if the-class
@@ -59,16 +62,16 @@
   (with-slots (the-class class slot-value-group command-bar) -self-
     (setf class (make-viewer-component the-class :default-component-type 'reference-component)
           slot-value-group (make-instance 'standard-object-slot-value-group-maker-component
-                                          :slots (standard-object-maker-detail-slots the-class)))))
+                                          :slots (collect-standard-object-maker-detail-slots the-class (class-prototype the-class))))))
 
-(def generic standard-object-maker-detail-slots (class)
-  (:method ((class standard-class))
+(def (generic e) collect-standard-object-maker-detail-slots (class instance)
+  (:method ((class standard-class) (instance standard-object))
     (class-slots class))
 
-  (:method ((class prc::persistent-class))
+  (:method ((class prc::persistent-class) (instance prc::persistent-object))
     (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
-  (:method ((class dmm::entity))
+  (:method ((class dmm::entity) (instance prc::persistent-object))
     (filter-if (lambda (slot)
                  (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot))
                (call-next-method))))

@@ -20,6 +20,10 @@ tr.selected.highlighted.even-row {
   background-color: #bbbbbb;
 }
 
+tr.highlighted {
+  background-color: #ffee88;
+}
+
 tr.highlighted.even-row {
   background-color: #ccffff;
 }
@@ -49,12 +53,12 @@ td
 
 /* tree */
 
-table.tree > tbody > tr td.expander img
+table.tree > tbody > tr > td.expander img
 {
   padding-right: 6px;
 }
 
-table.tree > tbody > tr > td.non-expandable
+table.tree > tbody > tr > td > .non-expandable
 {
   padding-left: 17px; /* 11px missing img + 6px right padding */
 }

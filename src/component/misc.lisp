@@ -16,6 +16,7 @@
 (def method find-command-bar ((component content-component))
   (or (call-next-method)
       (awhen (content-of component)
+        (ensure-uptodate it)
         (find-command-bar it))))
 
 ;;;;;;
@@ -88,7 +89,7 @@
 ;;;;;;
 ;;; Remote identity
 
-(def component remote-identity-component-mixin (component)
+(def component remote-identity-component-mixin ()
   ((id nil)))
 
 (def render :before remote-identity-component-mixin ()
@@ -122,9 +123,9 @@
 ;;; Style
 
 (def component style-component-mixin ()
-  ((css-class nil)
+  ((id nil)
    (style nil)
-   (id nil)))
+   (css-class nil)))
 
 (def render style-component-mixin ()
   <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))

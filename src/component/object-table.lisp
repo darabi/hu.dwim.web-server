@@ -83,9 +83,9 @@
                  (unless (member slot-name slot-name->slot :test #'eq :key #'car)
                    (push (cons slot-name slot) slot-name->slot)))))
         (when the-class
-          (mapc #'register-slot (standard-object-table-slots the-class nil)))
+          (mapc #'register-slot (collect-standard-object-table-slots the-class (class-prototype the-class))))
         (dolist (instance instances)
-          (mapc #'register-slot (standard-object-table-slots (class-of instance) instance))))
+          (mapc #'register-slot (collect-standard-object-table-slots (class-of instance) instance))))
       (setf slot-names (mapcar #'car slot-name->slot))
       (setf columns (list*
                      (column (label #"Object-table.column.commands") :visible (delay (not (layer-active-p 'passive-components-layer))))
@@ -99,14 +99,14 @@
                            (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
                        (collect row))))))
 
-(def generic standard-object-table-slots (class instance)
-  (:method ((class standard-class) instance)
+(def (generic e) collect-standard-object-table-slots (class instance)
+  (:method ((class standard-class) (instance standard-object))
     (class-slots class))
 
-  (:method ((class prc::persistent-class) instance)
+  (:method ((class prc::persistent-class) (instance prc::persistent-object))
     (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
-  (:method ((class dmm::entity) instance)
+  (:method ((class dmm::entity) (instance prc::persistent-object))
     (filter-if (lambda (slot)
                  (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
                (call-next-method))))
@@ -151,7 +151,7 @@
                          (render-user-messages -self-))))
   (call-next-method))
 
-(def generic make-standard-object-row-commands (component class instance)
+(def (generic e) make-standard-object-row-commands (component class instance)
   (:method ((component standard-object-row-component) (class standard-class) (instance standard-object))
     (append (make-editing-commands component)
             (list (make-expand-row-command component instance))))

@@ -11,14 +11,13 @@
 
 (def component tree-component (remote-identity-component-mixin)
   ((columns nil :type components)
-   (root-node nil :type component)))
+   (root-node nil :type component)
+   (expand-nodes-by-default #f :type boolean)))
 
 (def render tree-component ()
   (with-slots (columns root-node id) -self-
     <table (:id ,id :class "tree")
-      <thead
-       <tr <th>
-           ,@(mapcar #'render columns)>>
+      <thead <tr ,@(mapcar #'render columns)>>
       <tbody ,@(render root-node)>>))
 
 (def call-in-component-environment tree-component ()
@@ -28,24 +27,28 @@
 ;;;;;;
 ;;; Node
 
-(def component node-component (remote-identity-component-mixin)
+(def component node-component (remote-identity-component-mixin style-component-mixin)
   ((child-nodes nil :type components)
    (cells nil :type components)))
 
 (def render node-component ()
   (with-slots (child-nodes cells expanded id) -self-
-    (append (list <tr (:id ,id :class ,(concatenate-string "level-" (integer-to-string *tree-level*)))
-                      <td (:class ,(if child-nodes
-                                       "expander"
-                                       "non-expandable"))
+    (append (list <tr (:id ,id
+                       :style ,(style-of -self-)
+                       :class ,(concatenate-string "level-" (integer-to-string *tree-level*)
+                                                   " " (css-class-of -self-)))
+                      <td (:class "expander")
                           ,(if child-nodes
                                <a (:href ,(make-action-href () (setf expanded (not expanded))))
                                   <img (:src ,(concatenate-string (path-prefix-of *application*)
                                                                   (if expanded
                                                                       "static/wui/icons/20x20/arrowhead-down.png"
                                                                       "static/wui/icons/20x20/arrowhead-right.png")))>>
-                               +void+)>
-                      ,@(mapcar #'render cells)>)
+                               <span (:class "non-expandable")>)
+                          ,(bind ((first-cell (first cells)))
+                             (ensure-uptodate first-cell)
+                             (render (content-of first-cell))) >
+                      ,@(mapcar #'render (rest cells))>)
             (when expanded
               (mappend #'render child-nodes)))))
 

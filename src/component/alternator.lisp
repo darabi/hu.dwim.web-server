@@ -26,7 +26,7 @@
 
 (def function make-alternative-commands (component alternatives)
   (mapcar (lambda (alternative)
-            (make-alternative-component-replace-command component alternative))
+            (make-replace-with-alternative-command component alternative))
           alternatives))
 
 (def function make-alternator-command-bar (component alternatives commands)
@@ -34,13 +34,17 @@
                  :commands (append commands (make-alternative-commands component alternatives))
                  :visible (delay (not (typep (content-of component) 'reference-component)))))
 
-(def function make-alternative-component-replace-command (component alternative)
-  (make-replace-command (delay (content-of component)) alternative
-                        :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
-                                             (not (eq (the-class-of alternative) (class-of (content-of component))))))
-                        :icon (make-alternative-component-replace-command-icon-component (class-prototype (the-class-of alternative)))))
+(def function make-replace-with-alternative-command (component alternative)
+  (bind ((prototype (class-prototype (the-class-of alternative)))
+         (reference? (typep prototype 'reference-component)))
+    (make-replace-command (delay (content-of component)) alternative
+                          :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
+                                               (not (eq (the-class-of alternative) (class-of (content-of component))))
+                                               (or (not reference?)
+                                                   (not (top-component-p component)))))
+                          :icon (make-replace-with-alternative-command-icon prototype))))
 
-(def generic make-alternative-component-replace-command-icon-component (prototype)
+(def (generic e) make-replace-with-alternative-command-icon (prototype)
   (:method ((prototype component))
     (bind ((name (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
       (icon view :label name :tooltip name)))
