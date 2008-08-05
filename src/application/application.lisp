@@ -448,7 +448,11 @@ Custom implementations should look something like this:
                    (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
                    (funcall-with-layer-context (layer-context-of self)
-                                               (lambda () (ajax-aware-render (component-of self) (ajax-aware-client?)))))))
+                                               (lambda ()
+                                                 (bind ((start-time (get-monotonic-time)))
+                                                   (multiple-value-prog1
+                                                       (ajax-aware-render (component-of self) (ajax-aware-client?))
+                                                     (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time)))))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 128)
                     (setf (header-value self +header/content-length+) (princ-to-string (length body)))

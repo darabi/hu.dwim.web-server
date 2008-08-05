@@ -8,17 +8,14 @@
 ;;; Abstract standard object
 
 (def component abstract-standard-object-component (value-component)
-  ((instance nil :type (or null standard-object))
-   (the-class nil :type standard-class))
+  ((instance nil :type (or null standard-object)))
   (:documentation "Base class with a STANDARD-OBJECT component value"))
 
 (def method component-value-of ((component abstract-standard-object-component))
   (instance-of component))
 
 (def method (setf component-value-of) (new-value (component abstract-standard-object-component))
-  (with-slots (instance the-class) component
-    (setf instance new-value)
-    (setf the-class (when new-value (class-of new-value)))))
+  (setf (instance-of component) new-value))
 
 (def generic reuse-standard-object-instance (instance)
   (:method (instance)
@@ -47,7 +44,7 @@
   (:documentation "Component for an instance of STANDARD-OBJECT in various alternative views"))
 
 (def method refresh-component ((self standard-object-component))
-  (with-slots (instance the-class default-component-type alternatives content command-bar) self
+  (with-slots (instance default-component-type alternatives content command-bar) self
     (if instance
         (progn
           (if (and alternatives
@@ -64,7 +61,7 @@
                                                          (append (list (make-open-in-new-frame-command self)
                                                                        (make-top-command self)
                                                                        (make-refresh-command self))
-                                                                 (make-standard-object-commands self the-class instance)))))
+                                                                 (make-standard-object-commands self (class-of instance) instance)))))
         (setf alternatives (list (delay-alternative-component-type 'null-component))
               content (find-default-alternative-component alternatives)))))
 
@@ -117,19 +114,20 @@
   (:documentation "Component for an instance of STANDARD-OBJECT in detail"))
 
 (def method refresh-component ((self standard-object-detail-component))
-  (with-slots (instance the-class class slot-value-group) self
-    (if the-class
-        (if class
-            (setf (component-value-of class) the-class)
-            (setf class (make-viewer-component the-class :default-component-type 'reference-component)))
-        (setf class nil))
-    (if instance
-        (if slot-value-group
-            (setf (component-value-of slot-value-group) (collect-standard-object-detail-slots the-class instance)
-                  (instance-of slot-value-group) instance
-                  (the-class-of slot-value-group) the-class)
-            (setf slot-value-group (make-instance 'standard-object-slot-value-group-component :the-class the-class :instance instance :slots (collect-standard-object-detail-slots the-class instance))))
-        (setf slot-value-group nil))))
+  (with-slots (instance class slot-value-group) self
+    (bind ((the-class (when instance (class-of instance))))
+      (if the-class
+          (if class
+              (setf (component-value-of class) the-class)
+              (setf class (make-viewer-component the-class :default-component-type 'reference-component)))
+          (setf class nil))
+      (if instance
+          (if slot-value-group
+              (setf (component-value-of slot-value-group) (collect-standard-object-detail-slots the-class instance)
+                    (instance-of slot-value-group) instance
+                    (the-class-of slot-value-group) the-class)
+              (setf slot-value-group (make-instance 'standard-object-slot-value-group-component :instance instance :slots (collect-standard-object-detail-slots the-class instance))))
+          (setf slot-value-group nil)))))
 
 (def (generic e) collect-standard-object-detail-slots (class instance)
   (:method ((class standard-class) (instance standard-object))
@@ -159,7 +157,7 @@
   (:documentation "Component for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
 
 (def method refresh-component ((component standard-object-slot-value-group-component))
-  (with-slots (instance the-class slots slot-values) component
+  (with-slots (instance slots slot-values) component
     (if instance
         (setf slot-values
               (iter (for slot :in slots)
@@ -167,7 +165,7 @@
                     (if slot-value-detail
                         (setf (component-value-of slot-value-detail) slot
                               (instance-of slot-value-detail) instance)
-                        (setf slot-value-detail (make-instance 'standard-object-slot-value-detail-component :the-class the-class :instance instance :slot slot)))
+                        (setf slot-value-detail (make-instance 'standard-object-slot-value-detail-component :instance instance :slot slot)))
                     (collect slot-value-detail)))
         (setf slot-values nil))))
 
@@ -197,7 +195,7 @@
   (:documentation "Component for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
 
 (def method refresh-component ((component standard-object-slot-value-detail-component))
-  (with-slots (instance the-class slot label value) component
+  (with-slots (instance slot label value) component
     (if slot
         (if label
             (setf (component-value-of label) (localized-slot-name slot))

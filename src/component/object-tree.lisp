@@ -20,7 +20,7 @@
 ;;;;;;
 ;;; Standard object tree
 
-(def component standard-object-tree-component (abstract-standard-object-tree-component alternator-component editable-component user-message-collector-component-mixin)
+(def component standard-object-tree-component (abstract-standard-object-tree-component abstract-standard-class-component alternator-component editable-component user-message-collector-component-mixin)
   ()
   (:default-initargs :alternatives-factory #'make-standard-object-tree-alternatives)
   (:documentation "Component for a tree of STANDARD-OBJECTs in various alternative views"))
@@ -65,25 +65,23 @@
 ;;;;;;
 ;;; Standard object tree table
 
-(def component standard-object-tree-table-component (abstract-standard-object-tree-component tree-component editable-component)
-  ((slot-names nil)))
+(def component standard-object-tree-table-component (abstract-standard-object-tree-component abstract-standard-class-component tree-component editable-component)
+  ())
 
 ;; TODO: factor out common parts with standard-object-table-component
 (def method refresh-component ((self standard-object-tree-table-component))
-  (with-slots (instance root-node slot-names columns) self
-    (bind ((slot-name->slot (list)))
-      (setf slot-names (mapcar #'car slot-name->slot))
-      (setf columns (make-standard-object-tree-table-columns self))
-      (if root-node
-          (setf (component-value-of root-node) instance)
-          (setf root-node (make-standard-object-tree-node self instance))))))
+  (with-slots (instance root-node columns) self
+    (setf columns (make-standard-object-tree-table-columns self))
+    (if root-node
+        (setf (component-value-of root-node) instance)
+        (setf root-node (make-standard-object-tree-node self instance)))))
 
 (def (function e) make-standard-object-tree-table-type-column ()
   (make-instance 'column-component
                  :content (label #"Object-tree-table.column.type")
                  :cell-factory (lambda (node-component)
                                  (make-instance 'cell-component :content (make-instance 'standard-class-component
-                                                                                        :the-class (the-class-of node-component)
+                                                                                        :the-class (class-of (instance-of node-component))
                                                                                         :default-component-type 'reference-component)))))
 
 (def (function e) make-standard-object-tree-table-command-bar-column ()
@@ -95,10 +93,12 @@
 
 (def (generic e) make-standard-object-tree-table-columns (component)
   (:method ((self standard-object-tree-table-component))
-    (list*
-     (make-standard-object-tree-table-command-bar-column)
-     (make-standard-object-tree-table-type-column)
-     (make-standard-object-tree-table-slot-columns self))))
+    (append (optional-list
+             (make-standard-object-tree-table-command-bar-column)
+             (when-bind the-class (the-class-of self)
+               (when (closer-mop:class-direct-subclasses the-class)
+                 (make-standard-object-tree-table-type-column))))
+            (make-standard-object-tree-table-slot-columns self))))
 
 (def (generic e) make-standard-object-tree-table-slot-columns (component)
   (:method ((self standard-object-tree-table-component))
@@ -120,7 +120,7 @@
                   (make-instance 'column-component
                                  :content (label (localized-slot-name (cdr slot-name->slot)))
                                  :cell-factory (lambda (node-component)
-                                                 (bind ((slot (find-slot (the-class-of node-component) (car slot-name->slot))))
+                                                 (bind ((slot (find-slot (class-of (instance-of node-component)) (car slot-name->slot))))
                                                    (if slot
                                                        (make-instance 'standard-object-slot-value-cell-component :instance (instance-of node-component) :slot slot)
                                                        (make-instance 'cell-component :content (label "N/A")))))))
@@ -149,13 +149,13 @@
 ;;;;;;
 ;;; Standard object node
 
-(def component standard-object-tree-node-component (abstract-standard-object-tree-component node-component editable-component user-message-collector-component-mixin)
+(def component standard-object-tree-node-component (abstract-standard-object-tree-component abstract-standard-class-component node-component editable-component user-message-collector-component-mixin)
   ((command-bar nil :type component)))
 
 (def method refresh-component ((self standard-object-tree-node-component))
-  (with-slots (children-provider the-class instance command-bar child-nodes cells) self
+  (with-slots (children-provider instance command-bar child-nodes cells) self
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-tree-node-commands self the-class instance))
+        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-tree-node-commands self (class-of instance) instance))
               child-nodes (iter (for child :in (funcall (children-provider-of self) instance))
                                 (for node = (find instance child-nodes :key #'component-value-of))
                                 (if node
@@ -201,7 +201,7 @@
 ;;;;;;
 ;;; Standard object tree nested box
 
-(def component standard-object-tree-nested-box-component (abstract-standard-object-tree-component)
+(def component standard-object-tree-nested-box-component (abstract-standard-object-tree-component abstract-standard-class-component)
   ())
 
 (def (macro e) standard-object-tree-nested-box-component (root children-provider &rest args)

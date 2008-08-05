@@ -72,32 +72,63 @@
 ;;; Standard object table
 
 (def component standard-object-table-component (abstract-standard-object-list-component abstract-standard-class-component table-component editable-component)
-  ((slot-names nil)))
+  ())
 
-(def method refresh-component ((component standard-object-table-component))
-  (with-slots (instances the-class slot-names command-bar columns rows) component
-    (bind ((slot-name->slot (list)))
-      ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
-      (flet ((register-slot (slot)
-               (bind ((slot-name (slot-definition-name slot)))
-                 (unless (member slot-name slot-name->slot :test #'eq :key #'car)
-                   (push (cons slot-name slot) slot-name->slot)))))
-        (when the-class
-          (mapc #'register-slot (collect-standard-object-table-slots the-class (class-prototype the-class))))
-        (dolist (instance instances)
-          (mapc #'register-slot (collect-standard-object-table-slots (class-of instance) instance))))
-      (setf slot-names (mapcar #'car slot-name->slot))
-      (setf columns (list*
-                     (column (label #"Object-table.column.commands") :visible (delay (not (layer-active-p 'passive-components-layer))))
-                     (column (label #"Object-table.column.type"))
-                     (mapcar [column (label (localized-slot-name (cdr !1)))]
-                             slot-name->slot)))
-      (setf rows (iter (for instance :in instances)
-                       (for row = (find instance rows :key #'component-value-of))
-                       (if row
-                           (setf (component-value-of row) instance)
-                           (setf row (make-instance 'standard-object-row-component :instance instance :table-slot-names slot-names)))
-                       (collect row))))))
+(def method refresh-component ((self standard-object-table-component))
+  (with-slots (instances the-class command-bar columns rows) self
+    (setf columns (make-standard-object-table-columns self))
+    (setf rows (iter (for instance :in instances)
+                     (for row = (find instance rows :key #'component-value-of))
+                     (if row
+                         (setf (component-value-of row) instance)
+                         (setf row (make-instance 'standard-object-row-component :instance instance)))
+                     (collect row)))))
+
+(def (function e) make-standard-object-table-type-column ()
+  (make-instance 'column-component
+                 :content (label #"Object-table.column.type")
+                 :cell-factory (lambda (row-component)
+                                 (make-instance 'cell-component :content (make-instance 'standard-class-component
+                                                                                        :the-class (class-of (instance-of row-component))
+                                                                                        :default-component-type 'reference-component)))))
+
+(def (function e) make-standard-object-table-command-bar-column ()
+  (make-instance 'column-component
+                    :content (label #"Object-table.column.commands")
+                    :visible (delay (not (layer-active-p 'passive-components-layer)))
+                    :cell-factory (lambda (row-component)
+                                    (make-instance 'cell-component :content (command-bar-of row-component)))))
+
+(def (generic e) make-standard-object-table-columns (component)
+  (:method ((self standard-object-table-component))
+    (append (optional-list (make-standard-object-table-command-bar-column)
+                           (when-bind the-class (the-class-of self)
+                             (when (closer-mop:class-direct-subclasses the-class)
+                               (make-standard-object-table-type-column))))
+            (make-standard-object-table-slot-columns self))))
+
+(def (generic e) make-standard-object-table-slot-columns (component)
+  (:method ((self standard-object-table-component))
+    (with-slots (instances the-class command-bar columns rows) self
+      (bind ((slot-name->slot (list)))
+        ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
+        (flet ((register-slot (slot)
+                 (bind ((slot-name (slot-definition-name slot)))
+                   (unless (member slot-name slot-name->slot :test #'eq :key #'car)
+                     (push (cons slot-name slot) slot-name->slot)))))
+          (when the-class
+            (mapc #'register-slot (collect-standard-object-table-slots the-class (class-prototype the-class))))
+          (dolist (instance instances)
+            (mapc #'register-slot (collect-standard-object-table-slots (class-of instance) instance))))
+        (mapcar (lambda (slot-name->slot)
+                  (make-instance 'column-component
+                                 :content (label (localized-slot-name (cdr slot-name->slot)))
+                                 :cell-factory (lambda (row-component)
+                                                 (bind ((slot (find-slot (class-of (instance-of row-component)) (car slot-name->slot))))
+                                                   (if slot
+                                                       (make-instance 'standard-object-slot-value-cell-component :instance (instance-of row-component) :slot slot)
+                                                       (make-instance 'cell-component :content (label "N/A")))))))
+                slot-name->slot)))))
 
 (def (generic e) collect-standard-object-table-slots (class instance)
   (:method ((class standard-class) (instance standard-object))
@@ -123,24 +154,15 @@
 ;;; Standard object row
 
 (def component standard-object-row-component (abstract-standard-object-component row-component editable-component user-message-collector-component-mixin)
-  ((table-slot-names)
-   (command-bar nil :type component)))
+  ((command-bar nil :type component)))
 
 (def method refresh-component ((self standard-object-row-component))
-  (with-slots (the-class instance table-slot-names command-bar cells) self
+  (with-slots (instance command-bar cells) self
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-row-commands self the-class instance))
-              cells (list* (make-instance 'cell-component :content command-bar)
-                           (make-instance 'cell-component :content (make-instance 'standard-class-component :the-class the-class :default-component-type 'reference-component))
-                           (iter (for class = (class-of instance))
-                                 (for table-slot-name :in table-slot-names)
-                                 (for slot = (find-slot class table-slot-name))
-                                 (for cell = (find slot cells :key (lambda (cell)
-                                                                     (when (typep cell 'standard-object-slot-value-cell-component)
-                                                                       (component-value-of cell)))))
-                                 (collect (if slot
-                                              (make-instance 'standard-object-slot-value-cell-component :instance instance :slot slot)
-                                              (make-instance 'cell-component :content (label "N/A")))))))
+        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-row-commands self (class-of instance) instance))
+              cells (mapcar (lambda (column)
+                              (funcall (cell-factory-of column) self))
+                            (columns-of (find-ancestor-component-with-type self 'standard-object-table-component))))
         (setf command-bar nil
               cells nil))))
 
