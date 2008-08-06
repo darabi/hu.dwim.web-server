@@ -48,7 +48,7 @@
                                                                                                     (make-action
                                                                                                       (setf (slot-value self primary-axes-slot-name) (remove axis primary-axes))
                                                                                                       (setf (slot-value self secondary-axes-slot-name) (cons axis secondary-axes))
-                                                                                                      (refresh)))
+                                                                                                      (refresh-component self)))
                                                                                            (unless (zerop position)
                                                                                              (command (if row-axes?
                                                                                                           (icon move-left :label nil)
@@ -56,7 +56,7 @@
                                                                                                       (make-action
                                                                                                         ;; TODO: this impl is really stupid
                                                                                                         (setf (slot-value self primary-axes-slot-name) (swap primary-axes position (1- position)))
-                                                                                                        (refresh))))
+                                                                                                        (refresh-component self))))
                                                                                            (unless (= position
                                                                                                       (1- (length primary-axes)))
                                                                                              (command (if row-axes?
@@ -65,12 +65,8 @@
                                                                                                       (make-action
                                                                                                         ;; TODO: this impl is really ugly
                                                                                                         (setf (slot-value self primary-axes-slot-name) (swap primary-axes position (1+ position)))
-                                                                                                        (refresh)))))))
-                                        :children (axes-command-bars (rest axes) primary-axes-slot-name secondary-axes-slot-name))))))
-             (refresh ()
-               ;; TODO: here?
-               (setf instances (mapcar #'reuse-standard-object-instance instances))
-               (refresh-component self)))
+                                                                                                        (refresh-component self)))))))
+                                        :children (axes-command-bars (rest axes) primary-axes-slot-name secondary-axes-slot-name)))))))
       (setf row-headers (append (axes-command-bars row-axes 'row-axes 'column-axes)
                                 (axes-headers row-axes)))
       (setf column-headers (append (axes-command-bars column-axes 'column-axes 'row-axes)

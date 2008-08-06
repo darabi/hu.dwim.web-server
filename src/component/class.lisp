@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Abstract standard class
 
-(def component abstract-standard-class-component (value-component)
+(def component abstract-standard-class-component ()
   ((the-class nil :type (or null standard-class)))
   (:documentation "Base class with a STANDARD-CLASS component value"))
 
@@ -30,9 +30,8 @@
         (progn
           (if alternatives
               (setf (component-value-for-alternatives self) the-class)
-              (setf alternatives (list (delay-alternative-component-type 'standard-class-detail-component :the-class the-class)
-                                       (delay-alternative-component 'standard-class-reference-component
-                                         (setf-expand-reference-to-default-alternative-command (make-instance 'standard-class-reference-component :target the-class))))))
+              (setf alternatives (list (delay-alternative-component-with-initargs 'standard-class-detail-component :the-class the-class)
+                                       (delay-alternative-reference-component 'standard-class-reference-component the-class))))
           (if content
               (setf (component-value-of content) the-class)
               (setf content (if default-component-type
@@ -102,7 +101,7 @@
 ;;;;;;
 ;;; Abstract standard slot definition detail
 
-(def component abstract-standard-slot-definition-group-component (value-component)
+(def component abstract-standard-slot-definition-group-component ()
   ((the-class nil :type (or null standard-class))
    (slots nil :type list))
   (:documentation "Base class with a list of STANDARD-SLOT-DEFINITIONs component value"))
@@ -138,7 +137,7 @@
 ;;;;;;
 ;;; Abstract standard slot definition
 
-(def component abstract-standard-slot-definition-component (value-component)
+(def component abstract-standard-slot-definition-component ()
   ((the-class nil :type (or null standard-class))
    (slot nil :type (or null standard-slot-definition)))
   (:documentation "Base class with a STANDARD-SLOT-DEFINITION component value"))

@@ -1,5 +1,8 @@
 (in-package :sb-pcl)
 
+;;; KLUDGE: makes possible to use optimized constructors for component-classes
+;;; KLUDGE: handles only the MOP overrides (setf svuc) :after and initialize-instance :after
+
 ;; KLUDGE: copied over from SBCL source and specialized for component-class
 (defun constructor-function-form (ctor)
   (let* ((class (ctor-class ctor))

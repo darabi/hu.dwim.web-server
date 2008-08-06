@@ -82,9 +82,6 @@
 (def (macro e) replace-menu-target-command (icon component)
   `(make-instance 'replace-menu-target-command-component :icon ,icon :component (delay ,component)))
 
-(def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node replace-menu-target-command-component))
-  (remove 'action (call-next-method) :key #'slot-definition-name))
-
 ;;;;;;
 ;;; Standard object filter menu item
 

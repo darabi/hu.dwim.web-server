@@ -82,7 +82,7 @@
   (princ-to-string instance))
 
 (def method make-reference-label ((class dmm::entity) (instance prc::persistent-object) (reference standard-object-reference-component))
-  (localize-instance-name instance))
+  (localized-instance-name instance))
 
 (def render :before standard-object-reference-component
   (bind ((instance (target-of -self-)))
@@ -107,7 +107,7 @@
                  (list ")"))))
 
 (def method make-reference-label ((class dmm::entity) (instance prc::persistent-object) (reference standard-object-list-reference-component))
-  (localize-instance-name instance))
+  (localized-instance-name instance))
 
 ;;;;;;
 ;;; Standard object tree reference

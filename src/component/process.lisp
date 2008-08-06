@@ -80,9 +80,6 @@
 (def (macro e) answer-command (icon &body forms)
   `(make-instance 'answer-command-component :icon ,icon :value (delay ,@forms)))
 
-(def method cl-quasi-quote::collect-slots-for-syntax-node-emitting-form ((node answer-command-component))
-  (remove 'action (call-next-method) :key #'slot-definition-name))
-
 ;;;;;;
 ;;; Persistent processs
 
@@ -196,7 +193,7 @@
   (icon-label.pause-process "Pause")
   (icon-tooltip.pause-process "Pause the process"))
 
-(def method make-standard-object-commands ((component standard-object-component) (class dmm::persistent-process) (instance prc::persistent-object))
+(def method make-standard-object-inspector-commands ((component standard-object-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
   ;; TODO: move prc::with-revived-instance?
   (prc::with-revived-instance instance
     (optional-list (make-new-instance-command component)
@@ -206,10 +203,10 @@
                    (when (dmm::persistent-process-in-progress-p instance)
                      (make-continue-persistent-process-command component instance)))))
 
-(def method make-standard-object-maker-commands ((component standard-object-maker-component) (class dmm::persistent-process))
+(def method make-standard-object-maker-commands ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process))
   (list (make-start-persistent-process-command component (delay (execute-maker component (the-class-of component))))))
 
-(def method make-standard-object-row-commands ((component standard-object-row-component) (class dmm::persistent-process) (instance prc::persistent-object))
+(def method make-standard-object-row-inspector-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
   (prc::with-revived-instance instance
     (optional-list (make-expand-row-command component instance)
                    (when (dmm::persistent-process-initializing-p instance)
@@ -239,19 +236,21 @@
 
 (def (function e) make-cancel-persistent-process-command (component)
   (command (icon cancel-process)
-           (make-action (rdbms::with-transaction
-                          (prc::revive-instance (process-of component))
-                          (dmm::cancel-persistent-process (process-of component))
-                          (clear-process-component component)))
+           (make-action
+             (rdbms::with-transaction
+               (prc::revive-instance (process-of component))
+               (dmm::cancel-persistent-process (process-of component))
+               (clear-process-component component)))
            :visible (delay (or (dmm::persistent-process-paused-p (process-of component))
                                (dmm::persistent-process-in-progress-p (process-of component))))))
 
 (def (function e) make-pause-persistent-process-command (component)
   (command (icon pause-process)
-           (make-action (rdbms::with-transaction
-                          (prc::revive-instance (process-of component))
-                          (dmm::pause-persistent-process (process-of component))
-                          (clear-process-component component)))
+           (make-action
+             (rdbms::with-transaction
+               (prc::revive-instance (process-of component))
+               (dmm::pause-persistent-process (process-of component))
+               (clear-process-component component)))
            :visible (delay (or (dmm::persistent-process-paused-p (process-of component))
                                (dmm::persistent-process-in-progress-p (process-of component))))))
 

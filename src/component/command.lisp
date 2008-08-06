@@ -71,6 +71,8 @@
 
 (def (function e) push-command (command component)
   "Push a new COMMAND into the COMMAND-BAR of COMPONENT"
+  ;; FIXME: TODO: KLUDGE: command-bar is usually created from refresh and is not available after make-instance
+  (ensure-uptodate component)
   (bind ((command-bar (find-command-bar component)))
     (assert command-bar nil "No command bar found, no place to push ~A in ~A" command component)
     (setf (commands-of command-bar)
@@ -120,7 +122,7 @@
 ;;;;;;
 ;;; Generic commands
 
-(def generic refresh-component (component)
+(def (generic e) refresh-component (component)
   (:method ((self component))
     (values))
 
@@ -164,8 +166,6 @@
                                                (append back-command-args
                                                        `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
                                                                                (eq (force replacement-component) (component-at-place original-place)))))))))
-                     ;; FIXME: TODO: KLUDGE: uncommented, because command-bar is usually created from refresh and is not available after make-instance
-                     (ensure-uptodate replacement-component)
                      (push-command back-command replacement-component)
                      (setf (component-at-place original-place) replacement-component)))
          replace-command-args))

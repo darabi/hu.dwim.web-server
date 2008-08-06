@@ -57,13 +57,18 @@
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
-          (find-inspector-component-type-for-type (first main-type))
+          (bind ((component-type (find-inspector-component-type-for-type (first main-type)))
+                 (component-type-as-list (ensure-list component-type)))
+            (if (subtypep (first component-type-as-list) 'atomic-component)
+                (append component-type-as-list
+                        (list :allow-nil-value (not (null (member 'or type)))))
+                component-type))
           (find-inspector-component-type-for-type t))))
 
   (:method ((first (eql 'list)) (type cons))
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
-          `(standard-object-list-component :the-class ,(find-type-by-name main-type))
+          `(standard-object-list-inspector :the-class ,(find-type-by-name main-type))
           'list-component))))
 
 (def (function e) make-inspector-component-for-prototype (prototype &rest args &key &allow-other-keys)
@@ -98,10 +103,10 @@
     'standard-class-component)
 
   (:method ((prototype structure-object))
-    'standard-object-component)
+    'standard-object-inspector)
 
   (:method ((prototype standard-object))
-    'standard-object-component))
+    'standard-object-inspector))
 
 ;;;;;;
 ;;; Viewer
@@ -190,10 +195,10 @@
     'timestamp-component)
 
   (:method ((prototype structure-object))
-    `(standard-object-filter-component :the-class ,(class-of prototype)))
+    `(standard-object-filter :the-class ,(class-of prototype)))
 
   (:method ((prototype standard-object))
-    `(standard-object-filter-component :the-class ,(class-of prototype))))
+    `(standard-object-filter :the-class ,(class-of prototype))))
 
 ;;;;;;
 ;;; Maker
@@ -219,10 +224,10 @@
     (find-maker-component-type-for-compound-type type))
 
   (:method ((class structure-class))
-    `(standard-object-maker-component :the-class ,class))
+    `(standard-object-maker :the-class ,class))
 
   (:method ((class standard-class))
-    `(standard-object-maker-component :the-class ,class)))
+    `(standard-object-maker :the-class ,class)))
 
 (def function find-maker-component-type-for-compound-type (type)
   (find-maker-component-type-for-compound-type* (first type) type))

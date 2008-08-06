@@ -162,13 +162,8 @@
 ;;; Detail
 
 (def component detail-component ()
-  ())
-
-;;;;;;
-;;; Value
-
-(def component value-component ()
-  ())
+  ()
+  (:documentation "Abstract base class for components which show their component value in detail."))
 
 ;;;;;;;;;
 ;;; Frame

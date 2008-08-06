@@ -274,12 +274,12 @@
       (if edited
           (render-dojo-widget (id)
             <input (:type      "text"
-                    :id        ,id
-                    :name      ,(id-of client-state-sink)
-                    :value     ,printed-value
-                    :dojoType  #.+dijit/date-text-box+)>)
+                               :id        ,id
+                               :name      ,(id-of client-state-sink)
+                               :value     ,printed-value
+                               :dojoType  #.+dijit/date-text-box+)>)
           <span (:class ,(when wrong-value? "wrong"))
-            ,printed-value>))))
+                ,printed-value>))))
 
 (def method parse-component-value ((component date-component) client-value)
   (unless (string= client-value "")

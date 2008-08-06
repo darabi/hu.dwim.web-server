@@ -84,8 +84,12 @@
      (set-funcallable-instance-function it (delay (or (component-of it)
                                                       (setf (component-of it) (progn ,@forms)))))))
 
-(def (macro e) delay-alternative-component-type (type &rest args)
+(def (macro e) delay-alternative-component-with-initargs (type &rest args)
   `(delay-alternative-component ,type (make-instance ,type ,@args)))
+
+(def (macro e) delay-alternative-reference-component (type target)
+  `(delay-alternative-component ,type
+     (setf-expand-reference-to-default-alternative-command (make-instance ,type :target ,target))))
 
 (def function setf-expand-reference-to-default-alternative-command (reference)
   (setf (expand-command-of reference)

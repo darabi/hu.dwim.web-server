@@ -50,7 +50,7 @@
     't-component)
 
   (:method ((type cl-perec:set-type))
-    'standard-object-list-component)
+    'standard-object-list-inspector)
 
   (:method ((type cl-perec:ip-address-type))
     'ip-address-component))
@@ -97,7 +97,7 @@
     'timestamp-component)
 
   (:method ((type cl-perec:member-type))
-    (list 'member-component :possible-values (cl-perec:members-of type) :allow-nil-value #t))
+    (list 'member-component :possible-values (cl-perec:members-of type)))
 
   (:method ((type cl-perec:serialized-type))
     't-component)
