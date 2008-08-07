@@ -57,7 +57,7 @@
 (def (generic e) make-standard-object-inspector-alternatives (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-inspector :instance instance)
-          (delay-alternative-reference-component 'standard-object-reference-component instance))))
+          (delay-alternative-reference-component 'standard-object-reference instance))))
 
 (def (generic e) make-standard-object-inspector-commands (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
@@ -155,8 +155,8 @@
   ((slot-values nil :type components))
   (:documentation "Component for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
 
-(def method refresh-component ((component standard-object-slot-value-group-inspector))
-  (with-slots (instance slots slot-values) component
+(def method refresh-component ((self standard-object-slot-value-group-inspector))
+  (with-slots (instance slots slot-values) self
     (if instance
         (setf slot-values
               (iter (for slot :in slots)
@@ -164,9 +164,13 @@
                     (if slot-value-detail
                         (setf (component-value-of slot-value-detail) slot
                               (instance-of slot-value-detail) instance)
-                        (setf slot-value-detail (make-instance 'standard-object-slot-value-detail-inspector :instance instance :slot slot)))
+                        (setf slot-value-detail (make-standard-object-slot-value-detail-inspector self (class-of instance) instance slot)))
                     (collect slot-value-detail)))
         (setf slot-values nil))))
+
+(def (generic e) make-standard-object-slot-value-detail-inspector (component class instance slot)
+  (:method ((component standard-object-slot-value-group-inspector) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
+    (make-instance 'standard-object-slot-value-detail-inspector :instance instance :slot slot)))
 
 (def render standard-object-slot-value-group-inspector ()
   (with-slots (slot-values id) -self-
@@ -176,7 +180,7 @@
             <tr
               <th "Name">
               <th "Value">>>
-          <tbody ,@(mapcar #'render slot-values)>>
+          <tbody ,(map nil #'render slot-values)>>
         <span (:id ,id) "There are none">)))
 
 ;;;;;;
@@ -206,5 +210,5 @@
 (def render standard-object-slot-value-detail-inspector ()
   (with-slots (label value id) -self-
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-      <td ,(render label)>
-      <td ,(render value)>>))
+        <td ,(render label)>
+        <td ,(render value)>>))

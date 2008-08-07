@@ -31,7 +31,7 @@
           (if alternatives
               (setf (component-value-for-alternatives self) the-class)
               (setf alternatives (list (delay-alternative-component-with-initargs 'standard-class-detail-component :the-class the-class)
-                                       (delay-alternative-reference-component 'standard-class-reference-component the-class))))
+                                       (delay-alternative-reference-component 'standard-class-reference the-class))))
           (if content
               (setf (component-value-of content) the-class)
               (setf content (if default-component-type

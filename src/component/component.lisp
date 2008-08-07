@@ -52,8 +52,8 @@
 ;;;;;;
 ;;; Debug
 
-(def function render-with-debug-component-hierarchy (self call-next-method)
-  (declare (type function call-next-method))
+(def function render-with-debug-component-hierarchy (self next-method)
+  (declare (type function next-method))
   (restart-case
       (if (and *debug-component-hierarchy*
                ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
@@ -67,8 +67,8 @@
                   <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action self)))) "REPL">
                   " "
                   <a (:href ,(action-to-href (register-action *frame* (make-inspect-in-repl-action self)))) "INSPECT">>>
-              ,(funcall call-next-method)>)
-          (funcall call-next-method))
+              ,(funcall next-method)>)
+          (funcall next-method))
     (skip-rendering-component ()
       :report (lambda (stream)
                 (format stream "Skip rendering ~A and put an error marker in place" self))

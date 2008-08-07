@@ -46,7 +46,7 @@
 (def (generic e) make-standard-object-filter-alternatives (component class instance)
   (:method ((component standard-object-filter) (class standard-class) (instance standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
-          (delay-alternative-reference-component 'standard-object-filter-reference-component class))))
+          (delay-alternative-reference-component 'standard-object-filter-reference class))))
 
 (def (generic e) make-standard-object-filter-commands (component class prototype)
   (:method ((component standard-object-filter) (class standard-class) (prototype standard-object))
@@ -277,7 +277,7 @@
         (prc::add-assert (query-of filter-query) `(typep ,(first (query-variable-stack-of filter-query)) ,selected-class))))
     (build-filter-query* (slot-value-group-of component) filter-query))
 
-  (:method ((component standard-object-filter-reference-component) filter-query)
+  (:method ((component standard-object-filter-reference) filter-query)
     (values))
 
   (:method ((component standard-object-slot-value-group-filter) filter-query)
@@ -304,7 +304,7 @@
                                         `(not ,ponated-predicate)
                                         ponated-predicate))))))
             ((and (typep value-component 'standard-object-filter)
-                  (not (typep (content-of value-component) 'standard-object-filter-reference-component)))
+                  (not (typep (content-of value-component) 'standard-object-filter-reference)))
              (call-with-new-query-variable value-component filter-query
                                            (lambda (query-variable)
                                              (prc::add-assert (query-of filter-query)

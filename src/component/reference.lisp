@@ -57,34 +57,34 @@
 ;;;;;;
 ;;; Standard slot reference
 
-(def component standard-slot-definition-reference-component (reference-component)
+(def component standard-slot-definition-reference (reference-component)
   ())
 
-(def method make-reference-label ((class standard-class) (slot standard-slot-definition) (reference standard-slot-definition-reference-component))
+(def method make-reference-label ((class standard-class) (slot standard-slot-definition) (reference standard-slot-definition-reference))
   (qualified-symbol-name (slot-definition-name slot)))
 
 ;;;;;;
 ;;; Standard class reference
 
-(def component standard-class-reference-component (reference-component)
+(def component standard-class-reference (reference-component)
   ())
 
-(def method make-reference-label ((metaclass standard-class) (class standard-class) (reference standard-class-reference-component))
+(def method make-reference-label ((metaclass standard-class) (class standard-class) (reference standard-class-reference))
   (localized-class-name class :capitalize-first-letter #t))
 
 ;;;;;;
 ;;; Standard object reference
 
-(def component standard-object-reference-component (reference-component)
+(def component standard-object-reference (reference-component)
   ())
 
-(def method make-reference-label ((class standard-class) (instance standard-object) (reference standard-object-reference-component))
+(def method make-reference-label ((class standard-class) (instance standard-object) (reference standard-object-reference))
   (princ-to-string instance))
 
-(def method make-reference-label ((class dmm::entity) (instance prc::persistent-object) (reference standard-object-reference-component))
+(def method make-reference-label ((class dmm::entity) (instance prc::persistent-object) (reference standard-object-reference))
   (localized-instance-name instance))
 
-(def render :before standard-object-reference-component
+(def render :before standard-object-reference
   (bind ((instance (target-of -self-)))
     (if (and (typep instance 'prc::persistent-object)
              (prc::persistent-p instance))
@@ -92,10 +92,10 @@
 ;;;;;;
 ;;; Standard object list reference
 
-(def component standard-object-list-reference-component (reference-component)
+(def component standard-object-list-reference (reference-component)
   ())
 
-(def method make-reference-label (class (list list) (reference standard-object-list-reference-component))
+(def method make-reference-label (class (list list) (reference standard-object-list-reference))
   (apply #'concatenate-string
          (append (list "(")
                  (iter (for index :from 0 :below 3)
@@ -106,32 +106,32 @@
                          (collect " ...")))
                  (list ")"))))
 
-(def method make-reference-label ((class dmm::entity) (instance prc::persistent-object) (reference standard-object-list-reference-component))
+(def method make-reference-label ((class dmm::entity) (instance prc::persistent-object) (reference standard-object-list-reference))
   (localized-instance-name instance))
 
 ;;;;;;
 ;;; Standard object tree reference
 
-(def component standard-object-tree-reference-component (reference-component)
+(def component standard-object-tree-reference (reference-component)
   ())
 
-(def method make-reference-label ((class standard-class) (instance standard-object) (reference standard-object-tree-reference-component))
+(def method make-reference-label ((class standard-class) (instance standard-object) (reference standard-object-tree-reference))
   (concatenate-string "Tree rooted at: " (princ-to-string instance)))
 
 ;;;;;;
 ;;; Standard object filter reference
 
-(def component standard-object-filter-reference-component (reference-component)
+(def component standard-object-filter-reference (reference-component)
   ())
 
-(def method make-reference-label ((metaclass standard-class) (class standard-class) (reference standard-object-filter-reference-component))
+(def method make-reference-label ((metaclass standard-class) (class standard-class) (reference standard-object-filter-reference))
   (localized-class-name class :capitalize-first-letter #t))
 
 ;;;;;;
 ;;; Standard object maker reference
 
-(def component standard-object-maker-reference-component (reference-component)
+(def component standard-object-maker-reference (reference-component)
   ())
 
-(def method make-reference-label ((metaclass standard-class) (class standard-class) (reference standard-object-maker-reference-component))
+(def method make-reference-label ((metaclass standard-class) (class standard-class) (reference standard-object-maker-reference))
   (localized-class-name class :capitalize-first-letter #t))

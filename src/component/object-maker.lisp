@@ -55,7 +55,7 @@
 (def (generic e) make-standard-object-maker-alternatives (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-maker :the-class class)
-          (delay-alternative-reference-component 'standard-object-maker-reference-component class))))
+          (delay-alternative-reference-component 'standard-object-maker-reference class))))
 
 (def (generic e) make-standard-object-maker-commands (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
@@ -86,6 +86,7 @@
   (with-slots (class the-class slot-value-group) self
     (setf class (make-viewer-component the-class :default-component-type 'reference-component)
           slot-value-group (make-instance 'standard-object-slot-value-group-maker
+                                          :the-class the-class
                                           :slots (collect-standard-object-detail-maker-slots self the-class (class-prototype the-class))))))
 
 (def (generic e) collect-standard-object-detail-maker-slots (component class prototype)
@@ -123,8 +124,12 @@
                 (for slot-value-detail = (find slot slot-values :key #'component-value-of))
                 (if slot-value-detail
                     (setf (slot-of slot-value-detail) slot)
-                    (setf slot-value-detail (make-instance 'standard-object-slot-value-detail-maker :the-class the-class :slot slot)))
+                    (setf slot-value-detail (make-standard-object-slot-value-detail-maker self the-class (class-prototype the-class) slot)))
                 (collect slot-value-detail)))))
+
+(def (generic e) make-standard-object-slot-value-detail-maker (component class instance slot)
+  (:method ((component standard-object-slot-value-group-maker) (class standard-class) (prototype standard-object) (slot standard-effective-slot-definition))
+    (make-instance 'standard-object-slot-value-detail-maker :the-class class :slot slot)))
 
 (def render standard-object-slot-value-group-maker ()
   (with-slots (slot-values id) -self-
@@ -134,7 +139,7 @@
             <tr
               <th "Name">
               <th "Value">>>
-          <tbody ,@(mapcar #'render slot-values)>>
+          <tbody ,@(mappend #'render slot-values)>>
         <span (:id ,id) "There are none">)))
 
 ;;;;;
@@ -153,9 +158,9 @@
 
 (def render standard-object-slot-value-detail-maker ()
   (with-slots (label value id) -self-
-    <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-      <td ,(render label)>
-      <td ,(render value)>>))
+    (list <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
+              <td ,(render label)>
+              <td ,(render value)>>)))
 
 ;;;;;;
 ;;; Execute maker

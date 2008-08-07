@@ -47,7 +47,7 @@
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
     (list (delay-alternative-component-with-initargs 'standard-object-table-inspector :the-class class :instances instances)
           (delay-alternative-component-with-initargs 'list-component :elements instances)
-          (delay-alternative-reference-component 'standard-object-list-reference-component instances))))
+          (delay-alternative-reference-component 'standard-object-list-reference instances))))
 
 (def generic make-standard-object-list-inspector-commands (component class prototype)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))

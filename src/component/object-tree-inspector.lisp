@@ -51,7 +51,7 @@
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-tree-table-inspector :instance instance :children-provider (children-provider-of component))
           (delay-alternative-component-with-initargs 'standard-object-tree-nested-box-inspector :instance instance :children-provider (children-provider-of component))
-          (delay-alternative-reference-component 'standard-object-tree-reference-component instance))))
+          (delay-alternative-reference-component 'standard-object-tree-reference instance))))
 
 ;;;;;;
 ;;; Standard object tree table
