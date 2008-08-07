@@ -30,13 +30,16 @@
   (assert (typep editable 'editable-component))
   (join-editing editable))
 
-(def (function e) save-editing (editable)
+(def (function e) save-editing (editable &key (leave-editing #t))
   (assert (typep editable 'editable-component))
   ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
   (rdbms::with-transaction
     (with-restored-component-environment editable
       (store-editing editable)
-      (leave-editing editable))))
+      (when leave-editing
+        (leave-editing editable)))
+    (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
+      (add-user-information editable "A változtatások elmentése sikerült"))))
 
 (def (function e) cancel-editing (editable)
   (assert (typep editable 'editable-component))
@@ -76,24 +79,29 @@
 ;;;;;;
 ;;; Customization points
 
-(def generic join-editing (component)
+(def (generic e) join-editing (component)
   (:method ((component component))
     (setf (edited-p component) #t)
     (map-editable-child-components component #'join-editing)))
 
-(def generic leave-editing (component)
+(def (generic e) leave-editing (component)
   (:method ((component component))
     (setf (edited-p component) #f)
     (map-editable-child-components component #'leave-editing)))
 
-(def generic store-editing (component)
+(def (generic e) store-editing (component)
   (:method ((component component))
     (map-editable-child-components component #'store-editing)))
 
-(def generic revert-editing (component)
+(def (generic e) revert-editing (component)
   (:method ((component component))
     (map-editable-child-components component #'revert-editing)))
 
+(def method refresh-component :after ((self editable-component))
+  (map-editable-child-components self
+                                 (if (edited-p self)
+                                     #'join-editing
+                                     #'leave-editing)))
 ;;;;;;
 ;;; Commands
 
@@ -111,8 +119,7 @@
   (make-instance 'command-component
                  :icon (icon save)
                  :visible (delay (edited-p editable))
-                 :action (make-action (save-editing editable)
-                                      (add-user-information editable "Successfully saved changes"))))
+                 :action (make-action (save-editing editable))))
 
 (def (function e) make-cancel-editing-command (editable)
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
@@ -126,24 +133,23 @@
   "The STORE-EDITING command actually stores the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (icon store :label "Store" :tooltip "Store all changes")
+                 :icon (icon store)
                  :visible (delay (edited-p editable))
-                 :action (make-action (store-editing editable)
-                                      (add-user-information editable "Successfully stored changes"))))
+                 :action (make-action (save-editing editable :leave-editing #f))))
 
 (def (function e) make-revert-editing-command (editable)
   "The REVERT-EDITING command rolls back the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
-                 :icon (icon revert :label "Revert" :tooltip "Revert all changes")
+                 :icon (icon revert)
                  :visible (delay (edited-p editable))
                  :action (make-action (revert-editing editable))))
 
 (def (function e) make-editing-commands (component)
-  (list (make-begin-editing-command component)
-        (make-save-editing-command component)
-        (make-cancel-editing-command component)
-        #+nil
-        (make-store-command component)
-        #+nil
-        (make-revert-command component)))
+  (bind ((initargs-mixin (find-ancestor-component-with-type component 'initargs-component-mixin)))
+    (if (getf (initargs-of initargs-mixin) :store-mode)
+        (list (make-store-editing-command component)
+              (make-revert-editing-command component))
+        (list (make-begin-editing-command component)
+              (make-save-editing-command component)
+              (make-cancel-editing-command component)))))

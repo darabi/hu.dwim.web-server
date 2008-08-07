@@ -17,14 +17,16 @@
                                        filter-component
                                        alternator-component
                                        user-message-collector-component-mixin
-                                       remote-identity-component-mixin)
+                                       remote-identity-component-mixin
+                                       initargs-component-mixin)
   ((result
     (make-instance 'empty-component)
     :type component)
    (result-component-factory
     #'make-standard-object-filter-result-inspector
     :type function))
-  (:default-initargs :alternatives-factory #'make-standard-object-filter-alternatives))
+  (:default-initargs :alternatives-factory #'make-standard-object-filter-alternatives)
+  (:documentation "Filter for instances of STANDARD-OBJECT in various alternative views."))
 
 (def (macro e) standard-object-filter (the-class)
   `(make-instance 'standard-object-filter :the-class ,the-class))

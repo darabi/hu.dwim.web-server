@@ -143,11 +143,9 @@
 (def component string-component (atomic-component)
   ())
 
-(def function render-string-component (self type)
+(def function render-string-component (self type value-printer)
   (with-slots (edited component-value allow-nil-value client-state-sink) self
-    (bind ((printed-value (if (null component-value)
-                              ""
-                              component-value))
+    (bind ((printed-value (funcall value-printer component-value edited))
            (id (generate-frame-unique-string "_w")))
       (if edited
           (render-dojo-widget (id)
@@ -160,7 +158,12 @@
           <span ,printed-value>))))
 
 (def render string-component ()
-  (render-string-component -self- "text"))
+  (render-string-component -self- "text"
+                           (lambda (component-value edited?)
+                             (declare (ignore edited?))
+                             (if (null component-value)
+                                 ""
+                                 component-value))))
 
 (def method parse-component-value ((component string-component) client-value)
   (if (and (allow-nil-value-p component)
@@ -175,7 +178,14 @@
   ())
 
 (def render password-component ()
-  (render-string-component -self- "password"))
+  (render-string-component -self- "password"
+                           (lambda (component-value edited?)
+                             (if (or (null component-value)
+                                     (string= "" component-value))
+                                 ""
+                                 (if edited?
+                                     component-value
+                                     "**********")))))
 
 ;;;;;;
 ;;; Symbol
@@ -284,7 +294,7 @@
 (def method parse-component-value ((component date-component) client-value)
   (unless (string= client-value "")
     (bind ((result (local-time:parse-rfc3339-timestring client-value :allow-missing-time-part #t)))
-      (local-time:with-decoded-timestamp (:hour hour :minute minute :sec sec :nsec nsec) result
+      (local-time:with-decoded-timestamp (:hour hour :minute minute :sec sec :nsec nsec :timezone local-time:+utc-zone+) result
         (unless (and (zerop hour)
                      (zerop minute)
                      (zerop sec)

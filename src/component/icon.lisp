@@ -156,18 +156,34 @@
 (def icon save "static/wui/icons/20x20/disc-on-document.png")
 (defresources hu
   (icon-label.save "Mentés")
-  (icon-tooltip.save "Változtatások mentése"))
+  (icon-tooltip.save "Változtatások mentése és a szerkesztés befejezése"))
 (defresources en
   (icon-label.save "Save")
-  (icon-tooltip.save "Save changes"))
+  (icon-tooltip.save "Save changes and finish editing"))
 
 (def icon cancel "static/wui/icons/20x20/yellow-x.png")
 (defresources hu
   (icon-label.cancel "Elvetés")
-  (icon-tooltip.cancel "Változtatások elvetése"))
+  (icon-tooltip.cancel "Változtatások elvetése és a szerkesztés befejezése"))
 (defresources en
   (icon-label.cancel "Cancel")
-  (icon-tooltip.cancel "Revert changes"))
+  (icon-tooltip.cancel "Cancel changes and finish editing"))
+
+(def icon store "static/wui/icons/20x20/disc-on-document.png")
+(defresources hu
+  (icon-label.store "Mentés")
+  (icon-tooltip.store "Változtatások mentése"))
+(defresources en
+  (icon-label.store "Store")
+  (icon-tooltip.store "Store changes"))
+
+(def icon revert "static/wui/icons/20x20/yellow-x.png")
+(defresources hu
+  (icon-label.revert "Elvetés")
+  (icon-tooltip.revert "Változtatások elvetése"))
+(defresources en
+  (icon-label.revert "Revert")
+  (icon-tooltip.revert "Revert changes"))
 
 (def icon new "static/wui/icons/20x20/document.png")
 (defresources hu

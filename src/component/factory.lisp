@@ -224,10 +224,10 @@
     (find-maker-component-type-for-compound-type type))
 
   (:method ((class structure-class))
-    `(standard-object-maker :the-class ,class))
+    (find-maker-component-type-for-prototype (class-prototype class)))
 
   (:method ((class standard-class))
-    `(standard-object-maker :the-class ,class)))
+    (find-maker-component-type-for-prototype (class-prototype class))))
 
 (def function find-maker-component-type-for-compound-type (type)
   (find-maker-component-type-for-compound-type* (first type) type))
@@ -238,6 +238,13 @@
       (if (= 1 (length main-type))
           (find-maker-component-type-for-type (first main-type))
           (find-maker-component-type-for-type t)))))
+
+(def (generic e) find-maker-component-type-for-prototype (prototype)
+  (:method ((instance structure-object))
+    `(standard-object-maker :the-class ,(class-of instance)))
+
+  (:method ((instance standard-object))
+    `(standard-object-maker :the-class ,(class-of instance))))
 
 ;;;;;;
 ;;; Utility

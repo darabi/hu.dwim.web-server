@@ -157,10 +157,10 @@
        (not (eq (slot-definition-name slot) 'parent-component))
        (slot-boundp-using-class class instance slot)))
 
-(def function find-ancestor-component (component predicate)
+(def (function e) find-ancestor-component (component predicate)
   (find-ancestor component #'parent-component-of predicate))
 
-(def function find-ancestor-component-with-type (component type)
+(def (function e) find-ancestor-component-with-type (component type)
   (find-ancestor-component component (lambda (component)
                                        (typep component type))))
 

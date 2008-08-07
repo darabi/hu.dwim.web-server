@@ -13,7 +13,8 @@
                                                editable-component
                                                alternator-component
                                                user-message-collector-component-mixin
-                                               remote-identity-component-mixin)
+                                               remote-identity-component-mixin
+                                               initargs-component-mixin)
   ((the-class (find-class 'standard-class)))
   (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives)
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
@@ -164,11 +165,11 @@
         (setf command-bar nil
               cells nil))))
 
-(def render standard-object-row-inspector ()
-  (when (messages-of -self-)
-    (render-entire-row (parent-component-of -self-)
+(def layered-method render-table-row ((table standard-object-table-inspector) (row standard-object-row-inspector))
+  (when (messages-of row)
+    (render-entire-row table
                        (lambda ()
-                         (render-user-messages -self-))))
+                         (render-user-messages row))))
   (call-next-method))
 
 (def (generic e) make-standard-object-row-inspector-commands (component class instance)

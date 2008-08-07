@@ -29,17 +29,19 @@
     #+nil
     (render-vertical-list (list content command-bar))))
 
+(def function update-component-value-from-place (place component)
+  (when (place-bound-p place)
+    (bind ((value (value-at-place place)))
+      (setf (component-value-of component)
+            (if (prc::values-having-validity-p value)
+                (prc::single-values-having-validity-value value)
+                value)))))
+
 (def function make-place-component-content (component)
-  (bind ((place (place-of component))
-         (type (place-type place))
-         (content (make-inspector-component type :default-component-type 'reference-component)))
-    (when (place-bound-p place)
-      (bind ((value (value-at-place place)))
-        (setf (component-value-of content)
-              (if (prc::values-having-validity-p value)
-                  (prc::single-values-having-validity-value value)
-                  value))))
-    content))
+  (bind ((place (place-of component)))
+    (prog1-bind content
+        (make-inspector-component (place-type place) :default-component-type 'reference-component)
+      (update-component-value-from-place place content))))
 
 (def (function e) make-special-variable-place-component (name type)
   (make-instance 'place-component :place (make-special-variable-place name type)))
@@ -51,7 +53,7 @@
   (make-instance 'place-component :place (make-slot-value-place instance (find-slot (class-of instance) slot-name))))
 
 (def function revert-place-component-content (place-component)
-  (setf (content-of place-component) (make-place-component-content place-component)))
+  (update-component-value-from-place (place-of place-component) (content-of place-component)))
 
 (def method refresh-component ((place-component place-component))
   (unless (edited-p place-component)

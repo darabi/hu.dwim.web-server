@@ -138,6 +138,15 @@
   `(make-instance 'style-component ,@args :content ,(the-only-element content)))
 
 ;;;;;;
+;;; Initargs
+
+(def component initargs-component-mixin ()
+  ((initargs)))
+
+(def method initialize-instance :after ((-self- initargs-component-mixin) &rest args &key &allow-other-keys)
+  (setf (initargs-of -self-) args))
+
+;;;;;;
 ;;; Container
 
 (def component container-component ()

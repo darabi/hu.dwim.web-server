@@ -18,7 +18,8 @@
                                       editable-component
                                       alternator-component
                                       user-message-collector-component-mixin
-                                      remote-identity-component-mixin)
+                                      remote-identity-component-mixin
+                                      initargs-component-mixin)
   ()
   (:default-initargs :alternatives-factory #'make-standard-object-maker-alternatives)
   (:documentation "Maker for an instance of STANDARD-OBJECT in various alternative views."))
@@ -68,8 +69,7 @@
                  ;; TODO: put transaction here?! how do we dispatch
                  :action (make-action
                            (bind ((class (the-class-of component)))
-                             (execute-create-instance component class (class-prototype class))
-                             (add-user-information component "Az új objektum sikeresen létrehozva")))))
+                             (execute-create-instance component class (class-prototype class))))))
 
 ;;;;;;
 ;;; Standard object maker detail
@@ -139,7 +139,7 @@
             <tr
               <th "Name">
               <th "Value">>>
-          <tbody ,@(mappend #'render slot-values)>>
+          <tbody ,@(map nil #'render slot-values)>>
         <span (:id ,id) "There are none">)))
 
 ;;;;;
@@ -158,9 +158,9 @@
 
 (def render standard-object-slot-value-detail-maker ()
   (with-slots (label value id) -self-
-    (list <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-              <td ,(render label)>
-              <td ,(render value)>>)))
+    <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
+        <td ,(render label)>
+        <td ,(render value)>>))
 
 ;;;;;;
 ;;; Execute maker
@@ -168,23 +168,25 @@
 (def (generic e) execute-create-instance (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
     (apply #'make-instance (the-class-of component)
-           (collect-make-instance-form component)))
+           (collect-make-instance-initargs component)))
 
-  (:method ((component standard-object-maker) (class prc::persistent-class) (prototype prc::persistent-object))
+  (:method :around ((component standard-object-maker) (class prc::persistent-class) (prototype prc::persistent-object))
     ;; TODO: move to action and kill this generism
     (rdbms::with-transaction
-      (call-next-method))))
+      (call-next-method)
+      (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
+        (add-user-information component "Az új ~A létrehozása sikerült" (localized-class-name (the-class-of component)))))))
 
-(def generic collect-make-instance-form (component)
+(def (generic e) collect-make-instance-initargs (component)
   (:method ((component standard-object-maker))
-    (collect-make-instance-form (content-of component)))
+    (collect-make-instance-initargs (content-of component)))
 
   (:method ((component standard-object-detail-maker))
-    (collect-make-instance-form (slot-value-group-of component)))
+    (collect-make-instance-initargs (slot-value-group-of component)))
 
   (:method ((component standard-object-slot-value-group-maker))
     (iter (for slot-value :in (slot-values-of component))
-          (appending (collect-make-instance-form slot-value))))
+          (appending (collect-make-instance-initargs slot-value))))
 
   (:method ((component standard-object-slot-value-detail-maker))
     (bind ((slot (slot-of component))
@@ -192,7 +194,7 @@
       ;; TODO: recurse
       (when (typep value 'atomic-component)
         (list (first (slot-definition-initargs slot))
-              (collect-make-instance-form value)))))
+              (collect-make-instance-initargs value)))))
 
   (:method ((component atomic-component))
     (component-value-of component)))

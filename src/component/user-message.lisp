@@ -33,20 +33,26 @@
 (def render user-message-collector-component ()
   (render-user-messages -self-))
 
-(def (function e) add-user-information (collector message)
-  (add-user-message collector message :category :information))
+(def (function e) add-user-information (collector message &rest message-args)
+  (apply #'add-user-message collector message :information message-args))
 
-(def (function e) add-user-warning (collector message)
-  (add-user-message collector message :category :warning))
+(def (function e) add-user-warning (collector message &rest message-args)
+  (apply #'add-user-message collector message :warning message-args))
 
-(def (function e) add-user-error (collector message)
-  (add-user-message collector message :category :error))
+(def (function e) add-user-error (collector message &rest message-args)
+  (apply #'add-user-message collector message :error message-args))
 
-(def (generic e) add-user-message (collector message &rest args)
-  (:method ((collector user-message-collector-component-mixin) message &rest args)
-    (setf (messages-of collector)
-          (append (messages-of collector)
-                  (list (apply #'make-instance 'user-message-component :message message args))))))
+(def (generic e) add-user-message (collector message category &rest message-args)
+  (:method ((component component) message category &rest message-args)
+    (apply #'add-user-message
+           (find-ancestor-component-with-type component 'user-message-collector-component-mixin)
+           category message message-args))
+
+  (:method ((collector user-message-collector-component-mixin) message category &rest message-args)
+    (appendf (messages-of collector)
+             (list (make-instance 'user-message-component
+                                  :message (apply #'format nil message message-args)
+                                  :category category)))))
 
 ;;;;;;
 ;;; User message
@@ -57,6 +63,6 @@
    (permanent #f :type boolean)))
 
 (def render user-message-component ()
-  (with-slots (category message args) -self-
+  (with-slots (category message) -self-
     <div (:class ,(string-downcase category))
          ,message>))
