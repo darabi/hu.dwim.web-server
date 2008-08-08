@@ -7,20 +7,20 @@
 ;;;;;;
 ;;; Process
 
-;; TODO: try to kill this variable!
-(def special-variable *standard-process-component*)
+;; TODO: try to kill this variable, if possible?!
+(def (special-variable e) *standard-process-component*)
 
 (def component standard-process-component (content-component user-message-collector-component-mixin)
   ((form)
    (closure/cc nil)
    (answer-continuation nil)
-   (command-bar :type component)))
+   (command-bar (make-instance 'command-bar-component) :type component)))
 
 (def (macro e) standard-process (&body forms)
   `(make-instance 'standard-process-component :form '(progn ,@forms)))
 
 (def render standard-process-component ()
-  (with-slots (form closure/cc answer-continuation content) -self-
+  (with-slots (form closure/cc answer-continuation command-bar content) -self-
     (unless content
       (setf answer-continuation
             (bind ((*standard-process-component* -self-))
@@ -32,7 +32,8 @@
       (setf content (label "Process finished")))
     <div
      ,(render-user-messages -self-)
-     ,(render content)>))
+     ,(render content)
+     ,(render command-bar) >))
 
 (def (macro e) make-standard-process-component (&rest args &key form &allow-other-keys)
   (remove-from-plistf args :form)
@@ -50,15 +51,15 @@
                              (commands-of command-bar))
                   answer-commands))))
 
-(def (macro e) call (component answer-commands)
+(def (macro e) call-component (component &rest answer-commands)
   `(let/cc k
      (setf (content-of *standard-process-component*) ,component)
-     (replace-answer-commands *standard-process-component* (ensure-list ,answer-commands))
+     (replace-answer-commands *standard-process-component* (list ,@answer-commands))
      k))
 
-(def (generic e) answer (component value)
+(def (generic e) answer-component (component value)
   (:method ((component component) value)
-    (answer (find-ancestor-component-with-type component 'standard-process-component) value))
+    (answer-component (find-ancestor-component-with-type component 'standard-process-component) value))
 
   (:method ((component standard-process-component) value)
     (bind ((*standard-process-component* component))
@@ -70,12 +71,13 @@
 
 (def component answer-command-component (command-component)
   ((icon (icon answer :label "Answer"))
-   (action)
+   (action nil)
    (value nil)))
 
 (def constructor answer-command-component ()
   (with-slots (icon action value) -self-
-    (setf action (make-action (answer -self- value)))))
+    (unless action
+      (setf action (make-action (answer-component -self- value))))))
 
 (def (macro e) answer-command (icon &body forms)
   `(make-instance 'answer-command-component :icon ,icon :value (delay ,@forms)))
@@ -152,7 +154,7 @@
            k))
      (assert (dmm::persistent-process-running-p dmm::*process*))))
 
-(def method answer ((component persistent-process-component) value)
+(def method answer-component ((component persistent-process-component) value)
   (roll-persistent-process component
                            (lambda (process)
                              (dmm::process-event process 'dmm::process-state 'dmm::continue)

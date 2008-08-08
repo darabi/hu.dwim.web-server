@@ -23,6 +23,9 @@
                                                                         (make-makunbound-command -self-))
                                                                   (make-editing-commands -self-))))))
 
+(def method (setf place-of) :after (new-value (self place-component))
+  (setf (outdated-p self) #t))
+
 (def render place-component ()
   (with-slots (edited content command-bar) -self-
     (render content)

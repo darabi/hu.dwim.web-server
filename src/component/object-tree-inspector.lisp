@@ -13,7 +13,8 @@
                                                alternator-component
                                                editable-component
                                                user-message-collector-component-mixin
-                                               remote-identity-component-mixin)
+                                               remote-identity-component-mixin
+                                               initargs-component-mixin)
   ()
   (:default-initargs :alternatives-factory #'make-standard-object-tree-inspector-alternatives)
   (:documentation "Component for a tree of STANDARD-OBJECTs in various alternative views"))
@@ -49,8 +50,22 @@
 
 (def (generic e) make-standard-object-tree-inspector-alternatives (component class instance)
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
-    (list (delay-alternative-component-with-initargs 'standard-object-tree-table-inspector :instance instance :children-provider (children-provider-of component))
-          (delay-alternative-component-with-initargs 'standard-object-tree-nested-box-inspector :instance instance :children-provider (children-provider-of component))
+    ;; TODO: factor
+    (list (delay-alternative-component-with-initargs 'standard-object-tree-table-inspector
+                                                     :instance instance
+                                                     :the-class (the-class-of component)
+                                                     :children-provider (children-provider-of component)
+                                                     :parent-provider (parent-provider-of component))
+          (delay-alternative-component-with-initargs 'standard-object-tree-nested-box-inspector
+                                                     :instance instance
+                                                     :the-class (the-class-of component)
+                                                     :children-provider (children-provider-of component)
+                                                     :parent-provider (parent-provider-of component))
+          (delay-alternative-component-with-initargs 'standard-object-tree-level-inspector
+                                                     :instance instance
+                                                     :the-class (the-class-of component)
+                                                     :children-provider (children-provider-of component)
+                                                     :parent-provider (parent-provider-of component))
           (delay-alternative-reference-component 'standard-object-tree-reference instance))))
 
 ;;;;;;
@@ -63,7 +78,7 @@
                                                      editable-component)
   ())
 
-;; TODO: factor out common parts with standard-object-table-inspector
+;; TODO: factor out common parts with standard-object-list-table-inspector
 (def method refresh-component ((self standard-object-tree-table-inspector))
   (with-slots (instance root-node columns) self
     (setf columns (make-standard-object-tree-table-inspector-columns self))
@@ -104,9 +119,9 @@
                    (bind ((slot-name (slot-definition-name slot)))
                      (unless (member slot-name slot-name->slot :test #'eq :key #'car)
                        (push (cons slot-name slot) slot-name->slot))))
-                 (register-instance (node)
-                   (dolist (child (funcall children-provider node))
-                     (mapc #'register-slot (collect-standard-object-tree-table-inspector-slots self (class-of child) child))
+                 (register-instance (instance)
+                   (mapc #'register-slot (collect-standard-object-tree-table-inspector-slots self (class-of instance) instance))
+                   (dolist (child (funcall children-provider instance))
                      (register-instance child))))
           (when the-class
             (mapc #'register-slot (collect-standard-object-tree-table-inspector-slots self the-class (class-prototype the-class))))
@@ -197,6 +212,81 @@
                                       (list :icon (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))
                                       (list :icon (icon collapse))))
+
+;;;;;;
+;;; Standadr object tree level inspector
+
+(def component standard-object-tree-level-inspector (abstract-standard-object-tree-component
+                                                     abstract-standard-class-component
+                                                     inspector-component)
+  ((current-instance nil)
+   (path nil :type component)
+   (children nil :type component)
+   (level nil :type component)))
+
+(def method refresh-component ((self standard-object-tree-level-inspector))
+  (with-slots (current-instance path children level instance) self
+    (unless current-instance
+      (setf current-instance instance))
+    (setf current-instance (reuse-standard-object-instance (class-of current-instance) current-instance))
+    (if current-instance
+        (progn
+          (if path
+              (setf (component-value-of path) (collect-path-to-root self))
+              (setf path (make-instance 'standard-object-tree-path-inspector :instances (collect-path-to-root self))))
+          (bind ((child-instances (funcall (children-provider-of self) current-instance)))
+            (if children
+                (setf (component-value-of children) child-instances)
+                (setf children (make-standard-object-tree-children self (the-class-of self) child-instances))))
+          (if level
+              (setf (component-value-of level) current-instance)
+              (setf level (make-standard-object-tree-level self (class-of current-instance) current-instance)))))))
+
+(def (generic e) make-standard-object-tree-children (component class instances)
+  (:method ((component standard-object-tree-level-inspector) (class standard-class) (instances list))
+    (make-instance 'standard-object-list-list-inspector
+                   :instances instances
+                   :component-factory (lambda (list-component class instance)
+                                        (declare (ignore list-component class))
+                                        (make-instance 'standard-object-reference
+                                                       :target instance
+                                                       :expand-command (command (icon expand)
+                                                                                (make-action
+                                                                                  (setf (current-instance-of component) instance)
+                                                                                  (setf (outdated-p component) #t))))))))
+
+(def (generic e) make-standard-object-tree-level (component class instance)
+  (:method ((component standard-object-tree-level-inspector) (class standard-class) (instance standard-object))
+    (make-viewer-component instance)))
+
+(def function collect-path-to-root (component)
+  (labels ((%collect-path-to-root (tree-instance)
+             (unless (null tree-instance)
+               (cons tree-instance (%collect-path-to-root (funcall (parent-provider-of component) tree-instance))))))
+    (nreverse (%collect-path-to-root (current-instance-of component)))))
+
+(def render standard-object-tree-level-inspector ()
+  (with-slots (path children level) -self-
+    <div ,(render path)
+         ,(render children)
+         ,(render level)>))
+
+;;;;;;
+;;; Standadr object tree path inspector
+
+(def component standard-object-tree-path-inspector (abstract-standard-object-list-component
+                                                    inspector-component)
+  ())
+
+(def render standard-object-tree-path-inspector ()
+  (iter (for instance :in (instances-of -self-))
+        (rebind (instance)
+          <span ,(unless (first-iteration-p) " / ")
+                <a (:href ,(make-action-href ()
+                                             (bind ((parent (parent-component-of -self-)))
+                                               (setf (current-instance-of parent) instance)
+                                               (setf (outdated-p parent) #t))))
+                   ,(localized-instance-name instance)>>)))
 
 ;;;;;;
 ;;; Standard object tree nested box

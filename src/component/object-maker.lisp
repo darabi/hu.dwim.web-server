@@ -76,11 +76,13 @@
 
 (def component standard-object-detail-maker (abstract-standard-class-component
                                              maker-component
-                                             alternator-component
                                              editable-component
                                              remote-identity-component-mixin)
   ((class nil :accessor nil :type component)
    (slot-value-group nil :type component)))
+
+(def (macro e) standard-object-detail-maker (class)
+  `(make-instance 'standard-object-detail-maker :the-class ,class))
 
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class the-class slot-value-group) self

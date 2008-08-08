@@ -74,9 +74,11 @@
 ;;; Standard object tree
 
 (def component abstract-standard-object-tree-component (abstract-standard-object-component)
-  ((children-provider nil :type (or symbol function)))
+  ((parent-provider nil :type (or symbol function))
+   (children-provider nil :type (or symbol function)))
   (:documentation "Base class for a tree of STANDARD-OBJECT component value"))
 
 (def method clone-component ((self abstract-standard-object-tree-component))
   (prog1-bind clone (call-next-method)
+    (setf (parent-provider-of clone) (parent-provider-of self))
     (setf (children-provider-of clone) (children-provider-of self))))

@@ -15,7 +15,7 @@
                                                user-message-collector-component-mixin
                                                remote-identity-component-mixin
                                                initargs-component-mixin)
-  ((the-class (find-class 'standard-class)))
+  ((the-class (find-class 'standard-object)))
   (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives)
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
 
@@ -46,8 +46,8 @@
 
 (def (generic e) make-standard-object-list-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
-    (list (delay-alternative-component-with-initargs 'standard-object-table-inspector :the-class class :instances instances)
-          (delay-alternative-component-with-initargs 'list-component :elements instances)
+    (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
+          (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
           (delay-alternative-reference-component 'standard-object-list-reference instances))))
 
 (def generic make-standard-object-list-inspector-commands (component class prototype)
@@ -59,18 +59,44 @@
       (make-editing-commands component))))
 
 ;;;;;;
+;;; Standard object list list
+
+(def component standard-object-list-list-inspector (abstract-standard-object-list-component
+                                                    abstract-standard-class-component
+                                                    inspector-component
+                                                    list-component
+                                                    editable-component)
+  ((component-factory
+    #'make-standard-object-list-component
+    :type (or symbol function))))
+
+(def method refresh-component ((self standard-object-list-list-inspector))
+  (with-slots (instances the-class components) self
+    (setf components
+          (iter (for instance :in instances)
+                (for component = (find instance components :key #'component-value-of))
+                (if component
+                    (setf (component-value-of component) instance)
+                    (setf component (funcall (component-factory-of self) self (class-of instance) instance)))
+                (collect component)))))
+
+(def (generic e) make-standard-object-list-component (component class instance)
+  (:method ((component standard-object-list-list-inspector) (class standard-class) (instance standard-object))
+    (make-viewer-component instance :default-component-type 'reference-component)))
+
+;;;;;;
 ;;; Standard object table
 
-(def component standard-object-table-inspector (abstract-standard-object-list-component
-                                                abstract-standard-class-component
-                                                inspector-component
-                                                table-component
-                                                editable-component)
+(def component standard-object-list-table-inspector (abstract-standard-object-list-component
+                                                     abstract-standard-class-component
+                                                     inspector-component
+                                                     table-component
+                                                     editable-component)
   ())
 
-(def method refresh-component ((self standard-object-table-inspector))
-  (with-slots (instances the-class command-bar columns rows) self
-    (setf columns (make-standard-object-table-inspector-columns self))
+(def method refresh-component ((self standard-object-list-table-inspector))
+  (with-slots (instances the-class columns rows) self
+    (setf columns (make-standard-object-list-table-inspector-columns self))
     (setf rows (iter (for instance :in instances)
                      (for row = (find instance rows :key #'component-value-of))
                      (if row
@@ -78,31 +104,31 @@
                          (setf row (make-instance 'standard-object-row-inspector :instance instance)))
                      (collect row)))))
 
-(def (function e) make-standard-object-table-type-column ()
+(def (function e) make-standard-object-list-table-type-column ()
   (make-instance 'column-component
-                 :content (label #"Object-table.column.type")
+                 :content (label #"Object-list-table.column.type")
                  :cell-factory (lambda (row-component)
                                  (make-instance 'cell-component :content (make-instance 'standard-class-component
                                                                                         :the-class (class-of (instance-of row-component))
                                                                                         :default-component-type 'reference-component)))))
 
-(def (function e) make-standard-object-table-command-bar-column ()
+(def (function e) make-standard-object-list-table-command-bar-column ()
   (make-instance 'column-component
-                    :content (label #"Object-table.column.commands")
+                    :content (label #"Object-list-table.column.commands")
                     :visible (delay (not (layer-active-p 'passive-components-layer)))
                     :cell-factory (lambda (row-component)
                                     (make-instance 'cell-component :content (command-bar-of row-component)))))
 
-(def (generic e) make-standard-object-table-inspector-columns (component)
-  (:method ((self standard-object-table-inspector))
-    (append (optional-list (make-standard-object-table-command-bar-column)
+(def (generic e) make-standard-object-list-table-inspector-columns (component)
+  (:method ((self standard-object-list-table-inspector))
+    (append (optional-list (make-standard-object-list-table-command-bar-column)
                            (when-bind the-class (the-class-of self)
                              (when (closer-mop:class-direct-subclasses the-class)
-                               (make-standard-object-table-type-column))))
-            (make-standard-object-table-inspector-slot-columns self))))
+                               (make-standard-object-list-table-type-column))))
+            (make-standard-object-list-table-inspector-slot-columns self))))
 
-(def (generic e) make-standard-object-table-inspector-slot-columns (component)
-  (:method ((self standard-object-table-inspector))
+(def (generic e) make-standard-object-list-table-inspector-slot-columns (component)
+  (:method ((self standard-object-list-table-inspector))
     (with-slots (instances the-class command-bar columns rows) self
       (bind ((slot-name->slot (list)))
         ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
@@ -111,9 +137,9 @@
                    (unless (member slot-name slot-name->slot :test #'eq :key #'car)
                      (push (cons slot-name slot) slot-name->slot)))))
           (when the-class
-            (mapc #'register-slot (collect-standard-object-table-inspector-slots self the-class (class-prototype the-class))))
+            (mapc #'register-slot (collect-standard-object-list-table-inspector-slots self the-class (class-prototype the-class))))
           (dolist (instance instances)
-            (mapc #'register-slot (collect-standard-object-table-inspector-slots self (class-of instance) instance))))
+            (mapc #'register-slot (collect-standard-object-list-table-inspector-slots self (class-of instance) instance))))
         (mapcar (lambda (slot-name->slot)
                   (make-instance 'column-component
                                  :content (label (localized-slot-name (cdr slot-name->slot)))
@@ -124,25 +150,25 @@
                                                        (make-instance 'cell-component :content (label "N/A")))))))
                 slot-name->slot)))))
 
-(def (generic e) collect-standard-object-table-inspector-slots (component class instance)
-  (:method ((component standard-object-table-inspector) (class standard-class) (instance standard-object))
+(def (generic e) collect-standard-object-list-table-inspector-slots (component class instance)
+  (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
     (class-slots class))
 
-  (:method ((component standard-object-table-inspector) (class prc::persistent-class) (instance prc::persistent-object))
+  (:method ((component standard-object-list-table-inspector) (class prc::persistent-class) (instance prc::persistent-object))
     (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
-  (:method ((component standard-object-table-inspector) (class dmm::entity) (instance prc::persistent-object))
+  (:method ((component standard-object-list-table-inspector) (class dmm::entity) (instance prc::persistent-object))
     (filter-if (lambda (slot)
                  (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
                (call-next-method))))
 
 (defresources hu
-  (object-table.column.commands "műveletek")
-  (object-table.column.type "típus"))
+  (object-list-table.column.commands "műveletek")
+  (object-list-table.column.type "típus"))
 
 (defresources en
-  (object-table.column.commands "commands")
-  (object-table.column.type "type"))
+  (object-list-table.column.commands "commands")
+  (object-list-table.column.type "type"))
 
 ;;;;;;
 ;;; Standard object row
@@ -161,11 +187,11 @@
         (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-row-inspector-commands self (class-of instance) instance))
               cells (mapcar (lambda (column)
                               (funcall (cell-factory-of column) self))
-                            (columns-of (find-ancestor-component-with-type self 'standard-object-table-inspector))))
+                            (columns-of (find-ancestor-component-with-type self 'standard-object-list-table-inspector))))
         (setf command-bar nil
               cells nil))))
 
-(def layered-method render-table-row ((table standard-object-table-inspector) (row standard-object-row-inspector))
+(def layered-method render-table-row ((table standard-object-list-table-inspector) (row standard-object-row-inspector))
   (when (messages-of row)
     (render-entire-row table
                        (lambda ()
@@ -191,7 +217,9 @@
 ;;;;;;
 ;;; Standard object slot value cell
 
-(def component standard-object-slot-value-cell-component (abstract-standard-object-slot-value-component cell-component editable-component)
+(def component standard-object-slot-value-cell-component (abstract-standard-object-slot-value-component
+                                                          cell-component
+                                                          editable-component)
   ())
 
 (def method refresh-component ((component standard-object-slot-value-cell-component))

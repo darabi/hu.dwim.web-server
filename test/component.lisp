@@ -91,19 +91,19 @@
                                           (standard-process
                                             (iter (with step = "starting")
                                                   (repeat 3)
-                                                  (setf step (call (vertical-list ()
-                                                                     (label (concatenate 'string "Odd page after " step))
-                                                                     (standard-process
-                                                                       (progn
-                                                                         (call (label "First")
-                                                                               (answer-command))
-                                                                         (call (label "Second")
-                                                                               (answer-command))
-                                                                         (call (labelstring "Third")
-                                                                               (answer-command)))))
-                                                                   (answer-command "Odd")))
-                                                  (setf step (call (label (concatenate 'string "Even page after " step))
-                                                                   (answer-command "Even"))))))))
+                                                  (setf step (call-component (vertical-list ()
+                                                                               (label (concatenate 'string "Odd page after " step))
+                                                                               (standard-process
+                                                                                 (progn
+                                                                                   (call (label "First")
+                                                                                         (answer-command))
+                                                                                   (call (label "Second")
+                                                                                         (answer-command))
+                                                                                   (call (labelstring "Third")
+                                                                                         (answer-command)))))
+                                                                             (answer-command "Odd")))
+                                                  (setf step (call-component (label (concatenate 'string "Even page after " step))
+                                                                             (answer-command "Even"))))))))
 
 (def function make-test-menu ()
   (menu nil

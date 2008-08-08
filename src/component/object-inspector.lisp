@@ -140,7 +140,7 @@
 (def render standard-object-detail-inspector ()
   (with-slots (class slot-value-group id) -self-
     <div (:id ,id :class "standard-object")
-      <span ,(render class)>
+      <span "An instance of " ,(render class)>
       <div
         <h3 "Slots">
         ,(render slot-value-group)>>))

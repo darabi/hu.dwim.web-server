@@ -40,7 +40,7 @@
 ;;; Command bar
 
 (def component command-bar-component ()
-  ((commands :type components)))
+  ((commands nil :type components)))
 
 (def (macro e) command-bar (&body commands)
   `(make-instance 'command-bar-component :commands (list ,@commands)))
