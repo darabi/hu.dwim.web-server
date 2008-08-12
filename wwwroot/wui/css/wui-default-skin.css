@@ -51,6 +51,20 @@ td
   vertical-align: top;
 }
 
+/* slot-value-group */
+
+table.slot-value-group
+{
+  border: 2px;
+  border-style: inset;
+  margin: 2px;
+}
+
+table.slot-value-group > tbody > tr > td.slot-value-detail-label
+{
+  width: 200px;
+}
+
 /* tree */
 
 table.tree > tbody > tr > td.expander img
@@ -112,6 +126,44 @@ table.tree > tbody > tr.level-9 > td.expander
 {
   padding-left: 9em;
 }
+
+/*
+  standard-object-tree-nested-box
+*/
+
+.standard-object-tree-nested-box table
+{
+  margin: 1em;
+}
+
+/* this screws up opera
+.standard-object-tree-nested-box table.node
+{
+  width: 100%;
+}
+*/
+
+.standard-object-tree-nested-box .leaf td
+{
+  border-style: none;
+}
+
+.standard-object-tree-nested-box td
+{
+  white-space: nowrap;
+  border-width: 1px;
+  border-style: solid;
+  border-collapse: collapse;
+}
+
+.standard-object-tree-nested-box .node thead
+{
+  background-color: lightskyblue;
+}
+
+/*
+  extended-table
+*/
 
 table.extended-table
 {

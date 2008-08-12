@@ -1,4 +1,3 @@
-
 a:link,
 a:visited
 {
@@ -47,40 +46,6 @@ div.list.horizontal > div
 div.list.vertical > div
 {
   display: block;
-}
-
-/*
-  standard-object-tree-nested-box
-*/
-
-.standard-object-tree-nested-box table
-{
-  margin: 1em;
-}
-
-/* this screws up opera
-.standard-object-tree-nested-box table.node
-{
-  width: 100%;
-}
-*/
-
-.standard-object-tree-nested-box .leaf td
-{
-  border-style: none;
-}
-
-.standard-object-tree-nested-box td
-{
-  white-space: nowrap;
-  border-width: 1px;
-  border-style: solid;
-  border-collapse: collapse;
-}
-
-.standard-object-tree-nested-box .node thead
-{
-  background-color: lightskyblue;
 }
 
 /*

@@ -69,9 +69,9 @@
                                               filter-component
                                               detail-component
                                               remote-identity-component-mixin)
-  ((class-selector :type component)
-   (class :accessor nil :type component)
-   (slot-value-group :type component)))
+  ((class nil :accessor nil :type component)
+   (class-selector nil :type component)
+   (slot-value-groups nil :type component)))
 
 (def constructor standard-object-detail-filter ()
   (with-slots (the-class class-selector) -self-
@@ -84,13 +84,29 @@
                            :possible-values subclasses)))))
 
 (def method refresh-component ((self standard-object-detail-filter))
-  (with-slots (the-class class-selector class slot-value-group command-bar) self
-    (bind ((selected-class (or (component-value-of class-selector)
+  (with-slots (the-class class-selector class slot-value-groups command-bar) self
+    (bind ((selected-class (or (when class-selector (component-value-of class-selector))
                                the-class)))
       (setf class (make-viewer-component the-class :default-component-type 'reference-component)
-            slot-value-group (make-instance 'standard-object-slot-value-group-filter
-                                            :the-class selected-class
-                                            :slots (collect-standard-object-detail-filter-slots self selected-class (class-prototype selected-class)))))))
+            slot-value-groups (bind ((prototype (class-prototype selected-class))
+                                     (slots (collect-standard-object-detail-filter-slots self selected-class prototype))
+                                     (slot-groups (collect-standard-object-detail-filter-slot-value-groups self selected-class prototype slots)))
+                                (iter (for slot-group :in slot-groups)
+                                      (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
+                                      (if slot-value-group
+                                          (setf (component-value-of slot-value-group) slot-group
+                                                (the-class-of slot-value-group) selected-class)
+                                          (setf slot-value-group (make-instance 'standard-object-slot-value-group-filter
+                                                                                :the-class selected-class
+                                                                                :slots slot-group)))
+                                      (collect slot-value-group)))))))
+
+(def (generic e) collect-standard-object-detail-filter-slot-value-groups (component class prototype slots)
+  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object) (slots list))
+    slots)
+
+  (:method ((component standard-object-detail-filter) (class dmm::entity) (prototype prc::persistent-object) (slots list))
+    (partition slots #'dmm::primary-p (constantly #t))))
 
 (def (generic e) collect-standard-object-detail-filter-slots (component class instance)
   (:method ((component standard-object-detail-filter) (class standard-class) (instance standard-object))
@@ -105,19 +121,25 @@
                (call-next-method))))
 
 (def render standard-object-detail-filter ()
-  (with-slots (class-selector class slot-value-group id) -self-
+  (with-slots (class-selector class slot-value-groups id) -self-
     <div (:id ,id)
-      <div "Filter instances of " ,(render class)>
-      <div "Narrow down to "
-           ,(if class-selector
-                (render class-selector)
-                +void+)
-           ,(render (command (icon refresh)
-                             (make-action
-                               (setf (outdated-p -self-) #t))))>
-      <div
-        <h3 "Slots">
-        ,(render slot-value-group)>>))
+         <div ,#"standard-object-detail-filter.instance" " " ,(render class)>
+         ,(when class-selector
+                <div "Narrow down to "
+                     ,(render class-selector)
+                     ,(render (command (icon refresh)
+                                       (make-action
+                                         (setf (outdated-p -self-) #t))))>)
+         <div <h3 ,#"standard-object-detail-filter.slots">
+              ,(map nil #'render slot-value-groups)>>))
+
+(defresources en
+  (standard-object-detail-filter.instance "Filter for instances of")
+  (standard-object-detail-filter.slots "Slots"))
+
+(defresources hu
+  (standard-object-detail-filter.instance "Keresés ")
+  (standard-object-detail-filter.slots "Tulajdonságok"))
 
 ;;;;;;
 ;;; Standard object slot value group
@@ -140,15 +162,21 @@
 (def render standard-object-slot-value-group-filter ()
   (with-slots (slot-values id) -self-
     (if slot-values
-        <table (:id ,id)
-          <thead
-            <tr
-              <th "Name">
-              <th>
-              <th>
-              <th "Value">>>
+        <table (:id ,id :class "slot-value-group")
+          <thead <tr <th ,#"standard-object-slot-value-group-filter.column.name">
+                     <th>
+                     <th>
+                     <th ,#"standard-object-slot-value-group-filter.column.value">>>
           <tbody ,@(mapcar #'render slot-values)>>
-        <span (:id ,id) "There are none">)))
+        <span (:id ,id) ,#"There are none">)))
+
+(defresources en
+  (standard-object-slot-value-group-filter.column.name "Name")
+  (standard-object-slot-value-group-filter.column.value "Value"))
+
+(defresources hu
+  (standard-object-slot-value-group-filter.column.name "Név")
+  (standard-object-slot-value-group-filter.column.value "Érték"))
 
 ;;;;;;
 ;;; Standard object slot value filter
@@ -196,10 +224,12 @@
 (def render standard-object-slot-value-filter ()
   (with-slots (label negate-command predicate-command value id) -self-
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-      <td ,(render label)>
-      <td ,(render negate-command)>
-      <td ,(render predicate-command)>
-      <td ,(render value)>>))
+        <td (:class "slot-value-detail-label")
+            ,(render label)>
+        <td ,(render negate-command)>
+        <td ,(render predicate-command)>
+        <td (:class "slot-value-detail-label")
+            ,(render value)>>))
 
 ;;;;;;
 ;;; Filter
@@ -285,7 +315,8 @@
     (when-bind class-selector (class-selector-of component)
       (when-bind selected-class (component-value-of class-selector)
         (prc::add-assert (query-of filter-query) `(typep ,(first (query-variable-stack-of filter-query)) ,selected-class))))
-    (build-filter-query* (slot-value-group-of component) filter-query))
+    (map nil (lambda (slot-value-group)
+               (build-filter-query* slot-value-group filter-query)) (slot-value-groups-of component)))
 
   (:method ((component standard-object-filter-reference) filter-query)
     (values))

@@ -5,19 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Abstract standard class
-
-(def component abstract-standard-class-component ()
-  ((the-class nil :type (or null standard-class)))
-  (:documentation "Base class with a STANDARD-CLASS component value"))
-
-(def method component-value-of ((component abstract-standard-class-component))
-  (the-class-of component))
-
-(def method (setf component-value-of) (new-value (component abstract-standard-class-component))
-  (setf (the-class-of component) new-value))
-
-;;;;;;
 ;;; Standard class
 
 (def component standard-class-component (abstract-standard-class-component alternator-component)
@@ -99,20 +86,6 @@
           ,(render effective-slots)>>)))
 
 ;;;;;;
-;;; Abstract standard slot definition detail
-
-(def component abstract-standard-slot-definition-group-component ()
-  ((the-class nil :type (or null standard-class))
-   (slots nil :type list))
-  (:documentation "Base class with a list of STANDARD-SLOT-DEFINITIONs component value"))
-
-(def method component-value-of ((component abstract-standard-slot-definition-group-component))
-  (slots-of component))
-
-(def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-group-component))
-  (setf (slots-of component) new-value))
-
-;;;;;;
 ;;; Standard slot definition table
 
 (def component standard-slot-definition-table-component (abstract-standard-slot-definition-group-component table-component)
@@ -133,20 +106,6 @@
                     (setf (component-value-of row) slot)
                     (setf row (make-instance 'standard-slot-definition-row-component :slot slot)))
                 (collect row)))))
-
-;;;;;;
-;;; Abstract standard slot definition
-
-(def component abstract-standard-slot-definition-component ()
-  ((the-class nil :type (or null standard-class))
-   (slot nil :type (or null standard-slot-definition)))
-  (:documentation "Base class with a STANDARD-SLOT-DEFINITION component value"))
-
-(def method component-value-of ((component abstract-standard-slot-definition-component))
-  (slot-of component))
-
-(def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-component))
-  (setf (slot-of component) new-value))
 
 ;;;;;;
 ;;; Standard slot definition row

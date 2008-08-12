@@ -106,7 +106,7 @@
 
 (def (function e) make-standard-object-list-table-type-column ()
   (make-instance 'column-component
-                 :content (label #"Object-list-table.column.type")
+                 :content (label #"object-list-table.column.type")
                  :cell-factory (lambda (row-component)
                                  (make-instance 'cell-component :content (make-instance 'standard-class-component
                                                                                         :the-class (class-of (instance-of row-component))
@@ -114,7 +114,7 @@
 
 (def (function e) make-standard-object-list-table-command-bar-column ()
   (make-instance 'column-component
-                    :content (label #"Object-list-table.column.commands")
+                    :content (label #"object-list-table.column.commands")
                     :visible (delay (not (layer-active-p 'passive-components-layer)))
                     :cell-factory (lambda (row-component)
                                     (make-instance 'cell-component :content (command-bar-of row-component)))))
@@ -130,12 +130,12 @@
 (def (generic e) make-standard-object-list-table-inspector-slot-columns (component)
   (:method ((self standard-object-list-table-inspector))
     (with-slots (instances the-class command-bar columns rows) self
-      (bind ((slot-name->slot (list)))
+      (bind ((slot-name->slot-map (list)))
         ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
         (flet ((register-slot (slot)
                  (bind ((slot-name (slot-definition-name slot)))
-                   (unless (member slot-name slot-name->slot :test #'eq :key #'car)
-                     (push (cons slot-name slot) slot-name->slot)))))
+                   (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
+                     (push (cons slot-name slot) slot-name->slot-map)))))
           (when the-class
             (mapc #'register-slot (collect-standard-object-list-table-inspector-slots self the-class (class-prototype the-class))))
           (dolist (instance instances)
@@ -148,7 +148,7 @@
                                                    (if slot
                                                        (make-instance 'standard-object-slot-value-cell-component :instance (instance-of row-component) :slot slot)
                                                        (make-instance 'cell-component :content (label "N/A")))))))
-                slot-name->slot)))))
+                (nreverse slot-name->slot-map))))))
 
 (def (generic e) collect-standard-object-list-table-inspector-slots (component class instance)
   (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
@@ -158,17 +158,15 @@
     (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
   (:method ((component standard-object-list-table-inspector) (class dmm::entity) (instance prc::persistent-object))
-    (filter-if (lambda (slot)
-                 (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
-               (call-next-method))))
+    (filter-if #'dmm::primary-p (call-next-method))))
 
 (defresources hu
-  (object-list-table.column.commands "műveletek")
-  (object-list-table.column.type "típus"))
+  (object-list-table.column.commands "Műveletek")
+  (object-list-table.column.type "Típus"))
 
 (defresources en
-  (object-list-table.column.commands "commands")
-  (object-list-table.column.type "type"))
+  (object-list-table.column.commands "Commands")
+  (object-list-table.column.type "Type"))
 
 ;;;;;;
 ;;; Standard object row

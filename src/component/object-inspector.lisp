@@ -106,11 +106,11 @@
                                                  detail-component
                                                  remote-identity-component-mixin)
   ((class nil :accessor nil :type component)
-   (slot-value-group nil :type component))
+   (slot-value-groups nil :type components))
   (:documentation "Component for an instance of STANDARD-OBJECT in detail"))
 
 (def method refresh-component ((self standard-object-detail-inspector))
-  (with-slots (instance class slot-value-group) self
+  (with-slots (instance class slot-value-groups) self
     (bind ((the-class (when instance (class-of instance))))
       (if the-class
           (if class
@@ -118,12 +118,25 @@
               (setf class (make-viewer-component the-class :default-component-type 'reference-component)))
           (setf class nil))
       (if instance
-          (if slot-value-group
-              (setf (component-value-of slot-value-group) (collect-standard-object-detail-inspector-slots self the-class instance)
-                    (instance-of slot-value-group) instance
-                    (the-class-of slot-value-group) the-class)
-              (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector :instance instance :slots (collect-standard-object-detail-inspector-slots self the-class instance))))
-          (setf slot-value-group nil)))))
+          (bind ((slots (collect-standard-object-detail-inspector-slots self the-class instance))
+                 (slot-groups (collect-standard-object-detail-inspector-slot-value-groups self the-class instance slots)))
+            (setf slot-value-groups
+                  (iter (for slot-group :in slot-groups)
+                        (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
+                        (if slot-value-group
+                            (setf (component-value-of slot-value-group) slot-group
+                                  (instance-of slot-value-group) instance
+                                  (the-class-of slot-value-group) the-class)
+                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector :instance instance :slots slot-group)))
+                        (collect slot-value-group))))
+          (setf slot-value-groups nil)))))
+
+(def (generic e) collect-standard-object-detail-inspector-slot-value-groups (component class instance slots)
+  (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object) (slots list))
+    slots)
+
+  (:method ((component standard-object-detail-inspector) (class dmm::entity) (instance prc::persistent-object) (slots list))
+    (partition slots #'dmm::primary-p (constantly #t))))
 
 (def (generic e) collect-standard-object-detail-inspector-slots (component class instance)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object))
@@ -138,12 +151,19 @@
                (call-next-method))))
 
 (def render standard-object-detail-inspector ()
-  (with-slots (class slot-value-group id) -self-
+  (with-slots (class slot-value-groups id) -self-
     <div (:id ,id :class "standard-object")
-      <span "An instance of " ,(render class)>
-      <div
-        <h3 "Slots">
-        ,(render slot-value-group)>>))
+         <span ,#"standard-object-detail-inspector.instance" " " ,(render class)>
+         <div <h3 ,#"standard-object-detail-inspector.slots">
+              ,(map nil #'render slot-value-groups)>>))
+
+(defresources en
+  (standard-object-detail-inspector.instance "An instance of")
+  (standard-object-detail-inspector.slots "Slots"))
+
+(defresources hu
+  (standard-object-detail-inspector.instance "Egy")
+  (standard-object-detail-inspector.slots "Tulajdonságok"))
 
 ;;;;;;
 ;;; Standard object slot value group
@@ -176,13 +196,19 @@
 (def render standard-object-slot-value-group-inspector ()
   (with-slots (slot-values id) -self-
     (if slot-values
-        <table (:id ,id)
-          <thead
-            <tr
-              <th "Name">
-              <th "Value">>>
+        <table (:id ,id :class "slot-value-group")
+          <thead <tr <th ,#"standard-object-slot-value-group-inspector.column.name">
+                     <th ,#"standard-object-slot-value-group-inspector.column.value">>>
           <tbody ,(map nil #'render slot-values)>>
-        <span (:id ,id) "There are none">)))
+        <span (:id ,id) ,#"There are none">)))
+
+(defresources en
+  (standard-object-slot-value-group-inspector.column.name "Name")
+  (standard-object-slot-value-group-inspector.column.value "Value"))
+
+(defresources hu
+  (standard-object-slot-value-group-inspector.column.name "Név")
+  (standard-object-slot-value-group-inspector.column.value "Érték"))
 
 ;;;;;;
 ;;; Standard object slot value detail
@@ -211,5 +237,7 @@
 (def render standard-object-slot-value-detail-inspector ()
   (with-slots (label value id) -self-
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-        <td ,(render label)>
-        <td ,(render value)>>))
+        <td (:class "slot-value-detail-label")
+            ,(render label)>
+        <td (:class "slot-value-detail-value")
+            ,(render value)>>))

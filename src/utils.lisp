@@ -58,6 +58,19 @@
                (member (slot-definition-name slot) names))
              slots))
 
+(def function partition (list &rest predicates)
+  (iter (with result = (make-array (length predicates) :initial-element nil))
+        (for element :in list)
+        (iter (for predicate :in predicates)
+              (for index :from 0)
+              (when (funcall predicate element)
+                (push element (aref result index))
+                (finish)))
+        (finally
+         (return
+           (iter (for element :in-vector result)
+                 (collect (nreverse element)))))))
+
 (def (generic e) debug-on-error (context error)
   (:method (context error)
     *debug-on-error*))

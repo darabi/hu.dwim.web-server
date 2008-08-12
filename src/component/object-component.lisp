@@ -5,11 +5,52 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Standard object
+;;; Abstract standard class
+
+(def component abstract-standard-class-component ()
+  ((the-class nil :type (or null standard-class)))
+  (:documentation "Base class with a STANDARD-CLASS component value."))
+
+(def method component-value-of ((component abstract-standard-class-component))
+  (the-class-of component))
+
+(def method (setf component-value-of) (new-value (component abstract-standard-class-component))
+  (setf (the-class-of component) new-value))
+
+;;;;;;
+;;; Abstract standard slot definition
+
+(def component abstract-standard-slot-definition-component ()
+  ((the-class nil :type (or null standard-class))
+   (slot nil :type (or null standard-slot-definition)))
+  (:documentation "Base class with a STANDARD-SLOT-DEFINITION component value."))
+
+(def method component-value-of ((component abstract-standard-slot-definition-component))
+  (slot-of component))
+
+(def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-component))
+  (setf (slot-of component) new-value))
+
+;;;;;;
+;;; Abstract standard slot definition group
+
+(def component abstract-standard-slot-definition-group-component ()
+  ((the-class nil :type (or null standard-class))
+   (slots nil :type list))
+  (:documentation "Base class with a LIST of STANDARD-SLOT-DEFINITION instances as component value."))
+
+(def method component-value-of ((component abstract-standard-slot-definition-group-component))
+  (slots-of component))
+
+(def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-group-component))
+  (setf (slots-of component) new-value))
+
+;;;;;;
+;;; Abstract standard object
 
 (def component abstract-standard-object-component ()
   ((instance nil :type (or null standard-object)))
-  (:documentation "Base class with a STANDARD-OBJECT component value"))
+  (:documentation "Base class with a STANDARD-OBJECT component value."))
 
 (def method component-value-of ((component abstract-standard-object-component))
   (instance-of component))
@@ -43,13 +84,15 @@
 ;;; Abstract standard object slot value
 
 (def component abstract-standard-object-slot-value-component (abstract-standard-slot-definition-component abstract-standard-object-component)
-  ())
+  ()
+  (:documentation "Base class with a STANDARD-SLOT-DEFINITION component value and a STANDARD-OBJECT instance."))
 
 ;;;;;;
-;;; Standard object list
+;;; Abstract standard object list
 
 (def component abstract-standard-object-list-component ()
-  ((instances nil :type list)))
+  ((instances nil :type list))
+  (:documentation "Base class with a LIST of STANDARD-OBJECT instances as component value."))
 
 (def method component-value-of ((component abstract-standard-object-list-component))
   (instances-of component))
@@ -71,14 +114,23 @@
   (reuse-abstract-standard-object-list-component self))
 
 ;;;;;;
-;;; Standard object tree
+;;; Abstract standard object tree
 
 (def component abstract-standard-object-tree-component (abstract-standard-object-component)
   ((parent-provider nil :type (or symbol function))
    (children-provider nil :type (or symbol function)))
-  (:documentation "Base class for a tree of STANDARD-OBJECT component value"))
+  (:documentation "Base class with a TREE of STANDARD-OBJECT instances as component value."))
 
 (def method clone-component ((self abstract-standard-object-tree-component))
   (prog1-bind clone (call-next-method)
     (setf (parent-provider-of clone) (parent-provider-of self))
     (setf (children-provider-of clone) (children-provider-of self))))
+
+;;;;;
+;;; Localization
+
+(defresources en
+  (there-are-none "There are none"))
+
+(defresources en
+  (there-are-none "Nincs egy sem"))

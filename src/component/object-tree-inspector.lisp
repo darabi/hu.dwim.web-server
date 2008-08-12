@@ -113,12 +113,12 @@
 (def (generic e) make-standard-object-tree-table-inspector-slot-columns (component)
   (:method ((self standard-object-tree-table-inspector))
     (with-slots (instance children-provider the-class) self
-      (bind ((slot-name->slot (list)))
+      (bind ((slot-name->slot-map (list)))
         ;; KLUDGE: TODO: this register mapping is wrong, it maps slot-names to randomly choosen effective-slots
         (labels ((register-slot (slot)
                    (bind ((slot-name (slot-definition-name slot)))
-                     (unless (member slot-name slot-name->slot :test #'eq :key #'car)
-                       (push (cons slot-name slot) slot-name->slot))))
+                     (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
+                       (push (cons slot-name slot) slot-name->slot-map))))
                  (register-instance (instance)
                    (mapc #'register-slot (collect-standard-object-tree-table-inspector-slots self (class-of instance) instance))
                    (dolist (child (funcall children-provider instance))
@@ -134,7 +134,7 @@
                                                    (if slot
                                                        (make-instance 'standard-object-slot-value-cell-component :instance (instance-of node-component) :slot slot)
                                                        (make-instance 'cell-component :content (label "N/A")))))))
-                slot-name->slot)))))
+                (nreverse slot-name->slot-map))))))
 
 (def (generic e) collect-standard-object-tree-table-inspector-slots (component class instance)
   (:method ((component standard-object-tree-table-inspector) (class standard-class) instance)

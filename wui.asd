@@ -160,7 +160,7 @@
                                (:file "user-message" :depends-on ("component"))
                                (:file "wizard" :depends-on ("component"))
                                (:file "alternator" :depends-on ("reference" "command" "misc" "atomic"))
-                               (:file "class" :depends-on ("alternator" "reference" "table"))
+                               (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
                                (:file "object-component" :depends-on ("component"))
                                (:file "object-inspector" :depends-on ("object-component" "alternator" "reference"))
                                (:file "object-maker" :depends-on ("object-component" "atomic"))
