@@ -84,9 +84,13 @@
                            :possible-values subclasses)))))
 
 (def method refresh-component ((self standard-object-detail-filter))
-  (with-slots (the-class class slot-value-group command-bar) self
-    (setf class (make-viewer-component the-class :default-component-type 'reference-component)
-          slot-value-group (make-instance 'standard-object-slot-value-group-filter :the-class the-class :slots (collect-standard-object-detail-filter-slots self the-class (class-prototype the-class))))))
+  (with-slots (the-class class-selector class slot-value-group command-bar) self
+    (bind ((selected-class (or (component-value-of class-selector)
+                               the-class)))
+      (setf class (make-viewer-component the-class :default-component-type 'reference-component)
+            slot-value-group (make-instance 'standard-object-slot-value-group-filter
+                                            :the-class selected-class
+                                            :slots (collect-standard-object-detail-filter-slots self selected-class (class-prototype selected-class)))))))
 
 (def (generic e) collect-standard-object-detail-filter-slots (component class instance)
   (:method ((component standard-object-detail-filter) (class standard-class) (instance standard-object))
@@ -104,9 +108,13 @@
   (with-slots (class-selector class slot-value-group id) -self-
     <div (:id ,id)
       <div "Filter instances of " ,(render class)>
-      ,(if class-selector
-           (render class-selector)
-           +void+)
+      <div "Narrow down to "
+           ,(if class-selector
+                (render class-selector)
+                +void+)
+           ,(render (command (icon refresh)
+                             (make-action
+                               (setf (outdated-p -self-) #t))))>
       <div
         <h3 "Slots">
         ,(render slot-value-group)>>))

@@ -16,21 +16,18 @@
 (def constructor place-component ()
   (with-slots (edited content command-bar) -self-
     (setf content (make-place-component-content -self-)
-          command-bar nil
-          #+nil ;; TODO:
-          (make-instance 'command-bar-component :commands (append (list (make-refresh-command -self-)
-                                                                        #+nil
-                                                                        (make-makunbound-command -self-))
-                                                                  (make-editing-commands -self-))))))
+          command-bar (when (subtypep (find-inspector-component-type-for-type (place-type (place-of -self-))) 'standard-object-inspector)
+                        (make-instance 'command-bar-component :commands (list (make-find-instance-command -self-)))))))
 
 (def method (setf place-of) :after (new-value (self place-component))
   (setf (outdated-p self) #t))
 
 (def render place-component ()
   (with-slots (edited content command-bar) -self-
-    (render content)
-    #+nil
-    (render-vertical-list (list content command-bar))))
+    (if (and edited
+             command-bar)
+        (render-vertical-list (list command-bar content))
+        (render content))))
 
 (def function update-component-value-from-place (place component)
   (when (place-bound-p place)
@@ -58,15 +55,20 @@
 (def function revert-place-component-content (place-component)
   (update-component-value-from-place (place-of place-component) (content-of place-component)))
 
-(def method refresh-component ((place-component place-component))
-  (unless (edited-p place-component)
-    (revert-place-component-content place-component)))
+(def method refresh-component ((self place-component))
+  (unless (edited-p self)
+    (revert-place-component-content self)))
 
 (def method revert-editing :after ((place-component place-component))
   (revert-place-component-content place-component))
 
 (def method store-editing :after ((place-component place-component))
   (setf (value-at-place (place-of place-component)) (component-value-of (content-of place-component))))
+
+(def (function e) make-find-instance-command (place-component)
+  (make-replace-and-push-back-command place-component (make-filter-component (place-type (place-of place-component)))
+                                      (list :icon (icon find))
+                                      (list :icon (icon back))))
 
 (def (function e) make-makunbound-command (place-component)
   (make-replace-command (delay (content-of place-component))

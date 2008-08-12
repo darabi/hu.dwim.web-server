@@ -283,9 +283,9 @@
         (rebind (instance)
           <span ,(unless (first-iteration-p) " / ")
                 <a (:href ,(make-action-href ()
-                                             (bind ((parent (parent-component-of -self-)))
-                                               (setf (current-instance-of parent) instance)
-                                               (setf (outdated-p parent) #t))))
+                             (bind ((parent (parent-component-of -self-)))
+                               (setf (current-instance-of parent) instance)
+                               (setf (outdated-p parent) #t))))
                    ,(localized-instance-name instance)>>)))
 
 ;;;;;;

@@ -289,6 +289,22 @@
   (icon-label.filter "Filter")
   (icon-tooltip.filter "Execute the filter"))
 
+(def icon find "static/wui/icons/20x20/binocular.png")
+(defresources hu
+  (icon-label.find "Keresés")
+  (icon-tooltip.find "Egy objektum keresése"))
+(defresources en
+  (icon-label.find "Find")
+  (icon-tooltip.find "Find an object"))
+
+(def icon select "static/wui/icons/20x20/checkmark.png")
+(defresources hu
+  (icon-label.select "Kiválasztás")
+  (icon-tooltip.select "Egy objektum kiválasztása"))
+(defresources en
+  (icon-label.select "Select")
+  (icon-tooltip.select "Select an object"))
+
 (def icon equal "static/wui/icons/20x20/equal-sign.png")
 (defresources hu
   (icon-label.equal "Egyenlő")

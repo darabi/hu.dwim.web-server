@@ -90,6 +90,9 @@
   (:method ((prototype number))
     'number-component)
 
+  (:method ((prototype local-time:timestamp))
+    'timestamp-component)
+
   (:method ((prototype list))
     'list-component)
 
