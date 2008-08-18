@@ -87,7 +87,16 @@
                   ,@args))
 
 ;;;;;;
-;;; Remote identity
+;;; Layered mixin
+
+(def component layered-component-mixin ()
+  ((layer-context (current-layer-context))))
+
+(def call-in-component-environment layered-component-mixin ()
+  (funcall-with-layer-context (layer-context-of -self-) #'call-next-method))
+
+;;;;;;
+;;; Remote identity mixin
 
 (def component remote-identity-component-mixin ()
   ((id nil)))
