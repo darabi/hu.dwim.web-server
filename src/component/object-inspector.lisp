@@ -56,12 +56,12 @@
          ,(render-user-messages -self-)
          ,(call-next-method)>))
 
-(def (generic e) make-standard-object-inspector-alternatives (component class instance)
+(def (layered-function e) make-standard-object-inspector-alternatives (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-inspector :instance instance)
           (delay-alternative-reference-component 'standard-object-reference instance))))
 
-(def (generic e) make-standard-object-inspector-commands (component class instance)
+(def (layered-function e) make-standard-object-inspector-commands (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
     (list (make-editing-commands component)
           (make-new-instance-command component)))

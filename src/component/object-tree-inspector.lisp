@@ -48,7 +48,7 @@
     ,(render-user-messages -self-)
     ,(call-next-method)>)
 
-(def (generic e) make-standard-object-tree-inspector-alternatives (component class instance)
+(def (layered-function e) make-standard-object-tree-inspector-alternatives (component class instance)
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
     ;; TODO: factor
     (list (delay-alternative-component-with-initargs 'standard-object-tree-table-inspector
@@ -197,7 +197,7 @@
                           (render-user-messages -self-))))
   (call-next-method))
 
-(def generic make-standard-object-tree-node-inspector-commands (component class instance)
+(def (layered-function e) make-standard-object-tree-node-inspector-commands (component class instance)
   (:method ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
     (append (make-editing-commands component)
             (list (make-expand-node-command component instance))))

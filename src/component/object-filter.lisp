@@ -46,12 +46,12 @@
                                                                  (make-top-command self))
                                                            (make-standard-object-filter-commands self the-class (class-prototype the-class)))))))
 
-(def (generic e) make-standard-object-filter-alternatives (component class instance)
+(def (layered-function e) make-standard-object-filter-alternatives (component class instance)
   (:method ((component standard-object-filter) (class standard-class) (instance standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
           (delay-alternative-reference-component 'standard-object-filter-reference class))))
 
-(def (generic e) make-standard-object-filter-commands (component class prototype)
+(def (layered-function e) make-standard-object-filter-commands (component class prototype)
   (:method ((component standard-object-filter) (class standard-class) (prototype standard-object))
     (list (make-filter-instances-command component (delay (result-of component))))))
 

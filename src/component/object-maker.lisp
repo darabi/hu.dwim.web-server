@@ -54,12 +54,12 @@
          ,(render-user-messages -self-)
          ,(call-next-method)>))
 
-(def (generic e) make-standard-object-maker-alternatives (component class prototype)
+(def (layered-function e) make-standard-object-maker-alternatives (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-maker :the-class class)
           (delay-alternative-reference-component 'standard-object-maker-reference class))))
 
-(def (generic e) make-standard-object-maker-commands (component class prototype)
+(def (layered-function e) make-standard-object-maker-commands (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
     (list (make-create-instance-command component))))
 

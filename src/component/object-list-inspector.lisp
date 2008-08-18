@@ -45,13 +45,13 @@
          ,(render-user-messages -self-)
          ,(call-next-method)>))
 
-(def (generic e) make-standard-object-list-inspector-alternatives (component class prototype instances)
+(def (layered-function e) make-standard-object-list-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
     (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
           (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
           (delay-alternative-reference-component 'standard-object-list-reference instances))))
 
-(def generic make-standard-object-list-inspector-commands (component class prototype)
+(def (layered-function e) make-standard-object-list-inspector-commands (component class prototype)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
     (make-editing-commands component))
 
@@ -197,7 +197,7 @@
                          (render-user-messages row))))
   (call-next-method))
 
-(def (generic e) make-standard-object-row-inspector-commands (component class instance)
+(def (layered-function e) make-standard-object-row-inspector-commands (component class instance)
   (:method ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
     (append (make-editing-commands component)
             (list (make-expand-row-command component instance))))
