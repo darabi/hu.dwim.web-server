@@ -170,12 +170,11 @@
 ;;;;;;
 ;;; Standard object slot value group
 
-(def component standard-object-slot-value-group-inspector (abstract-standard-slot-definition-group-component
+(def component standard-object-slot-value-group-inspector (standard-object-slot-value-group-component
                                                            abstract-standard-object-component
                                                            inspector-component
-                                                           editable-component
-                                                           remote-identity-component-mixin)
-  ((slot-values nil :type components))
+                                                           editable-component)
+  ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
 
 (def method refresh-component ((self standard-object-slot-value-group-inspector))
@@ -195,27 +194,11 @@
   (:method ((component standard-object-slot-value-group-inspector) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
     (make-instance 'standard-object-slot-value-inspector :instance instance :slot slot)))
 
-(def render standard-object-slot-value-group-inspector ()
-  (with-slots (slot-values id) -self-
-    (if slot-values
-        <table (:id ,id :class "slot-value-group")
-          <thead <tr <th ,#"standard-object-slot-value-group-inspector.column.name">
-                     <th ,#"standard-object-slot-value-group-inspector.column.value">>>
-          <tbody ,(map nil #'render slot-values)>>
-        <span (:id ,id) ,#"there-are-none">)))
-
-(defresources en
-  (standard-object-slot-value-group-inspector.column.name "Name")
-  (standard-object-slot-value-group-inspector.column.value "Value"))
-
-(defresources hu
-  (standard-object-slot-value-group-inspector.column.name "Név")
-  (standard-object-slot-value-group-inspector.column.value "Érték"))
-
 ;;;;;;
 ;;; Standard object slot value detail
 
 (def component standard-object-slot-value-inspector (standard-object-slot-value-component
+                                                     abstract-standard-object-component
                                                      inspector-component
                                                      editable-component)
   ()

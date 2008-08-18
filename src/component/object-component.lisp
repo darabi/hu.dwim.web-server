@@ -127,7 +127,32 @@
     (setf (children-provider-of clone) (children-provider-of self))))
 
 ;;;;;;
-;;; Standard object slot value detail
+;;; Standard object slot value group 
+
+(def component standard-object-slot-value-group-component (abstract-standard-slot-definition-group-component remote-identity-component-mixin)
+  ((slot-values nil :type components)))
+
+(def render standard-object-slot-value-group-component ()
+  (with-slots (slot-values id) -self-
+    (if slot-values
+        <table (:id ,id :class "slot-value-group")
+          <thead <tr <th ,#"standard-object-slot-value-group.column.name">
+                     <th ,#"standard-object-slot-value-group.column.value">>>
+          <tbody ,(map nil #'render slot-values)>>
+        <span (:id ,id) ,#"there-are-none">)))
+
+(defresources en
+  (standard-object-slot-value-group.there-are-no-slots "There are no slots")
+  (standard-object-slot-value-group.column.name "Name")
+  (standard-object-slot-value-group.column.value "Value"))
+
+(defresources hu
+  (standard-object-slot-value-group.there-are-no-slots "Nincs egy tulajdonság sem")
+  (standard-object-slot-value-group.column.name "Név")
+  (standard-object-slot-value-group.column.value "Érték"))
+
+;;;;;;
+;;; Standard object slot value
 
 (def component standard-object-slot-value-component (abstract-standard-slot-definition-component remote-identity-component-mixin)
   ((label nil :type component)
@@ -140,12 +165,3 @@
             ,(render label)>
         <td (:class "slot-value-value")
             ,(render value)>>))
-
-;;;;;
-;;; Localization
-
-(defresources en
-  (there-are-none "There are none"))
-
-(defresources hu
-  (there-are-none "Nincs egy sem"))

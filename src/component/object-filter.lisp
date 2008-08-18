@@ -146,10 +146,8 @@
 ;;;;;;
 ;;; Standard object slot value group
 
-(def component standard-object-slot-value-group-filter (abstract-standard-slot-definition-group-component
-                                                        filter-component
-                                                        remote-identity-component-mixin)
-  ((slot-values nil :type components)))
+(def component standard-object-slot-value-group-filter (standard-object-slot-value-group-component filter-component)
+  ())
 
 (def method refresh-component ((self standard-object-slot-value-group-filter))
   (with-slots (the-class slots slot-values) self
@@ -165,20 +163,12 @@
   (with-slots (slot-values id) -self-
     (if slot-values
         <table (:id ,id :class "slot-value-group")
-          <thead <tr <th ,#"standard-object-slot-value-group-filter.column.name">
+          <thead <tr <th ,#"standard-object-slot-value-group.column.name">
                      <th>
                      <th>
-                     <th ,#"standard-object-slot-value-group-filter.column.value">>>
-          <tbody ,@(mapcar #'render slot-values)>>
+                     <th ,#"standard-object-slot-value-group.column.value">>>
+          <tbody ,(map nil #'render slot-values)>>
         <span (:id ,id) ,#"there-are-none">)))
-
-(defresources en
-  (standard-object-slot-value-group-filter.column.name "Name")
-  (standard-object-slot-value-group-filter.column.value "Value"))
-
-(defresources hu
-  (standard-object-slot-value-group-filter.column.name "Név")
-  (standard-object-slot-value-group-filter.column.value "Érték"))
 
 ;;;;;;
 ;;; Standard object slot value filter

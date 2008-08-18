@@ -140,10 +140,9 @@
 ;;;;;;
 ;;; Standard object slot value group
 
-(def component standard-object-slot-value-group-maker (abstract-standard-slot-definition-group-component
-                                                       maker-component
-                                                       remote-identity-component-mixin)
-  ((slot-values nil :type components)))
+(def component standard-object-slot-value-group-maker (standard-object-slot-value-group-component maker-component)
+  ()
+  (:documentation "Maker for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
 
 (def method refresh-component ((self standard-object-slot-value-group-maker))
   (with-slots (the-class slots slot-values) self
@@ -158,23 +157,6 @@
 (def (generic e) make-standard-object-slot-value-maker (component class instance slot)
   (:method ((component standard-object-slot-value-group-maker) (class standard-class) (prototype standard-object) (slot standard-effective-slot-definition))
     (make-instance 'standard-object-slot-value-maker :the-class class :slot slot)))
-
-(def render standard-object-slot-value-group-maker ()
-  (with-slots (slot-values id) -self-
-    (if slot-values
-        <table (:id ,id :class "slot-value-group")
-          <thead <tr <th ,#"standard-object-slot-value-group-maker.column.name">
-                     <th ,#"standard-object-slot-value-group-maker.column.value">>>
-          <tbody ,@(map nil #'render slot-values)>>
-        <span (:id ,id) ,#"there-are-none">)))
-
-(defresources en
-  (standard-object-slot-value-group-maker.column.name "Name")
-  (standard-object-slot-value-group-maker.column.value "Value"))
-
-(defresources hu
-  (standard-object-slot-value-group-maker.column.name "Név")
-  (standard-object-slot-value-group-maker.column.value "Érték"))
 
 ;;;;;
 ;;; Standard object slot value maker detail

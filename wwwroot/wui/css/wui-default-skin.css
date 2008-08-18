@@ -60,7 +60,7 @@ table.slot-value-group
   margin: 2px;
 }
 
-table.slot-value-group > tbody > tr > td.slot-value-detail-label
+table.slot-value-group > tbody > tr > td.slot-value-label
 {
   width: 200px;
 }
