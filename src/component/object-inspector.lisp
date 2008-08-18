@@ -122,13 +122,14 @@
                  (slot-groups (collect-standard-object-detail-inspector-slot-value-groups self the-class instance slots)))
             (setf slot-value-groups
                   (iter (for slot-group :in slot-groups)
-                        (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
-                        (if slot-value-group
-                            (setf (component-value-of slot-value-group) slot-group
-                                  (instance-of slot-value-group) instance
-                                  (the-class-of slot-value-group) the-class)
-                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector :instance instance :slots slot-group)))
-                        (collect slot-value-group))))
+                        (when slot-group
+                          (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
+                          (if slot-value-group
+                              (setf (component-value-of slot-value-group) slot-group
+                                    (instance-of slot-value-group) instance
+                                    (the-class-of slot-value-group) the-class)
+                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector :instance instance :slots slot-group)))
+                          (collect slot-value-group)))))
           (setf slot-value-groups nil)))))
 
 (def (generic e) collect-standard-object-detail-inspector-slot-value-groups (component class instance slots)
@@ -200,7 +201,7 @@
           <thead <tr <th ,#"standard-object-slot-value-group-inspector.column.name">
                      <th ,#"standard-object-slot-value-group-inspector.column.value">>>
           <tbody ,(map nil #'render slot-values)>>
-        <span (:id ,id) ,#"There are none">)))
+        <span (:id ,id) ,#"there-are-none">)))
 
 (defresources en
   (standard-object-slot-value-group-inspector.column.name "Name")

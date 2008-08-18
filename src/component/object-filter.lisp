@@ -92,14 +92,15 @@
                                      (slots (collect-standard-object-detail-filter-slots self selected-class prototype))
                                      (slot-groups (collect-standard-object-detail-filter-slot-value-groups self selected-class prototype slots)))
                                 (iter (for slot-group :in slot-groups)
-                                      (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
-                                      (if slot-value-group
-                                          (setf (component-value-of slot-value-group) slot-group
-                                                (the-class-of slot-value-group) selected-class)
-                                          (setf slot-value-group (make-instance 'standard-object-slot-value-group-filter
-                                                                                :the-class selected-class
-                                                                                :slots slot-group)))
-                                      (collect slot-value-group)))))))
+                                      (when slot-group
+                                        (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
+                                        (if slot-value-group
+                                            (setf (component-value-of slot-value-group) slot-group
+                                                  (the-class-of slot-value-group) selected-class)
+                                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-filter
+                                                                                  :the-class selected-class
+                                                                                  :slots slot-group)))
+                                        (collect slot-value-group))))))))
 
 (def (generic e) collect-standard-object-detail-filter-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object) (slots list))
@@ -168,7 +169,7 @@
                      <th>
                      <th ,#"standard-object-slot-value-group-filter.column.value">>>
           <tbody ,@(mapcar #'render slot-values)>>
-        <span (:id ,id) ,#"There are none">)))
+        <span (:id ,id) ,#"there-are-none">)))
 
 (defresources en
   (standard-object-slot-value-group-filter.column.name "Name")

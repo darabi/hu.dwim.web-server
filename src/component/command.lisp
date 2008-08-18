@@ -82,6 +82,13 @@
   "Pop the COMMAND from the container COMMAND-BAR"
   (removef (commands-of (parent-component-of command)) command))
 
+(def function execute-command-bar-command (command-bar name)
+  (bind ((command (find name (commands-of command-bar)
+                        :key (lambda (command)
+                               (name-of (icon-of command))))))
+    (assert command nil "Command ~A not found in ~A" name command-bar)
+    (funcall (action-of command))))
+
 ;;;;;;
 ;;; Navigation bar
 

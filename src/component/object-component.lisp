@@ -132,5 +132,5 @@
 (defresources en
   (there-are-none "There are none"))
 
-(defresources en
+(defresources hu
   (there-are-none "Nincs egy sem"))
