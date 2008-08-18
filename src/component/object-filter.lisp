@@ -248,7 +248,7 @@
     (prog1-bind component
         (make-viewer-component result :type `(list ,(class-name (the-class-of filter))))
       (unless result
-        (add-user-warning component "No matches were found")))))
+        (add-user-warning component #"no-matches-were-found")))))
 
 (def generic execute-filter-instances (component class)
   (:method ((component standard-object-filter) (class standard-class))
@@ -282,6 +282,12 @@
 
   (:method ((component standard-object-filter) (class prc::persistent-class))
     (prc::execute-query (build-filter-query component))))
+
+(defresources en
+  (no-matches-were-found "No matching objects were found"))
+
+(defresources hu
+  (no-matches-were-found "Nincs a keresésnek megfelelő objektum"))
 
 ;;;;;
 ;;; Query builder
