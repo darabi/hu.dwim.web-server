@@ -297,6 +297,14 @@
   (icon-label.find "Find")
   (icon-tooltip.find "Find an object"))
 
+(def icon set-to-nil "static/wui/icons/20x20/unplug.png")
+(defresources hu
+  (icon-label.set-to-nil "Szétkapcsolás")
+  (icon-tooltip.set-to-nil "Az objektumok szétkapcsolása"))
+(defresources en
+  (icon-label.set-to-nil "Disconnect")
+  (icon-tooltip.set-to-nil "Disconnect from object"))
+
 (def icon select "static/wui/icons/20x20/checkmark.png")
 (defresources hu
   (icon-label.select "Kiválasztás")

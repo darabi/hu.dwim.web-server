@@ -17,7 +17,10 @@
   (with-slots (edited content command-bar) -self-
     (setf content (make-place-component-content -self-)
           command-bar (when (subtypep (find-inspector-component-type-for-type (place-type (place-of -self-))) 'standard-object-inspector)
-                        (make-instance 'command-bar-component :commands (list (make-find-instance-command -self-)))))))
+                        (make-instance 'command-bar-component :commands (list (make-revert-place-command -self-)
+                                                                              (make-set-place-to-nil-command -self-)
+                                                                              (make-set-place-to-find-instance-command -self-)
+                                                                              (make-set-place-to-new-instance-command -self-)))))))
 
 (def method (setf place-of) :after (new-value (self place-component))
   (setf (outdated-p self) #t))
@@ -52,6 +55,10 @@
 (def (function e) make-standard-object-slot-value-place-component (instance slot-name)
   (make-instance 'place-component :place (make-slot-value-place instance (find-slot (class-of instance) slot-name))))
 
+(def method map-editable-child-components ((self place-component) function)
+  (when (place-editable-p (place-of self))
+    (funcall function (content-of self))))
+
 (def function revert-place-component-content (place-component)
   (update-component-value-from-place (place-of place-component) (content-of place-component)))
 
@@ -65,10 +72,11 @@
 (def method store-editing :after ((place-component place-component))
   (setf (value-at-place (place-of place-component)) (component-value-of (content-of place-component))))
 
-(def layer* find-standard-object-instance-layer ()
+(def layer* set-place-to-find-instance-layer ()
+  ;; TODO: KLUDGE: FIXME: make this a special slot (this way it is not thread safe)
   ((place-component :type component)))
 
-(def layered-method make-standard-object-row-inspector-commands :in-layer find-standard-object-instance-layer :around
+(def layered-method make-standard-object-row-inspector-commands :in-layer set-place-to-find-instance-layer :around
      ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
      ;; TODO: check for being the row of the result component of the filter in the place component
   (bind ((place-component (place-component-of (current-layer))))
@@ -78,20 +86,25 @@
                       (execute-command-bar-command (command-bar-of (find-ancestor-component-with-type component 'standard-object-filter)) 'back)))
            (call-next-method))))
 
-(def (function e) make-find-instance-command (place-component)
+(def (function e) make-set-place-to-find-instance-command (place-component)
   (make-replace-and-push-back-command place-component
-                                      (with-active-layers ((find-standard-object-instance-layer :place-component place-component))
+                                      (with-active-layers ((set-place-to-find-instance-layer :place-component place-component))
                                         (make-filter-component (place-type (place-of place-component))))
                                       (list :icon (icon find))
                                       (list :icon (icon back))))
 
-(def (function e) make-makunbound-command (place-component)
-  (make-replace-command (delay (content-of place-component))
-                        (delay (make-place-component-content place-component))
-                        :icon (icon makunbound :label "Makunbound")
-                        :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
+(def (function e) make-set-place-to-new-instance-command (place-component)
+  (make-replace-and-push-back-command place-component
+                                      (make-maker-component (place-type (place-of place-component)))
+                                      (list :icon (icon new))
+                                      (list :icon (icon back) :visible #t)))
 
-(def (function e) make-revert-command (place-component)
+(def (function e) make-set-place-to-nil-command (place-component)
+  (command (icon set-to-nil)
+           (make-action
+             (setf (component-value-of (content-of place-component)) nil))))
+
+(def (function e) make-revert-place-command (place-component)
   (make-instance 'command-component
-                 :icon (icon revert :label "Revert")
+                 :icon (icon revert)
                  :action (make-action (revert-place-component-content place-component))))

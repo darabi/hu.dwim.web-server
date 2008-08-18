@@ -14,6 +14,8 @@
 
 (def (generic e) place-bound-p (place))
 
+(def (generic e) place-editable-p (place))
+
 (def (generic e) make-place-unbound (place))
 
 (def (generic e) value-at-place (place))
@@ -27,19 +29,22 @@
   ((name)
    (the-type)))
 
-(def (method e) place-type ((place special-variable-place))
+(def method place-type ((place special-variable-place))
   (the-type-of place))
 
-(def (method e) place-bound-p ((place special-variable-place))
+(def method place-bound-p ((place special-variable-place))
   (boundp (name-of place)))
 
-(def (method e) make-place-unbound ((place special-variable-place))
+(def method place-editable-p ((place special-variable-place))
+  #t)
+
+(def method make-place-unbound ((place special-variable-place))
   (makunbound (name-of place)))
 
-(def (method e) value-at-place ((place special-variable-place))
+(def method value-at-place ((place special-variable-place))
   (symbol-value (name-of place)))
 
-(def (method e) (setf value-at-place) (new-value (place special-variable-place))
+(def method (setf value-at-place) (new-value (place special-variable-place))
   (setf (symbol-value (name-of place)) new-value))
 
 (def (function e) make-special-variable-place (name type)
@@ -53,19 +58,22 @@
    (setter)
    (the-type)))
 
-(def (method e) place-type ((place lexical-variable-place))
+(def method place-type ((place lexical-variable-place))
   (the-type-of place))
 
-(def (method e) place-bound-p ((place lexical-variable-place))
+(def method place-bound-p ((place lexical-variable-place))
   #t)
 
-(def (method e) make-place-unbound ((place lexical-variable-place))
+(def method place-editable-p ((place lexical-variable-place))
+  #t)
+
+(def method make-place-unbound ((place lexical-variable-place))
   (error "Cannot make ~A unbound" place))
 
-(def (method e) value-at-place ((place lexical-variable-place))
+(def method value-at-place ((place lexical-variable-place))
   (funcall (getter-of place)))
 
-(def (method e) (setf value-at-place) (new-value (place lexical-variable-place))
+(def method (setf value-at-place) (new-value (place lexical-variable-place))
   (funcall (setter-of place) new-value))
 
 (def (macro e) make-lexical-variable-place (name type)
@@ -104,6 +112,18 @@
   (bind ((instance (revive-slot-value-place-instance place)))
     (slot-boundp-using-class (class-of instance) instance (slot-of place))))
 
+(def (generic e) slot-value-place-editable-p (place class instance slot)
+  (:method ((place slot-value-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
+    #t)
+
+  (:method ((place slot-value-place) (class cc::computed-class) (instance cc::computed-object) (slot cc::computed-effective-slot-definition))
+    #f))
+
+(def method place-editable-p ((place slot-value-place))
+  (bind ((instance (instance-of place))
+         (class (class-of instance)))
+    (slot-value-place-editable-p place class instance (slot-of place))))
+
 (def method make-place-unbound ((place slot-value-place))
   (bind ((instance (revive-slot-value-place-instance place)))
     (slot-makunbound-using-class (class-of instance) instance (slot-of place))))
@@ -118,37 +138,6 @@
 
 (def (function e) make-slot-value-place (instance slot)
   (make-instance 'slot-value-place :instance instance :slot slot))
-
-;;;;;;
-;;; Phantom slot value place
-
-;; TODO: do we need this at all? maybe setf place to nil
-(def class* phantom-slot-value-place (slot-value-place)
-  ((the-class)
-   (slot)))
-
-(def method place-bound-p ((place phantom-slot-value-place))
-  (if (instance-of place)
-      (call-next-method)
-      #f))
-
-(def method make-place-unbound ((place phantom-slot-value-place))
-  (if (instance-of place)
-      (call-next-method)
-      (error "Cannot make ~A unbound" place)))
-
-(def method value-at-place ((place phantom-slot-value-place))
-  (if (instance-of place)
-      (call-next-method)
-      (error "Cannot get value at ~A" place)))
-
-(def method (setf value-at-place) (new-value (place phantom-slot-value-place))
-  (if (instance-of place)
-      (call-next-method)
-      (error "Cannot setf ~A into ~A" new-value place)))
-
-(def (function e) make-phantom-slot-value-place (class slot)
-  (make-instance 'phantom-slot-value-place :the-class class :instance nil :slot slot))
 
 ;;;;;;
 ;;; List slot value place

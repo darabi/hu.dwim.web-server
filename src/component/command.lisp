@@ -65,7 +65,7 @@
     (sort commands #'<
           :key (lambda (command)
                  (or (position (name-of (icon-of command))
-                               '(answer back open-in-new-frame top collapse collapse-all expand-all refresh new edit save cancel store revert delete)
+                               '(answer back open-in-new-frame top collapse collapse-all expand-all refresh edit save cancel store revert new delete)
                                :test #'equal)
                      most-positive-fixnum)))))
 
