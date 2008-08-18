@@ -34,18 +34,16 @@
   (assert (typep editable 'editable-component))
   ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
   (rdbms::with-transaction
-    (with-restored-component-environment editable
-      (store-editing editable)
-      (when leave-editing
-        (leave-editing editable)))
+    (store-editing editable)
+    (when leave-editing
+      (leave-editing editable))
     (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
       (add-user-information editable "A változtatások elmentése sikerült"))))
 
 (def (function e) cancel-editing (editable)
   (assert (typep editable 'editable-component))
-  (with-restored-component-environment editable
-    (revert-editing editable)
-    (leave-editing editable)))
+  (revert-editing editable)
+  (leave-editing editable))
 
 (def generic map-editable-child-components (component function)
   (:method ((component component) function)
@@ -119,7 +117,8 @@
   (make-instance 'command-component
                  :icon (icon save)
                  :visible (delay (edited-p editable))
-                 :action (make-action (save-editing editable))))
+                 :action (make-component-related-action editable
+                           (save-editing editable))))
 
 (def (function e) make-cancel-editing-command (editable)
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
@@ -127,7 +126,8 @@
   (make-instance 'command-component
                  :icon (icon cancel)
                  :visible (delay (edited-p editable))
-                 :action (make-action (cancel-editing editable))))
+                 :action (make-component-related-action editable
+                           (cancel-editing editable))))
 
 (def (function e) make-store-editing-command (editable)
   "The STORE-EDITING command actually stores the changes present under an EDITABLE-COMPNENT"
