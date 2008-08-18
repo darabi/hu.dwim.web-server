@@ -9,6 +9,8 @@
 
 (def (constant :test 'string=) +delayed-content-parameter-name+ "_d")
 
+(def (special-variable e) *action*)
+
 (def function request-for-delayed-content? (&optional (request *request*))
   "A delayed content request is supposed to render stuff to the same frame that was delayed at the main request (i.e. tooltips)."
   (bind ((value (request-parameter-value request +delayed-content-parameter-name+)))
@@ -29,6 +31,10 @@
 (def class* action (string-id-for-funcallable-mixin)
   ()
   (:metaclass funcallable-standard-class))
+
+(def method call-action :around (application session frame (action action))
+  (bind ((*action* action))
+    (call-next-method)))
 
 (def function make-action-using-lambda (action-lambda)
   (bind ((action (make-instance 'action)))

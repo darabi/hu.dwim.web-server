@@ -75,6 +75,10 @@
    -self- (lambda (request)
           (application-handler -self- request))))
 
+(def (generic e) call-action (application session frame action)
+  (:method (application session frame (action funcallable-standard-object))
+    (funcall action)))
+
 (def (generic e) call-as-handler-in-session (application session thunk)
   (:method :before ((application application) (session session) thunk)
     (assert-session-lock-held session)
@@ -105,7 +109,7 @@
                            (progn
                              (unless (request-for-delayed-content?)
                                (step-to-next-frame-index frame))
-                             (bind ((response (funcall action)))
+                             (bind ((response (call-action application session frame action)))
                                (when (typep response 'response)
                                  (return-from call-as-handler-in-session
                                    (if (typep response 'locked-session-response-mixin)
