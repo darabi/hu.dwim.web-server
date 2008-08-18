@@ -36,13 +36,25 @@
   (bind ((*action* action))
     (call-next-method)))
 
-(def function make-action-using-lambda (action-lambda)
-  (bind ((action (make-instance 'action)))
-    (set-funcallable-instance-function action action-lambda)
-    action))
+(def class* component-related-action (action)
+  ((component))
+  (:metaclass funcallable-standard-class))
+
+(def method call-action :around (application session frame (action component-related-action))
+  (with-restored-component-environment (component-of action)
+    (call-next-method)))
+
+(def function make-action-using-lambda (action thunk)
+  (set-funcallable-instance-function action thunk)
+  action)
 
 (def (macro e) make-action (&body body)
-  `(make-action-using-lambda (lambda () ,@body)))
+  `(make-action-using-lambda (make-instance 'action)
+                        (lambda () ,@body)))
+
+(def (macro e) make-component-related-action (component &body body)
+  `(make-action-using-lambda (make-instance 'component-related-action :component ,component)
+                        (lambda () ,@body)))
 
 (def (macro e) make-action-uri ((&key scheme delayed-content (ajax-aware *default-ajax-aware-client*)) &body body)
   `(action-to-uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content :ajax-aware ,ajax-aware))
