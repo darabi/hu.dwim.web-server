@@ -65,8 +65,23 @@
 (def method store-editing :after ((place-component place-component))
   (setf (value-at-place (place-of place-component)) (component-value-of (content-of place-component))))
 
+(def layer* find-standard-object-instance-layer ()
+  ((place-component :type component)))
+
+(def layered-method make-standard-object-row-inspector-commands :in-layer find-standard-object-instance-layer :around
+     ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
+     ;; TODO: check for being the row of the result component of the filter in the place component
+  (bind ((place-component (place-component-of (current-layer))))
+    (list* (command (icon select)
+                    (make-action
+                      (setf (component-value-of (content-of place-component)) (instance-of component))
+                      (execute-command-bar-command (command-bar-of (find-ancestor-component-with-type component 'standard-object-filter)) 'back)))
+           (call-next-method))))
+
 (def (function e) make-find-instance-command (place-component)
-  (make-replace-and-push-back-command place-component (make-filter-component (place-type (place-of place-component)))
+  (make-replace-and-push-back-command place-component
+                                      (with-active-layers ((find-standard-object-instance-layer :place-component place-component))
+                                        (make-filter-component (place-type (place-of place-component))))
                                       (list :icon (icon find))
                                       (list :icon (icon back))))
 

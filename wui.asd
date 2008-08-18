@@ -156,7 +156,7 @@
                                (:file "reference" :depends-on ("command"))
                                (:file "editable" :depends-on ("command"))
                                (:file "atomic" :depends-on ("editable" "dojo"))
-                               (:file "place-component" :depends-on ("editable" "factory" "atomic"))
+                               (:file "place-component" :depends-on ("editable" "factory" "atomic" "object-list-inspector"))
                                (:file "user-message" :depends-on ("component"))
                                (:file "wizard" :depends-on ("component"))
                                (:file "alternator" :depends-on ("reference" "command" "misc" "atomic"))

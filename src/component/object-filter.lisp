@@ -237,8 +237,9 @@
 ;;; Filter
 
 (def (function e) make-filter-instances-command (filter result)
-  (make-replace-and-push-back-command result (delay (funcall (result-component-factory-of filter) filter
-                                                             (execute-filter-instances filter (the-class-of filter))))
+  (make-replace-and-push-back-command result (delay (with-restored-component-environment filter
+                                                      (funcall (result-component-factory-of filter) filter
+                                                               (execute-filter-instances filter (the-class-of filter)))))
                                       (list :icon (icon filter))
                                       (list :icon (icon back))))
 
