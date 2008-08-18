@@ -358,7 +358,7 @@ Custom implementations should look something like this:
         (collect ancestor-component)))
 
 (def function call-with-restored-component-environment (component thunk)
-  (bind ((path (nreverse (cdr (collect-path-to-root-component component)))))
+  (bind ((path (nreverse (collect-path-to-root-component component))))
     (labels ((%call-with-restored-component-environment (remaining-path)
                (if remaining-path
                    (with-component-environment (car remaining-path)
@@ -375,9 +375,9 @@ Custom implementations should look something like this:
         <ajax-response
          ,@(with-collapsed-js-scripts
             <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
-             ,@(mappend [ensure-list (with-restored-component-environment !1
-                                        (render component))]
-                        dirty-components)>)>)
+              ,(map nil [with-restored-component-environment (parent-component-of !1)
+                          (render component)]
+                    dirty-components)>)>)
       (render component)))
 
 (def (function e) render-to-string (component &key (ajax-aware-client #f))
