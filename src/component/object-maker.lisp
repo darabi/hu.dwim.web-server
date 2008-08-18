@@ -80,7 +80,8 @@
                                              editable-component
                                              remote-identity-component-mixin)
   ((class nil :accessor nil :type component)
-   (slot-value-groups nil :type components)))
+   (slot-value-groups nil :type components))
+  (:documentation "Maker for an instance of STANDARD-OBJECT in detail"))
 
 (def (macro e) standard-object-detail-maker (class)
   `(make-instance 'standard-object-detail-maker :the-class ,class))
@@ -148,15 +149,15 @@
   (with-slots (the-class slots slot-values) self
     (setf slot-values
           (iter (for slot :in slots)
-                (for slot-value-detail = (find slot slot-values :key #'component-value-of))
-                (if slot-value-detail
-                    (setf (slot-of slot-value-detail) slot)
-                    (setf slot-value-detail (make-standard-object-slot-value-detail-maker self the-class (class-prototype the-class) slot)))
-                (collect slot-value-detail)))))
+                (for slot-value-component = (find slot slot-values :key #'component-value-of))
+                (if slot-value-component
+                    (setf (slot-of slot-value-component) slot)
+                    (setf slot-value-component (make-standard-object-slot-value-maker self the-class (class-prototype the-class) slot)))
+                (collect slot-value-component)))))
 
-(def (generic e) make-standard-object-slot-value-detail-maker (component class instance slot)
+(def (generic e) make-standard-object-slot-value-maker (component class instance slot)
   (:method ((component standard-object-slot-value-group-maker) (class standard-class) (prototype standard-object) (slot standard-effective-slot-definition))
-    (make-instance 'standard-object-slot-value-detail-maker :the-class class :slot slot)))
+    (make-instance 'standard-object-slot-value-maker :the-class class :slot slot)))
 
 (def render standard-object-slot-value-group-maker ()
   (with-slots (slot-values id) -self-
@@ -178,24 +179,14 @@
 ;;;;;
 ;;; Standard object slot value maker detail
 
-(def component standard-object-slot-value-detail-maker (abstract-standard-slot-definition-component
-                                                        maker-component
-                                                        remote-identity-component-mixin)
-  ((label nil :type component)
-   (value nil :type component)))
+(def component standard-object-slot-value-maker (standard-object-slot-value-component maker-component)
+  ()
+  (:documentation "Maker for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
 
-(def constructor standard-object-slot-value-detail-maker ()
-  (with-slots (slot label value) -self-
+(def method refresh-component ((self standard-object-slot-value-maker)) ()
+  (with-slots (slot label value) self
     (setf label (label (localized-slot-name slot)))
     (setf value (make-maker-component (slot-type slot) :default-component-type 'reference-component))))
-
-(def render standard-object-slot-value-detail-maker ()
-  (with-slots (label value id) -self-
-    <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-        <td (:class "slot-value-detail-label")
-            ,(render label)>
-        <td (:class "slot-value-detail-label")
-            ,(render value)>>))
 
 ;;;;;;
 ;;; Execute maker
@@ -223,7 +214,7 @@
     (iter (for slot-value :in (slot-values-of component))
           (appending (collect-make-instance-initargs slot-value))))
 
-  (:method ((component standard-object-slot-value-detail-maker))
+  (:method ((component standard-object-slot-value-maker))
     (bind ((slot (slot-of component))
            (value (value-of component)))
       ;; TODO: recurse

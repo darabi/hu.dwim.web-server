@@ -108,7 +108,7 @@
                                                  remote-identity-component-mixin)
   ((class nil :accessor nil :type component)
    (slot-value-groups nil :type components))
-  (:documentation "Component for an instance of STANDARD-OBJECT in detail"))
+  (:documentation "Inspector for an instance of STANDARD-OBJECT in detail"))
 
 (def method refresh-component ((self standard-object-detail-inspector))
   (with-slots (instance class slot-value-groups) self
@@ -176,24 +176,24 @@
                                                            editable-component
                                                            remote-identity-component-mixin)
   ((slot-values nil :type components))
-  (:documentation "Component for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
+  (:documentation "Inspector for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
 
 (def method refresh-component ((self standard-object-slot-value-group-inspector))
   (with-slots (instance slots slot-values) self
     (if instance
         (setf slot-values
               (iter (for slot :in slots)
-                    (for slot-value-detail = (find slot slot-values :key #'component-value-of))
-                    (if slot-value-detail
-                        (setf (component-value-of slot-value-detail) slot
-                              (instance-of slot-value-detail) instance)
-                        (setf slot-value-detail (make-standard-object-slot-value-detail-inspector self (class-of instance) instance slot)))
-                    (collect slot-value-detail)))
+                    (for slot-value-component = (find slot slot-values :key #'component-value-of))
+                    (if slot-value-component
+                        (setf (component-value-of slot-value-component) slot
+                              (instance-of slot-value-component) instance)
+                        (setf slot-value-component (make-standard-object-slot-value-inspector self (class-of instance) instance slot)))
+                    (collect slot-value-component)))
         (setf slot-values nil))))
 
-(def (generic e) make-standard-object-slot-value-detail-inspector (component class instance slot)
+(def (generic e) make-standard-object-slot-value-inspector (component class instance slot)
   (:method ((component standard-object-slot-value-group-inspector) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
-    (make-instance 'standard-object-slot-value-detail-inspector :instance instance :slot slot)))
+    (make-instance 'standard-object-slot-value-inspector :instance instance :slot slot)))
 
 (def render standard-object-slot-value-group-inspector ()
   (with-slots (slot-values id) -self-
@@ -215,16 +215,14 @@
 ;;;;;;
 ;;; Standard object slot value detail
 
-(def component standard-object-slot-value-detail-inspector (abstract-standard-object-slot-value-component
-                                                            editable-component
-                                                            inspector-component
-                                                            remote-identity-component-mixin)
-  ((label nil :type component)
-   (value nil :type component))
-  (:documentation "Component for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
+(def component standard-object-slot-value-inspector (standard-object-slot-value-component
+                                                     inspector-component
+                                                     editable-component)
+  ()
+  (:documentation "Inspector for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
 
-(def method refresh-component ((component standard-object-slot-value-detail-inspector))
-  (with-slots (instance slot label value) component
+(def method refresh-component ((self standard-object-slot-value-inspector))
+  (with-slots (instance slot label value) self
     (if slot
         (if label
             (setf (component-value-of label) (localized-slot-name slot))
@@ -235,11 +233,3 @@
             (setf (place-of value) (make-slot-value-place instance slot))
             (setf value (make-instance 'place-component :place (make-slot-value-place instance slot))))
         (setf value nil))))
-
-(def render standard-object-slot-value-detail-inspector ()
-  (with-slots (label value id) -self-
-    <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-        <td (:class "slot-value-detail-label")
-            ,(render label)>
-        <td (:class "slot-value-detail-value")
-            ,(render value)>>))

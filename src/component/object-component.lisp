@@ -126,6 +126,21 @@
     (setf (parent-provider-of clone) (parent-provider-of self))
     (setf (children-provider-of clone) (children-provider-of self))))
 
+;;;;;;
+;;; Standard object slot value detail
+
+(def component standard-object-slot-value-component (abstract-standard-slot-definition-component remote-identity-component-mixin)
+  ((label nil :type component)
+   (value nil :type component)))
+
+(def render standard-object-slot-value-component ()
+  (with-slots (label value id) -self-
+    <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
+        <td (:class "slot-value-label")
+            ,(render label)>
+        <td (:class "slot-value-value")
+            ,(render value)>>))
+
 ;;;;;
 ;;; Localization
 

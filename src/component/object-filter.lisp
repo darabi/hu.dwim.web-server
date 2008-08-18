@@ -226,11 +226,11 @@
 (def render standard-object-slot-value-filter ()
   (with-slots (label negate-command predicate-command value id) -self-
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-        <td (:class "slot-value-detail-label")
+        <td (:class "slot-value-label")
             ,(render label)>
         <td ,(render negate-command)>
         <td ,(render predicate-command)>
-        <td (:class "slot-value-detail-label")
+        <td (:class "slot-value-label")
             ,(render value)>>))
 
 ;;;;;;
