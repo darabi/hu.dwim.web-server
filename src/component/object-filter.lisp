@@ -74,6 +74,9 @@
    (class-selector nil :type component)
    (slot-value-groups nil :type component)))
 
+(def (macro e) standard-object-detail-filter (class)
+  `(make-instance 'standard-object-detail-filter :the-class ,class))
+
 (def constructor standard-object-detail-filter ()
   (with-slots (the-class class-selector) -self-
     (setf class-selector
@@ -85,7 +88,7 @@
                            :possible-values subclasses)))))
 
 (def method refresh-component ((self standard-object-detail-filter))
-  (with-slots (the-class class-selector class slot-value-groups command-bar) self
+  (with-slots (class class-selector the-class slot-value-groups command-bar) self
     (bind ((selected-class (or (when class-selector (component-value-of class-selector))
                                the-class)))
       (setf class (make-viewer-component the-class :default-component-type 'reference-component)
@@ -203,7 +206,7 @@
                                                                           (mod (1+ (position predicate +filter-predicates+))
                                                                                (length +filter-predicates+))))
                                                      (setf (icon-of predicate-command) (make-predicate-icon predicate))))
-          value (make-filter-component (slot-type slot) :default-component-type 'reference-component))))
+          value (make-instance 'place-filter :the-type (slot-type slot)))))
 
 (def function make-negated/ponated-icon (negated)
   (aprog1 (make-icon-component (if negated 'negated 'ponated))
@@ -325,8 +328,9 @@
       (build-filter-query* slot-value filter-query)))
 
   (:method ((component standard-object-slot-value-filter) filter-query)
-    (bind ((value-component (value-of component)))
-      (cond ((typep value-component 'atomic-component)
+    (bind ((value-component (content-of (value-of component))))
+      (cond ((or (typep value-component 'atomic-component)
+                 (typep value-component 'standard-object-inspector))
              (bind ((value (component-value-of value-component)))
                (when (and value
                           (or (not (stringp value))

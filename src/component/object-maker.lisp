@@ -15,7 +15,6 @@
 
 (def component standard-object-maker (abstract-standard-class-component
                                       maker-component
-                                      editable-component
                                       alternator-component
                                       user-message-collector-component-mixin
                                       remote-identity-component-mixin
@@ -66,42 +65,64 @@
 (def (function e) make-create-instance-command (component)
   (make-instance 'command-component
                  :icon (icon create)
-                 :visible (delay (edited-p component))
-                 ;; TODO: put transaction here?! how do we dispatch
                  :action (make-action
-                           (bind ((class (the-class-of component)))
-                             (execute-create-instance component class (class-prototype class))))))
+                           ;; TODO: dispatch on class or something?!
+                           (rdbms::with-transaction
+                             (place-component-value-of component)
+                             (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
+                               (add-user-information component "Az új ~A létrehozása sikerült" (localized-class-name (the-class-of component))))))))
+
+(def method place-component-value-of ((self standard-object-maker))
+  (bind ((class (the-class-of self)))
+    (execute-create-instance self class (class-prototype class))))
 
 ;;;;;;
 ;;; Standard object maker detail
 
 (def component standard-object-detail-maker (abstract-standard-class-component
                                              maker-component
-                                             editable-component
                                              remote-identity-component-mixin)
   ((class nil :accessor nil :type component)
+   (class-selector nil :type component)
    (slot-value-groups nil :type components))
   (:documentation "Maker for an instance of STANDARD-OBJECT in detail"))
 
 (def (macro e) standard-object-detail-maker (class)
   `(make-instance 'standard-object-detail-maker :the-class ,class))
 
+(def constructor standard-object-detail-maker ()
+  (with-slots (the-class class-selector) -self-
+    (setf class-selector
+          (when-bind subclasses (subclasses the-class)
+            (make-instance 'member-component
+                           :edited #t
+                           :allow-nil-value #t
+                           :component-value the-class
+                           :possible-values subclasses)))))
+
+(def function find-selected-class (component)
+  (bind ((class-selector (class-selector-of component)))
+    (if class-selector
+        (component-value-of class-selector)
+        (the-class-of component))))
+
 (def method refresh-component ((self standard-object-detail-maker))
-  (with-slots (class the-class slot-value-groups) self
-    (setf class (make-viewer-component the-class :default-component-type 'reference-component)
-          slot-value-groups (bind ((prototype (class-prototype the-class))
-                                   (slots (collect-standard-object-detail-maker-slots self the-class prototype))
-                                   (slot-groups (collect-standard-object-detail-maker-slot-value-groups self the-class prototype slots)))
-                              (iter (for slot-group :in slot-groups)
-                                    (when slot-group
-                                      (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
-                                      (if slot-value-group
-                                          (setf (component-value-of slot-value-group) slot-group
-                                                (the-class-of slot-value-group) the-class)
-                                          (setf slot-value-group (make-instance 'standard-object-slot-value-group-maker
-                                                                                :the-class the-class
-                                                                                :slots slot-group)))
-                                      (collect slot-value-group)))))))
+  (with-slots (class class-selector the-class slot-value-groups) self
+    (bind ((selected-class (find-selected-class self)))
+      (setf class (make-viewer-component the-class :default-component-type 'reference-component)
+            slot-value-groups (bind ((prototype (class-prototype selected-class))
+                                     (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
+                                     (slot-groups (collect-standard-object-detail-maker-slot-value-groups self selected-class prototype slots)))
+                                (iter (for slot-group :in slot-groups)
+                                      (when slot-group
+                                        (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
+                                        (if slot-value-group
+                                            (setf (component-value-of slot-value-group) slot-group
+                                                  (the-class-of slot-value-group) selected-class)
+                                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-maker
+                                                                                  :the-class selected-class
+                                                                                  :slots slot-group)))
+                                        (collect slot-value-group))))))))
 
 (def (generic e) collect-standard-object-detail-maker-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object) (slots list))
@@ -123,9 +144,15 @@
                (call-next-method))))
 
 (def render standard-object-detail-maker ()
-  (with-slots (the-class class slots-values slot-value-groups command-bar id) -self-
+  (with-slots (class-selector class slot-value-groups id) -self-
     <div (:id ,id)
          <span ,#"standard-object-detail-maker.instance" " " ,(render class)>
+         ,(when class-selector
+                <div "Narrow down to "
+                     ,(render class-selector)
+                     ,(render (command (icon refresh)
+                                       (make-action
+                                         (setf (outdated-p -self-) #t))))>)
          <div <h3 ,#"standard-object-detail-maker.slots">
               ,(map nil #'render slot-value-groups)>>))
 
@@ -168,22 +195,15 @@
 (def method refresh-component ((self standard-object-slot-value-maker)) ()
   (with-slots (slot label value) self
     (setf label (label (localized-slot-name slot)))
-    (setf value (make-maker-component (slot-type slot) :default-component-type 'reference-component))))
+    (setf value (make-instance 'place-maker :the-type (slot-type slot)))))
 
 ;;;;;;
 ;;; Execute maker
 
 (def (generic e) execute-create-instance (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
-    (apply #'make-instance (the-class-of component)
-           (collect-make-instance-initargs component)))
-
-  (:method :around ((component standard-object-maker) (class prc::persistent-class) (prototype prc::persistent-object))
-    ;; TODO: move to action and kill this generism
-    (rdbms::with-transaction
-      (call-next-method)
-      (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
-        (add-user-information component "Az új ~A létrehozása sikerült" (localized-class-name (the-class-of component)))))))
+    (apply #'make-instance (find-selected-class (content-of component))
+           (collect-make-instance-initargs component))))
 
 (def (generic e) collect-make-instance-initargs (component)
   (:method ((component standard-object-maker))
@@ -197,12 +217,14 @@
           (appending (collect-make-instance-initargs slot-value))))
 
   (:method ((component standard-object-slot-value-maker))
-    (bind ((slot (slot-of component))
-           (value (value-of component)))
-      ;; TODO: recurse
-      (when (typep value 'atomic-component)
-        (list (first (slot-definition-initargs slot))
-              (collect-make-instance-initargs value)))))
+    (list (first (slot-definition-initargs (slot-of component)))
+          (collect-make-instance-initargs (value-of component))))
+
+  (:method ((component place-maker))
+    (place-component-value-of (content-of component)))
 
   (:method ((component atomic-component))
-    (component-value-of component)))
+    (component-value-of component))
+
+  (:method (component)
+    nil))

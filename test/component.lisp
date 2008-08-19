@@ -122,9 +122,9 @@
       (menu-item (replace-menu-target-command (icon "Counter Component")
                                               (make-instance 'counter-component)))
       (menu-item (replace-menu-target-command (icon "Special variable")
-                                              (make-special-variable-place-component '*test-string* '(or null string))))
+                                              (make-special-variable-place-inspector '*test-string* '(or null string))))
       (menu-item (replace-menu-target-command (icon "Lexical variable")
-                                              (bind ((test-boolean #t)) (make-lexical-variable-place-component test-boolean 'boolean)))))
+                                              (bind ((test-boolean #t)) (make-lexical-variable-place-inspector test-boolean 'boolean)))))
     (menu "Complex"
       (menu-item (replace-menu-target-command (icon "Inspect") (make-viewer-component *server*)))
       (menu-item (replace-menu-target-command (icon "Filter") (make-filter-component (find-class 'super-test))))

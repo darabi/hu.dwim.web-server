@@ -188,10 +188,10 @@
 (def icon new "static/wui/icons/20x20/document.png")
 (defresources hu
   (icon-label.new "Új")
-  (icon-tooltip.new "Új objektum elkezdése"))
+  (icon-tooltip.new "Új objektum szerkesztése"))
 (defresources en
   (icon-label.new "New")
-  (icon-tooltip.new "Start editing new object"))
+  (icon-tooltip.new "Start editing a new object"))
 
 (def icon create "static/wui/icons/20x20/disc-on-document.png")
 (defresources hu

@@ -214,5 +214,5 @@
     (if instance
         (if value
             (setf (place-of value) (make-slot-value-place instance slot))
-            (setf value (make-instance 'place-component :place (make-slot-value-place instance slot))))
+            (setf value (make-instance 'place-inspector :place (make-slot-value-place instance slot))))
         (setf value nil))))

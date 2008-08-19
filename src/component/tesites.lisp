@@ -60,7 +60,7 @@
   ((t-value)))
 
 (def call-in-component-environment temporal-selector-component ()
-  (rdbms:with-transaction* (:default-terminal-action :rollback :t (t-value-of -self-))
+  (rdbms::with-transaction* (:default-terminal-action :rollback :t (t-value-of -self-))
     (call-next-method)))
 
 ;;;;;;

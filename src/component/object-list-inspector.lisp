@@ -224,5 +224,5 @@
 (def method refresh-component ((component standard-object-slot-value-cell-component))
   (with-slots (instance slot content) component
     (if slot
-        (setf content (make-instance 'place-component :place (make-slot-value-place instance slot)))
+        (setf content (make-instance 'place-inspector :place (make-slot-value-place instance slot)))
         (setf content nil))))

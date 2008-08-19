@@ -163,13 +163,13 @@
                                (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
                                (:file "object-component" :depends-on ("component"))
                                (:file "object-inspector" :depends-on ("object-component" "alternator" "reference"))
-                               (:file "object-maker" :depends-on ("object-component" "atomic"))
+                               (:file "object-maker" :depends-on ("place-component" "object-component" "atomic"))
                                (:file "object-list-inspector" :depends-on ("object-inspector" "table"))
                                (:file "object-pivot-table" :depends-on ("pivot-table" "object-list-inspector"))
                                (:file "object-list-aggregator" :depends-on ("object-inspector" "object-list-inspector"))
                                (:file "object-tree-inspector" :depends-on ("object-inspector" "tree"))
                                (:file "process" :depends-on ("command" "object-maker" "object-list-inspector" "object-tree-inspector"))
-                               (:file "object-filter" :depends-on ("object-inspector")))
+                               (:file "object-filter" :depends-on ("place-component" "object-inspector")))
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
