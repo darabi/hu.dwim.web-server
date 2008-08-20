@@ -198,7 +198,8 @@
                  (:file "test-environment" :depends-on ("package"))
                  (:file "server")
                  (:file "component")
-                 (:file "application"))))
+                 (:file "application")
+                 (:file "wudemo-application"))))
   :depends-on (:wui :stefil :drakma))
 
 (defmethod perform ((op test-op) (system wui-system))
