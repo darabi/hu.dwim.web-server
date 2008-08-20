@@ -7,12 +7,13 @@
 ;;;;;;
 ;;; Component definer
 
-(def (definer e) component (name supers slots &rest options)
-  `(def class* ,name ,supers
+(def (definer e :available-flags "eas") component (name supers slots &rest options)
+  `(def (class* ,@-options-) ,name ,supers
      ,slots
      (:export-class-name-p #t)
      (:metaclass component-class)
      ,@options))
+
 
 ;;;;;;
 ;;; Component
