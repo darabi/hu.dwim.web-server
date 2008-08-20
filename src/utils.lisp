@@ -356,7 +356,7 @@
   `(emit-http-response* ((append
                           ,@(when headers (list headers))
                           ,@(when status `((list (cons +header/status+ ,status))))
-                          (list (cons +header/content-type+ (content-type-for +html-mime-type+))))
+                          '((#.+header/content-type+ . #.+utf-8-html-content-type+)))
                          ,cookies)
      (with-html-document (:content-type +html-content-type+ :title ,title)
        ,@body)))
