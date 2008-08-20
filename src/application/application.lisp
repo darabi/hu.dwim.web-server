@@ -316,6 +316,14 @@ Custom implementations should look something like this:
           (purge-frames application session))))
     (values)))
 
+(def (class* e) application-with-home-package (application)
+  ((home-package))
+  (:metaclass funcallable-standard-class))
+
+(def method call-as-handler-in-session :around ((application application-with-home-package) session thunk)
+  (let ((*package* (home-package-of application)))
+    (call-next-method)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; app specific responses
@@ -479,6 +487,9 @@ Custom implementations should look something like this:
     (setf (uri-query-parameter-value uri +frame-id-parameter-name+) (id-of frame))
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
     (make-redirect-response uri)))
+
+(def (function e) make-application-relative-uri (relative-path)
+  (append-path-to-uri (make-uri-for-application *application*) relative-path))
 
 (def (function e) make-uri-for-application (application &optional relative-path)
   "Does not assume an application context and only use *session* & co. when available."
