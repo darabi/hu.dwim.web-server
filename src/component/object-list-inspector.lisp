@@ -21,7 +21,7 @@
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
 
 (def (macro e) standard-object-list-inspector (instances)
-  `(make-instance 'standard-object-inspector :instances ,instances))
+  `(make-instance 'standard-object-list-inspector :instances ,instances))
 
 (def method refresh-component ((self standard-object-list-inspector))
   (with-slots (instances the-class default-component-type alternatives content command-bar) self
@@ -83,7 +83,7 @@
 
 (def (generic e) make-standard-object-list-component (component class instance)
   (:method ((component standard-object-list-list-inspector) (class standard-class) (instance standard-object))
-    (make-viewer-component instance :default-component-type 'reference-component)))
+    (make-viewer instance :default-component-type 'reference-component)))
 
 ;;;;;;
 ;;; Standard object table
@@ -151,7 +151,7 @@
                                                        (make-instance 'cell-component :content (label "N/A")))))))
                 (nreverse slot-name->slot-map))))))
 
-(def (generic e) collect-standard-object-list-table-inspector-slots (component class instance)
+(def (layered-function e) collect-standard-object-list-table-inspector-slots (component class instance)
   (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
     (class-slots class))
 
@@ -208,7 +208,7 @@
             (list (make-expand-row-command component instance)))))
 
 (def function make-expand-row-command (component instance)
-  (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer-component instance :default-component-type 'detail-component)))
+  (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer instance :default-component-type 'detail-component)))
                                       (list :icon (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))
                                       (list :icon (icon collapse))))

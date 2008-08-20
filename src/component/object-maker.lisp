@@ -68,16 +68,19 @@
                  :action (make-action
                            ;; TODO: dispatch on class or something?!
                            (rdbms::with-transaction
-                             (place-component-value-of component)
-                             (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
-                               (add-user-information component "Az új ~A létrehozása sikerült" (localized-class-name (the-class-of component))))))))
+                             (bind ((instance (place-component-value-of component)))
+                               (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
+                                 (add-user-message component "Az új ~A létrehozása sikerült" (list (localized-class-name (the-class-of component)))
+                                                   :category :information
+                                                   :permanent #t
+                                                   :content (make-viewer instance :default-component-type 'reference-component))))))))
 
 (def method place-component-value-of ((self standard-object-maker))
   (bind ((class (the-class-of self)))
     (execute-create-instance self class (class-prototype class))))
 
 ;;;;;;
-;;; Standard object maker detail
+;;; Standard object detail maker
 
 (def component standard-object-detail-maker (abstract-standard-class-component
                                              maker-component
@@ -101,15 +104,17 @@
                            :possible-values subclasses)))))
 
 (def function find-selected-class (component)
-  (bind ((class-selector (class-selector-of component)))
-    (if class-selector
-        (component-value-of class-selector)
-        (the-class-of component))))
+  (the standard-class
+    (bind ((class-selector (class-selector-of component)))
+      (aif (and class-selector
+                (component-value-of class-selector))
+           it
+           (the-class-of component)))))
 
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class class-selector the-class slot-value-groups) self
     (bind ((selected-class (find-selected-class self)))
-      (setf class (make-viewer-component the-class :default-component-type 'reference-component)
+      (setf class (make-viewer the-class :default-component-type 'reference-component)
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
                                      (slot-groups (collect-standard-object-detail-maker-slot-value-groups self selected-class prototype slots)))
@@ -124,19 +129,27 @@
                                                                                   :slots slot-group)))
                                         (collect slot-value-group))))))))
 
-(def (generic e) collect-standard-object-detail-maker-slot-value-groups (component class prototype slots)
+(def (layered-function e) collect-standard-object-detail-maker-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object) (slots list))
-    slots)
+    (list slots))
 
   (:method ((component standard-object-detail-maker) (class dmm::entity) (prototype prc::persistent-object) (slots list))
     (partition slots #'dmm::primary-p (constantly #t))))
 
-(def (generic e) collect-standard-object-detail-maker-slots (component class prototype)
+(def (layered-function e) collect-standard-object-detail-maker-slots (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (class-slots class))
 
   (:method ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
-    (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
+    (bind ((excluded-slot-name
+            (awhen (find-ancestor-component-with-type component 'standard-object-slot-value-component)
+              (bind ((slot (slot-of it)))
+                (when (typep slot 'prc::persistent-association-end-effective-slot-definition)
+                  (slot-definition-name (prc::other-association-end-of slot)))))))
+      (remove-if (lambda (slot)
+                   (or (prc:persistent-object-internal-slot-p slot)
+                       (eq (slot-definition-name slot) excluded-slot-name)))
+                 (call-next-method))))
 
   (:method ((component standard-object-detail-maker) (class dmm::entity) (prototype prc::persistent-object))
     (filter-if (lambda (slot)
@@ -165,7 +178,7 @@
   (standard-object-detail-maker.slots "Tulajdonságok"))
 
 ;;;;;;
-;;; Standard object slot value group
+;;; Standard object slot value group maker
 
 (def component standard-object-slot-value-group-maker (standard-object-slot-value-group-component maker-component)
   ()
@@ -186,7 +199,7 @@
     (make-instance 'standard-object-slot-value-maker :the-class class :slot slot)))
 
 ;;;;;
-;;; Standard object slot value maker detail
+;;; Standard object slot value maker
 
 (def component standard-object-slot-value-maker (standard-object-slot-value-component maker-component)
   ()
@@ -195,7 +208,27 @@
 (def method refresh-component ((self standard-object-slot-value-maker)) ()
   (with-slots (slot label value) self
     (setf label (label (localized-slot-name slot)))
-    (setf value (make-instance 'place-maker :the-type (slot-type slot)))))
+    (setf value (make-place-maker (slot-type slot) :initform (slot-definition-initform slot)))))
+
+;;;;;;
+;;; Standard object place maker
+
+(def component standard-object-place-maker (place-maker)
+  ()
+  (:documentation "Maker for a place of an instance of STANDARD-OBJECT and unit types."))
+
+(def method make-place-component-content ((self standard-object-place-maker))
+  (make-inspector (the-type-of self) :default-component-type 'reference-component))
+
+(def method make-place-component-command-bar ((self standard-object-place-maker))
+  (bind ((type (the-type-of self)))
+    (make-instance 'command-bar-component :commands (optional-list (when (prc::null-subtype-p type)
+                                                                     (make-set-place-to-nil-command self))
+                                                                   (when (or (initform-of self)
+                                                                             (prc::unbound-subtype-p type))
+                                                                     (make-set-place-to-unbound-command self))
+                                                                   (make-set-place-to-find-instance-command self)
+                                                                   (make-set-place-to-new-instance-command self)))))
 
 ;;;;;;
 ;;; Execute maker
@@ -217,11 +250,13 @@
           (appending (collect-make-instance-initargs slot-value))))
 
   (:method ((component standard-object-slot-value-maker))
-    (list (first (slot-definition-initargs (slot-of component)))
-          (collect-make-instance-initargs (value-of component))))
+    (collect-make-instance-initargs (value-of component)))
 
   (:method ((component place-maker))
-    (place-component-value-of (content-of component)))
+    (bind ((content-component (content-of component)))
+      (unless (typep content-component 'unbound-component)
+        (list (first (slot-definition-initargs (slot-of (parent-component-of component))))
+              (place-component-value-of content-component)))))
 
   (:method ((component atomic-component))
     (component-value-of component))

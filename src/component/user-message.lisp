@@ -34,35 +34,42 @@
   (render-user-messages -self-))
 
 (def (function e) add-user-information (collector message &rest message-args)
-  (apply #'add-user-message collector message :information message-args))
+  (add-user-message collector message message-args :category :information))
 
 (def (function e) add-user-warning (collector message &rest message-args)
-  (apply #'add-user-message collector message :warning message-args))
+  (add-user-message collector message message-args :category :warning))
 
 (def (function e) add-user-error (collector message &rest message-args)
-  (apply #'add-user-message collector message :error message-args))
+  (add-user-message collector message message-args :category :error))
 
-(def (generic e) add-user-message (collector message category &rest message-args)
-  (:method ((component component) message category &rest message-args)
+(def (generic e) add-user-message (collector message message-args &rest initargs &key &allow-other-keys)
+  (:method ((component component) message message-args &rest initargs)
     (apply #'add-user-message
            (find-ancestor-component-with-type component 'user-message-collector-component-mixin)
-           category message message-args))
+           message message-args initargs))
 
-  (:method ((collector user-message-collector-component-mixin) message category &rest message-args)
+  (:method ((collector user-message-collector-component-mixin) message message-args &rest initargs &key content &allow-other-keys)
+    (assert (typep content '(or null component)))
     (appendf (messages-of collector)
-             (list (make-instance 'user-message-component
-                                  :message (apply #'format nil message message-args)
-                                  :category category)))))
+             (list (apply #'make-instance 'user-message-component
+                          :message (apply #'format nil message message-args)
+                          initargs)))))
 
 ;;;;;;
 ;;; User message
 
-(def component user-message-component ()
+(def component user-message-component (content-component)
   ((category :information :type (member :information :warning :error))
    (message nil :type string)
    (permanent #f :type boolean)))
 
 (def render user-message-component ()
-  (with-slots (category message) -self-
+  (with-slots (category message permanent content) -self-
     <div (:class ,(string-downcase category))
-         ,message>))
+         ,(when permanent
+            (render (command (icon close :label nil)
+                             (make-action
+                               (removef (messages-of (parent-component-of -self-)) -self-)))))
+         ,message
+         ,(when content
+            (call-next-method))>))

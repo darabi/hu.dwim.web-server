@@ -209,6 +209,14 @@
   (icon-label.delete "Delete")
   (icon-tooltip.delete "Delete object"))
 
+(def icon close "static/wui/icons/20x20/red-x.png")
+(defresources hu
+  (icon-label.close "Bezárás")
+  (icon-tooltip.close "A komponens bezárása"))
+(defresources en
+  (icon-label.close "Close")
+  (icon-tooltip.close "Close the component"))
+
 (def icon top "static/wui/icons/20x20/blue-all-direction-arrows.png")
 (defresources hu
   (icon-label.top "Tetejére")
@@ -304,6 +312,14 @@
 (defresources en
   (icon-label.set-to-nil "Disconnect")
   (icon-tooltip.set-to-nil "Disconnect from object"))
+
+(def icon set-to-unbound "static/wui/icons/20x20/unplug.png")
+(defresources hu
+  (icon-label.set-to-unbound "Alapértelmezett")
+  (icon-tooltip.set-to-unbound "Az alapértelmezett értékre beállítása"))
+(defresources en
+  (icon-label.set-to-unbound "Default")
+  (icon-tooltip.set-to-unbound "Set to default"))
 
 (def icon select "static/wui/icons/20x20/checkmark.png")
 (defresources hu

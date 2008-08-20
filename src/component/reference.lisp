@@ -46,7 +46,7 @@
   (with-slots (targets references) -self-
     (setf references
           (mapcar (lambda (target)
-                    (make-viewer-component target :default-component-type 'reference-component))
+                    (make-viewer target :default-component-type 'reference-component))
                   targets))))
 
 (def render reference-list-component ()

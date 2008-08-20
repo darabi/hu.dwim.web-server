@@ -92,7 +92,7 @@
   (with-slots (the-class command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
                                  :icon (icon filter)
-                                 :component (make-filter-component the-class)))))
+                                 :component (make-filter the-class)))))
 
 (def (function e) make-standard-object-filter-menu-item-component (class-name)
   (bind ((class (find-class class-name)))
@@ -112,7 +112,7 @@
   (with-slots (the-class command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
                                  :icon (icon new)
-                                 :component (make-maker-component the-class)))))
+                                 :component (make-maker the-class)))))
 
 (def (function e) make-standard-object-maker-menu-item-component (class-name)
   (bind ((class (find-class class-name)))
@@ -132,7 +132,7 @@
   (with-slots (the-class command) -self-
     (setf command (make-instance 'replace-menu-target-command-component
                                  :icon (icon new)
-                                 :component (make-maker-component the-class)))))
+                                 :component (make-maker the-class)))))
 
 (def (function e) make-persistent-process-starter-menu-item-component (class-name)
   (bind ((class (find-class class-name)))

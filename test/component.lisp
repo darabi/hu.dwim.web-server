@@ -126,11 +126,11 @@
       (menu-item (replace-menu-target-command (icon "Lexical variable")
                                               (bind ((test-boolean #t)) (make-lexical-variable-place-inspector test-boolean 'boolean)))))
     (menu "Complex"
-      (menu-item (replace-menu-target-command (icon "Inspect") (make-viewer-component *server*)))
-      (menu-item (replace-menu-target-command (icon "Filter") (make-filter-component (find-class 'super-test))))
-      (menu-item (replace-menu-target-command (icon "List") (make-viewer-component *test-instances*)))
-      (menu-item (replace-menu-target-command (icon "Edit") (make-editor-component (first *test-instances*))))
-      (menu-item (replace-menu-target-command (icon "New") (make-maker-component (find-class 'sub-test))))
+      (menu-item (replace-menu-target-command (icon "Inspect") (make-viewer *server*)))
+      (menu-item (replace-menu-target-command (icon "Filter") (make-filter (find-class 'super-test))))
+      (menu-item (replace-menu-target-command (icon "List") (make-viewer *test-instances*)))
+      (menu-item (replace-menu-target-command (icon "Edit") (make-editor (first *test-instances*))))
+      (menu-item (replace-menu-target-command (icon "New") (make-maker (find-class 'sub-test))))
       (make-process-menu-item))))
 
 (def function make-test-frame ()

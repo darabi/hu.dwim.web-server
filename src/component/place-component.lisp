@@ -10,15 +10,29 @@
 (def component place-component (content-component)
   ((command-bar nil :type component)))
 
+(def generic place-component-value-of (component)
+  (:method ((self component))
+    (component-value-of self)))
+
+(def generic (setf place-component-value-of) (new-value component)
+  (:method (new-value (self component))
+    (setf (component-value-of self) new-value)))
+
+(def generic make-place-component-content (place-component))
+
+(def generic make-place-component-command-bar (place-component)
+  (:method ((self place-component))
+    nil))
+
+(def method refresh-component ((self place-component))
+  (setf (content-of self) (make-place-component-content self)
+        (command-bar-of self) (make-place-component-command-bar self)))
+
 (def render place-component ()
   (with-slots (content command-bar) -self-
     (if command-bar
         (render-vertical-list (list command-bar content))
         (call-next-method))))
-
-(def generic place-component-value-of (component)
-  (:method ((self component))
-    (component-value-of self)))
 
 (def layer* set-place-to-find-instance-layer ()
   ;; TODO: KLUDGE: FIXME: make this a special slot (this way it is not thread safe)
@@ -45,33 +59,30 @@
                              (and (typep content 'inspector-component)
                                   (not (null (component-value-of content))))))))
 
+(def (function e) make-set-place-to-unbound-command (place-component)
+  (command (icon set-to-unbound)
+           (make-action
+             (setf (content-of place-component) (make-instance 'unbound-component)))
+           :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
+
 (def (function e) make-set-place-to-find-instance-command (place-component)
   (make-replace-and-push-back-command (delay (content-of place-component))
                                       (with-active-layers ((set-place-to-find-instance-layer :place-component place-component))
-                                        (make-filter-component (the-type-of place-component)))
+                                        (make-filter (the-type-of place-component)))
                                       (list :icon (icon find))
                                       (list :icon (icon back))))
 
 (def (function e) make-set-place-to-new-instance-command (place-component)
   (make-replace-and-push-back-command (delay (content-of place-component))
-                                      (make-maker-component (the-type-of place-component))
+                                      (make-maker (the-type-of place-component))
                                       (list :icon (icon new) )
-                                      (list :icon (icon back) :visible #t)))
+                                      (list :icon (icon back))))
 
 ;;;;;;
 ;;; Place inspector
 
 (def component place-inspector (place-component inspector-component editable-component)
   ((place nil :type place)))
-
-(def (function e) make-special-variable-place-inspector (name type)
-  (make-instance 'place-inspector :place (make-special-variable-place name type)))
-
-(def (macro e) make-lexical-variable-place-inspector (name type)
-  `(make-instance 'place-inspector :place (make-lexical-variable-place ,name ,type)))
-
-(def (function e) make-standard-object-slot-value-place-inspector (instance slot-name)
-  (make-instance 'place-inspector :place (make-slot-value-place instance (find-slot (class-of instance) slot-name))))
 
 (def render place-inspector ()
   (with-slots (edited content command-bar) -self-
@@ -83,20 +94,14 @@
 (def method the-type-of ((self place-inspector))
   (place-type (place-of self)))
 
-(def method refresh-component ((self place-inspector))
+(def method make-place-component-content ((self place-inspector))
   (with-slots (place edited content command-bar) self
     (if content
-        (unless (edited-p content)
-          (revert-place-inspector-content self))
-        (setf content (make-place-inspector-content self)))
-    (setf command-bar (when (standard-object-inspector-place-p self)
-                        (make-instance 'command-bar-component :commands (list (make-revert-place-command self)
-                                                                              (make-set-place-to-nil-command self)
-                                                                              (make-set-place-to-find-instance-command self)
-                                                                              (make-set-place-to-new-instance-command self)))))))
-
-(def function standard-object-inspector-place-p (component)
-  (subtypep (first (ensure-list (find-inspector-component-type-for-type (place-type (place-of component))))) 'standard-object-inspector))
+        (progn
+          (unless (edited-p content)
+            (revert-place-inspector-content self))
+          content)
+        (make-place-inspector-content self))))
 
 (def method (setf place-of) :after (new-value (self place-inspector))
   (setf (outdated-p self) #t))
@@ -112,7 +117,7 @@
 (def function make-place-inspector-content (component)
   (bind ((place (place-of component)))
     (prog1-bind content
-        (make-inspector-component (place-type place) :default-component-type 'reference-component)
+        (make-inspector (place-type place) :default-component-type 'reference-component)
       (update-component-value-from-place place content))))
 
 (def method map-editable-child-components ((self place-inspector) function)
@@ -137,23 +142,11 @@
 ;;; Place maker
 
 (def component place-maker (place-component maker-component)
-  ((the-type nil)))
+  ((the-type nil)
+   (initform)))
 
-(def method refresh-component ((self place-maker))
-  (with-slots (the-type content command-bar) self
-    (setf content (make-place-maker-content self)
-          command-bar (when (standard-object-maker-place-p self)
-                        (make-instance 'command-bar-component :commands (list (make-set-place-to-nil-command self)
-                                                                              (make-set-place-to-find-instance-command self)
-                                                                              (make-set-place-to-new-instance-command self)))))))
-
-(def function standard-object-maker-place-p (component)
-  (subtypep (first (ensure-list (find-maker-component-type-for-type (the-type-of component)))) 'standard-object-maker))
-
-(def function make-place-maker-content (component)
-  (if (standard-object-maker-place-p component)
-      (make-inspector-component (the-type-of component) :default-component-type 'reference-component)
-      (make-maker-component (the-type-of component))))
+(def method make-place-component-content ((self place-maker))
+  (make-maker (the-type-of self)))
 
 ;;;;;;
 ;;; Place filter
@@ -161,17 +154,5 @@
 (def component place-filter (place-component filter-component)
   ((the-type)))
 
-(def method refresh-component ((self place-filter))
-  (with-slots (the-type content command-bar) self
-    (setf content (make-place-filter-content self)
-          command-bar (when (standard-object-filter-place-p self)
-                        (make-instance 'command-bar-component :commands (list (make-set-place-to-nil-command self)
-                                                                              (make-set-place-to-find-instance-command self)))))))
-
-(def function standard-object-filter-place-p (component)
-  (subtypep (first (ensure-list (find-filter-component-type-for-type (the-type-of component)))) 'standard-object-filter))
-
-(def function make-place-filter-content (component)
-  (if (standard-object-filter-place-p component)
-      (make-inspector-component (the-type-of component) :default-component-type 'reference-component)
-      (make-filter-component (the-type-of component))))
+(def method make-place-component-content ((self place-filter))
+  (make-filter (the-type-of self)))

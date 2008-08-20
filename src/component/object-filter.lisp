@@ -64,7 +64,7 @@
              (list (render command-bar) (render result)))>))
 
 ;;;;;;
-;;; Standard object filter detail
+;;; Standard object detail filter
 
 (def component standard-object-detail-filter (abstract-standard-class-component
                                               filter-component
@@ -91,7 +91,7 @@
   (with-slots (class class-selector the-class slot-value-groups command-bar) self
     (bind ((selected-class (or (when class-selector (component-value-of class-selector))
                                the-class)))
-      (setf class (make-viewer-component the-class :default-component-type 'reference-component)
+      (setf class (make-viewer the-class :default-component-type 'reference-component)
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-filter-slots self selected-class prototype))
                                      (slot-groups (collect-standard-object-detail-filter-slot-value-groups self selected-class prototype slots)))
@@ -106,14 +106,14 @@
                                                                                   :slots slot-group)))
                                         (collect slot-value-group))))))))
 
-(def (generic e) collect-standard-object-detail-filter-slot-value-groups (component class prototype slots)
+(def (layered-function e) collect-standard-object-detail-filter-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object) (slots list))
-    slots)
+    (list slots))
 
   (:method ((component standard-object-detail-filter) (class dmm::entity) (prototype prc::persistent-object) (slots list))
     (partition slots #'dmm::primary-p (constantly #t))))
 
-(def (generic e) collect-standard-object-detail-filter-slots (component class instance)
+(def (layered-function e) collect-standard-object-detail-filter-slots (component class instance)
   (:method ((component standard-object-detail-filter) (class standard-class) (instance standard-object))
     (class-slots class))
 
@@ -147,7 +147,7 @@
   (standard-object-detail-filter.slots "Tulajdonságok"))
 
 ;;;;;;
-;;; Standard object slot value group
+;;; Standard object slot value group filter
 
 (def component standard-object-slot-value-group-filter (standard-object-slot-value-group-component filter-component)
   ())
@@ -206,7 +206,7 @@
                                                                           (mod (1+ (position predicate +filter-predicates+))
                                                                                (length +filter-predicates+))))
                                                      (setf (icon-of predicate-command) (make-predicate-icon predicate))))
-          value (make-instance 'place-filter :the-type (slot-type slot)))))
+          value (make-place-filter (slot-type slot)))))
 
 (def function make-negated/ponated-icon (negated)
   (aprog1 (make-icon-component (if negated 'negated 'ponated))
@@ -227,6 +227,19 @@
             ,(render value)>>))
 
 ;;;;;;
+;;; Standard object place filter
+
+(def component standard-object-place-filter (place-filter)
+  ())
+
+(def method make-place-component-content ((self standard-object-place-filter))
+  (make-inspector (the-type-of self) :default-component-type 'reference-component))
+
+(def method make-place-component-command-bar ((self standard-object-place-filter))
+  (make-instance 'command-bar-component :commands (list (make-set-place-to-nil-command self)
+                                                        (make-set-place-to-find-instance-command self))))
+
+;;;;;;
 ;;; Filter
 
 (def (function e) make-filter-instances-command (filter result)
@@ -239,7 +252,7 @@
 (def (generic e) make-standard-object-filter-result-inspector (filter result)
   (:method ((filter standard-object-filter) (result list))
     (prog1-bind component
-        (make-viewer-component result :type `(list ,(class-name (the-class-of filter))))
+        (make-viewer result :type `(list ,(class-name (the-class-of filter))))
       (unless result
         (add-user-warning component #"no-matches-were-found")))))
 

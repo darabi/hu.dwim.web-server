@@ -70,15 +70,9 @@
         (prc::load-instance instance)
         (call-next-method))))
 
-(def function reuse-abstract-standard-object-component (self)
+(def method refresh-component :before ((self abstract-standard-object-component))
   (bind ((instance (instance-of self)))
     (setf (instance-of self) (reuse-standard-object-instance (class-of instance) instance))))
-
-(def render :before abstract-standard-object-component
-  (reuse-abstract-standard-object-component -self-))
-
-(def method refresh-component :before ((self abstract-standard-object-component))
-  (reuse-abstract-standard-object-component self))
 
 ;;;;;;
 ;;; Abstract standard object slot value
@@ -100,18 +94,12 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-object-list-component))
   (setf (instances-of component) new-value))
 
-(def function reuse-abstract-standard-object-list-component (self)
+(def method refresh-component :before ((self abstract-standard-object-list-component))
   ;; TODO: performance killer
   (setf (instances-of self)
         (mapcar (lambda (instance)
                   (reuse-standard-object-instance (class-of instance) instance))
                 (instances-of self))))
-
-(def render :before abstract-standard-object-list-component ()
-  (reuse-abstract-standard-object-list-component -self-))
-
-(def method refresh-component :before ((self abstract-standard-object-list-component))
-  (reuse-abstract-standard-object-list-component self))
 
 ;;;;;;
 ;;; Abstract standard object tree

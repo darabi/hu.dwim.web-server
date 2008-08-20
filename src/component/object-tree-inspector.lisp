@@ -96,10 +96,10 @@
 
 (def (function e) make-standard-object-tree-table-command-bar-column ()
   (make-instance 'column-component
-                    :content (label #"Object-tree-table.column.commands")
-                    :visible (delay (not (layer-active-p 'passive-components-layer)))
-                    :cell-factory (lambda (node-component)
-                                    (make-instance 'cell-component :content (command-bar-of node-component)))))
+                 :content (label #"Object-tree-table.column.commands")
+                 :visible (delay (not (layer-active-p 'passive-components-layer)))
+                 :cell-factory (lambda (node-component)
+                                 (make-instance 'cell-component :content (command-bar-of node-component)))))
 
 (def (generic e) make-standard-object-tree-table-inspector-columns (component)
   (:method ((self standard-object-tree-table-inspector))
@@ -136,7 +136,7 @@
                                                        (make-instance 'cell-component :content (label "N/A")))))))
                 (nreverse slot-name->slot-map))))))
 
-(def (generic e) collect-standard-object-tree-table-inspector-slots (component class instance)
+(def (layered-function e) collect-standard-object-tree-table-inspector-slots (component class instance)
   (:method ((component standard-object-tree-table-inspector) (class standard-class) instance)
     (class-slots class))
 
@@ -208,7 +208,7 @@
             (list (make-expand-node-command component instance)))))
 
 (def function make-expand-node-command (component instance)
-  (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-node-component) :content (make-viewer-component instance :default-component-type 'detail-component)))
+  (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-node-component) :content (make-viewer instance :default-component-type 'detail-component)))
                                       (list :icon (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))
                                       (list :icon (icon collapse))))
@@ -257,7 +257,7 @@
 
 (def (generic e) make-standard-object-tree-level (component class instance)
   (:method ((component standard-object-tree-level-inspector) (class standard-class) (instance standard-object))
-    (make-viewer-component instance)))
+    (make-viewer instance)))
 
 (def function collect-path-to-root (component)
   (labels ((%collect-path-to-root (tree-instance)

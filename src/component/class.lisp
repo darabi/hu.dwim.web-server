@@ -48,7 +48,7 @@
            (progn
              (if metaclass
                  (setf (component-value-of metaclass) (class-of the-class))
-                 (setf metaclass (make-viewer-component (class-of the-class) :default-component-type 'reference-component)))
+                 (setf metaclass (make-viewer (class-of the-class) :default-component-type 'reference-component)))
              (if direct-subclasses
                  (setf (component-value-of direct-subclasses) (class-direct-subclasses the-class))
                  (setf direct-subclasses (make-instance 'reference-list-component :targets (class-direct-subclasses the-class))) )

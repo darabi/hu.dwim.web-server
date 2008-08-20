@@ -4,12 +4,24 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Utility
+
+;; TODO: KLUDGE: this redefines, but we are practical for now
+(def function find-main-type-in-or-type (type)
+  (remove-if (lambda (element)
+               (member element '(or cl-perec:unbound null)))
+             type))
+
+;; TODO: KLUDGE: this redefines, but we are practical for now
 (def function find-type-by-name (name)
-  ;; TODO this redefines, but we are practical for now
   (or (find-class name #f)
       (cl-perec:find-type name)))
 
-(def methods find-inspector-component-type-for-type
+;;;;;;
+;;; Inspector
+
+(def methods find-inspector-type-for-type
   (:method ((type cl-perec:persistent-type))
     (error "Unknown type ~A" type))
 
@@ -55,14 +67,13 @@
   (:method ((type cl-perec:ip-address-type))
     'ip-address-component))
 
-(def method find-inspector-component-type-for-compound-type* (first type)
-  (find-inspector-component-type-for-type (cl-perec:parse-type type)))
-
+(def method find-inspector-type-for-compound-type* (first type)
+  (find-inspector-type-for-type (cl-perec:parse-type type)))
 
 ;;;;;;
 ;;; Filter
 
-(def methods find-filter-component-type-for-type
+(def methods find-filter-type-for-type
   (:method ((type cl-perec:persistent-type))
     (error "Unknown type ~A" type))
 
@@ -108,23 +119,29 @@
   (:method ((type cl-perec:set-type))
     `(label-component :component-value "TODO")))
 
-(def method find-filter-component-type-for-compound-type* (first type)
-  (find-filter-component-type-for-type (cl-perec:parse-type type)))
-
+(def method find-filter-type-for-compound-type* (first type)
+  (find-filter-type-for-type (cl-perec:parse-type type)))
 
 ;;;;;;
 ;;; Maker
 
-(def method find-maker-component-type-for-compound-type* (first type)
-  (find-maker-component-type-for-type (cl-perec:parse-type type)))
-
+(def method find-maker-type-for-compound-type* (first type)
+  (find-maker-type-for-type (cl-perec:parse-type type)))
 
 ;;;;;;
-;;; Utility
+;;; Place inspector
 
-;; TODO: KLUDGE:
-;; TODO this redefines, but we are practical for now
-(def function find-main-type-in-or-type (type)
-  (remove-if (lambda (element)
-               (member element '(or cl-perec:unbound null)))
-             type))
+(def method find-place-inspector-type-for-compound-type* (first type)
+  (find-place-inspector-type-for-type (cl-perec:parse-type type)))
+
+;;;;;;
+;;; Place maker
+
+(def method find-place-maker-type-for-compound-type* (first type)
+  (find-place-maker-type-for-type (cl-perec:parse-type type)))
+
+;;;;;;
+;;; Place filter
+
+(def method find-place-filter-type-for-compound-type* (first type)
+  (find-place-filter-type-for-type (cl-perec:parse-type type)))

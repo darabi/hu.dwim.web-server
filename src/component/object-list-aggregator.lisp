@@ -36,7 +36,7 @@
                             ,@(render slot-value)>)
                       slot-values)>>>))
 
-(def (generic e) collect-standard-object-list-aggregator-slots (component class)
+(def (layered-function e) collect-standard-object-list-aggregator-slots (component class)
   (:method ((component standard-object-list-aggregator) (class standard-class))
     (filter-if (lambda (slot)
                  (subtypep (slot-definition-type slot) 'number))

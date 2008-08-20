@@ -8,10 +8,11 @@
 ;;; Inspector
 
 (def component inspector-component ()
-  ())
+  ()
+  (:documentation "Base class for all inspector components."))
 
 ;;;;;;
-;;; Standard object
+;;; Standard object inspector
 
 (def component standard-object-inspector (abstract-standard-object-component
                                           inspector-component
@@ -63,23 +64,13 @@
 
 (def (layered-function e) make-standard-object-inspector-commands (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
-    (list (make-editing-commands component)
-          (make-new-instance-command component)))
+    (make-editing-commands component))
 
   (:method ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
     (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
               (make-editing-commands component))
-            (optional-list (when (dmm::authorize-operation 'dmm::create-entity-operation :-entity- class)
-                             (make-new-instance-command component))
-                           (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)
+            (optional-list (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)
                              (make-delete-instance-command component))))))
-
-(def (function e) make-new-instance-command (component)
-  (make-instance 'command-component
-                 :icon (icon new)
-                 :visible (delay (not (edited-p component)))
-                 :action (make-action
-                           (not-yet-implemented))))
 
 (def (function e) make-delete-instance-command (self)
   (make-instance 'command-component
@@ -99,7 +90,7 @@
       (call-next-method))))
 
 ;;;;;;
-;;; Standard object detail
+;;; Standard object detail inspector
 
 (def component standard-object-detail-inspector (abstract-standard-object-component
                                                  inspector-component
@@ -108,7 +99,7 @@
                                                  remote-identity-component-mixin)
   ((class nil :accessor nil :type component)
    (slot-value-groups nil :type components))
-  (:documentation "Inspector for an instance of STANDARD-OBJECT in detail"))
+  (:documentation "Inspector for an instance of STANDARD-OBJECT in detail."))
 
 (def method refresh-component ((self standard-object-detail-inspector))
   (with-slots (instance class slot-value-groups) self
@@ -116,7 +107,7 @@
       (if the-class
           (if class
               (setf (component-value-of class) the-class)
-              (setf class (make-viewer-component the-class :default-component-type 'reference-component)))
+              (setf class (make-viewer the-class :default-component-type 'reference-component)))
           (setf class nil))
       (if instance
           (bind ((slots (collect-standard-object-detail-inspector-slots self the-class instance))
@@ -133,14 +124,14 @@
                           (collect slot-value-group)))))
           (setf slot-value-groups nil)))))
 
-(def (generic e) collect-standard-object-detail-inspector-slot-value-groups (component class instance slots)
+(def (layered-function e) collect-standard-object-detail-inspector-slot-value-groups (component class instance slots)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object) (slots list))
-    slots)
+    (list slots))
 
   (:method ((component standard-object-detail-inspector) (class dmm::entity) (instance prc::persistent-object) (slots list))
     (partition slots #'dmm::primary-p (constantly #t))))
 
-(def (generic e) collect-standard-object-detail-inspector-slots (component class instance)
+(def (layered-function e) collect-standard-object-detail-inspector-slots (component class instance)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object))
     (class-slots class))
 
@@ -168,14 +159,14 @@
   (standard-object-detail-inspector.slots "Tulajdonságok"))
 
 ;;;;;;
-;;; Standard object slot value group
+;;; Standard object slot value group inspector
 
 (def component standard-object-slot-value-group-inspector (standard-object-slot-value-group-component
                                                            abstract-standard-object-component
                                                            inspector-component
                                                            editable-component)
   ()
-  (:documentation "Inspector for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
+  (:documentation "Inspector for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITION instances."))
 
 (def method refresh-component ((self standard-object-slot-value-group-inspector))
   (with-slots (instance slots slot-values) self
@@ -195,14 +186,14 @@
     (make-instance 'standard-object-slot-value-inspector :instance instance :slot slot)))
 
 ;;;;;;
-;;; Standard object slot value detail
+;;; Standard object slot value inspector
 
 (def component standard-object-slot-value-inspector (standard-object-slot-value-component
                                                      abstract-standard-object-component
                                                      inspector-component
                                                      editable-component)
   ()
-  (:documentation "Inspector for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
+  (:documentation "Inspector for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
 (def method refresh-component ((self standard-object-slot-value-inspector))
   (with-slots (instance slot label value) self
@@ -214,5 +205,18 @@
     (if instance
         (if value
             (setf (place-of value) (make-slot-value-place instance slot))
-            (setf value (make-instance 'place-inspector :place (make-slot-value-place instance slot))))
+            (setf value (make-standard-object-slot-value-place-inspector instance slot)))
         (setf value nil))))
+
+;;;;;;
+;;; Standard object place inspector
+
+(def component standard-object-place-inspector (place-inspector)
+  ()
+  (:documentation "Inspector for a place of an instance of STANDARD-OBJECT and unit types."))
+
+(def method make-place-component-command-bar ((self standard-object-place-inspector))
+  (make-instance 'command-bar-component :commands (list (make-revert-place-command self)
+                                                        (make-set-place-to-nil-command self)
+                                                        (make-set-place-to-find-instance-command self)
+                                                        (make-set-place-to-new-instance-command self))))
