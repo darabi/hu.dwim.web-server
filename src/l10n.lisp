@@ -107,11 +107,10 @@
   (unless class
     (setf class (when slot
                   (owner-class-of-effective-slot-definition slot))))
-  (bind ((member-name (cond ((symbolp member-value)
-                             (symbol-name member-value))
-                            ;; TODO ? ((typep member-value 'dmm:named-element)
-                            ;; (element-name-of member-value))
-                            (t (write-to-string member-value))))
+  (bind ((member-name (typecase member-value
+                        (symbol (symbol-name member-value))
+                        (class (class-name member-value))
+                        (t (write-to-string member-value))))
          (slot-definition-type (when slot
                                  (slot-definition-type slot)))
          (class-name (when class
