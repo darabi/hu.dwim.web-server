@@ -162,8 +162,15 @@
   (find-ancestor component #'parent-component-of predicate))
 
 (def (function e) find-ancestor-component-with-type (component type)
-  (find-ancestor-component component (lambda (component)
-                                       (typep component type))))
+  (find-ancestor-component component [typep !1 type]))
+
+(def (function e) find-descendant-component (component predicate)
+  (map-descendant-components component (lambda (child)
+                                         (when (funcall predicate child)
+                                           (return-from find-descendant-component child)))))
+
+(def (function e) find-descendant-component-with-type (component type)
+  (find-descendant-component component [typep !1 type]))
 
 (def function map-child-components (component thunk)
   (iter (with class = (class-of component))
