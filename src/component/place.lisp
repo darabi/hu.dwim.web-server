@@ -78,7 +78,7 @@
   #t)
 
 (def method make-place-unbound ((self lexical-variable-place))
-  (error "Cannot make ~A unbound" place))
+  (error "Cannot make ~A unbound" self))
 
 (def method value-at-place ((self lexical-variable-place))
   (funcall (getter-of self)))
@@ -138,19 +138,19 @@
     (slot-value-place-editable-p self class instance (slot-of self))))
 
 (def method place-bound-p ((self slot-value-place))
-  (bind ((instance (revive-slot-value-place-instance place)))
+  (bind ((instance (revive-slot-value-place-instance self)))
     (slot-boundp-using-class (class-of instance) instance (slot-of self))))
 
 (def method make-place-unbound ((self slot-value-place))
-  (bind ((instance (revive-slot-value-place-instance place)))
+  (bind ((instance (revive-slot-value-place-instance self)))
     (slot-makunbound-using-class (class-of instance) instance (slot-of self))))
 
 (def method value-at-place ((self slot-value-place))
-  (bind ((instance (revive-slot-value-place-instance place)))
+  (bind ((instance (revive-slot-value-place-instance self)))
     (slot-value-using-class (class-of instance) instance (slot-of self))))
 
 (def method (setf value-at-place) (new-value (self slot-value-place))
-  (bind ((instance (revive-slot-value-place-instance place)))
+  (bind ((instance (revive-slot-value-place-instance self)))
     (setf (slot-value-using-class (class-of instance) instance (slot-of self)) new-value)))
 
 (def (function e) make-slot-value-place (instance slot)
@@ -166,7 +166,7 @@
   #t)
 
 (def method make-place-unbound ((self list-slot-value-place))
-  (error "Cannot make ~A unbound" place))
+  (error "Cannot make ~A unbound" self))
 
 (def method value-at-place ((self list-slot-value-place))
   (nth (index-of self) (call-next-method)))
