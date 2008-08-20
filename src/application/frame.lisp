@@ -69,6 +69,9 @@
   (setf (frame-index-of frame) (next-frame-index-of frame))
   (setf (next-frame-index-of frame) (random-simple-base-string +frame-index-length+)))
 
+(def (function e) reset-frame-root-component ()
+  (setf (root-component-of *frame*) nil))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;; client state sinks
