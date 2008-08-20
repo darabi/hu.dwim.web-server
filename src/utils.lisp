@@ -13,6 +13,11 @@
       (funcall value)
       value))
 
+(def macro notf (&rest places)
+  `(setf ,@(iter (for place in places)
+                 (collect place)
+                 (collect `(not ,place)))))
+
 (def (function io) find-slot (class-or-name slot-name)
   (find slot-name
         (the list
@@ -351,7 +356,7 @@
   `(emit-http-response* ((append
                           ,@(when headers (list headers))
                           ,@(when status `((list (cons +header/status+ ,status))))
-                          (list (cons +header/content-type+ +html-content-type+)))
+                          (list (cons +header/content-type+ (content-type-for +html-mime-type+))))
                          ,cookies)
      (with-html-document (:content-type +html-content-type+ :title ,title)
        ,@body)))

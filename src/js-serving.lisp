@@ -34,6 +34,7 @@
          (cache (file-path->cache-entry-of broker))
          (cache-entry (gethash key cache))
          (file-write-date (file-write-date truename)))
+    ;; TODO add expires, handle if-modified-since... by using a functional-response and serve-sequence?
     (if (and cache-entry
              (<= file-write-date (file-write-date-of cache-entry)))
         (progn

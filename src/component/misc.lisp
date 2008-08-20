@@ -196,7 +196,7 @@
    (dojo-path "static/dojo/dojo/")
    (dojo-file-name "dojo.js")
    (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
-   (debug-client-side #f :type boolean :accessor debug-client-side?)))
+   (debug-client-side (not *load-as-production-p*) :type boolean :accessor debug-client-side?)))
 
 (def render frame-component ()
   (bind ((application *application*)

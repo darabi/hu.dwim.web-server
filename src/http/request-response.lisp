@@ -342,6 +342,7 @@
          (length 0))
     (dolist (piece body)
       (incf length (length piece)))
+    ;; TODO use serve-sequence here? so that it adds expires, handles if-modified-since
     (setf (header-value response +header/content-length+) (princ-to-string length))
     (call-next-method)
     (dolist (piece body)

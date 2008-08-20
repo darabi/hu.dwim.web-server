@@ -41,6 +41,9 @@
            (cond-bind ,var ,@others)))
       nil))
 
+(def function system-relative-pathname (system path)
+  (merge-pathnames path (asdf:component-pathname (asdf:find-system system))))
+
 (defmacro acond (&rest clauses)
   "Just like cond-bind except the var is automatically IT."
   `(cond-bind it ,@clauses))

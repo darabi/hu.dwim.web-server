@@ -23,7 +23,6 @@
       (flet ((header-value (name)
                (awhen (assoc name headers :test #'string=)
                  (cdr it))))
-        ;; TODO what about this coerce 'simple-base-string? what about non-unicode host names
         (bind ((raw-uri (us-ascii-octets-to-string uri-octets))
                (raw-uri-length (length raw-uri))
                (host (or (header-value "Host")

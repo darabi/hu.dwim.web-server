@@ -185,23 +185,23 @@
                  (when (typep element 'component)
                    (funcall thunk element)))))))))
 
-(def function map-descendant-components (component thunk &key (include-self #f))
+(def function map-descendant-components (component visitor &key (include-self #f))
   (labels ((traverse (parent-component)
              (map-child-components parent-component
                                    (lambda (child-component)
-                                     (funcall thunk child-component)
+                                     (funcall visitor child-component)
                                      (traverse child-component)))))
     (when include-self
-      (funcall thunk component))
+      (funcall visitor component))
     (traverse component)))
 
-(def function map-ancestor-components (component thunk &key (include-self #f))
+(def function map-ancestor-components (component visitor &key (include-self #f))
   (labels ((traverse (current)
              (awhen (parent-component-of current)
-               (funcall thunk it)
+               (funcall visitor it)
                (traverse it))))
     (when include-self
-      (funcall thunk component))
+      (funcall visitor component))
     (traverse component)))
 
 (def function collect-component-ancestors (component &key (include-self #f))

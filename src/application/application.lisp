@@ -31,7 +31,7 @@
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
 
-(def class* application (broker-with-path-prefix)
+(def (class* e) application (broker-with-path-prefix)
   ((entry-points nil)
    (default-uri-scheme "http")
    (default-locale "en")

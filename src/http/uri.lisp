@@ -55,7 +55,8 @@
   (bind ((entry (assoc name (query-parameters-of uri) :test #'string=)))
     (if entry
         (setf (cdr entry) value)
-        (add-query-parameter-to-uri uri name value))))
+        (add-query-parameter-to-uri uri name value)))
+  value)
 
 (defun add-query-parameter-to-uri (uri name value)
   (nconcf (query-parameters-of uri) (list (cons name value))))
@@ -231,7 +232,7 @@
 
 (def (function o) %parse-uri (uri)
   (declare (type simple-base-string uri))
-  ;; can't use :sharedp, because we expect the returned strings to be simple-base-string's
+  ;; can't use :sharedp, because we expect the returned pieces to be simple-base-string's and :sharedp would return displaced arrays
   (bind ((pieces (nth-value 1 (cl-ppcre:scan-to-strings "^(([^:/?#]+):)?(//([^:/?#]*)(:([0-9]+))?)?([^?#]*)(\\?([^#]*))?(#(.*))?"
                                                         uri :sharedp #f))))
     (make-uri :scheme   (aref pieces 1)

@@ -61,7 +61,7 @@
                     ;; should `str() inside <> automatically be escaped? how could you insert unescaped
                     ;; then?
                     (inline?          (format nil "javascript: "))
-                    (embedded-in-xml? (format nil "~%<script>~%// <![CDATA[~%")))
+                    (embedded-in-xml? (format nil "~%<script type=\"text/javascript\">~%// <![CDATA[~%")))
    :output-postfix (cond
                      ((and embedded-in-xml?
                            (not inline?))
