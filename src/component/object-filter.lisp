@@ -249,11 +249,14 @@
                                       (list :icon (icon filter))
                                       (list :icon (icon back))))
 
-(def (generic e) make-standard-object-filter-result-inspector (filter result)
-  (:method ((filter standard-object-filter) (result list))
+(def (layered-function e) make-standard-object-filter-result-inspector (filter result)
+  (:method ((filter standard-object-filter) (instances list))
+    (make-viewer instances :type `(list ,(class-name (the-class-of filter)))))
+
+  (:method :around ((filter standard-object-filter) (instances list))
     (prog1-bind component
-        (make-viewer result :type `(list ,(class-name (the-class-of filter))))
-      (unless result
+        (call-next-method)
+      (unless instances
         (add-user-warning component #"no-matches-were-found")))))
 
 (def generic execute-filter-instances (component class)

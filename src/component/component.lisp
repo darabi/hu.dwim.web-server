@@ -183,7 +183,11 @@
               (list
                (dolist (element value)
                  (when (typep element 'component)
-                   (funcall thunk element)))))))))
+                   (funcall thunk element))))
+              (hash-table
+               (iter (for (key element) :in-hashtable value)
+                     (when (typep element 'component)
+                       (funcall thunk element)))))))))
 
 (def function map-descendant-components (component visitor &key (include-self #f))
   (labels ((traverse (parent-component)

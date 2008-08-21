@@ -36,6 +36,9 @@
 (def render :in passive-components-layer command-component
   (render (icon-of -self-)))
 
+(def (function e) execute-command (command)
+  (funcall (action-of command)))
+
 ;;;;;;
 ;;; Command bar
 
@@ -82,18 +85,19 @@
   "Pop the COMMAND from the container COMMAND-BAR"
   (removef (commands-of (parent-component-of command)) command))
 
-(def function execute-command-bar-command (command-bar name)
-  (bind ((command (find name (commands-of command-bar)
-                        :key (lambda (command)
-                               (name-of (icon-of command))))))
-    (assert command nil "Command ~A not found in ~A" name command-bar)
-    (funcall (action-of command))))
+(def (function e) find-command-bar-command (command-bar name)
+  (find name (commands-of command-bar)
+        :key (lambda (command)
+               (name-of (icon-of command)))))
+
+(def (function e) execute-command-bar-command (command-bar name)
+  (execute-command (find-command-bar-command command-bar name)))
 
 ;;;;;;
 ;;; Navigation bar
 
 (def component page-navigation-bar-component (command-bar-component)
-  ((position)
+  ((position 0)
    (page-count)
    (total-count)
    (first-command :type component)
@@ -107,19 +111,23 @@
     (setf first-command (make-instance 'command-component
                                        :icon (icon first)
                                        :enabled (delay (> position 0))
-                                       :action (make-action (setf position 0)))
+                                       :action (make-action
+                                                 (setf (component-value-of jumper) (setf position 0))))
           previous-command (make-instance 'command-component
                                           :icon (icon previous)
                                           :enabled (delay (> position 0))
-                                          :action (make-action (decf position (min position page-count))))
+                                          :action (make-action
+                                                    (setf (component-value-of jumper) (decf position (min position page-count)))))
           next-command (make-instance 'command-component
                                       :icon (icon next)
                                       :enabled (delay (< position (- total-count page-count)))
-                                      :action (make-action (incf position (min page-count (- total-count page-count)))))
+                                      :action (make-action
+                                                (setf (component-value-of jumper) (incf position (min page-count (- total-count page-count))))))
           last-command (make-instance 'command-component
                                       :icon (icon last)
                                       :enabled (delay (< position (- total-count page-count)))
-                                      :action (make-action (setf position (- total-count page-count))))
+                                      :action (make-action
+                                                (setf (component-value-of jumper) (setf position (- total-count page-count)))))
           jumper (make-instance 'integer-component :edited #t :component-value position))))
 
 (def render page-navigation-bar-component ()

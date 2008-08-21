@@ -30,7 +30,13 @@
   ())
 
 (def render unbound-component ()
-  <span "UNBOUND">)
+  <span ,#"value.unbound">)
+
+(defresources en
+  (value.unbound "default"))
+
+(defresources hu
+  (value.unbound "alapértelmezett"))
 
 ;;;;;;
 ;;; Null
@@ -39,7 +45,13 @@
   ())
 
 (def render null-component ()
-  <span "NIL">)
+  <span ,#"value.nil">)
+
+(defresources en
+  (value.nil "none"))
+
+(defresources hu
+  (value.nil "nincs"))
 
 ;;;;;;
 ;;; T

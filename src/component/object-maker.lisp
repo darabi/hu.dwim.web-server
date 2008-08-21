@@ -104,12 +104,11 @@
                            :possible-values subclasses)))))
 
 (def function find-selected-class (component)
-  (the standard-class
-    (bind ((class-selector (class-selector-of component)))
-      (aif (and class-selector
-                (component-value-of class-selector))
-           it
-           (the-class-of component)))))
+  (bind ((class-selector (class-selector-of component)))
+    (aif (and class-selector
+              (component-value-of class-selector))
+         it
+         (the-class-of component))))
 
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class class-selector the-class slot-value-groups) self
@@ -218,7 +217,7 @@
   (:documentation "Maker for a place of an instance of STANDARD-OBJECT and unit types."))
 
 (def method make-place-component-content ((self standard-object-place-maker))
-  (make-inspector (the-type-of self) :default-component-type 'reference-component))
+  (make-instance 'unbound-component))
 
 (def method make-place-component-command-bar ((self standard-object-place-maker))
   (bind ((type (the-type-of self)))

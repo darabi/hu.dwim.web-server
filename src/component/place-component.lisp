@@ -34,6 +34,29 @@
         (render-vertical-list (list command-bar content))
         (call-next-method))))
 
+(def (function e) make-set-place-to-nil-command (place-component)
+  (command (icon set-to-nil)
+           (make-action
+             (setf (component-value-of (content-of place-component)) nil))
+           :visible (delay (bind ((content (content-of place-component)))
+                             (and (typep content 'inspector-component)
+                                  (not (null (component-value-of content))))))))
+
+(def (function e) make-set-place-to-unbound-command (place-component)
+  (command (icon set-to-unbound)
+           (make-action
+             (when-bind command-bar (find-command-bar (content-of place-component))
+               (when-bind command (find-command-bar-command command-bar 'back)
+                 (execute-command command)))
+             (setf (content-of place-component) (make-instance 'unbound-component)))
+           :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
+
+(def (function e) make-set-place-to-new-instance-command (place-component)
+  (make-replace-and-push-back-command (delay (content-of place-component))
+                                      (make-maker (the-type-of place-component))
+                                      (list :icon (icon new) )
+                                      (list :icon (icon back))))
+
 (def layer* set-place-to-find-instance-layer ()
   ;; TODO: KLUDGE: FIXME: make this a special slot (this way it is not thread safe)
   ((place-component :type component)))
@@ -48,34 +71,14 @@
     (list* (command (icon select)
                     (make-action
                       (execute-command-bar-command (command-bar-of (find-ancestor-component-with-type component 'standard-object-filter)) 'back)
-                      (setf (component-value-of (content-of place-component)) (instance-of component))))
+                      (setf (content-of place-component) (make-viewer (instance-of component)))))
            (call-next-method))))
-
-(def (function e) make-set-place-to-nil-command (place-component)
-  (command (icon set-to-nil)
-           (make-action
-             (setf (component-value-of (content-of place-component)) nil))
-           :visible (delay (bind ((content (content-of place-component)))
-                             (and (typep content 'inspector-component)
-                                  (not (null (component-value-of content))))))))
-
-(def (function e) make-set-place-to-unbound-command (place-component)
-  (command (icon set-to-unbound)
-           (make-action
-             (setf (content-of place-component) (make-instance 'unbound-component)))
-           :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
 
 (def (function e) make-set-place-to-find-instance-command (place-component)
   (make-replace-and-push-back-command (delay (content-of place-component))
                                       (with-active-layers ((set-place-to-find-instance-layer :place-component place-component))
                                         (make-filter (the-type-of place-component)))
                                       (list :icon (icon find))
-                                      (list :icon (icon back))))
-
-(def (function e) make-set-place-to-new-instance-command (place-component)
-  (make-replace-and-push-back-command (delay (content-of place-component))
-                                      (make-maker (the-type-of place-component))
-                                      (list :icon (icon new) )
                                       (list :icon (icon back))))
 
 ;;;;;;
@@ -121,9 +124,10 @@
       (update-component-value-from-place place content))))
 
 (def method map-editable-child-components ((self place-inspector) function)
-  (when (place-editable-p (place-of self))
-    (awhen (content-of self)
-      (funcall function it))))
+  (bind ((content (content-of self)))
+    (when (and (place-editable-p (place-of self))
+               (typep content 'editable-component))
+      (funcall function content))))
 
 (def function revert-place-inspector-content (place-inspector)
   (update-component-value-from-place (place-of place-inspector) (content-of place-inspector)))

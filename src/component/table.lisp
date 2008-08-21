@@ -10,11 +10,9 @@
 (def component table-component (remote-identity-component-mixin)
   ((columns nil :type components)
    (rows nil :type components)
-   (page-navigation-bar nil :type component)))
-
-(def constructor table-component ()
-  (with-slots (page-navigation-bar) -self-
-    (setf page-navigation-bar (make-instance 'page-navigation-bar-component :position 0 :page-count 10))))
+   (page-navigation-bar
+    (make-instance 'page-navigation-bar-component :page-count 10)
+    :type component)))
 
 (def render table-component ()
   (bind ((table -self-))
@@ -23,7 +21,7 @@
       <div
        <table (:class "table")
            <thead
-            <tr ,@(mapcar #'render columns)>>
+            <tr ,(render-table-columns -self-)>>
          <tbody
           ,@(bind ((visible-rows (subseq rows
                                          (position-of page-navigation-bar)
@@ -35,6 +33,10 @@
        ,(if (< (page-count-of page-navigation-bar) (total-count-of page-navigation-bar))
             (render page-navigation-bar)
             +void+)>)))
+
+(def (layered-function e) render-table-columns (table-component)
+  (:method ((self table-component))
+    (map nil #'render (columns-of self))))
 
 ;;;;;;
 ;;; Column
@@ -59,7 +61,7 @@
       "even-row"
       "odd-row"))
 
-(def layered-function render-table-row (table row)
+(def (layered-function e) render-table-row (table row)
   (:method :around (table row)
     (ensure-uptodate row)
     (if (force (visible-p row))
@@ -99,7 +101,7 @@
 (def component cell-component (content-component)
   ())
 
-(def layered-function render-table-cell (table row column cell)
+(def (layered-function e) render-table-cell (table row column cell)
   (:method :before (table row column cell)
     (ensure-uptodate cell))
   

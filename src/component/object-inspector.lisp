@@ -52,10 +52,14 @@
               content (find-default-alternative-component alternatives)))))
 
 (def render standard-object-inspector ()
-  (with-slots (id) -self-
-    <div (:id ,id :class "standard-object")
-         ,(render-user-messages -self-)
-         ,(call-next-method)>))
+  (with-slots (content id) -self-
+    (if (typep content 'reference-component)
+        <span (:id ,id :class "standard-object")
+              ,(render-user-messages -self-)
+              ,(call-next-method)>
+        <div (:id ,id :class "standard-object")
+             ,(render-user-messages -self-)
+             ,(call-next-method)>)))
 
 (def (layered-function e) make-standard-object-inspector-alternatives (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))

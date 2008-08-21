@@ -79,13 +79,17 @@
 
 (def (generic e) join-editing (component)
   (:method ((component component))
-    (setf (edited-p component) #t)
-    (map-editable-child-components component #'join-editing)))
+    (map-editable-child-components component #'join-editing))
+
+  (:method :before ((component editable-component))
+    (setf (edited-p component) #t)))
 
 (def (generic e) leave-editing (component)
   (:method ((component component))
-    (setf (edited-p component) #f)
-    (map-editable-child-components component #'leave-editing)))
+    (map-editable-child-components component #'leave-editing))
+
+  (:method :before ((component editable-component))
+    (setf (edited-p component) #f)))
 
 (def (generic e) store-editing (component)
   (:method ((component component))

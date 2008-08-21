@@ -102,8 +102,12 @@
                      (for row = (find instance rows :key #'component-value-of))
                      (if row
                          (setf (component-value-of row) instance)
-                         (setf row (make-instance 'standard-object-row-inspector :instance instance)))
+                         (setf row (make-standard-object-table-row self the-class instance)))
                      (collect row)))))
+
+(def (layered-function e) make-standard-object-table-row (component class instance)
+  (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
+    (make-instance 'standard-object-row-inspector :instance instance)))
 
 (def (function e) make-standard-object-list-table-type-column ()
   (make-instance 'column-component
@@ -115,12 +119,12 @@
 
 (def (function e) make-standard-object-list-table-command-bar-column ()
   (make-instance 'column-component
-                    :content (label #"object-list-table.column.commands")
-                    :visible (delay (not (layer-active-p 'passive-components-layer)))
-                    :cell-factory (lambda (row-component)
-                                    (make-instance 'cell-component :content (command-bar-of row-component)))))
+                 :content (label #"object-list-table.column.commands")
+                 :visible (delay (not (layer-active-p 'passive-components-layer)))
+                 :cell-factory (lambda (row-component)
+                                 (make-instance 'cell-component :content (command-bar-of row-component)))))
 
-(def (generic e) make-standard-object-list-table-inspector-columns (component)
+(def (layered-function e) make-standard-object-list-table-inspector-columns (component)
   (:method ((self standard-object-list-table-inspector))
     (append (optional-list (make-standard-object-list-table-command-bar-column)
                            (when-bind the-class (the-class-of self)
@@ -128,7 +132,7 @@
                                (make-standard-object-list-table-type-column))))
             (make-standard-object-list-table-inspector-slot-columns self))))
 
-(def (generic e) make-standard-object-list-table-inspector-slot-columns (component)
+(def (layered-function e) make-standard-object-list-table-inspector-slot-columns (component)
   (:method ((self standard-object-list-table-inspector))
     (with-slots (instances the-class command-bar columns rows) self
       (bind ((slot-name->slot-map (list)))
