@@ -56,6 +56,7 @@
 
 (def class* session (string-id-mixin activity-monitor-mixin)
   ((application nil)
+   (client-timezone (default-timezone-of *application*))
    (current-frame-index 0)
    (unique-dom-id-counter 0)
    (frame-id->frame (make-hash-table :test 'equal))
