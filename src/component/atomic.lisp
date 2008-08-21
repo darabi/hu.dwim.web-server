@@ -6,6 +6,18 @@
 
 ;; TODO the way widgets are rendered needs to be factored more
 
+(def condition* invalid-client-value (simple-error)
+  ())
+
+(def function invalid-client-value (message &rest args)
+  (error 'invalid-client-value :format-control message :format-arguments args))
+
+#+nil
+(def macro with-client-value-error-wrapper (&body body)
+  `(handler-bind ((error (lambda (error)
+                           (invalid-client-value "Failed to parse client value because: ~A" error))))
+     ,@body))
+
 ;;;;;;
 ;;; Atomic
 
@@ -17,9 +29,17 @@
 (def render :before atomic-component
   (when (edited-p -self-)
     (setf (client-state-sink-of -self-)
-          (register-client-state-sink *frame*
-                                      (lambda (client-value)
-                                        (setf (component-value-of -self-) (parse-component-value -self- client-value)))))))
+          (client-state-sink (client-value)
+            (handler-bind ((invalid-client-value (lambda (error)
+                                                   (setf (component-value-of -self-) error)
+                                                   (return))))
+              (setf (component-value-of -self-) (parse-component-value -self- client-value)))))))
+
+(def method component-value-of :around ((-self- atomic-component))
+  (bind ((result (call-next-method)))
+    (if (typep result 'error)
+        (error result)
+        result)))
 
 (def generic parse-component-value (component client-value))
 
@@ -287,19 +307,16 @@
     (bind ((wrong-value? (and (not allow-nil-value)
                               (not component-value)))
            (printed-value (or (when component-value
-                                (local-time:format-rfc3339-timestring nil component-value))
-                              (if (or allow-nil-value
-                                      edited)
-                                  ""
-                                  #"wrong-atomic-component-value")))
+                                (local-time:format-rfc3339-timestring nil component-value :omit-time-part #t))
+                              ""))
            (id (generate-frame-unique-string "_w")))
       (if edited
           (render-dojo-widget (id)
             <input (:type      "text"
-                               :id        ,id
-                               :name      ,(id-of client-state-sink)
-                               :value     ,printed-value
-                               :dojoType  #.+dijit/date-text-box+)>)
+                    :id        ,id
+                    :name      ,(id-of client-state-sink)
+                    :value     ,printed-value
+                    :dojoType  #.+dijit/date-text-box+)>)
           <span (:class ,(when wrong-value? "wrong"))
                 ,printed-value>))))
 
@@ -311,8 +328,7 @@
                      (zerop minute)
                      (zerop sec)
                      (zerop nsec))
-          ;; TODO add validation error
-          (setf result nil)))
+          (invalid-client-value "~S is not a valid date" result)))
       result)))
 
 ;;;;;;
@@ -350,12 +366,24 @@
   ())
 
 (def render timestamp-component ()
-  <span "TODO: timestamp-component">)
+  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
+    (bind ((wrong-value? (and (not allow-nil-value)
+                              (not component-value)))
+           (printed-value (or (when component-value
+                                (localized-timestamp component-value))
+                              ""))
+           #+nil(id (generate-frame-unique-string "_w")))
+      (if edited
+          <span "TODO: not yet implemented">
+          <span (:class ,(when wrong-value? "wrong"))
+                ,printed-value >))))
 
 (def method parse-component-value ((component timestamp-component) client-value)
   (unless (string= client-value "")
-    ;; TODO check for errors, add user message
-    (local-time:parse-rfc3339-timestring client-value)))
+    (aprog1
+        (local-time:parse-rfc3339-timestring client-value :fail-on-error #f)
+      (unless it
+        (invalid-client-value "Failed to parse ~S as a timestamp" client-value)))))
 
 ;;;;;;
 ;;; Member
