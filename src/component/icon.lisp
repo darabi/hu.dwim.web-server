@@ -28,8 +28,9 @@
                                     (dmm::subject-preferences-of effective-subject))))
         (when (and subject-preferences
                    ;; TODO use some preferences framework that can fall back to defaults unless overridden
-                   (slot-boundp subject-preferences 'dmm::display-command-labels)
-                   (not (dmm::display-command-labels-of subject-preferences)))
+                   ;; KLUDGE dmm dependency
+                   (slot-boundp subject-preferences 'dmm:display-command-labels)
+                   (not (dmm:display-command-labels? subject-preferences)))
           (return-from render-icon-label nil))))
     label))
 

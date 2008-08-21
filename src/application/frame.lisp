@@ -82,9 +82,14 @@
   ()
   (:metaclass funcallable-standard-class))
 
+(def (macro e) client-state-sink ((value-variable-name) &body body)
+  `(register-client-state-sink
+    *frame* (make-client-state-sink (,value-variable-name) ,@body)))
+
 (def (macro e) make-client-state-sink ((value-variable-name) &body body)
   `(make-client-state-sink-using-lambda (lambda (,value-variable-name)
-                                          ,@body)))
+                                          (block nil
+                                            ,@body))))
 
 (def (function e) make-client-state-sink-using-lambda (client-state-sink-lambda)
   (bind ((client-state-sink (make-instance 'client-state-sink)))
@@ -106,8 +111,8 @@
                                   +client-state-sink-id-length+
                                   :prefix #.(coerce "_cs_" 'simple-base-string))))
       (setf (id-of client-state-sink) client-state-sink-id)
-      (app.dribble "Registered client-state-sink with id ~S in frame ~A" client-state-sink-id frame)
-      client-state-sink)))
+      (app.dribble "Registered client-state-sink with id ~S in frame ~A" client-state-sink-id frame)))
+  client-state-sink)
 
 (def function process-client-state-sinks (frame query-parameters)
   (bind ((client-state-sink-id->client-state-sink (client-state-sink-id->client-state-sink-of frame)))

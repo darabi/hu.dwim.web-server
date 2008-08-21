@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; localization primitives
+
 (defmethod localize ((class class))
   (lookup-first-matching-resource
     ("class-name" (string-downcase (qualified-symbol-name (class-name class))))
@@ -72,24 +75,6 @@
                (capitalize-first-letter class-name)
                class-name)>))
 
-(def function localized-instance-name (instance)
-  (bind ((class (class-of instance)))
-    (if (typep class 'dmm::entity)
-        (flet ((localize-value (value)
-                 (if (typep value 'standard-object)
-                     (localized-instance-name value)
-                     (princ-to-string value))))
-          (bind ((properties (dmm::reference-properties-of class)))
-            (if (length= 1 properties)
-                (localize-value (slot-value-using-class class instance (first properties)))
-                (apply #'concatenate-string
-                       (localized-class-name class :with-article #t :capitalize-first-letter #t) (when properties ": ")
-                       (iter (for property :in properties)
-                             (for value = (slot-value-using-class class instance property))
-                             (collect (concatenate-string (unless (first-iteration-p) ", ")
-                                                          (localized-slot-name property) " = " (localize-value value))))))))
-        (princ-to-string instance))))
-
 (def function localized-boolean-value (value)
   (bind (((:values str found?) (localize (if value "boolean-value.true" "boolean-value.false"))))
     (values str found?)))
@@ -141,3 +126,53 @@
                                                              :capitalize-first-letter capitalize-first-letter)))
     <span (:class ,(unless found? +missing-resource-css-class+))
       ,str>))
+
+(def (constant :test 'equal) +timestamp-format+ '((:year 4) #\- (:month 2) #\- (:day 2) #\ 
+                                                  (:hour 2) #\: (:min 2) #\: (:sec 2) #\.
+                                                  (:usec 6)))
+
+(def (function e) localized-timestamp (timestamp)
+  ;; TODO many
+  (local-time:format-timestring nil timestamp :format +timestamp-format+))
+
+
+;;;;;;
+;;; utilities
+
+#+nil
+(def (function e) render-client-timezone-offset-probe ()
+  "Renders an input field with a callback that will set the CLIENT-TIMEZONE slot of the session when the form is submitted."
+  (with-unique-js-names (id)
+    <input (:id ,id
+            :type "hidden"
+            :name (client-state-sink (value)
+                    (bind ((offset (parse-integer value :junk-allowed #t)))
+                      (if offset
+                          (bind ((local-time (parse-rfc3339-timestring value)))
+                            (ucw.l10n.debug "Setting client timezone from ~A" local-time)
+                            (setf (client-timezone-of (context.session *context*)) (timezone-of local-time)))
+                          (progn
+                            (app.warn "Unable to parse the client timezone offset: ~S" value)
+                            (setf (client-timezone-of (context.session *context*)) +utc-zone+)))))) >
+    (ucw:script `(on-load
+                   (setf (slot-value ($ ,id) 'value)
+                         (dojo.date.to-rfc-3339 (new *date)))))))
+
+;; TODO rename to short-textual-representation-for or anything else without "name" in it
+(def function localized-instance-name (instance)
+  (bind ((class (class-of instance)))
+    (if (typep class 'dmm::entity)
+        (flet ((localize-value (value)
+                 (if (typep value 'standard-object)
+                     (localized-instance-name value)
+                     (princ-to-string value))))
+          (bind ((properties (dmm::reference-properties-of class)))
+            (if (length= 1 properties)
+                (localize-value (slot-value-using-class class instance (first properties)))
+                (apply #'concatenate-string
+                       (localized-class-name class :with-article #t :capitalize-first-letter #t) (when properties ": ")
+                       (iter (for property :in properties)
+                             (for value = (slot-value-using-class class instance property))
+                             (collect (concatenate-string (unless (first-iteration-p) ", ")
+                                                          (localized-slot-name property) " = " (localize-value value))))))))
+        (princ-to-string instance))))
