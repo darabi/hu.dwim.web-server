@@ -79,8 +79,8 @@
             (setf (component-of -self-) component
                   (component-at-place (target-place-of menu-component)) component)))))
 
-(def (macro e) replace-menu-target-command (icon component)
-  `(make-instance 'replace-menu-target-command-component :icon ,icon :component (delay ,component)))
+(def (macro e) replace-menu-target-command (icon &body forms)
+  `(make-instance 'replace-menu-target-command-component :icon ,icon :component (delay ,@forms)))
 
 ;;;;;;
 ;;; Standard object filter menu item

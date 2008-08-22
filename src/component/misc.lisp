@@ -189,28 +189,41 @@
   ()
   (:documentation "Abstract base class for components which show their component value in detail."))
 
+
 ;;;;;;
 ;;; File download
 
-(def component file-download-component ()
-  ((icon (icon download) :type component)
-   (file-name)
+(def component file-download-component (command-component)
+  ((icon (icon download))
+   (action nil)
    (directory)
+   (file-name)
    (url-prefix "static/")))
 
+(def constructor (file-download-component (label nil label?) &allow-other-keys) ()
+  (when label?
+    (setf (icon-of -self-) (icon download :label label))))
+
+(def method refresh-component ((self file-download-component))
+  (with-slots (file-name action url-prefix) self
+    (unless action
+      (setf action
+            (make-uri :path (concatenate 'string url-prefix (namestring file-name)))))))
+
 (def render file-download-component ()
-  (with-slots (icon file-name url-prefix directory) -self-
+  (with-slots (icon file-name action url-prefix directory enabled) -self-
     (bind ((absolute-file-name (merge-pathnames file-name directory)))
-      <span (:class "file-download")
-            <a (:href ,(concatenate 'string url-prefix (namestring file-name)))
-               ,(render icon)>
-            " (" ,(file-last-modification-timestamp absolute-file-name) ")">)))
+      (unless (probe-file absolute-file-name)
+        (setf enabled #f))
+      <div (:class "file-download")
+           ,(call-next-method)
+           " (" ,(file-last-modification-timestamp absolute-file-name) ")">)))
 
 (defresources en
   (file-last-modification-timestamp (file)
     `xml,"Updated: "
     (if (probe-file file)
-        (localized-timestamp (local-time:universal-to-timestamp  (file-write-date file)))
+        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
         <span (:class "missing-file")
               "File is missing!">)))
 
@@ -221,6 +234,17 @@
         (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
         <span (:class "missing-file")
               "Hiányzik a fájl!">)))
+
+;;;;;;
+;;; File upload
+
+(def component file-upload-component ()
+  ((icon (icon upload) :type component)))
+
+(def render file-upload-component ()
+  (with-slots (icon) -self-
+    <div ,(render icon)
+         <div <input (:type "file")>>>))
 
 ;;;;;;
 ;;; Frame

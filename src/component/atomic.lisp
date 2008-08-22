@@ -448,7 +448,7 @@
   <span "TODO: lisp-form-component">)
 
 ;;;;;;
-;;; Lisp form
+;;; IP address
 
 ;; TODO:
 (def component ip-address-component (atomic-component)
@@ -456,3 +456,20 @@
 
 (def render ip-address-component ()
   <span "TODO: ip-address-component">)
+
+;;;;;;
+;;; File
+
+(def component file-component (atomic-component)
+  ())
+
+(def render file-component ()
+  (with-slots (file-name url-prefix directory edited client-state-sink) -self-
+    (if edited
+        <div ,(render (icon upload))
+             <div <input (:type "file" :name ,(id-of client-state-sink))>>>
+        <a (:href "TODO:")
+           ,(render (icon download))>)))
+
+(def method parse-component-value ((component file-component) client-value)
+  (not-yet-implemented))
