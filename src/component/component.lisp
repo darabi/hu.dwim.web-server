@@ -34,6 +34,9 @@
           (setf (dirty-p -self-) #f)))
       +void+))
 
+(def render string ()
+  `xml,-self-)
+
 (def (type e) components ()
   'sequence)
 

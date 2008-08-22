@@ -409,3 +409,19 @@
 (defresources en
   (icon-label.finish "Finish")
   (icon-tooltip.finish "Finish wizard"))
+
+(def icon download "static/wui/icons/20x20/file-download.png")
+(defresources hu
+  (icon-label.download "Letöltés")
+  (icon-tooltip.download "Fájl letöltése"))
+(defresources en
+  (icon-label.download "Download")
+  (icon-tooltip.download "Download file"))
+
+(def icon upload "static/wui/icons/20x20/file-upload.png")
+(defresources hu
+  (icon-label.upload "Feltöltés")
+  (icon-tooltip.upload "Fájl feltöltése"))
+(defresources en
+  (icon-label.upload "Upload")
+  (icon-tooltip.upload "Upload file"))

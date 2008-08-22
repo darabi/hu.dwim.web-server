@@ -46,8 +46,8 @@
                                                                  (make-top-command self))
                                                            (make-standard-object-filter-commands self the-class (class-prototype the-class)))))))
 
-(def (layered-function e) make-standard-object-filter-alternatives (component class instance)
-  (:method ((component standard-object-filter) (class standard-class) (instance standard-object))
+(def (layered-function e) make-standard-object-filter-alternatives (component class prototype)
+  (:method ((component standard-object-filter) (class standard-class) (prototype standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
           (delay-alternative-reference-component 'standard-object-filter-reference class))))
 
@@ -113,14 +113,14 @@
   (:method ((component standard-object-detail-filter) (class dmm::entity) (prototype prc::persistent-object) (slots list))
     (partition slots #'dmm::primary-p (constantly #t))))
 
-(def (layered-function e) collect-standard-object-detail-filter-slots (component class instance)
-  (:method ((component standard-object-detail-filter) (class standard-class) (instance standard-object))
+(def (layered-function e) collect-standard-object-detail-filter-slots (component class prototype)
+  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
     (class-slots class))
 
-  (:method ((component standard-object-detail-filter) (class prc::persistent-class) (instance prc::persistent-object))
+  (:method ((component standard-object-detail-filter) (class prc::persistent-class) (prototype prc::persistent-object))
     (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
-  (:method ((component standard-object-detail-filter) (class dmm::entity) (instance prc::persistent-object))
+  (:method ((component standard-object-detail-filter) (class dmm::entity) (prototype prc::persistent-object))
     (filter-if (lambda (slot)
                  (dmm::authorize-operation 'dmm::filter-entity-property-operation :-entity- class :-property- slot))
                (call-next-method))))

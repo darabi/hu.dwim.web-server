@@ -240,3 +240,36 @@ table.extended-table > tbody > tr > td.total
 {
   margin-right: 1em;
 }
+
+/*
+  frame size breakdown
+*/
+
+table.frame-size-breakdown
+{
+  margin: 10px;
+}
+
+table.frame-size-breakdown > tbody > tr.total-row
+{
+  font-weight: bold;
+}
+
+table.frame-size-breakdown > tbody > tr > td.last
+{
+  color: gray;
+}
+
+table.frame-size-breakdown > tbody > tr > td.delta
+{
+  color: gray;
+}
+
+/*
+ file download
+*/
+
+.file-download .missing-file
+{
+  color: red;
+}

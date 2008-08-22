@@ -153,7 +153,13 @@
   ((initargs)))
 
 (def method initialize-instance :after ((-self- initargs-component-mixin) &rest args &key &allow-other-keys)
-  (setf (initargs-of -self-) args))
+  (setf (initargs-of -self-)
+        ;; TODO: dispatch on component for saved args?
+        (iter (for arg :in '(:store-mode))
+              (for value = (getf args arg :unbound))
+              (unless (eq value :unbound)
+                (collect arg)
+                (collect value)))))
 
 ;;;;;;
 ;;; Container
@@ -183,7 +189,40 @@
   ()
   (:documentation "Abstract base class for components which show their component value in detail."))
 
-;;;;;;;;;
+;;;;;;
+;;; File download
+
+(def component file-download-component ()
+  ((icon (icon download) :type component)
+   (file-name)
+   (directory)
+   (url-prefix "static/")))
+
+(def render file-download-component ()
+  (with-slots (icon file-name url-prefix directory) -self-
+    (bind ((absolute-file-name (merge-pathnames file-name directory)))
+      <span (:class "file-download")
+            <a (:href ,(concatenate 'string url-prefix (namestring file-name)))
+               ,(render icon)>
+            " (" ,(file-last-modification-timestamp absolute-file-name) ")">)))
+
+(defresources en
+  (file-last-modification-timestamp (file)
+    `xml,"Updated: "
+    (if (probe-file file)
+        (localized-timestamp (local-time:universal-to-timestamp  (file-write-date file)))
+        <span (:class "missing-file")
+              "File is missing!">)))
+
+(defresources hu
+  (file-last-modification-timestamp (file)
+    `xml,"Frissítve: "
+    (if (probe-file file)
+        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
+        <span (:class "missing-file")
+              "Hiányzik a fájl!">)))
+
+;;;;;;
 ;;; Frame
 
 (def component frame-component (top-component)

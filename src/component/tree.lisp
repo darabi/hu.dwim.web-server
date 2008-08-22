@@ -17,12 +17,16 @@
 (def render tree-component ()
   (with-slots (columns root-node id) -self-
     <table (:id ,id :class "tree")
-      <thead <tr ,@(mapcar #'render columns)>>
-      <tbody ,@(render root-node)>>))
+      <thead <tr ,(render-tree-columns -self-)>>
+      <tbody ,(render root-node)>>))
 
 (def call-in-component-environment tree-component ()
   (bind ((*tree-level* -1))
     (call-next-method)))
+
+(def (layered-function e) render-tree-columns (tree-component)
+  (:method ((self tree-component))
+    (map nil #'render (columns-of self))))
 
 ;;;;;;
 ;;; Node
@@ -33,24 +37,38 @@
 
 (def render node-component ()
   (with-slots (child-nodes cells expanded id) -self-
-    (append (list <tr (:id ,id
-                       :style ,(style-of -self-)
-                       :class ,(concatenate-string "level-" (integer-to-string *tree-level*)
-                                                   " " (css-class-of -self-)))
-                      <td (:class "expander")
-                          ,(if child-nodes
-                               <a (:href ,(make-action-href () (setf expanded (not expanded))))
-                                  <img (:src ,(concatenate-string (path-prefix-of *application*)
-                                                                  (if expanded
-                                                                      "static/wui/icons/20x20/arrowhead-down.png"
-                                                                      "static/wui/icons/20x20/arrowhead-right.png")))>>
-                               <span (:class "non-expandable")>)
-                          ,(bind ((first-cell (first cells)))
-                             (ensure-uptodate first-cell)
-                             (render (content-of first-cell))) >
-                      ,@(mapcar #'render (rest cells))>)
-            (when expanded
-              (mappend #'render child-nodes)))))
+    <tr (:id ,id
+         :style ,(style-of -self-)
+         :class ,(concatenate-string "level-" (integer-to-string *tree-level*) " " (css-class-of -self-)))
+        ,(render-tree-node-expander-cell -self-)
+        ,(render-tree-node-cells -self-) >
+    (when expanded
+      (map nil #'render child-nodes))))
+
+(def (function e) render-tree-node-expander (node-component)
+  (with-slots (child-nodes expanded) node-component
+    (if child-nodes
+        <a (:href ,(make-action-href () (setf expanded (not expanded))))
+           <img (:src ,(concatenate-string (path-prefix-of *application*)
+                                           (if expanded
+                                               "static/wui/icons/20x20/arrowhead-down.png"
+                                               "static/wui/icons/20x20/arrowhead-right.png")))>>
+        <span (:class "non-expandable")>)))
+
+(def (function e) render-tree-node-expander-cell (node-component)
+  (with-slots (cells) node-component
+    <td (:class "expander")
+        ,(render-tree-node-expander node-component)
+        ,(bind ((first-cell (first cells)))
+               (if (stringp first-cell)
+                   `xml,first-cell
+                   (progn
+                     (ensure-uptodate first-cell)
+                     (render (content-of first-cell))))) >))
+
+(def (layered-function e) render-tree-node-cells (node-component)
+  (:method ((self node-component))
+    (map nil #'render (rest (cells-of self)))))
 
 (def call-in-component-environment node-component ()
   (bind ((*tree-level* (1+ *tree-level*)))

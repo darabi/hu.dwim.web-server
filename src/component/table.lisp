@@ -44,7 +44,7 @@
 (def component column-component (content-component)
   ((cell-factory nil :type (or null function))))
 
-(def macro column (content &rest args)
+(def (macro e) column (content &rest args)
   `(make-instance 'column-component :content ,content ,@args))
 
 (def render column-component ()
@@ -62,7 +62,7 @@
       "odd-row"))
 
 (def (layered-function e) render-table-row (table row)
-  (:method :around (table row)
+  (:method :around ((table table-component) (row row-component))
     (ensure-uptodate row)
     (if (force (visible-p row))
         (call-next-method)
@@ -102,11 +102,17 @@
   ())
 
 (def (layered-function e) render-table-cell (table row column cell)
-  (:method :before (table row column cell)
+  (:method :before ((table table-component) (row row-component) (column column-component) (cell cell-component))
     (ensure-uptodate cell))
+
+  (:method ((table table-component) (row row-component) (column column-component) (cell component))
+    <td ,(render cell) >)
+
+  (:method ((table table-component) (row row-component) (column column-component) (cell string))
+    <td ,cell>)
   
-  (:method (table row column cell)
-    <td ,(render (content-of cell)) >))
+  (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
+    (render cell)))
 
 (def render cell-component ()
   <td ,(call-next-method)>)
