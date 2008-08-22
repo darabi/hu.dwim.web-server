@@ -18,7 +18,7 @@
    (occupied-worker-count 0)
    (started-at)
    (processed-request-count 0)
-   (profile #t :type boolean :export :accessor)))
+   (profile #f :type boolean :export :accessor)))
 
 (def print-object server
   (write-string "host: ")
