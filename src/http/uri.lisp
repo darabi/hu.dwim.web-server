@@ -192,19 +192,27 @@
   (let ((input-length (length input)))
     (when (zerop input-length)
       (return-from %unescape-as-uri ""))
-    (bind ((input-index 0)
+    (bind ((seen-escaped? #f)
+           (seen-escaped-non-ascii? #f)
+           (input-index 0)
            (output (make-array input-length :element-type '(unsigned-byte 8) :adjustable t :fill-pointer 0)))
       (declare (type fixnum input-length input-index))
       (labels ((read-next-char (must-exists-p)
                  (when (>= input-index input-length)
                    (if must-exists-p
                        (uri-parse-error "Unexpected end of input")
-                       (return-from %unescape-as-uri (utf-8-octets-to-string output))))
+                       (return-from %unescape-as-uri (if seen-escaped?
+                                                         (if seen-escaped-non-ascii?
+                                                             (utf-8-octets-to-string output)
+                                                             (us-ascii-octets-to-string output))
+                                                         input))))
                  (prog1
                      (aref input input-index)
                    (incf input-index)))
                (write-next-byte (byte)
                  (declare (type (unsigned-byte 8) byte))
+                 (when (> byte 127)
+                   (setf seen-escaped-non-ascii? #t))
                  (vector-push-extend byte output)
                  (values))
                (char-to-int (char)
@@ -220,10 +228,12 @@
                      (t (write-next-byte (char-code next-char))))
                    (parse)))
                (char% ()
+                 (setf seen-escaped? #t)
                  (write-next-byte (+ (ash (char-to-int (read-next-char t)) 4)
                                      (char-to-int (read-next-char t))))
                  (values))
                (char+ ()
+                 (setf seen-escaped? #t)
                  (write-next-byte +space+)))
         (parse)))))
 
@@ -247,7 +257,7 @@
                 :host     (process 3)
                 :port     (process 5)
                 :path     (process 6)
-                :query    (process 8)
+                :query    (aref pieces 8) ; query needs to be parsed before unescaping, see PARSE-QUERY-PARAMETERS
                 :fragment (process 10)))))
 
 (def macro record-query-parameter (param params)
