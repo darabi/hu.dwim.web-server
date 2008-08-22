@@ -10,5 +10,5 @@
 (eval-always
   (use-package :contextl))
 
-(def (function i) current-layer ()
+(def (function ie) current-layer ()
   (contextl::layer-context-prototype (current-layer-context)))
