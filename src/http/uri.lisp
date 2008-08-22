@@ -235,12 +235,20 @@
   ;; can't use :sharedp, because we expect the returned pieces to be simple-base-string's and :sharedp would return displaced arrays
   (bind ((pieces (nth-value 1 (cl-ppcre:scan-to-strings "^(([^:/?#]+):)?(//([^:/?#]*)(:([0-9]+))?)?([^?#]*)(\\?([^#]*))?(#(.*))?"
                                                         uri :sharedp #f))))
-    (make-uri :scheme   (aref pieces 1)
-              :host     (aref pieces 3)
-              :port     (aref pieces 5)
-              :path     (aref pieces 6)
-              :query    (aref pieces 8)
-              :fragment (aref pieces 10))))
+    (flet ((process (index)
+             (bind ((piece (aref pieces index)))
+               (values (if piece
+                           (unescape-as-uri piece)
+                           nil)))))
+      (declare (inline process)
+               (dynamic-extent #'process))
+      ;; call unescape-as-uri on each piece separately, so some of them may remain simple-base-string even if other pieces contain unicode
+      (make-uri :scheme   (process 1)
+                :host     (process 3)
+                :port     (process 5)
+                :path     (process 6)
+                :query    (process 8)
+                :fragment (process 10)))))
 
 (def macro record-query-parameter (param params)
   (declare (type cons param))
