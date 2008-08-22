@@ -184,11 +184,11 @@
              (format stream "%~2,'0X" char-code))))
 
 (def (function io) unescape-as-uri (string)
-  (%unescape-as-uri string))
+  (%unescape-as-uri (coerce string 'simple-base-string)))
 
 (def (function o) %unescape-as-uri (input)
   "URI unescape based on http://www.ietf.org/rfc/rfc2396.txt"
-  (declare (type string input))
+  (declare (type simple-base-string input))
   (let ((input-length (length input)))
     (when (zerop input-length)
       (return-from %unescape-as-uri ""))
