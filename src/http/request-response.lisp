@@ -365,7 +365,8 @@
                                        :headers (headers-of self)
                                        :cookies (cookies-of self))
     <h1 "Page not found">
-    <p ,(print-uri-to-string (uri-of *request*)) " was not found on this server">))
+    <p <span (:style "background-color: #fdd;") ,(print-uri-to-string (uri-of *request*) #f)>
+       " was not found on this server">))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
