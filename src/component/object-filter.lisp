@@ -57,11 +57,17 @@
 
 (def render standard-object-filter ()
   (with-slots (result content command-bar id) -self-
-    <div (:id ,id)
-         ,(render-user-messages -self-)
-         ,(render content)
-         ,@(unless (typep content '(or reference-component atomic-component))
-             (list (render command-bar) (render result)))>))
+    (flet ((body ()
+             (render-user-messages -self-)
+             (render content)
+             (unless (typep content '(or reference-component atomic-component))
+               (render command-bar)
+               (render result))))
+      (if (typep content 'reference-component)
+          <span (:id ,id :class "standard-object-filter")
+            ,(body)>
+          <div (:id ,id :class "standard-object-filter")
+            ,(body)>))))
 
 ;;;;;;
 ;;; Standard object detail filter
@@ -128,7 +134,7 @@
 (def render standard-object-detail-filter ()
   (with-slots (class-selector class slot-value-groups id) -self-
     <div (:id ,id)
-         <div ,#"standard-object-detail-filter.instance" " " ,(render class)>
+         <div ,(standard-object-detail-filter.instance class)>
          ,(when class-selector
                 <div "Narrow down to "
                      ,(render class-selector)
@@ -136,14 +142,16 @@
                                        (make-action
                                          (setf (outdated-p -self-) #t))))>)
          <div <h3 ,#"standard-object-detail-filter.slots">
-              ,(map nil #'render slot-value-groups)>>))
+              <table ,(map nil #'render slot-value-groups)>>>))
 
 (defresources en
-  (standard-object-detail-filter.instance "Filter for instances of")
+  (standard-object-detail-filter.instance (class)
+    <span "Searching for instances of" ,(render class)>)
   (standard-object-detail-filter.slots "Slots"))
 
 (defresources hu
-  (standard-object-detail-filter.instance "Keresés ")
+  (standard-object-detail-filter.instance (class)
+    <span ,(render class) " keresése">)
   (standard-object-detail-filter.slots "Tulajdonságok"))
 
 ;;;;;;
@@ -165,12 +173,10 @@
 (def render standard-object-slot-value-group-filter ()
   (with-slots (slot-values id) -self-
     (if slot-values
-        <table (:id ,id :class "slot-value-group")
-          <thead <tr <th ,#"standard-object-slot-value-group.column.name">
-                     <th>
-                     <th>
+        (progn
+          <thead <tr <th (:colspan 3) ,#"standard-object-slot-value-group.column.name">
                      <th ,#"standard-object-slot-value-group.column.value">>>
-          <tbody ,(map nil #'render slot-values)>>
+          <tbody ,(map nil #'render slot-values)>)
         <span (:id ,id) ,#"there-are-none">)))
 
 ;;;;;;

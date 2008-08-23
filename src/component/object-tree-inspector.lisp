@@ -66,7 +66,7 @@
                                                      :the-class (the-class-of component)
                                                      :children-provider (children-provider-of component)
                                                      :parent-provider (parent-provider-of component))
-          (delay-alternative-reference-component 'standard-object-tree-reference instance))))
+          (delay-alternative-reference-component 'standard-object-tree-inspector-reference instance))))
 
 ;;;;;;
 ;;; Standard object tree table
@@ -248,7 +248,7 @@
                    :instances instances
                    :component-factory (lambda (list-component class instance)
                                         (declare (ignore list-component class))
-                                        (make-instance 'standard-object-reference
+                                        (make-instance 'standard-object-inspector-reference
                                                        :target instance
                                                        :expand-command (command (icon expand)
                                                                                 (make-action

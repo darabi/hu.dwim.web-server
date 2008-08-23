@@ -53,18 +53,19 @@
 
 (def render standard-object-inspector ()
   (with-slots (content id) -self-
-    (if (typep content 'reference-component)
-        <span (:id ,id :class "standard-object")
-              ,(render-user-messages -self-)
-              ,(call-next-method)>
-        <div (:id ,id :class "standard-object")
-             ,(render-user-messages -self-)
-             ,(call-next-method)>)))
+    (flet ((body ()
+             (render-user-messages -self-)
+             (call-next-method)))
+      (if (typep content '(or reference-component atomic-component))
+          <span (:id ,id :class "standard-object-inspector")
+            ,(body)>
+          <div (:id ,id :class "standard-object-inspector")
+            ,(body)>))))
 
 (def (layered-function e) make-standard-object-inspector-alternatives (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-inspector :instance instance)
-          (delay-alternative-reference-component 'standard-object-reference instance))))
+          (delay-alternative-reference-component 'standard-object-inspector-reference instance))))
 
 (def (layered-function e) make-standard-object-inspector-commands (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
@@ -150,16 +151,18 @@
 (def render standard-object-detail-inspector ()
   (with-slots (class slot-value-groups id) -self-
     <div (:id ,id :class "standard-object")
-         <span ,#"standard-object-detail-inspector.instance" " " ,(render class)>
+         <span ,(standard-object-detail-inspector.instance class)>
          <div <h3 ,#"standard-object-detail-inspector.slots">
-              ,(map nil #'render slot-value-groups)>>))
+              <table ,(map nil #'render slot-value-groups)>>>))
 
 (defresources en
-  (standard-object-detail-inspector.instance "An instance of")
+  (standard-object-detail-inspector.instance (class)
+    <span "Viewing an instance of " ,(render class)>)
   (standard-object-detail-inspector.slots "Slots"))
 
 (defresources hu
-  (standard-object-detail-inspector.instance "Egy")
+  (standard-object-detail-inspector.instance (class)
+    <span "Egy " ,(render class) " megjelenítése">)
   (standard-object-detail-inspector.slots "Tulajdonságok"))
 
 ;;;;;;

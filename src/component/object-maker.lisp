@@ -48,10 +48,15 @@
               content nil))))
 
 (def render standard-object-maker ()
-  (with-slots (id) -self-
-    <div (:id ,id)
-         ,(render-user-messages -self-)
-         ,(call-next-method)>))
+  (with-slots (id content) -self-
+    (flet ((body ()
+             (render-user-messages -self-)
+             (call-next-method)))
+      (if (typep content 'reference-component)
+          <span (:id ,id :class "standard-object-maker")
+            ,(body)>
+          <div (:id ,id :class "standard-object-maker")
+            ,(body)>))))
 
 (def (layered-function e) make-standard-object-maker-alternatives (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
@@ -158,7 +163,7 @@
 (def render standard-object-detail-maker ()
   (with-slots (class-selector class slot-value-groups id) -self-
     <div (:id ,id)
-         <span ,#"standard-object-detail-maker.instance" " " ,(render class)>
+         <span ,(standard-object-detail-maker.instance class)>
          ,(when class-selector
                 <div "Narrow down to "
                      ,(render class-selector)
@@ -166,14 +171,16 @@
                                        (make-action
                                          (setf (outdated-p -self-) #t))))>)
          <div <h3 ,#"standard-object-detail-maker.slots">
-              ,(map nil #'render slot-value-groups)>>))
+              <table ,(map nil #'render slot-value-groups)>>>))
 
 (defresources en
-  (standard-object-detail-maker.instance "Creating an instance of")
+  (standard-object-detail-maker.instance (class)
+    <span "Creating an instance of" ,(render class)>)
   (standard-object-detail-maker.slots "Slots"))
 
 (defresources hu
-  (standard-object-detail-maker.instance "Egy új ")
+  (standard-object-detail-maker.instance (class)
+    <span "Egy új " ,(render class) " felvétele">)
   (standard-object-detail-maker.slots "Tulajdonságok"))
 
 ;;;;;;

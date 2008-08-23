@@ -40,16 +40,21 @@
                                                            (make-standard-object-list-inspector-commands self the-class (class-prototype the-class)))))))
 
 (def render standard-object-list-inspector ()
-  (with-slots (id) -self-
-    <div (:id ,id :class "standard-object-list")
-         ,(render-user-messages -self-)
-         ,(call-next-method)>))
+  (with-slots (id content) -self-
+    (flet ((body ()
+             (render-user-messages -self-)
+             (call-next-method)))
+      (if (typep content 'reference-component)
+          <span (:id ,id :class "standard-object-list-inspector")
+            ,(body)>
+          <div (:id ,id :class "standard-object-list-inspector")
+            ,(body)>))))
 
 (def (layered-function e) make-standard-object-list-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
     (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
           (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
-          (delay-alternative-reference-component 'standard-object-list-reference instances))))
+          (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
 
 (def (layered-function e) make-standard-object-list-inspector-commands (component class prototype)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))

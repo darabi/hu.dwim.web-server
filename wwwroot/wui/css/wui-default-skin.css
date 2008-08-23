@@ -51,20 +51,6 @@ td
   vertical-align: top;
 }
 
-/* slot-value-group */
-
-table.slot-value-group
-{
-  border: 2px;
-  border-style: inset;
-  margin: 2px;
-}
-
-table.slot-value-group > tbody > tr > td.slot-value-label
-{
-  width: 200px;
-}
-
 /* tree */
 
 table.tree > tbody > tr > td.expander img

@@ -52,7 +52,7 @@ div.list.vertical > div
   standard object
 */
 
-.standard-object > table.list
+.standard-object-inspector > table.list
 {
   /* this is needed when used in tooltips */
   width: auto;

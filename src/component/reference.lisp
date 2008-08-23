@@ -73,33 +73,33 @@
 ;;;;;;
 ;;; Standard object reference
 
-(def component standard-object-reference (reference-component)
+(def component standard-object-inspector-reference (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-reference) (class standard-class) (instance standard-object))
+(def method make-reference-label ((reference standard-object-inspector-reference) (class standard-class) (instance standard-object))
   (princ-to-string instance))
 
-(def method make-reference-label ((reference standard-object-reference) (class dmm::entity) (instance prc::persistent-object))
-  (reuse-standard-object-reference reference)
+(def method make-reference-label ((reference standard-object-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
+  (reuse-standard-object-inspector-reference reference)
   (localized-instance-name instance))
 
-(def function reuse-standard-object-reference (self)
+(def function reuse-standard-object-inspector-reference (self)
   (bind ((instance (target-of self)))
     (setf (target-of self) (reuse-standard-object-instance (class-of instance) instance))))
 
-(def method refresh-component :before ((self standard-object-reference))
-  (reuse-standard-object-reference self))
+(def method refresh-component :before ((self standard-object-inspector-reference))
+  (reuse-standard-object-inspector-reference self))
 
-(def render :before standard-object-reference
-  (reuse-standard-object-reference -self-))
+(def render :before standard-object-inspector-reference
+  (reuse-standard-object-inspector-reference -self-))
 
 ;;;;;;
 ;;; Standard object list reference
 
-(def component standard-object-list-reference (reference-component)
+(def component standard-object-list-inspector-reference (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-list-reference) class (list list))
+(def method make-reference-label ((reference standard-object-list-inspector-reference) class (list list))
   (apply #'concatenate-string
          (append (list "(")
                  (iter (for index :from 0 :below 3)
@@ -110,29 +110,29 @@
                          (collect " ...")))
                  (list ")"))))
 
-(def method make-reference-label ((reference standard-object-list-reference) (class dmm::entity) (instance prc::persistent-object))
+(def method make-reference-label ((reference standard-object-list-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
   (localized-instance-name instance))
 
-(def function reuse-standard-object-list-reference (self)
+(def function reuse-standard-object-list-inspector-reference (self)
   ;; TODO: performance killer
   (setf (target-of self)
         (mapcar (lambda (instance)
                   (reuse-standard-object-instance (class-of instance) instance))
                 (target-of self))))
 
-(def method refresh-component :before ((self standard-object-list-reference))
-  (reuse-standard-object-list-reference self))
+(def method refresh-component :before ((self standard-object-list-inspector-reference))
+  (reuse-standard-object-list-inspector-reference self))
 
-(def render :before standard-object-list-reference
-  (reuse-standard-object-list-reference -self-))
+(def render :before standard-object-list-inspector-reference
+  (reuse-standard-object-list-inspector-reference -self-))
 
 ;;;;;;
 ;;; Standard object tree reference
 
-(def component standard-object-tree-reference (reference-component)
+(def component standard-object-tree-inspector-reference (reference-component)
   ())
 
-(def method make-reference-label ((reference standard-object-tree-reference) (class standard-class) (instance standard-object))
+(def method make-reference-label ((reference standard-object-tree-inspector-reference) (class standard-class) (instance standard-object))
   (concatenate-string "Tree rooted at: " (princ-to-string instance)))
 
 ;;;;;;

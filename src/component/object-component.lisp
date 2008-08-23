@@ -123,10 +123,10 @@
 (def render standard-object-slot-value-group-component ()
   (with-slots (slot-values id) -self-
     (if slot-values
-        <table (:id ,id :class "slot-value-group")
+        (progn
           <thead <tr <th ,#"standard-object-slot-value-group.column.name">
                      <th ,#"standard-object-slot-value-group.column.value">>>
-          <tbody ,(map nil #'render slot-values)>>
+          <tbody ,(map nil #'render slot-values)>)
         <span (:id ,id) ,#"there-are-none">)))
 
 (defresources en
