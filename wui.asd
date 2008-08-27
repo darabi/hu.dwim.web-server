@@ -137,7 +137,7 @@
                                (:file "error-handlers")))
                  (:module "component"
                   :components ((:file "mop" )
-                               (:file "constructor")
+                               #+sbcl(:file "constructor")
                                (:file "component" :depends-on ("mop" "constructor"))
                                (:file "factory" :depends-on ("component"))
                                (:file "place" :depends-on ("component"))
