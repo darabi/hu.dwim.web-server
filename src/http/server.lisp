@@ -18,7 +18,7 @@
    (occupied-worker-count 0)
    (started-at)
    (processed-request-count 0)
-   (profile #f :type boolean :export :accessor)))
+   (profile-request-processing #f :type boolean :export :accessor)))
 
 (def print-object server
   (write-string "host: ")
@@ -242,14 +242,8 @@
          (raw-uri (raw-uri-of request)))
     (http.info "Handling request from ~S for ~S, method ~S" remote-host raw-uri (http-method-of request))
     (multiple-value-prog1
-        (if (profile-p server)
-            (progn
-              (sb-sprof:start-profiling)
-              (multiple-value-prog1
-                  (unwind-protect
-                       (call-next-method)
-                    #+nil ;; TODO: KLUDGE: this makes profiling useless, don't know why
-                    (sb-sprof:stop-profiling))))
+        (if (profile-request-processing-p server)
+            (call-with-profiling #'call-next-method)
             (call-next-method))
       (bind ((seconds (- (get-monotonic-time) start-time)))
         (when (> seconds 0.05)

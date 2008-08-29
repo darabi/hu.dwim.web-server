@@ -99,3 +99,9 @@ the class itself is not included in the mapping. Proper? defaults to nil."
                             (push class result))
                     :proper? proper?)
     (nreverse result)))
+
+(defun sbcl-with-symbol (package name)
+  #+sbcl (if (find-symbol (string name) (string package))
+             '(:and)
+             '(:or))
+  #-sbcl '(:or))
