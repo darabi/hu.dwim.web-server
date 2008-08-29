@@ -101,7 +101,8 @@ the class itself is not included in the mapping. Proper? defaults to nil."
     (nreverse result)))
 
 (defun sbcl-with-symbol (package name)
-  #+sbcl (if (find-symbol (string name) (string package))
+  #+sbcl (if (and (find-package (string package))
+                  (find-symbol (string name) (string package)))
              '(:and)
              '(:or))
   #-sbcl '(:or))
