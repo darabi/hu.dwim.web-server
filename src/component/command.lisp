@@ -206,8 +206,9 @@
 (def (function e) make-open-in-new-frame-command (component)
   (make-instance 'command-component
                  :icon (icon open-in-new-frame)
-                 :js (lambda (href) `js-inline(window.open ,href))
-                 :action (make-action
+                 :js (lambda (href)
+                       `js-inline(window.open ,href))
+                 :action (make-action-uri (:delayed-content #t)
                            (bind ((clone (clone-component component))
                                   (*frame* (make-new-frame *application* *session*)))
                              (setf (component-value-of clone) (component-value-of component))
