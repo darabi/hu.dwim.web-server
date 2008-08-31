@@ -29,7 +29,7 @@
                (onclick-js (or js
                                (lambda (href)
                                  `js-inline(wui.submit-form ,href)))))
-          <a (:href "#" :onclick ,(progn (funcall onclick-js href) nil)) ;; TODO: why the hell do we need that nil over there?
+          <a (:href "#" :onclick ,(funcall onclick-js href))
              ,(render icon)>)
         (render icon))))
 
