@@ -140,27 +140,32 @@
   (:method (new-value (self abstract-selectable-standard-object-component))
     (bind ((selected-instance-set (ensure-selected-instance-set self)))
       (clrhash selected-instance-set)
-      (dolist (element new-value)
-        (setf (gethash (prc::oid-of element) selected-instance-set) element)))))
+      (dolist (instance new-value)
+        (setf (gethash (prc::oid-of instance) selected-instance-set) instance)))))
 
-(def generic selected-instance-p (component element)
-  (:method ((component abstract-selectable-standard-object-component) element)
+(def generic selected-instance-p (component instance)
+  (:method ((component abstract-selectable-standard-object-component) instance)
     (awhen (selected-instance-set-of component)
-      (gethash (prc::oid-of element) it))))
+      (gethash (prc::oid-of instance) it))))
 
-(def generic (setf selected-instance-p) (new-value component element)
-  (:method (new-value (component abstract-selectable-standard-object-component) element)
+(def generic (setf selected-instance-p) (new-value component instance)
+  (:method (new-value (component abstract-selectable-standard-object-component) instance)
     (bind ((selected-instance-set (ensure-selected-instance-set component)))
       (if new-value
-          (setf (gethash (prc::oid-of element) selected-instance-set) element)
-          (remhash (prc::oid-of element) selected-instance-set)))))
+          (setf (gethash (prc::oid-of instance) selected-instance-set) instance)
+          (remhash (prc::oid-of instance) selected-instance-set)))))
 
 (def function make-select-instance-command (component instance)
   (command (icon select)
            (make-action
-             (when (single-selection-mode-p component)
-               (setf (selected-instances-of component) nil))
-             (notf (selected-instance-p component instance)))))
+             (with-restored-component-environment component
+               (execute-select-instance component (class-of instance) instance)))))
+
+(def (layered-function e) execute-select-instance (component class instance)
+  (:method ((component abstract-selectable-standard-object-component) (class standard-class) (instance standard-object))
+    (when (single-selection-mode-p component)
+      (setf (selected-instances-of component) nil))
+    (notf (selected-instance-p component instance))))
 
 ;;;;;;
 ;;; Standard object slot value group 
