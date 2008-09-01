@@ -6,7 +6,7 @@
 
 (def (constant :test 'string=) +session-cookie-name+ "sid")
 
-(def constant +session-id-length+ 32)
+(def constant +session-id-length+ 40)
 
 (def (special-variable e) *session*)
 
