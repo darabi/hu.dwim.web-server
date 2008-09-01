@@ -84,7 +84,7 @@
     (setf columns (make-standard-object-tree-table-inspector-columns self))
     (if root-node
         (setf (component-value-of root-node) instance)
-        (setf root-node (make-standard-object-tree-node self instance)))))
+        (setf root-node (make-standard-object-tree-table-node self (class-of instance) instance)))))
 
 (def (function e) make-standard-object-tree-table-type-column ()
   (make-instance 'column-component
@@ -170,12 +170,12 @@
 (def method refresh-component ((self standard-object-tree-node-inspector))
   (with-slots (children-provider instance command-bar child-nodes cells) self
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-tree-node-inspector-commands self (class-of instance) instance))
+        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-tree-table-node-inspector-commands self (class-of instance) instance))
               child-nodes (iter (for child :in (funcall (children-provider-of self) instance))
                                 (for node = (find instance child-nodes :key #'component-value-of))
                                 (if node
                                     (setf (component-value-of node) child)
-                                    (setf node (make-standard-object-tree-node (find-ancestor-component-with-type self 'tree-component) child)))
+                                    (setf node (make-standard-object-tree-table-node (find-ancestor-component-with-type self 'tree-component) (class-of child) child)))
                                 (collect node))
               cells (mapcar (lambda (column)
                               (funcall (cell-factory-of column) self))
@@ -183,8 +183,8 @@
         (setf command-bar nil
               cells nil))))
 
-(def (generic e) make-standard-object-tree-node (component instance)
-  (:method ((component standard-object-tree-table-inspector) (instance standard-object))
+(def (layered-function e) make-standard-object-tree-table-node (component class instance)
+  (:method ((component standard-object-tree-table-inspector) (class standard-class) (instance standard-object))
     (make-instance 'standard-object-tree-node-inspector
                    :instance instance
                    :children-provider (children-provider-of component)
@@ -197,7 +197,7 @@
                           (render-user-messages -self-))))
   (call-next-method))
 
-(def (layered-function e) make-standard-object-tree-node-inspector-commands (component class instance)
+(def (layered-function e) make-standard-object-tree-table-node-inspector-commands (component class instance)
   (:method ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
     (append (make-editing-commands component)
             (list (make-expand-node-command component instance))))
@@ -326,3 +326,56 @@
 (def (generic e) render-standard-object-tree-nested-box-inspector-node (component node)
   (:method ((component standard-object-tree-nested-box-inspector) (instance standard-object))
     <div ,(localized-instance-name instance)>))
+
+;;;;;
+;;; Selectable standard object tree inspector
+
+(def component selectable-standard-object-tree-inspector (standard-object-tree-inspector)
+  ())
+
+(def layered-method make-standard-object-tree-inspector-alternatives ((component selectable-standard-object-tree-inspector) (class standard-class) (instance standard-object))
+  ;; TODO: factor
+  (list (delay-alternative-component-with-initargs 'selectable-standard-object-tree-table-inspector
+                                                   :instance instance
+                                                   :the-class (the-class-of component)
+                                                   :children-provider (children-provider-of component)
+                                                   :parent-provider (parent-provider-of component))
+        (delay-alternative-component-with-initargs 'standard-object-tree-nested-box-inspector
+                                                   :instance instance
+                                                   :the-class (the-class-of component)
+                                                   :children-provider (children-provider-of component)
+                                                   :parent-provider (parent-provider-of component))
+        (delay-alternative-component-with-initargs 'standard-object-tree-level-inspector
+                                                   :instance instance
+                                                   :the-class (the-class-of component)
+                                                   :children-provider (children-provider-of component)
+                                                   :parent-provider (parent-provider-of component))
+        (delay-alternative-reference-component 'standard-object-tree-inspector-reference instance)))
+
+;;;;;;
+;;; Selectable standard object tree table inspector
+
+(def component selectable-standard-object-tree-table-inspector (standard-object-tree-table-inspector
+                                                                abstract-selectable-standard-object-component)
+  ())
+
+(def layered-method make-standard-object-tree-table-node ((component selectable-standard-object-tree-table-inspector) (class standard-class) (instance standard-object))
+  (make-instance 'selectable-standard-object-tree-node-inspector
+                 :instance instance
+                 :children-provider (children-provider-of component)
+                 :expanded (expand-nodes-by-default-p component)))
+
+;;;;;;
+;;; Selectable standard object tree node inspector
+
+(def component selectable-standard-object-tree-node-inspector (standard-object-tree-node-inspector)
+  ())
+
+(def layered-method tree-node-style-class ((self selectable-standard-object-tree-node-inspector))
+  (concatenate-string (call-next-method)
+                      (when (selected-instance-p (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component) (instance-of self))
+                        " selected")))
+
+(def layered-method make-standard-object-tree-table-node-inspector-commands ((component selectable-standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
+  (list* (make-select-instance-command (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) instance)
+         (call-next-method)))

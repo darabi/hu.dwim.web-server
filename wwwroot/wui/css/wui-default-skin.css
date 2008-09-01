@@ -12,6 +12,10 @@ tr.selected {
   background-color: #bbbbbb;
 }
 
+tr.selected.highlighted {
+  background-color: #bbbbbb;
+}
+
 tr.selected.highlighted.odd-row {
   background-color: #bbbbbb;
 }

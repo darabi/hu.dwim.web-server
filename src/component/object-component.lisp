@@ -141,19 +141,26 @@
     (bind ((selected-instance-set (ensure-selected-instance-set self)))
       (clrhash selected-instance-set)
       (dolist (element new-value)
-        (setf (gethash element selected-instance-set) element)))))
+        (setf (gethash (prc::oid-of element) selected-instance-set) element)))))
 
 (def generic selected-instance-p (component element)
   (:method ((component abstract-selectable-standard-object-component) element)
     (awhen (selected-instance-set-of component)
-      (gethash element it))))
+      (gethash (prc::oid-of element) it))))
 
 (def generic (setf selected-instance-p) (new-value component element)
   (:method (new-value (component abstract-selectable-standard-object-component) element)
     (bind ((selected-instance-set (ensure-selected-instance-set component)))
       (if new-value
-          (setf (gethash element selected-instance-set) element)
-          (remhash element selected-instance-set)))))
+          (setf (gethash (prc::oid-of element) selected-instance-set) element)
+          (remhash (prc::oid-of element) selected-instance-set)))))
+
+(def function make-select-instance-command (component instance)
+  (command (icon select)
+           (make-action
+             (when (single-selection-mode-p component)
+               (setf (selected-instances-of component) nil))
+             (notf (selected-instance-p component instance)))))
 
 ;;;;;;
 ;;; Standard object slot value group 

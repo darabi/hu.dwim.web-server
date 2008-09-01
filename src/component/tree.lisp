@@ -39,11 +39,15 @@
   (with-slots (child-nodes cells expanded id) -self-
     <tr (:id ,id
          :style ,(style-of -self-)
-         :class ,(concatenate-string "level-" (integer-to-string *tree-level*) " " (css-class-of -self-)))
+         :class ,(tree-node-style-class -self-))
         ,(render-tree-node-expander-cell -self-)
         ,(render-tree-node-cells -self-) >
     (when expanded
       (map nil #'render child-nodes))))
+
+(def (layered-function e) tree-node-style-class (component)
+  (:method ((self node-component))
+    (concatenate-string "level-" (integer-to-string *tree-level*) " " (css-class-of self))))
 
 (def (function e) render-tree-node-expander (node-component)
   (with-slots (child-nodes expanded) node-component

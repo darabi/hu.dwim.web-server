@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Standard object list
+;;; Standard object list inspector
 
 (def component standard-object-list-inspector (abstract-standard-object-list-component
                                                abstract-standard-class-component
@@ -65,7 +65,7 @@
       (make-editing-commands component))))
 
 ;;;;;;
-;;; Standard object list list
+;;; Standard object list list inspector
 
 (def component standard-object-list-list-inspector (abstract-standard-object-list-component
                                                     abstract-standard-class-component
@@ -91,7 +91,7 @@
     (make-viewer instance :default-component-type 'reference-component)))
 
 ;;;;;;
-;;; Standard object table
+;;; Standard object table inspector
 
 (def component standard-object-list-table-inspector (abstract-standard-object-list-component
                                                      abstract-standard-class-component
@@ -107,10 +107,10 @@
                      (for row = (find instance rows :key #'component-value-of))
                      (if row
                          (setf (component-value-of row) instance)
-                         (setf row (make-standard-object-table-row self the-class instance)))
+                         (setf row (make-standard-object-list-table-row self the-class instance)))
                      (collect row)))))
 
-(def (layered-function e) make-standard-object-table-row (component class instance)
+(def (layered-function e) make-standard-object-list-table-row (component class instance)
   (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
     (make-instance 'standard-object-row-inspector :instance instance)))
 
@@ -179,7 +179,7 @@
   (object-list-table.column.type "Type"))
 
 ;;;;;;
-;;; Standard object row
+;;; Standard object row inspector
 
 (def component standard-object-row-inspector (abstract-standard-object-component
                                               inspector-component
@@ -223,7 +223,7 @@
                                       (list :icon (icon collapse))))
 
 ;;;;;;
-;;; Standard object slot value cell
+;;; Standard object slot value cell inspector
 
 (def component standard-object-slot-value-cell-component (abstract-standard-object-slot-value-component
                                                           cell-component
@@ -235,3 +235,40 @@
     (if slot
         (setf content (make-instance 'place-inspector :place (make-slot-value-place instance slot)))
         (setf content nil))))
+
+;;;;;;
+;;; Standard object list inspector
+
+(def component selectable-standard-object-list-inspector (standard-object-list-inspector)
+  ())
+
+(def (layered-function e) make-standard-object-list-inspector-alternatives (component class prototype instances)
+  (:method ((component selectable-standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
+    (list (delay-alternative-component-with-initargs 'selectable-standard-object-list-table-inspector :the-class class :instances instances)
+          (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
+          (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
+
+;;;;;;
+;;; Selectable standard object list table inspector
+
+(def component selectable-standard-object-list-table-inspector (standard-object-list-table-inspector
+                                                                abstract-selectable-standard-object-component)
+  ())
+
+(def layered-method make-standard-object-list-table-row ((component selectable-standard-object-list-table-inspector) (class standard-class) (instance standard-object))
+  (make-instance 'selectable-standard-object-row-inspector :instance instance))
+
+;;;;;;
+;;; Selectable standard object row inspector
+
+(def component selectable-standard-object-row-inspector (standard-object-row-inspector)
+  ())
+
+(def layered-method table-row-style-class ((table selectable-standard-object-list-table-inspector) (row selectable-standard-object-row-inspector))
+  (concatenate-string (call-next-method)
+                      (when (selected-instance-p table (instance-of row))
+                        " selected")))
+
+(def layered-method make-standard-object-row-inspector-commands ((component selectable-standard-object-row-inspector) (class standard-class) (instance standard-object))
+  (list* (make-select-instance-command (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) instance)
+         (call-next-method)))
