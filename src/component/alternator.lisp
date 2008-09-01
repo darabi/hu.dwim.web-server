@@ -89,7 +89,8 @@
 
 (def (macro e) delay-alternative-reference-component (type target)
   `(delay-alternative-component ,type
-     (setf-expand-reference-to-default-alternative-command (make-instance ,type :target ,target))))
+     (prog1-bind reference (make-instance ,type :target ,target)
+       (setf-expand-reference-to-default-alternative-command reference))))
 
 (def function setf-expand-reference-to-default-alternative-command (reference)
   (setf (expand-command-of reference)

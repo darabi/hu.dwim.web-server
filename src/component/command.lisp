@@ -155,11 +155,14 @@
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT"
   (apply #'make-instance 'command-component
          :action (make-action
-                   (bind ((replacement-component (force replacement-component))
-                          (original-component (force original-component))
-                          (original-place (make-component-place original-component)))
-                     (setf (component-at-place original-place) replacement-component)))
+                   (execute-replace original-component replacement-component))
          replace-command-args))
+
+(def function execute-replace (original-component replacement-component)
+  (bind ((replacement-component (force replacement-component))
+         (original-component (force original-component))
+         (original-place (make-component-place original-component)))
+    (setf (component-at-place original-place) replacement-component)))
 
 (def (function e) make-back-command (original-component original-place replacement-component replacement-place &rest args)
   "The BACK command puts REPLACEMENT-COMPONENT and ORIGINAL-COMPONENT back to their COMPONENT-PLACE and removes itself from its COMMAND-BAR"
@@ -175,17 +178,20 @@
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT and pushes a BACK command into the COMMAND-BAR of REPLACEMENT-COMPONENT to revert the changes"
   (apply #'make-instance 'command-component
          :action (make-action
-                   (bind ((replacement-component (force replacement-component))
-                          (replacement-place (make-component-place replacement-component))
-                          (original-component (force original-component))
-                          (original-place (make-component-place original-component))
-                          (back-command (apply #'make-back-command original-component original-place replacement-component replacement-place
-                                               (append back-command-args
-                                                       `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
-                                                                               (eq (force replacement-component) (component-at-place original-place)))))))))
-                     (push-command back-command replacement-component)
-                     (setf (component-at-place original-place) replacement-component)))
+                   (execute-replace-and-push-back original-component replacement-component back-command-args))
          replace-command-args))
+
+(def function execute-replace-and-push-back (original-component replacement-component back-command-args)
+  (bind ((replacement-component (force replacement-component))
+         (replacement-place (make-component-place replacement-component))
+         (original-component (force original-component))
+         (original-place (make-component-place original-component))
+         (back-command (apply #'make-back-command original-component original-place replacement-component replacement-place
+                              (append back-command-args
+                                      `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
+                                                              (eq (force replacement-component) (component-at-place original-place)))))))))
+    (push-command back-command replacement-component)
+    (setf (component-at-place original-place) replacement-component)))
 
 (def (function e) find-top-component-content (component)
   (awhen (find-ancestor-component-with-type component 'top-component)
@@ -197,7 +203,7 @@
 (def (function e) make-top-command (replacement-component)
   "The TOP command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT"
   (bind ((original-component (delay (find-top-component-content replacement-component))))
-    (make-replace-and-push-back-command original-component  replacement-component
+    (make-replace-and-push-back-command original-component replacement-component
                                         (list :icon (icon top) :visible (delay (not (top-component-p replacement-component))))
                                         (list :icon (icon back)))))
 
