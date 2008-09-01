@@ -242,11 +242,10 @@
 (def component selectable-standard-object-list-inspector (standard-object-list-inspector)
   ())
 
-(def (layered-function e) make-standard-object-list-inspector-alternatives (component class prototype instances)
-  (:method ((component selectable-standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
-    (list (delay-alternative-component-with-initargs 'selectable-standard-object-list-table-inspector :the-class class :instances instances)
-          (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
-          (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
+(def layered-method make-standard-object-list-inspector-alternatives ((component selectable-standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
+  (list (delay-alternative-component-with-initargs 'selectable-standard-object-list-table-inspector :the-class class :instances instances)
+        (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
+        (delay-alternative-reference-component 'standard-object-list-inspector-reference instances)))
 
 ;;;;;;
 ;;; Selectable standard object list table inspector
