@@ -115,6 +115,47 @@
     (setf (children-provider-of clone) (children-provider-of self))))
 
 ;;;;;;
+;;; Abstract selectable standard object
+
+(def component abstract-selectable-standard-object-component ()
+  ((selected-instance-set nil :type (or null hash-table))
+   (minimum-selection-cardinality 0 :type fixnum)
+   (maximum-selection-cardinality 1 :type fixnum)))
+
+(def function ensure-selected-instance-set (component)
+  (or (selected-instance-set-of component)
+      (setf (selected-instance-set-of component)
+            (make-hash-table :test #'eq))))
+
+(def generic single-selection-mode-p (component)
+  (:method ((self abstract-selectable-standard-object-component))
+    (= 1 (maximum-selection-cardinality-of self))))
+
+(def generic selected-instances-of (component)
+  (:method ((self abstract-selectable-standard-object-component))
+    (awhen (selected-instance-set-of self)
+      (hash-table-keys it))))
+
+(def generic (setf selected-instances-of) (new-value component)
+  (:method (new-value (self abstract-selectable-standard-object-component))
+    (bind ((selected-instance-set (ensure-selected-instance-set self)))
+      (clrhash selected-instance-set)
+      (dolist (element new-value)
+        (setf (gethash element selected-instance-set) element)))))
+
+(def generic selected-instance-p (component element)
+  (:method ((component abstract-selectable-standard-object-component) element)
+    (awhen (selected-instance-set-of component)
+      (gethash element it))))
+
+(def generic (setf selected-instance-p) (new-value component element)
+  (:method (new-value (component abstract-selectable-standard-object-component) element)
+    (bind ((selected-instance-set (ensure-selected-instance-set component)))
+      (if new-value
+          (setf (gethash element selected-instance-set) element)
+          (remhash element selected-instance-set)))))
+
+;;;;;;
 ;;; Standard object slot value group 
 
 (def component standard-object-slot-value-group-component (abstract-standard-slot-definition-group-component remote-identity-component-mixin)
