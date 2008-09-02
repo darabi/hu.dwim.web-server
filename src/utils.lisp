@@ -97,11 +97,46 @@
     (t
      otherwise)))
 
+;;;;;;
+;;; Tree
+
 (def (function o) find-ancestor (node parent-function map-function)
+  (declare (type function parent-function map-function))
   (iter (for current-node :initially node :then (funcall parent-function current-node))
         (while current-node)
         (when (funcall map-function current-node)
           (return current-node))))
+
+(def (function o) find-root (node parent-function)
+  (declare (type function parent-function))
+  (iter (for current-node :initially node :then (funcall parent-function current-node))
+        (for previous-node :previous current-node)
+        (while current-node)
+        (finally (return previous-node))))
+
+(def (function o) map-parent-chain (node parent-function map-function)
+  (declare (type function parent-function map-function))
+  (iter (for current-node :initially node :then (funcall parent-function current-node))
+        (while current-node)
+        (funcall map-function current-node)))
+
+(def (function o) map-tree (node children-function map-function)
+  (declare (type function children-function map-function))
+  (map-tree* node children-function
+             (lambda (node parent level)
+               (declare (ignore parent level))
+               (funcall map-function node))))
+
+(def (function o) map-tree* (node children-function map-function &optional (level 0) parent)
+  (declare (type function children-function map-function)
+           (type fixnum level))
+  (cons (funcall map-function node parent level)
+        (map 'list (lambda (child)
+                     (map-tree* child children-function map-function (1+ level) node))
+             (funcall children-function node))))
+
+;;;;;;
+;;; Temporary file
 
 (def special-variable *temporary-file-random* (princ-to-string (nix:getpid)))
 (def special-variable *temporary-file-unique-number* 0)
@@ -408,3 +443,12 @@
       (setf class (ensure-class (dynamic-class-name class-names) :direct-superclasses class-names :metaclass (dynamic-class-metaclass class-names)))
       (setf (find-dynamic-class class-names) class))
     (apply #'make-instance class args)))
+
+;;;;;
+;;; Hash set
+
+(def function make-hash-set-from-list (elements &key (test #'eq) (key #'identity))
+  (prog1-bind set
+      (make-hash-table :test test)
+    (dolist (element elements)
+      (setf (gethash (funcall key element) set) element))))

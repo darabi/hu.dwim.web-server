@@ -350,31 +350,33 @@
       (build-filter-query* slot-value filter-query)))
 
   (:method ((component standard-object-slot-value-filter) filter-query)
-    (bind ((value-component (content-of (value-of component))))
-      (cond ((or (typep value-component 'atomic-component)
-                 (typep value-component 'standard-object-inspector))
-             (bind ((value (component-value-of value-component)))
-               (when (and value
-                          (or (not (stringp value))
-                              (not (string= value ""))))
-                 (bind ((predicate (predicate-of component))
-                        (predicate-name (if (eq 'like predicate)
-                                            'prc::re-like
-                                            predicate))
-                        (ponated-predicate `(,predicate-name
-                                             (,(prc::reader-name-of (slot-of component))
-                                               ,(first (query-variable-stack-of filter-query)))
-                                             (quote ,value))))
-                   (prc::add-assert (query-of filter-query)
-                                    (if (negated-p component)
-                                        `(not ,ponated-predicate)
-                                        ponated-predicate))))))
-            ((and (typep value-component 'standard-object-filter)
-                  (not (typep (content-of value-component) 'standard-object-filter-reference)))
-             (call-with-new-query-variable value-component filter-query
-                                           (lambda (query-variable)
-                                             (prc::add-assert (query-of filter-query)
-                                                              `(eq ,query-variable
-                                                                   (,(prc::reader-name-of (slot-of component))
-                                                                     ,(second (query-variable-stack-of filter-query)))))
-                                             (build-filter-query* value-component filter-query))))))))
+    (bind ((value-component (content-of (value-of component)))
+           (slot (slot-of component)))
+      (when (typep slot 'prc::persistent-effective-slot-definition)
+        (cond ((or (typep value-component 'atomic-component)
+                   (typep value-component 'standard-object-inspector))
+               (bind ((value (component-value-of value-component)))
+                 (when (and value
+                            (or (not (stringp value))
+                                (not (string= value ""))))
+                   (bind ((predicate (predicate-of component))
+                          (predicate-name (if (eq 'like predicate)
+                                              'prc::re-like
+                                              predicate))
+                          (ponated-predicate `(,predicate-name
+                                               (,(prc::reader-name-of slot)
+                                                 ,(first (query-variable-stack-of filter-query)))
+                                               (quote ,value))))
+                     (prc::add-assert (query-of filter-query)
+                                      (if (negated-p component)
+                                          `(not ,ponated-predicate)
+                                          ponated-predicate))))))
+              ((and (typep value-component 'standard-object-filter)
+                    (not (typep (content-of value-component) 'standard-object-filter-reference)))
+               (call-with-new-query-variable value-component filter-query
+                                             (lambda (query-variable)
+                                               (prc::add-assert (query-of filter-query)
+                                                                `(eq ,query-variable
+                                                                     (,(prc::reader-name-of slot)
+                                                                       ,(second (query-variable-stack-of filter-query)))))
+                                               (build-filter-query* value-component filter-query)))))))))

@@ -101,7 +101,7 @@
                  :cell-factory (lambda (node-component)
                                  (make-instance 'cell-component :content (command-bar-of node-component)))))
 
-(def (generic e) make-standard-object-tree-table-inspector-columns (component)
+(def (layered-function e) make-standard-object-tree-table-inspector-columns (component)
   (:method ((self standard-object-tree-table-inspector))
     (append (optional-list
              (make-standard-object-tree-table-command-bar-column)
