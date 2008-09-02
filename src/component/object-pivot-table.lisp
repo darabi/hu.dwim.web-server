@@ -15,7 +15,7 @@
   (when lists
     (apply #'map-product function (car lists) (cdr lists))))
 
-(def method refresh-component ((self standard-object-list-pivot-table-component))
+(def method refresh-component :after ((self standard-object-list-pivot-table-component))
      (bind (((:read-only-slots row-axes column-axes column-leaf-count) self)
             ((:slots instances) self))
        (setf (cells-of self)
@@ -49,7 +49,7 @@
               (or (find-if (of-type 'standard-object-list-pivot-table-aggregator-category-component) row-path)
                   (find-if (of-type 'standard-object-list-pivot-table-aggregator-category-component) column-path))))
         (if aggregator-category
-            (bind ((aggregated-slots (collect-standard-object-list-aggregator-slots class))
+            (bind ((aggregated-slots (collect-standard-object-list-aggregator-slots (class-prototype (find-class 'standard-object-list-aggregator)) class))
                    (slot-name (slot-definition-name (first aggregated-slots))))
               (assert (length= 1 aggregated-slots))
               ;; TODO: make it a command which expands to the standard object list table (maybe aggregator list?)
@@ -58,9 +58,9 @@
                                 (slot-value instance slot-name)))))
             (make-instance 'standard-object-list-inspector
                            :instances instances
-                           :alternatives-factory (lambda (class instances)
+                           :alternatives-factory (lambda (component class prototype instances)
                                                    (list* (delay-alternative-component-with-initargs 'standard-object-list-aggregator :instances instances :the-class class)
-                                                          (make-standard-object-list-alternatives class instances))))))
+                                                          (make-standard-object-list-inspector-alternatives component class prototype instances))))))
       (empty)))
 
 ;;;;;;

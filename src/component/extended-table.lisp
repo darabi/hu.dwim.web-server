@@ -35,16 +35,15 @@
                (+ (* column-leaf-count (index-of (last-elt row-path)))
                   (index-of (last-elt column-path))))
              (map-headers-pathes (function headers)
-               (mappend (lambda (header)
-                          (prog1-bind result nil
-                            (labels ((traverse (decdendant path)
-                                       (aif (children-of decdendant)
-                                            (mapcar (lambda (child)
-                                                      (traverse child (append path (list child))))
-                                                    it)
-                                            (push (funcall function path) result))))
-                              (traverse header (list header)))))
-                        headers))
+               (map nil (lambda (header)
+                          (labels ((traverse (decdendant path)
+                                     (aif (children-of decdendant)
+                                          (map nil (lambda (child)
+                                                     (traverse child (append path (list child))))
+                                               it)
+                                          (funcall function path))))
+                            (traverse header (list header))))
+                    headers))
              (render-expanded-command (header)
                (render (command (if (expanded-p header)
                                     (label "-")
@@ -53,40 +52,37 @@
                                   (setf (expanded-p header)
                                         (not (expanded-p header)))))))
              (render-top-left-header ()
-               <td (:class "header" :rowspan ,column-headers-depth :colspan ,row-headers-depth)>)
+               <td (:class "header" :rowspan ,(princ-to-string column-headers-depth) :colspan ,(princ-to-string row-headers-depth))>)
              (render-column-headers ()
                (iter (for level-headers :initially column-headers :then (mappend #'children-of level-headers))
                      (while level-headers)
-                     (collect
-                         <tr
-                          ,(when (first-iteration-p)
-                                 (render-top-left-header))
-                          ,@(mapcar (lambda (header)
-                                      (bind ((expanded (not (find-ancestor (parent-component-of header) #'parent-component-of
-                                                                           (lambda (parent)
-                                                                             (not (expanded-p parent)))))))
-                                        <td (:class "header" :colspan ,(count-leaves header))
-                                            ,(if expanded
-                                                 (render-expanded-command header))
-                                            ,(if expanded
-                                                 (render header)) >))
-                                    level-headers)>)))
+                     <tr ,(when (first-iteration-p)
+                                (render-top-left-header))
+                         ,(map nil (lambda (header)
+                                     (bind ((expanded (not (find-ancestor (parent-component-of header) #'parent-component-of
+                                                                          (lambda (parent)
+                                                                            (not (expanded-p parent)))))))
+                                       <td (:class "header" :colspan ,(princ-to-string (count-leaves header)))
+                                           ,(if expanded
+                                                (render-expanded-command header))
+                                           ,(if expanded
+                                                (render header)) >))
+                               level-headers)>))
              (render-row-header (row-path)
                (iter (for (header . rest) :on row-path)
                      (for expanded :initially #t :then (and expanded (expanded-p header)))
                      (when (every (lambda (h)
                                     (eq h (first (children-of (parent-component-of h)))))
                                   rest)
-                       (collect
-                           <td (:class "header" :rowspan ,(count-leaves header))
-                               ,(if expanded
-                                    (render-expanded-command header))
-                               ,(if expanded
-                                    (render header)) >))))
+                       <td (:class "header" :rowspan ,(princ-to-string (count-leaves header)))
+                           ,(if expanded
+                                (render-expanded-command header))
+                           ,(if expanded
+                                (render header)) >)))
              (render-rows ()
                (map-headers-pathes (lambda (row-path)
-                                     <tr ,@(render-row-header row-path)
-                                         ,@(render-cells row-path)>)
+                                     <tr ,(render-row-header row-path)
+                                         ,(render-cells row-path)>)
                                    row-headers))
              (render-cells (row-path)
                (map-headers-pathes (lambda (column-path)
@@ -103,9 +99,8 @@
                      ,(when expanded
                             (render cell)) >)))
       <table (:class "extended-table")
-        <tbody
-         ,@(render-column-headers)
-         ,@(render-rows)>>)))
+        <tbody ,(render-column-headers)
+               ,(render-rows)>>)))
 
 ;;;;;;
 ;;; Column header
