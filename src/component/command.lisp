@@ -153,6 +153,8 @@
 
 (def (function e) make-replace-command (original-component replacement-component &rest replace-command-args)
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT"
+  (assert (and original-component
+               replacement-component))
   (apply #'make-instance 'command-component
          :action (make-action
                    (execute-replace original-component replacement-component))
@@ -176,6 +178,8 @@
 
 (def (function e) make-replace-and-push-back-command (original-component replacement-component replace-command-args back-command-args)
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT and pushes a BACK command into the COMMAND-BAR of REPLACEMENT-COMPONENT to revert the changes"
+  (assert (and original-component
+               replacement-component))
   (apply #'make-instance 'command-component
          :action (make-action
                    (execute-replace-and-push-back original-component replacement-component back-command-args))

@@ -149,6 +149,7 @@
                                (:file "misc" :depends-on ("component" "dojo"))
                                (:file "list" :depends-on ("component"))
                                (:file "table" :depends-on ("component"))
+                               (:file "tab-container" :depends-on ("component"))
                                (:file "extended-table" :depends-on ("command"))
                                (:file "pivot-table" :depends-on ("extended-table" "icon"))
                                (:file "tree" :depends-on ("component"))

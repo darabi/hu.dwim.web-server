@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Alternator
+;;; Alternator component
 
 (def component alternator-component ()
   ((default-component-type nil)
