@@ -53,7 +53,7 @@
     (store-editing editable)
     (when leave-editing
       (leave-editing editable))
-    (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
+    (rdbms:register-transaction-hook :after :commit
       (add-user-information editable "A változtatások elmentése sikerült"))))
 
 ;; KLUDGE: TODO: redefined for now

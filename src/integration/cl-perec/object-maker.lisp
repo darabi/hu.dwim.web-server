@@ -34,7 +34,7 @@
 (def layered-method execute-create-instance ((component standard-object-maker) (class prc::persistent-class))
   (rdbms::with-transaction
     (prog1-bind instance (call-next-method)
-      (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
+      (rdbms:register-transaction-hook :after :commit
         (add-user-message component "Az új ~A létrehozása sikerült" (list (localized-class-name (the-class-of component)))
                           :category :information
                           :permanent #t
