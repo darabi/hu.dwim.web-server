@@ -52,7 +52,7 @@
                                   (setf (expanded-p header)
                                         (not (expanded-p header)))))))
              (render-top-left-header ()
-               <td (:class "header" :rowspan ,(princ-to-string column-headers-depth) :colspan ,(princ-to-string row-headers-depth))>)
+               <td (:class "header" :rowspan ,column-headers-depth :colspan ,row-headers-depth)>)
              (render-column-headers ()
                (iter (for level-headers :initially column-headers :then (mappend #'children-of level-headers))
                      (while level-headers)
@@ -62,7 +62,7 @@
                                      (bind ((expanded (not (find-ancestor (parent-component-of header) #'parent-component-of
                                                                           (lambda (parent)
                                                                             (not (expanded-p parent)))))))
-                                       <td (:class "header" :colspan ,(princ-to-string (count-leaves header)))
+                                       <td (:class "header" :colspan ,(count-leaves header))
                                            ,(if expanded
                                                 (render-expanded-command header))
                                            ,(if expanded
@@ -74,7 +74,7 @@
                      (when (every (lambda (h)
                                     (eq h (first (children-of (parent-component-of h)))))
                                   rest)
-                       <td (:class "header" :rowspan ,(princ-to-string (count-leaves header)))
+                       <td (:class "header" :rowspan ,(count-leaves header))
                            ,(if expanded
                                 (render-expanded-command header))
                            ,(if expanded
