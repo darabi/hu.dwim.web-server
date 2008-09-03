@@ -145,6 +145,7 @@
                                (:file "authentication" :depends-on ("command"))
                                (:file "dojo" :depends-on ("component"))
                                (:file "misc" :depends-on ("component" "dojo"))
+                               #+sbcl(:file "frame-size-breakdown" :depends-on ("component"))
                                (:file "list" :depends-on ("component"))
                                (:file "table" :depends-on ("component"))
                                (:file "tab-container" :depends-on ("component"))

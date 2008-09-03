@@ -97,6 +97,6 @@
                         (make-action (toggle-debug-component-hierarchy *frame*))))
     (menu-item (command "Toggle debug client side"
                         (make-action (notf (debug-client-side? (root-component-of *frame*))))))
-    (when (find-class 'frame-size-breakdown-component nil)
-      (menu-item (replace-menu-target-command "Frame size breakdown"
-                   (make-instance 'frame-size-breakdown-component))))))
+    #+sbcl
+    (menu-item (replace-menu-target-command "Frame size breakdown"
+                 (make-instance 'frame-size-breakdown-component)))))
