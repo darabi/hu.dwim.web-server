@@ -262,14 +262,19 @@
   (:method ((component standard-object-filter) (class standard-class))
     (execute-filter-instances (content-of component) class))
 
+  #+sbcl
   (:method ((component standard-object-detail-filter) (class standard-class))
-    (bind ((slot-values (slot-values-of (slot-values-of component)))
+    (bind ((slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
            (slot-names (mapcar #'slot-name-of slot-values))
            (values (mapcar (lambda (slot-value)
-                             (bind ((component (value-of slot-value)))
-                               (typecase component
+                             (bind ((value-component (content-of (value-of slot-value))))
+                               (typecase value-component
                                  (atomic-component
-                                  (component-value-of component)))))
+                                  (bind ((value (component-value-of value-component)))
+                                    (when (and value
+                                               (or (not (stringp value))
+                                                   (not (string= value ""))))
+                                      value))))))
                            slot-values)))
       (prog1-bind instances nil
         (sb-vm::map-allocated-objects
