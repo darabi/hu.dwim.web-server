@@ -1,5 +1,6 @@
 (in-package :wui-test)
 
+;;;;;;
 ;;; this is a simple example application with login and logout support
 
 (def (constant :test 'equalp) +wudemo-stylesheet-uris+ '("static/css/wudemo.css"
@@ -13,7 +14,7 @@
 (def (constant :test 'string=) +wudemo-page-icon+ "static/favicon.ico")
 
 (def constant +minimum-login-password-length+ 6)
-(def constant +minimum-login-identifier-length+ 6)
+(def constant +minimum-login-identifier-length+ 3)
 (def (constant :test 'string=) +login-identifier-cookie-name+ "login-identifier")
 
 (def class* wudemo-application (application-with-home-package)
@@ -38,6 +39,32 @@
                  :path-prefix "/"
                  :home-package (find-package :wui-test)
                  :default-locale "hu"))
+
+;;;;;;
+;;; Test classes
+
+(def class* child-test ()
+  ((name :type string)
+   (parent :type parent-test)))
+
+(def class* parent-test ()
+  ((name :type string)))
+
+;;;;;;
+;;; Test instances
+
+(def special-variable *test-instances* nil)
+
+(def function make-test-instances ()
+  (setf *test-instances*
+        (append *test-instances*
+                (bind ((parent-1 (make-instance 'parent-test :name "Parent/1")))
+                  (list parent-1
+                        (make-instance 'child-test :name "Child/1" :parent parent-1)
+                        (make-instance 'child-test :name "Child/2" :parent parent-1))))))
+
+(make-test-instances)
+
 ;;;;;;
 ;;; the factories that create the component graph both in logged out and logged in states
 
@@ -56,7 +83,13 @@
                                     (inline-component <span ,(current-authenticated-subject)
                                                             " "
                                                             ,(when (running-in-test-mode-p *wudemo-application*)
-                                                                   "(test mode)")>
+                                                                   "(test mode)")
+                                                            " "
+                                                            ,(when (profile-request-processing-p *server*)
+                                                                   "(profiling)")
+                                                            " "
+                                                            ,(when (debug-client-side? (root-component-of *frame*))
+                                                                   "(debugging client side)")>
                                                       <span ,(render
                                                               (command (icon logout)
                                                                        (make-action
@@ -99,15 +132,16 @@
 
 (def function make-authenticated-menu-component ()
   (bind ((authenticated-subject (current-authenticated-subject))
-         (god? (string= authenticated-subject "god")))
+         (god? (string= "god" authenticated-subject)))
     (menu nil
-      (when (or god?
-                (running-in-test-mode-p *wudemo-application*))
-        (menu "Debug"
-          (menu-item (command (label "Start over") (make-action (setf (root-component-of *frame*) nil))))
-          (menu-item (command (label "Test mode") (make-action (hu.dwim.wui::notf (running-in-test-mode-p *wudemo-application*)))))
-          (menu-item (command (label "Hierarchy") (make-action (hu.dwim.wui::toggle-debug-component-hierarchy *frame*))))
-          (menu-item (command (label "Debug client side") (make-action (hu.dwim.wui::notf (hu.dwim.wui::debug-client-side? (root-component-of *frame*))))))))
+      (when god?
+        (make-debug-menu))
+      (menu "Child"
+        (menu-item (replace-menu-target-command "Make a child" (make-maker 'child-test)))
+        (menu-item (replace-menu-target-command "Search children" (make-filter 'child-test))))
+      (menu "Parent"
+        (menu-item (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))
+        (menu-item (replace-menu-target-command "Search parents" (make-filter 'parent-test))))
       (menu "Others"
         (menu-item (replace-menu-target-command (label #"menu.help") (make-help-component)))
         (menu-item (replace-menu-target-command (label #"menu.about") (make-about-component)))))))
