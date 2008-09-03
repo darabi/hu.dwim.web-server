@@ -46,8 +46,8 @@
                     headers))
              (render-expanded-command (header)
                (render (command (if (expanded-p header)
-                                    (label "-")
-                                    (label "+"))
+                                    "-"
+                                    "+")
                                 (make-action
                                   (setf (expanded-p header)
                                         (not (expanded-p header)))))))
