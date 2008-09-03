@@ -220,6 +220,9 @@
          (collect parent))))
 
 (def (generic e) clone-component (component)
+  (:method ((self string))
+    self)
+
   (:method ((self component))
     (make-instance (class-of self)))
 
