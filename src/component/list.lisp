@@ -27,10 +27,10 @@
                                                 <td ,(render element)>)
                                               components)>)))>)
 
-(def function render-vertical-list (components &key id css-class style)
+(def (function e) render-vertical-list (components &key id css-class style)
   (render-list :vertical components :id id :css-class css-class :style style))
 
-(def function render-horizontal-list (components &key id css-class style)
+(def (function e) render-horizontal-list (components &key id css-class style)
   (render-list :horizontal components :id id :css-class css-class :style style))
 
 (def render list-component ()
