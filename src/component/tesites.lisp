@@ -54,14 +54,35 @@
         (not-yet-implemented))))
 
 ;;;;;;
+;;; Temporal provider
+
+(def component temporal-provider-component (content-component)
+  ((t-value :type prc::timestamp)))
+
+(def call-in-component-environment temporal-provider-component ()
+  (prc::call-with-t (t-value-of -self-) #'call-next-method
+    (call-next-method)))
+
+;;;;;;
 ;;; Temporal selector
 
-(def component temporal-selector-component ()
-  ((t-value)))
+(def component temporal-selector-component (content-component)
+  ((t-value :type component)))
 
-(def call-in-component-environment temporal-selector-component ()
-  (rdbms::with-transaction* (:default-terminal-action :rollback :t (t-value-of -self-))
-    (call-next-method)))
+(def render temporal-selector-component ()
+  (bind (((:read-only-slots t-value) -self-))
+    <div ,(render t-value)
+         ,(call-next-method)>))
+
+;;;;;;
+;;; Validity provider
+
+(def component validity-provider-component (content-component)
+  ((validity-start :type prc::timestamp)
+   (validity-end :type prc::timestamp)))
+
+(def call-in-component-environment validity-provider-component ()
+  (prc::call-with-validity-range (validity-start-of -self-) (validity-end-of -self-) #'call-next-method))
 
 ;;;;;;
 ;;; Validity selector
@@ -82,11 +103,11 @@
                                                           (prc::last-moment-for-partial-timestamp validity)
                                                           validity-end))))
 
-(def call-in-component-environment validity-selector-component ()
-  (bind (((:values validity-start validity-end) (compute-timestamp-range (range-of -self-))))
-    (prc::call-with-validity-range validity-start validity-end #'call-next-method)))
-
 (def render validity-selector-component ()
   (bind (((:read-only-slots range) -self-))
     <div ,(render range)
          ,(call-next-method)>))
+
+(def call-in-component-environment validity-selector-component ()
+  (bind (((:values validity-start validity-end) (compute-timestamp-range (range-of -self-))))
+    (prc::call-with-validity-range validity-start validity-end #'call-next-method)))
