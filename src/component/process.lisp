@@ -29,7 +29,7 @@
               (with-call/cc
                 (funcall closure/cc)))))
     (unless (and content answer-continuation)
-      (setf content (label "Process finished")))
+      (setf content "Process finished"))
     <div
      ,(render-user-messages -self-)
      ,(render content)

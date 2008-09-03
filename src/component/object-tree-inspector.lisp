@@ -133,7 +133,7 @@
                                                  (bind ((slot (find-slot (class-of (instance-of node-component)) (car slot-name->slot))))
                                                    (if slot
                                                        (make-instance 'standard-object-slot-value-cell-component :instance (instance-of node-component) :slot slot)
-                                                       (make-instance 'cell-component :content (label "N/A")))))))
+                                                       (make-instance 'cell-component :content "N/A"))))))
                 (nreverse slot-name->slot-map))))))
 
 (def (layered-function e) collect-standard-object-tree-table-inspector-slots (component class instance)

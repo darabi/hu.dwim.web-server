@@ -62,17 +62,17 @@
 
 (def (function e) make-debug-menu ()
   (menu "Debug"
-    (menu-item (command (label "Start over")
+    (menu-item (command "Start over"
                         (make-action (reset-frame-root-component))))
-    (menu-item (command (label "Toggle test mode")
+    (menu-item (command "Toggle test mode"
                         (make-action (notf (running-in-test-mode-p *application*)))))
-    (menu-item (command (label "Toggle profiling")
+    (menu-item (command "Toggle profiling"
                         (make-action (notf (profile-request-processing-p *server*)))))
-    (menu-item (command (label "Toggle hierarchy")
+    (menu-item (command "Toggle hierarchy"
                         (make-action (toggle-debug-component-hierarchy *frame*))))
-    (menu-item (command (label "Toggle debug client side")
+    (menu-item (command "Toggle debug client side"
                         (make-action (notf (debug-client-side? (root-component-of *frame*))))))
-    (menu-item (replace-menu-target-command (label "Frame size breakdown")
+    (menu-item (replace-menu-target-command "Frame size breakdown"
                  (make-instance 'frame-size-breakdown-component)))))
 
 ;;;;;;

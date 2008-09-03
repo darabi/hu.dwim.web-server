@@ -71,7 +71,7 @@
 
 (def (function e) make-any-instance-standard-object-list-pivot-table-category ()
   (make-instance 'standard-object-list-pivot-table-category-component
-                 :content (label "Mind")
+                 :content "Mind"
                  :predicate (constantly #t)))
 
 ;;;;;;
@@ -83,25 +83,25 @@
 (def (function e) make-aggregator-pivot-table-axis ()
   (make-instance 'pivot-table-axis-component
                  :categories (list (make-instance 'standard-object-list-pivot-table-aggregator-category-component
-                                                  :content (label "Darab")
+                                                  :content "Darab"
                                                   :predicate (constantly #t)
                                                   :aggregator (lambda (instances value-thunk)
                                                                 (declare (ignore value-thunk))
                                                                 (length instances)))
                                    (make-instance 'standard-object-list-pivot-table-aggregator-category-component
-                                                  :content (label "Minimum")
+                                                  :content "Minimum"
                                                   :predicate (constantly #t)
                                                   :aggregator (lambda (instances value-thunk)
                                                                 (iter (for instance :in instances)
                                                                       (minimizing (funcall value-thunk instance)))))
                                    (make-instance 'standard-object-list-pivot-table-aggregator-category-component
-                                                  :content (label "Maximum")
+                                                  :content "Maximum"
                                                   :predicate (constantly #t)
                                                   :aggregator (lambda (instances value-thunk)
                                                                 (iter (for instance :in instances)
                                                                       (maximizing (funcall value-thunk instance)))))
                                    (make-instance 'standard-object-list-pivot-table-aggregator-category-component
-                                                  :content (label "Átlag")
+                                                  :content "Átlag"
                                                   :predicate (constantly #t)
                                                   :aggregator (lambda (instances value-thunk)
                                                                 ;; TODO: really coerce here
@@ -109,7 +109,7 @@
                                                                            (length instances))
                                                                         'float)))
                                    (make-instance 'standard-object-list-pivot-table-aggregator-category-component
-                                                  :content (label "Összesen")
+                                                  :content "Összesen"
                                                   :predicate (constantly #t)
                                                   :aggregator (lambda (instances value-thunk)
                                                                 (reduce #'+ instances :key value-thunk))))))
