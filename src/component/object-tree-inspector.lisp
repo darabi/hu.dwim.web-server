@@ -267,9 +267,10 @@
 
 (def render standard-object-tree-level-inspector ()
   (with-slots (path children level) -self-
-    <div ,(render path)
-         ,(render children)
-         ,(render level)>))
+    (when path
+      <div ,(render path)
+           ,(render children)
+           ,(render level)>)))
 
 ;;;;;;
 ;;; Standadr object tree path inspector
