@@ -73,7 +73,7 @@
     (menu-item (command "Toggle debug client side"
                         (make-action (notf (debug-client-side? (root-component-of *frame*))))))
     (menu-item (replace-menu-target-command "Frame size breakdown"
-                 (make-instance 'dmm::frame-size-breakdown-component)))))
+                 (make-instance 'dt::frame-size-breakdown-component)))))
 
 ;;;;;;
 ;;; Replace menu target command
