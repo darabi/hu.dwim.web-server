@@ -97,6 +97,10 @@
     (t
      otherwise)))
 
+(def generic hash-key-for (instance)
+  (:method ((instance standard-object))
+    instance))
+
 ;;;;;;
 ;;; Tree
 

@@ -69,13 +69,7 @@
 
 (def (layered-function e) make-standard-object-inspector-commands (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
-    (make-editing-commands component))
-
-  (:method ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-    (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
-              (make-editing-commands component))
-            (optional-list (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)
-                             (make-delete-instance-command component))))))
+    (make-editing-commands component)))
 
 (def (function e) make-delete-instance-command (self)
   (make-instance 'command-component
@@ -85,14 +79,9 @@
                            (bind ((instance (instance-of self)))
                              (execute-delete-instance self (class-of instance) instance)))))
 
-(def (generic e) execute-delete-instance (component class instance)
+(def (layered-function e) execute-delete-instance (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
-    (prc::purge-instance (instance-of component))
-    (setf (component-value-of component) nil))
-
-  (:method ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-    (rdbms::with-transaction
-      (call-next-method))))
+    (setf (component-value-of component) nil)))
 
 ;;;;;;
 ;;; Standard object detail inspector
@@ -132,31 +121,15 @@
 
 (def (layered-function e) make-standard-object-detail-inspector-class (component class prototype)
   (:method ((component standard-object-detail-inspector) (class standard-class) (prototype standard-object))
-    (localized-class-name class))
-
-  (:method ((component standard-object-detail-inspector) (class prc::persistent-class) (prototype prc::persistent-object))
-    (if (dmm::developer-p (dmm::current-effective-subject))
-        (make-viewer class :default-component-type 'reference-component)
-        (call-next-method))))
+    (localized-class-name class)))
 
 (def (layered-function e) collect-standard-object-detail-inspector-slot-value-groups (component class instance slots)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object) (slots list))
-    (list slots))
-
-  (:method ((component standard-object-detail-inspector) (class dmm::entity) (instance prc::persistent-object) (slots list))
-    (partition slots #'dmm::primary-p (constantly #t))))
+    (list slots)))
 
 (def (layered-function e) collect-standard-object-detail-inspector-slots (component class instance)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object))
-    (class-slots class))
-
-  (:method ((component standard-object-detail-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-    (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
-
-  (:method ((component standard-object-detail-inspector) (class dmm::entity) (instance prc::persistent-object))
-    (filter-if (lambda (slot)
-                 (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
-               (call-next-method))))
+    (class-slots class)))
 
 (def render standard-object-detail-inspector ()
   (with-slots (class slot-value-groups id) -self-

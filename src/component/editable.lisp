@@ -32,13 +32,9 @@
 
 (def (function e) save-editing (editable &key (leave-editing #t))
   (assert (typep editable 'editable-component))
-  ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
-  (rdbms::with-transaction
-    (store-editing editable)
-    (when leave-editing
-      (leave-editing editable))
-    (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
-      (add-user-information editable "A változtatások elmentése sikerült"))))
+  (store-editing editable)
+  (when leave-editing
+    (leave-editing editable)))
 
 (def (function e) cancel-editing (editable)
   (assert (typep editable 'editable-component))

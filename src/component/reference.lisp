@@ -79,10 +79,6 @@
 (def method make-reference-label ((reference standard-object-inspector-reference) (class standard-class) (instance standard-object))
   (princ-to-string instance))
 
-(def method make-reference-label ((reference standard-object-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
-  (reuse-standard-object-inspector-reference reference)
-  (localized-instance-name instance))
-
 (def function reuse-standard-object-inspector-reference (self)
   (bind ((instance (target-of self)))
     (setf (target-of self) (reuse-standard-object-instance (class-of instance) instance))))
@@ -109,9 +105,6 @@
                        (when (= index 2)
                          (collect " ...")))
                  (list ")"))))
-
-(def method make-reference-label ((reference standard-object-list-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
-  (localized-instance-name instance))
 
 (def function reuse-standard-object-list-inspector-reference (self)
   ;; TODO: performance killer

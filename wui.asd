@@ -67,7 +67,7 @@
   :licence "BSD (sans advertising clause)"
   :test-system :wui-test
   :components
-  ((:module :src
+  ((:module "src"
     :components ((:file "packages")
                  (:file "duplicates" :depends-on ("packages"))
                  (:file "configuration" :depends-on ("packages"))
@@ -110,10 +110,6 @@
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
                :cl-delico
-
-               ;; TODO these shouldn't be here
-               :dwim-meta-model
-               :cl-perec
                ))
 
 (defsystem* :wui
@@ -123,10 +119,13 @@
   :licence "BSD (sans advertising clause)"
   :test-system :wui-test
   :components
-  ((:module :src
+  ((:module "src"
     :serial t
     :components ((:file "l10n")
-                 (:file "contextl-integration")
+                 (:module "util"
+                  :components (#+sbcl(:file "object-size")))
+                 (:module "integration"
+                  :components ((:file "contextl")))
                  (:module "application"
                   :serial t
                   :components ((:file "session")
@@ -144,7 +143,6 @@
                                (:file "icon" :depends-on ("component"))
                                (:file "command" :depends-on ("icon" "place"))
                                (:file "authentication" :depends-on ("command"))
-                               (:file "tesites" :depends-on ("component"))
                                (:file "dojo" :depends-on ("component"))
                                (:file "misc" :depends-on ("component" "dojo"))
                                (:file "list" :depends-on ("component"))
@@ -192,10 +190,10 @@
 
 (defsystem* :wui-test
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
-  :components ((:module :test
-                :serial t
-                :components
-                ((:file "package")
+  :components
+  ((:module "test"
+    :serial t
+    :components ((:file "package")
                  (:file "test-environment" :depends-on ("package"))
                  (:file "server")
                  (:file "component")
@@ -224,14 +222,29 @@
 
 
 (defsystem* wui-and-cl-perec
-  :depends-on (:wui :cl-perec)
-  :components ((:module :src
-                        :components ((:file "cl-perec-integration")))))
+  :depends-on (:wui :cl-perec :dwim-meta-model)
+  :components
+  ((:module "src/integration/cl-perec"
+    :components ((:file "kludge")
+                 (:file "factory")
+                 (:file "l10n")
+                 (:file "menu")
+                 (:file "place")
+                 (:file "reference")
+                 (:file "object-component")
+                 (:file "object-inspector")
+                 (:file "object-list-inspector")
+                 (:file "object-tree-inspector")
+                 (:file "object-maker")
+                 (:file "object-filter")
+                 (:file "process")
+                 (:file "tesites")))))
+
+
 
 #+nil ; TODO asdf-system-connections is broken
 (defsystem-connection wui-and-cl-perec
   :depends-on (:wui :cl-perec)
   :requires (:wui :wui-core :cl-perec)
-  :components ((:module :src
-                        :components ((:file "cl-perec-integration")))))
-
+  :components ((:module "src"
+                :components ((:file "cl-perec-integration")))))

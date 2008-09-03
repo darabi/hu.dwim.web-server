@@ -112,10 +112,7 @@
 (def function update-component-value-from-place (place component)
   (when (place-bound-p place)
     (bind ((value (value-at-place place)))
-      (setf (component-value-of component)
-            (if (prc::values-having-validity-p value)
-                (prc::single-values-having-validity-value value)
-                value)))))
+      (setf (component-value-of component) value))))
 
 (def function make-place-inspector-content (component)
   (bind ((place (place-of component)))

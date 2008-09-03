@@ -5,20 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Utility
-
-;; TODO: KLUDGE: this redefines, but we are practical for now
-(def function find-main-type-in-or-type (type)
-  (remove-if (lambda (element)
-               (member element '(or cl-perec:unbound null)))
-             type))
-
-;; TODO: KLUDGE: this redefines, but we are practical for now
-(def function find-type-by-name (name)
-  (or (find-class name #f)
-      (cl-perec:find-type name)))
-
-;;;;;;
 ;;; Inspector
 
 (def methods find-inspector-type-for-type

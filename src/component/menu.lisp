@@ -60,21 +60,6 @@
     <div ,(render command)
          <ul ,@(mapcar #'render menu-items)>>))
 
-(def (function e) make-debug-menu ()
-  (menu "Debug"
-    (menu-item (command "Start over"
-                        (make-action (reset-frame-root-component))))
-    (menu-item (command "Toggle test mode"
-                        (make-action (notf (running-in-test-mode-p *application*)))))
-    (menu-item (command "Toggle profiling"
-                        (make-action (notf (profile-request-processing-p *server*)))))
-    (menu-item (command "Toggle hierarchy"
-                        (make-action (toggle-debug-component-hierarchy *frame*))))
-    (menu-item (command "Toggle debug client side"
-                        (make-action (notf (debug-client-side? (root-component-of *frame*))))))
-    (menu-item (replace-menu-target-command "Frame size breakdown"
-                 (make-instance 'dp::frame-size-breakdown-component)))))
-
 ;;;;;;
 ;;; Replace menu target command
 
@@ -98,62 +83,20 @@
   `(make-instance 'replace-menu-target-command-component :icon ,icon :component (delay ,@forms)))
 
 ;;;;;;
-;;; Standard object filter menu item
+;;; Debug menu
 
-(def component standard-object-filter-menu-item-component (menu-item-component)
-  ((the-class)))
-
-(def constructor standard-object-filter-menu-item-component ()
-  (with-slots (the-class command) -self-
-    (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (icon filter)
-                                 :component (make-filter the-class)))))
-
-(def (function e) make-standard-object-filter-menu-item-component (class-name)
-  (bind ((class (find-class class-name)))
-    (when (dmm::authorize-operation 'dmm::filter-entity-operation :-entity- class)
-      (make-instance 'standard-object-filter-menu-item-component :the-class class))))
-
-(def (macro e) standard-object-filter-menu-item (class-name)
-  `(make-standard-object-filter-menu-item-component ,class-name))
-
-;;;;;;
-;;; Standard object maker menu item
-
-(def component standard-object-maker-menu-item-component (menu-item-component)
-  ((the-class)))
-
-(def constructor standard-object-maker-menu-item-component ()
-  (with-slots (the-class command) -self-
-    (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (icon new)
-                                 :component (make-maker the-class)))))
-
-(def (function e) make-standard-object-maker-menu-item-component (class-name)
-  (bind ((class (find-class class-name)))
-    (when (dmm::authorize-operation 'dmm::create-entity-operation :-entity- class)
-      (make-instance 'standard-object-maker-menu-item-component :the-class class))))
-
-(def (macro e) standard-object-maker-menu-item (class-name)
-  `(make-standard-object-maker-menu-item-component ,class-name))
-
-;;;;;;
-;;; Persistent process starter menu item
-
-(def component persistent-process-starter-menu-item-component (menu-item-component)
-  ((the-class)))
-
-(def constructor persistent-process-starter-menu-item-component ()
-  (with-slots (the-class command) -self-
-    (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (icon new)
-                                 :component (make-maker the-class)))))
-
-(def (function e) make-persistent-process-starter-menu-item-component (class-name)
-  (bind ((class (find-class class-name)))
-    (when (dmm::authorize-operation 'dmm::start-persistent-process-operation :-entity- class)
-      (make-instance 'persistent-process-starter-menu-item-component :the-class class))))
-
-(def (macro e) persistent-process-starter-menu-item (class-name)
-  `(make-persistent-process-starter-menu-item-component ,class-name))
-
+(def (function e) make-debug-menu ()
+  (menu "Debug"
+    (menu-item (command "Start over"
+                        (make-action (reset-frame-root-component))))
+    (menu-item (command "Toggle test mode"
+                        (make-action (notf (running-in-test-mode-p *application*)))))
+    (menu-item (command "Toggle profiling"
+                        (make-action (notf (profile-request-processing-p *server*)))))
+    (menu-item (command "Toggle hierarchy"
+                        (make-action (toggle-debug-component-hierarchy *frame*))))
+    (menu-item (command "Toggle debug client side"
+                        (make-action (notf (debug-client-side? (root-component-of *frame*))))))
+    (when (find-class 'frame-size-breakdown-component nil)
+      (menu-item (replace-menu-target-command "Frame size breakdown"
+                   (make-instance 'frame-size-breakdown-component))))))

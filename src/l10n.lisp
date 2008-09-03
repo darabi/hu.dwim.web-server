@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; localization primitives
 
-(defmethod localize ((class class))
+(def method localize ((class class))
   (lookup-first-matching-resource
     ("class-name" (string-downcase (qualified-symbol-name (class-name class))))
     ("class-name" (string-downcase (class-name class)))))
@@ -159,20 +159,6 @@
                          (dojo.date.to-rfc-3339 (new *date)))))))
 
 ;; TODO rename to short-textual-representation-for or anything else without "name" in it
-(def function localized-instance-name (instance)
-  (bind ((class (class-of instance)))
-    (if (typep class 'dmm::entity)
-        (flet ((localize-value (value)
-                 (if (typep value 'standard-object)
-                     (localized-instance-name value)
-                     (princ-to-string value))))
-          (bind ((properties (dmm::reference-properties-of class)))
-            (if (length= 1 properties)
-                (localize-value (slot-value-using-class class instance (first properties)))
-                (apply #'concatenate-string
-                       (localized-class-name class :with-article #t :capitalize-first-letter #t) (when properties ": ")
-                       (iter (for property :in properties)
-                             (for value = (slot-value-using-class class instance property))
-                             (collect (concatenate-string (unless (first-iteration-p) ", ")
-                                                          (localized-slot-name property) " = " (localize-value value))))))))
-        (princ-to-string instance))))
+(def generic localized-instance-name (instance)
+  (:method ((instance standard-object))
+    (princ-to-string instance)))

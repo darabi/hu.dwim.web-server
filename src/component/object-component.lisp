@@ -63,12 +63,7 @@
     nil)
 
   (:method ((class standard-class) (instance standard-object))
-    instance)
-
-  (:method ((class prc::persistent-class) (instance prc::persistent-object))
-    (if (prc::persistent-p instance)
-        (prc::load-instance instance)
-        (call-next-method))))
+    instance))
 
 (def method refresh-component :before ((self abstract-standard-object-component))
   (bind ((instance (instance-of self)))
@@ -141,19 +136,19 @@
     (bind ((selected-instance-set (ensure-selected-instance-set self)))
       (clrhash selected-instance-set)
       (dolist (instance new-value)
-        (setf (gethash (prc::oid-of instance) selected-instance-set) instance)))))
+        (setf (gethash (hash-key-for instance) selected-instance-set) instance)))))
 
 (def generic selected-instance-p (component instance)
   (:method ((component abstract-selectable-standard-object-component) instance)
     (awhen (selected-instance-set-of component)
-      (gethash (prc::oid-of instance) it))))
+      (gethash (hash-key-for instance) it))))
 
 (def generic (setf selected-instance-p) (new-value component instance)
   (:method (new-value (component abstract-selectable-standard-object-component) instance)
     (bind ((selected-instance-set (ensure-selected-instance-set component)))
       (if new-value
-          (setf (gethash (prc::oid-of instance) selected-instance-set) instance)
-          (remhash (prc::oid-of instance) selected-instance-set)))))
+          (setf (gethash (hash-key-for instance) selected-instance-set) instance)
+          (remhash (hash-key-for instance) selected-instance-set)))))
 
 (def function make-select-instance-command (component instance)
   (command (icon select)

@@ -114,31 +114,15 @@
 
 (def (layered-function e) make-standard-object-detail-filter-class (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
-    (localized-class-name class))
-
-  (:method ((component standard-object-detail-filter) (class prc::persistent-class) (prototype prc::persistent-object))
-    (if (dmm::developer-p (dmm::current-effective-subject))
-        (make-viewer class :default-component-type 'reference-component)
-        (call-next-method))))
+    (localized-class-name class)))
 
 (def (layered-function e) collect-standard-object-detail-filter-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object) (slots list))
-    (list slots))
-
-  (:method ((component standard-object-detail-filter) (class dmm::entity) (prototype prc::persistent-object) (slots list))
-    (partition slots #'dmm::primary-p (constantly #t))))
+    (list slots)))
 
 (def (layered-function e) collect-standard-object-detail-filter-slots (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
-    (class-slots class))
-
-  (:method ((component standard-object-detail-filter) (class prc::persistent-class) (prototype prc::persistent-object))
-    (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
-
-  (:method ((component standard-object-detail-filter) (class dmm::entity) (prototype prc::persistent-object))
-    (filter-if (lambda (slot)
-                 (dmm::authorize-operation 'dmm::filter-entity-property-operation :-entity- class :-property- slot))
-               (call-next-method))))
+    (class-slots class)))
 
 (def render standard-object-detail-filter ()
   (with-slots (class-selector class slot-value-groups id) -self-
@@ -274,7 +258,7 @@
       (unless instances
         (add-user-warning component #"no-matches-were-found")))))
 
-(def generic execute-filter-instances (component class)
+(def (layered-function e) execute-filter-instances (component class)
   (:method ((component standard-object-filter) (class standard-class))
     (execute-filter-instances (content-of component) class))
 
@@ -302,90 +286,10 @@
                                             (equal value (slot-value-using-class instance-class instance slot))))))
                                slot-names values))
                (push instance instances))))
-         :dynamic))))
-
-  (:method ((component standard-object-filter) (class prc::persistent-class))
-    (prc::execute-query (build-filter-query component))))
+         :dynamic)))))
 
 (defresources en
   (no-matches-were-found "No matching objects were found"))
 
 (defresources hu
   (no-matches-were-found "Nincs a keresésnek megfelelő objektum"))
-
-;;;;;
-;;; Query builder
-
-(def class* filter-query ()
-  ((query nil)
-   (query-variable-stack nil)))
-
-(def function call-with-new-query-variable (component filter-query thunk)
-  (bind ((query (query-of filter-query))
-         (query-variable
-          (prc::add-query-variable (query-of filter-query)
-                                   (gensym (symbol-name (class-name (the-class-of component)))))))
-    (push query-variable (query-variable-stack-of filter-query))
-    (prc::add-assert query `(typep ,query-variable ',(class-name (the-class-of component))))
-    (funcall thunk query-variable)
-    (pop (query-variable-stack-of filter-query))))
-
-(def generic build-filter-query (component)
-  (:method ((component standard-object-filter))
-    (bind ((query (prc::make-instance 'prc::query))
-           (filter-query (make-instance 'filter-query :query query)))
-      (call-with-new-query-variable component filter-query
-                                    (lambda (query-variable)
-                                      (prc::add-collect query query-variable)
-                                      (build-filter-query* component filter-query)))
-      query)))
-
-(def generic build-filter-query* (component filter-query)
-  (:method ((component standard-object-filter) filter-query)
-    (build-filter-query* (content-of component) filter-query))
-
-  (:method ((component standard-object-detail-filter) filter-query)
-    (when-bind class-selector (class-selector-of component)
-      (when-bind selected-class (component-value-of class-selector)
-        (prc::add-assert (query-of filter-query) `(typep ,(first (query-variable-stack-of filter-query)) ,selected-class))))
-    (map nil (lambda (slot-value-group)
-               (build-filter-query* slot-value-group filter-query)) (slot-value-groups-of component)))
-
-  (:method ((component standard-object-filter-reference) filter-query)
-    (values))
-
-  (:method ((component standard-object-slot-value-group-filter) filter-query)
-    (dolist (slot-value (slot-values-of component))
-      (build-filter-query* slot-value filter-query)))
-
-  (:method ((component standard-object-slot-value-filter) filter-query)
-    (bind ((value-component (content-of (value-of component)))
-           (slot (slot-of component)))
-      (when (typep slot 'prc::persistent-effective-slot-definition)
-        (cond ((or (typep value-component 'atomic-component)
-                   (typep value-component 'standard-object-inspector))
-               (bind ((value (component-value-of value-component)))
-                 (when (and value
-                            (or (not (stringp value))
-                                (not (string= value ""))))
-                   (bind ((predicate (predicate-of component))
-                          (predicate-name (if (eq 'like predicate)
-                                              'prc::re-like
-                                              predicate))
-                          (ponated-predicate `(,predicate-name
-                                               (,(prc::reader-name-of slot)
-                                                 ,(first (query-variable-stack-of filter-query)))
-                                               (quote ,value))))
-                     (prc::add-assert (query-of filter-query)
-                                      (if (negated-p component)
-                                          `(not ,ponated-predicate)
-                                          ponated-predicate))))))
-              ((and (typep value-component 'standard-object-filter)
-                    (not (typep (content-of value-component) 'standard-object-filter-reference)))
-               (call-with-new-query-variable value-component filter-query
-                                             (lambda (query-variable)
-                                               (prc::add-assert (query-of filter-query)
-                                                                `(eq ,query-variable
-                                                                     (,(prc::reader-name-of slot)
-                                                                       ,(second (query-variable-stack-of filter-query)))))
-                                               (build-filter-query* value-component filter-query)))))))))

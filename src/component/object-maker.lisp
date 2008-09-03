@@ -71,18 +71,15 @@
   (make-instance 'command-component
                  :icon (icon create)
                  :action (make-action
-                           ;; TODO: dispatch on class or something?!
-                           (rdbms::with-transaction
-                             (bind ((instance (place-component-value-of component)))
-                               (when (eq :commit (rdbms::terminal-action-of rdbms::*transaction*))
-                                 (add-user-message component "Az új ~A létrehozása sikerült" (list (localized-class-name (the-class-of component)))
-                                                   :category :information
-                                                   :permanent #t
-                                                   :content (make-viewer instance :default-component-type 'reference-component))))))))
+                           (execute-create-instance component (the-class-of component)))))
+
+(def (layered-function e) execute-create-instance (component class)
+  (:method ((component standard-object-maker) (class standard-class))
+    (place-component-value-of component)))
 
 (def method place-component-value-of ((self standard-object-maker))
   (bind ((class (the-class-of self)))
-    (execute-create-instance self class (class-prototype class))))
+    (make-instance-using-initargs self class (class-prototype class))))
 
 ;;;;;;
 ;;; Standard object detail maker
@@ -135,39 +132,15 @@
 
 (def (layered-function e) make-standard-object-detail-maker-class (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
-    (localized-class-name class))
-
-  (:method ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
-    (if (dmm::developer-p (dmm::current-effective-subject))
-        (make-viewer class :default-component-type 'reference-component)
-        (call-next-method))))
+    (localized-class-name class)))
 
 (def (layered-function e) collect-standard-object-detail-maker-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object) (slots list))
-    (list slots))
-
-  (:method ((component standard-object-detail-maker) (class dmm::entity) (prototype prc::persistent-object) (slots list))
-    (partition slots #'dmm::primary-p (constantly #t))))
+    (list slots)))
 
 (def (layered-function e) collect-standard-object-detail-maker-slots (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
-    (class-slots class))
-
-  (:method ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
-    (bind ((excluded-slot-name
-            (awhen (find-ancestor-component-with-type component 'standard-object-slot-value-component)
-              (bind ((slot (slot-of it)))
-                (when (typep slot 'prc::persistent-association-end-effective-slot-definition)
-                  (slot-definition-name (prc::other-association-end-of slot)))))))
-      (remove-if (lambda (slot)
-                   (or (prc:persistent-object-internal-slot-p slot)
-                       (eq (slot-definition-name slot) excluded-slot-name)))
-                 (call-next-method))))
-
-  (:method ((component standard-object-detail-maker) (class dmm::entity) (prototype prc::persistent-object))
-    (filter-if (lambda (slot)
-                 (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot))
-               (call-next-method))))
+    (class-slots class)))
 
 (def render standard-object-detail-maker ()
   (with-slots (class-selector class slot-value-groups id) -self-
@@ -237,10 +210,8 @@
 
 (def method make-place-component-command-bar ((self standard-object-place-maker))
   (bind ((type (the-type-of self)))
-    (make-instance 'command-bar-component :commands (optional-list (when (prc::null-subtype-p type)
-                                                                     (make-set-place-to-nil-command self))
-                                                                   (when (or (initform-of self)
-                                                                             (prc::unbound-subtype-p type))
+    (make-instance 'command-bar-component :commands (optional-list (make-set-place-to-nil-command self)
+                                                                   (when (initform-of self)
                                                                      (make-set-place-to-unbound-command self))
                                                                    (make-set-place-to-find-instance-command self)
                                                                    (make-set-place-to-new-instance-command self)))))
@@ -248,7 +219,7 @@
 ;;;;;;
 ;;; Execute maker
 
-(def (generic e) execute-create-instance (component class prototype)
+(def (generic e) make-instance-using-initargs (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
     (apply #'make-instance (find-selected-class (content-of component))
            (collect-make-instance-initargs component))))

@@ -106,31 +106,18 @@
   (slot-definition-name (slot-of self)))
 
 (def function revive-slot-value-place-instance (place)
-  (bind ((instance (instance-of place)))
-    (if (and (typep instance 'prc::persistent-object)
-             (prc::persistent-p instance))
-        (prc::revive-instance (instance-of place))
-        instance)))
+  (setf (instance-of place) (reuse-standard-object-instance (instance-of place))))
 
 (def generic slot-type (slot)
   (:method ((slot standard-slot-definition))
-    (slot-definition-type slot))
-
-  (:method ((slot prc::persistent-slot-definition))
-    (prc::canonical-type-of slot)))
+    (slot-definition-type slot)))
 
 (def method place-type ((self slot-value-place))
   (slot-type (slot-of self)))
 
 (def (generic e) slot-value-place-editable-p (place class instance slot)
   (:method ((place slot-value-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
-    #t)
-
-  (:method ((place slot-value-place) (class dmm::entity) (instance prc::persistent-object) (slot dmm::effective-property))
-    (dmm::editable-p slot))
-
-  (:method ((place slot-value-place) (class cc::computed-class) (instance cc::computed-object) (slot cc::computed-effective-slot-definition))
-    #f))
+    #t))
 
 (def method place-editable-p ((self slot-value-place))
   (bind ((instance (instance-of self))

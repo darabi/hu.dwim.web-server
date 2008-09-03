@@ -15,7 +15,7 @@
   (make-instance 'filtered-standard-object-tree-inspector
                  :instance (awhen instances
                              (find-root (first instances) (parent-provider-of filter)))
-                 :filter-result-instances (make-hash-set-from-list instances :test #'eql :key #'prc::oid-of)
+                 :filter-result-instances (make-hash-set-from-list instances :test #'eql :key #'hash-key-for)
                  :parent-provider (parent-provider-of filter)
                  :unfiltered-children-provider (children-provider-of filter)))
 
@@ -31,13 +31,13 @@
   (setf (children-provider-of -self-)
         (lambda (instance)
           (filter-if (lambda (child)
-                       (gethash (prc::oid-of child) (visible-instances-of -self-)))
+                       (gethash (hash-key-for child) (visible-instances-of -self-)))
                      (funcall (unfiltered-children-provider-of -self-) instance)))))
 
 (def method refresh-component :before ((self filtered-standard-object-tree-inspector))
   (with-slots (filter-result-instances unfiltered-children-provider visible-instances children-provider parent-provider) self
     (flet ((collect-visible-instance (instance)
-             (setf (gethash (prc::oid-of instance) visible-instances) #t)))
+             (setf (gethash (hash-key-for instance) visible-instances) #t)))
       (iter (for (key value) :in-hashtable filter-result-instances)
             (map-tree value unfiltered-children-provider #'collect-visible-instance)
             (map-parent-chain value parent-provider #'collect-visible-instance)))))
@@ -63,5 +63,5 @@
 (def layered-method make-standard-object-tree-table-node :around ((component filtered-standard-object-tree-table-inspector) (class standard-class) (instance standard-object))
   (prog1-bind tree-node
       (call-next-method)
-    (when (gethash (prc::oid-of instance) (filter-result-instances-of (parent-component-of component)))
+    (when (gethash (hash-key-for instance) (filter-result-instances-of (parent-component-of component)))
       (setf (css-class-of tree-node) "highlighted"))))

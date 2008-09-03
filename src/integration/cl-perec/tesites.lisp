@@ -5,55 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Timestamp range
-
-(def component timestamp-range-component (editable-component)
-  ((lower-bound
-    nil
-    :type (or null local-time:timestamp))
-   (upper-bound
-    nil
-    :type (or null local-time:timestamp))
-   (single
-    #t
-    :type boolean)
-   (unit
-    :year
-    :type (member :year :month :weak :day :hour :minute :second))
-   (range
-    (make-instance 'member-component
-                   ;; TODO: kill this hack
-                   :possible-values '(2007 2008 2009)
-                   :component-value 2008
-                   :client-name-generator #'princ-to-string)
-    :type component)
-   (range-start
-    (make-instance 'timestamp-component)
-    :type component)
-   (range-end
-    (make-instance 'timestamp-component)
-    :type component)))
-
-(def (macro e) timestamp-range (&key range-start range-end)
-  `(make-instance 'timestamp-range-component
-                  :range-start (make-instance 'timestamp-component :component-value ,range-start)
-                  :range-end (make-instance 'timestamp-component :component-value ,range-end)))
-
-(def render timestamp-range-component ()
-  (bind (((:read-only-slots single range range-start range-end) -self-))
-    (if single
-        (render range)
-        (render-horizontal-list (list range-start range-end)))))
-
-(def function compute-timestamp-range (component)
-  (bind (((:read-only-slots single range range-start range-end) component))
-    (if single
-        (bind ((partial-timestamp-string (princ-to-string (component-value-of range))))
-          (values (prc::first-moment-for-partial-timestamp partial-timestamp-string)
-                  (prc::last-moment-for-partial-timestamp partial-timestamp-string)))
-        (not-yet-implemented))))
-
-;;;;;;
 ;;; Temporal provider
 
 (def component temporal-provider-component (content-component)
@@ -107,6 +58,14 @@
   (bind (((:read-only-slots range) -self-))
     <div ,(render range)
          ,(call-next-method)>))
+
+(def function compute-timestamp-range (component)
+  (bind (((:read-only-slots single range range-start range-end) component))
+    (if single
+        (bind ((partial-timestamp-string (princ-to-string (component-value-of range))))
+          (values (prc::first-moment-for-partial-timestamp partial-timestamp-string)
+                  (prc::last-moment-for-partial-timestamp partial-timestamp-string)))
+        (not-yet-implemented))))
 
 (def call-in-component-environment validity-selector-component ()
   (bind (((:values validity-start validity-end) (compute-timestamp-range (range-of -self-))))

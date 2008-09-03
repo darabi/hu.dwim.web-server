@@ -138,15 +138,7 @@
 
 (def (layered-function e) collect-standard-object-tree-table-inspector-slots (component class instance)
   (:method ((component standard-object-tree-table-inspector) (class standard-class) instance)
-    (class-slots class))
-
-  (:method ((component standard-object-tree-table-inspector) (class prc::persistent-class) instance)
-    (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
-
-  (:method ((component standard-object-tree-table-inspector) (class dmm::entity) instance)
-    (filter-if (lambda (slot)
-                 (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
-               (call-next-method))))
+    (class-slots class)))
 
 (defresources hu
   (object-tree-table.column.commands "műveletek")
@@ -200,11 +192,6 @@
 (def (layered-function e) make-standard-object-tree-table-node-inspector-commands (component class instance)
   (:method ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
     (append (make-editing-commands component)
-            (list (make-expand-node-command component instance))))
-
-  (:method ((component standard-object-tree-node-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-    (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
-              (make-editing-commands component))
             (list (make-expand-node-command component instance)))))
 
 (def function make-expand-node-command (component instance)

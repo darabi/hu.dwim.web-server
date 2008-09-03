@@ -58,11 +58,7 @@
 
 (def (layered-function e) make-standard-object-list-inspector-commands (component class prototype)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
-    (make-editing-commands component))
-
-  (:method ((component standard-object-list-inspector) (class prc::persistent-class) (prototype prc::persistent-object))
-    (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
-      (make-editing-commands component))))
+    (make-editing-commands component)))
 
 ;;;;;;
 ;;; Standard object list list inspector
@@ -162,13 +158,7 @@
 
 (def (layered-function e) collect-standard-object-list-table-inspector-slots (component class instance)
   (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
-    (class-slots class))
-
-  (:method ((component standard-object-list-table-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-    (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
-
-  (:method ((component standard-object-list-table-inspector) (class dmm::entity) (instance prc::persistent-object))
-    (filter-if #'dmm::primary-p (call-next-method))))
+    (class-slots class)))
 
 (defresources hu
   (object-list-table.column.commands "Műveletek")
@@ -209,11 +199,6 @@
 (def (layered-function e) make-standard-object-row-inspector-commands (component class instance)
   (:method ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
     (append (make-editing-commands component)
-            (list (make-expand-row-command component instance))))
-
-  (:method ((component standard-object-row-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-    (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
-              (make-editing-commands component))
             (list (make-expand-row-command component instance)))))
 
 (def function make-expand-row-command (component instance)
