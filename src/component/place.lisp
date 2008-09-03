@@ -106,7 +106,8 @@
   (slot-definition-name (slot-of self)))
 
 (def function revive-slot-value-place-instance (place)
-  (setf (instance-of place) (reuse-standard-object-instance (instance-of place))))
+  (bind ((instance (instance-of place)))
+    (setf (instance-of place) (reuse-standard-object-instance (class-of instance) instance))))
 
 (def generic slot-type (slot)
   (:method ((slot standard-slot-definition))
