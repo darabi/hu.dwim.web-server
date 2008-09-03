@@ -277,17 +277,23 @@
 
 (def component standard-object-tree-path-inspector (abstract-standard-object-list-component
                                                     inspector-component)
-  ())
+  ((segments nil :type components)))
+
+(def method refresh-component ((self standard-object-tree-path-inspector))
+  (with-slots (segments instances) self
+    (setf segments (mapcar #'localized-instance-name instances))))
 
 (def render standard-object-tree-path-inspector ()
-  (iter (for instance :in (instances-of -self-))
-        (rebind (instance)
-          <span ,(unless (first-iteration-p) " / ")
-                <a (:href ,(make-action-href ()
-                             (bind ((parent (parent-component-of -self-)))
-                               (setf (current-instance-of parent) instance)
-                               (setf (outdated-p parent) #t))))
-                   ,(localized-instance-name instance)>>)))
+  (with-slots (segments instances) -self-
+    (iter (for instance :in instances)
+          (for segment :in segments)
+          (rebind (instance)
+            <span ,(unless (first-iteration-p) " / ")
+                  <a (:href ,(make-action-href ()
+                                               (bind ((parent (parent-component-of -self-)))
+                                                 (setf (current-instance-of parent) instance)
+                                                 (setf (outdated-p parent) #t))))
+                     ,segment>>))))
 
 ;;;;;;
 ;;; Standard object tree nested box
