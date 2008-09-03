@@ -110,6 +110,7 @@
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
                :cl-delico
+               :parse-number
                ))
 
 (defsystem* :wui
