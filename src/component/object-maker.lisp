@@ -118,7 +118,7 @@
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class class-selector the-class slot-value-groups) self
     (bind ((selected-class (find-selected-class self)))
-      (setf class (make-viewer the-class :default-component-type 'reference-component)
+      (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
                                      (slot-groups (collect-standard-object-detail-maker-slot-value-groups self selected-class prototype slots)))
@@ -132,6 +132,15 @@
                                                                                   :the-class selected-class
                                                                                   :slots slot-group)))
                                         (collect slot-value-group))))))))
+
+(def (layered-function e) make-standard-object-detail-maker-class (component class prototype)
+  (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
+    (localized-class-name class))
+
+  (:method ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
+    (if (dmm::developer-p (dmm::current-effective-subject))
+        (make-viewer class :default-component-type 'reference-component)
+        (call-next-method))))
 
 (def (layered-function e) collect-standard-object-detail-maker-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object) (slots list))

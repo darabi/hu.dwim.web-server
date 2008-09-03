@@ -111,8 +111,9 @@
     (bind ((the-class (when instance (class-of instance))))
       (if the-class
           (if class
-              (setf (component-value-of class) the-class)
-              (setf class (make-viewer the-class :default-component-type 'reference-component)))
+              (when (typep class 'abstract-standard-class-component)
+                (setf (the-class-of class) the-class))
+              (setf class (make-standard-object-detail-inspector-class self the-class (class-prototype the-class))))
           (setf class nil))
       (if instance
           (bind ((slots (collect-standard-object-detail-inspector-slots self the-class instance))
@@ -128,6 +129,15 @@
                               (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector :instance instance :slots slot-group)))
                           (collect slot-value-group)))))
           (setf slot-value-groups nil)))))
+
+(def (layered-function e) make-standard-object-detail-inspector-class (component class prototype)
+  (:method ((component standard-object-detail-inspector) (class standard-class) (prototype standard-object))
+    (localized-class-name class))
+
+  (:method ((component standard-object-detail-inspector) (class prc::persistent-class) (prototype prc::persistent-object))
+    (if (dmm::developer-p (dmm::current-effective-subject))
+        (make-viewer class :default-component-type 'reference-component)
+        (call-next-method))))
 
 (def (layered-function e) collect-standard-object-detail-inspector-slot-value-groups (component class instance slots)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object) (slots list))

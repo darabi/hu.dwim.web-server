@@ -97,7 +97,7 @@
   (with-slots (class class-selector the-class slot-value-groups command-bar) self
     (bind ((selected-class (or (when class-selector (component-value-of class-selector))
                                the-class)))
-      (setf class (make-viewer the-class :default-component-type 'reference-component)
+      (setf class (make-standard-object-detail-filter-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-filter-slots self selected-class prototype))
                                      (slot-groups (collect-standard-object-detail-filter-slot-value-groups self selected-class prototype slots)))
@@ -111,6 +111,15 @@
                                                                                   :the-class selected-class
                                                                                   :slots slot-group)))
                                         (collect slot-value-group))))))))
+
+(def (layered-function e) make-standard-object-detail-filter-class (component class prototype)
+  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
+    (localized-class-name class))
+
+  (:method ((component standard-object-detail-filter) (class prc::persistent-class) (prototype prc::persistent-object))
+    (if (dmm::developer-p (dmm::current-effective-subject))
+        (make-viewer class :default-component-type 'reference-component)
+        (call-next-method))))
 
 (def (layered-function e) collect-standard-object-detail-filter-slot-value-groups (component class prototype slots)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object) (slots list))
