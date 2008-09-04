@@ -18,7 +18,10 @@
    (icon nil :type component)))
 
 (def (function e) make-menu-component (label menu-items)
-  (bind ((menu-items (remove nil menu-items)))
+  (bind ((menu-items (iter (for menu-item :in menu-items)
+                           (if (listp menu-item)
+                               (appending menu-item)
+                               (collect menu-item)))))
     (when menu-items
       (make-instance 'menu-component
                      :icon (when label
