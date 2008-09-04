@@ -172,7 +172,8 @@
                                (:file "object-list-aggregator" :depends-on ("object-component"))
                                (:file "object-tree-inspector" :depends-on ("object-component" "alternator" "reference" "tree"))
                                (:file "process" :depends-on ("command" "object-maker" "object-list-inspector" "object-tree-inspector"))
-                               (:file "object-filter" :depends-on ("place-component" "object-inspector")))
+                               (:file "object-filter" :depends-on ("place-component" "object-inspector"))
+                               (:file "object-tree-filter" :depends-on ("object-filter")))
                   :depends-on ("application")))))
   :depends-on (:wui-core
                :trivial-garbage
