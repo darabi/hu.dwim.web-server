@@ -51,11 +51,12 @@
                              (commands-of command-bar))
                   answer-commands))))
 
-(def (macro e) call-component (component &rest answer-commands)
-  `(let/cc k
-     (setf (content-of *standard-process-component*) ,component)
-     (replace-answer-commands *standard-process-component* (list ,@answer-commands))
-     k))
+(def (function/cc e) call-component (component &key answer-commands)
+  (setf answer-commands (ensure-list answer-commands))
+  (let/cc k
+    (setf (content-of *standard-process-component*) component)
+    (replace-answer-commands *standard-process-component* answer-commands)
+    k))
 
 (def (generic e) answer-component (component value)
   (:method ((component component) value)

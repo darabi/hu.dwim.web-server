@@ -39,39 +39,40 @@
     (unless (content-of component)
       (clear-process-component component))))
 
-(def macro dmm:show-to-subject (component answer-commands &optional subject)
+(def function/cc dmm:show-to-subject (subject component &key answer-commands)
   "Shows a user interface component to the given subject."
-  (once-only (subject)
-    `(dmm::show-and-wait ,component
-                         ,answer-commands
-                         (or (not ,subject)
-                             (and (dmm::has-authenticated-session)
-                                  (eq ,subject (dmm::current-effective-subject))))
-                         (make-instance 'dmm::wait-for-subject
-                                        :subject (or ,subject
-                                                     (dmm::current-effective-subject))))))
+  (dmm:show-maybe component
+                  :answer-commands answer-commands
+                  :when (or (not subject)
+                            (and (dmm::has-authenticated-session)
+                                 (prc:p-eq subject (dmm::current-effective-subject))))
+                  :wait-reason (make-instance 'dmm::wait-for-subject
+                                              :subject (or subject
+                                                           (dmm::current-effective-subject)))))
 
-(def macro dmm:show-to-subject-expression (component answer-commands &optional expression)
+(def function/cc dmm:show-to-current-effective-subject (component &key answer-commands)
+  (dmm:show-to-subject (dmm:current-effective-subject) component :answer-commands answer-commands))
+
+(def macro dmm:show-to-subjects-matching-expression (expression component answer-commands)
   "Shows a user interface component to any one of the subjects matching to the given expression"
-  `(dmm::show-and-wait ,component
-                       ,answer-commands
-                       (and (dmm::has-authenticated-session)
-                            (bind ((dmm::-authenticated-subject- (dmm::current-authenticated-subject))
-                                   (dmm::-effective-subject- (dmm::current-effective-subject)))
-                              ,expression))
-                       (or (dmm::select-wait-for-expression :wait-for-subject #t :expression ',expression)
-                           (dmm::make-wait-for-expression :wait-for-subject #t :expression ',expression))))
+  `(dmm:show-maybe ,component
+                   :answer-commands ,answer-commands
+                   :when (and (dmm::has-authenticated-session)
+                              (bind ((dmm::-authenticated-subject- (dmm::current-authenticated-subject))
+                                     (dmm::-effective-subject- (dmm::current-effective-subject)))
+                                ,expression))
+                   :wait-reason (or (dmm::select-wait-for-expression :wait-for-subject #t :expression ',expression)
+                                    (dmm::make-wait-for-expression :wait-for-subject #t :expression ',expression))))
 
-;; TODO: defun/cc?
-(def macro dmm:show-and-wait (component answer-commands &optional (condition t) (wait-reason nil))
-  `(progn
-     (dmm::persistent-process-wait dmm::*process* ,wait-reason)
-     (if ,condition
-         (call-component ,component ,answer-commands)
-         (let/cc k
-           (add-user-information *standard-process-component* #"process.message.waiting-for-other-subject")
-           k))
-     (assert (dmm::persistent-process-running-p dmm::*process*))))
+(def function/cc dmm:show-maybe (component &key answer-commands (when t) (wait-reason nil))
+  (dmm::persistent-process-wait dmm::*process* wait-reason)
+  (if when
+      (call-component component :answer-commands answer-commands)
+      (let/cc k
+        (add-user-information *standard-process-component* #"process.message.waiting-for-other-subject")
+        k))
+  (assert (dmm::persistent-process-running-p dmm::*process*))
+  (values))
 
 (def method answer-component ((component persistent-process-component) value)
   (roll-persistent-process component
