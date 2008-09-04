@@ -166,9 +166,10 @@
                  (until (shutdown-initiated-p server))
                  (unless readable
                    (next-iteration))
-                 (for stream-socket = (accept-connection socket))
-                 (when stream-socket
-                   (worker-loop/serve-one-request threaded? server worker stream-socket)))
+                 (iter (for stream-socket = (accept-connection socket :wait #f))
+                       (until (or (null stream-socket)
+                                  (shutdown-initiated-p server)))
+                       (worker-loop/serve-one-request threaded? server worker stream-socket)))
          (remove-worker ()
            :report (lambda (stream)
                      (format stream "Stop and remove worker ~A" worker))
