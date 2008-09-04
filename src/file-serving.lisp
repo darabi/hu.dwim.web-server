@@ -71,8 +71,7 @@
   (make-instance 'file-serving-response :file-name file-name))
 
 (defmethod send-response ((self file-serving-response))
-  (bind (((:values success? condition network-stream-dirty?)
-          (serve-file (file-name-of self) :signal-errors #f)))
+  (bind (((:values success? condition network-stream-dirty?) (serve-file (file-name-of self) :signal-errors #f)))
     (when (and (not success?)
                (or (not (typep condition 'stream-error))
                    (not (eq (stream-error-stream condition) (network-stream-of *request*)))))

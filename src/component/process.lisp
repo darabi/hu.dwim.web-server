@@ -71,7 +71,7 @@
 ;;; Answer command
 
 (def component answer-command-component (command-component)
-  ((icon (icon answer :label "Answer"))
+  ((icon (icon answer :label "Answer")) ;; TODO localize
    (action nil)
    (value nil)))
 

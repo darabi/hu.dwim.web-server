@@ -18,8 +18,11 @@
          (new-dynamic-usage (sb-kernel:dynamic-usage))
          (last-descriptors (last-descriptors-of -self-))
          (new-descriptors
-          (describe-object-sizes (root-component-of *frame*)
-                                 :ignored-type '(or symbol standard-class standard-slot-definition sb-vm::code-component)))
+          (collect-object-size-descriptors-for-retained-objects
+           (root-component-of *frame*) :ignored-type '(or symbol
+                                                          standard-class
+                                                          standard-slot-definition
+                                                          sb-vm::code-component)))
          (last-total-count 0)
          (last-total-size 0)
          (new-total-count 0)

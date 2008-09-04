@@ -387,8 +387,9 @@ Custom implementations should look something like this:
         <ajax-response
          ,@(with-collapsed-js-scripts
             <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
-              ,(map nil [with-restored-component-environment (parent-component-of !1)
-                          (render component)]
+              ,(map nil (lambda (dirty-component)
+                          (with-restored-component-environment (parent-component-of dirty-component)
+                            (render dirty-component)))
                     dirty-components)>)>)
       (render component)))
 

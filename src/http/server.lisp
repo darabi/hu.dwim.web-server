@@ -288,7 +288,7 @@
                          ;; IE sends junk with the date (but sends it after a semicolon)
                          (subseq ,if-modified-since 0 (position #\; ,if-modified-since :test #'char=)))))
                (progn
-                 (server.dribble ,(format nil "~A: Sending 304 not modified, and the headers only" name))
+                 (server.debug "~A: Sending 304 not modified. if-modified-since is ~S, last-modified-at is ~S" ',name ,if-modified-since ,last-modified-at)
                  (setf (header-value ,response +header/status+) +http-not-modified+)
                  (setf (header-value ,response +header/content-length+) "0")
                  (send-headers ,response))

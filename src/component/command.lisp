@@ -69,7 +69,7 @@
           :key (lambda (command)
                  (or (position (name-of (icon-of command))
                                '(answer back open-in-new-frame top collapse collapse-all expand-all refresh edit save cancel store revert new delete)
-                               :test #'equal)
+                               :test #'eq)
                      most-positive-fixnum)))))
 
 (def (function e) push-command (command component)

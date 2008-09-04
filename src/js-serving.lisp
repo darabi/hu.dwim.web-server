@@ -56,7 +56,7 @@
 (def generic compile-js-file-to-byte-vector (broker filename)
   (:method ((broker js-file-serving-broker) filename)
     (bind ((body-as-string (read-file-into-string filename :external-format +encoding+)))
-      (setf body-as-string (concatenate-string "`js(progn"
+      (setf body-as-string (concatenate-string "`js(progn "
                                                body-as-string
                                                ")"))
       (bind ((*package* (find-package :hu.dwim.wui)))

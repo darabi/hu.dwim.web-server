@@ -38,7 +38,7 @@
 
 (def special-variable *transform-quasi-quote-to-inline-emitting* t)
 (def special-variable *transform-quasi-quote-to-binary* t)
-(def special-variable *quasi-quote-indentation-width* nil)
+(def special-variable *quasi-quote-indentation-width* (unless *load-as-production-p* 2))
 
 (def function make-str-transformation-pipeline ()
   (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
@@ -57,10 +57,10 @@
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*
    :indentation-width *quasi-quote-indentation-width*
    :output-prefix (cond
-                    ;; TODO and it must also be xml escaped... think through how this should work in qq.
+                    ;; TODO inline stuff must also be xml escaped... think through how this should work in qq.
                     ;; should `str() inside <> automatically be escaped? how could you insert unescaped
                     ;; then?
-                    (inline?          (format nil "javascript: "))
+                    (inline?          "javascript: ")
                     (embedded-in-xml? (format nil "~%<script type=\"text/javascript\">~%// <![CDATA[~%")))
    :output-postfix (cond
                      ((and embedded-in-xml?
@@ -84,7 +84,7 @@
      (declare (ignore c2))
      (unread-char c1 s)
      (let ((key (read s)))
-       `(wui.i18n.lookup ,key)))))
+       `(|wui.i18n.lookup| ,key)))))
 
 (define-syntax sharpquote<> ()
   "Enable quote reader for the rest of the file (being loaded or compiled).
