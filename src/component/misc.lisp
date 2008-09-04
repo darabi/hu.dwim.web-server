@@ -249,7 +249,7 @@
 ;;;;;;
 ;;; Frame
 
-(def component frame-component (top-component)
+(def component frame-component (top-component layered-component-mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
    (script-uris nil)
