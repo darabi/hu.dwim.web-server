@@ -67,7 +67,7 @@
   `(progn
      (dmm::persistent-process-wait dmm::*process* ,wait-reason)
      (if ,condition
-         (call ,component ,answer-commands)
+         (call-component ,component ,answer-commands)
          (let/cc k
            (add-user-information *standard-process-component* #"process.message.waiting-for-other-subject")
            k))
