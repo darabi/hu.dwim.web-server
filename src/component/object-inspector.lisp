@@ -106,7 +106,7 @@
           (setf class nil))
       (if instance
           (bind ((slots (collect-standard-object-detail-inspector-slots self the-class instance))
-                 (slot-groups (collect-standard-object-detail-inspector-slot-value-groups self the-class instance slots)))
+                 (slot-groups (collect-standard-object-detail-inspector-slot-groups self the-class instance slots)))
             (setf slot-value-groups
                   (iter (for slot-group :in slot-groups)
                         (when slot-group
@@ -123,7 +123,7 @@
   (:method ((component standard-object-detail-inspector) (class standard-class) (prototype standard-object))
     (localized-class-name class)))
 
-(def (layered-function e) collect-standard-object-detail-inspector-slot-value-groups (component class instance slots)
+(def (layered-function e) collect-standard-object-detail-inspector-slot-groups (component class instance slots)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object) (slots list))
     (list slots)))
 

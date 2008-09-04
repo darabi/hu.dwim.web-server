@@ -118,7 +118,7 @@
       (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
-                                     (slot-groups (collect-standard-object-detail-maker-slot-value-groups self selected-class prototype slots)))
+                                     (slot-groups (collect-standard-object-detail-maker-slot-groups self selected-class prototype slots)))
                                 (iter (for slot-group :in slot-groups)
                                       (when slot-group
                                         (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
@@ -134,7 +134,7 @@
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (localized-class-name class)))
 
-(def (layered-function e) collect-standard-object-detail-maker-slot-value-groups (component class prototype slots)
+(def (layered-function e) collect-standard-object-detail-maker-slot-groups (component class prototype slots)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object) (slots list))
     (list slots)))
 

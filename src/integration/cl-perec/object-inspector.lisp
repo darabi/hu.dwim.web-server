@@ -13,7 +13,7 @@
           (optional-list (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)
                            (make-delete-instance-command component)))))
 
-(def layered-method collect-standard-object-detail-inspector-slot-value-groups ((component standard-object-detail-inspector) (class dmm::entity) (instance prc::persistent-object) (slots list))
+(def layered-method collect-standard-object-detail-inspector-slot-groups ((component standard-object-detail-inspector) (class dmm::entity) (instance prc::persistent-object) (slots list))
   (partition slots #'dmm::primary-p (constantly #t)))
 
 (def layered-method collect-standard-object-detail-inspector-slots ((component standard-object-detail-inspector) (class prc::persistent-class) (instance prc::persistent-object))
