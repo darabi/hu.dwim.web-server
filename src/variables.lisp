@@ -5,6 +5,7 @@
 (in-package :hu.dwim.wui)
 
 (def (special-variable e) *server*)
+(def (special-variable e) *application*)
 (def (special-variable e) *request*)
 (def (special-variable e) *response*)
 

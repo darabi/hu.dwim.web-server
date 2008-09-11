@@ -20,13 +20,11 @@
 (def (special-variable e) *maximum-number-of-sessions-per-application* most-positive-fixnum
   "The default for the same slot in applications.")
 
-(def (special-variable e) *session-timeout* (* 30 60)
+(def (special-variable e) *default-session-timeout* (* 30 60)
   "The default for the same slot in applications.")
 
-(def (special-variable e) *frame-timeout* *session-timeout*
+(def (special-variable e) *default-frame-timeout* *default-session-timeout*
   "The default for the same slot in applications.")
-
-(def (special-variable e) *application*)
 
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
@@ -37,8 +35,8 @@
    (default-locale "en")
    (default-timezone local-time:*default-timezone*)
    (session-class)
-   (session-timeout *session-timeout*)
-   (frame-timeout *frame-timeout*)
+   (session-timeout *default-session-timeout*)
+   (frame-timeout *default-frame-timeout*)
    (processed-request-count 0)
    (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
