@@ -11,7 +11,7 @@
 ;;; Command
 
 (def component command-component ()
-  ((enabled #t :type boolean)
+  ((enabled #t :accessor enabled?)
    (icon nil :type component)
    (action)
    (js nil)))
@@ -21,17 +21,20 @@
 
 (def render command-component ()
   (with-slots (enabled icon action js) -self-
-    (if (force enabled)
-        (bind ((href (etypecase action
-                       (action (action-to-href action))
-                       ;; TODO wastes of resources. store back the printed uri? see below also...
-                       (uri (print-uri-to-string action))))
-               (onclick-js (or js
-                               (lambda (href)
-                                 `js-inline(wui.submit-form ,href)))))
-          <a (:href "#" :onclick ,(funcall onclick-js href))
-             ,(render icon)>)
-        (render icon))))
+    (render-command action icon :js js :enabled enabled :ajax #f)))
+
+(def (function e) render-command (action body &key js (enabled t) (ajax (not (null *frame*))))
+  (if (force enabled)
+      (bind ((href (etypecase action
+                     (action (action-to-href action))
+                     ;; TODO wastes resources. store back the printed uri? see below also...
+                     (uri (print-uri-to-string action))))
+             (onclick-js (or js
+                             (lambda (href)
+                               `js-inline(wui.io.action ,href ,ajax)))))
+        <a (:href "#" :onclick ,(funcall onclick-js href))
+           ,(render body)>)
+      (render body)))
 
 (def render :in passive-components-layer command-component
   (render (icon-of -self-)))
