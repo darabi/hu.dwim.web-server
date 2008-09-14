@@ -386,16 +386,18 @@ Custom implementations should look something like this:
 (def macro with-restored-component-environment (component &body forms)
   `(call-with-restored-component-environment ,component (lambda () ,@forms)))
 
-(def function ajax-aware-render (component ajax-aware-client?)
-  (if ajax-aware-client?
+(def function ajax-aware-render (component use-ajax?)
+  (if use-ajax?
       (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
+        (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         <ajax-response
          ,@(with-collapsed-js-scripts
             <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
               ,(map nil (lambda (dirty-component)
                           (with-restored-component-environment (parent-component-of dirty-component)
                             (render dirty-component)))
-                    dirty-components)>)>)
+                    dirty-components)>)
+         <result "success">>)
       (render component)))
 
 (def (function e) render-to-string (component &key (ajax-aware-client #f))
@@ -453,7 +455,9 @@ Custom implementations should look something like this:
 (def function ajax-aware-client? (&optional (request *request*))
   (bind ((value (request-parameter-value request +ajax-aware-client-parameter-name+)))
     (and value
-         (not (string= value "")))))
+         (etypecase value
+           (cons (some [not (string= !1 "")] value))
+           (string (not (string= value "")))))))
 
 (def method send-response ((self component-rendering-response))
   (disallow-response-caching self)
@@ -465,12 +469,15 @@ Custom implementations should look something like this:
                                                        :initial-buffer-size 256)
                  (when (and *frame*
                             (not (request-for-delayed-content?)))
+                   (app.debug "This is not a delayed content request, clearing the action and client-state-sink hashtables of ~A" *frame*)
                    (clrhash (action-id->action-of *frame*))
                    (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
-                   (bind ((start-time (get-monotonic-time)))
+                   (bind ((start-time (get-monotonic-time))
+                          (ajax-aware-client? (ajax-aware-client?)))
+                     (app.debug "Calling AJAX-AWARE-RENDER, ajax-aware-client? ~A" ajax-aware-client?)
                      (multiple-value-prog1
-                         (ajax-aware-render (component-of self) (ajax-aware-client?))
+                         (ajax-aware-render (component-of self) ajax-aware-client?)
                        (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time)))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 128)
@@ -478,7 +485,8 @@ Custom implementations should look something like this:
                     (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
     ;; TODO use multiplexing when writing to the network stream, including the headers
     (write-sequence headers (network-stream-of *request*))
-    (write-sequence body (network-stream-of *request*)))
+    (write-sequence body (network-stream-of *request*))
+    (app.debug "Sending component rendering response, body length is ~A" (length body)))
   (values))
 
 
