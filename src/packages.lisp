@@ -37,6 +37,7 @@
    #:class-prototype
    #:class-slots
    #:class-precedence-list
+   #:|defun|
    )
 
   (:shadowing-import-from :cl-syntax-sugar

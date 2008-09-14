@@ -84,7 +84,7 @@
      (declare (ignore c2))
      (unread-char c1 s)
      (let ((key (read s)))
-       `(|wui.i18n.lookup| ,key)))))
+       `(|wui.i18n.localize| ,key)))))
 
 (define-syntax sharpquote<> ()
   "Enable quote reader for the rest of the file (being loaded or compiled).
