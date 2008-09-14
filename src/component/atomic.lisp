@@ -280,7 +280,8 @@
   ())
 
 (def method parse-component-value ((component integer-component) client-value)
-  (if (string= client-value "")
+  (if (or (string= client-value "")
+          (string= client-value "NaN"))
       nil
       (parse-integer client-value)))
 

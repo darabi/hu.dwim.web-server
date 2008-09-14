@@ -67,8 +67,7 @@
 ;;; Replace menu target command
 
 (def component replace-menu-target-command-component (command-component)
-  ((action :type action)
-   (component)))
+  ((component)))
 
 (def constructor replace-menu-target-command-component ()
   (setf (action-of -self-)
