@@ -42,8 +42,15 @@
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal))
    (lock)
-   (running-in-test-mode #f :type boolean :export :accessor))
+   (running-in-test-mode #f :type boolean :export :accessor)
+   (compile-time-debug-client-side :type boolean :accessor compile-time-debug-client-side? :export :accessor))
   (:metaclass funcallable-standard-class))
+
+(def method compile-time-debug-client-side? :around ((self application))
+  (if (slot-boundp self 'compile-time-debug-client-side)
+      (call-next-method)
+      (or (running-in-test-mode-p self)
+          (not *load-as-production-p*))))
 
 (def (function i) assert-application-lock-held (application)
   (assert (is-lock-held? (lock-of application)) () "You must have a lock on the application here"))
