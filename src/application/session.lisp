@@ -59,7 +59,8 @@
    (client-timezone (default-timezone-of *application*))
    (unique-dom-id-counter 0)
    (frame-id->frame (make-hash-table :test 'equal))
-   (lock nil)))
+   (lock nil)
+   (computed-universe nil)))
 
 (def with-macro* with-lock-held-on-session (session)
   (multiple-value-prog1

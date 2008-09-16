@@ -16,6 +16,7 @@
    :alexandria
    :metabang-bind
    :defclass-star
+   :computed-class
    :iterate
    :cl-def
    :cl-yalog

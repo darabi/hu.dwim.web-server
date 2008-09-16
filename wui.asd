@@ -93,6 +93,7 @@
                :metabang-bind
                :cl-def
                :defclass-star
+               :computed-class
                :alexandria
                :rfc2109
                :rfc2388-binary

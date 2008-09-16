@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; MOP
 
-(def (class e) component-class (standard-class)
+(def (class e) component-class (computed-class)
   ())
 
 (def class component-slot-definition (standard-slot-definition)
@@ -62,3 +62,21 @@
       (shared-initialize-around-component-class class (class-name class) direct-superclasses #'call-next-method initargs)
       ;; if direct superclasses are not explicitly passed we _must_ not change anything
       (call-next-method)))
+
+;;;;;;
+;;; Computed universe
+
+;; TODO: make it on-demand
+(define-computed-universe compute-as-in-session :default-recomputation-mode :always)
+
+(def function ensure-session-computed-universe ()
+  (or (computed-universe-of *session*)
+      (setf (computed-universe-of *session*) (cc::make-computed-universe))))
+
+(def (macro e) compute-as (&body forms)
+  `(compute-as* ()
+     ,@forms))
+
+(def (macro e) compute-as* ((&rest args &key &allow-other-keys) &body forms)
+  `(compute-as-in-session* (:universe (ensure-session-computed-universe) ,@args)
+     ,@forms))
