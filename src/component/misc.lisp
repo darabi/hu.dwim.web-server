@@ -74,7 +74,7 @@
    (body)))
 
 (def render wrapper-component ()
-  (with-slots (thunk body) -self-
+  (bind (((:read-only-slots thunk body) -self-))
     (funcall thunk (lambda () (render body)))))
 
 (def (macro e) make-wrapper-component (&rest args &key wrap &allow-other-keys)
@@ -102,7 +102,7 @@
   ((id nil)))
 
 (def render :before remote-identity-component-mixin ()
-  (with-slots (id) -self-
+  (bind (((:read-only-slots id) -self-))
     (when (and *frame*
                (not id))
       (setf id (generate-frame-unique-string "c")))))
@@ -211,13 +211,13 @@
             (make-uri :path (concatenate 'string url-prefix (namestring file-name)))))))
 
 (def render file-download-component ()
-  (with-slots (icon file-name action url-prefix directory enabled) -self-
-    (bind ((absolute-file-name (merge-pathnames file-name directory)))
-      (unless (probe-file absolute-file-name)
-        (setf enabled #f))
-      <div (:class "file-download")
-           ,(call-next-method)
-           " (" ,(file-last-modification-timestamp absolute-file-name) ")">)))
+  (bind (((:read-only-slots file-name directory enabled) -self-)
+         (absolute-file-name (merge-pathnames file-name directory)))
+    (unless (probe-file absolute-file-name)
+      (setf enabled #f))
+    <div (:class "file-download")
+         ,(call-next-method)
+         " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
 
 (defresources en
   (file-last-modification-timestamp (file)
@@ -242,7 +242,7 @@
   ((icon (icon upload) :type component)))
 
 (def render file-upload-component ()
-  (with-slots (icon) -self-
+  (bind (((:read-only-slots icon) -self-))
     <div ,(render icon)
          <div <input (:type "file")>>>))
 

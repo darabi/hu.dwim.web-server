@@ -20,7 +20,7 @@
   `(make-instance 'standard-process-component :form '(progn ,@forms)))
 
 (def render standard-process-component ()
-  (with-slots (form closure/cc answer-continuation command-bar content) -self-
+  (bind (((:read-only-slots form closure/cc answer-continuation command-bar content) -self-))
     (unless content
       (setf answer-continuation
             (bind ((*standard-process-component* -self-))

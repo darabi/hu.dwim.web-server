@@ -64,7 +64,7 @@
    (permanent #f :type boolean)))
 
 (def render user-message-component ()
-  (with-slots (category message permanent content) -self-
+  (bind (((:read-only-slots category message permanent content) -self-))
     <div (:class ,(string-downcase category))
          ,(when permanent
             (render (command (icon close :label nil)

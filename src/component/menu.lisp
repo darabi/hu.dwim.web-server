@@ -59,7 +59,7 @@
   `(make-menu-item-component ,command ,@menu-items))
 
 (def render menu-item-component ()
-  (with-slots (command menu-items) -self-
+  (bind (((:read-only-slots command menu-items) -self-))
     <div ,(render command)
          <ul ,@(mapcar #'render menu-items)>>))
 

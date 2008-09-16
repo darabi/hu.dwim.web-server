@@ -52,7 +52,7 @@
               content (find-default-alternative-component alternatives)))))
 
 (def render standard-object-inspector ()
-  (with-slots (content id) -self-
+  (bind (((:read-only-slots content id) -self-))
     (flet ((body ()
              (render-user-messages -self-)
              (call-next-method)))
@@ -132,7 +132,7 @@
     (class-slots class)))
 
 (def render standard-object-detail-inspector ()
-  (with-slots (class slot-value-groups id) -self-
+  (bind (((:read-only-slots class slot-value-groups id) -self-))
     <div (:id ,id :class "standard-object")
          <span ,(standard-object-detail-inspector.instance class)>
          <div <h3 ,#"standard-object-detail-inspector.slots">

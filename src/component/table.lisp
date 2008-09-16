@@ -15,24 +15,22 @@
     :type component)))
 
 (def render table-component ()
-  (bind ((table -self-))
-    (with-slots (columns rows page-navigation-bar) table
-      (setf (total-count-of page-navigation-bar) (length rows))
-      <div
-       <table (:class "table")
+  (bind (((:read-only-slots rows page-navigation-bar) -self-))
+    (setf (total-count-of page-navigation-bar) (length rows))
+    <div <table (:class "table")
            <thead
             <tr ,(render-table-columns -self-)>>
-         <tbody
-          ,(bind ((visible-rows (subseq rows
-                                        (position-of page-navigation-bar)
-                                        (min (length rows)
-                                             (+ (position-of page-navigation-bar)
-                                                (page-count-of page-navigation-bar))))))
-            (iter (for row :in-sequence visible-rows)
-                  (render-table-row table row)))>>
-       ,(if (< (page-count-of page-navigation-bar) (total-count-of page-navigation-bar))
-            (render page-navigation-bar)
-            +void+)>)))
+           <tbody
+            ,(bind ((visible-rows (subseq rows
+                                          (position-of page-navigation-bar)
+                                          (min (length rows)
+                                               (+ (position-of page-navigation-bar)
+                                                  (page-count-of page-navigation-bar))))))
+                   (iter (for row :in-sequence visible-rows)
+                         (render-table-row -self- row)))>>
+         ,(if (< (page-count-of page-navigation-bar) (total-count-of page-navigation-bar))
+              (render page-navigation-bar)
+              +void+)>))
 
 (def (layered-function e) render-table-columns (table-component)
   (:method ((self table-component))

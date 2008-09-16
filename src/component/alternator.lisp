@@ -19,7 +19,7 @@
     (setf (default-component-type-of clone) (default-component-type-of self))))
 
 (def render alternator-component ()
-  (with-slots (content command-bar) -self-
+  (bind (((:read-only-slots content command-bar) -self-))
     (if (typep content '(or reference-component atomic-component))
         (render content)
         (render-vertical-list (list content command-bar)))))

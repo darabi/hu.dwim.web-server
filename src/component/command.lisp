@@ -20,7 +20,7 @@
   `(make-instance 'command-component :icon ,icon :action ,action ,@args))
 
 (def render command-component ()
-  (with-slots (enabled icon action js) -self-
+  (bind (((:read-only-slots enabled icon action js) -self-))
     (render-command action icon :js js :enabled enabled :ajax #f)))
 
 (def (function e) render-command (action body &key js (enabled t) (ajax (not (null *frame*))))
@@ -52,7 +52,7 @@
   `(make-instance 'command-bar-component :commands (list ,@commands)))
 
 (def render command-bar-component
-  (with-slots (commands parent-component) -self-
+  (bind (((:read-only-slots commands parent-component) -self-))
     (setf commands (sort-commands parent-component commands))
     (render-horizontal-list commands :css-class "command-bar")))
 
@@ -134,7 +134,7 @@
           jumper (make-instance 'integer-component :edited #t :component-value position))))
 
 (def render page-navigation-bar-component ()
-  (with-slots (first-command previous-command next-command last-command jumper) -self-
+  (bind (((:read-only-slots first-command previous-command next-command last-command jumper) -self-))
     (render-horizontal-list (list first-command previous-command jumper next-command last-command))))
 
 ;;;;;;

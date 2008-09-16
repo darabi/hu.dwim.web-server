@@ -34,7 +34,7 @@
   (render-list :horizontal components :id id :css-class css-class :style style))
 
 (def render list-component ()
-  (with-slots (orientation components id css-class style) -self-
+  (bind (((:read-only-slots orientation components id css-class style) -self-))
     (render-list orientation components :id id :css-class css-class :style style)))
 
 ;;;;;;

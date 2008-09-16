@@ -93,11 +93,11 @@
   ())
 
 (def render t-component ()
-  (with-slots (edited component-value client-state-sink) -self-
-    (bind ((printed-value (format nil "~S" component-value)))
-      (if edited
-          <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
-          <span ,printed-value>))))
+  (bind (((:read-only-slots edited component-value client-state-sink) -self-)
+         (printed-value (format nil "~S" component-value)))
+    (if edited
+        <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>
+        <span ,printed-value>)))
 
 (def method parse-component-value ((component t-component) client-value)
   ;; TODO: this is kind of dangerous
@@ -128,14 +128,13 @@
   ())
 
 (def render boolean-component ()
-  (with-slots (edited component-value client-state-sink) -self-
-    <div
-      ,(if edited
-           <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "#t" "#f"))>
-           +void+)
-      <input (:type "checkbox"
-              ,(if component-value (make-xml-attribute "checked" "checked") +void+)
-              ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>>))
+  (bind (((:read-only-slots edited component-value client-state-sink) -self-))
+    <div ,(if edited
+              <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "#t" "#f"))>
+              +void+)
+         <input (:type "checkbox"
+                 ,(if component-value (make-xml-attribute "checked" "checked") +void+)
+                 ,(if edited +void+ (make-xml-attribute "disabled" "disabled")))>>))
 
 (def method parse-component-value ((component boolean-component) client-value)
   (cond ((string= "#t" client-value)
@@ -232,19 +231,19 @@
   ())
 
 (def render number-component ()
-  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
-    (bind ((printed-value (if (null component-value)
-                              ""
-                              (princ-to-string component-value)))
-           (id (generate-frame-unique-string "_w")))
-      (if edited
-          (render-dojo-widget (id)
-            <input (:type      "text"
-                    :id        ,id
-                    :name      ,(id-of client-state-sink)
-                    :value     ,printed-value
-                    :dojoType  #.+dijit/number-text-box+)>)
-          <span ,printed-value>))))
+  (bind (((:read-only-slots edited component-value allow-nil-value client-state-sink) -self-)
+         (printed-value (if (null component-value)
+                            ""
+                            (princ-to-string component-value)))
+         (id (generate-frame-unique-string "_w")))
+    (if edited
+        (render-dojo-widget (id)
+          <input (:type      "text"
+                  :id        ,id
+                  :name      ,(id-of client-state-sink)
+                  :value     ,printed-value
+                  :dojoType  #.+dijit/number-text-box+)>)
+        <span ,printed-value>)))
 
 (def method parse-component-value ((component number-component) client-value)
   (if (string= client-value "")
@@ -304,22 +303,22 @@
   ())
 
 (def render date-component ()
-  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
-    (bind ((wrong-value? (and (not allow-nil-value)
-                              (not component-value)))
-           (printed-value (or (when component-value
-                                (local-time:format-rfc3339-timestring nil component-value :omit-time-part #t))
-                              ""))
-           (id (generate-frame-unique-string "_w")))
-      (if edited
-          (render-dojo-widget (id)
-            <input (:type      "text"
-                    :id        ,id
-                    :name      ,(id-of client-state-sink)
-                    :value     ,printed-value
-                    :dojoType  #.+dijit/date-text-box+)>)
-          <span (:class ,(when wrong-value? "wrong"))
-                ,printed-value>))))
+  (bind (((:read-only-slots edited component-value allow-nil-value client-state-sink) -self-)
+         (wrong-value? (and (not allow-nil-value)
+                            (not component-value)))
+         (printed-value (or (when component-value
+                              (local-time:format-rfc3339-timestring nil component-value :omit-time-part #t))
+                            ""))
+         (id (generate-frame-unique-string "_w")))
+    (if edited
+        (render-dojo-widget (id)
+          <input (:type      "text"
+                  :id        ,id
+                  :name      ,(id-of client-state-sink)
+                  :value     ,printed-value
+                  :dojoType  #.+dijit/date-text-box+)>)
+        <span (:class ,(when wrong-value? "wrong"))
+              ,printed-value>)))
 
 (def method parse-component-value ((component date-component) client-value)
   (unless (string= client-value "")
@@ -339,25 +338,25 @@
   ())
 
 (def render time-component ()
-  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
-    (bind ((wrong-value? (and (not allow-nil-value)
-                              (not component-value)))
-           (printed-value (or (when component-value
-                                (local-time:format-rfc3339-timestring nil component-value :omit-date-part #t))
-                              (if (or allow-nil-value
-                                      edited)
-                                  ""
-                                  #"wrong-atomic-component-value")))
-           (id (generate-frame-unique-string "_w")))
-      (if edited
-          (render-dojo-widget (id)
-            <input (:type      "text"
-                    :id        ,id
-                    :name      ,(id-of client-state-sink)
-                    :value     ,printed-value
-                    :dojoType  #.+dijit/time-text-box+)>)
-          <span (:class ,(when wrong-value? "wrong"))
-            ,printed-value>))))
+  (bind (((:read-only-slots edited component-value allow-nil-value client-state-sink) -self-)
+         (wrong-value? (and (not allow-nil-value)
+                            (not component-value)))
+         (printed-value (or (when component-value
+                              (local-time:format-rfc3339-timestring nil component-value :omit-date-part #t))
+                            (if (or allow-nil-value
+                                    edited)
+                                ""
+                                #"wrong-atomic-component-value")))
+         (id (generate-frame-unique-string "_w")))
+    (if edited
+        (render-dojo-widget (id)
+          <input (:type      "text"
+                  :id        ,id
+                  :name      ,(id-of client-state-sink)
+                  :value     ,printed-value
+                  :dojoType  #.+dijit/time-text-box+)>)
+        <span (:class ,(when wrong-value? "wrong"))
+              ,printed-value>)))
 
 ;;;;;;
 ;;; Timestamp
@@ -367,17 +366,17 @@
   ())
 
 (def render timestamp-component ()
-  (with-slots (edited component-value allow-nil-value client-state-sink) -self-
-    (bind ((wrong-value? (and (not allow-nil-value)
-                              (not component-value)))
-           (printed-value (or (when component-value
-                                (localized-timestamp component-value))
-                              ""))
-           #+nil(id (generate-frame-unique-string "_w")))
-      (if edited
-          <span "TODO: not yet implemented">
-          <span (:class ,(when wrong-value? "wrong"))
-                ,printed-value >))))
+  (bind (((:read-only-slots edited component-value allow-nil-value client-state-sink) -self-)
+         (wrong-value? (and (not allow-nil-value)
+                            (not component-value)))
+         (printed-value (or (when component-value
+                              (localized-timestamp component-value))
+                            ""))
+         #+nil(id (generate-frame-unique-string "_w")))
+    (if edited
+        <span "TODO: not yet implemented">
+        <span (:class ,(when wrong-value? "wrong"))
+              ,printed-value >)))
 
 (def method parse-component-value ((component timestamp-component) client-value)
   (unless (string= client-value "")
@@ -465,7 +464,7 @@
   ())
 
 (def render file-component ()
-  (with-slots (file-name url-prefix directory edited client-state-sink) -self-
+  (bind (((:read-only-slots file-name url-prefix directory edited client-state-sink) -self-))
     (if edited
         <div ,(render (icon upload))
              <div <input (:type "file" :name ,(id-of client-state-sink))>>>

@@ -19,7 +19,7 @@
                                              :page-count 1))))
 
 (def render wizard-component ()
-  (with-slots (pages page-navigation-bar) -self-
+  (bind (((:read-only-slots pages page-navigation-bar) -self-))
     (render-vertical-list (list (elt pages (position-of page-navigation-bar)) page-navigation-bar))))
 
 (def generic finish-wizard (wizard))
@@ -39,7 +39,7 @@
           cancel-command (make-cancel-wizard-command -self-))))
 
 (def render wizard-navigation-bar-component ()
-  (with-slots (first-command previous-command next-command last-command finish-command cancel-command) -self-
+  (bind (((:read-only-slots first-command previous-command next-command last-command finish-command cancel-command) -self-))
     (render-horizontal-list (list first-command previous-command next-command last-command finish-command cancel-command))))
 
 (def (function e) make-finish-wizard-command (wizard)

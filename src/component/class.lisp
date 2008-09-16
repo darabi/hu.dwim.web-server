@@ -43,47 +43,42 @@
   (:documentation "Component for an instance of STANDARD-CLASS in detail"))
 
 (def method refresh-component ((component standard-class-detail-component))
-     (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) component
-       (if the-class
-           (progn
-             (if metaclass
-                 (setf (component-value-of metaclass) (class-of the-class))
-                 (setf metaclass (make-viewer (class-of the-class) :default-component-type 'reference-component)))
-             (if direct-subclasses
-                 (setf (component-value-of direct-subclasses) (class-direct-subclasses the-class))
-                 (setf direct-subclasses (make-instance 'reference-list-component :targets (class-direct-subclasses the-class))) )
-             (if direct-superclasses
-                 (setf (component-value-of direct-superclasses) (class-direct-superclasses the-class))
-                 (setf direct-superclasses (make-instance 'reference-list-component :targets (class-direct-superclasses the-class))))
-             (if direct-slots
-                 (setf (component-value-of direct-slots) (class-direct-slots the-class))
-                 (setf direct-slots (make-instance 'standard-slot-definition-table-component :slots (class-direct-slots the-class))))
-             (if effective-slots
-                 (setf (component-value-of effective-slots) (class-slots the-class))
-                 (setf effective-slots (make-instance 'standard-slot-definition-table-component :slots (class-slots the-class)))))
-           (setf metaclass nil
-                 direct-subclasses nil
-                 direct-superclasses nil
-                 direct-slots nil
-                 effective-slots nil))))
+  (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) component
+    (if the-class
+        (progn
+          (if metaclass
+              (setf (component-value-of metaclass) (class-of the-class))
+              (setf metaclass (make-viewer (class-of the-class) :default-component-type 'reference-component)))
+          (if direct-subclasses
+              (setf (component-value-of direct-subclasses) (class-direct-subclasses the-class))
+              (setf direct-subclasses (make-instance 'reference-list-component :targets (class-direct-subclasses the-class))) )
+          (if direct-superclasses
+              (setf (component-value-of direct-superclasses) (class-direct-superclasses the-class))
+              (setf direct-superclasses (make-instance 'reference-list-component :targets (class-direct-superclasses the-class))))
+          (if direct-slots
+              (setf (component-value-of direct-slots) (class-direct-slots the-class))
+              (setf direct-slots (make-instance 'standard-slot-definition-table-component :slots (class-direct-slots the-class))))
+          (if effective-slots
+              (setf (component-value-of effective-slots) (class-slots the-class))
+              (setf effective-slots (make-instance 'standard-slot-definition-table-component :slots (class-slots the-class)))))
+        (setf metaclass nil
+              direct-subclasses nil
+              direct-superclasses nil
+              direct-slots nil
+              effective-slots nil))))
 
 (def render standard-class-detail-component ()
-  (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-
-    (bind ((class-name (qualified-symbol-name (class-name the-class))))
-      <div
-        <span "The class " <i ,class-name> " is an instance of " ,(render metaclass)>
-        <div
-          <h3 "Direct super classes">
-          ,(render direct-superclasses)>
-        <div
-          <h3 "Direct sub classes">
-          ,(render direct-subclasses)>
-        <div
-          <h3 "Direct slots">
-          ,(render direct-slots)>
-        <div
-          <h3 "Effective slots">
-          ,(render effective-slots)>>)))
+  (bind (((:read-only-slots the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-)
+         (class-name (qualified-symbol-name (class-name the-class))))
+    <div <span "The class " <i ,class-name> " is an instance of " ,(render metaclass)>
+         <div <h3 "Direct super classes">
+              ,(render direct-superclasses)>
+         <div <h3 "Direct sub classes">
+              ,(render direct-subclasses)>
+         <div <h3 "Direct slots">
+              ,(render direct-slots)>
+         <div <h3 "Effective slots">
+              ,(render effective-slots)>>)))
 
 ;;;;;;
 ;;; Standard slot definition table

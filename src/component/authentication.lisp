@@ -26,8 +26,7 @@
     result))
 
 (def render identifier-and-password-login-component
-  (bind ((identifier (identifier-of -self-))
-         (password (password-of -self-))
+  (bind (((:read-only-slots identifier password) -self-)
          (focused-field-id (if identifier
                                "password-field"
                                "identifier-field")))
@@ -48,7 +47,6 @@
      `js(on-load
          (.focus ($ ,focused-field-id)))>))
 
-
 ;;;;;;
 ;;; Fake login
 
@@ -59,13 +57,13 @@
   (:documentation "Useful to render one-click logins in test mode"))
 
 (def render fake-identifier-and-password-login-component
-  (with-slots (identifier password comment) -self-
-    (bind ((uri (clone-uri (uri-of *request*))))
-      (setf (uri-query-parameter-value uri "identifier") identifier)
-      (setf (uri-query-parameter-value uri "password") password)
-      <div (:class "fake-login")
-           <a (:href ,(print-uri-to-string uri))
-              ,(concatenate-string identifier comment)>>)))
+  (bind (((:read-only-slots identifier password comment) -self-)
+         (uri (clone-uri (uri-of *request*))))
+    (setf (uri-query-parameter-value uri "identifier") identifier)
+    (setf (uri-query-parameter-value uri "password") password)
+    <div (:class "fake-login")
+         <a (:href ,(print-uri-to-string uri))
+            ,(concatenate-string identifier comment)>>))
 
 (def (macro e) fake-identifier-and-password-login (identifier password &optional comment)
   `(make-instance 'fake-identifier-and-password-login-component :identifier ,identifier :password ,password :comment ,comment))

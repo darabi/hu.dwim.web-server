@@ -48,7 +48,7 @@
               content nil))))
 
 (def render standard-object-maker ()
-  (with-slots (id content) -self-
+  (bind (((:read-only-slots id content) -self-))
     (flet ((body ()
              (render-user-messages -self-)
              (call-next-method)))
@@ -143,7 +143,7 @@
     (class-slots class)))
 
 (def render standard-object-detail-maker ()
-  (with-slots (class-selector class slot-value-groups id) -self-
+  (bind (((:read-only-slots class-selector class slot-value-groups id) -self-))
     <div (:id ,id)
          <span ,(standard-object-detail-maker.instance class)>
          ,(when class-selector

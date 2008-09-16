@@ -253,7 +253,7 @@
     (nreverse (%collect-path-to-root (current-instance-of component)))))
 
 (def render standard-object-tree-level-inspector ()
-  (with-slots (path children level) -self-
+  (bind (((:read-only-slots path children level) -self-))
     (when path
       <div ,(render path)
            ,(render children)
@@ -271,7 +271,7 @@
     (setf segments (mapcar #'localized-instance-name instances))))
 
 (def render standard-object-tree-path-inspector ()
-  (with-slots (segments instances) -self-
+  (bind (((:read-only-slots segments instances) -self-))
     (iter (for instance :in instances)
           (for segment :in segments)
           (rebind (instance)

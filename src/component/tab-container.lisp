@@ -15,7 +15,7 @@
   `(make-instance 'tab-container-component :pages (list ,@pages)))
 
 (def render tab-container-component ()
-  (with-slots (content command-bar) -self-
+  (bind (((:read-only-slots content command-bar) -self-))
     (render-vertical-list (list command-bar content))))
 
 (def method refresh-component ((self tab-container-component))

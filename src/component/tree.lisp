@@ -15,7 +15,7 @@
    (expand-nodes-by-default #f :type boolean)))
 
 (def render tree-component ()
-  (with-slots (columns root-node id) -self-
+  (bind (((:read-only-slots root-node id) -self-))
     <table (:id ,id :class "tree")
       <thead <tr ,(render-tree-columns -self-)>>
       <tbody ,(render root-node)>>))
@@ -36,7 +36,7 @@
    (cells nil :type components)))
 
 (def render node-component ()
-  (with-slots (child-nodes cells expanded id) -self-
+  (bind (((:read-only-slots child-nodes expanded id) -self-))
     <tr (:id ,id
          :style ,(style-of -self-)
          :class ,(tree-node-style-class -self-))

@@ -169,7 +169,7 @@
   ((slot-values nil :type components)))
 
 (def render standard-object-slot-value-group-component ()
-  (with-slots (slot-values id) -self-
+  (bind (((:read-only-slots slot-values id) -self-))
     (if slot-values
         (progn
           <thead <tr <th ,#"standard-object-slot-value-group.column.name">
@@ -195,7 +195,7 @@
    (value nil :type component)))
 
 (def render standard-object-slot-value-component ()
-  (with-slots (label value id) -self-
+  (bind (((:read-only-slots label value id) -self-))
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label")
             ,(render label)>

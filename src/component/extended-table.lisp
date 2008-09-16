@@ -30,7 +30,7 @@
       (setf-indices column-headers))))
 
 (def render extended-table-component ()
-  (with-slots (row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count cells) -self-
+  (bind (((:read-only-slots row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count cells) -self-))
     (labels ((cell-index (row-path column-path)
                (+ (* column-leaf-count (index-of (last-elt row-path)))
                   (index-of (last-elt column-path))))

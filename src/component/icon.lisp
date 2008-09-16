@@ -14,7 +14,7 @@
    (tooltip nil :export :accessor)))
 
 (def render icon-component ()
-  (with-slots (label image-path tooltip) -self-
+  (bind (((:read-only-slots label image-path tooltip) -self-))
     (render-icon -self- image-path :label label :tooltip tooltip)))
 
 (def layered-function render-icon-label (icon label)

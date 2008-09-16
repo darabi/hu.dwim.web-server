@@ -56,7 +56,7 @@
     (list (make-filter-instances-command component (delay (result-of component))))))
 
 (def render standard-object-filter ()
-  (with-slots (result content command-bar id) -self-
+  (bind (((:read-only-slots result content command-bar id) -self-))
     (flet ((body ()
              (render-user-messages -self-)
              (render content)
@@ -125,7 +125,7 @@
     (class-slots class)))
 
 (def render standard-object-detail-filter ()
-  (with-slots (class-selector class slot-value-groups id) -self-
+  (bind (((:read-only-slots class-selector class slot-value-groups id) -self-))
     <div (:id ,id)
          <div ,(standard-object-detail-filter.instance class)>
          ,(when class-selector
@@ -164,7 +164,7 @@
                 (collect slot-value)))))
 
 (def render standard-object-slot-value-group-filter ()
-  (with-slots (slot-values id) -self-
+  (bind (((:read-only-slots slot-values id) -self-))
     (if slot-values
         (progn
           <thead <tr <th (:colspan 3) ,#"standard-object-slot-value-group.column.name">
@@ -216,7 +216,7 @@
     (setf (label-of it) nil)))
 
 (def render standard-object-slot-value-filter ()
-  (with-slots (label negate-command predicate-command value id) -self-
+  (bind (((:read-only-slots label negate-command predicate-command value id) -self-))
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label")
             ,(render label)>

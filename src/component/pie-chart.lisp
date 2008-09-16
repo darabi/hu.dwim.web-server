@@ -30,7 +30,7 @@
   ((pie-charts nil :type components)))
 
 (def render pie-chart-sheet-component ()
-  (with-slots (pie-charts) -self-
+  (bind (((:read-only-slots pie-charts) -self-))
     <div
      ,@(mapcar #'render pie-charts)>))
 

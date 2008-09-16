@@ -40,7 +40,7 @@
                                                            (make-standard-object-list-inspector-commands self the-class (class-prototype the-class)))))))
 
 (def render standard-object-list-inspector ()
-  (with-slots (id content) -self-
+  (bind (((:read-only-slots id content) -self-))
     (flet ((body ()
              (render-user-messages -self-)
              (call-next-method)))
