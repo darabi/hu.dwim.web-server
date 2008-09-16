@@ -38,7 +38,7 @@
 (defparameter *test-port*      8080)
 
 (define-symbol-macro +test-server-base-url+
-  (concatenate 'string "http://" (address-to-string *test-host*) ":" (princ-to-string *test-port*) "/"))
+  (print-uri-to-string (make-uri :scheme "http" :host *test-host* :port *test-port* :path "/")))
 
 (defun out (string &rest args)
   (let ((*package* #.(find-package :common-lisp)))
