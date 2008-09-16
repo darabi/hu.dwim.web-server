@@ -78,7 +78,7 @@
          <div <h3 "Direct slots">
               ,(render direct-slots)>
          <div <h3 "Effective slots">
-              ,(render effective-slots)>>)))
+              ,(render effective-slots)>>))
 
 ;;;;;;
 ;;; Standard slot definition table
