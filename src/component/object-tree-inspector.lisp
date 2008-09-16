@@ -19,8 +19,8 @@
   (:default-initargs :alternatives-factory #'make-standard-object-tree-inspector-alternatives)
   (:documentation "Component for a tree of STANDARD-OBJECTs in various alternative views"))
 
-(def (macro e) standard-object-tree-inspector (root children-provider &rest args)
-  `(make-instance 'standard-object-tree-inspector :instance ,root :children-provider ,children-provider ,@args))
+(def (macro e) standard-object-tree-inspector (root children-provider parent-provider &rest args)
+  `(make-instance 'standard-object-tree-inspector :instance ,root :children-provider ,children-provider :parent-provider ,parent-provider ,@args))
 
 (def method refresh-component ((self standard-object-tree-inspector))
   (with-slots (instance children-provider default-component-type alternatives alternatives-factory content command-bar) self
