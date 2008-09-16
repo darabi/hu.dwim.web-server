@@ -32,6 +32,16 @@
   ((validity-start :type prc::timestamp)
    (validity-end :type prc::timestamp)))
 
+(def (macro e) validity-provider ((&key validity validity-start validity-end) &body forms)
+  `(make-instance 'validity-provider-component
+                  :content (progn ,@forms)
+                  :validity-start ,(if validity
+                                       (prc::first-moment-for-partial-timestamp validity)
+                                       validity-start)
+                  :validity-end ,(if validity
+                                     (prc::last-moment-for-partial-timestamp validity)
+                                     validity-end)))
+
 (def call-in-component-environment validity-provider-component ()
   (prc::call-with-validity-range (validity-start-of -self-) (validity-end-of -self-) #'call-next-method))
 
