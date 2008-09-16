@@ -122,35 +122,39 @@
       (setf (selected-instance-set-of component)
             (make-hash-table :test #'eq))))
 
-(def generic single-selection-mode-p (component)
+(def (generic e) single-selection-mode-p (component)
   (:method ((self abstract-selectable-standard-object-component))
     (= 1 (maximum-selection-cardinality-of self))))
 
-(def generic selected-instances-of (component)
+(def (function e) selected-instance-of (component)
+  (assert (single-selection-mode-p component))
+  (first (selected-instances-of component)))
+
+(def (generic e) selected-instances-of (component)
   (:method ((self abstract-selectable-standard-object-component))
     (awhen (selected-instance-set-of self)
-      (hash-table-keys it))))
+      (hash-table-values it))))
 
-(def generic (setf selected-instances-of) (new-value component)
+(def (generic e) (setf selected-instances-of) (new-value component)
   (:method (new-value (self abstract-selectable-standard-object-component))
     (bind ((selected-instance-set (ensure-selected-instance-set self)))
       (clrhash selected-instance-set)
       (dolist (instance new-value)
         (setf (gethash (hash-key-for instance) selected-instance-set) instance)))))
 
-(def generic selected-instance-p (component instance)
+(def (generic e) selected-instance-p (component instance)
   (:method ((component abstract-selectable-standard-object-component) instance)
     (awhen (selected-instance-set-of component)
       (gethash (hash-key-for instance) it))))
 
-(def generic (setf selected-instance-p) (new-value component instance)
+(def (generic e) (setf selected-instance-p) (new-value component instance)
   (:method (new-value (component abstract-selectable-standard-object-component) instance)
     (bind ((selected-instance-set (ensure-selected-instance-set component)))
       (if new-value
           (setf (gethash (hash-key-for instance) selected-instance-set) instance)
           (remhash (hash-key-for instance) selected-instance-set)))))
 
-(def function make-select-instance-command (component instance)
+(def (function e) make-select-instance-command (component instance)
   (command (icon select)
            (make-action
              (with-restored-component-environment component
