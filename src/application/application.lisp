@@ -93,7 +93,7 @@
     (bind ((local-time:*default-timezone* (client-timezone-of session))
            (frame (find-frame-from-request session)))
       (flet ((send-response-early (response)
-               (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's dynamic scope" response)
+               (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and CALL-AS-HANDLER-IN-SESSION's dynamic scope" response)
                (decorate-application-response application response)
                (send-response response)
                (make-do-nothing-response)))
@@ -153,10 +153,11 @@
                (boundp '*frame*))
           () "May not use WITH-SESSION/FRAME/ACTION-LOGIC outside the dynamic extent of an application")
   (bind ((application *application*)
-         (session (with-lock-held-on-application (application)
-                    (find-session-from-request application)
-                    ;; FIXME locking the session should happen inside the with-lock-held-on-application block
-                    )))
+         ((:values session session-cookie-exists? invalidity-reason)
+          (with-lock-held-on-application (application)
+            (find-session-from-request application)
+            ;; FIXME locking the session should happen inside the with-lock-held-on-application block
+            )))
     (setf *session* session)
     (if session
         (restart-case
@@ -169,7 +170,22 @@
             (mark-expired session)
             (invoke-retry-handling-request-restart)))
         (bind ((*frame* nil))
-          (-body-)))))
+          (if session-cookie-exists?
+              (progn
+                (app.debug "Found the session cookie, but it does not designate a valid session. Calling HANDLE-REQUEST-TO-INVALID-SESSION.")
+                (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
+                  (decorate-application-response application response)
+                  response))
+              (progn
+                (app.debug "No session cookie, simply calling the body...")
+                (-body-)))))))
+
+(def (generic e) handle-request-to-invalid-session (application session invalidity-reason)
+  (:method ((application application) session invalidity-reason)
+    (declare (type (member :nonexistent :timed-out :invalidated) invalidity-reason)
+             (type (or null session) session))
+    (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is sending a redirect response to ~A" application)
+    (make-redirect-response-for-current-application)))
 
 (def (function e) invoke-delete-current-frame-restart ()
   (invoke-restart (find-restart 'delete-current-frame)))
@@ -178,8 +194,7 @@
   (invoke-restart (find-restart 'delete-current-session)))
 
 (def (function e) decorate-application-response (application response)
-  (when (and response
-             *session*)
+  (when response
     (bind ((request-uri (uri-of *request*)))
       (app.debug "Decorating response ~A with the session cookie for session ~S" response *session*)
       (add-cookie (make-cookie
@@ -187,6 +202,8 @@
                    (aif *session*
                         (id-of it)
                         "")
+                   :max-age (unless *session*
+                              0)
                    :comment "WUI session id"
                    :domain (concatenate-string "." (host-of request-uri))
                    :path (path-prefix-of application))
@@ -206,7 +223,6 @@
     (bind ((*session* nil)
            (*frame* nil)
            (response (handle-request application request)))
-      (decorate-application-response application response)
       response)))
 
 (def method handle-request ((application application) request)

@@ -18,8 +18,9 @@
   (:method ((self activity-monitor-mixin))
     (setf (last-activity-at-of self) (get-monotonic-time))))
 
-(def (function e) mark-expired (thing)
-  (setf (last-activity-at-of thing) most-negative-fixnum))
+(def (generic e) mark-expired (thing)
+  (:method ((thing activity-monitor-mixin))
+    (setf (last-activity-at-of thing) most-negative-fixnum)))
 
 (def (generic e) time-since-last-activity (thing)
   (:method ((self activity-monitor-mixin))
@@ -60,7 +61,17 @@
    (unique-dom-id-counter 0)
    (frame-id->frame (make-hash-table :test 'equal))
    (lock nil)
-   (computed-universe nil)))
+   (computed-universe nil)
+   (valid #t :accessor valid?)))
+
+(def (function e) mark-session-invalid (session)
+  (setf (valid? session) #f))
+
+(def function is-session-valid? (session)
+  (cond
+    ((not (valid? session)) (values #f :invalidated))
+    ((is-timed-out? session) (values #f :timed-out))
+    (t (values #t))))
 
 (def with-macro* with-lock-held-on-session (session)
   (multiple-value-prog1
@@ -85,14 +96,21 @@
     ))
 
 (def (function o) find-session-from-request (application)
-  (bind ((session-id (cookie-value +session-cookie-name+)))
+  (bind ((session-id (cookie-value +session-cookie-name+))
+         (cookie-exists? (not (null session-id)))
+         (session nil)
+         (invalidity-reason nil))
     (when session-id
       (app.debug "Found session-id parameter ~S" session-id)
-      (bind ((session (gethash session-id (session-id->session-of application))))
-        (if (and session
-                 (not (is-timed-out? session)))
-            (progn
-              (app.debug "Looked up as valid session ~A" session)
-              session)
-            (values))))))
+      (setf session (gethash session-id (session-id->session-of application)))
+      (if session
+          (bind ((valid?))
+            (setf (values valid? invalidity-reason) (is-session-valid? session))
+            (if valid?
+                (app.debug "Looked up as valid, alive session ~A" session)
+                (progn
+                  (app.debug "Looked up as a session, but it's not valid anymore due to ~S. It's ~A." invalidity-reason session)
+                  (setf session nil))))
+          (setf invalidity-reason :nonexistent)))
+    (values session cookie-exists? invalidity-reason)))
 

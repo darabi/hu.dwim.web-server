@@ -7,6 +7,8 @@
 ;;;;;;
 ;;; Simple id/password login
 
+(def (constant e :test 'string=) +login-entry-point-path+ "login/")
+
 (def (component ea) identifier-and-password-login-component (user-message-collector-component-mixin)
   ((identifier nil)
    (password nil)
@@ -14,8 +16,10 @@
 
 (def function make-default-identifier-and-password-login-command ()
   (command (icon login)
-           (bind ((uri (make-application-relative-uri "login/")))
+           (bind ((uri (make-application-relative-uri +login-entry-point-path+)))
              (setf (uri-query-parameter-value uri "user-action") t)
+             (setf (uri-query-parameter-value uri "continue-uri")
+                   (uri-query-parameter-value (uri-of *request*) "continue-uri"))
              uri)))
 
 (def (function e) make-identifier-and-password-login-component (&key (commands (list (make-default-identifier-and-password-login-command)))
