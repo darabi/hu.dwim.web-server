@@ -66,8 +66,10 @@
     instance))
 
 (def method refresh-component :before ((self abstract-standard-object-component))
-  (bind ((instance (instance-of self)))
-    (setf (instance-of self) (reuse-standard-object-instance (class-of instance) instance))))
+  (bind ((instance (instance-of self))
+         (reused-instance (reuse-standard-object-instance (class-of instance) instance)))
+    (unless (eq instance reused-instance)
+      (setf (instance-of self) reused-instance))))
 
 ;;;;;;
 ;;; Abstract standard object slot value
@@ -113,14 +115,9 @@
 ;;; Abstract selectable standard object
 
 (def component abstract-selectable-standard-object-component ()
-  ((selected-instance-set nil :type (or null hash-table))
+  ((selected-instance-set (compute-as (or -current-value- (make-hash-table :test #'eql))) :type (or null hash-table))
    (minimum-selection-cardinality 0 :type fixnum)
    (maximum-selection-cardinality 1 :type fixnum)))
-
-(def function ensure-selected-instance-set (component)
-  (or (selected-instance-set-of component)
-      (setf (selected-instance-set-of component)
-            (make-hash-table :test #'eq))))
 
 (def (generic e) single-selection-mode-p (component)
   (:method ((self abstract-selectable-standard-object-component))
@@ -137,10 +134,11 @@
 
 (def (generic e) (setf selected-instances-of) (new-value component)
   (:method (new-value (self abstract-selectable-standard-object-component))
-    (bind ((selected-instance-set (ensure-selected-instance-set self)))
+    (bind ((selected-instance-set (selected-instance-set-of self)))
       (clrhash selected-instance-set)
       (dolist (instance new-value)
-        (setf (gethash (hash-key-for instance) selected-instance-set) instance)))))
+        (setf (gethash (hash-key-for instance) selected-instance-set) instance))
+      (invalidate-computed-slot self 'selected-instance-set))))
 
 (def (generic e) selected-instance-p (component instance)
   (:method ((component abstract-selectable-standard-object-component) instance)
@@ -149,10 +147,11 @@
 
 (def (generic e) (setf selected-instance-p) (new-value component instance)
   (:method (new-value (component abstract-selectable-standard-object-component) instance)
-    (bind ((selected-instance-set (ensure-selected-instance-set component)))
+    (bind ((selected-instance-set (selected-instance-set-of component)))
       (if new-value
           (setf (gethash (hash-key-for instance) selected-instance-set) instance)
-          (remhash (hash-key-for instance) selected-instance-set)))))
+          (remhash (hash-key-for instance) selected-instance-set))
+      (invalidate-computed-slot component 'selected-instance-set))))
 
 (def (function e) make-select-instance-command (component instance)
   (command (icon select)

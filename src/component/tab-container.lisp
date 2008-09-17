@@ -8,7 +8,7 @@
 ;;; Tab container component
 
 (def component tab-container-component (content-component)
-  ((pages nil :type components)
+  ((pages nil) ;; NOTE: this should not be a component slot, because components are switched from here to the content
    (command-bar nil :type component)))
 
 (def (macro e) tab-container (&body pages)

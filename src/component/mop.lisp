@@ -66,8 +66,7 @@
 ;;;;;;
 ;;; Computed universe
 
-;; TODO: make it on-demand
-(define-computed-universe compute-as-in-session :default-recomputation-mode :always)
+(define-computed-universe compute-as-in-session)
 
 (def function ensure-session-computed-universe ()
   (or (computed-universe-of *session*)
@@ -76,7 +75,12 @@
 (def (macro e) compute-as (&body forms)
   `(compute-as* ()
      ,@forms))
+(setf (get 'compute-as 'cc::computed-as-macro-p) #t)
+(setf (get 'compute-as 'cc::primitive-compute-as-macro) 'compute-as-in-session*)
 
 (def (macro e) compute-as* ((&rest args &key &allow-other-keys) &body forms)
   `(compute-as-in-session* (:universe (ensure-session-computed-universe) ,@args)
+     (setf (outdated-p -self-) #t) ;; TODO: is it the right place?
      ,@forms))
+(setf (get 'compute-as* 'cc::computed-as-macro-p) #t)
+(setf (get 'compute-as* 'cc::primitive-compute-as-macro) 'compute-as-in-session*)
