@@ -3,7 +3,9 @@
 ;;;;;;
 ;;; Object size breakdown
 
-(def constant +word-size+ 8)
+(def constant +word-size-in-bytes+
+  #+sbcl sb-vm:n-word-bytes
+  #-sbcl 8)
 
 (def (class* e) object-size-descriptor ()
   ((class-name)
@@ -13,100 +15,179 @@
 (def print-object object-size-descriptor ()
   (format t "~A ~A : ~A" (class-name-of -self-) (count-of -self-) (size-of -self-)))
 
-(def (function e) describe-object-sizes (object &key ignored-type)
-  (bind ((class-name-to-object-size-descriptor-map (make-hash-table :test #'eq))
-         (seen-object-set (make-hash-table :test #'eq)))
-    (labels ((%describe-object-sizes (object)
+(def (function e) collect-object-size-descriptors-for-retained-objects (root &key ignored-type)
+  (bind ((class-name->object-size-descriptor (make-hash-table :test #'eq)))
+    (%iterate-descendant-objects
+     root
+     (lambda (object)
+       (bind ((class (class-of object))
+              (class-name (class-name class))
+              (descriptor (or (gethash class-name class-name->object-size-descriptor)
+                              (setf (gethash class-name class-name->object-size-descriptor)
+                                    (make-instance 'object-size-descriptor :class-name class-name))))
+              (size (object-allocated-size object)))
+         (incf (count-of descriptor))
+         (incf (size-of descriptor) size)))
+     :ignored-type ignored-type
+     :mode :retained)
+    (hash-table-values class-name->object-size-descriptor)))
+
+(def function %iterate-descendant-objects (root visitor &key ignored-type (mode :retained))
+  (bind ((seen-object-set (make-hash-table :test #'eq)))
+    (labels ((recurse (object)
                (unless (or (gethash object seen-object-set)
+                           (not ignored-type)
                            (typep object ignored-type))
                  (setf (gethash object seen-object-set) #t)
-                 (bind ((class (class-of object))
-                        (class-name (class-name class))
-                        (descriptor (or (gethash class-name class-name-to-object-size-descriptor-map)
-                                        (setf (gethash class-name class-name-to-object-size-descriptor-map)
-                                              (make-instance 'object-size-descriptor :class-name class-name))))
-                        (size (compute-allocated-size object)))
-                   (incf (count-of descriptor))
-                   (incf (size-of descriptor) size)
-                   ;; TODO: we should support customization here
-                   (etypecase object
-                     ((or null (eql t) number string)
-                      (values))
-                     (cons
-                      (%describe-object-sizes (car object))
-                      (%describe-object-sizes (cdr object)))
-                     (symbol
-                      (%describe-object-sizes (symbol-name object))
-                      (%describe-object-sizes (symbol-package object))
-                      (%describe-object-sizes (symbol-plist object))
+                 (funcall visitor object)
+                 (etypecase object
+                   ((or number string)
+                    (values))
+                   (cons
+                    (recurse (car object))
+                    (recurse (cdr object)))
+                   (symbol
+                    (when (eq mode :reachable)
+                      (recurse (symbol-name object))
+                      (recurse (symbol-package object))
+                      (recurse (symbol-plist object))
                       (when (boundp object)
-                        (%describe-object-sizes (symbol-value object)))
+                        (recurse (symbol-value object)))
                       (when (fboundp object)
-                        (%describe-object-sizes (symbol-function object))))
-                     (hash-table
-                      (iter (for (key value) :in-hashtable object)
-                            (%describe-object-sizes key)
-                            (%describe-object-sizes value)))
-                     (array
-                      (dotimes (i (apply #'* (array-dimensions object)))
-                        (%describe-object-sizes (row-major-aref object i))))
-                     (structure-object
+                        (recurse (symbol-function object))))
+                    (recurse (symbol-name object)))
+                   (hash-table
+                    ;; TODO handle weak hashtables when mode is :retained
+                    (iter (for (key value) :in-hashtable object)
+                          (recurse key)
+                          (recurse value)))
+                   (array
+                    (dotimes (i (apply #'* (array-dimensions object)))
+                      (recurse (row-major-aref object i))))
+                   (structure-object
+                    (bind ((class (class-of object)))
                       (dolist (slot (class-slots class))
-                        (%describe-object-sizes (slot-value-using-class class object slot))))
-                     (standard-object
+                        (recurse (slot-value-using-class class object slot)))))
+                   (standard-object
+                    ;; TODO should grab the underlying vector and check for sb-pcl::*unbound-slot-value-marker*
+                    (bind ((class (class-of object)))
                       (dolist (slot (class-slots class))
-                        (%describe-object-sizes
-                         (ignore-errors (standard-instance-access object (slot-definition-location slot))))))
-                     (sb-vm::code-component
-                      (let ((length (sb-vm::get-header-data object)))
-                        (do ((i sb-vm::code-constants-offset (1+ i)))
-                            ((= i length))
-                          (%describe-object-sizes (sb-vm::code-header-ref object i)))))
-                     (function
-                      (bind ((widetag (sb-kernel:widetag-of object)))
-                        (cond ((= widetag sb-vm:simple-fun-header-widetag)
-                               (%describe-object-sizes (sb-kernel:fun-code-header object)))
-                              ((= widetag sb-vm:closure-header-widetag)
-                               (%describe-object-sizes (sb-kernel:%closure-fun object))
-                               (iter (for i :from 0 :below (1- (sb-kernel:get-closure-length object)))
-                                     (%describe-object-sizes (sb-kernel:%closure-index-ref object i))))
-                              (t (error "Unknown function type ~A" object))))))))))
-      (%describe-object-sizes object))
-    (hash-table-values class-name-to-object-size-descriptor-map)))
+                        (recurse
+                         (ignore-errors ;; TODO KLUDGE due to some strange slot location
+                           (standard-instance-access object (slot-definition-location slot)))))))
+                   #+sbcl
+                   (sb-vm::code-component
+                    (let ((length (sb-vm::get-header-data object)))
+                      (do ((i sb-vm::code-constants-offset (1+ i)))
+                          ((= i length))
+                        (recurse (sb-vm::code-header-ref object i)))))
+                   (function
+                    #+sbcl
+                    (bind ((widetag (sb-kernel:widetag-of object)))
+                      (cond ((= widetag sb-vm:simple-fun-header-widetag)
+                             (recurse (sb-kernel:fun-code-header object)))
+                            ((= widetag sb-vm:closure-header-widetag)
+                             (recurse (sb-kernel:%closure-fun object))
+                             (iter (for i :from 0 :below (1- (sb-kernel:get-closure-length object)))
+                                   (recurse (sb-kernel:%closure-index-ref object i))))
+                            (t (error "Unknown function type ~A" object)))))))))
+      (recurse root))))
 
-(def function compute-allocated-size (object)
+(def function object-allocated-size (object)
+  #*((:sbcl (object-allocated-size/sbcl object))
+     (t (object-allocated-size/generic object))))
+
+(def function compute-allocated-size/generic (object)
   (etypecase object
     ((or null (eql t) fixnum float)
      ;; these are immediate values
      0)
     (integer
-     (+ +word-size+
-        (floor (/ (integer-length object) 8 +word-size+))))
+     (+ +word-size-in-bytes+
+        (floor (/ (integer-length object) 8 +word-size-in-bytes+))))
     (cons
-     (* 2 +word-size+))
+     (* 2 +word-size-in-bytes+))
     (base-string
-     (+ +word-size+
+     (+ +word-size-in-bytes+
         (length object)))
     (string
-     (+ +word-size+
+     (+ +word-size-in-bytes+
         (* 4 (length object))))
     (symbol
      ;; (package name value function plist)
-     (* 5 +word-size+))
+     (* 5 +word-size-in-bytes+))
     (array
-     (+ +word-size+
+     (+ +word-size-in-bytes+
         (* (eswitch ((array-element-type object) :test #'equal)
              ('(unsigned-byte 8) 1)
              ('(unsigned-byte 16) 2)
-             ('t +word-size+))
+             ('t +word-size-in-bytes+))
            (array-total-size object))))
     ((or structure-object standard-object)
-     (* +word-size+
+     (* +word-size-in-bytes+
         (+ 2 (length (class-slots (class-of object))))))
     (function
-     (bind ((widetag (sb-kernel:widetag-of object)))
-       (cond ((= widetag sb-vm:simple-fun-header-widetag)
-              0)
-             ((= widetag sb-vm:closure-header-widetag)
-              (* +word-size+ (1- (sb-kernel:get-closure-length object))))
-             (t (error "Unknown function type ~A" object)))))))
+     ;; KLUDGE this is *wrong*, the whole world could be captured in a closure...
+     0)))
+
+#+sbcl
+(def function object-allocated-size/sbcl (object)
+  (flet (#+sbcl
+         (round-to-dualword (size)
+           (logand (the sb-vm:word (+ size sb-vm:lowtag-mask))
+                   (lognot sb-vm:lowtag-mask)))
+         #+sbcl
+         (sbcl-vector-size (object)
+           (sb-vm::vector-total-size object (svref sb-vm::*room-info* (sb-kernel:widetag-of object)))))
+    (etypecase object
+      ((or fixnum float)
+       ;; these are immediate values
+       0)
+      (integer
+       ;; TODO probably much more
+       (+ +word-size-in-bytes+
+          (floor (/ (integer-length object) 8 +word-size-in-bytes+))))
+      (cons
+       (* 2 +word-size-in-bytes+))
+      #+sbcl
+      (simple-base-string
+       (sbcl-vector-size object))
+      (base-string
+       (+ +word-size-in-bytes+
+          (length object)))
+      #+sbcl
+      (simple-string
+       (sbcl-vector-size object))
+      (string
+       (+ +word-size-in-bytes+
+          (* 4 (length object))))
+      (symbol
+       #+sbcl(* sb-vm:symbol-size +word-size-in-bytes+)
+       #-sbcl(* 5 +word-size-in-bytes+)) ; (package name value function plist)
+      (array
+       (+ +word-size-in-bytes+
+          (* (eswitch ((array-element-type object) :test #'equal)
+               ('(unsigned-byte 8) 1)
+               ('(unsigned-byte 16) 2)
+               ('t +word-size-in-bytes+))
+             (array-total-size object))))
+      (funcallable-standard-object
+       ;; TODO
+       0)
+      (function
+       #+sbcl
+       (bind ((widetag (sb-kernel:widetag-of object)))
+         (cond
+           ((= widetag sb-vm:simple-fun-header-widetag)
+            0)
+           ((= widetag sb-vm:closure-header-widetag)
+            (round-to-dualword (* (the fixnum (1+ (sb-kernel:get-closure-length object)))
+                                  sb-vm:n-word-bytes)))
+           (t (error "Unknown function type ~A" object)))))
+      ((or structure-object standard-object)
+       #+sbcl
+       (round-to-dualword (* (+ (sb-kernel:%instance-length object) 1)
+                             sb-vm:n-word-bytes))
+       #-sbcl
+       (* +word-size-in-bytes+
+          (+ 2 (length (class-slots (class-of object)))))))))

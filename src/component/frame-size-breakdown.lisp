@@ -18,7 +18,7 @@
          (new-dynamic-usage (sb-kernel:dynamic-usage))
          (last-descriptors (last-descriptors-of -self-))
          (new-descriptors
-          (describe-object-sizes
+          (collect-object-size-descriptors-for-retained-objects
            (root-component-of *frame*) :ignored-type '(or symbol
                                                           standard-class
                                                           standard-slot-definition
