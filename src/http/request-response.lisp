@@ -129,8 +129,11 @@
     *request*))
 
 (def (function e) request-parameter-value (request name)
-  (bind ((entry (assoc name (query-parameters-of request) :test #'string=)))
-    (values (cdr entry) (not (null entry)))))
+  (bind ((entry (assoc name (query-parameters-of request) :test #'string=))
+         (value (cdr entry)))
+    (when (equal value "")
+      (setf value nil))
+    (values value (not (null entry)))))
 
 (def (function e) map-request-parameters (visitor request)
   (bind ((result (list)))
