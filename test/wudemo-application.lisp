@@ -15,7 +15,6 @@
 
 (def constant +minimum-login-password-length+ 6)
 (def constant +minimum-login-identifier-length+ 3)
-(def (constant :test 'string=) +login-identifier-cookie-name+ "login-identifier")
 
 (def class* wudemo-application (application-with-home-package)
   ()
@@ -93,7 +92,7 @@
                                                       <span ,(render
                                                               (command (icon logout)
                                                                        (make-action
-                                                                         (mark-expired *session*)
+                                                                         (mark-session-invalid *session*)
                                                                          (make-redirect-response-for-current-application))))>)))
                                 (horizontal-list ()
                                   (style (:id "menu") menu)
@@ -116,9 +115,9 @@
         (assert (starts-with-subseq (path-prefix-of *application*) path))
         (setf path (subseq path (length (path-prefix-of *application*))))
         (switch (path :test #'string=)
-          ("login/" (vertical-list ()
-                      (make-identifier-and-password-login-component)
-                      (inline-component <div "FYI, the password is \"secret\"...">)))
+          (+login-entry-point-path+ (vertical-list ()
+                                      (make-identifier-and-password-login-component)
+                                      (inline-component <div "FYI, the password is \"secret\"...">)))
           ("help/" (make-help-component))
           ("about/" (make-about-component))
           (t (inline-component <span "wudemo start page">))))))
@@ -127,24 +126,24 @@
   (menu nil
     (menu-item (command (label #"menu.front-page") (make-application-relative-uri "")))
     (menu-item (command (label #"menu.help") (make-application-relative-uri "help/")))
-    (menu-item (command (label #"menu.login") (make-application-relative-uri "login/")))
+    (menu-item (command (label #"menu.login") (make-application-relative-uri +login-entry-point-path+)))
     (menu-item (command (label #"menu.about") (make-application-relative-uri "about/")))))
 
 (def function make-authenticated-menu-component ()
-  (bind ((authenticated-subject (current-authenticated-subject))
-         (god? (string= "god" authenticated-subject)))
+  (bind ((authenticated-subject (current-authenticated-subject)))
     (menu nil
-      (when god?
+      (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
         (make-debug-menu))
-      (menu "Child"
-        (menu-item (replace-menu-target-command "Make a child" (make-maker 'child-test)))
-        (menu-item (replace-menu-target-command "Search children" (make-filter 'child-test))))
-      (menu "Parent"
-        (menu-item (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))
-        (menu-item (replace-menu-target-command "Search parents" (make-filter 'parent-test))))
+      (menu "Metagui"
+        (menu "Parent"
+          (menu-item (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))
+          (menu-item (replace-menu-target-command "Search parents" (make-filter 'parent-test))))
+        (menu "Child"
+          (menu-item (replace-menu-target-command "Make a child" (make-maker 'child-test)))
+          (menu-item (replace-menu-target-command "Search children" (make-filter 'child-test)))))
       (menu "Others"
-        (menu-item (replace-menu-target-command (label #"menu.help") (make-help-component)))
-        (menu-item (replace-menu-target-command (label #"menu.about") (make-about-component)))))))
+          (menu-item (replace-menu-target-command (label #"menu.help") (make-help-component)))
+          (menu-item (replace-menu-target-command (label #"menu.about") (make-about-component)))))))
 
 (def function make-help-component ()
   (inline-component <div "This is the help page">))
@@ -176,7 +175,8 @@
 (def entry-point (*wudemo-application* :path "help/") ()
   (make-component-rendering-response (make-wudemo-frame-component)))
 
-(def entry-point (*wudemo-application* :path "login/" :lookup-and-lock-session #f) (identifier password continue-uri user-action)
+(def entry-point (*wudemo-application* :path +login-entry-point-path+ :lookup-and-lock-session #f)
+    (identifier password continue-uri user-action)
   (%login-entry-point identifier password continue-uri user-action))
 
 (def function %login-entry-point (identifier password continue-uri user-action?)
@@ -222,7 +222,7 @@
             (add-cookie (make-cookie +login-identifier-cookie-name+ identifier
                                      :max-age #.(* 60 60 24 365 100)
                                      :domain (concatenate-string "." (host-of (uri-of *request*)))
-                                     :path (concatenate-string (path-prefix-of application) "login/"))
+                                     :path (concatenate-string (path-prefix-of application) +login-entry-point-path+))
                         response)
             (decorate-application-response application response)
             response))
@@ -234,6 +234,13 @@
                     user-action?)
             (add-user-error login-component "Login failed"))
           (make-component-rendering-response frame)))))
+
+(def method handle-request-to-invalid-session ((application wudemo-application) session invalidity-reason)
+  (bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
+    (setf (uri-query-parameter-value uri "continue-uri") (print-uri-to-string (uri-of *request*)))
+    (when (eq invalidity-reason :timed-out)
+      (setf (uri-query-parameter-value uri "timed-out") "t"))
+    (make-redirect-response uri)))
 
 (def function valid-login-password? (password)
   (and password
