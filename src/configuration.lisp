@@ -95,6 +95,7 @@
 
 (defun setup-readtable ()
   (enable-sharp-boolean-syntax)
+  (enable-feature-cond-syntax)
   (enable-lambda-with-bang-args-syntax :start-character #\[ :end-character #\])
   (enable-readtime-wrapper-syntax)
   (enable-sharpquote<>-syntax)
