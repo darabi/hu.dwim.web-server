@@ -50,7 +50,10 @@
   (setf (dirty-p component) #t))
 
 (def function ensure-uptodate (component)
-  (when (outdated-p component)
+  (when (or (outdated-p component)
+            (some (lambda (slot)
+                    (not (computed-slot-valid-p component slot)))
+                  (computed-slots-of component)))
     (refresh-component component)))
 
 ;;;;;;

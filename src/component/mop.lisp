@@ -7,8 +7,8 @@
 ;;;;;;
 ;;; MOP
 
-(def (class e) component-class (computed-class)
-  ())
+(def (class* e) component-class (computed-class)
+  ((computed-slots nil)))
 
 (def class component-slot-definition (standard-slot-definition)
   ())
@@ -63,6 +63,9 @@
       ;; if direct superclasses are not explicitly passed we _must_ not change anything
       (call-next-method)))
 
+(def method finalize-inheritance :after ((class computed-class))
+  (setf (computed-slots-of class) (filter-if (of-type 'computed-effective-slot-definition) (class-slots class))))
+
 ;;;;;;
 ;;; Computed universe
 
@@ -70,7 +73,7 @@
 
 (def function ensure-session-computed-universe ()
   (or (computed-universe-of *session*)
-      (setf (computed-universe-of *session*) (cc::make-computed-universe))))
+      (setf (computed-universe-of *session*) (make-computed-universe))))
 
 (def (macro e) compute-as (&body forms)
   `(compute-as* ()
