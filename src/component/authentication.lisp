@@ -7,7 +7,9 @@
 ;;;;;;
 ;;; Simple id/password login
 
+(def (constant e :test 'string=) +login-identifier-cookie-name+ "login-identifier")
 (def (constant e :test 'string=) +login-entry-point-path+ "login/")
+(def (constant e :test 'string=) +session-timed-out-query-parameter-name+ "timed-out")
 
 (def (component ea) identifier-and-password-login-component (user-message-collector-component-mixin)
   ((identifier nil)
@@ -34,6 +36,8 @@
          (focused-field-id (if identifier
                                "password-field"
                                "identifier-field")))
+    (when (parameter-value +session-timed-out-query-parameter-name+)
+      (add-user-warning -self- #"login.message.session-timed-out"))
     <div (:id "login-component")
      ,(render-user-messages -self-)
      <table
@@ -74,7 +78,9 @@
 
 (defresources hu
   (login.identifier "Azonosító")
-  (login.password "Jelszó"))
+  (login.password "Jelszó")
+  (login.message.authentication-failed "Azonosítás sikertelen")
+  (login.message.session-timed-out "Lejárt a biztonsági idő, kérem lépjen be újra"))
 
 (defresources en
   (login.identifier "Identifier")
