@@ -27,7 +27,9 @@
         (-body-)
       (when *dojo-widget-ids*
         `js(on-load
-            (dojo.parser.instantiate (map 'dojo.by-id (array ,@*dojo-widget-ids*))))))))
+            (let ((widget-ids (array ,@*dojo-widget-ids*)))
+              (log.debug "Instantiating the following widgets " widget-ids)
+              (dojo.parser.instantiate (map 'dojo.by-id widget-ids))))))))
 
 (def macro render-dojo-widget ((&optional (id '(generate-frame-unique-string "_w")))
                                 &body body)

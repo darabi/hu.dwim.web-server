@@ -185,7 +185,7 @@
                     :id        ,id
                     :name      ,(id-of client-state-sink)
                     :value     ,printed-value
-                    dojoType  #.+dijit/text-box+)>)
+                    :dojoType  #.+dijit/text-box+)>)
           <span ,printed-value>))))
 
 (def render string-component ()
