@@ -18,6 +18,7 @@
    :babel-streams
    :cl-syntax-sugar
    :cl-quasi-quote
+   :cl-quasi-quote-js
    :cl-quasi-quote-xml
    )
   (:shadowing-import-from :cl-syntax-sugar

@@ -21,7 +21,8 @@
   (:metaclass funcallable-standard-class))
 
 (def class* wudemo-session ()
-  ((authenticated-subject nil)))
+  ((authenticated-subject nil)
+   (example-inline-edit-box-value "click to edit this...")))
 
 (def function current-authenticated-subject ()
   (and *session*
@@ -129,6 +130,29 @@
     (menu-item (command (label #"menu.login") (make-application-relative-uri +login-entry-point-path+)))
     (menu-item (command (label #"menu.about") (make-application-relative-uri "about/")))))
 
+;; TODO the onChange part should be this simple, but it needs qq work.
+;; ,(js-to-lisp-rpc
+;;   (setf (example-inline-edit-box-value-of *session*) (aref |arguments| 0)))
+
+(def function render-example-inline-edit-box ()
+  `js(dojo.require "dijit.InlineEditBox")
+  (bind ((id (generate-frame-unique-string "inlineEditor")))
+    <span
+      "This is stored in the session, click to edit: "
+      ,(render-dojo-widget (id)
+         <span (:id ,id
+                :dojoType "dijit.InlineEditBox"
+                :autoSave false
+                :onChange
+                `js-inline*(wui.io.xhr-post
+                            (create
+                             :content (create :example-inline-edit-box-value (aref arguments 0))
+                             :url ,(make-action-href (:delayed-content #t)
+                                                     (with-request-params (example-inline-edit-box-value)
+                                                       (setf (example-inline-edit-box-value-of *session*) example-inline-edit-box-value)))
+                             :load (lambda (response args)))))
+           ,(example-inline-edit-box-value-of *session*)>)>))
+
 (def function make-authenticated-menu-component ()
   (bind ((authenticated-subject (current-authenticated-subject)))
     (menu nil
@@ -141,9 +165,12 @@
         (menu "Child"
           (menu-item (replace-menu-target-command "Make a child" (make-maker 'child-test)))
           (menu-item (replace-menu-target-command "Search children" (make-filter 'child-test)))))
+      (menu-item (replace-menu-target-command "Dojo InlineEditBox example"
+                   (inline-component
+                     (render-example-inline-edit-box))))
       (menu "Others"
-          (menu-item (replace-menu-target-command (label #"menu.help") (make-help-component)))
-          (menu-item (replace-menu-target-command (label #"menu.about") (make-about-component)))))))
+        (menu-item (replace-menu-target-command #"menu.help" (make-help-component)))
+        (menu-item (replace-menu-target-command #"menu.about" (make-about-component)))))))
 
 (def function make-help-component ()
   (inline-component <div "This is the help page">))
