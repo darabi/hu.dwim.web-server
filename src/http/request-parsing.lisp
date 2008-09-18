@@ -208,6 +208,8 @@
                                 ("iso-8859-1" (iso-8859-1-octets-to-string buffer)))
                               (us-ascii-octets-to-string buffer))))
                    (http.dribble "Parsing application/x-www-form-urlencoded body. Attributes: ~S, value: ~S" attributes buffer-as-string)
+                   ;; TODO buffer-as-string should never be non-ascii... read up on the standard, do something about that coerce...
+                   (setf buffer-as-string (coerce buffer-as-string 'simple-base-string))
                    (return-from read-http-request-body (parse-query-parameters buffer-as-string initial-parameters)))))
               ("multipart/form-data"
                (http.dribble "Parsing multipart/form-data body. Attributes: ~S." attributes)
