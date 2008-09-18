@@ -41,13 +41,14 @@
 (def special-variable *quasi-quote-indentation-width* (unless *load-as-production-p* 2))
 
 (def function make-str-transformation-pipeline ()
-  (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
+  (make-quasi-quoted-string-to-form-emitting-transformation-pipeline
    '*html-stream*
    :binary *transform-quasi-quote-to-binary*
    :encoding +encoding+
-   :with-inline-emitting *transform-quasi-quote-to-inline-emitting*))
+   ;; KLUDGE see comment in qq/test/js.lisp
+   :with-inline-emitting nil #+nil *transform-quasi-quote-to-inline-emitting*))
 
-(def function make-js-transformation-pipeline (embedded-in-xml? &optional inline?)
+(def function make-js-transformation-pipeline (embedded-in-xml? &optional inline? (inline-prefix? inline?))
   (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
    (if embedded-in-xml?
        '*html-stream*
@@ -60,7 +61,8 @@
                     ;; TODO inline stuff must also be xml escaped... think through how this should work in qq.
                     ;; should `str() inside <> automatically be escaped? how could you insert unescaped
                     ;; then?
-                    (inline?          "javascript: ")
+                    (inline?          (when inline-prefix?
+                                        "javascript: "))
                     (embedded-in-xml? (format nil "~%<script type=\"text/javascript\">~%// <![CDATA[~%")))
    :output-postfix (cond
                      ((and embedded-in-xml?
@@ -103,10 +105,15 @@
    :transformation-pipeline (make-str-transformation-pipeline))
   (enable-quasi-quoted-js-syntax
    :transformation-pipeline (make-js-transformation-pipeline nil)
-   :nested-transformation-pipeline (make-js-transformation-pipeline t))
+   :nested-transformation-pipeline (make-js-transformation-pipeline t)
+   :dispatched-quasi-quote-name 'js)
   (enable-quasi-quoted-js-syntax
    :transformation-pipeline (make-js-transformation-pipeline t t)
    :dispatched-quasi-quote-name 'js-inline)
+  (enable-quasi-quoted-js-syntax
+   :transformation-pipeline (make-js-transformation-pipeline t t nil)
+   ;; TODO get rid of this and make js-inline work so that it only prepends when it's at toplevel
+   :dispatched-quasi-quote-name 'js-inline*)
   (enable-quasi-quoted-xml-syntax
    :transformation-pipeline (make-xml-transformation-pipeline)))
 
