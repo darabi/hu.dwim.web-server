@@ -83,7 +83,7 @@
                           ,class ,@args
                           :handler (lambda (,request)
                                      (block entry-point
-                                       (with-request-params ,request ,request-lambda-list
+                                       (with-request-params* ,request ,request-lambda-list
                                          ,(if lookup-and-lock-session
                                               `(with-session/frame/action-logic ()
                                                  ,@body)

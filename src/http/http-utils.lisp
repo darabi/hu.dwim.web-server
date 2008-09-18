@@ -110,7 +110,10 @@
        <body ,,@body>>))
 ||#
 
-(def (macro e) with-request-params (request args &body body)
+(def (macro e) with-request-params (args &body body)
+  `(with-request-params* *request* ,args ,@body))
+
+(def (macro e) with-request-params* (request args &body body)
   "Bind, according the REQUEST-LAMBDA-LIST the parameters in
   REQUEST and execute BODY.
 
@@ -145,8 +148,8 @@ named SUPPLIED-SYMBOL-NAME will be bound to NIL."
                                                              "-SUPPLIED?"))))
                   (unless parameter-name
                     (setf parameter-name (etypecase variable-name
-                                             (symbol (string-downcase variable-name))
-                                             (string variable-name))))
+                                           (symbol (hyphened-to-camel-case (string-downcase variable-name)))
+                                           (string variable-name))))
                   (collect `((:values ,variable-name ,supplied-variable-name)
                              (request-parameter-value ,request ,parameter-name)) :into bindings)
                   (collect `(unless ,supplied-variable-name
