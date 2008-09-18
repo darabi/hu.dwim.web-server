@@ -108,3 +108,30 @@
 
 (def (function e) action-to-href (action &key scheme delayed-content (ajax-aware *default-ajax-aware-client*))
   (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content :ajax-aware ajax-aware)))
+
+(def (macro e) js-to-lisp-rpc (&environment env &body body)
+  (bind ((walked-body (cl-walker:walk-form `(progn ,@body) nil (cl-walker:make-walk-environment env)))
+         (free-variable-references (cl-walker:collect-variable-references walked-body :type 'cl-walker:free-variable-reference-form))
+         (variable-names (remove-duplicates (mapcar [cl-walker:name-of !1]
+                                                    free-variable-references)))
+         (query-parameters (mapcar [unique-js-name (string-downcase !1)]
+                                   variable-names)))
+    `(progn
+       `js-inline*(wui.io.xhr-post
+                   (create
+                    :content (create ,@(list ,@(iter (for variable-name :in variable-names)
+                                                     (for query-parameter :in query-parameters)
+                                                     (collect `(quote ,query-parameter))
+                                                     (collect ;;`str ,(concatenate 'string (lisp-name-to-js-name variable-name) ".toString()")
+                                                              ;; FIXME qq is broken, needs the ` reader. see qq/test/js.lisp for the detailed TODO
+                                                              `js-inline*(.toString ,variable-name)
+                                                              ))))
+                    :url ,(make-action-href (:delayed-content #t)
+                            (with-request-params ,(mapcar [list !1 !2]
+                                                          variable-names
+                                                          query-parameters)
+                              ,@body))
+                    :load (lambda (response args)
+                            ;; TODO process the return value, possible ajax replacements, etc
+                            )))
+       nil)))
