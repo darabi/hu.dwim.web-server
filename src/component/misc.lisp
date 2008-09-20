@@ -101,11 +101,10 @@
 (def component remote-identity-component-mixin ()
   ((id nil)))
 
-(def render :before remote-identity-component-mixin ()
-  (bind (((:read-only-slots id) -self-))
-    (when (and *frame*
-               (not id))
-      (setf id (generate-frame-unique-string "c")))))
+(def render :before remote-identity-component-mixin
+  (when (and *frame*
+             (not (id-of -self-)))
+    (setf (id-of -self-) (generate-frame-unique-string "c"))))
 
 (def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
   (prog1-bind covering-components nil
