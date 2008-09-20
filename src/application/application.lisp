@@ -407,6 +407,7 @@ Custom implementations should look something like this:
       (bind ((*ajax-aware-client* #t)
              (dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
+        ;; FF does not like it, probably the others either... (emit-xml-prologue +encoding+)
         <ajax-response
          ,@(with-collapsed-js-scripts
             <dom-replacements (:xmlns #.+xhtml-namespace-uri+)

@@ -39,21 +39,31 @@
 (def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +encoding+))
 (def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +encoding+))
 
+(def function emit-xml-prologue (encoding &optional (stream *html-stream*))
+  (macrolet ((emit (string)
+               `(write-string ,string stream)))
+    (if (eq encoding :utf-8)
+        (emit #.(coerce (format nil "<?xml version=\"1.1\" encoding=\"UTF-8\"?>~%") 'simple-base-string))
+        (progn
+          (emit "<?xml version=\"1.1\" encoding=\"")
+          (emit (string encoding))
+          (emit (format nil "\"?>~%"))))))
+
 (def function emit-xhtml-prologue (encoding doctype &optional (stream *html-stream*))
-  (if (and (eq encoding :utf-8)
-           (eq doctype +xhtml-1.1-doctype+))
-      (write-string (coerce (format nil "<?xml version=\"1.1\" encoding=\"UTF-8\"?>~%<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
-                            'simple-base-string)
-                    stream)
-      (progn
-        (write-string "<?xml version=\"1.1\" encoding=\"" stream)
-        (write-string (string encoding) stream)
-        (write-string "\"?>" stream)
-        (write-char #\Newline stream)
-        (write-string "<!DOCTYPE html PUBLIC " stream)
-        (write-string doctype stream)
-        (write-char #\> stream)
-        (write-char #\Newline stream))))
+  (macrolet ((emit (string)
+               `(write-string ,(if (stringp string)
+                                   (coerce string 'simple-base-string)
+                                   string)
+                              stream)))
+    (if (and (eq encoding :utf-8)
+             (eq doctype +xhtml-1.1-doctype+))
+        (emit #.(format nil "<?xml version=\"1.1\" encoding=\"UTF-8\"?>~%<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">"))
+        (progn
+          (emit "<?xml version=\"1.1\" encoding=\"")
+          (emit (string encoding))
+          (emit #.(format nil "\"?>~%<!DOCTYPE html PUBLIC "))
+          (emit doctype)
+          (emit #.(format nil ">~%"))))))
 
 (def (with-macro* e) with-html-document (&key title
                                               content-type
