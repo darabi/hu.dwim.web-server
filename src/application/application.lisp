@@ -404,7 +404,8 @@ Custom implementations should look something like this:
 
 (def function ajax-aware-render (component use-ajax?)
   (if use-ajax?
-      (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
+      (bind ((*ajax-aware-client* #t)
+             (dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         <ajax-response
          ,@(with-collapsed-js-scripts
@@ -463,8 +464,6 @@ Custom implementations should look something like this:
                                        :frame frame
                                        :encoding encoding
                                        :content-type content-type)))
-
-(def special-variable *default-ajax-aware-client* #f)
 
 (def (constant :test 'string=) +ajax-aware-client-parameter-name+ "_j")
 

@@ -9,6 +9,8 @@
 (def (special-variable e) *request*)
 (def (special-variable e) *response*)
 
+(def (special-variable e) *ajax-aware-client* #f)
+
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
 (def special-variable *html-stream*)
