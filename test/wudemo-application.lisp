@@ -130,7 +130,7 @@
     (menu-item (command (label #"menu.login") (make-application-relative-uri +login-entry-point-path+)))
     (menu-item (command (label #"menu.about") (make-application-relative-uri "about/")))))
 
-;; TODO the onChange part should be this simple, but it needs qq work.
+;; TODO the onChange part hould be this simple, but it needs qq work.
 ;; ,(js-to-lisp-rpc
 ;;   (setf (example-inline-edit-box-value-of *session*) (aref |arguments| 0)))
 
@@ -168,6 +168,8 @@
       (menu-item (replace-menu-target-command "Dojo InlineEditBox example"
                    (inline-component
                      (render-example-inline-edit-box))))
+      (menu-item (replace-menu-target-command "Ajax counter"
+                   (make-instance 'counter-component)))
       (menu "Others"
         (menu-item (replace-menu-target-command #"menu.help" (make-help-component)))
         (menu-item (replace-menu-target-command #"menu.about" (make-about-component)))))))
@@ -177,6 +179,22 @@
 
 (def function make-about-component ()
   (inline-component <div "This is the about page">))
+
+;;;;;;
+;;; ajax counter example (only a proof-of-concept)
+
+(def component counter-component (remote-identity-component-mixin)
+  ((counter 0)))
+
+(def render counter-component
+  <span (:id ,(id-of -self-))
+    ,(counter-of -self-)
+    " "
+    <a (:href `js-inline(wui.io.action
+                          ,(escape-as-xml ; FIXME this should be handled by cl-qq
+                            (make-action-href (:delayed-content #t :ajax-aware #t)
+                              (incf (counter-of -self-))))))
+       "increment">>)
 
 ;;;;;;
 ;;; the entry points
