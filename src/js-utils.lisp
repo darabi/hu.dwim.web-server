@@ -134,7 +134,7 @@
          (log.debug "Found ajax-response DOM node")
          (let ((,RESULT-NODE (get-first-child-with-tag-name ,DATA "result")))
            (if (or (not ,RESULT-NODE)
-                   (not (= (dojox.data.dom.textContent ,RESULT-NODE)
+                   (not (= (dojo.string.trim (dojox.data.dom.textContent ,RESULT-NODE))
                            "success")))
                (let ((error-message (wui.i18n.localize "unknown-server-error")))
                  (when-bind error-node (get-first-child-with-tag-name ,DATA "error-message")

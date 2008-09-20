@@ -101,7 +101,7 @@
            (.forEach script-nodes wui.io.eval-script-tag)))))
 
 (defun wui.io.eval-script-tag (node)
-  (let ((type (node.get-attribute "type")))
+  (let ((type (node.getAttribute "type")))
     (if (= type "text/javascript")
         (let ((script node.text))
           (unless (dojo.string.is-blank script)
@@ -194,6 +194,7 @@
       ;; TODO an alert is bullshit
       (alert #"network-error")))
 
+#+nil
 (defun wui.io.execute-ajax-action (params)
   (with-wui-error-handler
     (macrolet ((only-one-of (primary secondary &key (defaulting T))
@@ -246,7 +247,7 @@
 
 (defun wui.io.import-ajax-received-xhtml-node (node)
   ;; Makes an XMLHTTP-received node suitable for inclusion in the document.
-  (log.debug "Importing ajax answer node with id " (.get-attribute node "id"))
+  (log.debug "Importing ajax answer node with id " (.getAttribute node "id"))
   (cond
     (dojo.isMozilla
      (return node))
@@ -311,7 +312,7 @@
           (if toplevel-p
               (let ((node toplevel-node)
                     (original-node node)
-                    (id (.get-attribute node "id")))
+                    (id (.getAttribute node "id")))
                 (log.debug "Processing " tag-name " node with id " id)
                 (when import-node-p
                   (setf node (wui.io.import-ajax-received-xhtml-node node)))
@@ -319,12 +320,13 @@
               (progn
                 (log.debug "Will process " toplevel-node.child-nodes.length " node(s) of type '" tag-name "'")
                 (dolist (node (dojo._toArray toplevel-node.child-nodes)) ; create a copy and iterate on that
-                  (let ((original-node node)
-                        (id (.get-attribute node "id")))
-                    (log.debug "Processing " tag-name " node with id " id)
-                    (when import-node-p
-                      (setf node (wui.io.import-ajax-received-xhtml-node node)))
-                    (visitor node original-node))))))))))
+                  (when (slot-value node 'getAttribute)
+                    (let ((original-node node)
+                          (id (.getAttribute node "id")))
+                      (log.debug "Processing " tag-name " node with id " id)
+                      (when import-node-p
+                        (setf node (wui.io.import-ajax-received-xhtml-node node)))
+                      (visitor node original-node)))))))))))
 
 ;; Returns a lambda that can be used as a dojo :load handler.  Will do some sanity checks
 ;; on the ajax answer, report any possible server errors, then walk the nodes with the given
@@ -348,7 +350,7 @@
 (bind ((dom-replacer
         (wui.io.make-node-walking-ajax-answer-processor "dom-replacements"
                                                         (lambda (replacement-node)
-                                                          (bind ((id (.get-attribute replacement-node "id")))
+                                                          (bind ((id (.getAttribute replacement-node "id")))
                                                             (cond
                                                               ((and id ($ id))
                                                                (let ((old-node ($ id))
