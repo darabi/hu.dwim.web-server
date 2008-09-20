@@ -47,7 +47,7 @@
 
 (defun wui.io.action (url (ajax true))
   (bind ((decorated-url (wui.append-query-parameter url
-                                                    #.(escape-as-uri +ajax-aware-client-parameter-name+)
+                                                    #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if ajax "t" "")))
          (form (aref document.forms 0)))
     (if ajax

@@ -4,19 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (constant :test 'string=) +action-id-parameter-name+ "_a")
-(def constant +action-id-length+ 8)
-
-(def (constant :test 'string=) +delayed-content-parameter-name+ "_d")
-
-(def (special-variable e) *action*)
-
-(def function request-for-delayed-content? (&optional (request *request*))
-  "A delayed content request is supposed to render stuff to the same frame that was delayed at the main request (i.e. tooltips)."
-  (bind ((value (request-parameter-value request +delayed-content-parameter-name+)))
-    (and value
-         (not (string= value "")))))
-
 (def (function o) find-action-from-request (frame)
   (bind ((action-id (parameter-value +action-id-parameter-name+)))
     (when action-id
@@ -102,7 +89,7 @@
       (setf (scheme-of uri) scheme))
     (setf (uri-query-parameter-value uri +delayed-content-parameter-name+)
           (if delayed-content "t" nil))
-    (setf (uri-query-parameter-value uri +ajax-aware-client-parameter-name+)
+    (setf (uri-query-parameter-value uri +ajax-aware-parameter-name+)
           (if ajax-aware "t" nil))
     uri))
 

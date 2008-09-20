@@ -98,7 +98,7 @@
                (send-response response)
                (make-do-nothing-response)))
         ;; TODO audit this part in the lights of ajax requests: some actions, like creating a new frame, should not
-        ;; be carried out then... fix so that *ajax-aware-client* is bound earlier, and renamed to *ajax-request*.
+        ;; be carried out then... fix so that *ajax-aware-request* is bound earlier, and renamed to *ajax-request*.
         (if frame
             (restart-case
                 (progn
@@ -116,7 +116,7 @@
                             incoming-frame-index)
                        (if (equal incoming-frame-index (next-frame-index-of frame))
                            (progn
-                             (unless (request-for-delayed-content?)
+                             (unless *delayed-content-request*
                                (step-to-next-frame-index frame))
                              (bind ((response (call-action application session frame action)))
                                (when (typep response 'response)
@@ -404,10 +404,10 @@ Custom implementations should look something like this:
 (def macro with-restored-component-environment (component &body forms)
   `(call-with-restored-component-environment ,component (lambda () ,@forms)))
 
-(def function ajax-aware-render (component use-ajax?)
-  (if use-ajax?
-      (bind ((*ajax-aware-client* #t)
-             (dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
+(def function ajax-aware-render (component)
+  (app.debug "Inside AJAX-AWARE-RENDER; is this an ajax-aware-request? ~A" *ajax-aware-request*)
+  (if *ajax-aware-request*
+      (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         ;; FF does not like it, probably the others either... (emit-xml-prologue +encoding+)
         <ajax-response
@@ -420,7 +420,7 @@ Custom implementations should look something like this:
          <result "success">>)
       (render component)))
 
-(def (function e) render-to-string (component &key (ajax-aware-client #f))
+(def (function e) render-to-string (component)
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
          (*application* (make-instance 'application :path-prefix ""))
          (*session* (make-instance 'session))
@@ -431,7 +431,7 @@ Custom implementations should look something like this:
        (with-output-to-sequence (buffer-stream :external-format :utf-8
                                                :initial-buffer-size 256)
          (emit-into-html-stream buffer-stream
-           (ajax-aware-render component ajax-aware-client)))
+           (ajax-aware-render component)))
        :encoding :utf-8))))
 
 (def class* locked-session-response-mixin (response)
@@ -468,10 +468,16 @@ Custom implementations should look something like this:
                                        :encoding encoding
                                        :content-type content-type)))
 
-(def (constant :test 'string=) +ajax-aware-client-parameter-name+ "_j")
+(def function ajax-aware-request? (&optional (request *request*))
+  (bind ((value (request-parameter-value request +ajax-aware-parameter-name+)))
+    (and value
+         (etypecase value
+           (cons (some [not (string= !1 "")] value))
+           (string (not (string= value "")))))))
 
-(def function ajax-aware-client? (&optional (request *request*))
-  (bind ((value (request-parameter-value request +ajax-aware-client-parameter-name+)))
+(def function delayed-content-request? (&optional (request *request*))
+  "A delayed content request is supposed to render stuff to the same frame that was delayed at the main request (i.e. tooltips)."
+  (bind ((value (request-parameter-value request +delayed-content-parameter-name+)))
     (and value
          (etypecase value
            (cons (some [not (string= !1 "")] value))

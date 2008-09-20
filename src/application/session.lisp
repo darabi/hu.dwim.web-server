@@ -4,12 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (constant :test 'string=) +session-cookie-name+ "sid")
-
-(def constant +session-id-length+ 40)
-
-(def (special-variable e) *session*)
-
 (def class* activity-monitor-mixin ()
   ((last-activity-at (get-monotonic-time))
    (time-to-live)))

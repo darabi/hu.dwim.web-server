@@ -4,13 +4,32 @@
 
 (in-package :hu.dwim.wui)
 
-(def (special-variable e) *server*)
-(def (special-variable e) *application*)
 (def (special-variable e) *request*)
 (def (special-variable e) *response*)
 
-;; TODO rename to *ajax-request*
-(def (special-variable e) *ajax-aware-client* #f)
+(def (special-variable e) *server*)
+(def (special-variable e) *application*)
+(def (special-variable e) *session*)
+(def (special-variable e) *frame*)
+(def (special-variable e) *action*)
+
+(def (special-variable e) *delayed-content-request* #f
+  "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
+(def (special-variable e) *ajax-aware-request* #f
+  "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the remote JS stack and awaits a structured XML answer.")
+
+(def constant +action-id-length+   8)
+(def constant +frame-id-length+    8)
+(def constant +frame-index-length+ 4)
+(def constant +session-id-length+  40)
+
+(def (constant :test 'string=) +action-id-parameter-name+       "_a")
+(def (constant :test 'string=) +frame-id-parameter-name+        "_f")
+(def (constant :test 'string=) +frame-index-parameter-name+     "_x")
+(def (constant :test 'string=) +ajax-aware-parameter-name+      "_j")
+(def (constant :test 'string=) +delayed-content-parameter-name+ "_d")
+
+(def (constant :test 'string=) +session-cookie-name+ "sid")
 
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 

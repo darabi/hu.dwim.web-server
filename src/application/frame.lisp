@@ -4,14 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (constant :test 'string=) +frame-id-parameter-name+    "_f")
-(def (constant :test 'string=) +frame-index-parameter-name+ "_x")
-
-(def constant +frame-id-length+ 8)
-(def constant +frame-index-length+ 4)
-
-(def (special-variable e) *frame*)
-
 (def generic purge-frames (application session))
 
 (def (condition* e) frame-out-of-sync-error (request-processing-error)
