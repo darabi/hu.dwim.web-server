@@ -4,6 +4,8 @@
 
 (in-package :hu.dwim.wui)
 
+;; TODO FIXME this, or some more general mechanism, should specially handle the errors that happen
+;; at an ajax request. we can't just render a whole html document...
 (def method handle-toplevel-condition ((application application) (error frame-out-of-sync-error))
   (bind ((refresh-uri (bind ((uri (clone-uri (uri-of *request*))))
                         (setf (uri-query-parameter-value uri +frame-index-parameter-name+) nil)

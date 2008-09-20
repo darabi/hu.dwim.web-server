@@ -97,6 +97,8 @@
                (decorate-application-response application response)
                (send-response response)
                (make-do-nothing-response)))
+        ;; TODO audit this part in the lights of ajax requests: some actions, like creating a new frame, should not
+        ;; be carried out then... fix so that *ajax-aware-client* is bound earlier, and renamed to *ajax-request*.
         (if frame
             (restart-case
                 (progn

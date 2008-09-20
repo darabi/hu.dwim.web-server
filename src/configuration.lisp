@@ -57,6 +57,9 @@
    :encoding +encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*
    :indentation-width *quasi-quote-indentation-width*
+   ;; FIXME see comments in qq
+   ;;:string-escape-function (when inline?
+   ;;                          'cl-quasi-quote-xml:escape-as-xml)
    :output-prefix (cond
                     ;; TODO inline stuff must also be xml escaped... think through how this should work in qq.
                     ;; should `str() inside <> automatically be escaped? how could you insert unescaped
