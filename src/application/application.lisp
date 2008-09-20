@@ -135,7 +135,7 @@
                           (format stream "Delete frame ~A" frame))
                 (mark-expired frame)
                 (invoke-retry-handling-request-restart)))
-            (progn
+            (unless *ajax-aware-request*
               (setf frame (make-new-frame application session))
               (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
                                                                          frame +frame-id-length+))
@@ -155,6 +155,9 @@
                (boundp '*frame*))
           () "May not use WITH-SESSION/FRAME/ACTION-LOGIC outside the dynamic extent of an application")
   (bind ((application *application*)
+         (*ajax-aware-request* (ajax-aware-request?))
+         (*delayed-content-request* (or *ajax-aware-request*
+                                        (delayed-content-request?)))
          ((:values session session-cookie-exists? invalidity-reason)
           (with-lock-held-on-application (application)
             (find-session-from-request application)
@@ -492,16 +495,14 @@ Custom implementations should look something like this:
          (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
                                                        :initial-buffer-size 256)
                  (when (and *frame*
-                            (not (request-for-delayed-content?)))
+                            (not *delayed-content-request*))
                    (app.debug "This is not a delayed content request, clearing the action and client-state-sink hashtables of ~A" *frame*)
                    (clrhash (action-id->action-of *frame*))
                    (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
                  (emit-into-html-stream buffer-stream
-                   (bind ((start-time (get-monotonic-time))
-                          (ajax-aware-client? (ajax-aware-client?)))
-                     (app.debug "Calling AJAX-AWARE-RENDER, ajax-aware-client? ~A" ajax-aware-client?)
+                   (bind ((start-time (get-monotonic-time)))
                      (multiple-value-prog1
-                         (ajax-aware-render (component-of self) ajax-aware-client?)
+                         (ajax-aware-render (component-of self))
                        (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time)))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 128)
