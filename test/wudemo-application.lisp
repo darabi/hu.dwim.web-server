@@ -190,11 +190,13 @@
   <span (:id ,(id-of -self-))
     ,(counter-of -self-)
     " "
-    <a (:href `js-inline(wui.io.action
-                          ,(escape-as-xml ; FIXME this should be handled by cl-qq
-                            (make-action-href (:delayed-content #t :ajax-aware #t)
-                              (incf (counter-of -self-))))))
-       "increment">>)
+    ,(bind ((action-href (escape-as-xml ; FIXME this should be handled by cl-qq
+                          (make-action-href ()
+                            (incf (counter-of -self-))))))
+       <a (:href `js-inline(wui.io.action ,action-href))
+          "increment">
+       <a (:href `js-inline(wui.io.action ,action-href false))
+          "increment without ajax">) >)
 
 ;;;;;;
 ;;; the entry points
