@@ -15,12 +15,13 @@
 (def method handle-toplevel-condition ((application application) (error frame-out-of-sync-error))
   (bind ((refresh-uri (bind ((uri (clone-uri (uri-of *request*))))
                         (setf (uri-query-parameter-value uri +action-id-parameter-name+) nil)
-                        (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*))
+                        (decorate-uri uri *frame*)
                         uri))
          (new-frame-uri (bind ((uri (clone-uri (uri-of *request*))))
-                          (clear-uri-query-parameters uri)
                           (decorate-uri uri *application*)
                           (decorate-uri uri *session*)
+                          (setf (uri-query-parameter-value uri +frame-id-parameter-name+) nil)
+                          (setf (uri-query-parameter-value uri +frame-index-parameter-name+) nil)
                           uri)))
     (emit-simple-html-document-response (:status +http-not-acceptable+
                                          :headers #.(list 'quote +disallow-response-caching-header-values+))
@@ -30,4 +31,3 @@
          "of your browser. To achieve the same effect, you can use the navigation actions provided by the application.">
       <p <a (:href ,(print-uri-to-string refresh-uri)) "Bring me back to the application">>
       <p <a (:href ,(print-uri-to-string new-frame-uri)) "Make this window a new view of the application">>)))
-

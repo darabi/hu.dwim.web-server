@@ -19,11 +19,20 @@
 (def function frame-not-found-error (&optional (frame *frame*))
   (error 'frame-not-found-error :frame frame))
 
+(def function generate-frame-index (&optional previous)
+  (if (and (running-in-test-mode-p *application*)
+           (or (not previous)
+               (integerp previous)))
+      (if previous
+          (1+ previous)
+          0)
+      (random-simple-base-string +frame-index-length+)))
+
 (def class* frame (string-id-mixin activity-monitor-mixin)
   ((session nil)
    (unique-counter 0)
-   (frame-index (random-simple-base-string +frame-index-length+))
-   (next-frame-index (random-simple-base-string +frame-index-length+))
+   (frame-index (generate-frame-index))
+   (next-frame-index (generate-frame-index 0))
    (client-state-sink-id->client-state-sink (make-hash-table :test 'equal))
    (action-id->action (make-hash-table :test 'equal))
    (root-component nil :export #t)
@@ -66,7 +75,8 @@
 (def function step-to-next-frame-index (frame)
   (app.debug "Stepping to next frame index. From ~S to next ~S, frame is ~A" (frame-index-of frame) (next-frame-index-of frame) frame)
   (setf (frame-index-of frame) (next-frame-index-of frame))
-  (setf (next-frame-index-of frame) (random-simple-base-string +frame-index-length+)))
+  (setf (next-frame-index-of frame)
+        (generate-frame-index (frame-index-of frame))))
 
 (def (function e) reset-frame-root-component ()
   (setf (root-component-of *frame*) nil))

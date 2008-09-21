@@ -105,19 +105,37 @@
                   (process-client-state-sinks frame (query-parameters-of *request*))
                   (bind ((action (find-action-from-request frame))
                          (incoming-frame-index (parameter-value +frame-index-parameter-name+))
-                         (frame-is-in-sync? (equal incoming-frame-index (next-frame-index-of frame))))
-                    (app.debug "Incoming frame-index is ~S (in sync? ~A), current is ~S, next is ~S, action is ~A" incoming-frame-index frame-is-in-sync? (frame-index-of frame) (next-frame-index-of frame) action)
-                    (unless frame-is-in-sync?
-                      (frame-out-of-sync-error frame))
-                    (when action
-                      (unless *delayed-content-request*
-                        (step-to-next-frame-index frame))
-                      (bind ((response (call-action application session frame action)))
-                        (when (typep response 'response)
-                          (return-from call-as-handler-in-session
-                            (if (typep response 'locked-session-response-mixin)
-                                (send-response-early response)
-                                response)))))))
+                         (current-frame-index (frame-index-of frame))
+                         (next-frame-index (next-frame-index-of frame)))
+                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
+                    (unless (stringp current-frame-index)
+                      (setf current-frame-index (integer-to-string current-frame-index)))
+                    (unless (stringp next-frame-index)
+                      (setf next-frame-index (integer-to-string next-frame-index)))
+                    (cond
+                      ((and action
+                            incoming-frame-index)
+                       (unless (equal incoming-frame-index next-frame-index)
+                         (frame-out-of-sync-error frame))
+                       (app.dribble "Found an action and frame is in sync...")
+                       (unless *delayed-content-request*
+                         (step-to-next-frame-index frame))
+                       (app.dribble "Calling action...")
+                       (bind ((response (call-action application session frame action)))
+                         (when (typep response 'response)
+                           (return-from call-as-handler-in-session
+                             (if (typep response 'locked-session-response-mixin)
+                                 (send-response-early response)
+                                 response)))))
+                      (incoming-frame-index
+                       (unless (equal incoming-frame-index current-frame-index)
+                         (frame-out-of-sync-error frame)))
+                      (t
+                       (if *ajax-aware-request*
+                           (frame-out-of-sync-error frame)
+                           (return-from call-as-handler-in-session
+                             (make-uri-for-current-application)))))
+                    (app.dribble "Action loging fell through, proceeding to the thunk...")))
               (delete-current-frame ()
                 :report (lambda (stream)
                           (format stream "Delete frame ~A" frame))
