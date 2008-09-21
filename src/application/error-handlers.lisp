@@ -4,22 +4,30 @@
 
 (in-package :hu.dwim.wui)
 
-;; TODO FIXME this, or some more general mechanism, should specially handle the errors that happen
-;; at an ajax request. we can't just render a whole html document...
+(def method handle-toplevel-condition :around ((application application) error)
+  (if *ajax-aware-request*
+      (emit-http-response ((+header/status+ +http-not-acceptable+))
+        <ajax-response
+         <error-message ,#"error-message-for-ajax-requests">
+         <result "failure">>)
+      (call-next-method)))
+
 (def method handle-toplevel-condition ((application application) (error frame-out-of-sync-error))
   (bind ((refresh-uri (bind ((uri (clone-uri (uri-of *request*))))
-                        (setf (uri-query-parameter-value uri +frame-index-parameter-name+) nil)
                         (setf (uri-query-parameter-value uri +action-id-parameter-name+) nil)
+                        (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*))
                         uri))
          (new-frame-uri (bind ((uri (clone-uri (uri-of *request*))))
                           (clear-uri-query-parameters uri)
                           (decorate-uri uri *application*)
                           (decorate-uri uri *session*)
                           uri)))
-    (emit-simple-html-document-response (:status +http-not-acceptable+)
+    (emit-simple-html-document-response (:status +http-not-acceptable+
+                                         :headers #.(list 'quote +disallow-response-caching-header-values+))
       <p "Browser window out of sync with the server...">
       <p "Please avoid using the back button of your "
          "browser and/or opening links in new windows by copy-pasting or using the \"Open in new window\" feature "
          "of your browser. To achieve the same effect, you can use the navigation actions provided by the application.">
       <p <a (:href ,(print-uri-to-string refresh-uri)) "Bring me back to the application">>
-      <p <a (:href ,(print-uri-to-string new-frame-uri)) "Make this window another independent view of the application">>)))
+      <p <a (:href ,(print-uri-to-string new-frame-uri)) "Make this window a new view of the application">>)))
+

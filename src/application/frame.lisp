@@ -6,11 +6,18 @@
 
 (def generic purge-frames (application session))
 
-(def (condition* e) frame-out-of-sync-error (request-processing-error)
+(def (condition* e) frame-related-request-processing-error (request-processing-error)
   ((frame nil)))
 
-(def (function i) frame-out-of-sync-error (&optional (frame *frame*))
+(def (condition* e) frame-out-of-sync-error (frame-related-request-processing-error)
+  ())
+(def function frame-out-of-sync-error (&optional (frame *frame*))
   (error 'frame-out-of-sync-error :frame frame))
+
+(def (condition* e) frame-not-found-error (frame-related-request-processing-error)
+  ())
+(def function frame-not-found-error (&optional (frame *frame*))
+  (error 'frame-not-found-error :frame frame))
 
 (def class* frame (string-id-mixin activity-monitor-mixin)
   ((session nil)

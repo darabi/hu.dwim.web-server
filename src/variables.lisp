@@ -31,6 +31,10 @@
 
 (def (constant :test 'string=) +session-cookie-name+ "sid")
 
+(def (constant :test 'equal) +disallow-response-caching-header-values+
+  (list (cons +header/expires+ (net.telent.date:universal-time-to-http-date +epoch-start+))
+        (cons +header/cache-control+ "no-store")))
+
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
 (def special-variable *html-stream*)
@@ -67,7 +71,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 ;; whenever a rule provides a new set of rules, it is pushed at the head of the *BROKERS* list.
 (def special-variable *brokers*)
 
-(def constant +epoch-start+ (encode-universal-time 0 0 0 1 1 1970))
+(def constant +epoch-start+ (encode-universal-time 0 0 0 1 1 1970 0))
 
 ;;;
 ;;; l10n

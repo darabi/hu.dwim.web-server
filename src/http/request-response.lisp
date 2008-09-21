@@ -170,8 +170,9 @@
 
 (def (function e) disallow-response-caching (response)
   "Sets the appropiate response headers that will instruct the clients not to cache this response."
-  (setf (header-value response "Expires") #.(net.telent.date:universal-time-to-http-date +epoch-start+)
-        (header-value response "Cache-Control") "no-store"))
+  #. `(progn
+        ,@(iter (for (header-name . value) :in +disallow-response-caching-header-values+)
+                (collect `(setf (header-value response ,header-name) ,value)))))
 
 (def (function o) send-http-headers (headers cookies &key (stream (network-stream-of *request*)))
   (flet ((write-header-line (name value stream)
