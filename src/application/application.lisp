@@ -97,8 +97,6 @@
                (decorate-application-response application response)
                (send-response response)
                (make-do-nothing-response)))
-        ;; TODO audit this part in the lights of ajax requests: some actions, like creating a new frame, should not
-        ;; be carried out then... fix so that *ajax-aware-request* is bound earlier, and renamed to *ajax-request*.
         (if frame
             (restart-case
                 (progn
@@ -106,41 +104,33 @@
                   (notify-activity frame)
                   (process-client-state-sinks frame (query-parameters-of *request*))
                   (bind ((action (find-action-from-request frame))
-                         (incoming-frame-index (parameter-value +frame-index-parameter-name+)))
-                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
-                    (when (and (stringp incoming-frame-index)
-                               (zerop (length incoming-frame-index)))
-                      (setf incoming-frame-index nil))
-                    (cond
-                      ((and action
-                            incoming-frame-index)
-                       (if (equal incoming-frame-index (next-frame-index-of frame))
-                           (progn
-                             (unless *delayed-content-request*
-                               (step-to-next-frame-index frame))
-                             (bind ((response (call-action application session frame action)))
-                               (when (typep response 'response)
-                                 (return-from call-as-handler-in-session
-                                   (if (typep response 'locked-session-response-mixin)
-                                       (send-response-early response)
-                                       response)))))
-                           (frame-out-of-sync-error frame)))
-                      (incoming-frame-index
-                       (unless (equal incoming-frame-index (frame-index-of frame))
-                         (frame-out-of-sync-error frame)))
-                      (t
-                       (return-from call-as-handler-in-session (make-redirect-response-with-frame-index-decorated frame))))))
+                         (incoming-frame-index (parameter-value +frame-index-parameter-name+))
+                         (frame-is-in-sync? (equal incoming-frame-index (next-frame-index-of frame))))
+                    (app.debug "Incoming frame-index is ~S (in sync? ~A), current is ~S, next is ~S, action is ~A" incoming-frame-index frame-is-in-sync? (frame-index-of frame) (next-frame-index-of frame) action)
+                    (unless frame-is-in-sync?
+                      (frame-out-of-sync-error frame))
+                    (when action
+                      (unless *delayed-content-request*
+                        (step-to-next-frame-index frame))
+                      (bind ((response (call-action application session frame action)))
+                        (when (typep response 'response)
+                          (return-from call-as-handler-in-session
+                            (if (typep response 'locked-session-response-mixin)
+                                (send-response-early response)
+                                response)))))))
               (delete-current-frame ()
                 :report (lambda (stream)
                           (format stream "Delete frame ~A" frame))
                 (mark-expired frame)
                 (invoke-retry-handling-request-restart)))
-            (unless *ajax-aware-request*
-              (setf frame (make-new-frame application session))
-              (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
-                                                                         frame +frame-id-length+))
-              (register-frame application session frame)
-              (setf *frame* frame)))
+            (if *ajax-aware-request*
+                (frame-not-found-error)
+                (progn
+                  (setf frame (make-new-frame application session))
+                  (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
+                                                                             frame +frame-id-length+))
+                  (register-frame application session frame)
+                  (setf *frame* frame))))
        (bind ((response (funcall thunk)))
          (if (and response
                   (typep response 'locked-session-response-mixin))
@@ -163,6 +153,9 @@
             (find-session-from-request application)
             ;; FIXME locking the session should happen inside the with-lock-held-on-application block
             )))
+    ;; clear these so that the parameters added by the js side don't accumulate
+    (setf (uri-query-parameter-value (uri-of *request*) +ajax-aware-parameter-name+) nil)
+    (setf (uri-query-parameter-value (uri-of *request*) +delayed-content-parameter-name+) nil)
     (setf *session* session)
     (if session
         (restart-case
@@ -412,7 +405,8 @@ Custom implementations should look something like this:
   (if *ajax-aware-request*
       (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
-        ;; FF does not like it, probably the others either... (emit-xml-prologue +encoding+)
+        ;; FF does not like proper xml prologue, probably the other browsers even more so...
+        ;; (emit-xml-prologue +encoding+)
         <ajax-response
          ,@(with-collapsed-js-scripts
             <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
