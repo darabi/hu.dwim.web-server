@@ -42,7 +42,9 @@
   (print-object-for-string-id-mixin -self-)
   (write-string " index: ")
   (princ (frame-index-of -self-))
-  (write-string " actions: ")
+  (write-string ", next-index: ")
+  (princ (next-frame-index-of -self-))
+  (write-string ", actions: ")
   (princ (hash-table-count (action-id->action-of -self-))))
 
 (def function toggle-debug-component-hierarchy (frame)

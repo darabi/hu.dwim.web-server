@@ -418,6 +418,9 @@
 (def class* redirect-response (response)
   ((target-uri :type string)))
 
+(def print-object (redirect-response :identity #f :type #t)
+  (princ (target-uri-of -self-)))
+
 (def constructor redirect-response
   (setf (header-value -self- +header/status+) +http-moved-temporarily+)
   (setf (header-value -self- +header/content-type+) +html-content-type+)

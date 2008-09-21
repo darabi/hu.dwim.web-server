@@ -188,6 +188,7 @@
 
 (def render counter-component
   <span (:id ,(id-of -self-))
+    "A counter local to this component: "
     ,(counter-of -self-)
     " "
     ,(bind ((action-href (escape-as-xml ; FIXME this should be handled by cl-qq
