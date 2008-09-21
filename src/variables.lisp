@@ -31,10 +31,6 @@
 
 (def (constant :test 'string=) +session-cookie-name+ "sid")
 
-(def (constant :test 'equal) +disallow-response-caching-header-values+
-  (list (cons +header/expires+ (net.telent.date:universal-time-to-http-date +epoch-start+))
-        (cons +header/cache-control+ "no-store")))
-
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
 (def special-variable *html-stream*)
@@ -165,6 +161,10 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 ;;;
 ;;; HTTP
 ;;;
+
+(def (constant :test 'equal) +disallow-response-caching-header-values+
+  (list (cons +header/expires+ (net.telent.date:universal-time-to-http-date +epoch-start+))
+        (cons +header/cache-control+ "no-store")))
 
 (def (constant :test 'string=) +xhtml-namespace-uri+ "http://www.w3.org/1999/xhtml")
 (def (constant :test 'string=) +dojo-namespace-uri+  "http://www.dojotoolkit.org/2004/dojoml")
