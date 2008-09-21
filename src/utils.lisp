@@ -359,18 +359,62 @@
     (setf (gethash key hash-table) value)
     (values key value)))
 
-(def constant +integer-names-to-cache+ 128)
+(def constant +number-of-integer-strings-to-cache+ 128)
 
 (def (constant :test 'equalp) +cached-integer-names+
-    (coerce (iter (for idx :from 0 :below +integer-names-to-cache+)
+    (coerce (iter (for idx :from 0 :below +number-of-integer-strings-to-cache+)
                   (collect (coerce (princ-to-string idx) 'simple-base-string)))
-            `(simple-array string (,+integer-names-to-cache+))))
+            `(simple-array string (,+number-of-integer-strings-to-cache+))))
 
-(def (function io) integer-to-string (integer)
-  (declare (type fixnum integer))
-  (if (< integer +integer-names-to-cache+)
+(def (function io) %integer-to-string (integer &key minimum-column-count (maximum-digit-count most-positive-fixnum) (divisor 10))
+  (declare (type integer integer)
+           (type (or null fixnum) minimum-column-count)
+           (type fixnum maximum-digit-count))
+  (if (< integer +number-of-integer-strings-to-cache+)
       (aref +cached-integer-names+ integer)
-      (princ-to-string integer)))
+      (bind ((remainder integer)
+             (digit 0)
+             (number-of-digits 0)
+             (digits (list))
+             (result-index 0)
+             (result (make-array 128 :element-type 'base-char)))
+        (declare (dynamic-extent digits result)
+                 (type fixnum digit number-of-digits result-index))
+        (macrolet ((emit (char)
+                     `(progn
+                        (setf (aref result result-index) ,char)
+                        (incf result-index))))
+          (iter (repeat maximum-digit-count)
+                (setf (values remainder digit) (truncate remainder divisor))
+                (push digit digits)
+                (incf number-of-digits)
+                (until (zerop remainder)))
+          (when minimum-column-count
+            (bind ((padding-length (- minimum-column-count number-of-digits)))
+              (when (plusp padding-length)
+                (iter (repeat padding-length)
+                      (emit #\0)))))
+          (dolist (digit digits)
+            (emit (code-char (+ #x30 digit)))))
+        (bind ((real-result (make-array result-index :element-type 'base-char)))
+          (replace real-result result :end1 result-index)
+          real-result))))
+
+(def (function io) integer-to-string (integer &key minimum-column-count (maximum-digit-count most-positive-fixnum) (divisor 10))
+  (declare (type integer integer)
+           (type (or null fixnum) minimum-column-count)
+           (type fixnum maximum-digit-count))
+  (etypecase integer
+    (fixnum (%integer-to-string integer
+                                :minimum-column-count minimum-column-count
+                                :maximum-digit-count maximum-digit-count
+                                :divisor divisor))
+    (integer (%integer-to-string integer
+                                 :minimum-column-count minimum-column-count
+                                 :maximum-digit-count maximum-digit-count
+                                 :divisor divisor))))
+
+(declaim (notinline integer-to-string))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;; xhtml generation
