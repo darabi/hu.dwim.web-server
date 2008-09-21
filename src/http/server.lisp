@@ -211,7 +211,7 @@
            (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
     (unwind-protect
          (with-thread-name (concatenate-string " / serving request "
-                                               (princ-to-string (processed-request-count-of server)))
+                                               (integer-to-string (processed-request-count-of server)))
            (call-as-server-request-handler #'serve-one-request
                                            stream-socket
                                            :error-handler #'handle-request-error)
@@ -296,7 +296,7 @@
                  (setf (header-value ,response +header/status+) +http-ok+)
                  (when ,content-length
                    (setf (header-value ,response +header/content-length+)
-                         (princ-to-string ,content-length)))
+                         (integer-to-string ,content-length)))
                  ,@body)))))))
 
 (def content-serving-function serve-sequence (sequence &key
@@ -311,7 +311,7 @@
                     (string-to-octets sequence :encoding (external-format-of response))
                     sequence)))
     (setf (header-value response +header/content-type+) content-type)
-    (setf (header-value response +header/content-length+) (princ-to-string (length bytes)))
+    (setf (header-value response +header/content-length+) (integer-to-string (length bytes)))
     (awhen content-disposition
       (setf (header-value response +header/content-disposition+) it))
     (send-headers response)
@@ -331,9 +331,9 @@
       (setf (header-value response +header/content-type+) it))
    (when (and (not content-length)
               (typep stream 'file-stream))
-     (setf content-length (princ-to-string (file-length stream))))
+     (setf content-length (integer-to-string (file-length stream))))
    (unless (stringp content-length)
-     (setf content-length (princ-to-string content-length)))
+     (setf content-length (integer-to-string content-length)))
    (awhen content-length
      (setf (header-value response +header/content-length+) it))
    (unless content-disposition-p

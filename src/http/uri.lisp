@@ -120,6 +120,7 @@
                    (write-query-value value))))
            (write-query-value (value)
              (out (typecase value
+                    (integer (integer-to-string value))
                     (number (princ-to-string value))
                     (null "")
                     (t (string value))))))

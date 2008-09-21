@@ -518,7 +518,7 @@ Custom implementations should look something like this:
                        (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time)))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 128)
-                    (setf (header-value self +header/content-length+) (princ-to-string (length body)))
+                    (setf (header-value self +header/content-length+) (integer-to-string (length body)))
                     (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
     ;; TODO use multiplexing when writing to the network stream, including the headers
     (write-sequence headers (network-stream-of *request*))

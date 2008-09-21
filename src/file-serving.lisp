@@ -135,7 +135,7 @@
                   <td
                     <a (:href ,(escape-as-uri (concatenate-string path-prefix relative-path name)))
                       ,name>>
-                  <td ,(princ-to-string (nix:stat-size (nix:lstat (namestring file))))>>))>))
+                  <td ,(integer-to-string (nix:stat-size (nix:lstat (namestring file))))>>))>))
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; MIME stuff for serving static files

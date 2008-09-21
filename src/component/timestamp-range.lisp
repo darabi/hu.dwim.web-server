@@ -26,7 +26,7 @@
                    ;; TODO: kill this hack
                    :possible-values '(2007 2008 2009)
                    :component-value 2008
-                   :client-name-generator #'princ-to-string)
+                   :client-name-generator #'integer-to-string)
     :type component)
    (range-start
     (make-instance 'timestamp-component)

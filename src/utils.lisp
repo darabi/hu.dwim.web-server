@@ -152,7 +152,7 @@
                *temporary-file-random*
                "-"
                ;; TODO atomic-incf
-               (princ-to-string (incf *temporary-file-unique-number*))))
+               (integer-to-string (incf *temporary-file-unique-number*))))
 
 (defun open-temporary-file (&rest args &key
                             (element-type '(unsigned-byte 8))

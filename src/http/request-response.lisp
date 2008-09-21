@@ -242,7 +242,7 @@
       (setf content (babel-streams:get-output-stream-sequence it))
       (assert (null (header-value response "Content-Length")))
       (http.dribble "Setting Content-Length header of ~A" response)
-      (setf (header-value response "Content-Length") (princ-to-string (length content))))
+      (setf (header-value response "Content-Length") (integer-to-string (length content))))
     (call-next-method)
     (when (and content
                (not (string= "HEAD" (http-method-of *request*))))
@@ -347,7 +347,7 @@
     (dolist (piece body)
       (incf length (length piece)))
     ;; TODO use serve-sequence here? so that it adds expires, handles if-modified-since
-    (setf (header-value response +header/content-length+) (princ-to-string length))
+    (setf (header-value response +header/content-length+) (integer-to-string length))
     (call-next-method)
     (dolist (piece body)
       (write-sequence piece network-stream))))
