@@ -43,12 +43,12 @@
   `(make-action-using-lambda (make-instance 'component-related-action :component ,component)
                         (lambda () ,@body)))
 
-(def (macro e) make-action-uri ((&key scheme delayed-content (ajax-aware *ajax-aware-client*)) &body body)
-  `(action-to-uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content :ajax-aware ,ajax-aware))
+(def (macro e) make-action-uri ((&key scheme delayed-content) &body body)
+  `(action-to-uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content))
 
-(def (macro e) make-action-href ((&key scheme delayed-content (ajax-aware *ajax-aware-client*)) &body body)
+(def (macro e) make-action-href ((&key scheme delayed-content) &body body)
   `(print-uri-to-string
-    (make-action-uri (:scheme ,scheme :delayed-content ,delayed-content :ajax-aware ,ajax-aware)
+    (make-action-uri (:scheme ,scheme :delayed-content ,delayed-content)
       ,@body)))
 
 (def function register-action (frame action)
@@ -78,7 +78,7 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def (function e) action-to-uri (action &key scheme delayed-content (ajax-aware *ajax-aware-client*))
+(def (function e) action-to-uri (action &key scheme delayed-content)
   (bind ((uri (clone-uri (uri-of *request*))))
     (register-action *frame* action)
     (decorate-uri uri *application*)
@@ -89,12 +89,10 @@
       (setf (scheme-of uri) scheme))
     (setf (uri-query-parameter-value uri +delayed-content-parameter-name+)
           (if delayed-content "t" nil))
-    (setf (uri-query-parameter-value uri +ajax-aware-parameter-name+)
-          (if ajax-aware "t" nil))
     uri))
 
-(def (function e) action-to-href (action &key scheme delayed-content (ajax-aware *ajax-aware-client*))
-  (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content :ajax-aware ajax-aware)))
+(def (function e) action-to-href (action &key scheme delayed-content)
+  (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content)))
 
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
   (bind ((walked-body (cl-walker:walk-form `(progn ,@body) nil (cl-walker:make-walk-environment env)))
