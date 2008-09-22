@@ -142,6 +142,8 @@
     (setf (slot-value-using-class (class-of instance) instance (slot-of self)) new-value)))
 
 (def (function e) make-slot-value-place (instance slot)
+  (when (symbolp slot)
+    (setf slot (find-slot (class-of instance) slot)))
   (make-instance 'slot-value-place :instance instance :slot slot))
 
 ;;;;;;
