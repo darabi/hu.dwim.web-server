@@ -31,17 +31,17 @@
   (with-restored-component-environment (component-of action)
     (call-next-method)))
 
-(def function make-action-using-lambda (action thunk)
-  (set-funcallable-instance-function action thunk)
-  action)
-
 (def (macro e) make-action (&body body)
-  `(make-action-using-lambda (make-instance 'action)
-                        (lambda () ,@body)))
+  (with-unique-names (action)
+    `(bind ((,action (make-instance 'action)))
+       (set-funcallable-instance-function ,action (lambda () ,@body))
+       ,action)))
 
 (def (macro e) make-component-related-action (component &body body)
-  `(make-action-using-lambda (make-instance 'component-related-action :component ,component)
-                        (lambda () ,@body)))
+  (with-unique-names (action)
+    `(bind ((,action (make-instance 'component-related-action :component ,component)))
+       (set-funcallable-instance-function ,action (lambda () ,@body))
+       ,action)))
 
 (def (macro e) make-action-uri ((&key scheme delayed-content) &body body)
   `(action-to-uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content))
