@@ -52,7 +52,7 @@
 (def (function e) make-menu-item-component (command &rest menu-items)
   (bind ((menu-items (remove nil menu-items)))
     (when (or menu-items
-              (typep command 'command-component))
+              command)
       (make-instance 'menu-item-component :command command :menu-items menu-items))))
 
 (def (macro e) menu-item (command &body menu-items)
