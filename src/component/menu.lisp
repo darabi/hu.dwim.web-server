@@ -99,6 +99,10 @@
                         (make-action (toggle-debug-component-hierarchy *frame*))))
     (menu-item (command "Toggle debug client side"
                         (make-action (notf (debug-client-side? (root-component-of *frame*))))))
+    ;; from http://turtle.dojotoolkit.org/~david/recss.html
+    (menu-item (inline-component
+                 <a (:href "javascript:void(function(){var i,a,s;a=document.getElementsByTagName('link');for(i=0;i<a.length;i++){s=a[i];if(s.rel.toLowerCase().indexOf('stylesheet')>=0&&s.href) {var h=s.href.replace(/(&|%5C?)forceReload=\d+/,'');s.href=h+(h.indexOf('?')>=0?'&':'?')+'forceReload='+(new Date().valueOf())}}})();")
+                    "ReCSS">))
     #+sbcl
     (menu-item (replace-menu-target-command "Frame size breakdown"
                  (make-instance 'frame-size-breakdown-component)))))

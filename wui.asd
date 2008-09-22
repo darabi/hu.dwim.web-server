@@ -156,7 +156,7 @@
                                (:file "pivot-table" :depends-on ("extended-table" "icon"))
                                (:file "tree" :depends-on ("component"))
                                (:file "pie-chart" :depends-on ("component"))
-                               (:file "menu" :depends-on ("command"))
+                               (:file "menu" :depends-on ("command" "misc"))
                                (:file "reference" :depends-on ("command"))
                                (:file "editable" :depends-on ("command"))
                                (:file "atomic" :depends-on ("editable" "dojo"))
