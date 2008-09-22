@@ -33,23 +33,34 @@
     (setf (handler-of server) handler)
     (start-server-and-wait server)))
 
-(defun start-server-with-brokers (brokers &rest args &key (server-type 'broker-based-server) &allow-other-keys)
+(defun start-server-with-brokers (brokers &rest args &key
+                                  (server-type 'broker-based-server)
+                                  (host *test-host*)
+                                  (port *test-port*)
+                                  &allow-other-keys)
   (remove-from-plistf args :server-type)
-  (bind ((server (apply #'make-instance server-type :host *test-host* :port *test-port* args)))
+  (bind ((server (apply #'make-instance server-type :host host :port port args)))
     (setf (brokers-of server) (ensure-list brokers))
     (start-server-and-wait server)))
 
 (defun start-server-and-wait (server)
-  (unwind-protect
-       (progn
-         (startup-test-server server)
-         (break "Server running at ~A. Continue the debugger to stop it.~%~
-                 You may stress test it with something like:~%~
-                 siege -c100 -t10S http://localhost:8080/ (add -b for full throttle benchmarking)~%~
-                 httperf --rate 1000 --num-conn 10000 --port 8080 --server localhost --uri /foo/bar/~%~
-                 "
-                +test-server-base-url+))
-    (shutdown-test-server server)))
+  (bind ((host (host-of server))
+         (port (port-of server))
+         (uri (make-uri :scheme "http" :host host :port port))
+         (uri-string (print-uri-to-string uri)))
+    (unwind-protect
+         (progn
+           (startup-test-server server)
+           (break "Server running at ~A. Continue the debugger to stop it.~%~
+                   You may stress test it with something like:~%~
+                   siege -c100 -t10S ~A (add -b for full throttle benchmarking)~%~
+                   httperf --rate 1000 --num-conn 10000 --port ~A --server ~A --uri /foo/bar/~%~
+                   "
+                  uri-string
+                  uri-string
+                  port
+                  host))
+      (shutdown-test-server server))))
 
 (defun start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
