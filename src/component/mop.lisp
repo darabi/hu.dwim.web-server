@@ -63,7 +63,7 @@
       ;; if direct superclasses are not explicitly passed we _must_ not change anything
       (call-next-method)))
 
-(def method finalize-inheritance :after ((class computed-class))
+(def method finalize-inheritance :after ((class component-class))
   (setf (computed-slots-of class) (filter-if (of-type 'computed-effective-slot-definition) (class-slots class))))
 
 ;;;;;;
@@ -83,7 +83,14 @@
 
 (def (macro e) compute-as* ((&rest args &key &allow-other-keys) &body forms)
   `(compute-as-in-session* (:universe (ensure-session-computed-universe) ,@args)
-     (setf (outdated-p -self-) #t) ;; TODO: is it the right place?
-     ,@forms))
+     (compute-as-body -self- (lambda () ,@forms))))
 (setf (get 'compute-as* 'cc::computed-as-macro-p) #t)
 (setf (get 'compute-as* 'cc::primitive-compute-as-macro) 'compute-as-in-session*)
+
+(def function compute-as-body (component thunk)
+  ;; TODO: is it the right place?
+  (setf (outdated-p component) #t)
+  (bind ((result (funcall thunk)))
+    (if (typep result 'standard-object)
+        (reuse-standard-object-instance (class-of result) result)
+        result)))

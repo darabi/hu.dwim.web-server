@@ -53,7 +53,7 @@
   (when (or (outdated-p component)
             (some (lambda (slot)
                     (not (computed-slot-valid-p component slot)))
-                  (computed-slots-of component)))
+                  (computed-slots-of (class-of component))))
     (refresh-component component)))
 
 ;;;;;;
