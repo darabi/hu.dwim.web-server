@@ -19,20 +19,26 @@
           (ensure-list (find-inspector-type-for-type type))))
     (unless (subtypep component-type 'alternator-component)
       (remove-from-plistf args :default-component-type))
-    (apply #'make-instance component-type (append args additional-args))))
+    (apply #'make-instance component-type
+           (append args additional-args
+                   (when (subtypep component-type 'primitive-component)
+                     (list :the-type type))))))
 
 (def function find-type-by-name (name)
   (find-class name #f))
 
 (def (generic e) find-inspector-type-for-type (type)
+  (:method ((type null))
+    (error "NIL is not a valid type here"))
+
   (:method ((type symbol))
     (find-inspector-type-for-type (find-type-by-name type)))
 
   (:method ((type (eql 'boolean)))
-    'boolean-component)
+    'boolean-inspector)
 
   (:method ((class (eql (find-class t))))
-    't-component)
+    't-inspector)
 
   (:method ((class built-in-class))
     (find-inspector-type-for-prototype
@@ -57,12 +63,7 @@
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
-          (bind ((component-type (find-inspector-type-for-type (first main-type)))
-                 (component-type-as-list (ensure-list component-type)))
-            (if (subtypep (first component-type-as-list) 'atomic-component)
-                (append component-type-as-list
-                        (list :allow-nil-value (not (null (member 'or type)))))
-                component-type))
+          (find-inspector-type-for-type (first main-type))
           (find-inspector-type-for-type t))))
 
   (:method ((first (eql 'list)) (type cons))
@@ -76,22 +77,22 @@
 
 (def (generic e) find-inspector-type-for-prototype (prototype)
   (:method ((prototype string))
-    'string-component)
+    'string-inspector)
 
   (:method ((prototype symbol))
-    'symbol-component)
+    'symbol-inspector)
 
   (:method ((prototype integer))
-    'integer-component)
+    'integer-inspector)
 
   (:method ((prototype float))
-    'float-component)
+    'float-inspector)
 
   (:method ((prototype number))
-    'number-component)
+    'number-inspector)
 
   (:method ((prototype local-time:timestamp))
-    'timestamp-component)
+    'timestamp-inspector)
 
   (:method ((prototype list))
     'list-component)
@@ -144,13 +145,22 @@
           (ensure-list (find-filter-type-for-type type))))
     (unless (subtypep component-type 'alternator-component)
       (remove-from-plistf args :default-component-type))
-    (prog1-bind component (apply #'make-instance component-type (append args additional-args))
+    (prog1-bind component (apply #'make-instance component-type
+                                 (append args additional-args
+                                         (when (subtypep component-type 'primitive-component)
+                                           (list :the-type type))))
       (when (typep component 'editable-component)
         (begin-editing component)))))
 
 (def (generic e) find-filter-type-for-type (type)
+  (:method ((type null))
+    (error "NIL is not a valid type here"))
+
   (:method ((type symbol))
     (find-filter-type-for-type (find-type-by-name type)))
+
+  (:method ((type (eql 'boolean)))
+    'boolean-filter)
 
   (:method ((class built-in-class))
     (find-filter-type-for-prototype
@@ -180,22 +190,22 @@
 
 (def (generic e) find-filter-type-for-prototype (prototype)
   (:method ((prototype string))
-    'string-component)
+    'string-filter)
 
   (:method ((prototype symbol))
-    'symbol-component)
+    'symbol-filter)
 
   (:method ((prototype integer))
-    'integer-component)
+    'integer-filter)
 
   (:method ((prototype float))
-    'float-component)
+    'float-filter)
 
   (:method ((prototype number))
-    'number-component)
+    'number-filter)
 
   (:method ((prototype local-time:timestamp))
-    'timestamp-component)
+    'timestamp-filter)
 
   (:method ((prototype structure-object))
     `(standard-object-filter :the-class ,(class-of prototype)))
@@ -212,16 +222,29 @@
     (unless (subtypep component-type 'alternator-component)
       (remove-from-plistf args :default-component-type))
     (prog1-bind component
-        (apply #'make-instance component-type (append args additional-args))
+        (apply #'make-instance component-type
+               (append args additional-args
+                       (when (subtypep component-type 'primitive-component)
+                         (list :the-type type))))
       (when (typep component 'editable-component)
         (begin-editing component)))))
 
 (def (generic e) find-maker-type-for-type (type)
-  (:method (type)
-    (find-inspector-type-for-type type))
+  (:method ((type null))
+    (error "NIL is not a valid type here"))
 
   (:method ((type symbol))
     (find-maker-type-for-type (find-type-by-name type)))
+
+  (:method ((type (eql 'boolean)))
+    'boolean-maker)
+
+  (:method ((class built-in-class))
+    (find-maker-type-for-prototype
+     (case (class-name class)
+       (string "42")
+       (list nil)
+       (t (class-prototype class)))))
 
   (:method ((type cons))
     (find-maker-type-for-compound-type type))
@@ -243,6 +266,24 @@
           (find-maker-type-for-type t)))))
 
 (def (generic e) find-maker-type-for-prototype (prototype)
+  (:method ((prototype string))
+    'string-maker)
+
+  (:method ((prototype symbol))
+    'symbol-maker)
+
+  (:method ((prototype integer))
+    'integer-maker)
+
+  (:method ((prototype float))
+    'float-maker)
+
+  (:method ((prototype number))
+    'number-maker)
+
+  (:method ((prototype local-time:timestamp))
+    'timestamp-maker)
+
   (:method ((instance structure-object))
     `(standard-object-maker :the-class ,(class-of instance)))
 
@@ -270,6 +311,9 @@
 (def (generic e) find-place-inspector-type-for-type (type)
   (:method (type)
     'place-inspector)
+
+  (:method ((type null))
+    (error "NIL is not a valid type here"))
   
   (:method ((type symbol))
     (find-place-inspector-type-for-type (find-type-by-name type)))
@@ -311,6 +355,9 @@
 (def (generic e) find-place-maker-type-for-type (type)
   (:method (type)
     'place-maker)
+
+  (:method ((type null))
+    (error "NIL is not a valid type here"))
   
   (:method ((type symbol))
     (find-place-maker-type-for-type (find-type-by-name type)))
@@ -352,6 +399,9 @@
 (def (generic e) find-place-filter-type-for-type (type)
   (:method (type)
     'place-filter)
+
+  (:method ((type null))
+    (error "NIL is not a valid type here"))
   
   (:method ((type symbol))
     (find-place-filter-type-for-type (find-type-by-name type)))

@@ -54,7 +54,7 @@
     (flet ((body ()
              (render-user-messages -self-)
              (render content)
-             (unless (typep content '(or reference-component atomic-component))
+             (unless (typep content '(or reference-component primitive-component))
                (render command-bar)
                (render result))))
       (if (typep content 'reference-component)
@@ -263,7 +263,7 @@
            (values (mapcar (lambda (slot-value)
                              (bind ((value-component (content-of (value-of slot-value))))
                                (typecase value-component
-                                 (atomic-component
+                                 (primitive-component
                                   (bind ((value (component-value-of value-component)))
                                     (when (and value
                                                (or (not (stringp value))

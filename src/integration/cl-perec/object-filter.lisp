@@ -75,7 +75,7 @@
     (bind ((value-component (content-of (value-of component)))
            (slot (slot-of component)))
       (when (typep slot 'prc::persistent-effective-slot-definition)
-        (cond ((or (typep value-component 'atomic-component)
+        (cond ((or (typep value-component 'primitive-component)
                    (typep value-component 'standard-object-inspector))
                (bind ((value (component-value-of value-component)))
                  (when (and value

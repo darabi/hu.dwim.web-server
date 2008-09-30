@@ -49,7 +49,7 @@
     (flet ((body ()
              (render-user-messages -self-)
              (call-next-method)))
-      (if (typep content '(or reference-component atomic-component))
+      (if (typep content '(or reference-component primitive-component))
           <span (:id ,id :class "standard-object-inspector")
             ,(body)>
           <div (:id ,id :class "standard-object-inspector")

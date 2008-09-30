@@ -158,6 +158,50 @@
     (menu nil
       (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
         (make-debug-menu))
+      (labels ((make-primitive-menu-item-content (components)
+                 (make-instance 'vertical-list-component
+                                :components (list* (command (icon wui::refresh)
+                                                            (make-action))
+                                                   components)))
+               (make-primitive-menu-item (name types values initforms)
+                 (menu (string-capitalize (string-downcase (symbol-name name)))
+                   (menu-item (replace-menu-target-command "Maker"
+                                (make-primitive-menu-item-content (map-product (lambda (type initform)
+                                                                                 (horizontal-list ()
+                                                                                   (label (format nil "type: ~A, initform: ~A --> " type initform))
+                                                                                   (apply #'make-instance (format-symbol :hu.dwim.wui "~A-MAKER" name)
+                                                                                          :the-type type (unless (eq initform prc::+unbound-slot-marker+)
+                                                                                                           (list :initform initform)))))
+                                                                               types (append values initforms)))))
+                   (menu-item (replace-menu-target-command "Inspector"
+                                (make-primitive-menu-item-content (remove nil
+                                                                          (map-product (lambda (type value edited)
+                                                                                         (when (typep value type)
+                                                                                           (horizontal-list ()
+                                                                                             (label (format nil "type: ~A, value: ~A, edited: ~A --> " type value edited))
+                                                                                             (apply #'make-instance (format-symbol :hu.dwim.wui "~A-INSPECTOR" name)
+                                                                                                    :the-type type :edited edited
+                                                                                                    (unless (eq value prc::+unbound-slot-marker+)
+                                                                                                      (list :component-value value))))))
+                                                                                       types values '(#f #t))))))
+                   (menu-item (replace-menu-target-command "Filter"
+                                (make-primitive-menu-item-content (map-product (lambda (type)
+                                                                                 (horizontal-list ()
+                                                                                   (label (format nil "type: ~A --> " type))
+                                                                                   (make-instance (format-symbol :hu.dwim.wui "~A-FILTER" name) :the-type type)))
+                                                                               types)))))))
+        (menu "Primitive"
+          ;; TODO: factor out prc::
+          (make-primitive-menu-item 't '(t) '(#.prc::+unbound-slot-marker+ nil #t 42 "alma" 'korte (anything)) nil)
+          (make-primitive-menu-item 'boolean '(boolean (or prc::unbound boolean)) '(#.prc::+unbound-slot-marker+ #f #t) '((monday?)))
+          (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '((user-name)))
+          (make-primitive-menu-item 'password '(string (or null string)) '(nil "titok") '((generate-password)))
+          (make-primitive-menu-item 'integer '(integer (or null integer)) '(nil 3) '((life-universe-and-everything)))
+          (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.3) '((pi)))
+          (make-primitive-menu-item 'date '(date (or null date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '((today)))
+          (make-primitive-menu-item 'time '(time (or null time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '((midnight)))
+          (make-primitive-menu-item 'timestamp '(timestamp (or null timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '((now)))
+          (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '((one-plus-one)))))
       (menu "Metagui"
         (menu "Parent"
           (menu-item (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))

@@ -203,12 +203,11 @@
   (make-instance 'unbound-component))
 
 (def method make-place-component-command-bar ((self standard-object-place-maker))
-  (bind ((type (the-type-of self)))
-    (make-instance 'command-bar-component :commands (optional-list (make-set-place-to-nil-command self)
-                                                                   (when (initform-of self)
-                                                                     (make-set-place-to-unbound-command self))
-                                                                   (make-set-place-to-find-instance-command self)
-                                                                   (make-set-place-to-new-instance-command self)))))
+  (make-instance 'command-bar-component :commands (optional-list (make-set-place-to-nil-command self)
+                                                                 (when (initform-of self)
+                                                                   (make-set-place-to-unbound-command self))
+                                                                 (make-set-place-to-find-instance-command self)
+                                                                 (make-set-place-to-new-instance-command self))))
 
 ;;;;;;
 ;;; Execute maker
@@ -238,7 +237,7 @@
         (list (first (slot-definition-initargs (slot-of (parent-component-of component))))
               (place-component-value-of content-component)))))
 
-  (:method ((component atomic-component))
+  (:method ((component primitive-component))
     (component-value-of component))
 
   (:method (component)

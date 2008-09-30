@@ -20,7 +20,7 @@
 
 (def render alternator-component ()
   (bind (((:read-only-slots content command-bar) -self-))
-    (if (typep content '(or reference-component atomic-component))
+    (if (typep content '(or reference-component primitive-component))
         (render content)
         (render-vertical-list (list content command-bar)))))
 
