@@ -233,6 +233,19 @@
       (menu-item (replace-menu-target-command "Dojo InlineEditBox example"
                    (inline-component
                      (render-example-inline-edit-box))))
+      (menu-item (replace-menu-target-command "checkbox"
+                   (bind ((value1 #t)
+                          (value2 #f))
+                     (vertical-list ()
+                       (inline-component
+                         (render-checkbox value1 :value-sink (lambda (value)
+                                                               (setf value1 value)))
+                         (render-checkbox value2 :value-sink (lambda (value)
+                                                               (setf value2 value))))
+                       (command (icon refresh)
+                                (make-action
+                                  ;; nop, just rerender
+                                  (values)))))))
       (menu-item (replace-menu-target-command "Ajax counter"
                    (make-instance 'counter-component)))
       (menu "Others"
