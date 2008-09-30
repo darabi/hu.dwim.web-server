@@ -135,7 +135,7 @@
                            (frame-out-of-sync-error frame)
                            (return-from call-as-handler-in-session
                              (make-uri-for-current-application)))))
-                    (app.dribble "Action loging fell through, proceeding to the thunk...")))
+                    (app.dribble "Action logic fell through, proceeding to the thunk...")))
               (delete-current-frame ()
                 :report (lambda (stream)
                           (format stream "Delete frame ~A" frame))
@@ -171,6 +171,7 @@
             (find-session-from-request application)
             ;; FIXME locking the session should happen inside the with-lock-held-on-application block
             )))
+    (app.debug "Request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
     ;; clear these so that the parameters added by the js side don't accumulate
     (setf (uri-query-parameter-value (uri-of *request*) +ajax-aware-parameter-name+) nil)
     (setf (uri-query-parameter-value (uri-of *request*) +delayed-content-parameter-name+) nil)

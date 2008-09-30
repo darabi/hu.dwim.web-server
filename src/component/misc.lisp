@@ -89,6 +89,7 @@
 ;;;;;;
 ;;; Layered mixin
 
+;; TODO rename to layer-context-capturing-component-mixin
 (def component layered-component-mixin ()
   ((layer-context (current-layer-context))))
 

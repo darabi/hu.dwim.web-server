@@ -106,11 +106,7 @@
   ())
 
 (def method parse-component-value ((component boolean-component) client-value)
-  (cond ((string= "#t" client-value)
-         #t)
-        ((string= "#f" client-value)
-         #f)
-        (t (error "Unknown boolean value ~A" client-value))))
+  (js-to-lisp-boolean client-value))
 
 (defresources en
   (boolean.true "true")
