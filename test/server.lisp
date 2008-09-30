@@ -69,7 +69,7 @@
 (defun start-test-server-and-wait (server)
   (unwind-protect
        (progn
-         (startup-test-server server)
+         (start-test-server server)
          (break (test-server-info-string server)))
     (stop-test-server server)))
 
@@ -81,8 +81,8 @@
 
 (defun start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
-    (startup-test-server-with-brokers (make-file-serving-broker "/wui/" (project-relative-pathname ""))
-                                      :maximum-worker-count maximum-worker-count)))
+    (start-test-server-with-brokers (make-file-serving-broker "/wui/" (project-relative-pathname ""))
+                                    :maximum-worker-count maximum-worker-count)))
 
 (def (function o) functional-response-broker (request)
   (make-functional-response ()
@@ -91,5 +91,5 @@
 
 (defun start-functional-response-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
-    (startup-test-server-with-brokers 'functional-response-broker
-                                      :maximum-worker-count maximum-worker-count)))
+    (start-test-server-with-brokers 'functional-response-broker
+                                    :maximum-worker-count maximum-worker-count)))
