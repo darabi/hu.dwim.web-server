@@ -84,7 +84,7 @@
   ((class nil :accessor nil :type component)
    (class-selector nil :type component)
    (slot-value-groups nil :type components))
-  (:documentation "Maker for an instance of STANDARD-OBJECT in detail"))
+  (:documentation "Maker for an instance of STANDARD-OBJECT in detail."))
 
 (def (macro e) standard-object-detail-maker (class)
   `(make-instance 'standard-object-detail-maker :the-class ,class))
@@ -164,7 +164,7 @@
 
 (def component standard-object-slot-value-group-maker (standard-object-slot-value-group-component maker-component)
   ()
-  (:documentation "Maker for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs"))
+  (:documentation "Maker for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs."))
 
 (def method refresh-component ((self standard-object-slot-value-group-maker))
   (with-slots (the-class slots slot-values) self
@@ -185,12 +185,12 @@
 
 (def component standard-object-slot-value-maker (standard-object-slot-value-component maker-component)
   ()
-  (:documentation "Maker for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION"))
+  (:documentation "Maker for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
 (def method refresh-component ((self standard-object-slot-value-maker)) ()
   (with-slots (slot label value) self
-    (setf label (label (localized-slot-name slot)))
-    (setf value (make-place-maker (slot-type slot) :initform (slot-definition-initform slot)))))
+    (setf label (label (localized-slot-name slot))
+          value (make-place-maker (slot-type slot) :initform (slot-definition-initform slot)))))
 
 ;;;;;;
 ;;; Standard object place maker

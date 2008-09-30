@@ -169,54 +169,22 @@
 ;;;;;;
 ;;; Standard object slot value filter
 
-;; TODO: all predicates
-(def (constant :test 'equalp) +filter-predicates+ '(equal like < <= > >= #+nil(between)))
-
-(def component standard-object-slot-value-filter (abstract-standard-slot-definition-component
-                                                  filter-component
-                                                  remote-identity-component-mixin)
-  ((slot-name)
-   (negated #f :type boolean)
-   (negate-command :type component)
-   (predicate 'equal :type (member #.+filter-predicates+))
-   (predicate-command :type component)
-   (label nil :type component)
-   (value nil :type component)))
+(def component standard-object-slot-value-filter (standard-object-slot-value-component filter-component)
+  ()
+  (:documentation "Filter for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
 (def method refresh-component ((self standard-object-slot-value-filter))
-  (with-slots (slot slot-name negated negate-command predicate predicate-command label value) self
-    (setf slot-name (slot-definition-name slot)
-          label (label (localized-slot-name slot))
-          negate-command (make-instance 'command-component
-                                        :icon (make-negated/ponated-icon negated)
-                                        :action (make-action
-                                                  (setf negated (not negated))
-                                                  (setf (icon-of negate-command) (make-negated/ponated-icon negated))))
-          predicate-command (make-instance 'command-component
-                                           :icon (make-predicate-icon predicate)
-                                           :action (make-action
-                                                     (setf predicate (elt +filter-predicates+
-                                                                          (mod (1+ (position predicate +filter-predicates+))
-                                                                               (length +filter-predicates+))))
-                                                     (setf (icon-of predicate-command) (make-predicate-icon predicate))))
+  (with-slots (slot label value) self
+    (setf label (label (localized-slot-name slot))
           value (make-place-filter (slot-type slot)))))
 
-(def function make-negated/ponated-icon (negated)
-  (aprog1 (make-icon-component (if negated 'negated 'ponated))
-    (setf (label-of it) nil)))
-
-(def function make-predicate-icon (predicate)
-  (aprog1 (make-icon-component predicate)
-    (setf (label-of it) nil)))
-
 (def render standard-object-slot-value-filter ()
-  (bind (((:read-only-slots label negate-command predicate-command value id) -self-))
+  (bind (((:read-only-slots label value id) -self-))
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label")
             ,(render label)>
-        <td ,(render negate-command)>
-        <td ,(render predicate-command)>
-        <td (:class "slot-value-label")
+        ,(render-filter-predicate value)
+        <td (:class "slot-value-value")
             ,(render value)>>))
 
 ;;;;;;

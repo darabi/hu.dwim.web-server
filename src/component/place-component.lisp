@@ -157,3 +157,7 @@
 
 (def method make-place-component-content ((self place-filter))
   (make-filter (the-type-of self)))
+
+(def layered-method render-filter-predicate ((self place-filter))
+  (ensure-uptodate self)
+  (render-filter-predicate (content-of self)))

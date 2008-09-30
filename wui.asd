@@ -165,7 +165,7 @@
                                (:file "primitive-maker" :depends-on ("primitive-component"))
                                (:file "primitive-inspector" :depends-on ("primitive-component"))
                                (:file "primitive-filter" :depends-on ("primitive-component"))
-                               (:file "place-component" :depends-on ("editable" "factory" "object-list-inspector"))
+                               (:file "place-component" :depends-on ("editable" "factory" "object-list-inspector" "primitive-filter"))
                                (:file "user-message" :depends-on ("component"))
                                (:file "wizard" :depends-on ("component"))
                                (:file "alternator" :depends-on ("reference" "command" "editable" "misc"))

@@ -9,6 +9,7 @@
    :metabang-bind
    :cl-def
    :cl-yalog
+   :cl-l10n
    :hu.dwim.wui
    :hu.dwim.wui.system
    :iterate

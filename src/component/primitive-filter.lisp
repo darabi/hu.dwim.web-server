@@ -13,6 +13,11 @@
 (def render :before primitive-filter
   (ensure-client-state-sink -self-))
 
+(def layered-function render-filter-predicate (component)
+  (:method ((self component))
+    <td>
+    <td>))
+
 ;;;;;;
 ;;; T filter
 
@@ -95,3 +100,42 @@
 
 (def component member-filter (member-component primitive-filter)
   ())
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;
+;;; TODO:
+#|
+;; TODO: all predicates
+(def (constant :test 'equalp) +filter-predicates+ '(equal like < <= > >= #+nil(between)))
+
+          label (label (localized-slot-name slot))
+          negate-command (make-instance 'command-component
+                                        :icon (make-negated/ponated-icon negated)
+                                        :action (make-action
+                                                  (setf negated (not negated))
+                                                  (setf (icon-of negate-command) (make-negated/ponated-icon negated))))
+          predicate-command (make-instance 'command-component
+                                           :icon (make-predicate-icon predicate)
+                                           :action (make-action
+                                                     (setf predicate (elt +filter-predicates+
+                                                                          (mod (1+ (position predicate +filter-predicates+))
+                                                                               (length +filter-predicates+))))
+                                                     (setf (icon-of predicate-command) (make-predicate-icon predicate))))
+
+(def function make-negated/ponated-icon (negated)
+  (aprog1 (make-icon-component (if negated 'negated 'ponated))
+    (setf (label-of it) nil)))
+
+(def function make-predicate-icon (predicate)
+  (aprog1 (make-icon-component predicate)
+    (setf (label-of it) nil)))
+|#

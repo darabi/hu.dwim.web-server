@@ -50,6 +50,14 @@
 (def class* parent-test ()
   ((name :type string)))
 
+(defresources en
+  (class-name.child-test "child")
+  (class-name.parent-test "parent"))
+
+(defresources hu
+  (class-name.child-test "gyerek")
+  (class-name.parent-test "szülő"))
+
 ;;;;;;
 ;;; Test instances
 
