@@ -50,3 +50,60 @@
                         ,(when (funcall test value actual-value)
                            (make-xml-attribute "selected" "yes")))
                        ,client-name>)>)))
+
+;;;;;;
+;;; Checkbox field
+
+(def function js-to-lisp-boolean (value)
+  (eswitch (value :test #'string=)
+    ("true" #t)
+    ("false" #f)))
+
+(def (function e) render-checkbox-field (value &key checked-image unchecked-image (id (unique-js-name "_chkb"))
+                                               checked-tooltip unchecked-tooltip name value-sink)
+  (assert (or (and (null checked-image) (null unchecked-image))
+              (and checked-image unchecked-image)))
+  (assert (not (and name value-sink)))
+  (assert (or name value-sink))
+  (when (typep name 'client-state-sink)
+    (setf name (id-of name)))
+  (bind ((name (if name
+                   (etypecase name
+                     (client-state-sink (id-of name))
+                     (string name))
+                   (progn
+                     (assert (functionp value-sink))
+                     (id-of (client-state-sink (client-value)
+                              (funcall value-sink (js-to-lisp-boolean client-value)))))))
+         (custom checked-image)
+         (hidden-id (concatenate 'string id "_hidden")))
+    <input (:id ,hidden-id
+                :name ,name
+                :value ,(if value "true" "false")
+                :type "hidden")>
+    (if custom
+        (with-unique-js-names (img-id)
+          ;; TODO :tabindex (tabindex field)
+          ;; :class (css-class field)
+          <a (:id ,id)
+             <img (:id ,img-id)>>
+          ;;`js(wui.field.setup-custom-checkbox ,id ,img-id ,hidden-id
+          ;;                                    ,checked-image ,unchecked-image
+          ;;                                    ,checked-tooltip ,unchecked-tooltip)
+          )
+        (progn
+          ;; TODO :accesskey (accesskey field)
+          ;; :title (or (tooltip field) (if value
+          ;;                                (enabled-tooltip-of field)
+          ;;                                (disabled-tooltip-of field)))
+          ;; :tabindex (tabindex field)
+          ;; :class (css-class field)
+          ;; :style (css-style field)
+          <input (:id ,id
+                      ,(when value
+                             (load-time-value (make-xml-attribute "checked" "") t))
+                      :type "checkbox")>
+          ;;`js(wui.field.setup-simple-checkbox ,id ,hidden-id ,custom
+          ;;                                    ,checked-tooltip ,unchecked-tooltip)
+          ))))
+
