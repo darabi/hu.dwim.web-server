@@ -39,13 +39,16 @@
 (def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +encoding+))
 (def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +encoding+))
 
-(def function emit-xml-prologue (encoding &optional (stream *html-stream*))
+(def function emit-xml-prologue (encoding &key (stream *html-stream*) version)
   (macrolet ((emit (string)
                `(write-string ,string stream)))
-    (if (eq encoding :utf-8)
+    (if (and (eq encoding :utf-8)
+             (null version))
         (emit #.(coerce (format nil "<?xml version=\"1.1\" encoding=\"UTF-8\"?>~%") 'simple-base-string))
         (progn
-          (emit "<?xml version=\"1.1\" encoding=\"")
+          (emit "<?xml version=\"")
+          (emit (or version "1.1"))
+          (emit "\" encoding=\"")
           (emit (string encoding))
           (emit (format nil "\"?>~%"))))))
 
