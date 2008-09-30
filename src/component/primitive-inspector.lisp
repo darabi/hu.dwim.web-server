@@ -24,7 +24,7 @@
   (bind (((:read-only-slots edited component-value) -self-)
          (printed-value (format nil "~S" component-value)))
     (if edited
-        (render-t-field -self-)
+        (render-t-component -self-)
         <span ,printed-value>)))
 
 ;;;;;;
@@ -70,7 +70,7 @@
 (def render string-inspector ()
   (bind (((:read-only-slots edited component-value) -self-))
     (if edited
-        (render-string-field -self-)
+        (render-string-component -self-)
         <span ,(print-component-value -self- component-value) >)))
 
 ;;;;;;
@@ -99,7 +99,7 @@
 (def render number-inspector ()
   (bind (((:read-only-slots edited component-value) -self-))
     (if edited
-        (render-number-field -self-)
+        (render-number-component -self-)
         <span ,(print-component-value -self- component-value)>)))
 
 ;;;;;;

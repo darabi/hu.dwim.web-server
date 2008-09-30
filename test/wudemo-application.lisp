@@ -167,10 +167,14 @@
       (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
         (make-debug-menu))
       (labels ((make-primitive-menu-item-content (components)
-                 (make-instance 'vertical-list-component
-                                :components (list* (command (icon wui::refresh)
-                                                            (make-action))
-                                                   components)))
+                 (inline-component
+                   <div ,(render (command (icon wui::refresh)
+                                          (make-action)))
+                        <table ,(map nil (lambda (component)
+                                           <tr ,(map nil (lambda (cell)
+                                                           <td ,(render cell)>)
+                                                     component)>)
+                                     components)>>))
                (make-primitive-menu-item (name types values initforms)
                  (menu (string-capitalize (string-downcase (symbol-name name)))
                    (menu-item (replace-menu-target-command "Maker"
@@ -179,11 +183,11 @@
                                                                                          (when (or (consp initform)
                                                                                                    (eq initform prc::+unbound-slot-marker+)
                                                                                                    (typep initform type))
-                                                                                           (horizontal-list ()
-                                                                                             (label (format nil "type: ~A, initform: ~A --> " type initform))
-                                                                                             (apply #'make-instance (format-symbol :hu.dwim.wui "~A-MAKER" name)
-                                                                                                    :the-type type (unless (eq initform prc::+unbound-slot-marker+)
-                                                                                                                     (list :initform initform))))))
+                                                                                           (list
+                                                                                            (label (format nil "type: ~A, initform: ~A " type initform))
+                                                                                            (apply #'make-instance (format-symbol :hu.dwim.wui "~A-MAKER" name)
+                                                                                                   :the-type type (unless (eq initform prc::+unbound-slot-marker+)
+                                                                                                                    (list :initform initform))))))
                                                                                        types (append initforms values))))))
                    (menu-item (replace-menu-target-command "Inspector"
                                 (make-primitive-menu-item-content (remove nil
@@ -193,16 +197,19 @@
                                                                                                                     :the-type type :edited edited
                                                                                                                     (unless (eq value prc::+unbound-slot-marker+)
                                                                                                                       (list :component-value value)))))
-                                                                                             (horizontal-list ()
-                                                                                               (inline-component
-                                                                                                 <span ,(format nil "type: ~A, value: ~A, edited: ~A --> " type (component-value-of inspector) edited)>)
-                                                                                               inspector))))
+                                                                                             (list
+                                                                                              (inline-component
+                                                                                                (bind ((value (if (slot-boundp inspector 'component-value)
+                                                                                                                  (component-value-of inspector)
+                                                                                                                  prc::+unbound-slot-marker+)))
+                                                                                                  <span ,(format nil "type: ~A, value: ~A, edited: ~A " type value edited)>))
+                                                                                              inspector))))
                                                                                        types values '(#f #t))))))
                    (menu-item (replace-menu-target-command "Filter"
                                 (make-primitive-menu-item-content (map-product (lambda (type)
-                                                                                 (horizontal-list ()
-                                                                                   (label (format nil "type: ~A --> " type))
-                                                                                   (make-instance (format-symbol :hu.dwim.wui "~A-FILTER" name) :the-type type)))
+                                                                                 (list
+                                                                                  (label (format nil "type: ~A " type))
+                                                                                  (make-instance (format-symbol :hu.dwim.wui "~A-FILTER" name) :the-type type)))
                                                                                types)))))))
         (menu "Primitive"
           ;; TODO: factor out prc::

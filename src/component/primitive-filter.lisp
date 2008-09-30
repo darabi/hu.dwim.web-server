@@ -8,15 +8,23 @@
 ;;; Primitive filter
 
 (def component primitive-filter (primitive-component filter-component)
-  ())
+  ((enabled #f :type boolean)))
 
 (def render :before primitive-filter
+  #+nil
   (ensure-client-state-sink -self-))
 
 (def layered-function render-filter-predicate (component)
   (:method ((self component))
     <td>
     <td>))
+
+(def function render-enabled-marker (component)
+  <input (:type "checkbox"
+          ,(unless (enabled-p component)
+             (make-xml-attribute "disabled" "disabled"))
+          ,(when (enabled-p component)
+             (make-xml-attribute "checked" "checked")))>)
 
 ;;;;;;
 ;;; T filter
@@ -25,7 +33,7 @@
   ())
 
 (def render t-filter ()
-  (render-t-field -self-))
+  (render-t-component -self-))
 
 ;;;;;;
 ;;; Boolean filter
@@ -34,12 +42,42 @@
   ())
 
 (def render boolean-filter ()
-  <select ()
-    <option "">
-    ,(unless (eq (the-type-of -self-) 'boolean)
-             <option ,#"value.nil">)
-    <option ,#"boolean.true">
-    <option ,#"boolean.false">>)
+  (setf (client-state-sink-of -self-)
+        (client-state-sink (client-value)
+          (bind ((index (parse-integer client-value)))
+            (setf (enabled-p -self-) (not (zerop index)))
+            (ecase index
+              (0)
+              (1 (slot-makunbound -self- 'component-value))
+              (2 (setf (component-value-of -self-) #t))
+              (3 (setf (component-value-of -self-) #f))))))
+  (render-enabled-marker -self-)
+  (bind ((enabled (enabled-p -self-))
+         (has-component-value? (slot-boundp -self- 'component-value))
+         (component-value (when has-component-value?
+                            (component-value-of -self-))))
+    <select (:name ,(id-of (client-state-sink-of -self-)))
+      <option (:value 0
+               ,(unless enabled
+                  (make-xml-attribute "selected" "yes")))>
+      ,(unless (eq (the-type-of -self-) 'boolean)
+               <option (:value 1
+                        ,(when (and enabled
+                                    (not has-component-value?))
+                           (make-xml-attribute "selected" "yes")))
+                       ,#"value.nil">)
+      <option (:value 2
+               ,(when (and enabled
+                           has-component-value?
+                           component-value)
+                  (make-xml-attribute "selected" "yes")))
+              ,#"boolean.true">
+      <option (:value 3
+               ,(when (and enabled
+                           has-component-value?
+                           (not component-value))
+                  (make-xml-attribute "selected" "yes")))
+              ,#"boolean.false">>))
 
 ;;;;;;
 ;;; String filter
@@ -48,7 +86,14 @@
   ((component-value nil)))
 
 (def render string-filter ()
-  (render-string-field -self-))
+  (ensure-client-state-sink -self-)
+  (render-enabled-marker -self-)
+  (render-string-component -self-))
+
+(def method parse-component-value :before ((component string-filter) client-value)
+  (setf (enabled-p component)
+        (or (not (string= "" client-value))
+            (null-subtype-p (the-type-of component)))))
 
 ;;;;;;
 ;;; Password filter
@@ -71,8 +116,8 @@
 (def render number-filter ()
   (if (null-subtype-p (the-type-of -self-))
       <span <input (:type "checkbox")>
-            ,(render-number-field -self-)>
-      (render-number-field -self-)))
+            ,(render-number-component -self-)>
+      (render-number-component -self-)))
 
 ;;;;;;
 ;;; Integer filter

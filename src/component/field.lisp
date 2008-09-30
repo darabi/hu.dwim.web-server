@@ -8,6 +8,31 @@
 ;;; Checkbox field
 
 ;;;;;;
+;;; String field
+
+(def function render-string-field (type value client-state-sink)
+  (bind ((id (generate-frame-unique-string "_w")))
+    (render-dojo-widget (id)
+      ;; TODO dojoRows 3
+      <input (:type     ,type
+              :id       ,id
+              :name     ,(id-of client-state-sink)
+              :value    ,value
+              :dojoType #.+dijit/text-box+)>)))
+
+;;;;;;
+;;; Number field
+
+(def function render-number-field (value client-state-sink)
+  (bind ((id (generate-frame-unique-string "_w")))
+    (render-dojo-widget (id)
+      <input (:type     "text"
+              :id       ,id
+              :name     ,(id-of client-state-sink)
+              :value    ,value
+              :dojoType #.+dijit/number-text-box+)>)))
+
+;;;;;;
 ;;; Select field
 
 (def function render-select-field (value possible-values &key name (key #'identity) (test #'equal) (client-name-generator #'princ-to-string))

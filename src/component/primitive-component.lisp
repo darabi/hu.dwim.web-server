@@ -90,10 +90,10 @@
 (def component t-component (primitive-component)
   ())
 
-(def function render-t-field (component)
+(def function render-t-component (component)
   (bind (((:read-only-slots component-value client-state-sink) component)
          (printed-value (format nil "~S" component-value)))
-    <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>))
+    (render-string-field "text" printed-value client-state-sink)))
 
 (def method parse-component-value ((component t-component) client-value)
   ;; TODO: this is kind of dangerous
@@ -130,15 +130,10 @@
   (:method ((self string-component))
     "text"))
 
-(def function render-string-field (component)
-  (bind ((id (generate-frame-unique-string "_w")))
-    (render-dojo-widget (id)
-      ;; TODO dojoRows 3
-      <input (:type     ,(string-field-type component)
-              :id       ,id
-              :name     ,(id-of (client-state-sink-of component))
-              :value    ,(print-component-value component (component-value-of component))
-              :dojoType #.+dijit/text-box+)>)))
+(def function render-string-component (component)
+  (render-string-field (string-field-type component)
+                       (print-component-value component (component-value-of component))
+                       (client-state-sink-of component)))
 
 (def method print-component-value ((component string-component) component-value)
   (if (null component-value)
@@ -180,21 +175,15 @@
 (def component number-component (primitive-component)
   ())
 
-(def function render-number-field (component)
+(def function render-number-component (component)
   (bind (((:read-only-slots client-state-sink) component)
          (has-component-value? (slot-boundp component 'component-value))
          (component-value (when has-component-value?
                             (component-value-of component)))
          (printed-value (if has-component-value?
                             (print-component-value component component-value)
-                            ""))
-         (id (generate-frame-unique-string "_w")))
-    (render-dojo-widget (id)
-      <input (:type     "text"
-              :id       ,id
-              :name     ,(id-of client-state-sink)
-              :value    ,printed-value
-              :dojoType #.+dijit/number-text-box+)>)))
+                            "")))
+    (render-number-field printed-value (client-state-sink-of component))))
 
 (def method print-component-value ((component number-component) component-value)
   (if (null component-value)

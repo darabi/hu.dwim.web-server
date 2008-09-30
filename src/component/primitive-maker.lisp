@@ -24,7 +24,7 @@
   ())
 
 (def render t-maker ()
-  (render-t-field -self-))
+  (render-t-component -self-))
 
 ;;;;;;
 ;;; Boolean maker
@@ -70,7 +70,7 @@
   ((component-value nil)))
 
 (def render string-maker ()
-  (render-string-field -self-))
+  (render-string-component -self-))
 
 ;;;;;;
 ;;; Password maker
@@ -91,7 +91,7 @@
   ())
 
 (def render number-maker ()
-  <span ,(render-number-field -self-)
+  <span ,(render-number-component -self-)
         ,(render-initform -self-)>)
 
 ;;;;;;
