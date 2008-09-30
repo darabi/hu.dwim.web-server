@@ -5,12 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Filter
-
-(def component filter-component ()
-  ())
-
-;;;;;;
 ;;; Standard object filter
 
 (def component standard-object-filter (abstract-standard-class-component

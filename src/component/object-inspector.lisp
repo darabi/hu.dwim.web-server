@@ -5,13 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Inspector
-
-(def component inspector-component ()
-  ()
-  (:documentation "Base class for all inspector components."))
-
-;;;;;;
 ;;; Standard object inspector
 
 (def component standard-object-inspector (abstract-standard-object-component

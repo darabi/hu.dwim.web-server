@@ -5,12 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Maker
-
-(def component maker-component ()
-  ())
-
-;;;;;;
 ;;; Standard object maker
 
 (def component standard-object-maker (abstract-standard-class-component

@@ -182,141 +182,29 @@
   `(make-instance 'styled-container-component ,@args :contents (list ,@contents)))
 
 ;;;;;;
+;;; Maker
+
+(def component maker-component ()
+  ()
+  (:documentation "Base class for all maker components."))
+
+;;;;;;
+;;; Inspector
+
+(def component inspector-component ()
+  ()
+  (:documentation "Base class for all inspector components."))
+
+;;;;;;
+;;; Filter
+
+(def component filter-component ()
+  ()
+  (:documentation "Base class for all filter components."))
+
+;;;;;;
 ;;; Detail
 
 (def component detail-component ()
   ()
   (:documentation "Abstract base class for components which show their component value in detail."))
-
-
-;;;;;;
-;;; File download
-
-(def component file-download-component (command-component)
-  ((icon (icon download))
-   (action nil)
-   (directory)
-   (file-name)
-   (url-prefix "static/")))
-
-(def constructor (file-download-component (label nil label?) &allow-other-keys) ()
-  (when label?
-    (setf (icon-of -self-) (icon download :label label))))
-
-(def method refresh-component ((self file-download-component))
-  (with-slots (file-name action url-prefix) self
-    (unless action
-      (setf action
-            (make-uri :path (concatenate 'string url-prefix (namestring file-name)))))))
-
-(def render file-download-component ()
-  (bind (((:read-only-slots file-name directory enabled) -self-)
-         (absolute-file-name (merge-pathnames file-name directory)))
-    (unless (probe-file absolute-file-name)
-      (setf enabled #f))
-    <div (:class "file-download")
-         ,(call-next-method)
-         " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
-
-(defresources en
-  (file-last-modification-timestamp (file)
-    `xml,"Updated: "
-    (if (probe-file file)
-        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
-        <span (:class "missing-file")
-              "File is missing!">)))
-
-(defresources hu
-  (file-last-modification-timestamp (file)
-    `xml,"Frissítve: "
-    (if (probe-file file)
-        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
-        <span (:class "missing-file")
-              "Hiányzik a fájl!">)))
-
-;;;;;;
-;;; File upload
-
-(def component file-upload-component ()
-  ((icon (icon upload) :type component)))
-
-(def render file-upload-component ()
-  (bind (((:read-only-slots icon) -self-))
-    <div ,(render icon)
-         <div <input (:type "file")>>>))
-
-;;;;;;
-;;; Frame
-
-(def component frame-component (top-component layered-component-mixin)
-  ((content-type +xhtml-content-type+)
-   (stylesheet-uris nil)
-   (script-uris nil)
-   (page-icon nil)
-   (title nil)
-   (dojo-skin-name "tundra")
-   (dojo-path "static/dojo/dojo/")
-   (dojo-file-name "dojo.js")
-   (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
-   (debug-client-side (not *load-as-production-p*) :type boolean :accessor debug-client-side? :export :accessor)))
-
-(def render frame-component ()
-  (bind ((application *application*)
-         (path-prefix (path-prefix-of application))
-         (response (when (boundp '*response*)
-                     *response*))
-         (encoding (or (when response
-                         (encoding-name-of response))
-                       +encoding+))
-         (debug-client-side? (debug-client-side? -self-)))
-    (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
-    <html (:xmlns     #.+xhtml-namespace-uri+
-           xmlns:dojo #.+dojo-namespace-uri+)
-      <head
-        <meta (:http-equiv #.+header/content-type+
-               :content ,(content-type-for +html-mime-type+ encoding))>
-        ,(awhen (page-icon-of -self-)
-           <link (:rel "icon"
-                  :type "image/x-icon"
-                  :href ,(concatenate-string path-prefix
-                                             (etypecase it
-                                               (string it)
-                                               (uri (print-uri-to-string it)))))>)
-        <title ,(title-of -self-)>
-        ,@(mapcar (lambda (stylesheet-uri)
-                    <link (:rel "stylesheet"
-                           :type "text/css"
-                           :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
-                                                                    (string stylesheet-uri)
-                                                                    (uri (print-uri-to-string stylesheet-uri)))))>)
-                  (stylesheet-uris-of -self-))>
-      <body (:class ,(dojo-skin-name-of -self-))
-        <script (:type         #.+javascript-mime-type+
-                 :src          ,(concatenate-string path-prefix
-                                                    (dojo-path-of -self-)
-                                                    (dojo-file-name-of -self-)
-                                                    (when debug-client-side?
-                                                      ".uncompressed.js"))
-                 :djConfig     ,(format nil "parseOnLoad: ~A, isDebug: ~A, locale: ~A"
-                                        (to-js-boolean (parse-dojo-widgets-on-load? -self-))
-                                        (to-js-boolean debug-client-side?)
-                                        (to-js-literal (default-locale-of application))))
-                 ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
-                 "">
-        ,@(mapcar (lambda (script-uri)
-                    <script (:type         #.+javascript-mime-type+
-                             :src          ,(concatenate-string path-prefix script-uri))
-                            ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
-                            "">)
-                  (script-uris-of -self-))
-        `js(on-load
-            (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
-            (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
-            (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
-        <form (:method "post")
-          ,@(with-collapsed-js-scripts
-             (with-dojo-widget-collector
-               (render (content-of -self-))))>>>))
-
-(def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'frame-component ,@args :content ,(the-only-element content)))
