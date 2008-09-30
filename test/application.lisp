@@ -106,15 +106,14 @@
         (delete-session *application* old-session)))
     (make-redirect-response (path-prefix-of *application*))))
 
-(ensure-entry-point *session-application*
-                    (make-file-serving-broker "/session/static/" (project-relative-pathname "wwwroot/")))
+(def file-serving-entry-point *session-application* "/session/static/" (project-relative-pathname "wwwroot/"))
 
-(def function start-server-with-test-applications (&key (maximum-worker-count 16) (log-level +debug+))
-  (with-logger-level wui log-level
-    (start-server-with-brokers (list (make-redirect-broker "/session" "/session/")
-                                     *session-application*
-                                     (make-redirect-broker "/echo" "/echo/")
-                                     *echo-application*
-                                     (make-redirect-broker "/test" "/test/")
-                                     *test-application*)
-                               :maximum-worker-count maximum-worker-count)))
+(def function start-test-server-with-test-applications (&key (maximum-worker-count 16) (log-level +debug+))
+  (setf (log-level 'wui) log-level)
+  (start-test-server-with-brokers (list (make-redirect-broker "/session" "/session/")
+                                        *session-application*
+                                        (make-redirect-broker "/echo" "/echo/")
+                                        *echo-application*
+                                        (make-redirect-broker "/test" "/test/")
+                                        *test-application*)
+                                  :maximum-worker-count maximum-worker-count))

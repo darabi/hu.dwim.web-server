@@ -298,10 +298,10 @@
   (and identifier
        (>= (length identifier) +minimum-login-identifier-length+)))
 
-(def function start-server-with-wudemo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
-  (with-logger-level wui log-level
-    (start-server-with-brokers (list *wudemo-application*
-                                     (make-redirect-broker "" "/"))
-                               :host host
-                               :port port
-                               :maximum-worker-count maximum-worker-count)))
+(def function start-test-server-with-wudemo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
+  (setf (log-level 'wui) log-level)
+  (start-test-server-with-brokers (list *wudemo-application*
+                                        (make-redirect-broker "" "/"))
+                                  :host host
+                                  :port port
+                                  :maximum-worker-count maximum-worker-count))
