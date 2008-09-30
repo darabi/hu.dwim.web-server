@@ -143,7 +143,8 @@
 ;;; Place maker
 
 (def component place-maker (place-component maker-component)
-  ((the-type nil)
+  ((name nil)
+   (the-type nil)
    (initform)))
 
 (def method make-place-component-content ((self place-maker))
@@ -153,7 +154,8 @@
 ;;; Place filter
 
 (def component place-filter (place-component filter-component)
-  ((the-type)))
+  ((name nil)
+   (the-type)))
 
 (def method make-place-component-content ((self place-filter))
   (make-filter (the-type-of self)))

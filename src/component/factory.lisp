@@ -440,3 +440,6 @@
   (remove-if (lambda (element)
                (member element '(or null)))
              type))
+
+(def function null-subtype-p (type)
+  (subtypep 'null type))

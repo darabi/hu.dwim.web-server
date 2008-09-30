@@ -20,6 +20,13 @@
 (def component t-inspector (t-component primitive-inspector)
   ())
 
+(def render t-inspector ()
+  (bind (((:read-only-slots edited component-value) -self-)
+         (printed-value (format nil "~S" component-value)))
+    (if edited
+        (render-t-field -self-)
+        <span ,printed-value>)))
+
 ;;;;;;
 ;;; Boolean inspector
 
@@ -88,6 +95,12 @@
 
 (def component number-inspector (number-component primitive-inspector)
   ())
+
+(def render number-inspector ()
+  (bind (((:read-only-slots edited component-value) -self-))
+    (if edited
+        (render-number-field -self-)
+        <span ,(print-component-value -self- component-value)>)))
 
 ;;;;;;
 ;;; Integer inspector

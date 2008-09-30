@@ -13,11 +13,18 @@
 (def render :before primitive-maker
   (ensure-client-state-sink -self-))
 
+(def function render-initform (component)
+  (when (slot-boundp component 'initform)
+    <span ,#"value.defaults-to" ,(princ-to-string (initform-of component))>))
+
 ;;;;;;
 ;;; T maker
 
 (def component t-maker (t-component primitive-maker)
   ())
+
+(def render t-maker ()
+  (render-t-field -self-))
 
 ;;;;;;
 ;;; Boolean maker
@@ -31,24 +38,30 @@
          (initform (when has-initform?
                      (initform-of -self-)))
          (constant-initform? (member initform '(#f #t))))
-    <span ,(if (or (and (eq the-type 'boolean)
-                        has-initform?
-                        constant-initform?)
-                   (and has-initform?
-                        constant-initform?))
+    <span ,(if (and (eq the-type 'boolean)
+                    has-initform?
+                    constant-initform?)
                <input (:type "checkbox"
                              ,(when (and has-initform?
                                          (eq initform #t))
                                     (make-xml-attribute "checked" "checked")))>
                <select ()
                  ;; TODO: add error marker when no initform and default value is selected
-                 <option ,(cond (has-initform? #"value.default")
+                 <option (,(unless (and has-initform?
+                                        constant-initform?)
+                                   (make-xml-attribute "selected" "yes")))
+                         ,(cond (has-initform? #"value.default")
                                 ((eq the-type 'boolean) "")
                                 (t #"value.nil"))>
-                 <option ,#"boolean.true">
-                 <option ,#"boolean.false">>)
-          ,(when has-initform?
-                 <span ,#"value.defaults-to" ,(princ-to-string initform)>)>))
+                 <option (,(when (and has-initform?
+                                      (eq initform #t))
+                                 (make-xml-attribute "selected" "yes")))
+                         ,#"boolean.true">
+                 <option (,(when (and has-initform?
+                                      (eq initform #f))
+                                 (make-xml-attribute "selected" "yes")))
+                         ,#"boolean.false">>)
+          ,(render-initform -self-)>))
 
 ;;;;;;
 ;;; String maker
@@ -76,6 +89,10 @@
 
 (def component number-maker (number-component primitive-maker)
   ())
+
+(def render number-maker ()
+  <span ,(render-number-field -self-)
+        ,(render-initform -self-)>)
 
 ;;;;;;
 ;;; Integer maker

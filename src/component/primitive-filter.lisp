@@ -24,6 +24,9 @@
 (def component t-filter (t-component primitive-filter)
   ())
 
+(def render t-filter ()
+  (render-t-field -self-))
+
 ;;;;;;
 ;;; Boolean filter
 
@@ -64,6 +67,12 @@
 
 (def component number-filter (number-component primitive-filter)
   ())
+
+(def render number-filter ()
+  (if (null-subtype-p (the-type-of -self-))
+      <span <input (:type "checkbox")>
+            ,(render-number-field -self-)>
+      (render-number-field -self-)))
 
 ;;;;;;
 ;;; Integer filter

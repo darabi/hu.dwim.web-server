@@ -23,7 +23,8 @@
 ;;; Primitive component
 
 (def component primitive-component ()
-  ((the-type)
+  ((name nil)
+   (the-type nil)
    (component-value)
    (client-state-sink nil)))
 
@@ -88,6 +89,15 @@
 
 (def component t-component (primitive-component)
   ())
+
+(def function render-t-field (component)
+  (bind (((:read-only-slots component-value client-state-sink) component)
+         (printed-value (format nil "~S" component-value)))
+    <input (:type "text" :name ,(id-of client-state-sink) :value ,printed-value)>))
+
+(def method parse-component-value ((component t-component) client-value)
+  ;; TODO: this is kind of dangerous
+  (eval (read-from-string client-value)))
 
 ;;;;;;
 ;;; Boolean component
@@ -169,6 +179,27 @@
 
 (def component number-component (primitive-component)
   ())
+
+(def function render-number-field (component)
+  (bind (((:read-only-slots client-state-sink) component)
+         (has-component-value? (slot-boundp component 'component-value))
+         (component-value (when has-component-value?
+                            (component-value-of component)))
+         (printed-value (if has-component-value?
+                            (print-component-value component component-value)
+                            ""))
+         (id (generate-frame-unique-string "_w")))
+    (render-dojo-widget (id)
+      <input (:type     "text"
+              :id       ,id
+              :name     ,(id-of client-state-sink)
+              :value    ,printed-value
+              :dojoType #.+dijit/number-text-box+)>)))
+
+(def method print-component-value ((component number-component) component-value)
+  (if (null component-value)
+      ""
+      (princ-to-string component-value)))
 
 (def method parse-component-value ((component number-component) client-value)
   (if (string= client-value "")

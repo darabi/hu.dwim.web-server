@@ -176,7 +176,7 @@
 (def method refresh-component ((self standard-object-slot-value-filter))
   (with-slots (slot label value) self
     (setf label (label (localized-slot-name slot))
-          value (make-place-filter (slot-type slot)))))
+          value (make-place-filter (slot-type slot) :name (slot-definition-name slot)))))
 
 (def render standard-object-slot-value-filter ()
   (bind (((:read-only-slots label value id) -self-))
