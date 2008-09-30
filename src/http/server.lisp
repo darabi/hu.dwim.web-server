@@ -41,6 +41,7 @@
 (def (generic e) shutdown-server (server &key &allow-other-keys))
 
 (defmethod startup-server ((server server) &key (initial-worker-count 2) &allow-other-keys)
+  (server.debug "STARTUP-SERVER of ~A" server)
   (assert (host-of server))
   (assert (port-of server))
   (setf (shutdown-initiated-p server) #f)
@@ -72,8 +73,12 @@
                               socket)
                      (close socket))))))
           (if (zerop (maximum-worker-count-of server))
-              ;; run in single-threaded mode (mostly for profiling)
-              (worker-loop server #f)
+              (unwind-protect
+                   ;; run in single-threaded mode (mostly for profiling)
+                   (progn
+                     (server.info "Starting server in the current thread, use C-c C-c to break out...")
+                     (worker-loop server #f))
+                (shutdown-server server))
               (let ((ok nil))
                 (unwind-protect
                      (progn
@@ -157,8 +162,7 @@
   (with-lock-held-on-server (server)
     ;; wait until the startup procedure finished
     )
-  (unwind-protect
-       (restart-case
+  (flet ((body ()
            (iter (with socket = (socket-of server))
                  (until (shutdown-initiated-p server))
                  (for (values readable writable) = (wait-until-fd-ready (fd-of socket) :input 1))
@@ -170,13 +174,19 @@
                        (until (or (null stream-socket)
                                   (shutdown-initiated-p server)))
                        (worker-loop/serve-one-request threaded? server worker stream-socket)))
-         (remove-worker ()
-           :report (lambda (stream)
-                     (format stream "Stop and remove worker ~A" worker))
            (values)))
-    (when worker
-      (unregister-worker worker server))
-    (server.dribble "Worker ~A is going away" worker)))
+    (if threaded?
+        (unwind-protect
+             (restart-case
+                 (body)
+               (remove-worker ()
+                 :report (lambda (stream)
+                           (format stream "Stop and remove worker ~A" worker))
+                 (values)))
+          (when worker
+            (unregister-worker worker server))
+          (server.dribble "Worker ~A is going away" worker))
+        (body))))
 
 (def function worker-loop/serve-one-request (threaded? server worker stream-socket)
   (flet ((serve-one-request ()
