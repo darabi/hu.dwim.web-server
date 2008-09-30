@@ -32,14 +32,18 @@
 ;;;;;;
 ;;; Empty
 
-(def component empty-component ()
-  ())
+(eval-always
+  (def component empty-component ()
+    ()))
+
+(def load-time-constant +empty-component-instance+ (make-instance 'empty-component))
 
 (def render empty-component ()
   +void+)
 
 (def (macro e) empty ()
-  '(make-instance 'empty-component))
+  '+empty-component-instance+)
+
 
 ;;;;;;;
 ;;; Label
