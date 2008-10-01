@@ -78,14 +78,9 @@
         (cond ((or (typep value-component 'primitive-component)
                    (typep value-component 'standard-object-inspector))
                (bind ((value (component-value-of value-component)))
-                 (when (and value
-                            (or (not (stringp value))
-                                (not (string= value ""))))
+                 (when (use-in-filter-p value-component)
                    (bind ((predicate (predicate-of component))
-                          (predicate-name (if (eq 'like predicate)
-                                              'prc::re-like
-                                              predicate))
-                          (ponated-predicate `(,predicate-name
+                          (ponated-predicate `(,(get-predicate-name predicate)
                                                (,(prc::reader-name-of slot)
                                                  ,(first (query-variable-stack-of filter-query)))
                                                (quote ,value))))
@@ -102,3 +97,6 @@
                                                                      (,(prc::reader-name-of slot)
                                                                        ,(second (query-variable-stack-of filter-query)))))
                                                (build-filter-query* value-component filter-query)))))))))
+
+(def method get-predicate-function ((predicate (eql '~)))
+  'prc::re-like)

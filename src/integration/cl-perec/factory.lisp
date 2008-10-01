@@ -12,46 +12,46 @@
     (error "Unknown type ~A" type))
 
   (:method ((type cl-perec:boolean-type))
-    'boolean-component)
+    'boolean-inspector)
 
   (:method ((type cl-perec:integer-type))
-    'integer-component)
+    'integer-inspector)
 
   (:method ((type cl-perec:float-type))
-    'float-component)
+    'float-inspector)
 
   (:method ((type cl-perec:float-32-type))
-    'float-component)
+    'float-inspector)
 
   (:method ((type cl-perec:float-64-type))
-    'float-component)
+    'float-inspector)
 
   (:method ((type cl-perec:number-type))
-    'number-component)
+    'number-inspector)
 
   (:method ((type cl-perec:text-type))
-    'string-component)
+    'string-inspector)
 
   (:method ((type cl-perec:date-type))
-    'date-component)
+    'date-inspector)
 
   (:method ((type cl-perec:time-type))
-    'time-component)
+    'time-inspector)
 
   (:method ((type cl-perec:timestamp-type))
-    'timestamp-component)
+    'timestamp-inspector)
 
   (:method ((type cl-perec:member-type))
-    (list 'member-component :possible-values (cl-perec:members-of type)))
+    (list 'member-inspector :possible-values (cl-perec:members-of type)))
 
   (:method ((type cl-perec:serialized-type))
-    't-component)
+    't-inspector)
 
   (:method ((type cl-perec:set-type))
     'standard-object-list-inspector)
 
   (:method ((type cl-perec:ip-address-type))
-    'ip-address-component))
+    'ip-address-inspector))
 
 (def method find-inspector-type-for-compound-type* (first type)
   (find-inspector-type-for-type (cl-perec:parse-type type)))
@@ -64,52 +64,98 @@
     (error "Unknown type ~A" type))
 
   (:method ((type cl-perec:boolean-type))
-    'boolean-component)
+    'boolean-filter)
 
   (:method ((type cl-perec:integer-type))
-    'integer-component)
+    'integer-filter)
 
   (:method ((type cl-perec:float-type))
-    'float-component)
+    'float-filter)
 
   (:method ((type cl-perec:float-32-type))
-    'float-component)
+    'float-filter)
 
   (:method ((type cl-perec:float-64-type))
-    'float-component)
+    'float-filter)
 
   (:method ((type cl-perec:number-type))
-    'number-component)
+    'number-filter)
 
   (:method ((type cl-perec:text-type))
-    'string-component)
+    'string-filter)
 
   (:method ((type cl-perec:date-type))
-    'date-component)
+    'date-filter)
 
   (:method ((type cl-perec:time-type))
-    'time-component)
+    'time-filter)
 
   (:method ((type cl-perec:timestamp-type))
-    'timestamp-component)
+    'timestamp-filter)
 
   (:method ((type cl-perec:member-type))
-    (list 'member-component :possible-values (cl-perec:members-of type)))
+    (list 'member-filter :possible-values (cl-perec:members-of type)))
 
   (:method ((type cl-perec:serialized-type))
-    't-component)
+    't-filter)
 
   (:method ((type cl-perec:ip-address-type))
-    'ip-address-component)
+    'ip-address-filter)
 
   (:method ((type cl-perec:set-type))
-    `(label-component :component-value "TODO")))
+    `(label-filter :component-value "TODO")))
 
 (def method find-filter-type-for-compound-type* (first type)
   (find-filter-type-for-type (cl-perec:parse-type type)))
 
 ;;;;;;
 ;;; Maker
+
+(def methods find-maker-type-for-type
+  (:method ((type cl-perec:persistent-type))
+    (error "Unknown type ~A" type))
+
+  (:method ((type cl-perec:boolean-type))
+    'boolean-maker)
+
+  (:method ((type cl-perec:integer-type))
+    'integer-maker)
+
+  (:method ((type cl-perec:float-type))
+    'float-maker)
+
+  (:method ((type cl-perec:float-32-type))
+    'float-maker)
+
+  (:method ((type cl-perec:float-64-type))
+    'float-maker)
+
+  (:method ((type cl-perec:number-type))
+    'number-maker)
+
+  (:method ((type cl-perec:text-type))
+    'string-maker)
+
+  (:method ((type cl-perec:date-type))
+    'date-maker)
+
+  (:method ((type cl-perec:time-type))
+    'time-maker)
+
+  (:method ((type cl-perec:timestamp-type))
+    'timestamp-maker)
+
+  (:method ((type cl-perec:member-type))
+    (list 'member-maker :possible-values (cl-perec:members-of type)))
+
+  (:method ((type cl-perec:serialized-type))
+    't-maker)
+
+  (:method ((type cl-perec:ip-address-type))
+    'ip-address-maker)
+
+  (:method ((type cl-perec:set-type))
+    `(label-maker :component-value "TODO")))
 
 (def method find-maker-type-for-compound-type* (first type)
   (find-maker-type-for-type (cl-perec:parse-type type)))

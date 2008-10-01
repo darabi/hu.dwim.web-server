@@ -106,7 +106,7 @@
   ())
 
 (def method parse-component-value ((component boolean-component) client-value)
-  (js-to-lisp-boolean client-value))
+  (string-to-lisp-boolean client-value))
 
 (defresources en
   (boolean.true "true")
@@ -126,10 +126,11 @@
   (:method ((self string-component))
     "text"))
 
-(def function render-string-component (component)
+(def function render-string-component (component &key on-change)
   (render-string-field (string-field-type component)
                        (print-component-value component (component-value-of component))
-                       (client-state-sink-of component)))
+                       (client-state-sink-of component)
+                       :on-change on-change))
 
 (def method print-component-value ((component string-component) component-value)
   (if (null component-value)
@@ -171,7 +172,7 @@
 (def component number-component (primitive-component)
   ())
 
-(def function render-number-component (component)
+(def function render-number-component (component &key on-change)
   (bind (((:read-only-slots client-state-sink) component)
          (has-component-value? (slot-boundp component 'component-value))
          (component-value (when has-component-value?
@@ -179,7 +180,7 @@
          (printed-value (if has-component-value?
                             (print-component-value component component-value)
                             "")))
-    (render-number-field printed-value (client-state-sink-of component))))
+    (render-number-field printed-value client-state-sink :on-change on-change)))
 
 (def method print-component-value ((component number-component) component-value)
   (if (null component-value)

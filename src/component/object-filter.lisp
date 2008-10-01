@@ -161,7 +161,7 @@
   (bind (((:read-only-slots slot-values id) -self-))
     (if slot-values
         (progn
-          <thead <tr <th (:colspan 3) ,#"standard-object-slot-value-group.column.name">
+          <thead <tr <th (:colspan 4) ,#"standard-object-slot-value-group.column.name">
                      <th ,#"standard-object-slot-value-group.column.value">>>
           <tbody ,(map nil #'render slot-values)>)
         <span (:id ,id) ,#"there-are-none">)))
@@ -184,6 +184,7 @@
         <td (:class "slot-value-label")
             ,(render label)>
         ,(render-filter-predicate value)
+        ,(render-use-in-filter-marker value)
         <td (:class "slot-value-value")
             ,(render value)>>))
 
@@ -191,7 +192,7 @@
 ;;; Standard object place filter
 
 (def component standard-object-place-filter (place-filter)
-  ())
+  ((use-in-filter)))
 
 (def method make-place-component-content ((self standard-object-place-filter))
   (make-inspector (the-type-of self) :default-component-type 'reference-component))
@@ -199,6 +200,9 @@
 (def method make-place-component-command-bar ((self standard-object-place-filter))
   (make-instance 'command-bar-component :commands (list (make-set-place-to-nil-command self)
                                                         (make-set-place-to-find-instance-command self))))
+
+(def method render-use-in-filter-marker ((self standard-object-place-filter))
+  <td>)
 
 ;;;;;;
 ;;; Filter
@@ -227,19 +231,20 @@
   #+sbcl
   (:method ((component standard-object-detail-filter) (class standard-class))
     (bind ((slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
-           (slot-names (mapcar (lambda (slot-value)
-                                 (slot-definition-name (slot-of slot-value)))
-                               slot-values))
-           (values (mapcar (lambda (slot-value)
-                             (bind ((value-component (content-of (value-of slot-value))))
-                               (typecase value-component
-                                 (primitive-component
-                                  (bind ((value (component-value-of value-component)))
-                                    (when (and value
-                                               (or (not (stringp value))
-                                                   (not (string= value ""))))
-                                      value))))))
-                           slot-values)))
+           (predicates (iter (for slot-value :in slot-values)
+                             (for predicate = (bind ((slot-name (slot-definition-name (slot-of slot-value)))
+                                                     (value-component (content-of (value-of slot-value))))
+                                                (when (and (typep value-component 'primitive-component)
+                                                           (use-in-filter-p value-component))
+                                                  (lambda (instance)
+                                                    (bind ((instance-class (class-of instance))
+                                                           (slot (find-slot instance-class slot-name)))
+                                                      (and (slot-boundp-using-class instance-class instance slot)
+                                                           (funcall (get-predicate-function (selected-predicate-of value-component))
+                                                                    (component-value-of value-component)
+                                                                    (slot-value-using-class instance-class instance slot))))))))
+                             (when predicate
+                               (collect predicate)))))
       (prog1-bind instances nil
         (sb-vm::map-allocated-objects
          (lambda (instance type size)
@@ -247,13 +252,9 @@
            (bind ((instance-class (class-of instance)))
              (when (and (typep instance class)
                         (not (eq instance (class-prototype instance-class)))
-                        (every (lambda (slot-name value)
-                                 (or (not value)
-                                     (bind ((slot (find-slot instance-class slot-name)))
-                                       (and slot
-                                            (slot-boundp-using-class instance-class instance slot)
-                                            (equal value (slot-value-using-class instance-class instance slot))))))
-                               slot-names values))
+                        (every (lambda (predicate)
+                                 (funcall predicate instance))
+                               predicates))
                (push instance instances))))
          :dynamic)))))
 

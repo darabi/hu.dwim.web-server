@@ -131,7 +131,7 @@
                                       :enabled (delay (< position (- total-count page-count)))
                                       :action (make-action
                                                 (setf (component-value-of jumper) (setf position (- total-count page-count)))))
-          jumper (make-instance 'integer-component :edited #t :component-value position))))
+          jumper (make-instance 'integer-inspector :edited #t :component-value position))))
 
 (def render page-navigation-bar-component ()
   (bind (((:read-only-slots first-command previous-command next-command last-command jumper) -self-))

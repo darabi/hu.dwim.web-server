@@ -419,16 +419,19 @@
     (setf checkbox.wui-is-checked (lambda ()
                                     (return checkbox.checked)))))
 
-(defun wui.field.setup-custom-checkbox (link-id checked-image unchecked-image checked-tooltip unchecked-tooltip)
+(defun wui.field.setup-custom-checkbox (link-id checked-image unchecked-image checked-tooltip unchecked-tooltip checked-class unchecked-class)
   (bind ((link (dojo.byId link-id))
          (hidden (dojo.byId (+ link-id "_hidden"))))
     (log.debug "Setting up custom checkbox " link ", using hidden input " hidden)
     (bind ((image (aref (.get-elements-by-tag-name link "img") 0))
            (enabled (not (= hidden.value "false"))))
-      (assert image)
+;; TODO:      (assert image)
       (setf image.src (if enabled
                           checked-image
                           unchecked-image))
+      (setf link.className (if enabled
+                               checked-class
+                               unchecked-class))
       (setf image.title (if enabled
                             checked-tooltip
                             unchecked-tooltip)))
@@ -439,6 +442,9 @@
                                  (setf image.src (if enabled
                                                      checked-image
                                                      unchecked-image))
+                                 (setf link.className (if enabled
+                                                          checked-class
+                                                          unchecked-class))
                                  (setf image.title (if enabled
                                                        checked-tooltip
                                                        unchecked-tooltip))))
@@ -448,6 +454,15 @@
     (setf link.onclick (lambda (event)
                          (link.wui-set-checked (not (link.wui-is-checked)))))))
 
+
+(defun wui.field.update-popup-menu-select-field ((node :by-id) (field :by-id) value class)
+  (if class
+      (setf node.className class)
+      (setf node.innerHTML value))
+  (setf field.value value))
+
+(defun wui.field.update-use-in-filter ((field :by-id) value)
+  (field.wui-set-checked value))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;; i18n

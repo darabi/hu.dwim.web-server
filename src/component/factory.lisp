@@ -182,6 +182,9 @@
   (find-filter-type-for-compound-type* (first type) type))
 
 (def (generic e) find-filter-type-for-compound-type* (first type)
+  (:method ((first (eql 'member)) (type cons))
+    `(member-filter :possible-values ,(rest type)))
+
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
@@ -359,6 +362,9 @@
   (:method ((type null))
     (error "NIL is not a valid type here"))
   
+  (:method ((type (eql 'boolean)))
+    'place-maker)
+  
   (:method ((type symbol))
     (find-place-maker-type-for-type (find-type-by-name type)))
 
@@ -402,6 +408,9 @@
 
   (:method ((type null))
     (error "NIL is not a valid type here"))
+
+  (:method ((type (eql 'boolean)))
+    'place-filter)
   
   (:method ((type symbol))
     (find-place-filter-type-for-type (find-type-by-name type)))
@@ -419,6 +428,9 @@
   (find-place-filter-type-for-compound-type* (first type) type))
 
 (def (generic e) find-place-filter-type-for-compound-type* (first type)
+  (:method ((first (eql 'member)) (type cons))
+    'place-filter)
+
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))

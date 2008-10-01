@@ -45,18 +45,27 @@
 
 (def class* child-test ()
   ((name :type string)
+   (kind :type (member :small :big))
    (parent :type parent-test)))
 
 (def class* parent-test ()
-  ((name :type string)))
+  ((important #f :type boolean)
+   (age nil :type (or null integer))
+   (name nil :type (or null string))))
 
 (defresources en
   (class-name.child-test "child")
-  (class-name.parent-test "parent"))
+  (class-name.parent-test "parent")
+  (slot-name.important "important")
+  (slot-name.age "age")
+  (child-test.parent "parent"))
 
 (defresources hu
   (class-name.child-test "gyerek")
-  (class-name.parent-test "szülő"))
+  (class-name.parent-test "szülő")
+  (slot-name.important "fontos")
+  (slot-name.age "kor")
+  (child-test.parent "szülő"))
 
 ;;;;;;
 ;;; Test instances
@@ -66,10 +75,12 @@
 (def function make-test-instances ()
   (setf *test-instances*
         (append *test-instances*
-                (bind ((parent-1 (make-instance 'parent-test :name "Parent/1")))
+                (bind ((parent-1 (make-instance 'parent-test :name "Parent/1" :important #t))
+                       (parent-2 (make-instance 'parent-test)))
                   (list parent-1
                         (make-instance 'child-test :name "Child/1" :parent parent-1)
-                        (make-instance 'child-test :name "Child/2" :parent parent-1))))))
+                        (make-instance 'child-test :name "Child/2" :parent parent-2)
+                        (make-instance 'child-test :name "Child/3" :parent parent-2))))))
 
 (make-test-instances)
 

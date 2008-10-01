@@ -4,6 +4,11 @@ dependencies ={
         name: "dojo.js",
         dependencies: [
             "dojo.parser",
+            "dijit.Menu",
+            "dijit.MenuItem",
+            "dijit.MenuSeparator",
+            "dijit.PopupMenuItem",
+            "dijit.CheckedMenuItem",
             "dijit.form.Button",
             "dijit.form.DateTextBox",
             "dijit.form.TimeTextBox",

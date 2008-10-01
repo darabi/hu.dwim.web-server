@@ -256,10 +256,58 @@ table.frame-size-breakdown > tbody > tr > td.delta
 }
 
 /*
- file download
+  file download
 */
 
 .file-download .missing-file
 {
   color: red;
+}
+
+/*
+  filter
+*/
+.ignore-in-filter
+{
+  opacity: 0.3;
+}
+
+/*
+  filter predicate
+*/
+
+.predicate-equal {
+  background-image: url("/static/wui/icons/20x20/equal-sign.png");
+  width: 20px;
+  height: 20px;
+}
+
+.predicate-like {
+  background-image: url("/static/wui/icons/20x20/tilde.png");
+  width: 20px;
+  height: 20px;
+}
+
+.predicate-less-than {
+  background-image: url("/static/wui/icons/20x20/less-than-sign.png");
+  width: 20px;
+  height: 20px;
+}
+
+.predicate-less-than-or-equal {
+  background-image: url("/static/wui/icons/20x20/less-than-or-equal-sign.png");
+  width: 20px;
+  height: 20px;
+}
+
+.predicate-greater-than {
+  background-image: url("/static/wui/icons/20x20/greater-than-sign.png");
+  width: 20px;
+  height: 20px;
+}
+
+.predicate-greater-than-or-equal {
+  background-image: url("/static/wui/icons/20x20/greater-than-or-equal-sign.png");
+  width: 20px;
+  height: 20px;
 }

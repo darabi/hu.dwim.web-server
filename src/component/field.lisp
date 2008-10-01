@@ -13,7 +13,9 @@
     ("false" #f)))
 
 (def (function e) render-checkbox-field (value &key checked-image unchecked-image (id (unique-js-name "_chkb"))
-                                               checked-tooltip unchecked-tooltip name value-sink)
+                                               checked-tooltip unchecked-tooltip
+                                               checked-class unchecked-class
+                                               on-change name value-sink)
   (assert (or (and (null checked-image) (null unchecked-image))
               (and checked-image unchecked-image)))
   (assert (not (and name value-sink)))
@@ -41,7 +43,7 @@
           <a (:id ,id)
             <img>>
           `js(on-load
-              (wui.field.setup-custom-checkbox ,id ,checked-image ,unchecked-image ,checked-tooltip ,unchecked-tooltip)))
+              (wui.field.setup-custom-checkbox ,id ,checked-image ,unchecked-image ,checked-tooltip ,unchecked-tooltip ,checked-class ,unchecked-class)))
         (progn
           ;; TODO :accesskey (accesskey field)
           ;; :title (or (tooltip field) (if value
@@ -52,6 +54,7 @@
           ;; :style (css-style field)
           <input (:id ,id
                   :type "checkbox"
+                  :onChange ,(force on-change)
                   ,(when value
                     (load-time-value (make-xml-attribute "checked" "") t)))>
           `js(on-load
@@ -60,7 +63,7 @@
 ;;;;;;
 ;;; String field
 
-(def function render-string-field (type value client-state-sink)
+(def function render-string-field (type value client-state-sink &key on-change)
   (bind ((id (generate-frame-unique-string "_w")))
     (render-dojo-widget (id)
       ;; TODO dojoRows 3
@@ -68,19 +71,38 @@
               :id       ,id
               :name     ,(id-of client-state-sink)
               :value    ,value
+              :onChange ,(force on-change)
               :dojoType #.+dijit/text-box+)>)))
 
 ;;;;;;
 ;;; Number field
 
-(def function render-number-field (value client-state-sink)
+(def function render-number-field (value client-state-sink &key on-change)
   (bind ((id (generate-frame-unique-string "_w")))
     (render-dojo-widget (id)
       <input (:type     "text"
               :id       ,id
               :name     ,(id-of client-state-sink)
               :value    ,value
+              :onChange ,(force on-change)
               :dojoType #.+dijit/number-text-box+)>)))
+
+;;;;;;
+;;; Combo box
+
+(def function render-combo-box-field (value possible-values &key name (key #'identity) (test #'equal) (client-name-generator #'princ-to-string))
+  (bind ((id (generate-frame-unique-string "_w")))
+    <select (:id ,id
+             :name ,name)
+      ,(iter (for index :upfrom 0)
+             (for possible-value :in-sequence possible-values)
+             (for actual-value = (funcall key possible-value))
+             (for client-name = (funcall client-name-generator actual-value))
+             (for client-value = (integer-to-string index))
+             <option (:value ,client-value
+                      ,(when (funcall test value actual-value)
+                         (make-xml-attribute "selected" "yes")))
+                     ,client-name>)>))
 
 ;;;;;;
 ;;; Select field
@@ -100,3 +122,33 @@
                         ,(when (funcall test value actual-value)
                            (make-xml-attribute "selected" "yes")))
                        ,client-name>)>)))
+
+;;;;;;
+;;; Popup menu select field
+
+(def function render-popup-menu-select-field (value possible-values &key value-sink classes (test #'equal) (key #'identity))
+  (bind ((div-id (generate-frame-unique-string))
+         (menu-id (generate-frame-unique-string))
+         (field-id (generate-frame-unique-string))
+         (name (id-of (client-state-sink (client-value)
+                        (funcall value-sink client-value))))
+         (index (position value possible-values :key key :test test)))
+    <input (:id ,field-id :type "hidden" :name ,name :value ,value)>
+    <div (:id ,div-id :class ,(nth index classes))
+      ,(unless classes
+         value)
+      ,(render-dojo-widget (menu-id)
+        <div (:id ,menu-id
+              :dojoType #.+dijit/menu+
+              :leftClickToOpen "true"
+              :style "display: none;"
+              :targetNodeIds ,div-id)
+          ,(iter (for possible-value :in possible-values)
+                 (for class :in classes)
+                 (for option-id = (generate-frame-unique-string))
+                 (render-dojo-widget (option-id)
+                   <div (:id ,option-id
+                         :dojoType #.+dijit/menu-item+
+                         :iconClass ,class
+                         :onClick `js-inline(wui.field.update-popup-menu-select-field ,div-id ,field-id ,possible-value ,class))
+                     ,possible-value>))>)>))

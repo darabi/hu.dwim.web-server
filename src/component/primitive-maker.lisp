@@ -8,7 +8,12 @@
 ;;; Primitive maker
 
 (def component primitive-maker (primitive-component maker-component)
-  ((initform)))
+  ((initform)
+   (use-initform :type boolean)))
+
+(def constructor primitive-maker ()
+  (setf (use-initform-p -self-)
+        (slot-boundp -self- 'initform)))
 
 (def render :before primitive-maker
   (ensure-client-state-sink -self-))
@@ -38,6 +43,7 @@
          (initform (when has-initform?
                      (initform-of -self-)))
          (constant-initform? (member initform '(#f #t))))
+    #+nil
     <span ,(if (and (eq the-type 'boolean)
                     has-initform?
                     constant-initform?)
