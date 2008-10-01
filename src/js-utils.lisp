@@ -86,10 +86,10 @@
                                    (error "Hm, what do you mean by ~S?" arg))
                                  (let ((name (first arg)))
                                    (case (second arg)
-                                     (:by-id
+                                     (:|by-id|
                                       (collect `{with-preserved-readtable-case
                                                  (setf ,NAME ($ ,NAME))}))
-                                     (:widget-by-id
+                                     (:|widget-by-id|
                                       (collect `{with-preserved-readtable-case
                                                  (setf ,NAME (dojo.widget.by-id ,NAME))}))
                                      (t
