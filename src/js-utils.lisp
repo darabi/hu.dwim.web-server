@@ -146,3 +146,15 @@
                    (alert error-message))
                  (throw "graceful-abort"))
                ,@BODY)))}))
+
+(def (js-macro e) |assert| (expression &rest args-to-throw)
+  (unless args-to-throw
+    (setf args-to-throw (list (concatenate 'string "Assertion failed: " (princ-to-string expression)))))
+  (bind ((enter-debugger? (if (boundp '*application*)
+                              (compile-time-debug-client-side? *application*)
+                              (not *load-as-production-p*))))
+   {with-preserved-readtable-case
+       `(unless ,EXPRESSION
+          ,@(WHEN ENTER-DEBUGGER?
+             '(debugger))
+          (throw ,@ARGS-TO-THROW))}))
