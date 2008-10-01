@@ -21,10 +21,10 @@
 
 (def function render-enabled-marker (component)
   <input (:type "checkbox"
-          ,(unless (enabled-p component)
-             (make-xml-attribute "disabled" "disabled"))
-          ,(when (enabled-p component)
-             (make-xml-attribute "checked" "checked")))>)
+                ,(unless (enabled-p component)
+                         (make-xml-attribute "disabled" "disabled"))
+                ,(when (enabled-p component)
+                       (make-xml-attribute "checked" "checked")))>)
 
 ;;;;;;
 ;;; T filter

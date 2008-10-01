@@ -227,7 +227,9 @@
   #+sbcl
   (:method ((component standard-object-detail-filter) (class standard-class))
     (bind ((slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
-           (slot-names (mapcar #'slot-name-of slot-values))
+           (slot-names (mapcar (lambda (slot-value)
+                                 (slot-definition-name (slot-of slot-value)))
+                               slot-values))
            (values (mapcar (lambda (slot-value)
                              (bind ((value-component (content-of (value-of slot-value))))
                                (typecase value-component
