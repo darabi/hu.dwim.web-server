@@ -238,10 +238,10 @@
                           (value2 #f))
                      (vertical-list ()
                        (inline-component
-                         (render-checkbox value1 :value-sink (lambda (value)
-                                                               (setf value1 value)))
-                         (render-checkbox value2 :value-sink (lambda (value)
-                                                               (setf value2 value))))
+                         (render-checkbox-field value1 :value-sink (lambda (value)
+                                                                     (setf value1 value)))
+                         (render-checkbox-field value2 :value-sink (lambda (value)
+                                                                     (setf value2 value))))
                        (command (icon refresh)
                                 (make-action
                                   ;; nop, just rerender
