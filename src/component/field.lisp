@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Checkbox field
 
-(def function js-to-lisp-boolean (value)
+(def function string-to-lisp-boolean (value)
   (eswitch (value :test #'string=)
     ("true" #t)
     ("false" #f)))
@@ -27,7 +27,7 @@
                    (progn
                      (assert (functionp value-sink))
                      (id-of (client-state-sink (client-value)
-                              (funcall value-sink (js-to-lisp-boolean client-value)))))))
+                              (funcall value-sink (string-to-lisp-boolean client-value)))))))
          (custom checked-image)
          (hidden-id (concatenate 'string id "_hidden")))
     <input (:id ,hidden-id
@@ -35,15 +35,13 @@
             :value ,(if value "true" "false")
             :type "hidden")>
     (if custom
-        (with-unique-js-names (img-id)
+        (progn
           ;; TODO :tabindex (tabindex field)
           ;; :class (css-class field)
           <a (:id ,id)
-             <img (:id ,img-id)>>
-          `js(wui.field.setup-custom-checkbox ,id ,img-id ,hidden-id
-                                              ,checked-image ,unchecked-image
-                                              ,checked-tooltip ,unchecked-tooltip)
-          )
+            <img>>
+          `js(on-load
+              (wui.field.setup-custom-checkbox ,id ,checked-image ,unchecked-image ,checked-tooltip ,unchecked-tooltip)))
         (progn
           ;; TODO :accesskey (accesskey field)
           ;; :title (or (tooltip field) (if value
@@ -56,9 +54,8 @@
                   :type "checkbox"
                   ,(when value
                     (load-time-value (make-xml-attribute "checked" "") t)))>
-          ;;`js(wui.field.setup-simple-checkbox ,id ,hidden-id ,custom
-          ;;                                    ,checked-tooltip ,unchecked-tooltip)
-          ))))
+          `js(on-load
+              (wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip))))))
 
 ;;;;;;
 ;;; String field
