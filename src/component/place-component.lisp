@@ -155,7 +155,127 @@
 
 (def component place-filter (place-component filter-component)
   ((name nil)
-   (the-type)))
+   (the-type)
+   (use-in-filter #f :type boolean)
+   (use-in-filter-id)
+   (negated #f :type boolean)
+   (selected-predicate nil :type symbol)))
 
 (def method make-place-component-content ((self place-filter))
   (make-filter (the-type-of self)))
+
+(def method use-in-filter-p ((self component))
+  (use-in-filter-p (parent-component-of self)))
+
+(def method use-in-filter-id-of ((self component))
+  (use-in-filter-id-of (parent-component-of self)))
+
+(def generic collect-possible-filter-predicates (component)
+  (:method ((self primitive-filter))
+    nil))
+
+(def function localize-predicate (predicate)
+  (lookup-resource (concatenate-string "predicate." (symbol-name predicate)) nil))
+
+(def function predicate-class (predicate)
+  (ecase predicate
+    (= "predicate-equal")
+    (~ "predicate-like")
+    (< "predicate-less-than")
+    (≤ "predicate-less-than-or-equal")
+    (> "predicate-greater-than")
+    (≥ "predicate-greater-than-or-equal")))
+
+(def generic predicate-function (component class predicate)
+  (:method ((component place-filter) (class standard-class) predicate)
+    (predicate-function (content-of component) class predicate))
+
+  (:method ((component component) (class standard-class) (predicate null))
+    'equal)
+
+  (:method ((component component) (class standard-class) (predicate (eql '=)))
+    'equal)
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '~)))
+    (lambda (string-1 string-2)
+      (cl-ppcre:all-matches string-2 (concatenate-string ".*" string-1 ".*"))))
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '<)))
+    'string<)
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '≤)))
+    'string<=)
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '>)))
+    'string>)
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '≥)))
+    'string>=)
+
+  (:method ((component number-component) (class standard-class) (predicate (eql '<)))
+    '<)
+
+  (:method ((component number-component) (class standard-class) (predicate (eql '≤)))
+    '<=)
+
+  (:method ((component number-component) (class standard-class) (predicate (eql '>)))
+    '>)
+
+  (:method ((component number-component) (class standard-class) (predicate (eql '≥)))
+    '>=))
+
+(def method collect-possible-filter-predicates ((self place-filter))
+  (collect-possible-filter-predicates (content-of self)))
+
+(def function render-filter-predicate (self)
+  (bind (((:slots negated selected-predicate) self)
+         (possible-predicates (collect-possible-filter-predicates self)))
+    (if possible-predicates
+        (progn
+          (unless selected-predicate
+            (setf selected-predicate (first possible-predicates)))
+          <td ,(render-checkbox-field negated
+                                      :value-sink (lambda (value) (setf negated value))
+                                      :checked-image "static/wui/icons/20x20/thumb-down.png"
+                                      :unchecked-image "static/wui/icons/20x20/thumb-up.png")>
+          <td ,(if (length= 1 possible-predicates)
+                   <div (:class ,(predicate-class (first possible-predicates)))>
+                   (render-popup-menu-select-field (localize-predicate selected-predicate)
+                                                   (mapcar #'localize-predicate possible-predicates)
+                                                   :value-sink (lambda (value)
+                                                                 (setf (selected-predicate-of self)
+                                                                       (find value possible-predicates :key #'localize-predicate :test #'string=)))
+                                                   :classes (mapcar #'predicate-class possible-predicates)))>)
+        <td (:colspan 2)>)))
+
+(def function render-use-in-filter-marker (self)
+  (bind ((id (generate-frame-unique-string)))
+    (setf (use-in-filter-id-of self) id)
+    <td ,(render-checkbox-field (use-in-filter-p self)
+                                :id id
+                                :value-sink (lambda (value) (setf (use-in-filter-p self) value))
+                                :checked-image "static/wui/icons/20x20/checkmark.png"
+                                :unchecked-image "static/wui/icons/20x20/checkmark.png"
+                                :checked-class "use-in-filter"
+                                :unchecked-class "ignore-in-filter")>))
+
+(def render place-filter ()
+  (render-filter-predicate -self-)
+  (render-use-in-filter-marker -self-)
+  <td ,(call-next-method)>)
+
+(defresources en
+  (predicate.= "Equal")
+  (predicate.~ "Like")
+  (predicate.< "Smaller than")
+  (predicate.≤ "Smaller than or equal")
+  (predicate.> "Greater than")
+  (predicate.≥ "Greater than or equal"))
+
+(defresources hu
+  (predicate.= "Egyenlő")
+  (predicate.~ "Hasonló")
+  (predicate.< "Kisebb")
+  (predicate.≤ "Kisebb vagy egyenlő")
+  (predicate.> "Nagyobb")
+  (predicate.≥ "Nagyobb vagy egyenlő"))

@@ -8,116 +8,7 @@
 ;;; Primitive filter
 
 (def component primitive-filter (primitive-component filter-component)
-  ((use-in-filter #f :type boolean)
-   (use-in-filter-id)))
-
-(def generic render-filter-predicate (component)
-  (:method ((self component))
-    <td>
-    <td>))
-
-(def generic render-use-in-filter-marker (component)
-  (:method ((self component))
-    (bind ((id (generate-frame-unique-string)))
-      (setf (use-in-filter-id-of self) id)
-      <td ,(render-checkbox-field (use-in-filter-p self)
-                                  :id id
-                                  :value-sink (lambda (value) (setf (use-in-filter-p self) value))
-                                  :checked-image "static/wui/icons/20x20/checkmark.png"
-                                  :unchecked-image "static/wui/icons/20x20/checkmark.png"
-                                  :checked-class "use-in-filter"
-                                  :unchecked-class "ignore-in-filter")>)))
-
-(def render :around primitive-filter ()
-  (render-filter-predicate -self-)
-  (render-use-in-filter-marker -self-)
-  <td ,(call-next-method)>)
-
-;;;;;;
-;;; Predicate mixin
-
-(def component filter-with-predicate-mixin ()
-  ((negated #f :type boolean)
-   (selected-predicate nil :type symbol)))
-
-(def generic collect-possible-predicates (component))
-
-(def function localize-predicate (predicate)
-  (lookup-resource (concatenate-string "predicate." (symbol-name predicate)) nil))
-
-(defresources en
-  (predicate.= "Equal")
-  (predicate.~ "Like")
-  (predicate.< "Smaller than")
-  (predicate.≤ "Smaller than or equal")
-  (predicate.> "Greater than")
-  (predicate.≥ "Greater than or equal"))
-
-(defresources hu
-  (predicate.= "Egyenlő")
-  (predicate.~ "Hasonló")
-  (predicate.< "Kisebb")
-  (predicate.≤ "Kisebb vagy egyenlő")
-  (predicate.> "Nagyobb")
-  (predicate.≥ "Nagyobb vagy egyenlő"))
-
-(def function predicate-class (predicate)
-  (ecase predicate
-    (= "predicate-equal")
-    (~ "predicate-like")
-    (< "predicate-less-than")
-    (≤ "predicate-less-than-or-equal")
-    (> "predicate-greater-than")
-    (≥ "predicate-greater-than-or-equal")))
-
-(def generic predicate-function (component class predicate)
-  (:method ((component component) (class standard-class) (predicate (eql '=)))
-    'equal)
-
-  (:method ((component string-component) (class standard-class) (predicate (eql '~)))
-    (lambda (string-1 string-2)
-      (cl-ppcre:all-matches string-2 (concatenate-string ".*" string-1 ".*"))))
-
-  (:method ((component string-component) (class standard-class) (predicate (eql '<)))
-    'string<)
-
-  (:method ((component string-component) (class standard-class) (predicate (eql '≤)))
-    'string<=)
-
-  (:method ((component string-component) (class standard-class) (predicate (eql '>)))
-    'string>)
-
-  (:method ((component string-component) (class standard-class) (predicate (eql '≥)))
-    'string>=)
-
-  (:method ((component number-component) (class standard-class) (predicate (eql '<)))
-    '<)
-
-  (:method ((component number-component) (class standard-class) (predicate (eql '≤)))
-    '<=)
-
-  (:method ((component number-component) (class standard-class) (predicate (eql '>)))
-    '>)
-
-  (:method ((component number-component) (class standard-class) (predicate (eql '≥)))
-    '>=))
-
-(def method render-filter-predicate ((self filter-with-predicate-mixin))
-  (bind (((:slots negated selected-predicate) self)
-         (possible-predicates (collect-possible-predicates self)))
-    (unless selected-predicate
-      (setf selected-predicate (first possible-predicates)))
-    <td ,(render-checkbox-field negated
-                                :value-sink (lambda (value) (setf negated value))
-                                :checked-image "static/wui/icons/20x20/thumb-down.png"
-                                :unchecked-image "static/wui/icons/20x20/thumb-up.png")>
-    <td ,(unless (length= 1 possible-predicates)
-           (render-popup-menu-select-field (localize-predicate selected-predicate)
-                                           (mapcar #'localize-predicate possible-predicates)
-                                           :value-sink (lambda (value)
-                                                         (setf (selected-predicate-of self)
-                                                               (find value possible-predicates :key #'localize-predicate :test #'string=)))
-                                           :classes (mapcar #'predicate-class possible-predicates))) >))
+  ())
 
 ;;;;;;
 ;;; T filter
@@ -168,10 +59,10 @@
 ;;;;;;
 ;;; String filter
 
-(def component string-filter (string-component primitive-filter filter-with-predicate-mixin)
+(def component string-filter (string-component primitive-filter)
   ((component-value nil)))
 
-(def method collect-possible-predicates ((self string-filter))
+(def method collect-possible-filter-predicates ((self string-filter))
   '(= ~ < ≤ > ≥))
 
 (def render string-filter ()
@@ -193,10 +84,10 @@
 ;;;;;;
 ;;; Number filter
 
-(def component number-filter (number-component primitive-filter filter-with-predicate-mixin)
+(def component number-filter (number-component primitive-filter)
   ())
 
-(def method collect-possible-predicates ((self number-filter))
+(def method collect-possible-filter-predicates ((self number-filter))
   '(= < ≤ > ≥))
 
 (def render number-filter ()
@@ -236,10 +127,10 @@
 ;;;;;;
 ;;; Member filter
 
-(def component member-filter (member-component primitive-filter filter-with-predicate-mixin)
+(def component member-filter (member-component primitive-filter)
   ())
 
-(def method collect-possible-predicates ((self member-filter))
+(def method collect-possible-filter-predicates ((self member-filter))
   '(=))
 
 (def render member-filter ()
