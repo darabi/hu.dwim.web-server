@@ -25,7 +25,7 @@
          (printed-value (format nil "~S" component-value)))
     (if edited
         (render-t-component -self-)
-        <span ,printed-value>)))
+        `xml,printed-value)))
 
 ;;;;;;
 ;;; Boolean inspector
@@ -39,7 +39,7 @@
          (component-value (when has-component-value?
                             (component-value-of -self-))))
     <div ,(when edited
-                <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "#t" "#f"))>)
+                <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "true" "false"))>)
          ,(if (eq the-type 'boolean)
               <input (:type "checkbox"
                             ,(when component-value
@@ -68,10 +68,10 @@
   ())
 
 (def render string-inspector ()
-  (bind (((:read-only-slots edited component-value) -self-))
+  (bind (((:read-only-slots edited) -self-))
     (if edited
         (render-string-component -self-)
-        <span ,(print-component-value -self- component-value) >)))
+        `xml,(print-component-value -self-))))
 
 ;;;;;;
 ;;; Password inspector
@@ -79,7 +79,7 @@
 (def component password-inspector (password-component string-inspector)
   ())
 
-(def method print-component-value ((component password-inspector) component-value)
+(def method print-component-value ((component password-inspector))
   (if (edited-p component)
       (call-next-method)
       "**********"))
@@ -97,10 +97,10 @@
   ())
 
 (def render number-inspector ()
-  (bind (((:read-only-slots edited component-value) -self-))
+  (bind (((:read-only-slots edited) -self-))
     (if edited
         (render-number-component -self-)
-        <span ,(print-component-value -self- component-value)>)))
+        `xml,(print-component-value -self-))))
 
 ;;;;;;
 ;;; Integer inspector
@@ -137,3 +137,8 @@
 
 (def component member-inspector (member-component primitive-inspector)
   ())
+
+(def render member-inspector ()
+  (if (edited-p -self-)
+      (render-member-component -self-)
+      `xml,(print-component-value -self-)))

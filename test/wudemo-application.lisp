@@ -45,7 +45,7 @@
 
 (def class* child-test ()
   ((name :type string)
-   (kind :type (member :small :big))
+   (size :type (member :small :big))
    (parent :type parent-test)))
 
 (def class* parent-test ()
@@ -56,6 +56,8 @@
 (defresources en
   (class-name.child-test "child")
   (class-name.parent-test "parent")
+  (slot-name.name "name")
+  (slot-name.size "size")
   (slot-name.important "important")
   (slot-name.age "age")
   (child-test.parent "parent"))
@@ -63,6 +65,8 @@
 (defresources hu
   (class-name.child-test "gyerek")
   (class-name.parent-test "szülő")
+  (slot-name.name "név")
+  (slot-name.size "size")
   (slot-name.important "fontos")
   (slot-name.age "kor")
   (child-test.parent "szülő"))
@@ -78,9 +82,9 @@
                 (bind ((parent-1 (make-instance 'parent-test :name "Parent/1" :important #t))
                        (parent-2 (make-instance 'parent-test)))
                   (list parent-1
-                        (make-instance 'child-test :name "Child/1" :parent parent-1)
-                        (make-instance 'child-test :name "Child/2" :parent parent-2)
-                        (make-instance 'child-test :name "Child/3" :parent parent-2))))))
+                        (make-instance 'child-test :name "Child/1" :parent parent-1 :size :small)
+                        (make-instance 'child-test :name "Child/2" :parent parent-2 :size :small)
+                        (make-instance 'child-test :name "Child/3" :parent parent-2 :size :big))))))
 
 (make-test-instances)
 
@@ -192,27 +196,28 @@
                                 (make-primitive-menu-item-content (remove nil
                                                                           (map-product (lambda (type initform)
                                                                                          (when (or (consp initform)
-                                                                                                   (eq initform prc::+unbound-slot-marker+)
+                                                                                                   (eq initform :unbound)
                                                                                                    (typep initform type))
                                                                                            (list
                                                                                             (label (format nil "type: ~A, initform: ~A " type initform))
-                                                                                            (apply #'make-instance (format-symbol :hu.dwim.wui "~A-MAKER" name)
-                                                                                                   :the-type type (unless (eq initform prc::+unbound-slot-marker+)
-                                                                                                                    (list :initform initform))))))
+                                                                                            (apply #'make-maker type (unless (eq initform :unbound)
+                                                                                                                       (list :initform initform))))))
                                                                                        types (append initforms values))))))
                    (menu-item (replace-menu-target-command "Inspector"
                                 (make-primitive-menu-item-content (remove nil
                                                                           (map-product (lambda (type value edited)
                                                                                          (when (typep value type)
-                                                                                           (bind ((inspector (apply #'make-instance (format-symbol :hu.dwim.wui "~A-INSPECTOR" name)
-                                                                                                                    :the-type type :edited edited
-                                                                                                                    (unless (eq value prc::+unbound-slot-marker+)
+                                                                                           (bind ((inspector (apply (if edited
+                                                                                                                        #'make-editor
+                                                                                                                        #'make-viewer)
+                                                                                                                    type
+                                                                                                                    (unless (eq value :unbound)
                                                                                                                       (list :component-value value)))))
                                                                                              (list
                                                                                               (inline-component
                                                                                                 (bind ((value (if (slot-boundp inspector 'component-value)
                                                                                                                   (component-value-of inspector)
-                                                                                                                  prc::+unbound-slot-marker+)))
+                                                                                                                  :unbound)))
                                                                                                   <span ,(format nil "type: ~A, value: ~A, edited: ~A " type value edited)>))
                                                                                               inspector))))
                                                                                        types values '(#f #t))))))
@@ -220,20 +225,19 @@
                                 (make-primitive-menu-item-content (map-product (lambda (type)
                                                                                  (list
                                                                                   (label (format nil "type: ~A " type))
-                                                                                  (make-instance (format-symbol :hu.dwim.wui "~A-FILTER" name) :the-type type)))
+                                                                                  (make-filter type)))
                                                                                types)))))))
         (menu "Primitive"
-          ;; TODO: factor out prc::
-          (make-primitive-menu-item 't '(t) '(#.prc::+unbound-slot-marker+ nil #t 42 "alma" 'korte (anything)) nil)
-          (make-primitive-menu-item 'boolean '(boolean (or prc::unbound boolean)) '(#.prc::+unbound-slot-marker+ #f #t) '((monday?)))
-          (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '(#.prc::+unbound-slot-marker+ (user-name)))
-          (make-primitive-menu-item 'password '(string (or null string)) '(nil "titok") '(#.prc::+unbound-slot-marker+ (generate-password)))
-          (make-primitive-menu-item 'integer '(integer (or null integer)) '(nil 3) '(#.prc::+unbound-slot-marker+ (life-universe-and-everything)))
-          (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.3) '(#.prc::+unbound-slot-marker+ (pi)))
-          (make-primitive-menu-item 'date '(date (or null date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(#.prc::+unbound-slot-marker+ (today)))
-          (make-primitive-menu-item 'time '(time (or null time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(#.prc::+unbound-slot-marker+ (midnight)))
-          (make-primitive-menu-item 'timestamp '(timestamp (or null timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(#.prc::+unbound-slot-marker+ (now)))
-          (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(#.prc::+unbound-slot-marker+ (one-plus-one)))))
+          (make-primitive-menu-item 't '(t) '(:unbound nil #t 42 "alma" 'korte (anything)) nil)
+          (make-primitive-menu-item 'boolean '(boolean) '(#f #t) '(:unbound (monday?)))
+          (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '(:unbound (user-name)))
+          (make-primitive-menu-item 'password '(string (or null string)) '(nil "titok") '(:unbound (generate-password)))
+          (make-primitive-menu-item 'integer '(integer (or null integer)) '(nil 3) '(:unbound (life-universe-and-everything)))
+          (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.3) '(:unbound (pi)))
+          (make-primitive-menu-item 'date '(date (or null date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(:unbound (today)))
+          (make-primitive-menu-item 'time '(time (or null time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
+          (make-primitive-menu-item 'timestamp '(timestamp (or null timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
+          (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(:unbound (one-plus-one)))))
       (menu "Metagui"
         (menu "Parent"
           (menu-item (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))

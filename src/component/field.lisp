@@ -107,12 +107,13 @@
 ;;;;;;
 ;;; Select field
 
-(def function render-select-field (value possible-values &key name (key #'identity) (test #'equal) (client-name-generator #'princ-to-string))
+(def function render-select-field (value possible-values &key name (key #'identity) (test #'equal) (client-name-generator #'princ-to-string) on-change)
   (bind ((id (generate-frame-unique-string "_w")))
     (render-dojo-widget (id)
       <select (:id ,id
                :dojoType #.+dijit/filtering-select+
-               :name ,name)
+               :name ,name
+               :onChange ,(force on-change))
         ,(iter (for index :upfrom 0)
                (for possible-value :in-sequence possible-values)
                (for actual-value = (funcall key possible-value))

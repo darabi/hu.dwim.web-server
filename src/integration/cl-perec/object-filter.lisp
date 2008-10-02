@@ -80,7 +80,7 @@
                (bind ((value (component-value-of value-component)))
                  (when (use-in-filter-p value-component)
                    (bind ((predicate (predicate-of component))
-                          (ponated-predicate `(,(get-predicate-name predicate)
+                          (ponated-predicate `(,(predicate-function (the-class-of component) predicate)
                                                (,(prc::reader-name-of slot)
                                                  ,(first (query-variable-stack-of filter-query)))
                                                (quote ,value))))
@@ -98,5 +98,5 @@
                                                                        ,(second (query-variable-stack-of filter-query)))))
                                                (build-filter-query* value-component filter-query)))))))))
 
-(def method get-predicate-function ((predicate (eql '~)))
+(def method predicate-function ((component string-component) (class prc::persistent-class) (predicate (eql '~)))
   'prc::re-like)

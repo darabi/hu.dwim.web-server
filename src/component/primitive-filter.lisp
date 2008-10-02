@@ -23,10 +23,15 @@
       <td ,(render-checkbox-field (use-in-filter-p self)
                                   :id id
                                   :value-sink (lambda (value) (setf (use-in-filter-p self) value))
-                                  :checked-image "static/wui/icons/20x20/binocular.png"
-                                  :unchecked-image "static/wui/icons/20x20/binocular.png"
+                                  :checked-image "static/wui/icons/20x20/checkmark.png"
+                                  :unchecked-image "static/wui/icons/20x20/checkmark.png"
                                   :checked-class "use-in-filter"
                                   :unchecked-class "ignore-in-filter")>)))
+
+(def render :around primitive-filter ()
+  (render-filter-predicate -self-)
+  (render-use-in-filter-marker -self-)
+  <td ,(call-next-method)>)
 
 ;;;;;;
 ;;; Predicate mixin
@@ -38,15 +43,25 @@
 (def generic collect-possible-predicates (component))
 
 (def function localize-predicate (predicate)
-  (ecase predicate
-    (= "Egyenlő")
-    (~ "Hasonló")
-    (< "Kisebb")
-    (≤ "Kisebb vagy egyenlő")
-    (> "Nagyobb")
-    (≥ "Nagyobb vagy egyenlő")))
+  (lookup-resource (concatenate-string "predicate." (symbol-name predicate)) nil))
 
-(def function get-predicate-class (predicate)
+(defresources en
+  (predicate.= "Equal")
+  (predicate.~ "Like")
+  (predicate.< "Smaller than")
+  (predicate.≤ "Smaller than or equal")
+  (predicate.> "Greater than")
+  (predicate.≥ "Greater than or equal"))
+
+(defresources hu
+  (predicate.= "Egyenlő")
+  (predicate.~ "Hasonló")
+  (predicate.< "Kisebb")
+  (predicate.≤ "Kisebb vagy egyenlő")
+  (predicate.> "Nagyobb")
+  (predicate.≥ "Nagyobb vagy egyenlő"))
+
+(def function predicate-class (predicate)
   (ecase predicate
     (= "predicate-equal")
     (~ "predicate-like")
@@ -55,21 +70,36 @@
     (> "predicate-greater-than")
     (≥ "predicate-greater-than-or-equal")))
 
-
-(def generic get-predicate-function (predicate)
-  (:method ((predicate (eql '=)))
+(def generic predicate-function (component class predicate)
+  (:method ((component component) (class standard-class) (predicate (eql '=)))
     'equal)
 
-  (:method ((predicate (eql '<)))
+  (:method ((component string-component) (class standard-class) (predicate (eql '~)))
+    (lambda (string-1 string-2)
+      (cl-ppcre:all-matches string-2 (concatenate-string ".*" string-1 ".*"))))
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '<)))
+    'string<)
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '≤)))
+    'string<=)
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '>)))
+    'string>)
+
+  (:method ((component string-component) (class standard-class) (predicate (eql '≥)))
+    'string>=)
+
+  (:method ((component number-component) (class standard-class) (predicate (eql '<)))
     '<)
 
-  (:method ((predicate (eql '≤)))
+  (:method ((component number-component) (class standard-class) (predicate (eql '≤)))
     '<=)
 
-  (:method ((predicate (eql '>)))
+  (:method ((component number-component) (class standard-class) (predicate (eql '>)))
     '>)
 
-  (:method ((predicate (eql '≥)))
+  (:method ((component number-component) (class standard-class) (predicate (eql '≥)))
     '>=))
 
 (def method render-filter-predicate ((self filter-with-predicate-mixin))
@@ -81,12 +111,13 @@
                                 :value-sink (lambda (value) (setf negated value))
                                 :checked-image "static/wui/icons/20x20/thumb-down.png"
                                 :unchecked-image "static/wui/icons/20x20/thumb-up.png")>
-    <td ,(render-popup-menu-select-field (localize-predicate selected-predicate)
-                                         (mapcar #'localize-predicate possible-predicates)
-                                         :value-sink (lambda (value)
-                                                       (setf (selected-predicate-of self)
-                                                             (find value possible-predicates :key #'localize-predicate :test #'string=)))
-                                         :classes (mapcar #'get-predicate-class possible-predicates))>))
+    <td ,(unless (length= 1 possible-predicates)
+           (render-popup-menu-select-field (localize-predicate selected-predicate)
+                                           (mapcar #'localize-predicate possible-predicates)
+                                           :value-sink (lambda (value)
+                                                         (setf (selected-predicate-of self)
+                                                               (find value possible-predicates :key #'localize-predicate :test #'string=)))
+                                           :classes (mapcar #'predicate-class possible-predicates))) >))
 
 ;;;;;;
 ;;; T filter
@@ -115,27 +146,24 @@
                                :name (client-state-sink-of -self-)
                                :on-change (delay `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t)))
         <select (:name ,(id-of (client-state-sink-of -self-))
-                       :onchange `js-inline(wui.field.update-use-in-filter ,use-in-filter-id (!= 0 this.value)))
-          <option (:value 0
-                          ,(unless use-in-filter?
-                                   (make-xml-attribute "selected" "yes")))>
-          <option (:value 1
-                          ,(when (and use-in-filter?
-                                      (not has-component-value?))
-                                 (make-xml-attribute "selected" "yes")))
-                  ,#"value.nil">
-          <option (:value 2
-                          ,(when (and use-in-filter?
-                                      has-component-value?
-                                      component-value)
-                                 (make-xml-attribute "selected" "yes")))
-                  ,#"boolean.true">
-          <option (:value 3
-                          ,(when (and use-in-filter?
-                                      has-component-value?
-                                      (not component-value))
-                                 (make-xml-attribute "selected" "yes")))
-                  ,#"boolean.false">>)))
+                 :onchange `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t))
+          <option (:value ""
+                   ,(when (and use-in-filter?
+                               (not has-component-value?))
+                      (make-xml-attribute "selected" "yes")))
+            ,#"value.nil">
+          <option (:value "true"
+                   ,(when (and use-in-filter?
+                               has-component-value?
+                               component-value)
+                      (make-xml-attribute "selected" "yes")))
+            ,#"boolean.true">
+          <option (:value "false"
+                   ,(when (and use-in-filter?
+                               has-component-value?
+                               (not component-value))
+                      (make-xml-attribute "selected" "yes")))
+            ,#"boolean.false">>)))
 
 ;;;;;;
 ;;; String filter
@@ -208,5 +236,12 @@
 ;;;;;;
 ;;; Member filter
 
-(def component member-filter (member-component primitive-filter)
+(def component member-filter (member-component primitive-filter filter-with-predicate-mixin)
   ())
+
+(def method collect-possible-predicates ((self member-filter))
+  '(=))
+
+(def render member-filter ()
+  (ensure-client-state-sink -self-)
+  (render-member-component -self- :on-change (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of -self-) #t))))

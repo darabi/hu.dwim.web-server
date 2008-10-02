@@ -183,16 +183,18 @@
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label")
             ,(render label)>
-        ,(render-filter-predicate value)
-        ,(render-use-in-filter-marker value)
-        <td (:class "slot-value-value")
-            ,(render value)>>))
+        ;; NOTE: the value component is resposible to render the cells
+        ,(render value)>))
 
 ;;;;;;
 ;;; Standard object place filter
 
-(def component standard-object-place-filter (place-filter)
-  ((use-in-filter)))
+(def component standard-object-place-filter (place-filter filter-with-predicate-mixin)
+  ((use-in-filter #f :type boolean)
+   (use-in-filter-id)))
+
+(def method collect-possible-predicates ((self standard-object-place-filter))
+  '(=))
 
 (def method make-place-component-content ((self standard-object-place-filter))
   (make-inspector (the-type-of self) :default-component-type 'reference-component))
@@ -201,8 +203,10 @@
   (make-instance 'command-bar-component :commands (list (make-set-place-to-nil-command self)
                                                         (make-set-place-to-find-instance-command self))))
 
-(def method render-use-in-filter-marker ((self standard-object-place-filter))
-  <td>)
+(def render :around standard-object-place-filter ()
+  (render-filter-predicate -self-)
+  (render-use-in-filter-marker -self-)
+  <td ,(call-next-method)>)
 
 ;;;;;;
 ;;; Filter
@@ -240,9 +244,14 @@
                                                     (bind ((instance-class (class-of instance))
                                                            (slot (find-slot instance-class slot-name)))
                                                       (and (slot-boundp-using-class instance-class instance slot)
-                                                           (funcall (get-predicate-function (selected-predicate-of value-component))
-                                                                    (component-value-of value-component)
-                                                                    (slot-value-using-class instance-class instance slot))))))))
+                                                           (funcall (if (typep value-component 'filter-with-predicate-mixin)
+                                                                        (bind ((function (fdefinition (predicate-function value-component class (selected-predicate-of value-component)))))
+                                                                          (if (negated-p value-component)
+                                                                              (complement function)
+                                                                              function))
+                                                                        #'equal)
+                                                                    (slot-value-using-class instance-class instance slot)
+                                                                    (component-value-of value-component))))))))
                              (when predicate
                                (collect predicate)))))
       (prog1-bind instances nil

@@ -42,9 +42,15 @@
         (error result)
         result)))
 
+(def function component-value-and-bound-p (component)
+  (bind ((has-component-value? (slot-boundp component 'component-value)))
+    (values (when has-component-value?
+              (component-value-of component))
+            has-component-value?)))
+
 (def generic parse-component-value (component client-value))
 
-(def generic print-component-value (component component-value))
+(def generic print-component-value (component))
 
 (defresources en
   (value.default "default")
@@ -60,8 +66,11 @@
 (def component unbound-component (primitive-component)
   ())
 
+(def (function io) render-unbound-component ()
+  `xml,#"value.unbound")
+
 (def render unbound-component ()
-  <span ,#"value.unbound">)
+  (render-unbound-component))
 
 (defresources en
   (value.unbound "default"))
@@ -75,8 +84,11 @@
 (def component null-component (primitive-component)
   ())
 
+(def (function io) render-null-component ()
+  `xml,#"value.nil")
+
 (def render null-component ()
-  <span ,#"value.nil">)
+  (render-null-component))
 
 (defresources en
   (value.nil "none"))
@@ -106,7 +118,9 @@
   ())
 
 (def method parse-component-value ((component boolean-component) client-value)
-  (string-to-lisp-boolean client-value))
+  (if (string= client-value "")
+      (slot-makunbound component 'component-value)
+      (string-to-lisp-boolean client-value)))
 
 (defresources en
   (boolean.true "true")
@@ -128,14 +142,16 @@
 
 (def function render-string-component (component &key on-change)
   (render-string-field (string-field-type component)
-                       (print-component-value component (component-value-of component))
+                       (print-component-value component)
                        (client-state-sink-of component)
                        :on-change on-change))
 
-(def method print-component-value ((component string-component) component-value)
-  (if (null component-value)
-      ""
-      component-value))
+(def method print-component-value ((component string-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        component-value)))
 
 (def method parse-component-value ((component string-component) client-value)
   (if (string= client-value "")
@@ -151,15 +167,6 @@
 (def method string-field-type ((self password-component))
   "password")
 
-(def method print-component-value :around ((component password-component) component-value)
-  (if (or (null component-value)
-          (string= "" component-value))
-      ""
-      (call-next-method)))
-
-(def method print-component-value ((component password-component) component-value)
-  component-value)
-
 ;;;;;;
 ;;; Symbol component
 
@@ -173,19 +180,16 @@
   ())
 
 (def function render-number-component (component &key on-change)
-  (bind (((:read-only-slots client-state-sink) component)
-         (has-component-value? (slot-boundp component 'component-value))
-         (component-value (when has-component-value?
-                            (component-value-of component)))
-         (printed-value (if has-component-value?
-                            (print-component-value component component-value)
-                            "")))
-    (render-number-field printed-value client-state-sink :on-change on-change)))
+  (render-number-field (print-component-value component)
+                       (client-state-sink-of component)
+                       :on-change on-change))
 
-(def method print-component-value ((component number-component) component-value)
-  (if (null component-value)
-      ""
-      (princ-to-string component-value)))
+(def method print-component-value ((component number-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        (princ-to-string component-value))))
 
 (def method parse-component-value ((component number-component) client-value)
   (if (string= client-value "")
@@ -267,14 +271,22 @@
         (localized-enumeration-member value :class class :slot slot :capitalize-first-letter #t)
         "")))
 
+(def method print-component-value ((component member-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if has-component-value?
+        (funcall (client-name-generator-of component) component-value)
+        "")))
+
 (def method parse-component-value ((component member-component) client-value)
-  (bind (((:read-only-slots possible-values allow-nil-value) component)
+  (bind (((:read-only-slots possible-values) component)
          (index (parse-integer client-value)))
-    (if (and allow-nil-value
-             (= index 0))
-        nil
-        (progn
-          (when allow-nil-value
-            (decf index))
-          (assert (< index (length possible-values)))
-          (elt possible-values index)))))
+    (assert (< index (length possible-values)))
+    (elt possible-values index)))
+
+(def function render-member-component (component &key on-change)
+  (bind (((:read-only-slots possible-values client-state-sink) component)
+         (has-component-value? (slot-boundp component 'component-value))
+         (component-value (when has-component-value?
+                            (component-value-of component))))
+    (render-select-field component-value possible-values :name (id-of client-state-sink)
+                         :on-change on-change)))
