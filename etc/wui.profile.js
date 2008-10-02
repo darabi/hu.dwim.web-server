@@ -4,6 +4,7 @@ dependencies ={
         name: "dojo.js",
         dependencies: [
             "dojo.parser",
+            "dijit.Editor",
             "dijit.Menu",
             "dijit.MenuItem",
             "dijit.MenuSeparator",

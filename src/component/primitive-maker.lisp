@@ -144,3 +144,12 @@
 
 (def render member-maker ()
   (render-member-component -self-))
+
+;;;;;;
+;;; HTML inspector
+
+(def component html-maker (html-component primitive-maker)
+  ())
+
+(def render html-maker ()
+  (render-html-component -self-))

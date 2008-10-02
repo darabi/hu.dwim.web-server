@@ -32,6 +32,9 @@
   (:method ((type cl-perec:text-type))
     'string-inspector)
 
+  (:method ((type dmm:html-text-type))
+    'html-inspector)
+
   (:method ((type cl-perec:date-type))
     'date-inspector)
 
@@ -84,6 +87,9 @@
   (:method ((type cl-perec:text-type))
     'string-filter)
 
+  (:method ((type dmm:html-text-type))
+    'html-filter)
+
   (:method ((type cl-perec:date-type))
     'date-filter)
 
@@ -135,6 +141,9 @@
 
   (:method ((type cl-perec:text-type))
     'string-maker)
+
+  (:method ((type dmm:html-text-type))
+    'html-maker)
 
   (:method ((type cl-perec:date-type))
     'date-maker)

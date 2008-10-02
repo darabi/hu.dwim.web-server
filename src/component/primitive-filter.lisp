@@ -161,3 +161,9 @@
 (def render member-filter ()
   (ensure-client-state-sink -self-)
   (render-member-component -self- :on-change (make-update-use-in-filter-js -self-)))
+
+;;;;;;
+;;; HTML filter
+
+(def component html-filter (html-component string-filter)
+  ())

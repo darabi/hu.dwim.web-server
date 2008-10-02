@@ -155,3 +155,14 @@
   (if (edited-p -self-)
       (render-member-component -self-)
       `xml,(print-component-value -self-)))
+
+;;;;;;
+;;; HTML inspector
+
+(def component html-inspector (html-component primitive-inspector)
+  ())
+
+(def render html-inspector ()
+  (if (edited-p -self-)
+      (render-html-component -self-)
+      (emit-html-component-value -self-)))

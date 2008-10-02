@@ -19,6 +19,7 @@
    +dijit/filtering-select+      "dijit.form.FilteringSelect"
    +dijit/number-text-box+       "dijit.form.NumberTextBox"
    +dijit/tooltip-dialog+        "dijit.TooltipDialog"
+   +dijit/editor+                "dijit.Editor"
    +dijit/menu+                  "dijit.Menu"
    +dijit/menu-item+             "dijit.MenuItem"
    +dijit/popup-menu-item+       "dijit.PopupMenuItem"

@@ -240,7 +240,9 @@
           (make-primitive-menu-item 'prc::time '(prc::time (or null prc::time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
           #+wui-and-cl-perec
           (make-primitive-menu-item 'prc::timestamp '(prc::timestamp (or null prc::timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
-          (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(:unbound (one-plus-one)))))
+          (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(:unbound (one-plus-one)))
+          #+wui-and-cl-perec
+          (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text)))))
       (menu "Metagui"
         (menu "Parent"
           (menu-item (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))

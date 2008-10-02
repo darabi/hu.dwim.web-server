@@ -371,3 +371,26 @@
                             (component-value-of component))))
     (render-select-field component-value possible-values :name (id-of client-state-sink)
                          :on-change on-change)))
+
+;;;;;;
+;;; HTML component
+
+(def component html-component (string-component)
+  ())
+
+(def function emit-html-component-value (component)
+  (write-sequence (babel:string-to-octets (print-component-value component) :encoding :utf-8) *html-stream*)
+  (values))
+
+(def function render-html-component (component)
+  (bind ((id (generate-frame-unique-string))
+         (field-id (generate-frame-unique-string)))
+    (render-dojo-widget (id)
+      <input (:id ,field-id
+              :name ,(id-of (client-state-sink-of component))
+              :value ,(print-component-value component)
+              :type "hidden")>
+      <div (:id       ,id
+            :dojoType #.+dijit/editor+
+            :onChange `js-inline(setf (slot-value (dojo.byId ,field-id) 'value) (.getValue (dijit.byId ,id))))
+        ,(emit-html-component-value component)>)))
