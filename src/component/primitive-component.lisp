@@ -34,7 +34,11 @@
           (handler-bind ((invalid-client-value (lambda (error)
                                                  (setf (component-value-of component) error)
                                                  (return))))
-            (setf (component-value-of component) (parse-component-value component client-value))))))
+            (bind (((:values value no-value?)
+                    (parse-component-value component client-value)))
+              (if no-value?
+                  (slot-makunbound component 'component-value)
+                  (setf (component-value-of component) value)))))))
 
 (def method component-value-of :around ((-self- primitive-component))
   (bind ((result (call-next-method)))
@@ -103,13 +107,17 @@
   ())
 
 (def function render-t-component (component)
-  (bind (((:read-only-slots component-value client-state-sink) component)
-         (printed-value (format nil "~S" component-value)))
-    (render-string-field "text" printed-value client-state-sink)))
+  (render-string-field "text" (print-component-value component) (client-state-sink-of component)))
+
+(def method print-component-value ((component t-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if has-component-value?
+        (format nil "~S" component-value)
+        #"value.unbound")))
 
 (def method parse-component-value ((component t-component) client-value)
   ;; TODO: this is kind of dangerous
-  (eval (read-from-string client-value)))
+  (read-from-string client-value))
 
 ;;;;;;
 ;;; Boolean component
@@ -119,7 +127,7 @@
 
 (def method parse-component-value ((component boolean-component) client-value)
   (if (string= client-value "")
-      (slot-makunbound component 'component-value)
+      (values nil #t)
       (string-to-lisp-boolean client-value)))
 
 (defresources en
@@ -225,6 +233,27 @@
 (def component date-component (primitive-component)
   ())
 
+(def function render-date-component (component &key on-change (printer #'print-component-value))
+  (bind (((:read-only-slots client-state-sink) component)
+         (id (generate-frame-unique-string)))
+    (render-dojo-widget (id)
+      <input (:type     "text"
+              :id       ,id
+              :name     ,(id-of client-state-sink)
+              :value    ,(funcall printer component)
+              :dojoType #.+dijit/date-text-box+
+              :onChange ,(force on-change))>)))
+
+(def function print-date-value (value)
+  (local-time:format-rfc3339-timestring nil value :omit-time-part #t :omit-timezone-part #t))
+
+(def method print-component-value ((component date-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (and has-component-value?
+             component-value)
+        (print-date-value component-value)
+        "")))
+
 (def method parse-component-value ((component date-component) client-value)
   (unless (string= client-value "")
     (bind ((result (local-time:parse-rfc3339-timestring client-value :allow-missing-time-part #t)))
@@ -242,16 +271,68 @@
 (def component time-component (primitive-component)
   ())
 
+(def function render-time-component (component &key on-change (printer #'print-component-value))
+  (bind (((:read-only-slots client-state-sink) component)
+         (id (generate-frame-unique-string)))
+    (render-dojo-widget (id)
+      <input (:type     "text"
+              :id       ,id
+              :name     ,(id-of client-state-sink)
+              :constraints "{timePattern:'HH:mm:ss', clickableIncrement:'T01:00:00', visibleIncrement:'T04:00:00', visibleRange:'T12:00:00'}"
+              :value    ,(funcall printer component)
+              :dojoType #.+dijit/time-text-box+
+              :onChange ,(force on-change))>)))
+
+(def function print-time-value (value)
+  (local-time:format-timestring nil value :format '(#\T (:hour 2) #\: (:min 2) #\: (:sec 2)) :timezone local-time:+utc-zone+))
+
+(def method print-component-value ((component time-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (and has-component-value?
+             component-value)
+        (print-time-value component-value)
+        "")))
+
+(def method parse-component-value ((component time-component) client-value)
+  (unless (string= client-value "")
+    (aprog1 (local-time:parse-timestring client-value :allow-missing-date-part #t :allow-missing-timezone-part #t)
+      (unless it
+        (invalid-client-value "Failed to parse ~S as a time" client-value)))))
+
 ;;;;;;
 ;;; Timestamp component
 
 (def component timestamp-component (primitive-component)
   ())
 
+(def function render-timestamp-component (component &key on-change)
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (render-date-component component :on-change on-change :printer (lambda (component)
+                                                                     (declare (ignore component))
+                                                                     (if (and has-component-value?
+                                                                              component-value)
+                                                                         (print-date-value component-value)
+                                                                         "")))
+    (render-time-component component :on-change on-change :printer (lambda (component)
+                                                                     (declare (ignore component))
+                                                                     (if (and has-component-value?
+                                                                              component-value)
+                                                                         (print-time-value component-value)
+                                                                         "")))))
+
+(def method print-component-value ((component timestamp-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (and has-component-value?
+             component-value)
+        (localized-timestamp component-value)
+        "")))
+
 (def method parse-component-value ((component timestamp-component) client-value)
+  (when (consp client-value)
+    (setf client-value (apply #'concatenate-string client-value)))
   (unless (string= client-value "")
-    (aprog1
-        (local-time:parse-rfc3339-timestring client-value :fail-on-error #f)
+    (aprog1 (local-time:parse-timestring client-value :fail-on-error #f)
+      ;; TODO: timezone is not present in the string and thus this parsing fails: (local-time:parse-rfc3339-timestring client-value :fail-on-error #f)
       (unless it
         (invalid-client-value "Failed to parse ~S as a timestamp" client-value)))))
 

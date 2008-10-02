@@ -22,7 +22,8 @@
     :year
     :type (member :year :month :weak :day :hour :minute :second))
    (range
-    (make-instance 'member-component
+    (make-instance 'member-inspector
+                   :edited #t
                    ;; TODO: kill this hack
                    :possible-values '(2007 2008 2009)
                    :component-value 2008

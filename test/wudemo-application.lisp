@@ -207,10 +207,9 @@
                                 (make-primitive-menu-item-content (remove nil
                                                                           (map-product (lambda (type value edited)
                                                                                          (when (typep value type)
-                                                                                           (bind ((inspector (apply (if edited
-                                                                                                                        #'make-editor
-                                                                                                                        #'make-viewer)
+                                                                                           (bind ((inspector (apply #'make-inspector
                                                                                                                     type
+                                                                                                                    :edited edited
                                                                                                                     (unless (eq value :unbound)
                                                                                                                       (list :component-value value)))))
                                                                                              (list
@@ -225,18 +224,22 @@
                                 (make-primitive-menu-item-content (map-product (lambda (type)
                                                                                  (list
                                                                                   (label (format nil "type: ~A " type))
-                                                                                  (make-filter type)))
+                                                                                  (make-place-filter type)))
                                                                                types)))))))
         (menu "Primitive"
           (make-primitive-menu-item 't '(t) '(:unbound nil #t 42 "alma" 'korte (anything)) nil)
-          (make-primitive-menu-item 'boolean '(boolean) '(#f #t) '(:unbound (monday?)))
+          (make-primitive-menu-item 'boolean '(boolean #+wui-and-cl-perec (or prc::unbound boolean)) '(#f #t) '(:unbound (monday?)))
           (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '(:unbound (user-name)))
-          (make-primitive-menu-item 'password '(string (or null string)) '(nil "titok") '(:unbound (generate-password)))
+          (make-primitive-menu-item 'symbol '(symbol (or null symbol)) '(nil eval) '(:unbound (find-symbol "EVAL" "COMMON-LISP")))
+          (make-primitive-menu-item 'number '(number (or null number)) '(nil 3 3.14) '(:unbound (life-universe-and-everything)))
           (make-primitive-menu-item 'integer '(integer (or null integer)) '(nil 3) '(:unbound (life-universe-and-everything)))
-          (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.3) '(:unbound (pi)))
-          (make-primitive-menu-item 'date '(date (or null date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(:unbound (today)))
-          (make-primitive-menu-item 'time '(time (or null time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
-          (make-primitive-menu-item 'timestamp '(timestamp (or null timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
+          (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.14) '(:unbound (pi)))
+          #+wui-and-cl-perec
+          (make-primitive-menu-item 'prc::date '(prc::date (or null prc::date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(:unbound (today)))
+          #+wui-and-cl-perec
+          (make-primitive-menu-item 'prc::time '(prc::time (or null prc::time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
+          #+wui-and-cl-perec
+          (make-primitive-menu-item 'prc::timestamp '(prc::timestamp (or null prc::timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
           (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(:unbound (one-plus-one)))))
       (menu "Metagui"
         (menu "Parent"

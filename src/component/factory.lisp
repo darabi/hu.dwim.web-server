@@ -79,6 +79,9 @@
   (apply #'make-instance (find-inspector-type-for-prototype prototype) args))
 
 (def (generic e) find-inspector-type-for-prototype (prototype)
+  (:method ((prototype t))
+    't-maker)
+
   (:method ((prototype string))
     'string-inspector)
 
@@ -195,6 +198,9 @@
           (find-filter-type-for-type t)))))
 
 (def (generic e) find-filter-type-for-prototype (prototype)
+  (:method ((prototype t))
+    't-filter)
+
   (:method ((prototype string))
     'string-filter)
 
@@ -272,6 +278,9 @@
           (find-maker-type-for-type t)))))
 
 (def (generic e) find-maker-type-for-prototype (prototype)
+  (:method ((prototype t))
+    't-maker)
+
   (:method ((prototype string))
     'string-maker)
 

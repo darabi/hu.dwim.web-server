@@ -64,8 +64,6 @@
       (progn
         (assert (and (boundp '*frame*)
                      *frame*))
-        (unless (root-component-of *frame*)
-          (setf (root-component-of *frame*) (make-test-frame)))
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-raw-functional-response ()

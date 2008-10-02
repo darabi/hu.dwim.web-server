@@ -207,7 +207,6 @@
     :components ((:file "package")
                  (:file "test-environment" :depends-on ("package"))
                  (:file "server")
-                 (:file "component")
                  (:file "application")
                  (:file "wudemo-application"))))
   :depends-on (:wui :stefil :drakma))
@@ -251,6 +250,8 @@
                  (:file "process")
                  (:file "tesites")))))
 
+(defmethod perform ((op load-op) (system (eql (find-system :wui-and-cl-perec))))
+  (pushnew :wui-and-cl-perec *features*))
 
 
 #+nil ; TODO asdf-system-connections is broken

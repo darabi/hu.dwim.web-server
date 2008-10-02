@@ -10,6 +10,9 @@
 (def component primitive-filter (primitive-component filter-component)
   ())
 
+(def function make-update-use-in-filter-js (component)
+  (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of component) #t)))
+
 ;;;;;;
 ;;; T filter
 
@@ -17,6 +20,7 @@
   ())
 
 (def render t-filter ()
+  (ensure-client-state-sink -self-)
   (render-t-component -self-))
 
 ;;;;;;
@@ -112,17 +116,38 @@
 (def component date-filter (date-component primitive-filter)
   ())
 
+(def render date-filter ()
+  (ensure-client-state-sink -self-)
+  (render-date-component -self- :on-change (make-update-use-in-filter-js -self-)))
+
+(def method collect-possible-filter-predicates ((self date-filter))
+  '(= < ≤ > ≥))
+
 ;;;;;;
 ;;; Time filter
 
 (def component time-filter (time-component primitive-filter)
   ())
 
+(def render time-filter ()
+  (ensure-client-state-sink -self-)
+  (render-time-component -self- :on-change (make-update-use-in-filter-js -self-)))
+
+(def method collect-possible-filter-predicates ((self time-filter))
+  '(= < ≤ > ≥))
+
 ;;;;;;
 ;;; Timestamp filter
 
 (def component timestamp-filter (timestamp-component primitive-filter)
   ())
+
+(def render timestamp-filter ()
+  (ensure-client-state-sink -self-)
+  (render-timestamp-component -self- :on-change (make-update-use-in-filter-js -self-)))
+
+(def method collect-possible-filter-predicates ((self timestamp-filter))
+  '(= < ≤ > ≥))
 
 ;;;;;;
 ;;; Member filter
@@ -135,4 +160,4 @@
 
 (def render member-filter ()
   (ensure-client-state-sink -self-)
-  (render-member-component -self- :on-change (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of -self-) #t))))
+  (render-member-component -self- :on-change (make-update-use-in-filter-js -self-)))

@@ -166,14 +166,23 @@
 (def method find-place-inspector-type-for-compound-type* (first type)
   (find-place-inspector-type-for-type (cl-perec:parse-type type)))
 
+(def method find-place-inspector-type-for-type ((type (eql 'prc::timestamp)))
+  'place-inspector)
+
 ;;;;;;
 ;;; Place maker
 
 (def method find-place-maker-type-for-compound-type* (first type)
   (find-place-maker-type-for-type (cl-perec:parse-type type)))
 
+(def method find-place-maker-type-for-type ((type (eql 'prc::timestamp)))
+  'place-maker)
+
 ;;;;;;
 ;;; Place filter
 
 (def method find-place-filter-type-for-compound-type* (first type)
   (find-place-filter-type-for-type (cl-perec:parse-type type)))
+
+(def method find-place-filter-type-for-type ((type (eql 'prc::timestamp)))
+  'place-filter)

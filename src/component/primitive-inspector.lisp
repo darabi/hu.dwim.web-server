@@ -21,11 +21,9 @@
   ())
 
 (def render t-inspector ()
-  (bind (((:read-only-slots edited component-value) -self-)
-         (printed-value (format nil "~S" component-value)))
-    (if edited
-        (render-t-component -self-)
-        `xml,printed-value)))
+  (if (edited-p -self-)
+      (render-t-component -self-)
+      `xml,(print-component-value -self-)))
 
 ;;;;;;
 ;;; Boolean inspector
@@ -120,17 +118,32 @@
 (def component date-inspector (date-component primitive-inspector)
   ())
 
+(def render date-inspector ()
+  (if (edited-p -self-)
+      (render-date-component -self-)
+      `xml,(print-component-value -self-)))
+
 ;;;;;;
 ;;; Time inspector
 
 (def component time-inspector (time-component primitive-inspector)
   ())
 
+(def render time-inspector ()
+  (if (edited-p -self-)
+      (render-time-component -self-)
+      `xml,(print-component-value -self-)))
+
 ;;;;;;
 ;;; Timestamp inspector
 
 (def component timestamp-inspector (timestamp-component primitive-inspector)
   ())
+
+(def render timestamp-inspector ()
+  (if (edited-p -self-)
+      (render-timestamp-component -self-)
+      `xml,(print-component-value -self-)))
 
 ;;;;;;
 ;;; Member inspector

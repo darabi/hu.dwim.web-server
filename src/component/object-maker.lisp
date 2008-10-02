@@ -93,7 +93,7 @@
   (with-slots (the-class class-selector) -self-
     (setf class-selector
           (when-bind subclasses (subclasses the-class)
-            (make-instance 'member-component
+            (make-instance 'member-inspector
                            :edited #t
                            :allow-nil-value #t
                            :component-value the-class
