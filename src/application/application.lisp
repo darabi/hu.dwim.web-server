@@ -434,11 +434,12 @@ Custom implementations should look something like this:
          <result "success">>)
       (render component)))
 
-(def (function e) render-to-string (component)
+(def (function e) render-to-string (component &key ajax-aware)
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
          (*application* (make-instance 'application :path-prefix ""))
          (*session* (make-instance 'session))
-         (*frame* (make-instance 'frame :session *session*)))
+         (*frame* (make-instance 'frame :session *session*))
+         (*ajax-aware-request* ajax-aware))
     (setf (id-of *session*) "1234567890")
     (with-lock-held-on-session (*session*)
       (octets-to-string
