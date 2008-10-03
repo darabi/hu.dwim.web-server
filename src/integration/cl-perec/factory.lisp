@@ -109,7 +109,8 @@
     'ip-address-filter)
 
   (:method ((type cl-perec:set-type))
-    `(label-filter :component-value "TODO")))
+    ;; TODO:
+    't-filter))
 
 (def method find-filter-type-for-compound-type* (first type)
   (find-filter-type-for-type (cl-perec:parse-type type)))

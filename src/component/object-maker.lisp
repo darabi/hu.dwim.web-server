@@ -95,7 +95,7 @@
           (when-bind subclasses (subclasses the-class)
             (make-instance 'member-inspector
                            :edited #t
-                           :allow-nil-value #t
+                           :the-type `(or null (member ,subclasses))
                            :component-value the-class
                            :possible-values subclasses)))))
 
