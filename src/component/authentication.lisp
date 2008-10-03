@@ -66,7 +66,7 @@
 
 (def render fake-identifier-and-password-login-component
   (bind (((:read-only-slots identifier password comment) -self-)
-         (uri (clone-uri (uri-of *request*))))
+         (uri (clone-request-uri)))
     (setf (uri-query-parameter-value uri "identifier") identifier)
     (setf (uri-query-parameter-value uri "password") password)
     <div (:class "fake-login")

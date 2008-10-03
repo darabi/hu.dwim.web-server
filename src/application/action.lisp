@@ -78,8 +78,14 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
+(def function clone-request-uri ()
+  (prog1-bind uri
+      (clone-uri (uri-of *request*))
+    (delete-query-parameter uri +ajax-aware-parameter-name+)
+    (delete-query-parameter uri +delayed-content-parameter-name+)))
+
 (def (function e) action-to-uri (action &key scheme delayed-content)
-  (bind ((uri (clone-uri (uri-of *request*))))
+  (bind ((uri (clone-request-uri)))
     (register-action *frame* action)
     (decorate-uri uri *application*)
     (decorate-uri uri *session*)

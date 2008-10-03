@@ -13,11 +13,11 @@
       (call-next-method)))
 
 (def method handle-toplevel-condition ((application application) (error frame-out-of-sync-error))
-  (bind ((refresh-uri (bind ((uri (clone-uri (uri-of *request*))))
+  (bind ((refresh-uri (bind ((uri (clone-request-uri)))
                         (setf (uri-query-parameter-value uri +action-id-parameter-name+) nil)
                         (decorate-uri uri *frame*)
                         uri))
-         (new-frame-uri (bind ((uri (clone-uri (uri-of *request*))))
+         (new-frame-uri (bind ((uri (clone-request-uri)))
                           (decorate-uri uri *application*)
                           (decorate-uri uri *session*)
                           (setf (uri-query-parameter-value uri +frame-id-parameter-name+) nil)

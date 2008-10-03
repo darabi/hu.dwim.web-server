@@ -55,7 +55,7 @@
        (if (or (ends-with #\/ relative-path)
                (zerop (length relative-path)))
            (make-directory-index-response path-prefix relative-path root-directory truename)
-           (bind ((uri (clone-uri (uri-of *request*))))
+           (bind ((uri (clone-request-uri)))
              (make-redirect-response (append-path-to-uri uri "/")))))
       (t
        (make-file-serving-response truename)))))

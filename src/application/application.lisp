@@ -172,9 +172,6 @@
             ;; FIXME locking the session should happen inside the with-lock-held-on-application block
             )))
     (app.debug "Request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
-    ;; clear these so that the parameters added by the js side don't accumulate
-    (setf (uri-query-parameter-value (uri-of *request*) +ajax-aware-parameter-name+) nil)
-    (setf (uri-query-parameter-value (uri-of *request*) +delayed-content-parameter-name+) nil)
     (setf *session* session)
     (if session
         (restart-case
@@ -532,13 +529,13 @@ Custom implementations should look something like this:
 ;;; utils
 
 (def (function e) make-redirect-response-with-frame-index-decorated (&optional (frame *frame*))
-  (bind ((uri (clone-uri (uri-of *request*))))
+  (bind ((uri (clone-request-uri)))
     (assert (and frame (not (null (id-of frame)))))
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
     (make-redirect-response uri)))
 
 (def (function e) make-redirect-response-with-frame-id-decorated (&optional (frame *frame*))
-  (bind ((uri (clone-uri (uri-of *request*))))
+  (bind ((uri (clone-request-uri)))
     (assert (and frame (not (null (id-of frame)))))
     (setf (uri-query-parameter-value uri +frame-id-parameter-name+) (id-of frame))
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
@@ -549,7 +546,7 @@ Custom implementations should look something like this:
 
 (def (function e) make-uri-for-application (application &optional relative-path)
   "Does not assume an application context and only use *session* & co. when available."
-  (bind ((uri (clone-uri (uri-of *request*))))
+  (bind ((uri (clone-request-uri)))
     (clear-uri-query-parameters uri)
     (decorate-uri uri application)
     (when relative-path
@@ -558,7 +555,7 @@ Custom implementations should look something like this:
 
 (def (function e) make-uri-for-current-application (&optional relative-path)
   "Expects a valid *session* environment."
-  (bind ((uri (clone-uri (uri-of *request*))))
+  (bind ((uri (clone-request-uri)))
     (clear-uri-query-parameters uri)
     (decorate-uri uri *application*)
     (decorate-uri uri *session*)
