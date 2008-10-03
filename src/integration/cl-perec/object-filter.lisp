@@ -23,6 +23,21 @@
 (def layered-method execute-filter-instances ((component standard-object-filter) (class prc::persistent-class))
   (prc::execute-query (build-filter-query component)))
 
+(def method predicate-function ((component timestamp-component) (class prc::persistent-class) (predicate (eql '=)))
+  'local-time:timestamp=)
+
+(def method predicate-function ((component timestamp-component) (class prc::persistent-class) (predicate (eql '<)))
+  'local-time:timestamp<)
+
+(def method predicate-function ((component timestamp-component) (class prc::persistent-class) (predicate (eql '≤)))
+  'local-time:timestamp<=)
+
+(def method predicate-function ((component timestamp-component) (class prc::persistent-class) (predicate (eql '>)))
+  'local-time:timestamp>)
+
+(def method predicate-function ((component timestamp-component) (class prc::persistent-class) (predicate (eql '≥)))
+  'local-time:timestamp>=)
+
 ;;;;;
 ;;; Query builder
 
