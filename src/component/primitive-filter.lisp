@@ -167,3 +167,9 @@
 
 (def component html-filter (html-component string-filter)
   ())
+
+;;;;;;
+;;; IP address filter
+
+(def component ip-address-filter (ip-address-component primitive-filter)
+  ())

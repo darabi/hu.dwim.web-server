@@ -166,3 +166,9 @@
   (if (edited-p -self-)
       (render-html-component -self-)
       (emit-html-component-value -self-)))
+
+;;;;;;
+;;; IP address inspector
+
+(def component ip-address-inspector (ip-address-component primitive-inspector)
+  ())

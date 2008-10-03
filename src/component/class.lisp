@@ -115,10 +115,10 @@
 (def method refresh-component ((component standard-slot-definition-row-component))
   (with-slots (slot label type readers writers cells) component
     (if slot
-        (setf label (make-instance 'string-component :component-value (qualified-symbol-name (slot-definition-name slot)))
-              type (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-type slot))))
-              readers (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-definition-readers slot))))
-              writers (make-instance 'string-component :component-value (string-downcase (princ-to-string (slot-definition-writers slot))))
+        (setf label (qualified-symbol-name (slot-definition-name slot))
+              type (string-downcase (princ-to-string (slot-type slot)))
+              readers (string-downcase (princ-to-string (slot-definition-readers slot)))
+              writers (string-downcase (princ-to-string (slot-definition-writers slot)))
               cells (mapcar (lambda (content)
                               (make-instance 'cell-component :content content))
                             (list label type readers writers)))

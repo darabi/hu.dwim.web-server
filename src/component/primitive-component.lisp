@@ -394,3 +394,14 @@
             :dojoType #.+dijit/editor+
             :onChange `js-inline(setf (slot-value (dojo.byId ,field-id) 'value) (.getValue (dijit.byId ,id))))
         ,(emit-html-component-value component)>)))
+
+;;;;;;
+;;; IP address component
+
+(def component ip-address-component (primitive-component)
+  ())
+
+(def render ip-address-component ()
+  (iter (for ip-element :in-sequence (component-value-of -self-))
+        `xml,(princ-to-string ip-element)
+        `xml,"."))

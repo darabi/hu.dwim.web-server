@@ -153,3 +153,9 @@
 
 (def render html-maker ()
   (render-html-component -self-))
+
+;;;;;;
+;;; IP address maker
+
+(def component ip-address-maker (ip-address-component primitive-maker)
+  ())
