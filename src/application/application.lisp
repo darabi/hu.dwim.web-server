@@ -425,11 +425,12 @@ Custom implementations should look something like this:
         ;; (emit-xml-prologue +encoding+)
         <ajax-response
          ,@(with-collapsed-js-scripts
-            <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
-              ,(map nil (lambda (dirty-component)
-                          (with-restored-component-environment (parent-component-of dirty-component)
-                            (render dirty-component)))
-                    dirty-components)>)
+             (with-dojo-widget-collector
+               <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
+                 ,(map nil (lambda (dirty-component)
+                             (with-restored-component-environment (parent-component-of dirty-component)
+                               (render dirty-component)))
+                       dirty-components)>))
          <result "success">>)
       (render component)))
 
