@@ -13,10 +13,10 @@
 (def (special-variable e) *frame*)
 (def (special-variable e) *action*)
 
-(def (special-variable e) *delayed-content-request* #f
-  "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
-(def (special-variable e) *ajax-aware-request* #f
-  "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the remote JS stack and awaits a structured XML answer.")
+(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
+    *delayed-content-request*)
+(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the remote JS stack and awaits a structured XML answer.")
+    *ajax-aware-request*)
 
 (def constant +action-id-length+   8)
 (def constant +frame-id-length+    8)

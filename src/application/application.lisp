@@ -163,9 +163,6 @@
                (boundp '*frame*))
           () "May not use WITH-SESSION/FRAME/ACTION-LOGIC outside the dynamic extent of an application")
   (bind ((application *application*)
-         (*ajax-aware-request* (ajax-aware-request?))
-         (*delayed-content-request* (or *ajax-aware-request*
-                                        (delayed-content-request?)))
          ((:values session session-cookie-exists? invalidity-reason)
           (with-lock-held-on-application (application)
             (find-session-from-request application)
@@ -243,7 +240,10 @@
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? application request)))
     (when matches?
       (with-locale (default-locale-of application)
-        (bind ((local-time:*default-timezone* (default-timezone-of application)))
+        (bind ((*ajax-aware-request* (ajax-aware-request?))
+               (*delayed-content-request* (or *ajax-aware-request*
+                                              (delayed-content-request?)))
+               (local-time:*default-timezone* (default-timezone-of application)))
           (app.debug "~A matched with relative-path ~S, querying entry-points for response" application relative-path)
           (query-entry-points-for-response application request relative-path))))))
 
@@ -502,6 +502,9 @@ Custom implementations should look something like this:
          (*session* (session-of self))
          (*application* (application-of self))
          (*debug-component-hierarchy* (if *frame* (debug-component-hierarchy-p *frame*) *debug-component-hierarchy*))
+         (*ajax-aware-request* (ajax-aware-request?))
+         (*delayed-content-request* (or *ajax-aware-request*
+                                        (delayed-content-request?)))
          (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
                                                        :initial-buffer-size 256)
                  (when (and *frame*
