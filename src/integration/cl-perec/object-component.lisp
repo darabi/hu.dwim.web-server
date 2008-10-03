@@ -11,3 +11,8 @@
 
 (def method hash-key-for ((instance prc::persistent-object))
   (prc::oid-of instance))
+
+(def layered-method collect-standard-object-detail-slot-groups ((component standard-object-detail-component) (class dmm::entity) (prototype prc::persistent-object) (slots list))
+  (bind ((slot-groups (partition slots #'dmm::primary-p (constantly #t))))
+    (list (cons #"standard-object-detail-component.primary-group" (first slot-groups))
+          (cons #"standard-object-detail-component.secondary-group" (second slot-groups)))))

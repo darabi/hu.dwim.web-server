@@ -12,9 +12,6 @@
       (make-viewer class :default-component-type 'reference-component)
       (call-next-method)))
 
-(def layered-method collect-standard-object-detail-maker-slot-groups ((component standard-object-detail-maker) (class dmm::entity) (prototype prc::persistent-object) (slots list))
-  (partition slots #'dmm::primary-p (constantly #t)))
-
 (def layered-method collect-standard-object-detail-maker-slots ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
   (bind ((excluded-slot-name
           (awhen (find-ancestor-component-with-type component 'standard-object-slot-value-component)

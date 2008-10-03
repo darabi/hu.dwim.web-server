@@ -80,12 +80,10 @@
 ;;; Standard object detail inspector
 
 (def component standard-object-detail-inspector (abstract-standard-object-component
+                                                 standard-object-detail-component
                                                  inspector-component
-                                                 editable-component
-                                                 detail-component
-                                                 remote-identity-component-mixin)
-  ((class nil :accessor nil :type component)
-   (slot-value-groups nil :type components))
+                                                 editable-component)
+  ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT in detail."))
 
 (def method refresh-component ((self standard-object-detail-inspector))
@@ -99,26 +97,26 @@
           (setf class nil))
       (if instance
           (bind ((slots (collect-standard-object-detail-inspector-slots self the-class instance))
-                 (slot-groups (collect-standard-object-detail-inspector-slot-groups self the-class instance slots)))
+                 (slot-groups (collect-standard-object-detail-slot-groups self the-class instance slots)))
             (setf slot-value-groups
-                  (iter (for slot-group :in slot-groups)
+                  (iter (for (name . slot-group) :in slot-groups)
                         (when slot-group
                           (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
                           (if slot-value-group
                               (setf (component-value-of slot-value-group) slot-group
                                     (instance-of slot-value-group) instance
-                                    (the-class-of slot-value-group) the-class)
-                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector :instance instance :slots slot-group)))
+                                    (the-class-of slot-value-group) the-class
+                                    (name-of slot-value-group) name)
+                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector
+                                                                    :instance instance
+                                                                    :slots slot-group
+                                                                    :name name)))
                           (collect slot-value-group)))))
           (setf slot-value-groups nil)))))
 
 (def (layered-function e) make-standard-object-detail-inspector-class (component class prototype)
   (:method ((component standard-object-detail-inspector) (class standard-class) (prototype standard-object))
     (localized-class-name class)))
-
-(def (layered-function e) collect-standard-object-detail-inspector-slot-groups (component class instance slots)
-  (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object) (slots list))
-    (list slots)))
 
 (def (layered-function e) collect-standard-object-detail-inspector-slots (component class instance)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object))
@@ -128,18 +126,15 @@
   (bind (((:read-only-slots class slot-value-groups id) -self-))
     <div (:id ,id :class "standard-object")
          <span ,(standard-object-detail-inspector.instance class)>
-         <div <h3 ,#"standard-object-detail-inspector.slots">
-              <table ,(map nil #'render slot-value-groups)>>>))
+         <table ,(map nil #'render slot-value-groups)>>))
 
 (defresources en
   (standard-object-detail-inspector.instance (class)
-    <span "Viewing an instance of " ,(render class)>)
-  (standard-object-detail-inspector.slots "Slots"))
+    <span "Viewing an instance of " ,(render class)>))
 
 (defresources hu
   (standard-object-detail-inspector.instance (class)
-    <span "Egy " ,(render class) " megjelenítése">)
-  (standard-object-detail-inspector.slots "Tulajdonságok"))
+    <span "Egy " ,(render class) " megjelenítése">))
 
 ;;;;;;
 ;;; Standard object slot value group inspector

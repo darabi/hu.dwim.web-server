@@ -165,30 +165,50 @@
       (setf (selected-instances-of component) nil))
     (notf (selected-instance-p component instance))))
 
+;;;;;
+;;; Standard object detail component
+
+(def component standard-object-detail-component (detail-component remote-identity-component-mixin)
+  ((class nil :accessor nil :type component)
+   (slot-value-groups nil :type components)))
+
+(def (layered-function e) collect-standard-object-detail-slot-groups (component class prototype slots)
+  (:method ((component standard-object-detail-component) (class standard-class) (prototype standard-object) (slots list))
+    (cons #"standard-object-detail-component.primary-group" (list slots))))
+
+(defresources en
+  (standard-object-detail-component.primary-group "Primary properties")
+  (standard-object-detail-component.secondary-group "Other properties"))
+
+(defresources hu
+  (standard-object-detail-component.primary-group "Elsődleges tulajdonságok")
+  (standard-object-detail-component.secondary-group "Egyéb tulajdonságok"))
 ;;;;;;
 ;;; Standard object slot value group 
 
 (def component standard-object-slot-value-group-component (abstract-standard-slot-definition-group-component remote-identity-component-mixin)
-  ((slot-values nil :type components)))
+  ((name nil :type component)
+   (slot-values nil :type components)))
+
+(def generic standard-object-slot-value-group-column-count (component)
+  (:method ((self standard-object-slot-value-group-component))
+    2))
 
 (def render standard-object-slot-value-group-component ()
-  (bind (((:read-only-slots slot-values id) -self-))
+  (bind (((:read-only-slots name slot-values id) -self-))
     (if slot-values
         (progn
-          <thead <tr <th ,#"standard-object-slot-value-group.column.name">
-                     <th ,#"standard-object-slot-value-group.column.value">>>
+          <thead <tr <th (:colspan ,(standard-object-slot-value-group-column-count -self-)) ,(if name
+                                                                                                 (render name)
+                                                                                                 "NO")>>>
           <tbody ,(map nil #'render slot-values)>)
         <span (:id ,id) ,#"there-are-none">)))
 
 (defresources en
-  (standard-object-slot-value-group.there-are-no-slots "There are no slots")
-  (standard-object-slot-value-group.column.name "Name")
-  (standard-object-slot-value-group.column.value "Value"))
+  (standard-object-slot-value-group.there-are-no-slots "There are no properties"))
 
 (defresources hu
-  (standard-object-slot-value-group.there-are-no-slots "Nincs egy tulajdonság sem")
-  (standard-object-slot-value-group.column.name "Név")
-  (standard-object-slot-value-group.column.value "Érték"))
+  (standard-object-slot-value-group.there-are-no-slots "Nincs egy tulajdonság sem"))
 
 ;;;;;;
 ;;; Standard object slot value

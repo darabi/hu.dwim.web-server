@@ -66,13 +66,8 @@
 ;;;;;;
 ;;; Standard object detail filter
 
-(def component standard-object-detail-filter (abstract-standard-class-component
-                                              filter-component
-                                              detail-component
-                                              remote-identity-component-mixin)
-  ((class nil :accessor nil :type component)
-   (class-selector nil :type component)
-   (slot-value-groups nil :type component)))
+(def component standard-object-detail-filter (standard-object-detail-component abstract-standard-class-component filter-component)
+  ((class-selector nil :type component)))
 
 (def (macro e) standard-object-detail-filter (class)
   `(make-instance 'standard-object-detail-filter :the-class ,class))
@@ -94,25 +89,23 @@
       (setf class (make-standard-object-detail-filter-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-filter-slots self selected-class prototype))
-                                     (slot-groups (collect-standard-object-detail-filter-slot-groups self selected-class prototype slots)))
-                                (iter (for slot-group :in slot-groups)
+                                     (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
+                                (iter (for (name . slot-group) :in slot-groups)
                                       (when slot-group
                                         (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
                                         (if slot-value-group
                                             (setf (component-value-of slot-value-group) slot-group
-                                                  (the-class-of slot-value-group) selected-class)
+                                                  (the-class-of slot-value-group) selected-class
+                                                  (name-of slot-value-group) name)
                                             (setf slot-value-group (make-instance 'standard-object-slot-value-group-filter
+                                                                                  :slots slot-group
                                                                                   :the-class selected-class
-                                                                                  :slots slot-group)))
+                                                                                  :name name)))
                                         (collect slot-value-group))))))))
 
 (def (layered-function e) make-standard-object-detail-filter-class (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
     (localized-class-name class)))
-
-(def (layered-function e) collect-standard-object-detail-filter-slot-groups (component class prototype slots)
-  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object) (slots list))
-    (list slots)))
 
 (def (layered-function e) collect-standard-object-detail-filter-slots (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
@@ -123,23 +116,22 @@
     <div (:id ,id)
          <div ,(standard-object-detail-filter.instance class)>
          ,(when class-selector
-                <div "Narrow down to "
+                <div ,#"standard-object-detail-filter.select-class"
                      ,(render class-selector)
                      ,(render (command (icon refresh)
                                        (make-action
                                          (setf (outdated-p -self-) #t))))>)
-         <div <h3 ,#"standard-object-detail-filter.slots">
-              <table ,(map nil #'render slot-value-groups)>>>))
+         <table ,(map nil #'render slot-value-groups)>>))
 
 (defresources en
   (standard-object-detail-filter.instance (class)
     <span "Searching for instances of" ,(render class)>)
-  (standard-object-detail-filter.slots "Slots"))
+  (standard-object-detail-filter.select-class "Select class"))
 
 (defresources hu
   (standard-object-detail-filter.instance (class)
     <span ,(render class) " keresése">)
-  (standard-object-detail-filter.slots "Tulajdonságok"))
+  (standard-object-detail-filter.select-class "Típus kiválasztása"))
 
 ;;;;;;
 ;;; Standard object slot value group filter
@@ -157,14 +149,8 @@
                     (setf slot-value (make-instance 'standard-object-slot-value-filter :the-class the-class :slot slot)))
                 (collect slot-value)))))
 
-(def render standard-object-slot-value-group-filter ()
-  (bind (((:read-only-slots slot-values id) -self-))
-    (if slot-values
-        (progn
-          <thead <tr <th (:colspan 4) ,#"standard-object-slot-value-group.column.name">
-                     <th ,#"standard-object-slot-value-group.column.value">>>
-          <tbody ,(map nil #'render slot-values)>)
-        <span (:id ,id) ,#"there-are-none">)))
+(def method standard-object-slot-value-group-column-count ((self standard-object-slot-value-group-filter))
+  5)
 
 ;;;;;;
 ;;; Standard object slot value filter

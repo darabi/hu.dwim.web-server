@@ -78,12 +78,8 @@
 ;;;;;;
 ;;; Standard object detail maker
 
-(def component standard-object-detail-maker (abstract-standard-class-component
-                                             maker-component
-                                             remote-identity-component-mixin)
-  ((class nil :accessor nil :type component)
-   (class-selector nil :type component)
-   (slot-value-groups nil :type components))
+(def component standard-object-detail-maker (standard-object-detail-component abstract-standard-class-component maker-component)
+  ((class-selector nil :type component))
   (:documentation "Maker for an instance of STANDARD-OBJECT in detail."))
 
 (def (macro e) standard-object-detail-maker (class)
@@ -112,25 +108,23 @@
       (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
-                                     (slot-groups (collect-standard-object-detail-maker-slot-groups self selected-class prototype slots)))
-                                (iter (for slot-group :in slot-groups)
+                                     (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
+                                (iter (for (name . slot-group) :in slot-groups)
                                       (when slot-group
                                         (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
                                         (if slot-value-group
                                             (setf (component-value-of slot-value-group) slot-group
-                                                  (the-class-of slot-value-group) selected-class)
+                                                  (the-class-of slot-value-group) selected-class
+                                                  (name-of slot-value-group) name)
                                             (setf slot-value-group (make-instance 'standard-object-slot-value-group-maker
                                                                                   :the-class selected-class
-                                                                                  :slots slot-group)))
+                                                                                  :slots slot-group
+                                                                                  :name name)))
                                         (collect slot-value-group))))))))
 
 (def (layered-function e) make-standard-object-detail-maker-class (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (localized-class-name class)))
-
-(def (layered-function e) collect-standard-object-detail-maker-slot-groups (component class prototype slots)
-  (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object) (slots list))
-    (list slots)))
 
 (def (layered-function e) collect-standard-object-detail-maker-slots (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
@@ -141,23 +135,22 @@
     <div (:id ,id)
          <span ,(standard-object-detail-maker.instance class)>
          ,(when class-selector
-                <div "Narrow down to "
+                <div ,#"standard-object-detail-maker.select-class"
                      ,(render class-selector)
                      ,(render (command (icon refresh)
                                        (make-action
                                          (setf (outdated-p -self-) #t))))>)
-         <div <h3 ,#"standard-object-detail-maker.slots">
-              <table ,(map nil #'render slot-value-groups)>>>))
+         <table ,(map nil #'render slot-value-groups)>>))
 
 (defresources en
   (standard-object-detail-maker.instance (class)
     <span "Creating an instance of" ,(render class)>)
-  (standard-object-detail-maker.slots "Slots"))
+  (standard-object-detail-maker.select-class "Select class"))
 
 (defresources hu
   (standard-object-detail-maker.instance (class)
     <span "Egy új " ,(render class) " felvétele">)
-  (standard-object-detail-maker.slots "Tulajdonságok"))
+  (standard-object-detail-maker.select-class "Típus kiválasztása"))
 
 ;;;;;;
 ;;; Standard object slot value group maker
