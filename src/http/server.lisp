@@ -388,7 +388,9 @@
             (setf content-type (or content-type
                                    (switch ((pathname-type file-name) :test #'string=)
                                      ("html" (content-type-for +html-mime-type+ encoding))
+                                     ("xml" (content-type-for +xml-mime-type+ encoding))
                                      ("css"  (content-type-for +css-mime-type+ encoding))
+                                     ("csv"  (content-type-for +csv-mime-type+ encoding))
                                      (t (or (first (awhen (pathname-type file-name)
                                                      (mime-types-for-extension it)))
                                             (content-type-for +plain-text-mime-type+ encoding)))))))
