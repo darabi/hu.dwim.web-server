@@ -27,12 +27,13 @@
    (outdated #t :type boolean :documentation "True means the component must be refreshed before render.")))
 
 (def render :around component ()
-  (if (force (visible-p -self-))
-      (progn
-        (ensure-uptodate -self-)
-        (prog1 (render-with-debug-component-hierarchy -self- #'call-next-method)
-          (setf (dirty-p -self-) #f)))
-      +void+))
+  (with-component-environment -self- 
+    (if (force (visible-p -self-))
+        (progn
+          (ensure-uptodate -self-)
+          (prog1 (render-with-debug-component-hierarchy -self- #'call-next-method)
+            (setf (dirty-p -self-) #f)))
+        +void+)))
 
 (def render string ()
   `xml,-self-)

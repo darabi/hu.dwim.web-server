@@ -164,10 +164,11 @@
          replace-command-args))
 
 (def function execute-replace (original-component replacement-component)
-  (bind ((replacement-component (force replacement-component))
-         (original-component (force original-component))
-         (original-place (make-component-place original-component)))
-    (setf (component-at-place original-place) replacement-component)))
+  (bind ((original-component (force original-component)))
+    (with-restored-component-environment original-component
+      (bind ((original-place (make-component-place original-component))
+             (replacement-component (force replacement-component)))
+        (setf (component-at-place original-place) replacement-component)))))
 
 (def (function e) make-back-command (original-component original-place replacement-component replacement-place &rest args)
   "The BACK command puts REPLACEMENT-COMPONENT and ORIGINAL-COMPONENT back to their COMPONENT-PLACE and removes itself from its COMMAND-BAR"
@@ -189,16 +190,17 @@
          replace-command-args))
 
 (def function execute-replace-and-push-back (original-component replacement-component back-command-args)
-  (bind ((replacement-component (force replacement-component))
-         (replacement-place (make-component-place replacement-component))
-         (original-component (force original-component))
-         (original-place (make-component-place original-component))
-         (back-command (apply #'make-back-command original-component original-place replacement-component replacement-place
-                              (append back-command-args
-                                      `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
-                                                              (eq (force replacement-component) (component-at-place original-place)))))))))
-    (push-command back-command replacement-component)
-    (setf (component-at-place original-place) replacement-component)))
+  (bind ((original-component (force original-component)))
+    (with-restored-component-environment (parent-component-of original-component)
+      (bind ((replacement-component (force replacement-component))
+             (replacement-place (make-component-place replacement-component))
+             (original-place (make-component-place original-component))
+             (back-command (apply #'make-back-command original-component original-place replacement-component replacement-place
+                                  (append back-command-args
+                                          `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
+                                                                  (eq (force replacement-component) (component-at-place original-place)))))))))
+        (push-command back-command replacement-component)
+        (setf (component-at-place original-place) replacement-component)))))
 
 (def (function e) find-top-component-content (component)
   (awhen (find-ancestor-component-with-type component 'top-component)
