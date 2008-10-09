@@ -23,8 +23,8 @@
   (when (place-bound-p place)
     (bind ((value (value-at-place place)))
       (setf (component-value-of component)
-            (if (prc::values-having-validity-p value)
-                (prc::single-values-having-validity-value value)
+            (if (prc::d-value-p value)
+                (prc::single-d-value value)
                 value)))))
 
 ;; KLUDGE: TODO: redefined for now

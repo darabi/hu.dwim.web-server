@@ -5,45 +5,45 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Temporal provider
+;;; Time provider
 
-(def component temporal-provider-component (content-component)
-  ((t-value :type prc::timestamp)))
+(def component time-provider-component (content-component)
+  ((time :type prc::timestamp)))
 
-(def call-in-component-environment temporal-provider-component ()
-  (prc::call-with-t (t-value-of -self-) #'call-next-method
+(def call-in-component-environment time-provider-component ()
+  (prc::call-with-time (time-of -self-) #'call-next-method
     (call-next-method)))
 
 ;;;;;;
-;;; Temporal selector
+;;; Time selector
 
-(def component temporal-selector-component (content-component)
-  ((t-value :type component)))
+(def component time-selector-component (content-component)
+  ((time :type component)))
 
-(def render temporal-selector-component ()
-  (bind (((:read-only-slots t-value) -self-))
-    <div ,(render t-value)
+(def render time-selector-component ()
+  (bind (((:read-only-slots time) -self-))
+    <div ,(render time)
          ,(call-next-method)>))
 
 ;;;;;;
 ;;; Validity provider
 
 (def component validity-provider-component (content-component)
-  ((validity-start :type prc::timestamp)
+  ((validity-begin :type prc::timestamp)
    (validity-end :type prc::timestamp)))
 
-(def (macro e) validity-provider ((&key validity validity-start validity-end) &body forms)
+(def (macro e) validity-provider ((&key validity validity-begin validity-end) &body forms)
   `(make-instance 'validity-provider-component
                   :content (progn ,@forms)
-                  :validity-start ,(if validity
+                  :validity-begin ,(if validity
                                        (prc::first-moment-for-partial-timestamp validity)
-                                       validity-start)
+                                       validity-begin)
                   :validity-end ,(if validity
                                      (prc::last-moment-for-partial-timestamp validity)
                                      validity-end)))
 
 (def call-in-component-environment validity-provider-component ()
-  (prc::call-with-validity-range (validity-start-of -self-) (validity-end-of -self-) #'call-next-method))
+  (prc::call-with-validity-range (validity-begin-of -self-) (validity-end-of -self-) #'call-next-method))
 
 ;;;;;;
 ;;; Validity selector
@@ -54,12 +54,12 @@
 (def constructor validity-selector-component ()
   (begin-editing (range-of -self-)))
 
-(def (macro e) validity-selector ((&key validity validity-start validity-end) &body forms)
+(def (macro e) validity-selector ((&key validity validity-begin validity-end) &body forms)
   `(make-instance 'validity-selector-component
                   :content (progn ,@forms)
                   :range (timestamp-range :range-start ,(if validity
                                                             (prc::first-moment-for-partial-timestamp validity)
-                                                            validity-start)
+                                                            validity-begin)
                                           :range-end ,(if validity
                                                           (prc::last-moment-for-partial-timestamp validity)
                                                           validity-end))))
@@ -78,5 +78,5 @@
         (not-yet-implemented))))
 
 (def call-in-component-environment validity-selector-component ()
-  (bind (((:values validity-start validity-end) (compute-timestamp-range (range-of -self-))))
-    (prc::call-with-validity-range validity-start validity-end #'call-next-method)))
+  (bind (((:values validity-begin validity-end) (compute-timestamp-range (range-of -self-))))
+    (prc::call-with-validity-range validity-begin validity-end #'call-next-method)))
