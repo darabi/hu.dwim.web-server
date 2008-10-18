@@ -9,24 +9,29 @@
 
 (def component chart ()
   ((configuration-provider)
-   (data-provider nil)))
+   (data-provider nil)
+   (width 800)
+   (height 400)))
 
-(def function render-chart (component kind &key (width 800) (height 400))
+(def function render-chart (component kind)
   ;; TODO: move this to frame or something higher?
-  <script (:type "text/javascript" :src ,(concatenate 'string "/static/charting/" kind "/swfobject.js")) "">
-  (bind ((id (generate-frame-unique-string))
-         (data-provider (data-provider-of component)))
-    ;; TODO: generate variable name
-    <div (:id ,id) ,#"chart.missing-flash-plugin">
-    `js(let ((variable (new SWFObject ,(concatenate 'string  "/static/charting/" kind "/" kind ".swf") ,kind ,width ,height "8" "#FFFFFF")))
-         (.addVariable variable "settings_file"
-                       (encodeURIComponent ,(make-action-href (:delayed-content #t)
-                                              (funcall (configuration-provider-of component)))))
-         (unless ,(null data-provider)
-           (.addVariable variable "data_file"
+  
+  (bind ((path (concatenate 'string "static/charting/" kind "/")))
+    <script (:type "text/javascript" :src ,(concatenate 'string path "swfobject.js")) "">
+    (bind ((id (generate-frame-unique-string))
+           (data-provider (data-provider-of component)))
+      ;; TODO: generate variable name
+      <div (:id ,id) ,#"chart.missing-flash-plugin">
+      `js(let ((variable (new SWFObject ,(concatenate 'string  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8" "#FFFFFF")))
+           (.addVariable variable "path" ,path)
+           (.addVariable variable "settings_file"
                          (encodeURIComponent ,(make-action-href (:delayed-content #t)
-                                                (funcall data-provider)))))
-         (.write variable ,id))))
+                                                                (funcall (configuration-provider-of component)))))
+           (unless ,(null data-provider)
+             (.addVariable variable "data_file"
+                           (encodeURIComponent ,(make-action-href (:delayed-content #t)
+                                                                  (funcall (data-provider-of component))))))
+           (.write variable ,id)))))
 
 (def macro make-xml-provider (&body forms)
   `(lambda ()
@@ -39,3 +44,11 @@
 
 (defresources hu
   (chart.missing-flash-plugin "Flash Player nem elérhető"))
+
+
+(def function make-chart-from-files (type &key settings-file-relative-path data-file-relative-path)
+  (make-instance type
+                 :configuration-provider (lambda () (make-file-serving-response
+                                                (merge-pathnames settings-file-relative-path (asdf::component-pathname (asdf::find-system :wui))) ))
+                 :data-provider (lambda () (make-file-serving-response
+                                       (merge-pathnames data-file-relative-path (asdf::component-pathname (asdf::find-system :wui)))))))
