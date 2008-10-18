@@ -117,7 +117,7 @@
        
        <!-- [] (file name) file name of your data file. You can use any extension, generate this 
        data dynamicaly. The output of this file should be data in CSV format -->
-       <file_name>/static/charting/xxx.csv</file_name>
+       <file_name>data.csv</file_name>
        
        <!-- [] (file name) Using events you can have custom bullets with descriptions on your charts.
        Event properties are defined separately for every chart. Check examples/events/ example -->
@@ -141,10 +141,10 @@
        <csv>
          <!-- [false] (true / false) If this is set to false, then the oldest date should be on the
          top and increase when going down. If you newest date is on the top, set this to "false" -->
-         <reverse>false</reverse>
+         <reverse>true</reverse>
          
          <!-- [;] (separator) Column separator of csv file -->
-         <separator>|</separator>
+         <separator>,</separator>
          
          <!-- [0] (Number) In case you have some header in your csv file, or you have some rows
          which shouldn't be included, you can set how many rows should be skipped -->
@@ -376,9 +376,15 @@
       <comparing>
         <!-- [true] (true / false) in stock charts, when comparing one stock with another it is used
         to recalculate chart values to percents, as the difference between values of different
-        stocks can be very big. owever, if you compare close values, for example unique visitors 
+        stocks can be very big. However, if you compare close values, for example unique visitors 
         with new visitors, it would be better not to recalculate values -->
         <recalculate></recalculate>
+        
+        <!-- [false] (true / false) If the <recalculate> setting is set to true, the chart recalculates
+        values to percents. If this setting is set to false, then it takes the first value of a selected
+        period as a base value. If you set this setting to "true", the first value of a graph will be used
+        as base value. -->
+        <recalculate_from_start></recalculate_from_start>
         
         <!-- [0] (Number) with of graph line of comparing data sets -->
         <width></width>
@@ -386,7 +392,8 @@
         <!-- [false] (true / false) whether the comparing graph should be dashed -->
         <dashed></dashed>
         
-        <!-- [false] (true / false) whether the comparing graph should be use the same color as the one you are comparing to. This makes sense if you set <dashed>true</dashed> -->
+        <!-- [false] (true / false) whether the comparing graph should be use the same color as the one you are
+        comparing to. This makes sense if you set <dashed>true</dashed> -->
         <use_graph_color></use_graph_color>
         
         <!-- [100] (0 - 100) opacity of graph line of comparing data sets -->
