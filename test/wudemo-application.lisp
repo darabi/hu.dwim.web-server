@@ -179,6 +179,39 @@
 (def function make-authenticated-menu-component ()
   (bind ((authenticated-subject (current-authenticated-subject)))
     (menu nil
+      (menu "Charts"
+       (menu "Charts from files"
+         (menu-item (replace-menu-target-command  "Column chart"
+                      (make-chart-from-files
+                       'column-chart
+                       :settings-file-relative-path "test/chart/examples/amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
+                       :data-file-relative-path "test/chart/examples/amcolumn/3d_stacked_bar_chart/amcolumn_data.txt")))
+         (menu-item (replace-menu-target-command "Line chart"
+                      (make-chart-from-files
+                       'line-chart
+                       :settings-file-relative-path "test/chart/examples/amline/stacked_area_chart/amline_settings.xml"
+                       :data-file-relative-path "test/chart/examples/amline/stacked_area_chart/amline_data.xml")))
+         (menu-item (replace-menu-target-command "Pie chart"
+                      (make-chart-from-files
+                       'pie-chart
+                       :settings-file-relative-path "test/chart/examples/ampie/donut/ampie_settings.xml"
+                       :data-file-relative-path "test/chart/examples/ampie/donut/ampie_data.txt")))
+         (menu-item (replace-menu-target-command "Radar chart"
+                      (make-chart-from-files
+                       'radar-chart
+                       :settings-file-relative-path "test/chart/examples/amradar/stacked/amradar_settings.xml"
+                       :data-file-relative-path "test/chart/examples/amradar/stacked/amradar_data.xml")))
+         (menu-item (replace-menu-target-command "Stock chart"
+                      (make-chart-from-files
+                       'stock-chart
+                       :settings-file-relative-path "test/chart/examples/amstock/ohlc/amstock_settings.xml"
+                       :data-file-relative-path "test/chart/examples/amstock/ohlc/data.csv")))
+         (menu-item (replace-menu-target-command "Xy chart"
+                      (make-chart-from-files
+                       'xy-chart
+                       :settings-file-relative-path "test/chart/examples/amxy/time_plot/amxy_settings.xml"
+                       :data-file-relative-path "test/chart/examples/amxy/time_plot/amxy_data.xml")))
+         ))
       (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
         (make-debug-menu))
       (labels ((make-primitive-menu-item-content (components)
@@ -226,6 +259,7 @@
                                                                                   (label (format nil "type: ~A " type))
                                                                                   (make-place-filter type)))
                                                                                types)))))))
+        
         (menu "Primitive"
           (make-primitive-menu-item 't '(t) '(:unbound nil #t 42 "alma" 'korte (anything)) nil)
           (make-primitive-menu-item 'boolean '(boolean #+wui-and-cl-perec (or prc::unbound boolean)) '(#f #t) '(:unbound (monday?)))
@@ -250,6 +284,7 @@
         (menu "Child"
           (menu-item (replace-menu-target-command "Make a child" (make-maker 'child-test)))
           (menu-item (replace-menu-target-command "Search children" (make-filter 'child-test)))))
+      
       (menu-item (replace-menu-target-command "Dojo InlineEditBox example"
                    (inline-component
                      (render-example-inline-edit-box))))
