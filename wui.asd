@@ -247,6 +247,7 @@
                  (:file "menu")
                  (:file "place")
                  (:file "reference")
+                 (:file "graph")
                  (:file "object-component")
                  (:file "object-inspector")
                  (:file "object-list-inspector")

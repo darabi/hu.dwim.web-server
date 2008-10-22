@@ -142,6 +142,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +html-mime-type+       "text/html"
    +xhtml-mime-type+      "application/xhtml+xml"
    +xml-mime-type+        "text/xml"
+   +svg-xml-mime-type+    "image/svg+xml"
    +css-mime-type+        "text/css"
    +csv-mime-type+        "text/csv"
    +javascript-mime-type+ "text/javascript"
