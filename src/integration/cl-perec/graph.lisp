@@ -18,15 +18,15 @@
     (dmm::layout-graph graph)
     (flet ((marker (id &key path stroke stroke-width fill refX refY)
              <svg:marker (:id ,id :orient "auto" :stroke ,stroke :stroke-width ,stroke-width :fill ,fill
-                              :viewBox "0 0 10 10" :refX ,refX :refY ,refY
-                              :markerUnits "strokeWidth" :markerWidth 10 :markerHeight 5)
+                          :viewBox "0 0 10 10" :refX ,refX :refY ,refY
+                          :markerUnits "strokeWidth" :markerWidth 10 :markerHeight 5)
                          <svg:path (:d ,path)>>))
       <embed (:width ,(+ (* 2 dmm::*graph-inset*) (dmm::width-of graph))
               :height ,(+ (* 2 dmm::*graph-inset*) (dmm::height-of graph))
               :type "image/svg+xml"
               :src ,(make-action-href (:delayed-content #t)
                       (make-buffered-functional-html-response ((+header/content-type+ +svg-xml-mime-type+))
-                        <svg:svg (:xmlns:svg "http://www.w3.org/2000/svg")
+                        <svg:svg (:xmlns:svg "http://www.w3.org/2000/svg" :version "1.2")
                                  <svg:g (:transform ,(concatenate-string "translate(" inset-string "," inset-string ")"))
                                         <svg:defs
                                             ;; TODO fuck SVG and firefox! for not being able to draw markers intentionally pointing into the right direction
