@@ -76,10 +76,10 @@
                           :image-path ,image-path
                           :label ,(if label-p
                                       label
-                                      `(delay (lookup-resource ,(format nil "icon-label.~A" name-as-string) nil)))
+                                      `(delay (lookup-resource ,(concatenate-string "icon-label." name-as-string))))
                           :tooltip ,(if tooltip-p
                                         tooltip
-                                        `(delay (lookup-resource ,(format nil "icon-tooltip.~A" name-as-string) nil)))))))
+                                        `(delay (lookup-resource ,(concatenate-string "icon-tooltip." name-as-string))))))))
 
 ;;;;;;
 ;;; Default icons
