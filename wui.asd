@@ -124,12 +124,14 @@
   ((:module "src"
     :serial t
     :components ((:file "l10n")
+                 (:file "dojo")
                  (:module "util"
                   :components (#+sbcl(:file "object-size")))
                  (:module "integration"
                   :components ((:file "contextl")))
                  (:module "application"
                   :serial t
+                  :depends-on ("dojo")
                   :components ((:file "session")
                                (:file "frame")
                                (:file "application")
@@ -145,9 +147,8 @@
                                (:file "icon" :depends-on ("component"))
                                (:file "command" :depends-on ("icon" "place"))
                                (:file "authentication" :depends-on ("command"))
-                               (:file "dojo" :depends-on ("component"))
                                (:file "misc" :depends-on ("component"))
-                               (:file "frame" :depends-on ("component" "dojo"))
+                               (:file "frame" :depends-on ("component"))
                                #+sbcl(:file "frame-size-breakdown" :depends-on ("component"))
                                (:file "file-up-and-download" :depends-on ("component"))
                                (:file "timestamp-range" :depends-on ("component"))
@@ -167,8 +168,8 @@
                                (:file "menu" :depends-on ("command" "misc"))
                                (:file "reference" :depends-on ("command"))
                                (:file "editable" :depends-on ("command"))
-                               (:file "field" :depends-on ("dojo"))
-                               (:file "primitive-component" :depends-on ("misc" "field" "dojo"))
+                               (:file "field")
+                               (:file "primitive-component" :depends-on ("misc" "field"))
                                (:file "primitive-maker" :depends-on ("primitive-component"))
                                (:file "primitive-inspector" :depends-on ("primitive-component"))
                                (:file "primitive-filter" :depends-on ("primitive-component"))
@@ -187,7 +188,7 @@
                                (:file "process" :depends-on ("command" "object-maker" "object-list-inspector" "object-tree-inspector"))
                                (:file "object-filter" :depends-on ("place-component" "object-inspector" "primitive-filter"))
                                (:file "object-tree-filter" :depends-on ("object-filter")))
-                  :depends-on ("application")))))
+                  :depends-on ("application" "dojo")))))
   :depends-on (:wui-core
                :trivial-garbage
                :contextl
