@@ -13,7 +13,7 @@
                                       user-message-collector-component-mixin
                                       remote-identity-component-mixin
                                       initargs-component-mixin
-                                      layered-component-mixin)
+                                      layer-context-capturing-component-mixin)
   ()
   (:default-initargs :alternatives-factory #'make-standard-object-maker-alternatives)
   (:documentation "Maker for an instance of STANDARD-OBJECT in various alternative views."))

@@ -13,7 +13,7 @@
                                        user-message-collector-component-mixin
                                        remote-identity-component-mixin
                                        initargs-component-mixin
-                                       layered-component-mixin)
+                                       layer-context-capturing-component-mixin)
   ((result
     (make-instance 'empty-component)
     :type component)

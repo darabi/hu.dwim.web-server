@@ -15,7 +15,7 @@
                                                user-message-collector-component-mixin
                                                remote-identity-component-mixin
                                                initargs-component-mixin
-                                               layered-component-mixin)
+                                               layer-context-capturing-component-mixin)
   ((the-class (find-class 'standard-object)))
   (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives)
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
