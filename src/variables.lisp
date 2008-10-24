@@ -91,6 +91,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +header/accept-language+     "Accept-Language"
    +header/accept-ranges+       "Accept-Ranges"
    +header/authorization+       "Authorization"
+   +header/proxy-authorization+ "Proxy-Authorization"
    +header/connection+          "Connection"
    +header/date+                "Date"
    +header/host+                "Host"

@@ -533,6 +533,7 @@ Custom implementations should look something like this:
 ;;;;;;;;;
 ;;; utils
 
+#+nil ; not used, maybe waiting to be deleted?
 (def (function e) make-redirect-response-with-frame-index-decorated (&optional (frame *frame*))
   (bind ((uri (clone-request-uri)))
     (assert (and frame (not (null (id-of frame)))))

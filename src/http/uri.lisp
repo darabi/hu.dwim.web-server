@@ -131,7 +131,7 @@
           (write-char (if (first-time-p) #\? #\&) stream)
           (write-query-part name value))))
 
-(def (function o) write-uri (uri stream &optional (escape t))
+(def (function o) write-uri (uri &optional (stream *standard-output*) (escape t))
   (write-uri-sans-query uri stream escape)
   (labels ((out (string)
              (funcall (if escape

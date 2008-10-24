@@ -164,7 +164,7 @@
 (defmethod encoding-name-of ((self response))
   (encoding-name-of (external-format-of self)))
 
-(def (function io) write-crlf (stream)
+(def (function io) write-crlf (&optional (stream *standard-output*))
   (write-byte +carriage-return+ stream)
   (write-byte +linefeed+ stream))
 
