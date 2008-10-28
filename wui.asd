@@ -256,7 +256,7 @@
                  (:file "object-maker")
                  (:file "object-filter")
                  (:file "process")
-                 (:file "tesites")))))
+                 (:file "dimensional")))))
 
 (defmethod perform ((op load-op) (system (eql (find-system :wui-and-cl-perec))))
   (pushnew :wui-and-cl-perec *features*))
