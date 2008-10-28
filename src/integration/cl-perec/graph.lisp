@@ -134,7 +134,7 @@
     (decf x (typeset::offset hbox))
     (decf y (typeset::internal-baseline hbox))
     (dolist (box (typeset::boxes hbox))
-      (typeset::svg-stroke box x y)
+      (svg-stroke box x y)
       (incf x (+ (typeset::dx box) (typeset::delta-size box)))))
 
   (:method ((vbox typeset::vbox) x y)
