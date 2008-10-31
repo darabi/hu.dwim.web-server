@@ -48,8 +48,8 @@
       (setf class-name (plural-of class-name)))
     (when with-article
       (setf class-name (concatenate-string (if plural
-                                               (definite-article-for class-name)
-                                               (indefinite-article-for class-name))
+                                               (with-definite-article class-name)
+                                               (with-indefinite-article class-name))
                                            " "
                                            class-name)))
     (values (if capitalize-first-letter
