@@ -61,7 +61,7 @@
   (assert (typep class 'class))
   (bind (((:values class-name found?) (localize class)))
     (when with-indefinite-article
-      (bind ((article (indefinite-article-for class-name)))
+      (bind ((article (with-indefinite-article class-name)))
         (write (if capitalize-first-letter
                    (capitalize-first-letter article)
                    article)
