@@ -365,11 +365,12 @@
     (elt possible-values index)))
 
 (def function render-member-component (component &key on-change)
-  (bind (((:read-only-slots possible-values client-state-sink) component)
+  (bind (((:read-only-slots possible-values client-name-generator client-state-sink) component)
          (has-component-value? (slot-boundp component 'component-value))
          (component-value (when has-component-value?
                             (component-value-of component))))
     (render-select-field component-value possible-values :name (id-of client-state-sink)
+                         :client-name-generator client-name-generator
                          :on-change on-change)))
 
 ;;;;;;

@@ -21,7 +21,7 @@
                (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
              (call-next-method)))
 
-(def layered-method make-standard-object-detail-inspector-class ((component standard-object-detail-inspector) (class prc::persistent-class) (prototype prc::persistent-object))
+(def layered-method make-class-presentation ((component component) (class prc::persistent-class) (prototype prc::persistent-object))
   (if (dmm::developer-p (dmm::current-effective-subject))
       (make-viewer class :default-component-type 'reference-component)
       (call-next-method)))

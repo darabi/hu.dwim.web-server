@@ -80,6 +80,7 @@
                            :edited #t
                            :the-type `(or null (member ,subclasses))
                            :component-value the-class
+                           :client-name-generator #'localized-class-name
                            :possible-values subclasses)))))
 
 (def method refresh-component ((self standard-object-detail-filter))

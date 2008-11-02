@@ -25,24 +25,26 @@
         (render-vertical-list (list content command-bar)))))
 
 (def function make-alternative-commands (component alternatives)
-  (mapcar (lambda (alternative)
-            (make-replace-with-alternative-command component alternative))
-          alternatives))
+  (delete nil
+          (mapcar (lambda (alternative)
+                    (make-replace-with-alternative-command component alternative))
+                  alternatives)))
 
 (def function make-alternator-command-bar (component alternatives commands)
   (make-instance 'command-bar-component
                  :commands (append commands (make-alternative-commands component alternatives))
                  :visible (delay (not (typep (content-of component) 'reference-component)))))
 
-(def function make-replace-with-alternative-command (component alternative)
-  (bind ((prototype (class-prototype (the-class-of alternative)))
-         (reference? (typep prototype 'reference-component)))
-    (make-replace-command (delay (content-of component)) alternative
-                          :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
-                                               (not (eq (the-class-of alternative) (class-of (content-of component))))
-                                               (or (not reference?)
-                                                   (not (top-component-p component)))))
-                          :icon (make-replace-with-alternative-command-icon prototype))))
+(def generic make-replace-with-alternative-command (component alternative)
+  (:method ((component alternator-component) alternative)
+    (bind ((prototype (class-prototype (the-class-of alternative)))
+           (reference? (typep prototype 'reference-component)))
+      (make-replace-command (delay (content-of component)) alternative
+                            :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
+                                                 (not (eq (the-class-of alternative) (class-of (content-of component))))
+                                                 (or (not reference?)
+                                                     (not (top-component-p component)))))
+                            :icon (make-replace-with-alternative-command-icon prototype)))))
 
 (def (generic e) make-replace-with-alternative-command-icon (prototype)
   (:method ((prototype component))

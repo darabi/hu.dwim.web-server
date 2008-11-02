@@ -29,7 +29,7 @@
   (:method ((type cl-perec:number-type))
     'number-inspector)
 
-  (:method ((type cl-perec:text-type))
+  (:method ((type cl-perec:string-type))
     'string-inspector)
 
   (:method ((type dmm:html-text-type))
@@ -84,7 +84,7 @@
   (:method ((type cl-perec:number-type))
     'number-filter)
 
-  (:method ((type cl-perec:text-type))
+  (:method ((type cl-perec:string-type))
     'string-filter)
 
   (:method ((type dmm:html-text-type))
@@ -140,7 +140,7 @@
   (:method ((type cl-perec:number-type))
     'number-maker)
 
-  (:method ((type cl-perec:text-type))
+  (:method ((type cl-perec:string-type))
     'string-maker)
 
   (:method ((type dmm:html-text-type))

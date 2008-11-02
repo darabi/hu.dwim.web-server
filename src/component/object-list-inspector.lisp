@@ -114,9 +114,9 @@
   (make-instance 'column-component
                  :content (label #"object-list-table.column.type")
                  :cell-factory (lambda (row-component)
-                                 (make-instance 'cell-component :content (make-instance 'standard-class-component
-                                                                                        :the-class (class-of (instance-of row-component))
-                                                                                        :default-component-type 'reference-component)))))
+                                 (make-instance 'cell-component
+                                                :content (bind ((class (class-of (instance-of row-component))))
+                                                           (make-class-presentation row-component class (class-prototype class)))))))
 
 (def (function e) make-standard-object-list-table-command-bar-column ()
   (make-instance 'column-component
@@ -160,13 +160,21 @@
   (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
     (class-slots class)))
 
-(defresources hu
-  (object-list-table.column.commands "Műveletek")
-  (object-list-table.column.type "Típus"))
+(def render standard-object-list-table-inspector ()
+  <span ,(standard-object-list-table-inspector.instances (localized-class-name (the-class-of -self-)))>
+  (call-next-method))
 
 (defresources en
+  (standard-object-list-table-inspector.instances (class)
+    <span "Viewing instances of " ,(render class)>)
   (object-list-table.column.commands "Commands")
   (object-list-table.column.type "Type"))
+
+(defresources hu
+  (standard-object-list-table-inspector.instances (class)
+    <span "Egy ",(render class) " lista megjelenítése">)
+  (object-list-table.column.commands "Műveletek")
+  (object-list-table.column.type "Típus"))
 
 ;;;;;;
 ;;; Standard object row inspector

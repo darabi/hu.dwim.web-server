@@ -93,7 +93,7 @@
           (if class
               (when (typep class 'abstract-standard-class-component)
                 (setf (the-class-of class) the-class))
-              (setf class (make-standard-object-detail-inspector-class self the-class (class-prototype the-class))))
+              (setf class (make-class-presentation self the-class (class-prototype the-class))))
           (setf class nil))
       (if instance
           (bind ((slots (collect-standard-object-detail-inspector-slots self the-class instance))
@@ -114,8 +114,8 @@
                           (collect slot-value-group)))))
           (setf slot-value-groups nil)))))
 
-(def (layered-function e) make-standard-object-detail-inspector-class (component class prototype)
-  (:method ((component standard-object-detail-inspector) (class standard-class) (prototype standard-object))
+(def (layered-function e) make-class-presentation (component class prototype)
+  (:method ((component component) (class standard-class) (prototype standard-object))
     (localized-class-name class)))
 
 (def (layered-function e) collect-standard-object-detail-inspector-slots (component class instance)

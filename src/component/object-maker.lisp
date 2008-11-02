@@ -93,6 +93,7 @@
                            :edited #t
                            :the-type `(or null (member ,subclasses))
                            :component-value the-class
+                           :client-name-generator #'localized-class-name
                            :possible-values subclasses)))))
 
 (def function find-selected-class (component)

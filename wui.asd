@@ -249,6 +249,7 @@
                  (:file "place")
                  (:file "reference")
                  (:file "graph")
+                 (:file "alternator")
                  (:file "object-component")
                  (:file "object-inspector")
                  (:file "object-list-inspector")
