@@ -77,6 +77,20 @@
                   (prc::last-moment-for-partial-timestamp partial-timestamp-string)))
         (not-yet-implemented))))
 
-(def call-in-component-environment validity-selector-component ()
-  (bind (((:values validity-begin validity-end) (compute-timestamp-range (range-of -self-))))
-    (prc::call-with-validity-range validity-begin validity-end #'call-next-method)))
+;;;;;;
+;;; Coordinate provider
+
+(def component coordinates-provider (content-component)
+  ((dimensions)
+   (coordinates)))
+
+(def (macro e) coordinates-provider (dimensions coordinates &body content)
+  `(make-instance 'coordinate-provider
+                  :dimensions (mapcar #'prc:lookup-dimension ,dimensions)
+                  :coordinates ,coordinates
+                  :content (progn ,@content)))
+
+(def call-in-component-environment coordinates-provider ()
+  (bind (((:read-only-slots dimensions coordinates) -self-))
+    (prc:with-coordinates dimensions coordinates
+      (call-next-method))))
