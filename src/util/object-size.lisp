@@ -41,7 +41,7 @@
                  (setf (gethash object seen-object-set) #t)
                  (funcall visitor object)
                  (etypecase object
-                   ((or number string)
+                   ((or number string character)
                     (values))
                    (cons
                     (recurse (car object))
@@ -132,38 +132,38 @@
 
 #+sbcl
 (def function object-allocated-size/sbcl (object)
-  (flet (#+sbcl
-         (round-to-dualword (size)
+  (flet ((round-to-dualword (size)
            (logand (the sb-vm:word (+ size sb-vm:lowtag-mask))
                    (lognot sb-vm:lowtag-mask)))
-         #+sbcl
          (sbcl-vector-size (object)
            (sb-vm::vector-total-size object (svref sb-vm::*room-info* (sb-kernel:widetag-of object)))))
     (etypecase object
-      ((or fixnum float)
+      ((or fixnum float character)
        ;; these are immediate values
        0)
       (integer
        ;; TODO probably much more
        (+ +word-size-in-bytes+
           (floor (/ (integer-length object) 8 +word-size-in-bytes+))))
+      (ratio
+       ;; probably something like that
+       (+ (* 3 +word-size-in-bytes+)
+          (object-allocated-size/sbcl (numerator object))
+          (object-allocated-size/sbcl (denominator object))))
       (cons
        (* 2 +word-size-in-bytes+))
-      #+sbcl
       (simple-base-string
        (sbcl-vector-size object))
       (base-string
        (+ +word-size-in-bytes+
           (length object)))
-      #+sbcl
       (simple-string
        (sbcl-vector-size object))
       (string
        (+ +word-size-in-bytes+
           (* 4 (length object))))
       (symbol
-       #+sbcl(* sb-vm:symbol-size +word-size-in-bytes+)
-       #-sbcl(* 5 +word-size-in-bytes+)) ; (package name value function plist)
+       (* sb-vm:symbol-size +word-size-in-bytes+))
       (array
        (+ +word-size-in-bytes+
           (* (eswitch ((array-element-type object) :test #'equal)
@@ -175,7 +175,6 @@
        ;; TODO
        0)
       (function
-       #+sbcl
        (bind ((widetag (sb-kernel:widetag-of object)))
          (cond
            ((= widetag sb-vm:simple-fun-header-widetag)
@@ -185,9 +184,5 @@
                                   sb-vm:n-word-bytes)))
            (t (error "Unknown function type ~A" object)))))
       ((or structure-object standard-object)
-       #+sbcl
        (round-to-dualword (* (+ (sb-kernel:%instance-length object) 1)
-                             sb-vm:n-word-bytes))
-       #-sbcl
-       (* +word-size-in-bytes+
-          (+ 2 (length (class-slots (class-of object)))))))))
+                             sb-vm:n-word-bytes))))))
