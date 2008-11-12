@@ -72,7 +72,7 @@
   ())
 
 (def (macro e) validity-selector-and-provider ((&key validity validity-begin validity-end) &body forms)
-  `(make-instance 'validity-selector
+  `(make-instance 'validity-selector-and-provider
                   :content (progn ,@forms)
                   :range-start ,(if validity
                                     (prc::first-moment-for-partial-timestamp validity)
