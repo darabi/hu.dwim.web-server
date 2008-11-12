@@ -81,7 +81,7 @@
                            :the-type `(or null (member ,subclasses))
                            :component-value the-class
                            :client-name-generator #'localized-class-name
-                           :possible-values subclasses)))))
+                           :possible-values (list* the-class subclasses))))))
 
 (def method refresh-component ((self standard-object-detail-filter))
   (with-slots (class class-selector the-class slot-value-groups command-bar) self

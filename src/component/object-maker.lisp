@@ -94,7 +94,7 @@
                            :the-type `(or null (member ,subclasses))
                            :component-value the-class
                            :client-name-generator #'localized-class-name
-                           :possible-values subclasses)))))
+                           :possible-values (list* the-class subclasses))))))
 
 (def function find-selected-class (component)
   (bind ((class-selector (class-selector-of component)))
