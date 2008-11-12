@@ -7,33 +7,30 @@
 ;;;;;;
 ;;; Time provider
 
-(def component time-provider-component (content-component)
+(def component time-provider (content-component)
   ((time :type prc::timestamp)))
 
-(def call-in-component-environment time-provider-component ()
-  (prc::call-with-time (time-of -self-) #'call-next-method
-    (call-next-method)))
+(def call-in-component-environment time-provider ()
+  (prc::call-with-time (time-of -self-) #'call-next-method))
 
 ;;;;;;
 ;;; Time selector
 
-(def component time-selector-component (content-component)
-  ((time :type component)))
+(def component time-selector (timestamp-inspector)
+  ((edited #t)))
 
-(def render time-selector-component ()
-  (bind (((:read-only-slots time) -self-))
-    <div ,(render time)
-         ,(call-next-method)>))
+(def (macro e) time-selector (time)
+  `(make-instance 'time-selector :component-value ,time))
 
 ;;;;;;
 ;;; Validity provider
 
-(def component validity-provider-component (content-component)
+(def component validity-provider (content-component)
   ((validity-begin :type prc::timestamp)
    (validity-end :type prc::timestamp)))
 
 (def (macro e) validity-provider ((&key validity validity-begin validity-end) &body forms)
-  `(make-instance 'validity-provider-component
+  `(make-instance 'validity-provider
                   :content (progn ,@forms)
                   :validity-begin ,(if validity
                                        (prc::first-moment-for-partial-timestamp validity)
@@ -42,40 +39,47 @@
                                      (prc::last-moment-for-partial-timestamp validity)
                                      validity-end)))
 
-(def call-in-component-environment validity-provider-component ()
+(def call-in-component-environment validity-provider ()
   (prc::call-with-validity-range (validity-begin-of -self-) (validity-end-of -self-) #'call-next-method))
 
 ;;;;;;
 ;;; Validity selector
 
-(def component validity-selector-component (content-component)
-  ((range :type component)))
+(def component validity-selector (timestamp-range-component)
+  ((edited #t)))
 
-(def constructor validity-selector-component ()
-  (begin-editing (range-of -self-)))
-
-(def (macro e) validity-selector ((&key validity validity-begin validity-end) &body forms)
-  `(make-instance 'validity-selector-component
-                  :content (progn ,@forms)
-                  :range (timestamp-range :range-start ,(if validity
-                                                            (prc::first-moment-for-partial-timestamp validity)
-                                                            validity-begin)
-                                          :range-end ,(if validity
-                                                          (prc::last-moment-for-partial-timestamp validity)
-                                                          validity-end))))
-
-(def render validity-selector-component ()
-  (bind (((:read-only-slots range) -self-))
-    <div ,(render range)
-         ,(call-next-method)>))
+(def (macro e) validity-selector (&key validity validity-begin validity-end)
+  `(make-instance 'validity-selector
+                  :range-start ,(if validity
+                                    (prc::first-moment-for-partial-timestamp validity)
+                                    validity-begin)
+                  :range-end ,(if validity
+                                  (prc::last-moment-for-partial-timestamp validity)
+                                  validity-end)))
 
 (def function compute-timestamp-range (component)
-  (bind (((:read-only-slots single range range-start range-end) component))
+  (bind (((:read-only-slots single) component))
     (if single
-        (bind ((partial-timestamp-string (princ-to-string (component-value-of range))))
-          (values (prc::first-moment-for-partial-timestamp partial-timestamp-string)
-                  (prc::last-moment-for-partial-timestamp partial-timestamp-string)))
+        (bind ((partial-timestamp-string (princ-to-string (component-value-of (range-of component)))))
+          (list (prc::first-moment-for-partial-timestamp partial-timestamp-string)
+                (prc::last-moment-for-partial-timestamp partial-timestamp-string)))
         (not-yet-implemented))))
+
+;;;;;;
+;;; Validity selector and provider
+
+(def component validity-selector-and-provider (content-component validity-selector)
+  ())
+
+(def (macro e) validity-selector-and-provider ((&key validity validity-begin validity-end) &body forms)
+  `(make-instance 'validity-selector
+                  :content (progn ,@forms)
+                  :range-start ,(if validity
+                                    (prc::first-moment-for-partial-timestamp validity)
+                                    validity-begin)
+                  :range-end ,(if validity
+                                  (prc::last-moment-for-partial-timestamp validity)
+                                  validity-end)))
 
 ;;;;;;
 ;;; Coordinate provider
