@@ -9,5 +9,6 @@
   "Base operation for all model related operations.")
 
 (def method make-replace-with-alternative-command :around ((component alternator-component) alternative)
-  (when (dmm::authorize-operation 'switch-to-alternative-view-operation)
+  (when (or (typep (class-prototype (the-class-of alternative)) 'reference-component)
+            (dmm::authorize-operation 'switch-to-alternative-view-operation))
     (call-next-method)))
