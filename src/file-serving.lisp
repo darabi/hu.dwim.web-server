@@ -36,6 +36,7 @@
 (def function file-serving-handler (broker request root-directory path-prefix)
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? path-prefix request)))
     (when matches?
+      (server.debug "Returning file serving response for path-prefix ~S, relative-path ~S, root-directory ~A" path-prefix relative-path root-directory)
       (make-file-serving-response-for-query-path broker path-prefix relative-path root-directory))))
 
 (def generic make-file-serving-response-for-query-path (broker path-prefix relative-path root-directory)
@@ -71,7 +72,10 @@
   (make-instance 'file-serving-response :file-name file-name))
 
 (defmethod send-response ((self file-serving-response))
+  (server.info "Sending file serving response from ~S" (file-name-of self))
   (bind (((:values success? condition network-stream-dirty?) (serve-file (file-name-of self) :signal-errors #f)))
+    (unless success?
+      (server.warn "File serving failed due to ~A" condition))
     (when (and (not success?)
                (or (not (typep condition 'stream-error))
                    (not (eq (stream-error-stream condition) (network-stream-of *request*)))))

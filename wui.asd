@@ -97,7 +97,7 @@
                :alexandria
                :rfc2109
                :rfc2388-binary
-               :net-telent-date
+               :net-telent-date ;; TODO get rid of this
                :cl-fad
                :bordeaux-threads
                :osicat

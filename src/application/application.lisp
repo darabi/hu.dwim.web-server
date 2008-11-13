@@ -524,9 +524,9 @@ Custom implementations should look something like this:
                     (setf (header-value self +header/content-length+) (integer-to-string (length body)))
                     (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
     ;; TODO use multiplexing when writing to the network stream, including the headers
+    (app.debug "Sending component rendering response, body length is ~A" (length body))
     (write-sequence headers (network-stream-of *request*))
-    (write-sequence body (network-stream-of *request*))
-    (app.debug "Sending component rendering response, body length is ~A" (length body)))
+    (write-sequence body (network-stream-of *request*)))
   (values))
 
 

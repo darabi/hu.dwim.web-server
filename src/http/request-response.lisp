@@ -183,7 +183,7 @@
            (values)))
     (bind ((status (or (cdr (assoc +header/status+ headers :test #'string=))
                        +http-ok+)))
-      (http.dribble "Sending headers (Status: ~S)" status)
+      (http.debug "Sending headers (Status: ~S)" status)
       (write-sequence #.(string-to-us-ascii-octets "HTTP/1.1 ") stream)
       (write-sequence (string-to-us-ascii-octets status) stream)
       (write-byte +space+ stream)
