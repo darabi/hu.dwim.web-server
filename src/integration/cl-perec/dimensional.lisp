@@ -89,7 +89,7 @@
    (coordinates)))
 
 (def (macro e) coordinates-provider (dimensions coordinates &body content)
-  `(make-instance 'coordinate-provider
+  `(make-instance 'coordinates-provider
                   :dimensions (mapcar #'prc:lookup-dimension ,dimensions)
                   :coordinates ,coordinates
                   :content (progn ,@content)))
