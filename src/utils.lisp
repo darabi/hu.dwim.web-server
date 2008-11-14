@@ -199,23 +199,29 @@
   (:method ((self babel-encodings:character-encoding))
     (babel-encodings:enc-name self)))
 
-#+sbcl
 (defmacro with-thread-name (name &body body)
-  (with-unique-names (thread previous-name)
-    `(let* ((,thread sb-thread:*current-thread*)
-            (,previous-name (sb-thread:thread-name ,thread)))
-       (setf (sb-thread:thread-name ,thread)
-             (concatenate-string ,previous-name ,name))
-       (unwind-protect
-            (progn
-              ,@body)
-         (setf (sb-thread:thread-name ,thread) ,previous-name)))))
+  (declare (ignorable name))
+  #*((:sbcl
+      (with-unique-names (thread previous-name)
+        `(let* ((,thread sb-thread:*current-thread*)
+                (,previous-name (sb-thread:thread-name ,thread)))
+           (setf (sb-thread:thread-name ,thread)
+                 (concatenate-string ,previous-name ,name))
+           (unwind-protect
+                (progn
+                  ,@body)
+             (setf (sb-thread:thread-name ,thread) ,previous-name)))))
+     (t
+      `(progn
+         ,@body))))
 
-#-sbcl
-(defmacro with-thread-name (name &body body)
-  (declare (ignore name))
-  `(progn
-     ,@body))
+(def function get-bytes-allocated ()
+  "Returns a monotonic counter of bytes allocated, preferable a per-thread value."
+  #*((:sbcl
+      ;; as of 1.0.22 this is still a global value shared by all threads
+      (sb-ext:get-bytes-consed))
+     (t
+      0)))
 
 (def function call-with-profiling (thunk)
   (block nil

@@ -249,6 +249,7 @@
 
 (def method handle-request :around ((server server) (request request))
   (bind ((start-time (get-monotonic-time))
+         (start-bytes-allocated (get-bytes-allocated))
          (remote-host (remote-host-of request))
          (raw-uri (raw-uri-of request)))
     (http.info "Handling request from ~S for ~S, method ~S" remote-host raw-uri (http-method-of request))
@@ -256,9 +257,10 @@
         (if (profile-request-processing-p server)
             (call-with-profiling #'call-next-method)
             (call-next-method))
-      (bind ((seconds (- (get-monotonic-time) start-time)))
-        (when (> seconds 0.05)
-          (http.info "Handled request in ~,3f secs (request came from ~S for ~S)" seconds remote-host raw-uri))))))
+      (bind ((seconds (- (get-monotonic-time) start-time))
+             (bytes-allocated (- (get-bytes-allocated) start-bytes-allocated)))
+        (http.info "Handled request in ~,3f secs, ~,3f MB allocated (request came from ~S for ~S)"
+                   seconds (/ bytes-allocated 1024 1024) remote-host raw-uri)))))
 
 
 ;;;;;;;;;;;;;;;;;
