@@ -33,9 +33,10 @@
                              (lambda (href)
                                `js-inline(wui.io.action ,href ,ajax)))))
         <a (:href "#" :onclick ,(funcall onclick-js href)
-            :name ,(if (typep body 'icon-component)
-                       (symbol-name (name-of body))
-                       body))
+            ,(when (running-in-test-mode-p *application*)
+               (make-xml-attribute "name" (if (typep body 'icon-component)
+                                              (symbol-name (name-of body))
+                                              (princ-to-string body)))))
            ,(render body) >)
       (render body)))
 
