@@ -32,8 +32,11 @@
              (onclick-js (or js
                              (lambda (href)
                                `js-inline(wui.io.action ,href ,ajax)))))
-        <a (:href "#" :onclick ,(funcall onclick-js href))
-           ,(render body)>)
+        <a (:href "#" :onclick ,(funcall onclick-js href)
+            :name ,(if (typep body 'icon-component)
+                       (symbol-name (name-of body))
+                       body))
+           ,(render body) >)
       (render body)))
 
 (def render :in passive-components-layer command-component
