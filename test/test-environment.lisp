@@ -1,7 +1,5 @@
 (in-package :wui-test)
 
-(in-root-suite)
-
 (defmacro with-wui-logger-level (log-level &body body)
   `(with-logger-level (wui) ,log-level
     ,@body))
@@ -16,7 +14,7 @@
                        (muffle-warning c)))))
     ,@body))
 
-(defsuite* test (&key (log-level +warn+))
+(defsuite* (test :in root-suite) (&key (log-level +warn+))
   (with-wui-logger-level log-level
     (with-test-compiler-environment
       (run-child-tests))))
