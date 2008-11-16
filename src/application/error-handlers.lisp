@@ -6,7 +6,8 @@
 
 (def method handle-toplevel-condition :around ((application application) error)
   (if *ajax-aware-request*
-      (emit-http-response ((+header/status+ +http-not-acceptable+))
+      (emit-http-response ((+header/status+       +http-not-acceptable+
+                            +header/content-type+ +xml-mime-type+))
         <ajax-response
          <error-message ,#"error-message-for-ajax-requests">
          <result "failure">>)
