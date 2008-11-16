@@ -574,6 +574,20 @@ Custom implementations should look something like this:
       (append-path-to-uri uri relative-path))
     uri))
 
+(def function make-uri-for-current-frame ()
+  (bind ((uri (clone-request-uri)))
+    (setf (uri-query-parameter-value uri +action-id-parameter-name+) nil)
+    (decorate-uri uri *frame*)
+    uri))
+
+(def function make-uri-for-new-frame ()
+  (bind ((uri (clone-request-uri)))
+    (decorate-uri uri *application*)
+    (decorate-uri uri *session*)
+    (setf (uri-query-parameter-value uri +frame-id-parameter-name+) nil)
+    (setf (uri-query-parameter-value uri +frame-index-parameter-name+) nil)
+    uri))
+
 (def (function e) make-redirect-response-for-current-application (&optional relative-path)
   (make-redirect-response (make-uri-for-current-application relative-path)))
 
