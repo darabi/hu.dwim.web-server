@@ -58,8 +58,10 @@
         (add-query-parameter-to-uri uri name value)))
   value)
 
-(def (function e) delete-query-parameter (uri name)
-  (delete name (query-parameters-of uri) :key #'car :test #'string=)
+(def (function e) delete-query-parameter (uri &rest names)
+  (setf (query-parameters-of uri)
+        (delete-if [member (car !1) names :test #'string=]
+                   (query-parameters-of uri)))
   uri)
 
 (defun add-query-parameter-to-uri (uri name value)
