@@ -59,13 +59,16 @@
   value)
 
 (def (function e) delete-query-parameter (uri name)
-  (delete name (query-parameters-of uri) :key #'car :test #'string=))
+  (delete name (query-parameters-of uri) :key #'car :test #'string=)
+  uri)
 
 (defun add-query-parameter-to-uri (uri name value)
-  (nconcf (query-parameters-of uri) (list (cons name value))))
+  (nconcf (query-parameters-of uri) (list (cons name value)))
+  uri)
 
 (def (function e) clear-uri-query-parameters (uri)
-  (setf (query-parameters-of uri) '()))
+  (setf (query-parameters-of uri) '())
+  uri)
 
 (def (function e) append-path-to-uri (uri path)
   (setf (path-of uri) (concatenate 'string (path-of uri) path))

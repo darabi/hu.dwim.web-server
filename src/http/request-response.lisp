@@ -240,9 +240,9 @@
     (awhen (slot-value response 'html-stream)
       (http.dribble "Converting html stream of ~A" response)
       (setf content (babel-streams:get-output-stream-sequence it))
-      (assert (null (header-value response "Content-Length")))
+      (assert (null (header-value response +header/content-length+)))
       (http.dribble "Setting Content-Length header of ~A" response)
-      (setf (header-value response "Content-Length") (integer-to-string (length content))))
+      (setf (header-value response +header/content-length+) (integer-to-string (length content))))
     (call-next-method)
     (when (and content
                (not (string= "HEAD" (http-method-of *request*))))
