@@ -223,6 +223,9 @@
 
 (def (function o) application-handler (application request)
   (bind ((*application* application)
+         (*brokers* (cons application *brokers*))
+         (*session* nil)
+         (*frame* nil)
          ;; the request counter is not critical, so just ignore locking...
          (request-counter (incf (processed-request-count-of application))))
     (when (and (zerop (mod request-counter +session-purge-request-interval+)) ; get time less often
@@ -231,10 +234,10 @@
                   +session-purge-time-interval+))
       (purge-sessions application))
     ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can setf it
-    (bind ((*session* nil)
-           (*frame* nil)
-           (response (handle-request application request)))
-      response)))
+    (bind ((response (handle-request application request)))
+      (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of APPLICATION-HANDLER" response)
+      (send-response response)
+      (make-do-nothing-response))))
 
 (def method handle-request ((application application) request)
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? application request)))
@@ -248,8 +251,9 @@
           (query-entry-points-for-response application request relative-path))))))
 
 (def (function o) query-entry-points-for-response (application initial-request relative-path)
-  (bind ((*brokers* (cons application *brokers*))
-         (results (multiple-value-list
+  (assert (eq *application* application))
+  (assert (eq (first *brokers*) application))
+  (bind ((results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
                                                    (if (typep broker 'entry-point)
                                                        (funcall broker request application relative-path)
