@@ -4,47 +4,44 @@
 
 (in-package :hu.dwim.wui)
 
-(def special-variable *current-condition*)
-
 (def (generic e) handle-toplevel-condition (broker error)
   (:method :around (broker error)
     (with-thread-name " / HANDLE-TOPLEVEL-CONDITION"
       (call-next-method))))
 
 (defun call-with-server-error-handler (thunk network-stream error-handler)
-  (handler-bind
-      ((serious-condition
-        (lambda (error)
-          (with-thread-name " / CALL-WITH-SERVER-ERROR-HANDLER"
-            (bind ((parent-condition (when (boundp '*current-condition*)
-                                       *current-condition*))
-                   (*current-condition* error))
-              (if parent-condition
-                  (let ((error-message (or (ignore-errors
-                                             (format nil "Nested error while handling error: ~A, the second error is ~A"
-                                                     parent-condition error))
+  (bind ((level-1-error nil))
+    (labels ((level-1-error-handler (error)
+               ;; first level of error handling, call around participants, give them a chance to render an error page, etc
+               (setf level-1-error error)
+               (handler-bind ((serious-condition #'level-2-error-handler))
+                 (with-thread-name " / LEVEL-1-ERROR-HANDLER"
+                   (if (and (typep error 'stream-error)
+                            (eq (stream-error-stream error) network-stream))
+                       (server.debug "Ignoring stream error coming from the network stream: ~A" error)
+                       (progn
+                         (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
+                         (funcall error-handler error)))
+                   (abort-server-request error)
+                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-1-ERROR-HANDLER"))))
+             (level-2-error-handler (error)
+               ;; if we get here then do as little as feasible wrapped in ignore-errors to bail out and abort processing
+               ;; the request as soon as we can.
+               (with-thread-name " / LEVEL-2-ERROR-HANDLER"
+                 (bind ((error-message (or (ignore-errors
+                                             (format nil "Nested error while handling error: ~A; the second error is: ~A"
+                                                     level-1-error error))
                                            (ignore-errors
                                              (format nil "Failed to log nested error message, probably due to nested print errors. Condition type is ~S."
                                                      (type-of error)))
-                                           "Failed to log nested error message, probably due to some nested print errors.")))
-                    (ignore-errors
-                      (server.error error-message))
-                    ;; let the error fall through and most probably reach the toplevel debugger if left enabled.
-                    ;; there's really nothing else we could do here, because silently aborting the request
-                    ;; and pretending that nothing bad happened could lead to server hangs, especially with
-                    ;; stack overflow errors. entering the toplevel debugger or exiting with an error code is
-                    ;; still better than a silent hang...
-                    )
-                  (progn
-                    (if (and (typep error 'stream-error)
-                             (eq (stream-error-stream error) network-stream))
-                        (server.debug "Ignoring stream error coming from the network stream: ~A" error)
-                        (progn
-                          (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
-                          (funcall error-handler error)))
-                    (abort-server-request error)
-                    (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER"))))))))
-    (funcall thunk)))
+                                           "Failed to log nested error message, probably due to some nested printer errors.")))
+                   (ignore-errors
+                     (server.error error-message))
+                   (abort-server-request error)
+                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER")))))
+      (handler-bind
+          ((serious-condition #'level-1-error-handler))
+        (funcall thunk)))))
 
 (def function maybe-invoke-slime-debugger (condition &key (broker (when (boundp '*brokers*)
                                                                     (first *brokers*)))
