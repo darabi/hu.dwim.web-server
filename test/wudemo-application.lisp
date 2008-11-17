@@ -135,23 +135,29 @@
 (def function make-wudemo-menu-content-component ()
   (if (is-authenticated?)
       (empty)
-      (bind ((path (path-of (uri-of *request*))))
-        (assert (starts-with-subseq (path-prefix-of *application*) path))
-        (setf path (subseq path (length (path-prefix-of *application*))))
-        (switch (path :test #'string=)
-          (+login-entry-point-path+ (vertical-list ()
-                                      (make-identifier-and-password-login-component)
-                                      (inline-component <div "FYI, the password is \"secret\"...">)))
-          ("help/" (make-help-component))
-          ("about/" (make-about-component))
-          (t (inline-component <span "wudemo start page">))))))
+      (if (parameter-value "example-error")
+          (inline-component
+            (error "This is an example error that happens while rendering the response"))
+          (bind ((path (path-of (uri-of *request*))))
+            (assert (starts-with-subseq (path-prefix-of *application*) path))
+            (setf path (subseq path (length (path-prefix-of *application*))))
+            (switch (path :test #'string=)
+              (+login-entry-point-path+ (vertical-list ()
+                                          (make-identifier-and-password-login-component)
+                                          (inline-component <div "FYI, the password is \"secret\"...">)))
+              ("help/" (make-help-component))
+              ("about/" (make-about-component))
+              (t (inline-component <span "wudemo start page">)))))))
 
 (def function make-unauthenticated-menu-component ()
   (menu nil
-    (menu-item (command (label #"menu.front-page") (make-application-relative-uri "")))
-    (menu-item (command (label #"menu.help") (make-application-relative-uri "help/")))
-    (menu-item (command (label #"menu.login") (make-application-relative-uri +login-entry-point-path+)))
-    (menu-item (command (label #"menu.about") (make-application-relative-uri "about/")))))
+    (menu-item (command #"menu.front-page" (make-application-relative-uri "")))
+    (menu-item (command #"menu.help" (make-application-relative-uri "help/")))
+    (menu-item (command #"menu.login" (make-application-relative-uri +login-entry-point-path+)))
+    (menu-item (command #"menu.about" (make-application-relative-uri "about/")))
+    (menu-item (command #"menu.example-rendering-error" (bind ((uri (make-application-relative-uri "")))
+                                                          (setf (uri-query-parameter-value uri "example-error") "t")
+                                                          uri)))))
 
 ;; TODO the onChange part hould be this simple, but it needs qq work.
 ;; ,(js-to-lisp-rpc
@@ -179,6 +185,14 @@
 (def function make-authenticated-menu-component ()
   (bind ((authenticated-subject (current-authenticated-subject)))
     (menu nil
+      (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
+        (bind ((debug-menu (make-debug-menu)))
+          (appendf (menu-items-of debug-menu)
+                   (list (menu-item (command "Example error in action body"
+                                             (make-action (error "This is an example error which is signaled when running the action body"))))
+                         (menu-item (replace-menu-target-command "Example error while rendering"
+                                      (inline-component (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
+          debug-menu))
       (menu "Charts"
        (menu "Charts from files"
          (menu-item (replace-menu-target-command  "Column chart"
