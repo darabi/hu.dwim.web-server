@@ -53,18 +53,16 @@
           (emit (format nil "\"?>~%"))))))
 
 (def function emit-xhtml-prologue (encoding doctype &optional (stream *html-stream*))
+  (declare (ignore encoding))
   (macrolet ((emit (string)
                `(write-string ,(if (stringp string)
                                    (coerce string 'simple-base-string)
                                    string)
                               stream)))
-    (if (and (eq encoding :utf-8)
-             (eq doctype +xhtml-1.1-doctype+))
-        (emit #.(format nil "<?xml version=\"1.1\" encoding=\"UTF-8\"?>~%<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">"))
+    (if (eq doctype +xhtml-1.1-doctype+)
+        (emit #.(format nil "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">"))
         (progn
-          (emit "<?xml version=\"1.1\" encoding=\"")
-          (emit (string encoding))
-          (emit #.(format nil "\"?>~%<!DOCTYPE html PUBLIC "))
+          (emit #.(format nil "<!DOCTYPE html PUBLIC "))
           (emit doctype)
           (emit #.(format nil ">~%"))))))
 
