@@ -68,6 +68,9 @@
       (make-redirect-response (make-uri-for-application *application* +login-entry-point-path+)))))
 
 (def (generic e) execute-logout-action (application session)
+  (:method (application session)
+    ;; nop by default
+    )
   (:method :after ((application application) (session session))
     (mark-session-invalid session)))
 

@@ -78,7 +78,7 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def function clone-request-uri (&key strip-frame-parameters)
+(def (function e) clone-request-uri (&key strip-frame-parameters)
   (prog1-bind uri
       (clone-uri (uri-of *request*))
     (delete-query-parameter uri
