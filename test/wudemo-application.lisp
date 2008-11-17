@@ -226,71 +226,7 @@
                        :settings-file-relative-path "test/chart/examples/amxy/time_plot/amxy_settings.xml"
                        :data-file-relative-path "test/chart/examples/amxy/time_plot/amxy_data.xml")))
          ))
-      (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
-        (make-debug-menu))
-      (labels ((make-primitive-menu-item-content (components)
-                 (inline-component
-                   <div ,(render (command (icon wui::refresh)
-                                          (make-action)))
-                        <table ,(map nil (lambda (component)
-                                           <tr ,(map nil (lambda (cell)
-                                                           <td ,(render cell)>)
-                                                     component)>)
-                                     components)>>))
-               (make-primitive-menu-item (name types values initforms)
-                 (menu (string-capitalize (string-downcase (symbol-name name)))
-                   (menu-item (replace-menu-target-command "Maker"
-                                (make-primitive-menu-item-content (remove nil
-                                                                          (map-product (lambda (type initform)
-                                                                                         (when (or (consp initform)
-                                                                                                   (eq initform :unbound)
-                                                                                                   (typep initform type))
-                                                                                           (list
-                                                                                            (label (format nil "type: ~A, initform: ~A " type initform))
-                                                                                            (apply #'make-maker type (unless (eq initform :unbound)
-                                                                                                                       (list :initform initform))))))
-                                                                                       types (append initforms values))))))
-                   (menu-item (replace-menu-target-command "Inspector"
-                                (make-primitive-menu-item-content (remove nil
-                                                                          (map-product (lambda (type value edited)
-                                                                                         (when (typep value type)
-                                                                                           (bind ((inspector (apply #'make-inspector
-                                                                                                                    type
-                                                                                                                    :edited edited
-                                                                                                                    (unless (eq value :unbound)
-                                                                                                                      (list :component-value value)))))
-                                                                                             (list
-                                                                                              (inline-component
-                                                                                                (bind ((value (if (slot-boundp inspector 'component-value)
-                                                                                                                  (component-value-of inspector)
-                                                                                                                  :unbound)))
-                                                                                                  <span ,(format nil "type: ~A, value: ~A, edited: ~A " type value edited)>))
-                                                                                              inspector))))
-                                                                                       types values '(#f #t))))))
-                   (menu-item (replace-menu-target-command "Filter"
-                                (make-primitive-menu-item-content (map-product (lambda (type)
-                                                                                 (list
-                                                                                  (label (format nil "type: ~A " type))
-                                                                                  (make-place-filter type)))
-                                                                               types)))))))
-        
-        (menu "Primitive"
-          (make-primitive-menu-item 't '(t) '(:unbound nil #t 42 "alma" 'korte (anything)) nil)
-          (make-primitive-menu-item 'boolean '(boolean #+wui-and-cl-perec (or prc::unbound boolean)) '(#f #t) '(:unbound (monday?)))
-          (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '(:unbound (user-name)))
-          (make-primitive-menu-item 'symbol '(symbol (or null symbol)) '(nil eval) '(:unbound (find-symbol "EVAL" "COMMON-LISP")))
-          (make-primitive-menu-item 'number '(number (or null number)) '(nil 3 3.14) '(:unbound (life-universe-and-everything)))
-          (make-primitive-menu-item 'integer '(integer (or null integer)) '(nil 3) '(:unbound (life-universe-and-everything)))
-          (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.14) '(:unbound (pi)))
-          #+wui-and-cl-perec
-          (make-primitive-menu-item 'prc::date '(prc::date (or null prc::date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(:unbound (today)))
-          #+wui-and-cl-perec
-          (make-primitive-menu-item 'prc::time '(prc::time (or null prc::time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
-          #+wui-and-cl-perec
-          (make-primitive-menu-item 'prc::timestamp '(prc::timestamp (or null prc::timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
-          (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(:unbound (one-plus-one)))
-          #+wui-and-cl-perec
-          (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text)))))
+      (make-primitive-component-menu)
       (menu "Metagui"
         (menu "Parent"
           (menu-item (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))
@@ -298,7 +234,6 @@
         (menu "Child"
           (menu-item (replace-menu-target-command "Make a child" (make-maker 'child-test)))
           (menu-item (replace-menu-target-command "Search children" (make-filter 'child-test)))))
-      
       (menu-item (replace-menu-target-command "Dojo InlineEditBox example"
                    (inline-component
                      (render-example-inline-edit-box))))
@@ -320,6 +255,73 @@
       (menu "Others"
         (menu-item (replace-menu-target-command #"menu.help" (make-help-component)))
         (menu-item (replace-menu-target-command #"menu.about" (make-about-component)))))))
+
+(def function make-primitive-component-menu ()
+  (labels ((make-primitive-menu-item-content (components)
+             (inline-component
+               <div ,(render (command (icon wui::refresh)
+                                      (make-action)))
+                    <table ,(map nil (lambda (component)
+                                       <tr ,(map nil (lambda (cell)
+                                                       <td ,(render cell)>)
+                                                 component)>)
+                                 components)>>))
+           (make-primitive-menu-item (name types values initforms)
+             (menu (string-capitalize (string-downcase (symbol-name name)))
+               (menu-item (replace-menu-target-command "Maker"
+                            (make-primitive-menu-item-content
+                             (remove nil
+                                     (map-product (lambda (type initform)
+                                                    (when (or (consp initform)
+                                                              (eq initform :unbound)
+                                                              (typep initform type))
+                                                      (list
+                                                       (label (format nil "type: ~A, initform: ~A " type initform))
+                                                       (apply #'make-maker type (unless (eq initform :unbound)
+                                                                                  (list :initform initform))))))
+                                                  types (append initforms values))))))
+               (menu-item (replace-menu-target-command "Inspector"
+                            (make-primitive-menu-item-content
+                             (remove nil
+                                     (map-product (lambda (type value edited)
+                                                    (when (typep value type)
+                                                      (bind ((inspector (apply #'make-inspector
+                                                                               type
+                                                                               :edited edited
+                                                                               (unless (eq value :unbound)
+                                                                                 (list :component-value value)))))
+                                                        (list
+                                                         (inline-component
+                                                           (bind ((value (if (slot-boundp inspector 'component-value)
+                                                                             (component-value-of inspector)
+                                                                             :unbound)))
+                                                             <span ,(format nil "type: ~A, value: ~A, edited: ~A " type value edited)>))
+                                                         inspector))))
+                                                  types values '(#f #t))))))
+                 (menu-item (replace-menu-target-command "Filter"
+                              (make-primitive-menu-item-content
+                               (map-product (lambda (type)
+                                              (list
+                                               (label (format nil "type: ~A " type))
+                                               (make-place-filter type)))
+                                            types)))))))
+    (menu "Primitive"
+      (make-primitive-menu-item 't '(t) '(:unbound nil #t 42 "alma" 'korte (anything)) nil)
+      (make-primitive-menu-item 'boolean '(boolean #+wui-and-cl-perec (or prc::unbound boolean)) '(#f #t) '(:unbound (monday?)))
+      (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '(:unbound (user-name)))
+      (make-primitive-menu-item 'symbol '(symbol (or null symbol)) '(nil eval) '(:unbound (find-symbol "EVAL" "COMMON-LISP")))
+      (make-primitive-menu-item 'number '(number (or null number)) '(nil 3 3.14) '(:unbound (life-universe-and-everything)))
+      (make-primitive-menu-item 'integer '(integer (or null integer)) '(nil 3) '(:unbound (life-universe-and-everything)))
+      (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.14) '(:unbound (pi)))
+      #+wui-and-cl-perec
+      (make-primitive-menu-item 'prc::date '(prc::date (or null prc::date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(:unbound (today)))
+      #+wui-and-cl-perec
+      (make-primitive-menu-item 'prc::time '(prc::time (or null prc::time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
+      #+wui-and-cl-perec
+      (make-primitive-menu-item 'prc::timestamp '(prc::timestamp (or null prc::timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
+      (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(:unbound (one-plus-one)))
+      #+wui-and-cl-perec
+      (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text))))))
 
 (def function make-help-component ()
   (inline-component <div "This is the help page">))
