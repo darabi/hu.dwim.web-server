@@ -55,7 +55,8 @@
         (bind ((params (create :url decorated-url
                                :form form)))
           (wui.io.xhr-post params))
-        (if form
+        (if (and form
+                 (< 0 form.elements.length))
             (progn
               (setf (slot-value form 'action) decorated-url)
               (form.submit))
