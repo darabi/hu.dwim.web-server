@@ -136,10 +136,12 @@
                                (:file "frame")
                                (:file "application")
                                (:file "entry-point")
-                               (:file "action")
-                               (:file "error-handlers")))
+                               (:file "action")))
                  (:module "component"
-                  :components ((:file "mop" )
+                  :components ((:file "error-handlers"
+                                      ;; this file depends on components, but it should be in the src/application/ directory, therefore this woodoo
+                                      :pathname "../application/error-handlers.lisp")
+                               (:file "mop" )
                                #+sbcl(:file "constructor")
                                (:file "component" :depends-on ("mop" "constructor"))
                                (:file "factory" :depends-on ("component"))
