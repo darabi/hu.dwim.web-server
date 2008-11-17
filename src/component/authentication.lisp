@@ -55,6 +55,22 @@
      `js(on-load
          (.focus ($ ,focused-field-id)))>))
 
+(def (generic e) make-logout-command (application)
+  (:method ((application application))
+    (make-instance 'command-component
+                   :icon (icon logout)
+                   :action (make-logout-action application))))
+
+(def (generic e) make-logout-action (application)
+  (:method ((application application))
+    (make-action
+      (execute-logout-action application *session*)
+      (make-redirect-response (make-uri-for-application *application* +login-entry-point-path+)))))
+
+(def (generic e) execute-logout-action (application session)
+  (:method :after ((application application) (session session))
+    (mark-session-invalid session)))
+
 ;;;;;;
 ;;; Fake login
 
