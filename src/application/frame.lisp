@@ -76,9 +76,17 @@
 
 (def function step-to-next-frame-index (frame)
   (app.debug "Stepping to next frame index. From ~S to next ~S, frame is ~A" (frame-index-of frame) (next-frame-index-of frame) frame)
-  (setf (frame-index-of frame) (next-frame-index-of frame))
-  (setf (next-frame-index-of frame)
-        (generate-frame-index (frame-index-of frame))))
+  (bind ((original-frame-index (frame-index-of frame)))
+    (setf (frame-index-of frame) (next-frame-index-of frame))
+    (setf (next-frame-index-of frame)
+          (generate-frame-index (frame-index-of frame)))
+    original-frame-index))
+
+(def function revert-step-to-next-frame-index (frame original-frame-index)
+  (app.debug "Reverting the step to next frame index. Original ~S to next ~S, frame is ~A" original-frame-index (frame-index-of frame) frame)
+  (setf (next-frame-index-of frame) (frame-index-of frame))
+  (setf (frame-index-of frame) original-frame-index)
+  (values))
 
 (def (function e) reset-frame-root-component ()
   (setf (root-component-of *frame*) nil))

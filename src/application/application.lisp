@@ -116,18 +116,24 @@
                     (cond
                       ((and action
                             incoming-frame-index)
-                       (unless (equal incoming-frame-index next-frame-index)
-                         (frame-out-of-sync-error frame))
-                       (app.dribble "Found an action and frame is in sync...")
-                       (unless *delayed-content-request*
-                         (step-to-next-frame-index frame))
-                       (app.dribble "Calling action...")
-                       (bind ((response (call-action application session frame action)))
-                         (when (typep response 'response)
-                           (return-from call-as-handler-in-session
-                             (if (typep response 'locked-session-response-mixin)
-                                 (send-response-early response)
-                                 response)))))
+                       (bind ((original-frame-index nil))
+                         (unwind-protect-case ()
+                             (progn
+                               (unless (equal incoming-frame-index next-frame-index)
+                                 (frame-out-of-sync-error frame))
+                               (app.dribble "Found an action and frame is in sync...")
+                               (unless *delayed-content-request*
+                                 (setf original-frame-index (step-to-next-frame-index frame)))
+                               (app.dribble "Calling action...")
+                               (bind ((response (call-action application session frame action)))
+                                 (when (typep response 'response)
+                                   (return-from call-as-handler-in-session
+                                     (if (typep response 'locked-session-response-mixin)
+                                         (send-response-early response)
+                                         response)))))
+                           (:abort
+                            (when original-frame-index
+                              (revert-step-to-next-frame-index frame original-frame-index))))))
                       (incoming-frame-index
                        (unless (equal incoming-frame-index current-frame-index)
                          (frame-out-of-sync-error frame)))
