@@ -216,6 +216,7 @@
            (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition)
            (bind ((broker (when (boundp '*brokers*)
                             (first *brokers*))))
+             ;; no need to handle errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
              (handle-toplevel-condition broker condition))
            (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
     (unwind-protect

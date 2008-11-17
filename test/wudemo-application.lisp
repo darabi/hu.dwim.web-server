@@ -195,7 +195,7 @@
           debug-menu))
       (menu "Charts"
        (menu "Charts from files"
-         (menu-item (replace-menu-target-command  "Column chart"
+         (menu-item (replace-menu-target-command "Column chart"
                       (make-chart-from-files
                        'column-chart
                        :settings-file-relative-path "test/chart/examples/amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
@@ -423,6 +423,7 @@
             response))
         (bind (((:values frame main-component) (make-wudemo-frame-component))
                (login-component (find-descendant-component-with-type main-component 'identifier-and-password-login-component)))
+          (assert login-component)
           (setf (identifier-of login-component) identifier)
           (setf (password-of login-component) password)
           (when (or password

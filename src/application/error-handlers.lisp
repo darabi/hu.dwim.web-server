@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; error in AJAX requests
+
 (def method handle-toplevel-condition :around ((application application) error)
   (if *ajax-aware-request*
       (emit-http-response ((+header/status+       +http-not-acceptable+
@@ -12,6 +15,10 @@
          <error-message ,#"error-message-for-ajax-requests">
          <result "failure">>)
       (call-next-method)))
+
+
+;;;;;;
+;;; frame out of sync
 
 (def method handle-toplevel-condition ((application application) (error frame-out-of-sync-error))
   (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))

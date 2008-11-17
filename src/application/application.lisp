@@ -469,6 +469,7 @@ Custom implementations should look something like this:
    (frame)
    (component)))
 
+;; TODO switch default content-type to +xhtml-mime-type+ (search for other uses, too)
 (def (function e) make-component-rendering-response (component &key (application *application*) (session *session*) (frame *frame*)
                                                                (encoding +encoding+) (content-type (content-type-for +html-mime-type+ encoding)))
   (aprog1
@@ -526,11 +527,11 @@ Custom implementations should look something like this:
                          (ajax-aware-render (component-of self))
                        (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time)))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
-                                                          :initial-buffer-size 128)
+                                                          :initial-buffer-size 256)
                     (setf (header-value self +header/content-length+) (integer-to-string (length body)))
                     (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
     ;; TODO use multiplexing when writing to the network stream, including the headers
-    (app.debug "Sending component rendering response, body length is ~A" (length body))
+    (app.debug "Sending component rendering response of ~A bytes" (length body))
     (write-sequence headers (network-stream-of *request*))
     (write-sequence body (network-stream-of *request*)))
   (values))
@@ -557,7 +558,7 @@ Custom implementations should look something like this:
   (append-path-to-uri (make-uri-for-application *application*) relative-path))
 
 (def (function e) make-uri-for-application (application &optional relative-path)
-  "Does not assume an application context and only use *session* & co. when available."
+  "Does not assume an application context and only uses *session* & co. when available."
   (bind ((uri (clone-request-uri)))
     (clear-uri-query-parameters uri)
     (decorate-uri uri application)
