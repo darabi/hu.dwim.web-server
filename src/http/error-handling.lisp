@@ -85,30 +85,51 @@
 
 (defmethod handle-toplevel-condition (broker (error serious-condition))
   (log-error-with-backtrace error)
-  (when (boundp '*request*)
-    (send-standard-error-page :condition error))
+  (bind ((request-uri (if (boundp '*request*)
+                          (raw-uri-of *request*)
+                          "<unavailable>")))
+    (if (or (not (boundp '*response*))
+            (not (headers-are-sent-p *response*)))
+        (progn
+          (server.info "Sending an internal server error page for request ~S" request-uri)
+          (emit-simple-html-document-response (:status +http-internal-server-error+ :title #"error.internal-server-error")
+            (bind ((args (list :admin-email-address (and (boundp '*server*)
+                                                         (admin-email-address-of *server*)))))
+              (lookup-resource 'render-internal-error-page
+                               :arguments args
+                               :otherwise (lambda ()
+                                            (apply 'render-internal-error-page/english args))))))
+        (server.info "Internal server error for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
   (abort-server-request error))
 
-(defun send-standard-error-page (&key condition (message "An internal server error has occured." message-p)
-                                 (title message) (http-status-code +http-internal-server-error+))
-  (server.info "Sending ~A for request ~S" http-status-code (if (boundp '*request*)
-                                                                (path-of (uri-of *request*))
-                                                                "?"))
-  (when (and (not message-p)
-             condition)
-    (ignore-errors
-      (setf message (with-output-to-string (str)
-                      (princ condition str)))))
-  (if (or (not (boundp '*response*))
-          (not (headers-are-sent-p *response*)))
-      (render-standard-error-page :message message :title title :http-status-code http-status-code)
-      (server.error "The headers are already sent, closing the socket as-is without sending any useful error message")))
+(def function render-internal-error-page/english (&key admin-email-address &allow-other-keys)
+  <div
+   <h1 "Internal server error">
+   <p "An internal server error has occured while processing your request. We are sorry for the inconvenience.">
+   <p "The developers will be notified about this error and will hopefully fix it in the near future.">
+   ,(when admin-email-address
+      <p "You may contact the administrators at the "
+         <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
+         " email address.">)
+   <p <a (:href `js-inline(history.go -1)) "Go back">>>)
 
-(defun render-standard-error-page (&key (message "An internal server error has occured.")
-                                        (title message) (http-status-code +http-internal-server-error+))
-  (emit-simple-html-document-response (:status http-status-code :title title)
-    <h1 ,title>
-    <p ,message>))
+(def resources en
+  ("error.internal-server-error" "Internal server error")
+  (render-internal-error-page (&rest args &key &allow-other-keys)
+    (apply 'render-internal-error-page/english args)))
+
+(def resources hu
+  ("error.internal-server-error" "Programhiba")
+  (render-internal-error-page (&key admin-email-address &allow-other-keys)
+    <div
+     <h1 "Programhiba">
+     <p "A szerverhez érkezett kérés feldolgozása közben egy váratlan programhiba történt. Elnézést kérünk az esetleges kellemetlenségért!">
+     <p "A hibáról értesülni fognak a fejlesztők és valószínűleg a közeljövőben javítják azt.">
+     ,(when admin-email-address
+        <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
+           <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
+           " email címen megteheti.">)
+     <p <a (:href `js-inline(history.go -1)) "Go back">>>))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

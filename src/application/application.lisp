@@ -41,6 +41,7 @@
    (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal))
+   (admin-email-address nil)
    (lock)
    (running-in-test-mode #f :type boolean :export :accessor)
    (compile-time-debug-client-side :type boolean :accessor compile-time-debug-client-side? :export :accessor))

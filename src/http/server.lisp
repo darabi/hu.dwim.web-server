@@ -5,7 +5,8 @@
 (in-package :hu.dwim.wui)
 
 (def (class* e) server ()
-  ((host)
+  ((admin-email-address nil)
+   (host)
    (port)
    (host-header-fallback :documentation "Used when parsing the request and there's no Host header sent from the client.")
    (socket nil)

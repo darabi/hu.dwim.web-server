@@ -312,6 +312,9 @@
                      (setf str (capitalize-first-letter str))))
            str))))
 
+(def function mailto-href (email-address)
+  (concatenate 'string "mailto:" email-address))
+
 ;;;;;;;;;;;;;;;;
 ;;; string utils
 
