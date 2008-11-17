@@ -107,6 +107,22 @@
       (when path
         (out path)))))
 
+#+nil
+(def (function o) write-relative-uri (uri stream &optional (escape t))
+  "Write URI to STREAM, only write components starting with path."
+  (bind ((path (path-of uri)))
+    (flet ((out (string)
+             (funcall (if escape
+                          #'write-as-uri
+                          #'write-string)
+                      string stream)))
+      (when path
+        (out path))
+      (write-query-parameters (query-parameters-of uri) stream escape)
+      (awhen (fragment-of uri)
+        (write-char #\# stream)
+        (out it)))))
+
 (def (function o) write-query-parameters (parameters stream &optional (escape t))
   (labels ((out (string)
              (funcall (if escape
@@ -158,6 +174,13 @@
          (*print-circle* #f))
     (with-output-to-string (string)
       (write-uri uri string escape))))
+
+#+nil
+(def (function e) print-relative-uri-to-string (uri &optional (escape t))
+  (bind ((*print-pretty* #f)
+         (*print-circle* #f))
+    (with-output-to-string (string)
+      (write-relative-uri uri string escape))))
 
 (def function print-uri-to-string-sans-query (uri)
   (bind ((*print-pretty* #f)
