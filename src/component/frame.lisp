@@ -22,10 +22,8 @@
 (def render frame-component ()
   (bind ((application *application*)
          (path-prefix (path-prefix-of application))
-         (response (when (boundp '*response*)
-                     *response*))
-         (encoding (or (when response
-                         (encoding-name-of response))
+         (encoding (or (when *response*
+                         (encoding-name-of *response*))
                        +encoding+))
          (debug-client-side? (debug-client-side? -self-)))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)

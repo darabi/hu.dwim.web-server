@@ -207,8 +207,8 @@
   (send-http-headers (headers-of response) (cookies-of response)))
 
 (defmethod send-response :around ((response response))
-  (bind ((*response* response)
-         (network-stream (network-stream-of *request*))
+  (store-response response)
+  (bind ((network-stream (network-stream-of *request*))
          (original-external-format (io.streams:external-format-of network-stream)))
     (http.debug "Sending response ~A" response)
     (unwind-protect
@@ -280,8 +280,8 @@
 
 (def function expand-make-functional-response (raw? headers-as-plist cookie-list body)
   (with-unique-names (response)
-    `(bind ((,response (make-functional-response* (lambda () ,@body) :raw? ,raw?))
-            (*response* ,response))
+    `(bind ((,response (make-functional-response* (lambda () ,@body) :raw? ,raw?)))
+       (store-response ,response)
        ;; this way *response* is bound while evaluating the following
        (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
                                                   (collect `(cons ,name ,value)))))
@@ -304,8 +304,8 @@
 
 (def (macro e) make-buffered-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
   (with-unique-names (response)
-    `(bind ((,response (make-byte-vector-response* nil))
-            (*response* ,response))
+    `(bind ((,response (make-byte-vector-response* nil)))
+       (store-response ,response)
        ;; set a default content type header. do it early, so that it's already set when the body is rendered
        (setf (header-value ,response +header/content-type+) (content-type-for +html-mime-type+))
        (bind ((buffer (emit-into-html-stream-buffer
@@ -332,8 +332,8 @@
 #+nil ; TODO is it needed? broken this way. delme?
 (def (macro e) make-byte-vector-response (body &optional headers-as-plist cookie-list)
   (with-unique-names (response)
-    `(bind ((,response (make-byte-vector-response* nil))
-            (*response* ,response))
+    `(bind ((,response (make-byte-vector-response* nil)))
+       (store-response ,response)
        ;; this way *response* is bound while evaluating the following
        (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
                                                   (collect `(cons ,name ,value)))))

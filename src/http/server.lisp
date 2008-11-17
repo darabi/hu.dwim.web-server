@@ -204,14 +204,12 @@
                       (server.info "All ~A worker threads are occupied, starting a new one" (length (workers-of server)))
                       (make-worker server))
                     (incf (processed-request-count-of server)))
-                  (bind ((*server* server)
-                         (*brokers* (list server))
-                         (*request* (read-request server stream-socket)))
-                    (loop
-                       (with-simple-restart (retry-handling-request "Try again handling this request")
-                         (funcall (handler-of server))
-                         (return)))
-                    (close-request *request*)))
+                  (setf *request* (read-request server stream-socket))
+                  (loop
+                     (with-simple-restart (retry-handling-request "Try again handling this request")
+                       (funcall (handler-of server))
+                       (return)))
+                  (close-request *request*))
              (with-lock-held-on-server (server)
                (decf (occupied-worker-count-of server)))))
          (handle-request-error (condition)
@@ -223,11 +221,23 @@
     (unwind-protect
          (with-thread-name (concatenate-string " / serving request "
                                                (integer-to-string (processed-request-count-of server)))
-           (call-as-server-request-handler #'serve-one-request
-                                           stream-socket
-                                           :error-handler #'handle-request-error)
+           (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response*))))
+           (bind ((*server* server)
+                  (*brokers* (list server))
+                  (*request* nil)
+                  (*response* nil))
+             (call-as-server-request-handler #'serve-one-request
+                                             stream-socket
+                                             :error-handler #'handle-request-error))
            (server.dribble "Worker ~A finished processing a request" worker))
       (close stream-socket))))
+
+(def function store-response (response)
+  (assert (boundp '*response*))
+  (unless (typep response 'do-nothing-response)
+    (assert (or (null *response*)
+                (eq *response* response)))
+    (setf *response* response)))
 
 (def function invoke-retry-handling-request-restart ()
   (invoke-restart (find-restart 'retry-handling-request)))

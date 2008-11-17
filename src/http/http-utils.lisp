@@ -76,8 +76,7 @@
                                               (xhtml-doctype +xhtml-1.1-doctype+ xhtml-doctype-provided?)
                                               page-icon
                                               stylesheet-uris)
-  (bind ((response (when (boundp '*response*)
-                     *response*))
+  (bind ((response *response*)
          (encoding (or encoding
                        (when response
                          (encoding-name-of response))

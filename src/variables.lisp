@@ -44,7 +44,7 @@
 	 (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
 									      '(unsigned-byte 8)
 									      'character)
-							    :external-format (if (boundp '*response*)
+							    :external-format (if *response*
 										 (external-format-of *response*)
 										 +encoding+))
                         (setf result (-body-)))))

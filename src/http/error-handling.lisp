@@ -85,10 +85,10 @@
 
 (defmethod handle-toplevel-condition (broker (error serious-condition))
   (log-error-with-backtrace error)
-  (bind ((request-uri (if (boundp '*request*)
+  (bind ((request-uri (if *request*
                           (raw-uri-of *request*)
                           "<unavailable>")))
-    (if (or (not (boundp '*response*))
+    (if (or (not *response*)
             (not (headers-are-sent-p *response*)))
         (progn
           (server.info "Sending an internal server error page for request ~S" request-uri)
