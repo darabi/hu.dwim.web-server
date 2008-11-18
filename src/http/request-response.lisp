@@ -216,9 +216,9 @@
     (http.debug "Sending response ~A" response)
     (unwind-protect
          (progn
-           (setf (io.streams:external-format-of network-stream) (external-format-of response))
+           (setf (iolib:external-format-of network-stream) (external-format-of response))
            (call-next-method))
-      (setf (io.streams:external-format-of network-stream) original-external-format))))
+      (setf (iolib:external-format-of network-stream) original-external-format))))
 
 (defmethod send-response ((response response))
   (assert (not (headers-are-sent-p response)) () "The headers of ~A have already been sent, this is a program error." response)

@@ -67,7 +67,7 @@
                       (when (string= "" (first acc))
                         (error "Badly formatted accept-languages header."))
                       (let ((quality (if (not (string= "" (third acc)))
-                                         (parse-float (third acc))
+                                         (parse-number:parse-number (third acc))
                                          1)))
                         (if (string= "" (second acc))
                             (list (first acc) quality)

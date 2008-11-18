@@ -167,7 +167,7 @@
            (iter (with socket = (socket-of server))
                  (until (shutdown-initiated-p server))
                  (for (values readable writable) = (wait-until-fd-ready (fd-of socket) :input 1))
-                 (server.dribble "wait-until-fd-ready returned with readable ~S, writable ~S in thread ~A" readable writable (current-thread))
+                 ;; (server.dribble "wait-until-fd-ready returned with readable ~S, writable ~S in thread ~A" readable writable (current-thread))
                  (until (shutdown-initiated-p server))
                  (unless readable
                    (next-iteration))
