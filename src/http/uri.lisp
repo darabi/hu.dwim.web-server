@@ -277,11 +277,12 @@
 (def (function o) %parse-uri (uri)
   (declare (type simple-base-string uri))
   ;; can't use :sharedp, because we expect the returned pieces to be simple-base-string's and :sharedp would return displaced arrays
-  (bind ((pieces (nth-value 1 (cl-ppcre:scan-to-strings "^(([^:/?#]+):)?(//([^:/?#]*)(:([0-9]+))?)?([^?#]*)(\\?([^#]*))?(#(.*))?"
+  (bind ((pieces (nth-value 1 (cl-ppcre:scan-to-strings "^(([^:/?#]+):)?(//([^:/?#]*)(:([0-9]+)?)?)?([^?#]*)(\\?([^#]*))?(#(.*))?"
                                                         uri :sharedp #f))))
     (flet ((process (index)
              (bind ((piece (aref pieces index)))
-               (values (if piece
+               (values (if (and piece
+                                (not (zerop (length piece))))
                            (unescape-as-uri piece)
                            nil)))))
       (declare (inline process)
