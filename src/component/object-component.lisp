@@ -101,7 +101,7 @@
 ;;;;;;
 ;;; Abstract standard object tree
 
-(def component abstract-standard-object-tree-component (abstract-standard-object-component)
+(def component abstract-standard-object-tree-component (abstract-standard-object-component abstract-standard-class-component)
   ((parent-provider nil :type (or symbol function))
    (children-provider nil :type (or symbol function)))
   (:documentation "Base class with a TREE of STANDARD-OBJECT instances as component value."))

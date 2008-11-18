@@ -8,7 +8,6 @@
 ;;; Standard object tree
 
 (def component standard-object-tree-inspector (abstract-standard-object-tree-component
-                                               abstract-standard-class-component
                                                inspector-component
                                                alternator-component
                                                editable-component
@@ -72,7 +71,6 @@
 ;;; Standard object tree table
 
 (def component standard-object-tree-table-inspector (abstract-standard-object-tree-component
-                                                     abstract-standard-class-component
                                                      inspector-component
                                                      tree-component
                                                      editable-component)
@@ -152,7 +150,6 @@
 ;;; Standard object node
 
 (def component standard-object-tree-node-inspector (abstract-standard-object-tree-component
-                                                    abstract-standard-class-component
                                                     inspector-component
                                                     node-component
                                                     editable-component
@@ -204,7 +201,6 @@
 ;;; Standadr object tree level inspector
 
 (def component standard-object-tree-level-inspector (abstract-standard-object-tree-component
-                                                     abstract-standard-class-component
                                                      inspector-component)
   ((current-instance nil)
    (path nil :type component)
@@ -288,7 +284,6 @@
 (def special-variable *standard-object-tree-level* 0)
 
 (def component standard-object-tree-nested-box-inspector (abstract-standard-object-tree-component
-                                                          abstract-standard-class-component
                                                           inspector-component)
   ())
 
