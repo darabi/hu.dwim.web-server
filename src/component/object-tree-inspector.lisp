@@ -22,7 +22,7 @@
   `(make-instance 'standard-object-tree-inspector :instance ,root :children-provider ,children-provider :parent-provider ,parent-provider ,@args))
 
 (def method refresh-component ((self standard-object-tree-inspector))
-  (with-slots (instance children-provider default-component-type alternatives alternatives-factory content command-bar) self
+  (with-slots (instance the-class children-provider default-component-type alternatives alternatives-factory content command-bar) self
     (if instance
         (progn
           (if (and alternatives
@@ -38,14 +38,20 @@
         (setf alternatives (list (delay-alternative-component-with-initargs 'null-component))
               content (find-default-alternative-component alternatives)))
     (setf command-bar (make-alternator-command-bar self alternatives
-                                                   (list (make-open-in-new-frame-command self)
-                                                         (make-top-command self)
-                                                         (make-refresh-command self))))))
+                                                   (append (list (make-open-in-new-frame-command self)
+                                                                 (make-top-command self)
+                                                                 (make-refresh-command self))
+                                                           (make-standard-commands self the-class (class-prototype the-class)))))))
 
 (def render standard-object-tree-inspector ()
   <div (:class "standard-object-tree")
     ,(render-user-messages -self-)
     ,(call-next-method)>)
+
+;; TODO: use this function for making commands for other kinds of standard components
+(def (layered-function e) make-standard-commands (component classs prototype)
+  (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
+    (make-editing-commands component)))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class instance)
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
@@ -160,23 +166,29 @@
   (with-slots (children-provider instance command-bar child-nodes cells) self
     (if instance
         (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-tree-table-node-inspector-commands self (class-of instance) instance))
-              child-nodes (iter (for child :in (funcall (children-provider-of self) instance))
-                                (for node = (find instance child-nodes :key #'component-value-of))
-                                (if node
-                                    (setf (component-value-of node) child)
-                                    (setf node (make-standard-object-tree-table-node (find-ancestor-component-with-type self 'tree-component) (class-of child) child)))
-                                (collect node))
+              child-nodes (sort-child-nodes self
+                                            (iter (for child :in (funcall (children-provider-of self) instance))
+                                                  (for node = (find instance child-nodes :key #'component-value-of))
+                                                  (if node
+                                                      (setf (component-value-of node) child)
+                                                      (setf node (make-standard-object-tree-table-node (find-ancestor-component-with-type self 'tree-component) (class-of child) child)))
+                                                  (collect node)))
               cells (mapcar (lambda (column)
                               (funcall (cell-factory-of column) self))
                             (columns-of (find-ancestor-component-with-type self 'standard-object-tree-table-inspector))))
         (setf command-bar nil
               cells nil))))
 
+(def (layered-function e) sort-child-nodes (parent-node child-nodes)
+  (:method ((self standard-object-tree-node-inspector) (child-nodes list))
+    child-nodes))
+
 (def (layered-function e) make-standard-object-tree-table-node (component class instance)
   (:method ((component standard-object-tree-table-inspector) (class standard-class) (instance standard-object))
     (make-instance 'standard-object-tree-node-inspector
                    :instance instance
                    :children-provider (children-provider-of component)
+                   :parent-provider (parent-provider-of component)
                    :expanded (expand-nodes-by-default-p component))))
 
 (def render standard-object-tree-node-inspector ()
