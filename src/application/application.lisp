@@ -242,9 +242,10 @@
       (purge-sessions application))
     ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can setf it
     (bind ((response (handle-request application request)))
-      (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of APPLICATION-HANDLER" response)
-      (send-response response)
-      (make-do-nothing-response))))
+      (when response
+        (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of APPLICATION-HANDLER" response)
+        (send-response response)
+        (make-do-nothing-response)))))
 
 (def method handle-request ((application application) request)
   (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? application request)))
