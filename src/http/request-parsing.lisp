@@ -10,10 +10,24 @@
   (with-thread-name " / READ-REQUEST"
     (call-next-method)))
 
+(def (function io) parse-http-version (version-string)
+  (declare (type string version-string))
+  (flet ((fail-unless (condition)
+           (unless condition
+             (abort-server-request (format nil "Illegal http version string ~S" version-string)))))
+    (declare (inline fail-unless))
+    (fail-unless (starts-with-subseq "HTTP/" version-string))
+    (bind ((dot-position (position #\. version-string :start 5)))
+      (fail-unless dot-position)
+      (bind ((major-version (parse-integer version-string :start 5 :end dot-position))
+             ((:values minor-version end-position) (parse-integer version-string :start (1+ dot-position))))
+        (fail-unless (= (length version-string) end-position))
+        (values major-version minor-version)))))
+
 (def function read-http-request (stream)
   (bind ((line (read-http-request-line stream :length-limit #.(* 4 1024)))
          (pieces (split-ub8-vector +space+ line))
-         ((http-method uri-octets &optional version) pieces))
+         ((http-method uri-octets &optional raw-version-string) pieces))
     (http.dribble "In READ-HTTP-REQUEST, first line in ISO-8859-1 is ~S" (iso-8859-1-octets-to-string line))
     ;; uri decoding: octets -> us-ascii -> foo%12%34bar unescape resulting in octets -> utf-8.
     ;; processing anything else here would be ad-hoc...
@@ -23,7 +37,9 @@
       (flet ((header-value (name)
                (awhen (assoc name headers :test #'string=)
                  (cdr it))))
-        (bind ((raw-uri (us-ascii-octets-to-string uri-octets))
+        (bind ((version-string (us-ascii-octets-to-string raw-version-string))
+               ((:values major-version minor-version) (parse-http-version version-string))
+               (raw-uri (us-ascii-octets-to-string uri-octets))
                (raw-uri-length (length raw-uri))
                (host (or (header-value "Host")
                          (host-header-fallback-of *server*)))
@@ -54,7 +70,9 @@
                            :network-stream stream
                            :query-parameters parameters
                            :http-method (us-ascii-octets-to-string http-method)
-                           :http-version (us-ascii-octets-to-string version)
+                           :http-version-string version-string
+                           :http-major-version major-version
+                           :http-minor-version minor-version
                            :headers headers)))))))
 
 (declaim (ftype (function * simple-ub8-vector) read-http-request-line))
