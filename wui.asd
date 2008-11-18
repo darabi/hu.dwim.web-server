@@ -140,7 +140,8 @@
                  (:module "component"
                   :components ((:file "error-handlers"
                                       ;; this file depends on components, but it should be in the src/application/ directory, therefore this woodoo
-                                      :pathname "../application/error-handlers.lisp")
+                                      :pathname "../application/error-handlers.lisp"
+                                      :depends-on ("command" "icon" "misc"))
                                (:file "mop" )
                                #+sbcl(:file "constructor")
                                (:file "component" :depends-on ("mop" "constructor"))
