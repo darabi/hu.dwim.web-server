@@ -181,6 +181,13 @@
 (def component symbol-component (string-component)
   ())
 
+(def method print-component-value ((component symbol-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        (symbol-name component-value))))
+
 ;;;;;;
 ;;; Number component
 
@@ -200,7 +207,8 @@
         (princ-to-string component-value))))
 
 (def method parse-component-value ((component number-component) client-value)
-  (if (string= client-value "")
+  (if (or (string= client-value "")
+          (string= client-value "NaN"))
       nil
       (parse-number:parse-number client-value)))
 
