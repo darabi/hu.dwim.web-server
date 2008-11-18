@@ -41,6 +41,12 @@
                ((:values major-version minor-version) (parse-http-version version-string))
                (raw-uri (us-ascii-octets-to-string uri-octets))
                (raw-uri-length (length raw-uri))
+               (raw-content-length (header-value +header/content-length+))
+               (keep-alive? (and raw-content-length
+                                 (parse-integer raw-content-length :junk-allowed #t)
+                                 (>= major-version 1)
+                                 (>= minor-version 1)
+                                 (not (string= (header-value +header/connection+) "close"))))
                (host (or (header-value "Host")
                          (host-header-fallback-of *server*)))
                (host-length (length host))
@@ -60,13 +66,14 @@
           ;; extend the parameters with the possible stuff in the request body
           ;; making sure duplicate entries are recorded in a list keeping the original order.
           (bind ((parameters (read-http-request-body stream
-                                                     (header-value "Content-Length")
+                                                     raw-content-length
                                                      (header-value "Content-Type")
                                                      uri-parameters)))
             (http.dribble "All the request query parameters: ~S" parameters)
             (make-instance 'request
                            :raw-uri raw-uri
                            :uri uri
+                           :keep-alive keep-alive?
                            :network-stream stream
                            :query-parameters parameters
                            :http-method (us-ascii-octets-to-string http-method)

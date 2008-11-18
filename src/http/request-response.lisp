@@ -98,6 +98,7 @@
 
 (def (class* e) request (http-message)
   ((network-stream)
+   (keep-alive :initform #t :accessor keep-alive?)
    (http-method)
    (http-version-string)
    (http-major-version)
