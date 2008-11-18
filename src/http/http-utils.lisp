@@ -124,20 +124,14 @@
   `(with-request-params* *request* ,args ,@body))
 
 (def (macro e) with-request-params* (request args &body body)
-  "Bind, according the REQUEST-LAMBDA-LIST the parameters in
-  REQUEST and execute BODY.
+  "Bind the parameters in REQUEST according to the REQUEST-LAMBDA-LIST and execute BODY.
 
 REQUEST-LAMBDA-LIST is a list of the form:
 
  ( [ ( symbol string ) | symbol ]
    [ default-value [ supplied-symbol-name ]? ]? )
 
-If the request contains a param (no distinction between GET and
-POST params is made) named STRING (which defaults to the symbol
-name of SYMBOL) the variable SYMBOL is bound to the associated
-value (which is always a string) . If no parameter with that name
-was passed SYMBOL will be bound to DEFAULT-VALUE and the variable
-named SUPPLIED-SYMBOL-NAME will be bound to NIL."
+If the request contains a param (no distinction between GET and POST params is made) named STRING (which defaults to the symbol name of SYMBOL) the variable SYMBOL is bound to the associated value (which is always a string). If no parameter with that name was passed SYMBOL will be bound to DEFAULT-VALUE and the variable named SUPPLIED-SYMBOL-NAME will be bound to NIL."
   (once-only (request)
     (bind (((:values bindings defaults)
             (iter (for entry :in args)
@@ -158,7 +152,7 @@ named SUPPLIED-SYMBOL-NAME will be bound to NIL."
                                                              "-SUPPLIED?"))))
                   (unless parameter-name
                     (setf parameter-name (etypecase variable-name
-                                           (symbol (hyphened-to-camel-case (string-downcase variable-name)))
+                                           (symbol (string-downcase variable-name))
                                            (string variable-name))))
                   (collect `((:values ,variable-name ,supplied-variable-name)
                              (request-parameter-value ,request ,parameter-name)) :into bindings)
