@@ -300,19 +300,18 @@
            (when ,seconds-until-expires
              (if (<= ,seconds-until-expires 0)
                  (disallow-response-caching ,response)
-                 ;; TODO check possible timezone issues with calling date:universal-time-to-http-date like this
                  (setf (header-value ,response +header/expires+)
-                       (date:universal-time-to-http-date
-                        (+ (get-universal-time) ,seconds-until-expires)))))
+                       (local-time:to-http-timestring
+                        (local-time:adjust-timestamp (local-time:now) (offset :sec ,seconds-until-expires))))))
            (when ,last-modified-at
              (setf (header-value ,response +header/last-modified+)
-                   (date:universal-time-to-http-date ,last-modified-at)))
-           (setf (header-value ,response +header/date+)
-                 (date:universal-time-to-http-date (get-universal-time)))
+                   (local-time:to-http-timestring (local-time:universal-to-timestamp ,last-modified-at))))
+           (setf (header-value ,response +header/date+) (local-time:to-http-timestring (local-time:now)))
            (if (and ,last-modified-at
                     ,if-modified-since
                     (<= ,last-modified-at
-                        (date:parse-time
+                        ;; TODO get rid of this final net.telent.date dependency
+                        (net.telent.date:parse-time
                          ;; IE sends junk with the date (but sends it after a semicolon)
                          (subseq ,if-modified-since 0 (position #\; ,if-modified-since :test #'char=)))))
                (progn

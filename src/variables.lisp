@@ -169,7 +169,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 ;;;
 
 (def (constant :test 'equal) +disallow-response-caching-header-values+
-  (list (cons +header/expires+ #.(net.telent.date:universal-time-to-http-date +epoch-start+))
+  (list (cons +header/expires+ "Wed, 01 Mar 2000 00:00:00 GMT")
         (cons +header/cache-control+ "no-store")))
 
 (def (constant :test 'string=) +xhtml-namespace-uri+ "http://www.w3.org/1999/xhtml")
