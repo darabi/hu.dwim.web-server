@@ -6,11 +6,13 @@
 
 (def class* activity-monitor-mixin ()
   ((last-activity-at (get-monotonic-time))
+   (last-activity-timestamp (local-time:now))
    (time-to-live)))
 
 (def (generic e) notify-activity (thing)
   (:method ((self activity-monitor-mixin))
-    (setf (last-activity-at-of self) (get-monotonic-time))))
+    (setf (last-activity-at-of self) (get-monotonic-time))
+    (setf (last-activity-timestamp-of self) (local-time:now))))
 
 (def (generic e) mark-expired (thing)
   (:method ((thing activity-monitor-mixin))
