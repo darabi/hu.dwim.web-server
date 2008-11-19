@@ -96,5 +96,5 @@
 
 (def call-in-component-environment coordinates-provider ()
   (bind (((:read-only-slots dimensions coordinates) -self-))
-    (prc:with-coordinates dimensions coordinates
+    (prc:with-coordinates dimensions (force coordinates)
       (call-next-method))))
