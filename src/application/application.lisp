@@ -382,7 +382,7 @@ Custom implementations should look something like this:
 (def (layered-function e) render (component)
   (:method :around (component)
     (bind ((*rendering-in-progress* #t))
-      (call-in-component-environment component #'call-next-method))))
+      (call-next-method))))
 
 (def (definer e) render (&body forms)
   (bind ((layer (when (member (first forms) '(:in-layer :in))
