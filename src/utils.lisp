@@ -497,10 +497,13 @@
            metaclasses)
     (first metaclasses)))
 
+(def function ensure-dynamic-class (class-names)
+  (ensure-class (dynamic-class-name class-names) :direct-superclasses class-names :metaclass (dynamic-class-metaclass class-names)))
+
 (def method make-instance ((class-names list) &rest args)
   (bind ((class (find-dynamic-class class-names)))
     (unless class
-      (setf class (ensure-class (dynamic-class-name class-names) :direct-superclasses class-names :metaclass (dynamic-class-metaclass class-names)))
+      (setf class (ensure-dynamic-class class-names))
       (setf (find-dynamic-class class-names) class))
     (apply #'make-instance class args)))
 

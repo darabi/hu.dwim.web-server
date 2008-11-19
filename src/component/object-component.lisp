@@ -123,9 +123,10 @@
   (:method ((self abstract-selectable-standard-object-component))
     (= 1 (maximum-selection-cardinality-of self))))
 
-(def (function e) selected-instance-of (component)
-  (assert (single-selection-mode-p component))
-  (first (selected-instances-of component)))
+(def (generic e) selected-instance-of (component)
+  (:method ((self abstract-selectable-standard-object-component))
+    (assert (single-selection-mode-p self))
+    (first (selected-instances-of self))))
 
 (def (generic e) selected-instances-of (component)
   (:method ((self abstract-selectable-standard-object-component))

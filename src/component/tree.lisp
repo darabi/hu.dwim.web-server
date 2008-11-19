@@ -11,14 +11,14 @@
 
 (def component tree-component (remote-identity-component-mixin)
   ((columns nil :type components)
-   (root-node nil :type component)
+   (root-nodes nil :type components)
    (expand-nodes-by-default #f :type boolean)))
 
 (def render tree-component ()
-  (bind (((:read-only-slots root-node id) -self-))
+  (bind (((:read-only-slots root-nodes id) -self-))
     <table (:id ,id :class "tree")
-      <thead <tr ,(render-tree-columns -self-)>>
-      <tbody ,(render root-node)>>))
+      <thead <tr ,(render-tree-columns -self-) >>
+      <tbody ,(map nil #'render root-nodes) >>))
 
 (def call-in-component-environment tree-component ()
   (bind ((*tree-level* -1))
@@ -40,8 +40,8 @@
     <tr (:id ,id
          :style ,(style-of -self-)
          :class ,(tree-node-style-class -self-))
-        ,(render-tree-node-expander-cell -self-)
-        ,(render-tree-node-cells -self-) >
+      ,(render-tree-node-expander-cell -self-)
+      ,(render-tree-node-cells -self-) >
     (when expanded
       (map nil #'render child-nodes))))
 

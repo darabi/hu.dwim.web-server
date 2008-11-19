@@ -75,13 +75,17 @@
 (def constructor standard-object-detail-filter ()
   (with-slots (the-class class-selector) -self-
     (setf class-selector
-          (when-bind subclasses (subclasses the-class)
+          (when-bind subclasses (collect-standard-object-detail-filter-subclasses -self- the-class (class-prototype the-class))
             (make-instance 'member-inspector
                            :edited #t
                            :the-type `(or null (member ,subclasses))
                            :component-value the-class
                            :client-name-generator #'localized-class-name
                            :possible-values (list* the-class subclasses))))))
+
+(def (layered-function e) collect-standard-object-detail-filter-subclasses (component class prototype)
+  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
+    (subclasses class)))
 
 (def method refresh-component ((self standard-object-detail-filter))
   (with-slots (class class-selector the-class slot-value-groups command-bar) self

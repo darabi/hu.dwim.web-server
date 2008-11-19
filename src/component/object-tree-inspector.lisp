@@ -14,7 +14,7 @@
                                                user-message-collector-component-mixin
                                                remote-identity-component-mixin
                                                initargs-component-mixin)
-  ()
+  ((the-class (find-class 'standard-object)))
   (:default-initargs :alternatives-factory #'make-standard-object-tree-inspector-alternatives)
   (:documentation "Component for a tree of STANDARD-OBJECTs in various alternative views"))
 
@@ -84,11 +84,11 @@
 
 ;; TODO: factor out common parts with standard-object-list-table-inspector
 (def method refresh-component ((self standard-object-tree-table-inspector))
-  (with-slots (instance root-node columns) self
+  (with-slots (instance root-nodes columns) self
     (setf columns (make-standard-object-tree-table-inspector-columns self))
-    (if root-node
-        (setf (component-value-of root-node) instance)
-        (setf root-node (make-standard-object-tree-table-node self (class-of instance) instance)))))
+    (if root-nodes
+        (setf (component-value-of (first root-nodes)) instance)
+        (setf root-nodes (list (make-standard-object-tree-table-node self (class-of instance) instance))))))
 
 (def (function e) make-standard-object-tree-table-type-column ()
   (make-instance 'column-component
@@ -333,6 +333,10 @@
 
 (def component selectable-standard-object-tree-inspector (standard-object-tree-inspector)
   ())
+
+(def method selected-instance-of ((self selectable-standard-object-tree-inspector))
+  (awhen (content-of self)
+    (selected-instance-of it)))
 
 (def layered-method make-standard-object-tree-inspector-alternatives ((component selectable-standard-object-tree-inspector) (class standard-class) (instance standard-object))
   ;; TODO: factor

@@ -39,6 +39,7 @@
     (flet ((collect-visible-instance (instance)
              (setf (gethash (hash-key-for instance) visible-instances) #t)))
       (iter (for (key value) :in-hashtable filter-result-instances)
+            (setf value (reuse-standard-object-instance (class-of value) value))
             (map-tree value unfiltered-children-provider #'collect-visible-instance)
             (map-parent-chain value parent-provider #'collect-visible-instance)))))
 

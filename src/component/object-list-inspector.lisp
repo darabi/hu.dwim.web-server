@@ -235,6 +235,10 @@
 (def component selectable-standard-object-list-inspector (standard-object-list-inspector)
   ())
 
+(def method selected-instance-of ((self selectable-standard-object-list-inspector))
+  (awhen (content-of self)
+    (selected-instance-of it)))
+
 (def layered-method make-standard-object-list-inspector-alternatives ((component selectable-standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
   (list (delay-alternative-component-with-initargs 'selectable-standard-object-list-table-inspector :the-class class :instances instances)
         (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)

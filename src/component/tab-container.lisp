@@ -12,7 +12,7 @@
    (command-bar nil :type component)))
 
 (def (macro e) tab-container (&body pages)
-  `(make-instance 'tab-container-component :pages (list ,@pages)))
+  `(make-instance 'tab-container-component :pages (remove-if #'null (list ,@pages))))
 
 (def render tab-container-component ()
   (bind (((:read-only-slots content command-bar) -self-))
