@@ -350,7 +350,7 @@ Custom implementations should look something like this:
         (live-sessions (list)))
     (with-lock-held-on-application (application)
       (iter (for (session-id session) :in-hashtable (session-id->session-of application))
-            (if (is-session-valid? session)
+            (if (is-session-alive? session)
                 (push session live-sessions)
                 (handler-bind ((serious-condition
                                 (lambda (error)

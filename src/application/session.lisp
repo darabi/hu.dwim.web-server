@@ -56,14 +56,14 @@
    (frame-id->frame (make-hash-table :test 'equal))
    (lock nil)
    (computed-universe nil)
-   (valid #t :accessor valid?)))
+   (valid #t :accessor is-session-valid? :export :accessor)))
 
 (def (function e) mark-session-invalid (session)
-  (setf (valid? session) #f))
+  (setf (is-session-valid? session) #f))
 
-(def function is-session-valid? (session)
+(def function is-session-alive? (session)
   (cond
-    ((not (valid? session)) (values #f :invalidated))
+    ((not (is-session-valid? session)) (values #f :invalidated))
     ((is-timed-out? session) (values #f :timed-out))
     (t (values #t))))
 
@@ -98,9 +98,9 @@
       (app.debug "Found session-id parameter ~S" session-id)
       (setf session (gethash session-id (session-id->session-of application)))
       (if session
-          (bind ((valid?))
-            (setf (values valid? invalidity-reason) (is-session-valid? session))
-            (if valid?
+          (bind ((alive?))
+            (setf (values alive? invalidity-reason) (is-session-alive? session))
+            (if alive?
                 (app.debug "Looked up as valid, alive session ~A" session)
                 (progn
                   (app.debug "Looked up as a session, but it's not valid anymore due to ~S. It's ~A." invalidity-reason session)
