@@ -343,14 +343,14 @@ Custom implementations should look something like this:
         (live-sessions (list)))
     (with-lock-held-on-application (application)
       (iter (for (session-id session) :in-hashtable (session-id->session-of application))
-            (if (is-timed-out? session)
+            (if (is-session-valid? session)
+                (push session live-sessions)
                 (handler-bind ((serious-condition
                                 (lambda (error)
-                                  (app.warn "Could not delete expired session ~A of application ~A, got error ~A" session application error)
+                                  (app.warn "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error)
                                   (log-error-with-backtrace error))))
                   (delete-session application session)
-                  (push session deleted-sessions))
-                (push session live-sessions))))
+                  (push session deleted-sessions)))))
     (dolist (session deleted-sessions)
       (handler-bind ((serious-condition
                       (lambda (error)
