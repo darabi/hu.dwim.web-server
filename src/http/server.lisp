@@ -18,6 +18,7 @@
    (maximum-worker-count 16 :export :accessor)
    (occupied-worker-count 0)
    (started-at)
+   (timer nil)
    (processed-request-count 0)
    (profile-request-processing #f :type boolean :export :accessor)))
 
@@ -83,6 +84,9 @@
               (let ((ok nil))
                 (unwind-protect
                      (progn
+                       (server.debug "Setting up the timer")
+                       (assert (null (timer-of server)))
+                       (setf (timer-of server) (make-instance 'timer))
                        (server.debug "Spawning the initial workers")
                        (iter (for n :from 0 :below initial-worker-count)
                              (make-worker server))
@@ -116,6 +120,9 @@
                (close it :abort force))))
       (server.dribble "Shutting down server ~A, force? ~A" server force)
       (bind ((threaded? (not (zerop (maximum-worker-count-of server)))))
+        (when threaded?
+          (shutdown-timer (timer-of server) :wait (not force))
+          (setf (timer-of server) nil))
         (if force
             (progn
               (when threaded?

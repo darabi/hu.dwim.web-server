@@ -274,6 +274,13 @@
         (values-list results)
         (make-no-handler-response))))
 
+(def (function e) register-standard-application-timer-entries (timer application &key (session-purge-interval 60))
+  (register-timer-entry timer session-purge-interval
+                        (named-lambda session-purge ()
+                          (purge-sessions application))
+                        :kind :periodic
+                        :name "Session purge"))
+
 (def (generic e) session-class (application)
   (:documentation "Returns a list of the session mixin classes.
 
