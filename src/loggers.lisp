@@ -11,6 +11,8 @@
 
 (deflogger rerl (wui))
 
+(deflogger timer (wui))
+
 (deflogger http   (rerl))
 (deflogger app    (rerl))
 

@@ -126,7 +126,8 @@
     :components ((:file "l10n")
                  (:file "dojo")
                  (:module "util"
-                  :components (#+sbcl(:file "object-size")))
+                  :components ((:file "timer")
+                               #+sbcl(:file "object-size")))
                  (:module "integration"
                   :components ((:file "contextl")))
                  (:module "application"
