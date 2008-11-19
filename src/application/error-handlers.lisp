@@ -104,7 +104,7 @@
     <div
      <h1 "Programhiba">
      <p "A szerverhez érkezett kérés feldolgozása közben egy váratlan programhiba történt. Elnézést kérünk az esetleges kellemetlenségért!">
-     <p "A hibáról értesülni fognak a fejlesztők és valószínűleg a közeljövőben javítják azt.">
+     <p "A hibáról értesülni fognak a fejlesztők és remélhetőleg a közeljövőben javítják azt.">
      ,(when admin-email-address
         <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
            <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>

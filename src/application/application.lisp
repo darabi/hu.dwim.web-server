@@ -163,7 +163,7 @@
              response))))))
 
 (def (with-macro* eo) with-session/frame/action-logic (&optional _)
-  (declare (ignore _)) ; to force an extra args param for the with-... macro
+  (declare (ignore _)) ; to force an extra args param for the with-... macro for later extensibility
   (assert (and (boundp '*application*)
                *application*
                (boundp '*session*)
@@ -273,13 +273,6 @@
     (if (first results)
         (values-list results)
         (make-no-handler-response))))
-
-(def (function e) register-standard-application-timer-entries (timer application &key (session-purge-interval 60))
-  (register-timer-entry timer session-purge-interval
-                        (named-lambda session-purge ()
-                          (purge-sessions application))
-                        :kind :periodic
-                        :name "Session purge"))
 
 (def (generic e) session-class (application)
   (:documentation "Returns a list of the session mixin classes.
