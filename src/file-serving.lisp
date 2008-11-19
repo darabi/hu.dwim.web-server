@@ -73,9 +73,12 @@
 
 (defmethod send-response ((self file-serving-response))
   (server.info "Sending file serving response from ~S" (file-name-of self))
-  (bind (((:values success? condition network-stream-dirty?) (serve-file (file-name-of self) :signal-errors #f)))
+  (bind (((:values success? condition network-stream-dirty?) (serve-file (file-name-of self)
+                                                                         :signal-errors #f
+                                                                         :headers (headers-of self)
+                                                                         :cookies (cookies-of self))))
     (unless success?
-      (server.warn "File serving failed due to ~A" condition))
+      (server.debug "File serving failed due to ~A" condition))
     (when (and (not success?)
                (or (not (typep condition 'stream-error))
                    (not (eq (stream-error-stream condition) (network-stream-of *request*)))))

@@ -289,113 +289,131 @@
 ;;;;;;;;;;;;;;;;;
 ;;; serving stuff
 
-(def definer content-serving-function (name args (&key last-modified-at seconds-until-expires content-length)
+(def definer content-serving-function (name args (&key headers cookies (stream '(network-stream-of *request*))
+                                                       last-modified-at seconds-until-expires content-length)
                                             &body body)
   (bind (((:values body declarations documentation) (parse-body body :documentation #t))
          (%last-modified-at last-modified-at)
          (%seconds-until-expires seconds-until-expires)
          (%content-length content-length))
-    (with-unique-names (response if-modified-since seconds-until-expires last-modified-at content-length)
+    (with-unique-names (if-modified-since if-modified-since-value seconds-until-expires last-modified-at content-length)
       `(defun ,name ,args
          ,@(awhen documentation (list it))
          ,@declarations
          (bind ((,last-modified-at ,%last-modified-at)
                 (,seconds-until-expires ,%seconds-until-expires)
                 (,content-length ,%content-length)
-                (,response *response*)
-                (,if-modified-since (header-value *request* +header/if-modified-since+)))
+                (,if-modified-since (header-value *request* +header/if-modified-since+))
+                ;; TODO get rid of this final net.telent.date dependency
+                (,if-modified-since-value (when ,if-modified-since
+                                            (local-time:universal-to-timestamp
+                                             (net.telent.date:parse-time
+                                              ;; IE sends junk with the date (but sends it after a semicolon)
+                                              (subseq ,if-modified-since 0 (position #\; ,if-modified-since :test #'char=)))))))
            (when ,seconds-until-expires
              (if (<= ,seconds-until-expires 0)
-                 (disallow-response-caching ,response)
-                 (setf (header-value ,response +header/expires+)
+                 (disallow-response-caching-in-header-alist ,headers)
+                 (setf (header-alist-value ,headers +header/expires+)
                        (local-time:to-http-timestring
                         (local-time:adjust-timestamp (local-time:now) (offset :sec ,seconds-until-expires))))))
            (when ,last-modified-at
-             (setf (header-value ,response +header/last-modified+)
-                   (local-time:to-http-timestring (local-time:universal-to-timestamp ,last-modified-at))))
-           (setf (header-value ,response +header/date+) (local-time:to-http-timestring (local-time:now)))
+             (setf (header-alist-value ,headers +header/last-modified+)
+                   (local-time:to-http-timestring ,last-modified-at)))
+           (setf (header-alist-value ,headers +header/date+) (local-time:to-http-timestring (local-time:now)))
+           (server.dribble "~A: if-modified-since is ~S, last-modified-at is ~A, if-modified-since-value is ~A" ',name ,if-modified-since ,last-modified-at ,if-modified-since-value)
            (if (and ,last-modified-at
                     ,if-modified-since
-                    (<= ,last-modified-at
-                        ;; TODO get rid of this final net.telent.date dependency
-                        (net.telent.date:parse-time
-                         ;; IE sends junk with the date (but sends it after a semicolon)
-                         (subseq ,if-modified-since 0 (position #\; ,if-modified-since :test #'char=)))))
+                    (local-time:timestamp<= ,last-modified-at ,if-modified-since-value))
                (progn
                  (server.debug "~A: Sending 304 not modified. if-modified-since is ~S, last-modified-at is ~S" ',name ,if-modified-since ,last-modified-at)
-                 (setf (header-value ,response +header/status+) +http-not-modified+)
-                 (setf (header-value ,response +header/content-length+) "0")
-                 (send-headers ,response))
+                 (setf (header-alist-value ,headers +header/status+) +http-not-modified+)
+                 (setf (header-alist-value ,headers +header/content-length+) "0")
+                 (send-http-headers ,headers ,cookies :stream ,stream))
                (progn
-                 (setf (header-value ,response +header/status+) +http-ok+)
+                 (setf (header-alist-value ,headers +header/status+) +http-ok+)
                  (when ,content-length
-                   (setf (header-value ,response +header/content-length+)
+                   (setf (header-alist-value ,headers +header/content-length+)
                          (integer-to-string ,content-length)))
                  ,@body)))))))
 
 (def content-serving-function serve-sequence (sequence &key
-                                                       (last-modified-at (get-universal-time))
-                                                       (content-type "application/octet-stream")
+                                                       (last-modified-at (local-time:now))
+                                                       (content-type +octet-stream-mime-type+)
+                                                       headers
+                                                       cookies
                                                        content-disposition
+                                                       (stream (network-stream-of *request*))
                                                        (seconds-until-expires #.(* 60 60)))
-  (:last-modified-at last-modified-at :seconds-until-expires seconds-until-expires)
-  "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the (external-format-of *response*)."
-  (bind ((response *response*)
-         (bytes (if (stringp sequence)
-                    (string-to-octets sequence :encoding (external-format-of response))
+    (:last-modified-at last-modified-at
+     :seconds-until-expires seconds-until-expires
+     :headers headers
+     :cookies cookies
+     :stream stream)
+  "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
+  (bind ((bytes (if (stringp sequence)
+                    (string-to-octets sequence :encoding (external-format-of stream))
                     sequence)))
-    (setf (header-value response +header/content-type+) content-type)
-    (setf (header-value response +header/content-length+) (integer-to-string (length bytes)))
+    (setf (header-alist-value headers +header/content-type+) content-type)
+    (setf (header-alist-value headers +header/content-length+) (integer-to-string (length bytes)))
     (awhen content-disposition
-      (setf (header-value response +header/content-disposition+) it))
-    (send-headers response)
-    (write-sequence bytes (network-stream-of *request*))))
+      (setf (header-alist-value headers +header/content-disposition+) it))
+    (send-http-headers headers cookies :stream stream)
+    (write-sequence bytes stream)))
 
-(def content-serving-function serve-stream (stream &key
-                                                   (last-modified-at (get-universal-time))
-                                                   content-type
-                                                   content-length
-                                                   (content-disposition "attachment" content-disposition-p)
-                                                   content-disposition-filename
-                                                   content-disposition-size
-                                                   (seconds-until-expires #.(* 24 60 60)))
-  (:last-modified-at last-modified-at :seconds-until-expires seconds-until-expires)
-  (bind ((response *response*))
-    (awhen content-type
-      (setf (header-value response +header/content-type+) it))
-   (when (and (not content-length)
-              (typep stream 'file-stream))
-     (setf content-length (integer-to-string (file-length stream))))
-   (unless (stringp content-length)
-     (setf content-length (integer-to-string content-length)))
-   (awhen content-length
-     (setf (header-value response +header/content-length+) it))
-   (unless content-disposition-p
-     ;; this ugliness here is to give a chance for the caller to pass NIL directly
-     ;; to disable the default content disposition parts.
-     (when (and (not content-disposition-size)
-                content-length)
-       (setf content-disposition-size content-length))
-     (awhen content-disposition-size
-       (setf content-disposition (concatenate 'string content-disposition ";size=" it)))
-     (awhen content-disposition-filename
-       (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
-   (awhen content-disposition
-     (setf (header-value response +header/content-disposition+) it))
-   (send-headers response)
-   (loop
-      :with buffer = (make-array 8192 :element-type 'unsigned-byte)
-      :with network-stream = (network-stream-of *request*)
-      :for end-pos = (read-sequence buffer stream)
-      :until (zerop end-pos)
-      :do
-      (write-sequence buffer network-stream :end end-pos))))
+(def content-serving-function serve-stream (input-stream &key
+                                                         (last-modified-at (local-time:now))
+                                                         content-type
+                                                         content-length
+                                                         (content-disposition "attachment" content-disposition-p)
+                                                         headers
+                                                         cookies
+                                                         content-disposition-filename
+                                                         content-disposition-size
+                                                         (stream (network-stream-of *request*))
+                                                         (seconds-until-expires #.(* 24 60 60)))
+    (:last-modified-at last-modified-at
+     :seconds-until-expires seconds-until-expires
+     :headers headers
+     :cookies cookies
+     :stream stream)
+  (awhen content-type
+    (setf (header-alist-value headers +header/content-type+) it))
+  (when (and (not content-length)
+             (typep input-stream 'file-stream))
+    (setf content-length (integer-to-string (file-length input-stream))))
+  (unless (stringp content-length)
+    (setf content-length (integer-to-string content-length)))
+  (awhen content-length
+    (setf (header-alist-value headers +header/content-length+) it))
+  (unless content-disposition-p
+    ;; this ugliness here is to give a chance for the caller to pass NIL directly
+    ;; to disable the default content disposition parts.
+    (when (and (not content-disposition-size)
+               content-length)
+      (setf content-disposition-size content-length))
+    (awhen content-disposition-size
+      (setf content-disposition (concatenate 'string content-disposition ";size=" it))) ;
+    (awhen content-disposition-filename
+      (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
+  (awhen content-disposition
+    (setf (header-alist-value headers +header/content-disposition+) it))
+  (send-http-headers headers cookies)
+  (loop
+     :with buffer = (make-array 8192 :element-type 'unsigned-byte)
+     :for end-pos = (read-sequence buffer input-stream)
+     :until (zerop end-pos)
+     :do
+     (write-sequence buffer stream :end end-pos)))
 
 (def function serve-file (file-name &rest args &key
-                                    (last-modified-at (file-write-date file-name))
+                                    (last-modified-at (local-time:universal-to-timestamp
+                                                       (file-write-date file-name)))
                                     (content-type nil content-type-p)
                                     (for-download #f)
                                     (content-disposition-filename nil content-disposition-filename-p)
+                                    headers
+                                    cookies
+                                    (stream (network-stream-of *request*))
                                     content-disposition-size
                                     (encoding :utf-8)
                                     (seconds-until-expires #.(* 12 60 60))
@@ -411,6 +429,7 @@
           (unless content-type-p
             (setf content-type (or content-type
                                    (switch ((pathname-type file-name) :test #'string=)
+                                     ;; this special-casing is an optimization to cons less
                                      ("html" (content-type-for +html-mime-type+ encoding))
                                      ("xml" (content-type-for +xml-mime-type+ encoding))
                                      ("css"  (content-type-for +css-mime-type+ encoding))
@@ -431,6 +450,9 @@
                :content-disposition-filename content-disposition-filename
                :content-disposition-size content-disposition-size
                :seconds-until-expires seconds-until-expires
+               :headers headers
+               :cookies cookies
+               :stream stream
                (append
                 (unless for-download
                   (list :content-disposition nil))
