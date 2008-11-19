@@ -426,7 +426,7 @@ Custom implementations should look something like this:
                    (funcall thunk))))
       (%call-with-restored-component-environment path))))
 
-(def macro with-restored-component-environment (component &body forms)
+(def (macro e) with-restored-component-environment (component &body forms)
   `(call-with-restored-component-environment ,component (lambda () ,@forms)))
 
 (def function ajax-aware-render (component)
