@@ -15,14 +15,30 @@
   ((headers nil)
    (cookies)))
 
+(def (function io) header-alist-value (alist header-name)
+  (cdr (assoc header-name alist :test #'string=)))
+
+(define-setf-expander header-alist-value (alist header-name &environment env)
+  (bind (((:values temps values new-value-for-setter setter getter) (get-setf-expansion alist env)))
+    (assert (= 1 (length new-value-for-setter)))
+    (setf new-value-for-setter (first new-value-for-setter))
+    (with-unique-names (new-value)
+      (values temps
+              values
+              `(,new-value)
+              `(aif (assoc ,header-name ,getter :test #'string=)
+                    (setf (cdr it) ,new-value)
+                    (bind ((,new-value-for-setter (list* (cons ,header-name ,new-value) ,getter)))
+                      ,setter
+                      ,new-value))
+              `(header-alist-value ,alist ,header-name)))))
+
 (defmethod header-value ((message http-message) header-name)
-  (cdr (assoc header-name (headers-of message) :test #'string=)))
+  (header-alist-value (headers-of message) header-name))
 
 (defmethod (setf header-value) (value (message http-message) header-name)
-  (aif (assoc header-name (headers-of message) :test #'string=)
-       (setf (cdr it) value)
-       (push (cons header-name value) (headers-of message)))
-  value)
+  (setf (header-alist-value (headers-of message) header-name) value))
+
 
 ;;;;;;;;;;;
 ;;; Cookies
@@ -171,11 +187,14 @@
   (write-byte +carriage-return+ stream)
   (write-byte +linefeed+ stream))
 
+(def macro disallow-response-caching-in-header-alist (headers)
+  (with-unique-names (header-name header-value)
+    `(iter (for (,header-name . ,header-value) :in +disallow-response-caching-header-values+)
+           (setf (header-alist-value ,headers ,header-name) ,header-value))))
+
 (def (function e) disallow-response-caching (response)
   "Sets the appropiate response headers that will instruct the clients not to cache this response."
-  #. `(progn
-        ,@(iter (for (header-name . value) :in +disallow-response-caching-header-values+)
-                (collect `(setf (header-value response ,header-name) ,value)))))
+  (disallow-response-caching-in-header-alist (headers-of response)))
 
 (def (function o) send-http-headers (headers cookies &key (stream (network-stream-of *request*)))
   (flet ((write-header-line (name value)
