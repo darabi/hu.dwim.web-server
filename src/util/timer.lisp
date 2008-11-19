@@ -123,7 +123,8 @@
                                                             (wui.error "Oops, nested error while running timer entry. Level1 error type: ~S, level2 error type: ~S"
                                                                        entry (type-of level-1-error) (type-of level-2-error))))))
                                   (wui.error "Error while running timer entry ~A: ~A" entry level-1-error)))))
-        (funcall it))))
+        (with-simple-restart (skip-timer-entry "Skip calling timer entry ~A" entry)
+          (funcall it)))))
   (:method :after ((entry single-shot-timer-entry))
     (timer.debug "Invalidating single shot timer entry ~A" entry)
     (setf (thunk-of entry) nil))
