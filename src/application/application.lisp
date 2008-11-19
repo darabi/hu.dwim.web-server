@@ -4,7 +4,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def constant +session-purge-time-interval+ 1)
+(def constant +session-purge-time-interval+ 30)
 (def constant +session-purge-request-interval+ (if *load-as-production-p* 100 1))
 
 (def (generic e) make-new-session (application))

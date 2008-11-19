@@ -27,6 +27,9 @@
         :key 'slot-definition-name
         :test 'eq))
 
+(def function mandatory-argument ()
+  (error "A mandatory argument was not specified"))
+
 (def (function i) class-prototype (class)
   (closer-mop:class-prototype (ensure-finalized class)))
 

@@ -75,7 +75,7 @@
                      (close socket))))))
           (if (zerop (maximum-worker-count-of server))
               (unwind-protect
-                   ;; run in single-threaded mode (mostly for profiling)
+                   ;; run in single-threaded mode (for debugging and profiling)
                    (progn
                      (server.info "Starting server in the current thread, use C-c C-c to break out...")
                      (worker-loop server #f))
