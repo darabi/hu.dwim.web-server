@@ -251,7 +251,7 @@
                 (eq *response* response)))
     (setf *response* response)))
 
-(def function invoke-retry-handling-request-restart ()
+(def (function e) invoke-retry-handling-request-restart ()
   (invoke-restart (find-restart 'retry-handling-request)))
 
 (defun call-as-server-request-handler (thunk network-stream &key (error-handler 'abort-server-request))
