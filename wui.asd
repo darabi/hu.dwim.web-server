@@ -180,7 +180,7 @@
                                (:file "place-component" :depends-on ("editable" "factory" "object-list-inspector" "primitive-filter"))
                                (:file "user-message" :depends-on ("component"))
                                (:file "wizard" :depends-on ("component"))
-                               (:file "alternator" :depends-on ("reference" "command" "editable" "misc"))
+                               (:file "alternator" :depends-on ("reference" "command" "editable" "misc" "primitive-component"))
                                (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
                                (:file "object-component" :depends-on ("component"))
                                (:file "object-inspector" :depends-on ("place-component" "object-component" "alternator" "reference"))
