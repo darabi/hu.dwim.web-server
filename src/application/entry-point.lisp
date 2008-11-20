@@ -64,6 +64,7 @@
   entry-point)
 
 (def (definer e) entry-point ((application &rest args &key
+                                           (ensure-session #f)
                                            (lookup-and-lock-session #t)
                                            (path nil path-p)
                                            (path-prefix nil path-prefix-p)
@@ -72,6 +73,7 @@
   (declare (ignore path path-prefix))
   (remove-from-plistf args :class :lookup-and-lock-session)
   (assert (not (and path-p path-prefix-p)))
+  (assert (or (not ensure-session) lookup-and-lock-session) () "It's quite contradictory to ask for ENSURE-SESSION without LOOKUP-AND-LOCK-SESSION")
   (unless class
     (when path-p
       (setf class ''path-entry-point))
@@ -85,7 +87,7 @@
                                      (block entry-point
                                        (with-request-params* ,request ,request-lambda-list
                                          ,(if lookup-and-lock-session
-                                              `(with-session/frame/action-logic ()
+                                              `(with-session/frame/action-logic (:ensure-session ,ensure-session)
                                                  ,@body)
                                               `(progn
                                                  ,@body)))))))))

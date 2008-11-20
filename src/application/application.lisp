@@ -167,20 +167,26 @@
              (send-response-early response)
              response))))))
 
-(def (with-macro* eo) with-session/frame/action-logic (&optional _)
-  (declare (ignore _)) ; to force an extra args param for the with-... macro for later extensibility
+(def (with-macro* eo) with-session/frame/action-logic (&key ensure-session)
   (assert (and (boundp '*application*)
                *application*
                (boundp '*session*)
                (boundp '*frame*))
           () "May not use WITH-SESSION/FRAME/ACTION-LOGIC outside the dynamic extent of an application")
   (bind ((application *application*)
-         ((:values session session-cookie-exists? invalidity-reason)
-          (with-lock-held-on-application (application)
-            (find-session-from-request application)
-            ;; FIXME locking the session should happen inside the with-lock-held-on-application block
-            )))
+         (session nil)
+         (session-cookie-exists? #f)
+         (invalidity-reason nil))
     (app.debug "Request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
+    (with-lock-held-on-application (application)
+      (setf (values session session-cookie-exists? invalidity-reason)
+            (find-session-from-request application))
+      (when (and (not session)
+                 ensure-session)
+        (setf session (make-new-session application))
+        (register-session application session))
+      ;; FIXME locking the session below should happen while having the lock to the application
+      )
     (setf *session* session)
     (if session
         (restart-case
