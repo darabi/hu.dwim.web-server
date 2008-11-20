@@ -52,7 +52,7 @@
 (def (function e) render-tree-node-expander (node-component)
   (with-slots (child-nodes expanded) node-component
     (if child-nodes
-        <a (:href ,(make-action-href () (setf expanded (not expanded))))
+        <a (:href ,(action/href () (setf expanded (not expanded))))
            <img (:src ,(concatenate-string (path-prefix-of *application*)
                                            (if expanded
                                                "static/wui/icons/20x20/arrowhead-down.png"

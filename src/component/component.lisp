@@ -72,9 +72,9 @@
               <div (:class "debug-component-name")
                 ,class-name
                 <span
-                  <a (:href ,(action-to-href (register-action *frame* (make-copy-to-repl-action self)))) "REPL">
+                  <a (:href ,(register-action/href (make-copy-to-repl-action self))) "REPL">
                   " "
-                  <a (:href ,(action-to-href (register-action *frame* (make-inspect-in-repl-action self)))) "INSPECT">>>
+                  <a (:href ,(register-action/href (make-inspect-in-repl-action self))) "INSPECT">>>
               ,(funcall next-method)>)
           (funcall next-method))
     (skip-rendering-component ()

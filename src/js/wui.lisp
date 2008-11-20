@@ -46,7 +46,7 @@
 ;;;;;;
 ;;; io
 
-(defun wui.io.action (url (ajax true))
+(defun wui.io.action (url (ajax true) (send-client-state true))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if ajax "t" "")))
@@ -54,8 +54,11 @@
     (if ajax
         (bind ((params (create :url decorated-url
                                :form form)))
+          (when send-client-state
+            (setf params.form form))
           (wui.io.xhr-post params))
-        (if (and form
+        (if (and send-client-state
+                 form
                  (< 0 form.elements.length))
             (progn
               (setf (slot-value form 'action) decorated-url)

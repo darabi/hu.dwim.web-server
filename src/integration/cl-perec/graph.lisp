@@ -24,7 +24,7 @@
       <embed (:width ,(+ (* 2 dmm::*graph-inset*) (dmm::width-of graph))
               :height ,(+ (* 2 dmm::*graph-inset*) (dmm::height-of graph))
               :type "image/svg+xml"
-              :src ,(make-action-href (:delayed-content #t)
+              :src ,(action/href (:delayed-content #t)
                       (make-buffered-functional-html-response ((+header/content-type+ +svg-xml-mime-type+))
                         <svg:svg (:xmlns:svg "http://www.w3.org/2000/svg" :version "1.2")
                                  <svg:g (:transform ,(concatenate-string "translate(" inset-string "," inset-string ")"))

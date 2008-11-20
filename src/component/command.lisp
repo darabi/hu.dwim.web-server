@@ -13,25 +13,56 @@
 (def component command-component ()
   ((enabled #t :accessor enabled?)
    (icon nil :type component)
-   (action)
+   (action)))
+
+(def component full-featured-command-component (command-component)
+  ((action-arguments nil)
    (js nil)))
 
-(def (macro e) command (icon action &rest args &key &allow-other-keys)
-  `(make-instance 'command-component :icon ,icon :action ,action ,@args))
+(def (macro e) command (icon action &key (enabled #t) (visible #t)
+                             js
+                             scheme
+                             (delayed-content nil delayed-content-provided?)
+                             (send-client-state #t send-client-state-provided?))
+  (if (or js
+          scheme
+          delayed-content-provided?
+          send-client-state-provided?)
+      `(make-instance 'full-featured-command-component
+                      :icon ,icon
+                      :action ,action
+                      :enabled ,enabled
+                      :visible ,visible
+                      :js ,js
+                      :action-arguments (list :delayed-content ,delayed-content
+                                              :scheme ,scheme
+                                              :send-client-state ,send-client-state))
+      `(make-instance 'command-component
+                      :icon ,icon
+                      :action ,action
+                      :enabled ,enabled
+                      :visible ,visible)))
 
 (def render command-component ()
-  (bind (((:read-only-slots enabled icon action js) -self-))
-    (render-command action icon :js js :enabled enabled :ajax #f)))
+  (bind (((:read-only-slots enabled icon action) -self-))
+    (render-command action icon :enabled enabled :ajax #f)))
 
-(def (function e) render-command (action body &key js (enabled t) (ajax (not (null *frame*))))
+(def render full-featured-command-component ()
+  (bind (((:read-only-slots enabled icon action action-arguments js) -self-))
+    (render-command action icon :enabled enabled :ajax #f :js js :action-arguments action-arguments)))
+
+(def (function e) render-command (action body &key js (enabled #t) (ajax (not (null *frame*))) action-arguments)
   (if (force enabled)
-      (bind ((href (etypecase action
-                     (action (action-to-href action))
+      (bind ((send-client-state (prog1
+                                    (getf action-arguments :send-client-state #t)
+                                  (remove-from-plistf action-arguments :send-client-state)))
+             (href (etypecase action
+                     (action (apply 'register-action/href action action-arguments))
                      ;; TODO wastes resources. store back the printed uri? see below also...
                      (uri (print-uri-to-string action))))
              (onclick-js (or js
                              (lambda (href)
-                               `js-inline(wui.io.action ,href ,ajax)))))
+                               `js-inline(wui.io.action ,href ,ajax ,send-client-state)))))
         <a (:href "#" :onclick ,(funcall onclick-js href)
             ,(when (running-in-test-mode-p *application*)
                (make-xml-attribute "name" (if (typep body 'icon-component)
@@ -222,16 +253,16 @@
 (def (generic e) make-frame-component-with-content (application content))
 
 (def (function e) make-open-in-new-frame-command (component)
-  (make-instance 'command-component
-                 :icon (icon open-in-new-frame)
-                 :js (lambda (href)
-                       `js-inline(window.open ,href))
-                 :action (make-action-uri (:delayed-content #t)
-                           (bind ((clone (clone-component component))
-                                  (*frame* (make-new-frame *application* *session*)))
-                             (setf (component-value-of clone) (component-value-of component))
-                             (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*)
-                                                                                          *frame* +frame-id-length+))
-                             (register-frame *application* *session* *frame*)
-                             (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
-                             (make-redirect-response-with-frame-id-decorated *frame*)))))
+  (command (icon open-in-new-frame)
+           (make-action
+             (bind ((clone (clone-component component))
+                    (*frame* (make-new-frame *application* *session*)))
+               (setf (component-value-of clone) (component-value-of component))
+               (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*)
+                                                                            *frame* +frame-id-length+))
+               (register-frame *application* *session* *frame*)
+               (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
+               (make-redirect-response-with-frame-id-decorated *frame*)))
+           :js (lambda (href)
+                 `js-inline(window.open ,href))
+           :delayed-content #t))

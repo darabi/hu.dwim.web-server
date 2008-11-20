@@ -35,8 +35,8 @@
                (create :connectId (array ,id)
                        :position (array "below" "right")
                        :href ,(etypecase tooltip
-                                         (action (action-to-href tooltip :delayed-content #t))
-                                         (uri (print-uri-to-string tooltip)))))))
+                                (action (register-action/href tooltip :delayed-content #t))
+                                (uri (print-uri-to-string tooltip)))))))
     <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip))
           ,@(when image-path
                   (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))> " "))

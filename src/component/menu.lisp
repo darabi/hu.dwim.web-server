@@ -90,7 +90,8 @@
 (def (function e) make-debug-menu ()
   (menu "Debug"
     (menu-item (command "Start over"
-                        (make-action (reset-frame-root-component))))
+                        (make-action (reset-frame-root-component))
+                        :send-client-state #f))
     (menu-item (command "Toggle test mode"
                         (make-action (notf (running-in-test-mode-p *application*)))))
     (menu-item (command "Toggle profiling"

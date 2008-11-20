@@ -21,7 +21,7 @@
                                              <data_set
                                               <title "Belépésk napi bontásban">
                                               <short "Belépések">
-                                              <file_name ,(make-action-href (:delayed-content #t) (make-file-serving-response file-name))>
+                                              <file_name ,(action/href (:delayed-content #t) (make-file-serving-response file-name))>
                                               <csv
                                                <separator "|">
                                                <date_format "YYYY-MM-DD">

@@ -25,12 +25,12 @@
       `js(let ((variable (new SWFObject ,(concatenate 'string  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8" "#FFFFFF")))
            (.addVariable variable "path" ,path)
            (.addVariable variable "settings_file"
-                         (encodeURIComponent ,(make-action-href (:delayed-content #t)
-                                                                (funcall (configuration-provider-of component)))))
+                         (encodeURIComponent ,(action/href (:delayed-content #t)
+                                                (funcall (configuration-provider-of component)))))
            (unless ,(null data-provider)
              (.addVariable variable "data_file"
-                           (encodeURIComponent ,(make-action-href (:delayed-content #t)
-                                                                  (funcall (data-provider-of component))))))
+                           (encodeURIComponent ,(action/href (:delayed-content #t)
+                                                  (funcall (data-provider-of component))))))
            (.write variable ,id)))))
 
 (def macro make-xml-provider (&body forms)

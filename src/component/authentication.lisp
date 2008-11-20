@@ -58,9 +58,9 @@
 
 (def (generic e) make-logout-command (application)
   (:method ((application application))
-    (make-instance 'command-component
-                   :icon (icon logout)
-                   :action (make-logout-action application))))
+    (command (icon logout)
+             (make-logout-action application)
+             :send-client-state #f)))
 
 (def (generic e) make-logout-action (application)
   (:method ((application application))

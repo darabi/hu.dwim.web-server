@@ -176,9 +176,9 @@
                 `js-inline*(wui.io.xhr-post
                             (create
                              :content (create :example-inline-edit-box-value (aref arguments 0))
-                             :url ,(make-action-href (:delayed-content #t)
-                                                     (with-request-params (example-inline-edit-box-value)
-                                                       (setf (example-inline-edit-box-value-of *session*) example-inline-edit-box-value)))
+                             :url ,(action/href (:delayed-content #t)
+                                     (with-request-params (example-inline-edit-box-value)
+                                       (setf (example-inline-edit-box-value-of *session*) example-inline-edit-box-value)))
                              :load (lambda (response args)))))
            ,(example-inline-edit-box-value-of *session*)>)>))
 
@@ -341,7 +341,7 @@
     ,(counter-of -self-)
     " "
     ,(bind ((action-href (escape-as-xml ; FIXME this should be handled by cl-qq
-                          (make-action-href ()
+                          (action/href ()
                             (incf (counter-of -self-))))))
        <a (:href `js-inline(wui.io.action ,action-href))
           "increment">

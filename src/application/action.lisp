@@ -43,12 +43,15 @@
        (set-funcallable-instance-function ,action (lambda () ,@body))
        ,action)))
 
-(def (macro e) make-action-uri ((&key scheme delayed-content) &body body)
-  `(action-to-uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content))
+;; don't call these make-foo because that would be misleading. it's not only about making, but also
+;; about registering the actions, and the time the registering happens is quite important. leave
+;; the make-foo nameing convention for sideffect-free stuff...
+(def (macro e) action/uri ((&key scheme delayed-content) &body body)
+  `(register-action/uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content))
 
-(def (macro e) make-action-href ((&key scheme delayed-content) &body body)
+(def (macro e) action/href ((&key scheme delayed-content) &body body)
   `(print-uri-to-string
-    (make-action-uri (:scheme ,scheme :delayed-content ,delayed-content)
+    (action/uri (:scheme ,scheme :delayed-content ,delayed-content)
       ,@body)))
 
 (def function register-action (frame action)
@@ -61,6 +64,22 @@
     (setf (id-of action) action-id)
     (app.dribble "Registered action with id ~S in frame ~A" action-id frame))
   action)
+
+(def (function e) register-action/uri (action &key scheme delayed-content)
+  (bind ((uri (clone-request-uri)))
+    (register-action *frame* action)
+    (decorate-uri uri *application*)
+    (decorate-uri uri *session*)
+    (decorate-uri uri *frame*)
+    (decorate-uri uri action)
+    (when scheme
+      (setf (scheme-of uri) scheme))
+    (setf (uri-query-parameter-value uri +delayed-content-parameter-name+)
+          (if delayed-content "t" nil))
+    uri))
+
+(def (function e) register-action/href (action &key scheme delayed-content)
+  (print-uri-to-string (register-action/uri action :scheme scheme :delayed-content delayed-content)))
 
 (def (generic e) decorate-uri (uri thing)
   (:method progn (uri thing)
@@ -90,22 +109,6 @@
                               +frame-index-parameter-name+
                               +action-id-parameter-name+))))
 
-(def (function e) action-to-uri (action &key scheme delayed-content)
-  (bind ((uri (clone-request-uri)))
-    (register-action *frame* action)
-    (decorate-uri uri *application*)
-    (decorate-uri uri *session*)
-    (decorate-uri uri *frame*)
-    (decorate-uri uri action)
-    (when scheme
-      (setf (scheme-of uri) scheme))
-    (setf (uri-query-parameter-value uri +delayed-content-parameter-name+)
-          (if delayed-content "t" nil))
-    uri))
-
-(def (function e) action-to-href (action &key scheme delayed-content)
-  (print-uri-to-string (action-to-uri action :scheme scheme :delayed-content delayed-content)))
-
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
   (bind ((walked-body (cl-walker:walk-form `(progn ,@body) nil (cl-walker:make-walk-environment env)))
          (free-variable-references (cl-walker:collect-variable-references walked-body :type 'cl-walker:free-variable-reference-form))
@@ -123,7 +126,7 @@
                                                               ;; FIXME qq is broken, needs the ` reader. see qq/test/js.lisp for the detailed TODO
                                                               `js-inline*(.toString ,variable-name)
                                                               ))))
-                    :url ,(make-action-href (:delayed-content #t)
+                    :url ,(action/href (:delayed-content #t)
                             (with-request-params ,(mapcar [list !1 !2]
                                                           variable-names
                                                           query-parameters)

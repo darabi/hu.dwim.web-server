@@ -284,10 +284,10 @@
           (for segment :in segments)
           (rebind (instance)
             <span ,(unless (first-iteration-p) " / ")
-                  <a (:href ,(make-action-href ()
-                                               (bind ((parent (parent-component-of -self-)))
-                                                 (setf (current-instance-of parent) instance)
-                                                 (setf (outdated-p parent) #t))))
+                  <a (:href ,(action/href ()
+                               (bind ((parent (parent-component-of -self-)))
+                                 (setf (current-instance-of parent) instance)
+                                 (setf (outdated-p parent) #t))))
                      ,segment>>))))
 
 ;;;;;;
