@@ -10,31 +10,31 @@
 (def component standard-object-list-pivot-table-component (abstract-standard-object-list-component pivot-table-component)
   ())
 
-;; TODO: fix alexandria
-(def function map-product* (function &rest lists)
-  (when lists
-    (apply #'map-product function (car lists) (cdr lists))))
-
 (def method refresh-component :after ((self standard-object-list-pivot-table-component))
      (bind (((:read-only-slots row-axes column-axes column-leaf-count) self)
             ((:slots instances) self))
        (setf (cells-of self)
-             (nreverse (prog1-bind cells (iter (repeat column-leaf-count)
-                                               (collect (empty)))
-                         (apply #'map-product*
-                                (lambda (&rest row-path)
-                                  (push (empty) cells)
-                                  (apply #'map-product*
-                                         (lambda (&rest column-path)
-                                           (push (make-standard-object-list-pivot-table-cell row-path
-                                                                                             column-path
-                                                                                             (filter-if (lambda (instance)
-                                                                                                          (and (matches-axis-path instance row-path)
-                                                                                                               (matches-axis-path instance column-path)))
-                                                                                                        (instances-of self)))
-                                                 cells))
-                                         (mapcar #'categories-of column-axes)))
-                                (mapcar #'categories-of row-axes)))))))
+             (bind ((result (iter (repeat column-leaf-count)
+                                  (collect (empty)))))
+               (flet ((map-product* (function &rest lists)
+                        (when lists
+                          (apply #'map-product function (car lists) (cdr lists)))))
+                 (apply #'map-product*
+                        (lambda (&rest row-path)
+                          (push (empty) result)
+                          (apply #'map-product*
+                                 (lambda (&rest column-path)
+                                   (push (make-standard-object-list-pivot-table-cell
+                                          row-path
+                                          column-path
+                                          (filter-if (lambda (instance)
+                                                       (and (matches-axis-path instance row-path)
+                                                            (matches-axis-path instance column-path)))
+                                                     (instances-of self)))
+                                         result))
+                                 (mapcar #'categories-of column-axes)))
+                        (mapcar #'categories-of row-axes)))
+               (nreverse result)))))
 
 (def function matches-axis-path (instance path)
   (every (lambda (category)
