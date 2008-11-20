@@ -32,15 +32,19 @@
     (values-list result)))
 
 (def (function o) query-brokers-for-response (initial-request initial-brokers)
-  (bind ((results (multiple-value-list
+  (bind ((answering-broker nil)
+         (results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
+                                                   (setf answering-broker broker)
                                                    (funcall broker request))
                                                  initial-request
                                                  initial-brokers
                                                  initial-brokers
                                                  0))))
     (if (first results)
-        (values-list results)
+        (progn
+          (incf (processed-request-count-of answering-broker))
+          (values-list results))
         (make-no-handler-response))))
 
 (def (function o) iterate-brokers-for-response (visitor request initial-brokers brokers recursion-depth)
@@ -80,7 +84,7 @@
 
 (defgeneric produce-response (broker request))
 
-(def class* broker ()
+(def class* broker (closer-mop:funcallable-standard-object request-counter-mixin)
   ()
   (:metaclass funcallable-standard-class))
 

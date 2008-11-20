@@ -4,7 +4,10 @@
 
 (in-package :hu.dwim.wui)
 
-(def (class* e) server ()
+(def (class* e) request-counter-mixin ()
+  ((processed-request-count 0)))
+
+(def (class* e) server (request-counter-mixin)
   ((admin-email-address nil)
    (host)
    (port)
@@ -19,7 +22,6 @@
    (occupied-worker-count 0)
    (started-at)
    (timer nil)
-   (processed-request-count 0)
    (profile-request-processing #f :type boolean :export :accessor)))
 
 (def print-object server
