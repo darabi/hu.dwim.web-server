@@ -222,7 +222,7 @@
   (if (or (string= client-value "")
           (string= client-value "NaN"))
       nil
-      (parse-integer client-value)))
+      (values (parse-integer client-value))))
 
 ;;;;;;
 ;;; Float component
