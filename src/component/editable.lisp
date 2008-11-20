@@ -78,7 +78,10 @@
     (map-editable-child-components component #'join-editing))
 
   (:method :before ((component editable-component))
-    (setf (edited-p component) #t)))
+    (setf (edited-p component) #t))
+
+  (:method :around ((component component))
+    (call-in-component-environment component #'call-next-method)))
 
 (def (generic e) leave-editing (component)
   (:method ((component component))
@@ -99,7 +102,10 @@
 
 (def (generic e) revert-editing (component)
   (:method ((component component))
-    (map-editable-child-components component #'revert-editing)))
+    (map-editable-child-components component #'revert-editing))
+
+  (:method :around ((component component))
+    (call-in-component-environment component #'call-next-method)))
 
 (def method refresh-component :after ((self editable-component))
   (map-editable-child-components self
