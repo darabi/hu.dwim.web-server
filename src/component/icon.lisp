@@ -215,10 +215,10 @@
 
 (def icon open-in-new-frame "static/wui/icons/20x20/split-vertically.png")
 (defresources hu
-  (icon-label.open-in-new-frame "Ablak")
+  (icon-label.open-in-new-frame "Új ablakba")
   (icon-tooltip.open-in-new-frame "Az objektum új ablakban való megnyitása"))
 (defresources en
-  (icon-label.open-in-new-frame "Frame")
+  (icon-label.open-in-new-frame "In new window")
   (icon-tooltip.open-in-new-frame "Open object in new frame"))
 
 (def icon back "static/wui/icons/20x20/green-double-left-arrow.png")

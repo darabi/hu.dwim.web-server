@@ -10,6 +10,8 @@
 ;;;;;;
 ;;; Command
 
+;; TODO this is a bit messy here... :ajax, the way :js is done, etc...
+
 (def component command-component ()
   ((enabled #t :accessor enabled?)
    (icon nil :type component)

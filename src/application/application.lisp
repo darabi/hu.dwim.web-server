@@ -113,11 +113,11 @@
                          (incoming-frame-index (parameter-value +frame-index-parameter-name+))
                          (current-frame-index (frame-index-of frame))
                          (next-frame-index (next-frame-index-of frame)))
-                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index (frame-index-of frame) (next-frame-index-of frame) action)
                     (unless (stringp current-frame-index)
                       (setf current-frame-index (integer-to-string current-frame-index)))
                     (unless (stringp next-frame-index)
                       (setf next-frame-index (integer-to-string next-frame-index)))
+                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index current-frame-index next-frame-index action)
                     (cond
                       ((and action
                             incoming-frame-index)
@@ -343,7 +343,7 @@ Custom implementations should look something like this:
 (def method delete-session ((application application) (session session))
   (assert-application-lock-held application)
   (assert (eq (application-of session) application))
-  (app.dribble "Deleting session with id ~S" (id-of session))
+  (app.dribble "Deleting session ~A" session)
   (bind ((session-id->session (session-id->session-of application)))
     (remhash (id-of session) session-id->session))
   (values))

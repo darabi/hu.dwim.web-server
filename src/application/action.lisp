@@ -7,7 +7,7 @@
 (def (function o) find-action-from-request (frame)
   (bind ((action-id (parameter-value +action-id-parameter-name+)))
     (when action-id
-      (app.debug "Found action-id parameter ~S" action-id)
+      (app.debug "Found action-id parameter ~S, looking it up in frame ~A" action-id frame)
       (bind ((action (gethash action-id (action-id->action-of frame))))
         (if action
             (progn

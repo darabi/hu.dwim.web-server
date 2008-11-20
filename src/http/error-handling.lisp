@@ -129,7 +129,7 @@
         <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
            <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
            " email címen megteheti.">)
-     <p <a (:href `js-inline(history.go -1)) "Go back">>>))
+     <p <a (:href `js-inline(history.go -1)) "Vissza">>>))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

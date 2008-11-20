@@ -22,6 +22,7 @@
   ((parent-component nil :export :accessor)
    ;; TODO: use only one slot for these flags (beware of boolean like slots which might have delayed computations inside)
    (visible #t :type boolean :documentation "True means the component must be visible on the client side, while false means the opposite.")
+   ;; TODO expanded flag in the base component class?!
    (expanded #t :type boolean :documentation "True mans the component should display itself with full detail, while false means it should be minimized.")
    (dirty #t :type boolean :documentation "True means the component must be sent to the client to refresh its content.")
    (outdated #t :type boolean :documentation "True means the component must be refreshed before render.")))
