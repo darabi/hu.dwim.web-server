@@ -101,17 +101,17 @@
             (setf slot-value-groups
                   (iter (for (name . slot-group) :in slot-groups)
                         (when slot-group
-                          (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
-                          (if slot-value-group
-                              (setf (component-value-of slot-value-group) slot-group
-                                    (instance-of slot-value-group) instance
-                                    (the-class-of slot-value-group) the-class
-                                    (name-of slot-value-group) name)
-                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector
-                                                                    :instance instance
-                                                                    :slots slot-group
-                                                                    :name name)))
-                          (collect slot-value-group)))))
+                          (bind ((slot-value-group (find slot-group slot-value-groups :key 'slots-of :test 'equal)))
+                            (if slot-value-group
+                                (setf (component-value-of slot-value-group) slot-group
+                                      (instance-of slot-value-group) instance
+                                      (the-class-of slot-value-group) the-class
+                                      (name-of slot-value-group) name)
+                                (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector
+                                                                      :instance instance
+                                                                      :slots slot-group
+                                                                      :name name)))
+                            (collect slot-value-group))))))
           (setf slot-value-groups nil)))))
 
 (def (layered-function e) make-class-presentation (component class prototype)

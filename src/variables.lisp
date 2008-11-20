@@ -151,6 +151,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +csv-mime-type+        "text/csv"
    +javascript-mime-type+ "text/javascript"
    +plain-text-mime-type+ "text/plain"
+   +octet-stream-mime-type+ "application/octet-stream"
 
    +xhtml-1.0-strict-doctype+       "\"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""
    +xhtml-1.0-transitional-doctype+ "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/transitional.dtd\""

@@ -292,8 +292,8 @@
 (defmethod send-response ((response raw-functional-response))
   (funcall (thunk-of response)))
 
-(def (function e) make-functional-response* (thunk &key headers cookies (raw? #f))
-  (if raw?
+(def (function e) make-functional-response* (thunk &key headers cookies (raw #f))
+  (if raw
       (make-instance 'raw-functional-response
                      :thunk thunk
                      :headers headers
@@ -303,9 +303,9 @@
                      :headers headers
                      :cookies cookies)))
 
-(def function expand-make-functional-response (raw? headers-as-plist cookie-list body)
+(def function expand-make-functional-response (raw headers-as-plist cookie-list body)
   (with-unique-names (response)
-    `(bind ((,response (make-functional-response* (lambda () ,@body) :raw? ,raw?)))
+    `(bind ((,response (make-functional-response* (lambda () ,@body) :raw ,raw)))
        (store-response ,response)
        ;; this way *response* is bound while evaluating the following
        (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
