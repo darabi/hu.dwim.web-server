@@ -175,7 +175,7 @@
 
 (def (layered-function e) collect-standard-object-detail-slot-groups (component class prototype slots)
   (:method ((component standard-object-detail-component) (class standard-class) (prototype standard-object) (slots list))
-    (cons #"standard-object-detail-component.primary-group" (list slots))))
+    (list (cons #"standard-object-detail-component.primary-group" slots))))
 
 (defresources en
   (standard-object-detail-component.primary-group "Primary properties")
