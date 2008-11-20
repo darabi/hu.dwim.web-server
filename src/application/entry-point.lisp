@@ -9,6 +9,9 @@
    (handler :type function))
   (:metaclass funcallable-standard-class))
 
+(def method priority-of ((broker broker))
+  0)
+
 (defmethod produce-response ((entry-point entry-point) request)
   (funcall (handler-of entry-point) request))
 
@@ -61,6 +64,10 @@
                      (entry-point-equals-for-redefinition old-entry-point entry-point))
                    (entry-points-of application)))
   (appendf (entry-points-of application) (list entry-point))
+  (setf (entry-points-of application)
+        (sort (entry-points-of application)
+              #'>
+              :key #'priority-of))
   entry-point)
 
 (def (definer e) entry-point ((application &rest args &key
