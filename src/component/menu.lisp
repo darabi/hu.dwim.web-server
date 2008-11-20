@@ -107,5 +107,5 @@
     #+sbcl
     (menu-item (replace-menu-target-command "Frame size breakdown"
                  (make-instance 'frame-size-breakdown-component)))
-    (menu-item (replace-menu-target-command "WUI server info"
+    (menu-item (replace-menu-target-command "Web server"
                  (make-instance 'server-info)))))
