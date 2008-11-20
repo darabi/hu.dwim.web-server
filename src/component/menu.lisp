@@ -105,4 +105,6 @@
                     "ReCSS">))
     #+sbcl
     (menu-item (replace-menu-target-command "Frame size breakdown"
-                 (make-instance 'frame-size-breakdown-component)))))
+                 (make-instance 'frame-size-breakdown-component)))
+    (menu-item (replace-menu-target-command "WUI server info"
+                 (make-instance 'server-info)))))

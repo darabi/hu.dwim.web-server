@@ -153,6 +153,7 @@
                                (:file "authentication" :depends-on ("command"))
                                (:file "misc" :depends-on ("component"))
                                (:file "frame" :depends-on ("component"))
+                               (:file "server-info" :depends-on ("component" "command"))
                                #+sbcl(:file "frame-size-breakdown" :depends-on ("component"))
                                (:file "file-up-and-download" :depends-on ("component"))
                                (:file "timestamp-range" :depends-on ("component"))
