@@ -85,11 +85,17 @@
     (map-editable-child-components component #'leave-editing))
 
   (:method :before ((component editable-component))
-    (setf (edited-p component) #f)))
+    (setf (edited-p component) #f))
+
+  (:method :around ((component component))
+    (call-in-component-environment component #'call-next-method)))
 
 (def (generic e) store-editing (component)
   (:method ((component component))
-    (map-editable-child-components component #'store-editing)))
+    (map-editable-child-components component #'store-editing))
+
+  (:method :around ((component component))
+    (call-in-component-environment component #'call-next-method)))
 
 (def (generic e) revert-editing (component)
   (:method ((component component))

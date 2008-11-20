@@ -27,7 +27,7 @@
   ((component))
   (:metaclass funcallable-standard-class))
 
-(def method call-action :around (application session frame (action component-action))
+(def method call-action :around (application session frame (action component-related-action))
   (with-restored-component-environment (component-of action)
     (call-next-method)))
 
