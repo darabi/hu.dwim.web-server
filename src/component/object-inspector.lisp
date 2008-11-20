@@ -113,10 +113,6 @@
                             (collect slot-value-group))))))
           (setf slot-value-groups nil)))))
 
-(def (layered-function e) make-class-presentation (component class prototype)
-  (:method ((component component) (class standard-class) (prototype standard-object))
-    (localized-class-name class)))
-
 (def (layered-function e) collect-standard-object-detail-inspector-slots (component class instance)
   (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object))
     (class-slots class)))

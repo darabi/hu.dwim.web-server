@@ -92,9 +92,8 @@
   (make-instance 'column-component
                  :content (label #"Object-tree-table.column.type")
                  :cell-factory (lambda (node-component)
-                                 (make-instance 'cell-component :content (make-instance 'standard-class-component
-                                                                                        :the-class (class-of (instance-of node-component))
-                                                                                        :default-component-type 'reference-component)))))
+                                 (bind ((class (class-of (instance-of node-component))))
+                                   (make-instance 'cell-component :content (make-class-presentation node-component class (class-prototype class)))))))
 
 (def (function e) make-standard-object-tree-table-command-bar-column ()
   (make-instance 'column-component

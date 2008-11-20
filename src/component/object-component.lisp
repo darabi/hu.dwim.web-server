@@ -22,6 +22,10 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-class-component))
   (setf (the-class-of component) new-value))
 
+(def (layered-function e) make-class-presentation (component class prototype)
+  (:method ((component component) (class standard-class) (prototype standard-object))
+    (localized-class-name class)))
+
 ;;;;;;
 ;;; Abstract standard slot definition
 
