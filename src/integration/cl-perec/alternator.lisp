@@ -4,9 +4,8 @@
 
 (in-package :hu.dwim.wui)
 
-(dmm::defoperation switch-to-alternative-view-operation (dmm::standard-operation)
-  ()
-  "Base operation for all model related operations.")
+(def dmm:operation switch-to-alternative-view-operation (dmm::standard-operation)
+  ())
 
 (def method make-replace-with-alternative-command :around ((component alternator-component) alternative)
   (when (or (typep (class-prototype (the-class-of alternative)) 'reference-component)

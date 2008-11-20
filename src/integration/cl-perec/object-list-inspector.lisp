@@ -20,4 +20,5 @@
 (def layered-method make-standard-object-row-inspector-commands ((component standard-object-row-inspector) (class prc::persistent-class) (instance prc::persistent-object))
   (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
             (make-editing-commands component))
-          (list (make-expand-row-command component instance))))
+          (optional-list (when (dmm::authorize-operation 'expand-reference-operation :-entity- class)
+                           (make-expand-row-command component instance)))))

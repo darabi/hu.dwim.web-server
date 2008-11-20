@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+(def (dmm:operation e) expand-reference-operation (dmm::standard-operation)
+  ())
+
 (def method make-reference-label ((reference standard-object-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
   (reuse-standard-object-inspector-reference reference)
   (localized-instance-name instance))

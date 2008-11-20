@@ -18,4 +18,5 @@
 (def layered-method make-standard-object-tree-table-node-inspector-commands ((component standard-object-tree-node-inspector) (class prc::persistent-class) (instance prc::persistent-object))
   (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
             (make-editing-commands component))
-          (list (make-expand-node-command component instance))))
+          (optional-list (when (dmm::authorize-operation 'expand-reference-operation :-entity- class)
+                           (make-expand-node-command component instance)))))
