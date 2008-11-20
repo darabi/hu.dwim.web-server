@@ -5,6 +5,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Customization points
+
+(def (layered-function e) make-standard-commands (component classs prototype-or-instance))
+
+;;;;;;
 ;;; Abstract standard class
 
 (def component abstract-standard-class-component ()

@@ -48,10 +48,8 @@
     ,(render-user-messages -self-)
     ,(call-next-method)>)
 
-;; TODO: use this function for making commands for other kinds of standard components
-(def (layered-function e) make-standard-commands (component classs prototype)
-  (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
-    (make-editing-commands component)))
+(def layered-method make-standard-commands ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
+  (make-editing-commands component))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class instance)
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
@@ -165,7 +163,7 @@
 (def method refresh-component ((self standard-object-tree-node-inspector))
   (with-slots (children-provider instance command-bar child-nodes cells) self
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-tree-table-node-inspector-commands self (class-of instance) instance))
+        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-commands self (class-of instance) instance))
               child-nodes (sort-child-nodes self
                                             (iter (for child :in (funcall (children-provider-of self) instance))
                                                   (for node = (find instance child-nodes :key #'component-value-of))
@@ -198,10 +196,9 @@
                           (render-user-messages -self-))))
   (call-next-method))
 
-(def (layered-function e) make-standard-object-tree-table-node-inspector-commands (component class instance)
-  (:method ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
-    (append (make-editing-commands component)
-            (list (make-expand-node-command component instance)))))
+(def layered-method make-standard-commands ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
+  (append (make-editing-commands component)
+          (list (make-expand-node-command component instance))))
 
 (def function make-expand-node-command (component instance)
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-node-component) :content (make-viewer instance :default-component-type 'detail-component)))
@@ -381,6 +378,6 @@
                       (when (selected-instance-p (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component) (instance-of self))
                         " selected")))
 
-(def layered-method make-standard-object-tree-table-node-inspector-commands ((component selectable-standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
+(def layered-method make-standard-commands ((component selectable-standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
   (list* (make-select-instance-command (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) instance)
          (call-next-method)))

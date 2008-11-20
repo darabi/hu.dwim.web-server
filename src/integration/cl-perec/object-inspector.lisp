@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Customizations
 
-(def layered-method make-standard-object-inspector-commands ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
+(def layered-method make-standard-commands ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
   (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
             (make-editing-commands component))
           (optional-list (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)

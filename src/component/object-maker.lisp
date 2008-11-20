@@ -37,7 +37,7 @@
                                                          (append (list (make-open-in-new-frame-command self)
                                                                        (make-top-command self)
                                                                        (make-refresh-command self))
-                                                                 (make-standard-object-maker-commands self the-class (class-prototype the-class))))))
+                                                                 (make-standard-commands self the-class (class-prototype the-class))))))
         (setf alternatives nil
               content nil))))
 
@@ -57,9 +57,8 @@
     (list (delay-alternative-component-with-initargs 'standard-object-detail-maker :the-class class)
           (delay-alternative-reference-component 'standard-object-maker-reference class))))
 
-(def (layered-function e) make-standard-object-maker-commands (component class prototype)
-  (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
-    (list (make-create-instance-command component))))
+(def layered-method make-standard-commands ((component standard-object-maker) (class standard-class) (prototype standard-object))
+  (list (make-create-instance-command component)))
 
 (def (function e) make-create-instance-command (component)
   (make-instance 'command-component

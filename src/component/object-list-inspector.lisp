@@ -37,7 +37,7 @@
                                                    (append (list (make-open-in-new-frame-command self)
                                                                  (make-top-command self)
                                                                  (make-refresh-command self))
-                                                           (make-standard-object-list-inspector-commands self the-class (class-prototype the-class)))))))
+                                                           (make-standard-commands self the-class (class-prototype the-class)))))))
 
 (def render standard-object-list-inspector ()
   (bind (((:read-only-slots id content) -self-))
@@ -56,9 +56,8 @@
           (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
           (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
 
-(def (layered-function e) make-standard-object-list-inspector-commands (component class prototype)
-  (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
-    (make-editing-commands component)))
+(def layered-method make-standard-commands ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
+  (make-editing-commands component))
 
 ;;;;;;
 ;;; Standard object list list inspector
@@ -190,7 +189,7 @@
 (def method refresh-component ((self standard-object-row-inspector))
   (with-slots (instance command-bar cells) self
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-object-row-inspector-commands self (class-of instance) instance))
+        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-commands self (class-of instance) instance))
               cells (mapcar (lambda (column)
                               (funcall (cell-factory-of column) self))
                             (columns-of (find-ancestor-component-with-type self 'standard-object-list-table-inspector))))
@@ -204,10 +203,9 @@
                          (render-user-messages row))))
   (call-next-method))
 
-(def (layered-function e) make-standard-object-row-inspector-commands (component class instance)
-  (:method ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
-    (append (make-editing-commands component)
-            (list (make-expand-row-command component instance)))))
+(def layered-method make-standard-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
+  (append (make-editing-commands component)
+          (list (make-expand-row-command component instance))))
 
 (def function make-expand-row-command (component instance)
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer instance :default-component-type 'detail-component)))
@@ -265,6 +263,6 @@
                       (when (selected-instance-p table (instance-of row))
                         " selected")))
 
-(def layered-method make-standard-object-row-inspector-commands ((component selectable-standard-object-row-inspector) (class standard-class) (instance standard-object))
+(def layered-method make-standard-commands ((component selectable-standard-object-row-inspector) (class standard-class) (instance standard-object))
   (list* (make-select-instance-command (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) instance)
          (call-next-method)))

@@ -115,7 +115,7 @@
   (icon-label.pause-process "Pause")
   (icon-tooltip.pause-process "Pause the process"))
 
-(def layered-method make-standard-object-inspector-commands ((component standard-object-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
+(def layered-method make-standard-commands ((component standard-object-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
   ;; TODO: move prc::with-revived-instance?
   (prc::with-revived-instance instance
     (optional-list #+nil
@@ -126,10 +126,10 @@
                    (when (dmm::persistent-process-in-progress-p instance)
                      (make-continue-persistent-process-command component instance)))))
 
-(def layered-method make-standard-object-maker-commands ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process))
+(def layered-method make-standard-commands ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process))
   (list (make-start-persistent-process-command component (delay (execute-create-instance component (the-class-of component))))))
 
-(def layered-method make-standard-object-row-inspector-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
+(def layered-method make-standard-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
   (prc::with-revived-instance instance
     (optional-list (make-expand-row-command component instance)
                    (when (dmm::persistent-process-initializing-p instance)

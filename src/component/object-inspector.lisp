@@ -40,7 +40,7 @@
                                                          (append (list (make-open-in-new-frame-command self)
                                                                        (make-top-command self)
                                                                        (make-refresh-command self))
-                                                                 (make-standard-object-inspector-commands self (class-of instance) instance)))))
+                                                                 (make-standard-commands self (class-of instance) instance)))))
         (setf alternatives (list (delay-alternative-component-with-initargs 'null-component))
               content (find-default-alternative-component alternatives)))))
 
@@ -60,9 +60,8 @@
     (list (delay-alternative-component-with-initargs 'standard-object-detail-inspector :instance instance)
           (delay-alternative-reference-component 'standard-object-inspector-reference instance))))
 
-(def (layered-function e) make-standard-object-inspector-commands (component class instance)
-  (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
-    (make-editing-commands component)))
+(def layered-method make-standard-commands ((component standard-object-inspector) (class standard-class) (instance standard-object))
+  (make-editing-commands component))
 
 (def (function e) make-delete-instance-command (self)
   (make-instance 'command-component

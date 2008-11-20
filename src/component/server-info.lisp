@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Frame size component
+;;; Server info
 
 ;; TODO maybe this should be done through a customized factory method? so that inspecting server instances bring up the customized view...
 (def component server-info ()
