@@ -82,11 +82,16 @@
    -self- (lambda (request)
           (application-handler -self- request))))
 
+(def (generic e) call-in-application-environment (application session thunk)
+  (:documentation "Everything related to an application goes through this method, so it can be used to set up wrappers like WITH-TRANSACTION. The SESSION argument may or may not be a valid session.")
+  (:method (application session thunk)
+    (funcall thunk)))
+
 (def (generic e) call-action (application session frame action)
   (:method (application session frame (action funcallable-standard-object))
     (funcall action)))
 
-(def (generic e) call-as-handler-in-session (application session thunk)
+(def generic call-as-handler-in-session (application session thunk)
   (:method :before ((application application) (session session) thunk)
     (assert-session-lock-held session)
     (notify-activity session))
@@ -180,8 +185,11 @@
     (if session
         (restart-case
             (with-lock-held-on-session (session)
-              (call-as-handler-in-session application session (lambda ()
-                                                                (-body-))))
+              (call-in-application-environment
+               application session (lambda ()
+                                     (call-as-handler-in-session
+                                      application session (lambda ()
+                                                            (-body-))))))
           (delete-current-session ()
             :report (lambda (stream)
                       (format stream "Delete session ~A" session))
