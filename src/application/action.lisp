@@ -23,11 +23,11 @@
   (bind ((*action* action))
     (call-next-method)))
 
-(def class* component-related-action (action)
+(def class* component-action (action)
   ((component))
   (:metaclass funcallable-standard-class))
 
-(def method call-action :around (application session frame (action component-related-action))
+(def method call-action :around (application session frame (action component-action))
   (with-restored-component-environment (component-of action)
     (call-next-method)))
 
@@ -37,9 +37,9 @@
        (set-funcallable-instance-function ,action (lambda () ,@body))
        ,action)))
 
-(def (macro e) make-component-related-action (component &body body)
+(def (macro e) make-component-action (component &body body)
   (with-unique-names (action)
-    `(bind ((,action (make-instance 'component-related-action :component ,component)))
+    `(bind ((,action (make-instance 'component-action :component ,component)))
        (set-funcallable-instance-function ,action (lambda () ,@body))
        ,action)))
 

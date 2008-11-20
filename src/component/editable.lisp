@@ -109,7 +109,8 @@
   (make-instance 'command-component
                  :icon (icon edit)
                  :visible (delay (not (edited-p editable)))
-                 :action (make-action (begin-editing editable))))
+                 :action (make-component-action editable
+                           (begin-editing editable))))
 
 (def (function e) make-save-editing-command (editable)
   "The SAVE-EDITING command actually makes the changes present under an EDITABLE-COMPNENT and leaves editing"
@@ -117,7 +118,7 @@
   (make-instance 'command-component
                  :icon (icon save)
                  :visible (delay (edited-p editable))
-                 :action (make-component-related-action editable
+                 :action (make-component-action editable
                            (save-editing editable))))
 
 (def (function e) make-cancel-editing-command (editable)
@@ -126,7 +127,7 @@
   (make-instance 'command-component
                  :icon (icon cancel)
                  :visible (delay (edited-p editable))
-                 :action (make-component-related-action editable
+                 :action (make-component-action editable
                            (cancel-editing editable))))
 
 (def (function e) make-store-editing-command (editable)
@@ -135,7 +136,8 @@
   (make-instance 'command-component
                  :icon (icon store)
                  :visible (delay (edited-p editable))
-                 :action (make-action (save-editing editable :leave-editing #f))))
+                 :action (make-component-action editable
+                           (save-editing editable :leave-editing #f))))
 
 (def (function e) make-revert-editing-command (editable)
   "The REVERT-EDITING command rolls back the changes present under an EDITABLE-COMPNENT"
@@ -143,7 +145,8 @@
   (make-instance 'command-component
                  :icon (icon revert)
                  :visible (delay (edited-p editable))
-                 :action (make-action (revert-editing editable))))
+                 :action (make-component-action editable
+                           (revert-editing editable))))
 
 (def (function e) make-editing-commands (component)
   (bind ((initargs-mixin (find-ancestor-component-with-type component 'initargs-component-mixin)))

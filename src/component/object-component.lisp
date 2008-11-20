@@ -156,9 +156,8 @@
 
 (def (function e) make-select-instance-command (component instance)
   (command (icon select)
-           (make-action
-             (with-restored-component-environment component
-               (execute-select-instance component (class-of instance) instance)))))
+           (make-component-action component
+             (execute-select-instance component (class-of instance) instance))))
 
 (def (layered-function e) execute-select-instance (component class instance)
   (:method ((component abstract-selectable-standard-object-component) (class standard-class) (instance standard-object))

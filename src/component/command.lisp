@@ -154,9 +154,8 @@
 (def (function e) make-refresh-command (component)
   (make-instance 'command-component
                  :icon (icon refresh)
-                 :action (make-action
-                           (with-restored-component-environment component
-                             (refresh-component component)))))
+                 :action (make-component-action component
+                           (refresh-component component))))
 
 (def (function e) make-replace-command (original-component replacement-component &rest replace-command-args)
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT"
