@@ -244,7 +244,13 @@
                                              stream-socket
                                              :error-handler #'handle-request-error))
            (server.dribble "Worker ~A finished processing a request" worker))
-      (close stream-socket))))
+      (block nil
+        (call-with-server-error-handler (lambda ()
+                                          (close stream-socket))
+                                        stream-socket
+                                        (lambda (error)
+                                          (server.warn "Failed to close the socket stream while unwinding in SERVE-ONE-REQUEST due to ~A" error)
+                                          (return)))))))
 
 (def function store-response (response)
   (assert (boundp '*response*))
