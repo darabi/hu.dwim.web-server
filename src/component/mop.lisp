@@ -89,7 +89,7 @@
 
 (def function compute-as-body (component thunk)
   ;; TODO: is it the right place?
-  (setf (outdated-p component) #t)
+  (mark-outdated component)
   (bind ((result (funcall thunk)))
     (if (typep result 'standard-object)
         (reuse-standard-object-instance (class-of result) result)

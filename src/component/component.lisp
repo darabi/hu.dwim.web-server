@@ -46,10 +46,13 @@
 
 (def (generic e) (setf component-value-of) (new-value component)
   (:method :after (new-value (component component))
-    (setf (outdated-p component) #t)))
+    (mark-outdated component)))
 
 (def (function e) mark-dirty (component)
   (setf (dirty-p component) #t))
+
+(def (function e) mark-outdated (component)
+  (setf (outdated-p component) #t))
 
 (def function ensure-uptodate (component)
   (when (or (outdated-p component)
