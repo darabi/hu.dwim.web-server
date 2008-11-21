@@ -82,7 +82,7 @@
                                   validity-end)))
 
 ;;;;;;
-;;; Coordinate provider
+;;; Coordinates provider
 
 (def component coordinates-provider (content-component)
   ((dimensions)
@@ -98,3 +98,25 @@
   (bind (((:read-only-slots dimensions coordinates) -self-))
     (prc:with-coordinates dimensions (force coordinates)
       (call-next-method))))
+
+;;;;;;
+;;; Coordinates dependent component mixin
+
+(def component coordinates-dependent-component-mixin ()
+  ((dimensions)
+   (coordinates)))
+
+(def constructor coordinates-dependent-component-mixin ()
+  (with-slots (dimensions coordinates) -self-
+    (setf dimensions (mapcar 'prc:lookup-dimension dimensions)
+          coordinates (prc:make-empty-coordinates dimensions))))
+
+(def render :before coordinates-dependent-component-mixin ()
+  (setf (coordinates-of -self-)
+        (iter (for dimension :in (dimensions-of -self-))
+              (for old-coordinate :in (coordinates-of -self-))
+              (for new-coordinate = (prc:coordinate dimension))
+              (unless (prc:coordinate-equal dimension old-coordinate new-coordinate)
+                (mark-outdated -self-))
+              (collect new-coordinate)))
+  (ensure-uptodate -self-))
