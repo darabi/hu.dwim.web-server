@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 (def method slot-type ((slot prc::persistent-slot-definition))
-  (prc::canonical-type-of slot))
+  (prc::specified-type-of slot))
 
 (def method slot-value-place-editable-p ((place slot-value-place) (class dmm::entity) (instance prc::persistent-object) (slot dmm::effective-property))
   (dmm::editable-p slot))
