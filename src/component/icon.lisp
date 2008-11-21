@@ -21,7 +21,7 @@
   (:method (icon label)
     `xml,label))
 
-(def function render-icon (icon image-path &key label tooltip)
+(def (function e) render-icon (icon image-path &key label tooltip)
   (bind ((tooltip (force tooltip))
          (delayed-content-tooltip? (and tooltip
                                         (not (stringp tooltip))))
@@ -39,9 +39,9 @@
                                 (uri (print-uri-to-string tooltip)))))))
     <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip))
           ,@(when image-path
-                  (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))> " "))
-          ,(when label
-                 (render-icon-label icon (force label)))>))
+             (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path)) > " "))
+          ,(awhen (force label)
+             (render-icon-label icon it)) >))
 
 (def (macro e) icon (name &rest args)
   `(make-icon-component ',name ,@args))
@@ -60,7 +60,7 @@
 
 (def special-variable *icons* (make-hash-table))
 
-(def (function e) find-icon (name &key (otherwise '(:error "The icon ~A cannot be found" name)))
+(def (function e) find-icon (name &key (otherwise `(:error "The icon ~A cannot be found" ,name)))
   (prog1-bind icon (gethash name *icons*)
     (unless icon
       (handle-otherwise otherwise))))
