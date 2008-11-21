@@ -39,10 +39,10 @@
        (emit-xml-prologue +encoding+)
        ,@forms)))
 
-(defresources en
+(def resources en
   (chart.missing-flash-plugin "Flash Player is not available"))
 
-(defresources hu
+(def resources hu
   (chart.missing-flash-plugin "Flash Player nem elérhető"))
 
 

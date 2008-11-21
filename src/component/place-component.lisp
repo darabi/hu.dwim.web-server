@@ -264,7 +264,7 @@
   (render-use-in-filter-marker -self-)
   <td ,(call-next-method)>)
 
-(defresources en
+(def resources en
   (predicate.= "Equal")
   (predicate.~ "Like")
   (predicate.< "Smaller than")
@@ -272,7 +272,7 @@
   (predicate.> "Greater than")
   (predicate.≥ "Greater than or equal"))
 
-(defresources hu
+(def resources hu
   (predicate.= "Egyenlő")
   (predicate.~ "Hasonló")
   (predicate.< "Kisebb")

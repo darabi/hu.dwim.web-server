@@ -141,11 +141,11 @@
   (:method ((component standard-object-tree-table-inspector) (class standard-class) instance)
     (class-slots class)))
 
-(defresources hu
+(def resources hu
   (object-tree-table.column.commands "műveletek")
   (object-tree-table.column.type "típus"))
 
-(defresources en
+(def resources en
   (object-tree-table.column.commands "commands")
   (object-tree-table.column.type "type"))
 

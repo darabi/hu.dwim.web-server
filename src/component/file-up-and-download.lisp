@@ -33,7 +33,7 @@
          ,(call-next-method)
          " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
 
-(defresources en
+(def resources en
   (file-last-modification-timestamp (file)
     `xml,"Updated: "
     (if (probe-file file)
@@ -41,7 +41,7 @@
         <span (:class "missing-file")
               "File is missing!">)))
 
-(defresources hu
+(def resources hu
   (file-last-modification-timestamp (file)
     `xml,"Frissítve: "
     (if (probe-file file)

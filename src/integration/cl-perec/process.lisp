@@ -84,34 +84,34 @@
 ;;; Command
 
 (def icon start-process "static/wui/icons/20x20/vcr-play.png")
-(defresources hu
+(def resources hu
   (icon-label.start-process "Elindítás")
   (icon-tooltip.start-process "A folyamat elindítása"))
-(defresources en
+(def resources en
   (icon-label.start-process "Start")
   (icon-tooltip.start-process "Start the process"))
 
 (def icon continue-process "static/wui/icons/20x20/vcr-play.png")
-(defresources hu
+(def resources hu
   (icon-label.continue-process "Folytatás")
   (icon-tooltip.continue-process "A folyamat folytatása"))
-(defresources en
+(def resources en
   (icon-label.continue-process "Continue")
   (icon-tooltip.continue-process "Continue the process"))
 
 (def icon cancel-process "static/wui/icons/20x20/red-x.png")
-(defresources hu
+(def resources hu
   (icon-label.cancel-process "Elvetés")
   (icon-tooltip.cancel-process "A folyamat elvetése"))
-(defresources en
+(def resources en
   (icon-label.cancel-process "Cancel")
   (icon-tooltip.cancel-process "Cancel the process"))
 
 (def icon pause-process "static/wui/icons/20x20/stop-sign.png")
-(defresources hu
+(def resources hu
   (icon-label.pause-process "Felfüggesztés")
   (icon-tooltip.pause-process "A folyamat felüggesztése"))
-(defresources en
+(def resources en
   (icon-label.pause-process "Pause")
   (icon-tooltip.pause-process "Pause the process"))
 
@@ -180,7 +180,7 @@
 ;;;;;;
 ;;; Localization
 
-(defresources hu
+(def resources hu
   (process.message.waiting-for-other-subject "A folyamat jelenleg másra várakozik.")
   (process.message.waiting "A folyamat jelenleg várakozik.")
   (process.message.report-process-state (process)
@@ -193,7 +193,7 @@
       (dmm::in-progress "Folyamat folyamatban")
       (dmm::paused      "Folyamat félbeszakítva"))))
 
-(defresources en
+(def resources en
   (process.message.waiting-for-other-subject "Process is waiting for other subject.")
   (process.message.waiting "Process is currently waiting.")
   (process.message.report-process-state (process)

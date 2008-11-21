@@ -127,12 +127,12 @@
                                          (setf (outdated-p -self-) #t))))>)
          <table ,(map nil #'render slot-value-groups)>>))
 
-(defresources en
+(def resources en
   (standard-object-detail-filter.instance (class)
     <span "Searching for instances of" ,(render class)>)
   (standard-object-detail-filter.select-class "Select class"))
 
-(defresources hu
+(def resources hu
   (standard-object-detail-filter.instance (class)
     <span ,(render class) " keresése">)
   (standard-object-detail-filter.select-class "Típus kiválasztása"))
@@ -250,8 +250,8 @@
                (push instance instances))))
          :dynamic)))))
 
-(defresources en
+(def resources en
   (no-matches-were-found "No matching objects were found"))
 
-(defresources hu
+(def resources hu
   (no-matches-were-found "Nincs a keresésnek megfelelő objektum"))

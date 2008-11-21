@@ -56,11 +56,11 @@
 
 (def generic print-component-value (component))
 
-(defresources en
+(def resources en
   (value.default "default")
   (value.defaults-to "defaults to :"))
 
-(defresources hu
+(def resources hu
   (value.default "alapértelmezett")
   (value.defaults-to "alapértelmezett érték: "))
 
@@ -76,10 +76,10 @@
 (def render unbound-component ()
   (render-unbound-component))
 
-(defresources en
+(def resources en
   (value.unbound "default"))
 
-(defresources hu
+(def resources hu
   (value.unbound "alapértelmezett"))
 
 ;;;;;;
@@ -94,10 +94,10 @@
 (def render null-component ()
   (render-null-component))
 
-(defresources en
+(def resources en
   (value.nil "none"))
 
-(defresources hu
+(def resources hu
   (value.nil "nincs"))
 
 ;;;;;;
@@ -130,11 +130,11 @@
       (values nil #t)
       (string-to-lisp-boolean client-value)))
 
-(defresources en
+(def resources en
   (boolean.true "true")
   (boolean.false "false"))
 
-(defresources hu
+(def resources hu
   (boolean.true "igaz")
   (boolean.false "hamis"))
 

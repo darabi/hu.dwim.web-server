@@ -163,13 +163,13 @@
   <span ,(standard-object-list-table-inspector.instances (localized-class-name (the-class-of -self-)))>
   (call-next-method))
 
-(defresources en
+(def resources en
   (standard-object-list-table-inspector.instances (class)
     <span "Viewing instances of " ,(render class)>)
   (object-list-table.column.commands "Commands")
   (object-list-table.column.type "Type"))
 
-(defresources hu
+(def resources hu
   (standard-object-list-table-inspector.instances (class)
     <span "Egy ",(render class) " lista megjelenítése">)
   (object-list-table.column.commands "Műveletek")

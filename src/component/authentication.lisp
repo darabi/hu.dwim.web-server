@@ -96,13 +96,13 @@
 (def (macro e) fake-identifier-and-password-login (identifier password &optional comment)
   `(make-instance 'fake-identifier-and-password-login-component :identifier ,identifier :password ,password :comment ,comment))
 
-(defresources hu
+(def resources hu
   (login.identifier "Azonosító")
   (login.password "Jelszó")
   (login.message.authentication-failed "Azonosítás sikertelen")
   (login.message.session-timed-out "Lejárt a biztonsági idő, kérem lépjen be újra"))
 
-(defresources en
+(def resources en
   (login.identifier "Identifier")
   (login.password "Password")
   (login.message.authentication-failed "Authentication failed")

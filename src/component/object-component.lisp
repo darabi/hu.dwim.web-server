@@ -185,11 +185,11 @@
   (:method ((component standard-object-detail-component) (class standard-class) (prototype standard-object) (slots list))
     (list (cons #"standard-object-detail-component.primary-group" slots))))
 
-(defresources en
+(def resources en
   (standard-object-detail-component.primary-group "Primary properties")
   (standard-object-detail-component.secondary-group "Other properties"))
 
-(defresources hu
+(def resources hu
   (standard-object-detail-component.primary-group "Elsődleges tulajdonságok")
   (standard-object-detail-component.secondary-group "Egyéb tulajdonságok"))
 ;;;;;;
@@ -213,10 +213,10 @@
           <tbody ,(map nil #'render slot-values)>)
         <span (:id ,id) ,#"there-are-none">)))
 
-(defresources en
+(def resources en
   (standard-object-slot-value-group.there-are-no-slots "There are no properties"))
 
-(defresources hu
+(def resources hu
   (standard-object-slot-value-group.there-are-no-slots "Nincs egy tulajdonság sem"))
 
 ;;;;;;

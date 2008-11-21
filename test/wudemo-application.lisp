@@ -53,7 +53,7 @@
    (age nil :type (or null integer))
    (name nil :type (or null string))))
 
-(defresources en
+(def resources en
   (class-name.child-test "child")
   (class-name.parent-test "parent")
   (slot-name.name "name")
@@ -62,7 +62,7 @@
   (slot-name.age "age")
   (child-test.parent "parent"))
 
-(defresources hu
+(def resources hu
   (class-name.child-test "gyerek")
   (class-name.parent-test "szülő")
   (slot-name.name "név")

@@ -32,10 +32,10 @@
   (make-replace-command (delay (content-of tab-container)) tab-page :icon (icon-of tab-page)))
 
 (def icon swith-to-page "static/wui/icons/20x20/eye.png")
-(defresources hu
+(def resources hu
   (icon-label.swith-to-page "Lap")
   (icon-tooltip.swith-to-page "A lap előrehozása"))
-(defresources en
+(def resources en
   (icon-label.swith-to-page "Page")
   (icon-tooltip.swith-to-page "Switch to page"))
 

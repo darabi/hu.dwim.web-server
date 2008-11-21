@@ -142,12 +142,12 @@
                                          (setf (outdated-p -self-) #t))))>)
          <table ,(map nil #'render slot-value-groups)>>))
 
-(defresources en
+(def resources en
   (standard-object-detail-maker.instance (class)
     <span "Creating an instance of" ,(render class)>)
   (standard-object-detail-maker.select-class "Select class"))
 
-(defresources hu
+(def resources hu
   (standard-object-detail-maker.instance (class)
     <span "Egy új " ,(render class) " felvétele">)
   (standard-object-detail-maker.select-class "Típus kiválasztása"))

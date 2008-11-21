@@ -123,11 +123,11 @@
          <span ,(standard-object-detail-inspector.instance class)>
          <table ,(map nil #'render slot-value-groups)>>))
 
-(defresources en
+(def resources en
   (standard-object-detail-inspector.instance (class)
     <span "Viewing an instance of " ,(render class)>))
 
-(defresources hu
+(def resources hu
   (standard-object-detail-inspector.instance (class)
     <span "Egy " ,(render class) " megjelenítése">))
 
