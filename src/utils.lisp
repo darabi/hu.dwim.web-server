@@ -108,35 +108,35 @@
 ;;; Tree
 
 (def (function o) find-ancestor (node parent-function map-function)
-  (declare (type function parent-function map-function))
+  (ensure-functionf parent-function map-function)
   (iter (for current-node :initially node :then (funcall parent-function current-node))
         (while current-node)
         (when (funcall map-function current-node)
           (return current-node))))
 
 (def (function o) find-root (node parent-function)
-  (declare (type function parent-function))
+  (ensure-functionf parent-function)
   (iter (for current-node :initially node :then (funcall parent-function current-node))
         (for previous-node :previous current-node)
         (while current-node)
         (finally (return previous-node))))
 
 (def (function o) map-parent-chain (node parent-function map-function)
-  (declare (type function parent-function map-function))
+  (ensure-functionf parent-function map-function)
   (iter (for current-node :initially node :then (funcall parent-function current-node))
         (while current-node)
         (funcall map-function current-node)))
 
 (def (function o) map-tree (node children-function map-function)
-  (declare (type function children-function map-function))
+  (ensure-functionf children-function map-function)
   (map-tree* node children-function
              (lambda (node parent level)
                (declare (ignore parent level))
                (funcall map-function node))))
 
 (def (function o) map-tree* (node children-function map-function &optional (level 0) parent)
-  (declare (type function children-function map-function)
-           (type fixnum level))
+  (declare (type fixnum level))
+  (ensure-functionf children-function map-function)
   (cons (funcall map-function node parent level)
         (map 'list (lambda (child)
                      (map-tree* child children-function map-function (1+ level) node))
@@ -512,6 +512,7 @@
 ;;; Hash set
 
 (def function make-hash-set-from-list (elements &key (test #'eq) (key #'identity))
+  (ensure-functionf key test)
   (prog1-bind set
       (make-hash-table :test test)
     (dolist (element elements)

@@ -182,24 +182,26 @@
 (def (function e) find-descendant-component-with-type (component type)
   (find-descendant-component component [typep !1 type]))
 
-(def function map-child-components (component thunk)
+(def function map-child-components (component visitor)
+  (ensure-functionf visitor)
   (iter (with class = (class-of component))
         (for slot :in (class-slots class))
         (when (bound-child-component-slot-p class component slot)
           (bind ((value (slot-value-using-class class component slot)))
             (typecase value
               (component
-               (funcall thunk value))
+               (funcall visitor value))
               (list
                (dolist (element value)
                  (when (typep element 'component)
-                   (funcall thunk element))))
+                   (funcall visitor element))))
               (hash-table
                (iter (for (key element) :in-hashtable value)
                      (when (typep element 'component)
-                       (funcall thunk element)))))))))
+                       (funcall visitor element)))))))))
 
 (def function map-descendant-components (component visitor &key (include-self #f))
+  (ensure-functionf visitor)
   (labels ((traverse (parent-component)
              (map-child-components parent-component
                                    (lambda (child-component)
@@ -210,6 +212,7 @@
     (traverse component)))
 
 (def function map-ancestor-components (component visitor &key (include-self #f))
+  (ensure-functionf visitor)
   (labels ((traverse (current)
              (awhen (parent-component-of current)
                (funcall visitor it)

@@ -43,16 +43,19 @@
 
 (def generic map-editable-child-components (component function)
   (:method ((component component) function)
+    (ensure-functionf function)
     (map-child-components component (lambda (child)
                                       (when (typep child 'editable-component)
                                         (funcall function child))))))
 
 (def function map-editable-descendant-components (component function)
+  (ensure-functionf function)
   (map-editable-child-components component (lambda (child)
                                              (funcall function child)
                                              (map-editable-descendant-components child function))))
 
 (def function find-editable-child-component (component function)
+  (ensure-functionf function)
   (map-editable-child-components component (lambda (child)
                                              (when (funcall function child)
                                                (return-from find-editable-child-component child))))
@@ -65,17 +68,17 @@
   nil)
 
 (def function has-edited-child-component-p (component)
-  (find-editable-child-component component #'edited-p))
+  (find-editable-child-component component 'edited-p))
 
 (def function has-edited-descendant-component-p (component)
-  (find-editable-descendant-component component #'edited-p))
+  (find-editable-descendant-component component 'edited-p))
 
 ;;;;;;
 ;;; Customization points
 
 (def (generic e) join-editing (component)
   (:method ((component component))
-    (map-editable-child-components component #'join-editing))
+    (map-editable-child-components component 'join-editing))
 
   (:method :before ((component editable-component))
     (setf (edited-p component) #t))
@@ -85,7 +88,7 @@
 
 (def (generic e) leave-editing (component)
   (:method ((component component))
-    (map-editable-child-components component #'leave-editing))
+    (map-editable-child-components component 'leave-editing))
 
   (:method :before ((component editable-component))
     (setf (edited-p component) #f))
@@ -95,14 +98,14 @@
 
 (def (generic e) store-editing (component)
   (:method ((component component))
-    (map-editable-child-components component #'store-editing))
+    (map-editable-child-components component 'store-editing))
 
   (:method :around ((component component))
     (call-in-component-environment component #'call-next-method)))
 
 (def (generic e) revert-editing (component)
   (:method ((component component))
-    (map-editable-child-components component #'revert-editing))
+    (map-editable-child-components component 'revert-editing))
 
   (:method :around ((component component))
     (call-in-component-environment component #'call-next-method)))
@@ -110,8 +113,8 @@
 (def method refresh-component :after ((self editable-component))
   (map-editable-child-components self
                                  (if (edited-p self)
-                                     #'join-editing
-                                     #'leave-editing)))
+                                     'join-editing
+                                     'leave-editing)))
 ;;;;;;
 ;;; Commands
 
