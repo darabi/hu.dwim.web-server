@@ -22,27 +22,31 @@
     :year
     :type (member :year :month :weak :day :hour :minute :second))
    (range
-    (make-instance 'member-inspector
-                   :edited #t
-                   ;; TODO: kill this hack
-                   :possible-values '(2007 2008 2009)
-                   :component-value 2008
-                   :client-name-generator #'integer-to-string)
     :type component)
-   (range-start
+   (range-begin
     (make-instance 'timestamp-component)
     :type component)
    (range-end
     (make-instance 'timestamp-component)
     :type component)))
 
-(def (macro e) timestamp-range (&key range-start range-end)
+(def constructor timestamp-range-component ()
+  (not-yet-implemented)
+  (setf (range-of -self-) (make-instance 'member-inspector
+                                         :edited #t
+                                         ;; KLUDGE: TODO: kill this hack
+                                         :possible-values '(2007 2008 2009)
+                                         ;; KLUDGE: what a kludge here
+                                         :component-value (local-time:timestamp-year (range-begin-of -self-))
+                                         :client-name-generator #'integer-to-string)))
+
+(def (macro e) timestamp-range (&key range-begin range-end)
   `(make-instance 'timestamp-range-component
-                  :range-start (make-instance 'timestamp-component :component-value ,range-start)
+                  :range-begin (make-instance 'timestamp-component :component-value ,range-begin)
                   :range-end (make-instance 'timestamp-component :component-value ,range-end)))
 
 (def render timestamp-range-component ()
-  (bind (((:read-only-slots single range range-start range-end) -self-))
+  (bind (((:read-only-slots single range range-begin range-end) -self-))
     (if single
         (render range)
-        (render-horizontal-list (list range-start range-end)))))
+        (render-horizontal-list (list range-begin range-end)))))

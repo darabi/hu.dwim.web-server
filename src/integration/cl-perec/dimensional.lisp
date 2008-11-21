@@ -45,17 +45,15 @@
 ;;;;;;
 ;;; Validity selector
 
-(def component validity-selector (timestamp-range-component)
-  ((edited #t)))
+(def component validity-selector (member-inspector)
+  ()
+  (:default-initargs :edited #t :possible-values '(2007 2008 2009) :client-name-generator #'integer-to-string))
 
-(def (macro e) validity-selector (&key validity validity-begin validity-end)
+(def (macro e) validity-selector (&key validity)
   `(make-instance 'validity-selector
-                  :range-start ,(if validity
-                                    (prc::first-moment-for-partial-timestamp validity)
-                                    validity-begin)
-                  :range-end ,(if validity
-                                  (prc::last-moment-for-partial-timestamp validity)
-                                  validity-end)))
+                  :component-value ,(if (stringp validity)
+                                        (parse-integer validity)
+                                        validity)))
 
 (def function compute-timestamp-range (component)
   (bind (((:read-only-slots single) component))
@@ -68,18 +66,25 @@
 ;;;;;;
 ;;; Validity selector and provider
 
-(def component validity-selector-and-provider (content-component validity-selector)
+(def component validity-selector-and-provider (validity-selector content-component)
   ())
 
-(def (macro e) validity-selector-and-provider ((&key validity validity-begin validity-end) &body forms)
+(def (macro e) validity-selector-and-provider ((&key validity) &body forms)
   `(make-instance 'validity-selector-and-provider
                   :content (progn ,@forms)
-                  :range-start ,(if validity
-                                    (prc::first-moment-for-partial-timestamp validity)
-                                    validity-begin)
-                  :range-end ,(if validity
-                                  (prc::last-moment-for-partial-timestamp validity)
-                                  validity-end)))
+                  :component-value ,(if (stringp validity)
+                                        (parse-integer validity)
+                                        validity)))
+
+(def render validity-selector-and-provider ()
+  <div ,(call-next-method)
+       ,(render (content-of -self-)) >)
+
+(def call-in-component-environment validity-selector-and-provider ()
+  (bind ((year (component-value-of -self-)))
+    (prc::call-with-validity-range (local-time:encode-timestamp 0 0 0 0 1 1 year :offset 0)
+                                   (local-time:encode-timestamp 0 0 0 0 1 1 (1+ year) :offset 0)
+                                   #'call-next-method)))
 
 ;;;;;;
 ;;; Coordinates provider
