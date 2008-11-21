@@ -15,7 +15,7 @@
   (make-instance 'filtered-standard-object-tree-inspector
                  :instance (awhen instances
                              (find-root (first instances) (parent-provider-of filter)))
-                 :filter-result-instances (make-hash-set-from-list instances :test #'eql :key #'hash-key-for)
+                 :filtered-instances (make-hash-set-from-list instances :test #'eql :key #'hash-key-for)
                  :parent-provider (parent-provider-of filter)
                  :unfiltered-children-provider (children-provider-of filter)))
 
@@ -23,7 +23,8 @@
 ;;; Filtered standard object tree inspector
 
 (def component filtered-standard-object-tree-inspector (standard-object-tree-inspector)
-  ((filter-result-instances)
+  ((filtered-instances :type list)
+   (highlight-filtered-instances #t :type boolean)
    (unfiltered-children-provider :type (or symbol function))
    (visible-instances (make-hash-table))))
 
@@ -35,10 +36,10 @@
                      (funcall (unfiltered-children-provider-of -self-) instance)))))
 
 (def method refresh-component :before ((self filtered-standard-object-tree-inspector))
-  (with-slots (filter-result-instances unfiltered-children-provider visible-instances children-provider parent-provider) self
+  (with-slots (filtered-instances unfiltered-children-provider visible-instances children-provider parent-provider) self
     (flet ((collect-visible-instance (instance)
              (setf (gethash (hash-key-for instance) visible-instances) #t)))
-      (iter (for (key value) :in-hashtable filter-result-instances)
+      (iter (for (key value) :in-hashtable filtered-instances)
             (setf value (reuse-standard-object-instance (class-of value) value))
             (map-tree value unfiltered-children-provider #'collect-visible-instance)
             (map-parent-chain value parent-provider #'collect-visible-instance)))))
@@ -64,5 +65,7 @@
 (def layered-method make-standard-object-tree-table-node :around ((component filtered-standard-object-tree-table-inspector) (class standard-class) (instance standard-object))
   (prog1-bind tree-node
       (call-next-method)
-    (when (gethash (hash-key-for instance) (filter-result-instances-of (parent-component-of component)))
-      (setf (css-class-of tree-node) "highlighted"))))
+    (bind ((filtered-standard-object-tree-inspector (parent-component-of component)))
+      (when (and (highlight-filtered-instances-p filtered-standard-object-tree-inspector)
+                 (gethash (hash-key-for instance) (filtered-instances-of filtered-standard-object-tree-inspector)))
+        (setf (css-class-of tree-node) "highlighted")))))
