@@ -183,7 +183,7 @@
                                (:file "wizard" :depends-on ("component"))
                                (:file "alternator" :depends-on ("reference" "command" "editable" "misc" "primitive-component"))
                                (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
-                               (:file "object-component" :depends-on ("component"))
+                               (:file "object-component" :depends-on ("misc"))
                                (:file "object-inspector" :depends-on ("place-component" "object-component" "alternator" "reference"))
                                (:file "object-maker" :depends-on ("place-component" "object-component"))
                                (:file "object-list-inspector" :depends-on ("object-component" "alternator" "reference" "table"))

@@ -10,13 +10,14 @@
 (def component persistent-process-component (standard-process-component)
   ((process)))
 
-(def constructor persistent-process-component ()
-  (setf (command-bar-of -self-) (command-bar
-                                  (make-open-in-new-frame-command -self-)
-                                  (make-top-command -self-)
-                                  (make-refresh-command -self-)
-                                  (make-cancel-persistent-process-command -self-)
-                                  (make-pause-persistent-process-command -self-))))
+(def method refresh-component ((self persistent-process-component))
+  (with-slots (process command-bar) self
+    (setf command-bar (make-standard-commands self (class-of process) process))))
+
+(def layered-method make-standard-commands ((component persistent-process-component) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
+  (append (call-next-method)
+          (optional-list (make-cancel-persistent-process-command component)
+                         (make-pause-persistent-process-command component))))
 
 (def render persistent-process-component ()
   (with-slots (process command-bar answer-continuation content) -self-
@@ -131,7 +132,7 @@
 
 (def layered-method make-standard-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
   (prc::with-revived-instance instance
-    (optional-list (make-expand-row-command component instance)
+    (optional-list (make-expand-command component class instance)
                    (when (dmm::persistent-process-initializing-p instance)
                      (make-start-persistent-process-command component instance))
                    (when (dmm::persistent-process-in-progress-p instance)

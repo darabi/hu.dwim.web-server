@@ -34,10 +34,7 @@
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-alternator-command-bar self alternatives
-                                                         (append (list (make-open-in-new-frame-command self)
-                                                                       (make-top-command self)
-                                                                       (make-refresh-command self))
-                                                                 (make-standard-commands self the-class (class-prototype the-class))))))
+                                                         (make-standard-commands self the-class (class-prototype the-class)))))
         (setf alternatives nil
               content nil))))
 
@@ -58,7 +55,7 @@
           (delay-alternative-reference-component 'standard-object-maker-reference class))))
 
 (def layered-method make-standard-commands ((component standard-object-maker) (class standard-class) (prototype standard-object))
-  (list (make-create-instance-command component)))
+  (append (list (make-create-instance-command component)) (call-next-method)))
 
 (def (function e) make-create-instance-command (component)
   (make-instance 'command-component

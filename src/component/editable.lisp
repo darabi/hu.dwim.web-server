@@ -115,12 +115,12 @@
 ;;;;;;
 ;;; Commands
 
-(def (function e) make-begin-editing-command (editable)
+(def (function e) make-begin-editing-command (editable &key visible)
   "The BEGIN-EDITING command starts editing underneath the given EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
   (make-instance 'command-component
                  :icon (icon edit)
-                 :visible (delay (not (edited-p editable)))
+                 :visible (or visible (delay (not (edited-p editable))))
                  :action (make-component-action editable
                            (begin-editing editable))))
 
@@ -160,11 +160,12 @@
                  :action (make-component-action editable
                            (revert-editing editable))))
 
-(def (function e) make-editing-commands (component)
-  (bind ((initargs-mixin (find-ancestor-component-with-type component 'initargs-component-mixin)))
-    (if (getf (initargs-of initargs-mixin) :store-mode)
-        (list (make-store-editing-command component)
-              (make-revert-editing-command component))
-        (list (make-begin-editing-command component)
-              (make-save-editing-command component)
-              (make-cancel-editing-command component)))))
+(def (layered-function e) make-editing-commands (component class instance-or-prototype)
+  (:method ((component component) (class standard-class) (instance-or-prototype standard-object))
+    (bind ((initargs-mixin (find-ancestor-component-with-type component 'initargs-component-mixin)))
+      (if (getf (initargs-of initargs-mixin) :store-mode)
+          (list (make-store-editing-command component)
+                (make-revert-editing-command component))
+          (list (make-begin-editing-command component)
+                (make-save-editing-command component)
+                (make-cancel-editing-command component))))))

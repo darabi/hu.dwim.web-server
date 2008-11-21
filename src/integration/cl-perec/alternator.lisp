@@ -4,10 +4,10 @@
 
 (in-package :hu.dwim.wui)
 
-(def dmm:operation switch-to-alternative-view-operation (dmm::standard-operation)
+(def dmm:operation replace-with-alternative-operation (dmm::standard-operation)
   ())
 
 (def method make-replace-with-alternative-command :around ((component alternator-component) alternative)
   (when (or (typep (class-prototype (the-class-of alternative)) 'reference-component)
-            (dmm::authorize-operation 'switch-to-alternative-view-operation))
+            (dmm::authorize-operation 'replace-with-alternative-operation))
     (call-next-method)))

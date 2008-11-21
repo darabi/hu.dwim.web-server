@@ -7,7 +7,19 @@
 ;;;;;;
 ;;; Customization points
 
-(def (layered-function e) make-standard-commands (component classs prototype-or-instance))
+(def (layered-function e) make-standard-commands (component classs prototype-or-instance)
+  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+    (optional-list (make-open-in-new-frame-command component class prototype-or-instance)
+                   (make-focus-command component class prototype-or-instance)))
+
+  (:method ((component inspector-component) (class standard-class) (prototype-or-instance standard-object))
+    (list* (make-refresh-command component) (call-next-method))))
+
+(def (layered-function e) make-expand-command (component class prototype-or-instance))
+
+(def (layered-function e) make-class-presentation (component class prototype-or-instance)
+  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+    (localized-class-name class)))
 
 ;;;;;;
 ;;; Abstract standard class
@@ -21,10 +33,6 @@
 
 (def method (setf component-value-of) (new-value (component abstract-standard-class-component))
   (setf (the-class-of component) new-value))
-
-(def (layered-function e) make-class-presentation (component class prototype)
-  (:method ((component component) (class standard-class) (prototype standard-object))
-    (localized-class-name class)))
 
 ;;;;;;
 ;;; Abstract standard slot definition

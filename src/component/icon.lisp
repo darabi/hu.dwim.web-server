@@ -205,21 +205,21 @@
   (icon-label.close "Close")
   (icon-tooltip.close "Close the component"))
 
-(def icon top "static/wui/icons/20x20/blue-all-direction-arrows.png")
+(def icon focus "static/wui/icons/20x20/blue-all-direction-arrows.png")
 (def resources hu
-  (icon-label.top "Tetejére")
-  (icon-tooltip.top "A lap tetejére"))
+  (icon-label.focus "Fókuszálás")
+  (icon-tooltip.focus "Fókuszálás az objektumra"))
 (def resources en
-  (icon-label.top "Top")
-  (icon-tooltip.top "Move to top"))
+  (icon-label.focus "Focus")
+  (icon-tooltip.focus "Focus on the object"))
 
 (def icon open-in-new-frame "static/wui/icons/20x20/split-vertically.png")
 (def resources hu
-  (icon-label.open-in-new-frame "Új ablakba")
+  (icon-label.open-in-new-frame "Új ablak")
   (icon-tooltip.open-in-new-frame "Az objektum új ablakban való megnyitása"))
 (def resources en
-  (icon-label.open-in-new-frame "In new window")
-  (icon-tooltip.open-in-new-frame "Open object in new frame"))
+  (icon-label.open-in-new-frame "New window")
+  (icon-tooltip.open-in-new-frame "Open object in new window"))
 
 (def icon back "static/wui/icons/20x20/green-double-left-arrow.png")
 (def resources hu

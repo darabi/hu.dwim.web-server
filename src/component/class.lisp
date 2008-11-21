@@ -25,9 +25,7 @@
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-alternator-command-bar self alternatives
-                                                         (list (make-open-in-new-frame-command self)
-                                                               (make-top-command self)
-                                                               (make-refresh-command self)))))
+                                                         (make-standard-commands self (class-of the-class) the-class))))
         (setf alternatives nil
               content nil))))
 

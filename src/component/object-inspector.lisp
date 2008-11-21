@@ -37,10 +37,7 @@
                                 (find-alternative-component alternatives default-component-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-alternator-command-bar self alternatives
-                                                         (append (list (make-open-in-new-frame-command self)
-                                                                       (make-top-command self)
-                                                                       (make-refresh-command self))
-                                                                 (make-standard-commands self (class-of instance) instance)))))
+                                                         (make-standard-commands self (class-of instance) instance))))
         (setf alternatives (list (delay-alternative-component-with-initargs 'null-component))
               content (find-default-alternative-component alternatives)))))
 
@@ -61,7 +58,7 @@
           (delay-alternative-reference-component 'standard-object-inspector-reference instance))))
 
 (def layered-method make-standard-commands ((component standard-object-inspector) (class standard-class) (instance standard-object))
-  (make-editing-commands component))
+  (append (make-editing-commands component class instance) (call-next-method)))
 
 (def (function e) make-delete-instance-command (self)
   (make-instance 'command-component

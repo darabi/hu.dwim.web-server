@@ -34,10 +34,7 @@
                           (find-alternative-component alternatives default-component-type)
                           (find-default-alternative-component alternatives))))
     (setf command-bar (make-alternator-command-bar self alternatives
-                                                   (append (list (make-open-in-new-frame-command self)
-                                                                 (make-top-command self)
-                                                                 (make-refresh-command self))
-                                                           (make-standard-commands self the-class (class-prototype the-class)))))))
+                                                   (make-standard-commands self the-class (class-prototype the-class))))))
 
 (def render standard-object-list-inspector ()
   (bind (((:read-only-slots id content) -self-))
@@ -57,7 +54,7 @@
           (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
 
 (def layered-method make-standard-commands ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
-  (make-editing-commands component))
+  (append (make-editing-commands component class prototype) (call-next-method)))
 
 ;;;;;;
 ;;; Standard object list list inspector
@@ -204,10 +201,10 @@
   (call-next-method))
 
 (def layered-method make-standard-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
-  (append (make-editing-commands component)
-          (list (make-expand-row-command component instance))))
+  (append (make-editing-commands component class instance)
+          (optional-list (make-expand-command component class instance))))
 
-(def function make-expand-row-command (component instance)
+(def layered-method make-expand-command ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer instance :default-component-type 'detail-component)))
                                       (list :icon (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))

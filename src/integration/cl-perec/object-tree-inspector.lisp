@@ -14,13 +14,3 @@
   (filter-if (lambda (slot)
                (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
              (call-next-method)))
-
-(def layered-method make-standard-commands ((component standard-object-tree-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-  (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
-    (make-editing-commands component)))
-
-(def layered-method make-standard-commands ((component standard-object-tree-node-inspector) (class prc::persistent-class) (instance prc::persistent-object))
-  (append (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
-            (make-editing-commands component))
-          (optional-list (when (dmm::authorize-operation 'expand-reference-operation :-entity- class)
-                           (make-expand-node-command component instance)))))

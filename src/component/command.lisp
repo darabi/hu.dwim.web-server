@@ -89,9 +89,10 @@
   `(make-instance 'command-bar-component :commands (list ,@commands)))
 
 (def render command-bar-component
-  (bind (((:read-only-slots commands parent-component) -self-))
-    (setf commands (sort-commands parent-component commands))
-    (render-horizontal-list commands :css-class "command-bar")))
+  (bind (((:read-only-slots parent-component commands) -self-)
+         (sorted-commands (sort-commands parent-component commands)))
+    (setf (commands-of -self-) sorted-commands)
+    (render-horizontal-list sorted-commands :css-class "command-bar")))
 
 (def render :in passive-components-layer command-bar-component
   (values))
@@ -245,26 +246,29 @@
 (def (function e) top-component-p (component)
   (eq component (find-top-component-content component)))
 
-(def (function e) make-top-command (replacement-component)
-  "The TOP command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT"
-  (bind ((original-component (delay (find-top-component-content replacement-component))))
-    (make-replace-and-push-back-command original-component replacement-component
-                                        (list :icon (icon top) :visible (delay (not (top-component-p replacement-component))))
-                                        (list :icon (icon back)))))
+(def (layered-function e) make-focus-command (component classs prototype-or-instance)
+  (:documentation "The FOCUS command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT")
+
+  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+    (bind ((original-component (delay (find-top-component-content component))))
+      (make-replace-and-push-back-command original-component component
+                                          (list :icon (icon focus) :visible (delay (not (top-component-p component))))
+                                          (list :icon (icon back))))))
 
 (def (generic e) make-frame-component-with-content (application content))
 
-(def (function e) make-open-in-new-frame-command (component)
-  (command (icon open-in-new-frame)
-           (make-action
-             (bind ((clone (clone-component component))
-                    (*frame* (make-new-frame *application* *session*)))
-               (setf (component-value-of clone) (component-value-of component))
-               (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*)
-                                                                            *frame* +frame-id-length+))
-               (register-frame *application* *session* *frame*)
-               (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
-               (make-redirect-response-with-frame-id-decorated *frame*)))
-           :js (lambda (href)
-                 `js-inline(window.open ,href))
-           :delayed-content #t))
+(def (layered-function e) make-open-in-new-frame-command (component class prototype-or-instance)
+  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+    (command (icon open-in-new-frame)
+             (make-action
+               (bind ((clone (clone-component component))
+                      (*frame* (make-new-frame *application* *session*)))
+                 (setf (component-value-of clone) (component-value-of component))
+                 (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*)
+                                                                              *frame* +frame-id-length+))
+                 (register-frame *application* *session* *frame*)
+                 (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
+                 (make-redirect-response-with-frame-id-decorated *frame*)))
+             :js (lambda (href)
+                   `js-inline(window.open ,href))
+             :delayed-content #t)))

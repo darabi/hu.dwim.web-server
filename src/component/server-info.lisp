@@ -15,8 +15,7 @@
    (command-bar :type component)))
 
 (def constructor server-info
-  (setf (command-bar-of -self-) (command-bar
-                                  (make-refresh-command -self-))))
+  (setf (command-bar-of -self-) (command-bar (make-refresh-command -self-))))
 
 (def method refresh-component ((self server-info))
   (setf (server-inspector-of self) (make-viewer (server-of self))))

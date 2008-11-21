@@ -34,14 +34,12 @@
               (setf (component-value-of content) instance)
               (setf content (if default-component-type
                                 (find-alternative-component alternatives default-component-type)
-                                (find-default-alternative-component alternatives)))))
+                                (find-default-alternative-component alternatives))))
+          (setf command-bar (make-alternator-command-bar self alternatives
+                                                         (make-standard-commands self the-class instance))))
         (setf alternatives (list (delay-alternative-component-with-initargs 'null-component))
-              content (find-default-alternative-component alternatives)))
-    (setf command-bar (make-alternator-command-bar self alternatives
-                                                   (append (list (make-open-in-new-frame-command self)
-                                                                 (make-top-command self)
-                                                                 (make-refresh-command self))
-                                                           (make-standard-commands self the-class (class-prototype the-class)))))))
+              content (find-default-alternative-component alternatives)
+              command-bar nil))))
 
 (def render standard-object-tree-inspector ()
   <div (:class "standard-object-tree")
@@ -49,7 +47,7 @@
     ,(call-next-method)>)
 
 (def layered-method make-standard-commands ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
-  (make-editing-commands component))
+  (append (make-editing-commands component class instance) (call-next-method)))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class instance)
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
@@ -196,10 +194,10 @@
   (call-next-method))
 
 (def layered-method make-standard-commands ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
-  (append (make-editing-commands component)
-          (list (make-expand-node-command component instance))))
+  (append (make-editing-commands component class instance)
+          (optional-list (make-expand-command component class instance))))
 
-(def function make-expand-node-command (component instance)
+(def layered-method make-expand-command ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-node-component) :content (make-viewer instance :default-component-type 'detail-component)))
                                       (list :icon (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))
