@@ -33,6 +33,7 @@
     (hash-table-values class-name->object-size-descriptor)))
 
 (def function %iterate-descendant-objects (root visitor &key ignored-type (mode :retained))
+  (check-type mode (member :retained :reachable))
   (bind ((seen-object-set (make-hash-table :test #'eq)))
     (labels ((recurse (object)
                (unless (or (gethash object seen-object-set)
@@ -72,9 +73,12 @@
                     ;; TODO should grab the underlying vector and check for sb-pcl::*unbound-slot-value-marker*
                     (bind ((class (class-of object)))
                       (dolist (slot (class-slots class))
-                        (recurse
-                         (ignore-errors ;; TODO KLUDGE due to some strange slot location
-                           (standard-instance-access object (slot-definition-location slot)))))))
+                        (bind ((slot-location (slot-definition-location slot)))
+                          (ecase (slot-definition-allocation slot)
+                            (:instance (recurse (if (typep object 'funcallable-standard-object)
+                                                    (funcallable-standard-instance-access object slot-location)
+                                                    (standard-instance-access object slot-location))))
+                            (:class))))))
                    #+sbcl
                    (sb-vm::code-component
                     (let ((length (sb-vm::get-header-data object)))
