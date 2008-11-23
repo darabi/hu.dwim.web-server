@@ -72,10 +72,10 @@
                <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
                   "create new session">>)))))
 
-(def entry-point (*session-application* :path "new/" :lookup-and-lock-session #f) ()
+(def entry-point (*session-application* :path "new/" :with-session-logic #f) ()
   (bind ((new-session (make-new-session *application*))
          (old-session nil))
-    (with-session/frame/action-logic ()
+    (with-session-logic ()
       ;; this voodoo is not necessary here for building a simple redirect response,
       ;; but it's here for demonstrational purposes.
       (setf old-session *session*)
@@ -94,9 +94,9 @@
         (register-frame *application* new-session new-frame)
         (make-redirect-response-for-current-application)))))
 
-(def entry-point (*session-application* :path "delete/" :lookup-and-lock-session #f) ()
+(def entry-point (*session-application* :path "delete/" :with-session-logic #f) ()
   (bind ((old-session nil))
-    (with-session/frame/action-logic ()
+    (with-session-logic ()
       (setf old-session *session*)
       (values))
     (when old-session

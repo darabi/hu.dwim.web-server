@@ -177,8 +177,10 @@
                             (create
                              :content (create :example-inline-edit-box-value (aref arguments 0))
                              :url ,(action/href (:delayed-content #t)
-                                     (with-request-params (example-inline-edit-box-value)
-                                       (setf (example-inline-edit-box-value-of *session*) example-inline-edit-box-value)))
+                                     (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
+                                       (setf (example-inline-edit-box-value-of *session*) value))
+                                     ;; TODO this is, well, proof-of-concept quality for now...
+                                     (make-do-nothing-response))
                              :load (lambda (response args)))))
            ,(example-inline-edit-box-value-of *session*)>)>))
 
@@ -355,7 +357,7 @@
 
 (def js-file-serving-entry-point *wudemo-application* "/wui/js/" (system-relative-pathname :wui "src/js/"))
 
-(def entry-point (*wudemo-application* :path "") ()
+(def entry-point (*wudemo-application* :path "" :ensure-session #f :ensure-frame #t) ()
   (if *session*
       (progn
         (assert (and (boundp '*frame*) *frame*))
@@ -372,7 +374,7 @@
 (def entry-point (*wudemo-application* :path "help/") ()
   (make-component-rendering-response (make-wudemo-frame-component)))
 
-(def entry-point (*wudemo-application* :path +login-entry-point-path+ :lookup-and-lock-session #f)
+(def entry-point (*wudemo-application* :path +login-entry-point-path+ :with-session-logic #f)
     (identifier password continue-uri user-action)
   (%login-entry-point identifier password continue-uri user-action))
 
@@ -394,7 +396,7 @@
   ;; ok, params are all ready for being processed
   (bind ((application *application*)
          (authenticated-subject nil))
-    (with-session/frame/action-logic ()
+    (with-session-logic ()
       (when *session*
         ;;(authentication.dribble "Login entry point reached while we already have a session: ~A" *session*)
         (return-from %login-entry-point
