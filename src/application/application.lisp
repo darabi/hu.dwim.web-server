@@ -91,95 +91,20 @@
   (:method (application session frame (action funcallable-standard-object))
     (funcall action)))
 
-(def generic call-as-handler-in-session (application session thunk)
-  (:method :before ((application application) (session session) thunk)
-    (assert-session-lock-held session)
-    (notify-activity session))
-  (:method ((application application) (session session) thunk)
-    (bind ((local-time:*default-timezone* (client-timezone-of session))
-           (frame (find-frame-from-request session)))
-      (flet ((send-response-early (response)
-               (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and CALL-AS-HANDLER-IN-SESSION's dynamic scope" response)
-               (decorate-application-response application response)
-               (send-response response)
-               (make-do-nothing-response)))
-        (if frame
-            (restart-case
-                (progn
-                  (setf *frame* frame)
-                  (notify-activity frame)
-                  (process-client-state-sinks frame (query-parameters-of *request*))
-                  (bind ((action (find-action-from-request frame))
-                         (incoming-frame-index (parameter-value +frame-index-parameter-name+))
-                         (current-frame-index (frame-index-of frame))
-                         (next-frame-index (next-frame-index-of frame)))
-                    (unless (stringp current-frame-index)
-                      (setf current-frame-index (integer-to-string current-frame-index)))
-                    (unless (stringp next-frame-index)
-                      (setf next-frame-index (integer-to-string next-frame-index)))
-                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index current-frame-index next-frame-index action)
-                    (cond
-                      ((and action
-                            incoming-frame-index)
-                       (bind ((original-frame-index nil))
-                         (unwind-protect-case ()
-                             (progn
-                               (unless (equal incoming-frame-index next-frame-index)
-                                 (frame-out-of-sync-error frame))
-                               (app.dribble "Found an action and frame is in sync...")
-                               (unless *delayed-content-request*
-                                 (setf original-frame-index (step-to-next-frame-index frame)))
-                               (app.dribble "Calling action...")
-                               (bind ((response (call-action application session frame action)))
-                                 (when (typep response 'response)
-                                   (return-from call-as-handler-in-session
-                                     (if (typep response 'locked-session-response-mixin)
-                                         (send-response-early response)
-                                         response)))))
-                           (:abort
-                            (when original-frame-index
-                              (revert-step-to-next-frame-index frame original-frame-index))))))
-                      (incoming-frame-index
-                       (unless (equal incoming-frame-index current-frame-index)
-                         (frame-out-of-sync-error frame)))
-                      (t
-                       (if *ajax-aware-request*
-                           (frame-out-of-sync-error frame)
-                           (return-from call-as-handler-in-session
-                             (make-uri-for-current-application)))))
-                    (app.dribble "Action logic fell through, proceeding to the thunk...")))
-              (delete-current-frame ()
-                :report (lambda (stream)
-                          (format stream "Delete frame ~A" frame))
-                (mark-expired frame)
-                (invoke-retry-handling-request-restart)))
-            (if *ajax-aware-request*
-                (frame-not-found-error)
-                (progn
-                  (setf frame (make-new-frame application session))
-                  (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
-                                                                             frame +frame-id-length+))
-                  (register-frame application session frame)
-                  (setf *frame* frame))))
-       (bind ((response (funcall thunk)))
-         (if (and response
-                  (typep response 'locked-session-response-mixin))
-             (send-response-early response)
-             response))))))
-
-(def (with-macro* eo) with-session/frame/action-logic (&key ensure-session)
+(def (with-macro* eo) with-session-logic (&key ensure-session (requires-valid-session #t) (lock-session #t))
   (assert (and (boundp '*application*)
                *application*
                (boundp '*session*)
                (boundp '*frame*))
-          () "May not use WITH-SESSION/FRAME/ACTION-LOGIC outside the dynamic extent of an application")
+          () "May not use WITH-SESSION-LOGIC outside the dynamic extent of an application")
   (bind ((application *application*)
          (session nil)
+         (session-instance nil)
          (session-cookie-exists? #f)
          (invalidity-reason nil))
     (app.debug "Request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
     (with-lock-held-on-application (application)
-      (setf (values session session-cookie-exists? invalidity-reason)
+      (setf (values session session-cookie-exists? invalidity-reason session-instance)
             (find-session-from-request application))
       (when (and (not session)
                  ensure-session)
@@ -187,36 +112,157 @@
         (register-session application session))
       ;; FIXME locking the session below should happen while having the lock to the application
       )
+    (abort-request-unless-still-valid)
     (setf *session* session)
     (if session
-        (restart-case
-            (with-lock-held-on-session (session)
-              (call-in-application-environment
-               application session (lambda ()
-                                     (call-as-handler-in-session
-                                      application session (lambda ()
-                                                            (-body-))))))
-          (delete-current-session ()
-            :report (lambda (stream)
-                      (format stream "Delete session ~A" session))
-            (mark-expired session)
-            (invoke-retry-handling-request-restart)))
-        (bind ((*frame* nil))
-          (if session-cookie-exists?
-              (progn
-                (app.debug "Found the session cookie, but it does not designate a valid session. Calling HANDLE-REQUEST-TO-INVALID-SESSION.")
-                (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
-                  (decorate-application-response application response)
-                  response))
-              (progn
-                (app.debug "No session cookie, simply calling the body...")
-                (-body-)))))))
+        (bind ((local-time:*default-timezone* (client-timezone-of session)))
+          (restart-case
+              (if lock-session
+                  (with-lock-held-on-session (session)
+                    (when (is-request-still-valid?)
+                      (call-in-application-environment application session #'-body-)))
+                  (call-in-application-environment application session #'-body-))
+            (delete-current-session ()
+              :report (lambda (stream)
+                        (format stream "Delete session ~A and rety handling the request" session))
+              (mark-expired session)
+              (invoke-retry-handling-request-restart))))
+        (if requires-valid-session
+            (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
+              (decorate-application-response application response)
+              response)
+            (-body-)))))
+
+(def (with-macro* eo) with-frame-logic (&key (requires-valid-frame #t) (ensure-frame #f))
+  (assert (and *application* *session* (boundp '*frame*)) () "May not use WITH-FRAME-LOGIC without a proper environment")
+  (bind ((application *application*)
+         (session *session*)
+         ((:values frame frame-id-parameter-received? invalidity-reason frame-instance) (when session
+                                                                                          (find-frame-from-request session))))
+    (setf *frame* frame)
+    (app.dribble "WITH-FRAME-LOGIC looked up frame ~A from session ~A" frame session)
+    (if frame
+        (-body-)
+        (cond
+          ((and requires-valid-frame
+                (or (not session)
+                    frame-id-parameter-received?))
+           (handle-request-to-invalid-frame application session frame-instance invalidity-reason))
+          ((and ensure-frame
+                *session*)
+           ;; set up a new frame and fall through to the entry points to set up a root-component to their favour
+           (setf frame (make-new-frame application session))
+           (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
+                                                                      frame +frame-id-length+))
+           (register-frame application session frame)
+           (setf *frame* frame)
+           (-body-))
+          (t
+           (-body-))))))
+
+(def (with-macro* eo) with-action-logic ()
+  (assert (and *application* (boundp '*session*) (boundp '*frame*)) () "May not use WITH-ACTION-LOGIC without a proper application/session/frame dynamic environment")
+  (bind ((application *application*)
+         (session *session*)
+         (frame *frame*))
+    (assert-session-lock-held session)
+    ;; TODO here? find its place...
+    (notify-activity session)
+    (flet ((send-response-early (response)
+             (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and WITH-ACTION-LOGIC's dynamic scope" response)
+             (decorate-application-response application response)
+             (send-response response)
+             (make-do-nothing-response)))
+      (bind ((response
+              (if frame
+                  (progn
+                    (restart-case
+                        (progn
+                          (setf *frame* frame)
+                          (notify-activity frame)
+                          (process-client-state-sinks frame (query-parameters-of *request*))
+                          (bind ((action (find-action-from-request frame))
+                                 (incoming-frame-index (parameter-value +frame-index-parameter-name+))
+                                 (current-frame-index (frame-index-of frame))
+                                 (next-frame-index (next-frame-index-of frame)))
+                            (unless (stringp current-frame-index)
+                              (setf current-frame-index (integer-to-string current-frame-index)))
+                            (unless (stringp next-frame-index)
+                              (setf next-frame-index (integer-to-string next-frame-index)))
+                            (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index current-frame-index next-frame-index action)
+                            (cond
+                              ((and action
+                                    incoming-frame-index)
+                               (bind ((original-frame-index nil))
+                                 (unwind-protect-case ()
+                                     (if (equal incoming-frame-index next-frame-index)
+                                         (progn
+                                           (app.dribble "Found an action and frame is in sync...")
+                                           (unless *delayed-content-request*
+                                             (setf original-frame-index (step-to-next-frame-index frame)))
+                                           (app.dribble "Calling action...")
+                                           (bind ((response (call-action application session frame action)))
+                                             (when (typep response 'response)
+                                               (return-from with-action-logic
+                                                 (if (typep response 'locked-session-response-mixin)
+                                                     (send-response-early response)
+                                                     response)))))
+                                         (handle-request-to-invalid-frame application session frame :out-of-sync))
+                                   (:abort
+                                    (when original-frame-index
+                                      (revert-step-to-next-frame-index frame original-frame-index))))))
+                              (incoming-frame-index
+                               (unless (equal incoming-frame-index current-frame-index)
+                                 (handle-request-to-invalid-frame application session frame :out-of-sync)))
+                              #+nil ; TODO think about this. when the frame is registeres, there's no frame index param, but it's still a valid request
+                              (t
+                               (frame-index-missing-error frame)))
+                            (app.dribble "Action logic fell through, proceeding to the thunk...")))
+                      (delete-current-frame ()
+                        :report (lambda (stream)
+                                  (format stream "Delete frame ~A" frame))
+                        (mark-expired frame)
+                        (invoke-retry-handling-request-restart)))
+                    (-body-))
+                  (if *ajax-aware-request*
+                      ;; we can't find a valid frame but received an ajax aware request. for now treat this as an
+                      ;; error until a valid use-case requires something else...
+                      (frame-not-found-error)
+                      (-body-)))))
+        (if (and response
+                 (typep response 'locked-session-response-mixin))
+            (send-response-early response)
+            response)))))
 
 (def (generic e) handle-request-to-invalid-session (application session invalidity-reason)
   (:method ((application application) session invalidity-reason)
     (declare (type (member :nonexistent :timed-out :invalidated) invalidity-reason)
              (type (or null session) session))
     (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is sending a redirect response to ~A" application)
+    (make-redirect-response-for-current-application)))
+
+(def (generic e) handle-request-to-invalid-frame (application session frame invalidity-reason)
+  (:method ((application application) session frame invalidity-reason)
+    (declare (type (member :nonexistent :timed-out :invalidated :out-of-sync) invalidity-reason)
+             (type (or null frame) frame))
+    (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
+    (if (eq invalidity-reason :out-of-sync)
+        (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
+               (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))
+               (args (list refresh-href new-frame-href)))
+          (emit-simple-html-document-response (:status +http-not-acceptable+
+                                               :headers #.(list 'quote +disallow-response-caching-header-values+))
+            (lookup-resource 'render-frame-out-of-sync-error
+                             :arguments args
+                             :otherwise (lambda ()
+                                          (apply 'render-frame-out-of-sync-error/english args)))))
+        (make-redirect-response-for-current-application))))
+
+(def (generic e) handle-request-to-invalid-action (application session frame action invalidity-reason)
+  (:method ((application application) session frame action invalidity-reason)
+    (declare (type (member :nonexistent :timed-out :invalidated) invalidity-reason)
+             (type (or null action) action))
+    (app.debug "Default HANDLE-REQUEST-TO-INVALID-ACTION is sending a redirect response to ~A" application)
     (make-redirect-response-for-current-application)))
 
 (def (function e) invoke-delete-current-frame-restart ()
@@ -385,7 +431,7 @@ Custom implementations should look something like this:
   ((home-package))
   (:metaclass funcallable-standard-class))
 
-(def method call-as-handler-in-session :around ((application application-with-home-package) session thunk)
+(def method call-in-application-environment :around ((application application-with-home-package) session thunk)
   (let ((*package* (home-package-of application)))
     (call-next-method)))
 

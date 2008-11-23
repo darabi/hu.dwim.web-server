@@ -48,8 +48,8 @@
                                                      (with-continue-restart #t))
   (when (debug-on-error broker condition)
     (typecase condition
-      ;; skip a few errors that we probably don't want to catch in the debugger...
-      (frame-out-of-sync-error)
+      ;; this is a place to skip errors that we don't want to catch in the debugger...
+      ;; (frame-index-missing-error)
       (t (invoke-slime-debugger condition :with-continue-restart with-continue-restart)))))
 
 (def function invoke-slime-debugger (condition &key (with-continue-restart #t))

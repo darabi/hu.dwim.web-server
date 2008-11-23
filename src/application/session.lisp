@@ -95,10 +95,12 @@
   (bind ((session-id (cookie-value +session-cookie-name+))
          (cookie-exists? (not (null session-id)))
          (session nil)
+         (session-instance nil)
          (invalidity-reason nil))
     (when session-id
       (app.debug "Found session-id parameter ~S" session-id)
-      (setf session (gethash session-id (session-id->session-of application)))
+      (setf session-instance (gethash session-id (session-id->session-of application)))
+      (setf session session-instance)
       (if session
           (bind ((alive?))
             (setf (values alive? invalidity-reason) (is-session-alive? session))
@@ -108,5 +110,4 @@
                   (app.debug "Looked up as a session, but it's not valid anymore due to ~S. It's ~A." invalidity-reason session)
                   (setf session nil))))
           (setf invalidity-reason :nonexistent)))
-    (values session cookie-exists? invalidity-reason)))
-
+    (values session cookie-exists? invalidity-reason session-instance)))

@@ -293,6 +293,13 @@
         (http.info "Handled request in ~,3f secs, ~,3f MB allocated (request came from ~S for ~S)"
                    seconds (/ bytes-allocated 1024 1024) remote-host raw-uri)))))
 
+(def (function e) is-request-still-valid? ()
+  (iolib:socket-connected-p (network-stream-of *request*)))
+
+(def (function e) abort-request-unless-still-valid ()
+  (unless (is-request-still-valid?)
+    (abort-server-request "The request's socket is not connected anymore")))
+
 
 ;;;;;;;;;;;;;;;;;
 ;;; serving stuff

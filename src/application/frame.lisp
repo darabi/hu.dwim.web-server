@@ -9,10 +9,10 @@
 (def (condition* e) frame-related-request-processing-error (request-processing-error)
   ((frame nil)))
 
-(def (condition* e) frame-out-of-sync-error (frame-related-request-processing-error)
+(def (condition* e) frame-index-missing-error (frame-related-request-processing-error)
   ())
-(def function frame-out-of-sync-error (&optional (frame *frame*))
-  (error 'frame-out-of-sync-error :frame frame))
+(def function frame-index-missing-error (&optional (frame *frame*))
+  (error 'frame-index-missing-error :frame frame))
 
 (def (condition* e) frame-not-found-error (frame-related-request-processing-error)
   ())
@@ -36,7 +36,8 @@
    (client-state-sink-id->client-state-sink (make-hash-table :test 'equal))
    (action-id->action (make-hash-table :test 'equal))
    (root-component nil :export #t)
-   (debug-component-hierarchy #f :type boolean)))
+   (debug-component-hierarchy #f :type boolean)
+   (valid #t :accessor is-frame-valid? :export :accessor)))
 
 (def print-object (frame :identity #t :type #f)
   (print-object-for-string-id-mixin -self-)
@@ -54,17 +55,32 @@
   ;; TODO optimize
   (format nil "~A~A" prefix (incf (unique-counter-of frame))))
 
+(def function is-frame-alive? (frame)
+  (cond
+    ((not (is-frame-valid? frame)) (values #f :invalidated))
+    ((is-timed-out? frame) (values #f :timed-out))
+    (t (values #t))))
+
 (def (function o) find-frame-from-request (session)
-  (bind ((frame-id (parameter-value +frame-id-parameter-name+)))
+  (bind ((frame-id (parameter-value +frame-id-parameter-name+))
+         (frame nil)
+         (frame-instance nil)
+         (invalidity-reason nil))
     (when frame-id
       (app.debug "Found frame-id parameter ~S" frame-id)
-      (bind ((frame (gethash frame-id (frame-id->frame-of session))))
-        (if (and frame
-                 (not (is-timed-out? frame)))
-            (progn
-              (app.debug "Looked up as valid frame ~A" frame)
-              frame)
-            (values))))))
+      (progn
+        (setf frame-instance (gethash frame-id (frame-id->frame-of session)))
+        (setf frame frame-instance)
+        (if frame
+            (bind ((alive? #f))
+              (setf (values alive? invalidity-reason) (is-frame-alive? frame))
+              (if alive?
+                  (app.debug "Looked up as valid, alive frame ~A" frame)
+                  (progn
+                    (app.debug "Looked up as a frame, but it's not valid anymore due to ~S. It's ~A." invalidity-reason frame)
+                    (setf frame nil))))
+            (setf invalidity-reason :nonexistent))))
+    (values frame (not (null frame-id)) invalidity-reason frame-instance)))
 
 (def method purge-frames (application (session session))
   (assert-session-lock-held session)

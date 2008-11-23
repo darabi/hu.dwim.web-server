@@ -71,33 +71,55 @@
   entry-point)
 
 (def (definer e) entry-point ((application &rest args &key
+                                           (with-session-logic #t)
                                            (ensure-session #f)
-                                           (lookup-and-lock-session #t)
+                                           (with-frame-logic with-session-logic)
+                                           (requires-valid-frame #t)
+                                           (ensure-frame #f)
+                                           (with-action-logic with-frame-logic)
                                            (path nil path-p)
                                            (path-prefix nil path-prefix-p)
                                            class &allow-other-keys)
                                request-lambda-list &body body)
   (declare (ignore path path-prefix))
-  (remove-from-plistf args :class :lookup-and-lock-session)
+  (bind ((boolean-values (list with-session-logic ensure-session with-frame-logic requires-valid-frame ensure-frame with-action-logic)))
+    (unless (every [typep !1 'boolean] boolean-values)
+      (error "The entry-point definer does not evaluate many of its boolean keyword arguments, so they must be either T or NIL. Please check them: ~S" boolean-values)))
+  (when (and with-frame-logic (not with-session-logic))
+    (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
+  (when (and with-action-logic (not with-frame-logic))
+    (error "Can't use WITH-ACTION-LOGIC without WITH-FRAME-LOGIC"))
+  (remove-from-plistf args :class :with-session-logic :ensure-session :with-frame-logic :ensure-frame :requires-valid-frame :with-action-logic)
   (assert (not (and path-p path-prefix-p)))
-  (assert (or (not ensure-session) lookup-and-lock-session) () "It's quite contradictory to ask for ENSURE-SESSION without LOOKUP-AND-LOCK-SESSION")
+  (assert (or (not ensure-session) with-session-logic) () "It's quite contradictory to ask for ENSURE-SESSION without WITH-SESSION-LOGIC")
+  (assert (or (not ensure-frame) with-frame-logic) () "It's quite contradictory to ask for ENSURE-FRAME without WITH-FRAME-LOGIC")
   (unless class
     (when path-p
       (setf class ''path-entry-point))
     (when path-prefix-p
       (setf class ''path-prefix-entry-point)))
-  (with-unique-names (request)
-    `(ensure-entry-point ,application
-                         (make-instance
-                          ,class ,@args
-                          :handler (lambda (,request)
-                                     (block entry-point
-                                       (with-request-params* ,request ,request-lambda-list
-                                         ,(if lookup-and-lock-session
-                                              `(with-session/frame/action-logic (:ensure-session ,ensure-session)
-                                                 ,@body)
-                                              `(progn
-                                                 ,@body)))))))))
+  (bind ((final-body body))
+    (when with-action-logic
+      (setf final-body
+            `((with-action-logic ()
+                ,@final-body))))
+    (when with-frame-logic
+      (setf final-body
+            `((with-frame-logic (:requires-valid-frame ,requires-valid-frame
+                                 :ensure-frame ,ensure-frame)
+                ,@final-body))))
+    (when with-session-logic
+      (setf final-body
+            `((with-session-logic (:ensure-session ,ensure-session)
+                ,@final-body))))
+    (with-unique-names (request)
+      `(ensure-entry-point ,application
+                           (make-instance
+                            ,class ,@args
+                            :handler (lambda (,request)
+                                       (block entry-point
+                                         (with-request-params* ,request ,request-lambda-list
+                                           ,@final-body))))))))
 
 (def (definer e) file-serving-entry-point (application path-prefix root-directory)
   `(ensure-entry-point ,application (make-file-serving-broker ,path-prefix ,root-directory)))
