@@ -101,13 +101,13 @@
   (icon-label.logout "Logout")
   (icon-tooltip.logout "Leave the current session and remove all privileges previously gained by authentication"))
 
-(def icon impersonalization "static/wui/icons/20x20/vcr-play-with-people.png")
+(def icon impersonalize "static/wui/icons/20x20/vcr-play-with-people.png")
 (def resources hu
-  (icon-label.impersonalization "Megszemélyesítés")
-  (icon-tooltip.impersonalization "A kiválasztott alany megszemélyesítése"))
+  (icon-label.impersonalize "Megszemélyesítés")
+  (icon-tooltip.impersonalize "A kiválasztott alany megszemélyesítése"))
 (def resources en
-  (icon-label.impersonalization "Impersonalization")
-  (icon-tooltip.impersonalization "Impersonalize the selected subject"))
+  (icon-label.impersonalize "Impersonalization")
+  (icon-tooltip.impersonalize "Impersonalize the selected subject"))
 
 (def icon cancel-impersonalization "static/wui/icons/20x20/vcr-backward-with-people.png")
 (def resources hu
