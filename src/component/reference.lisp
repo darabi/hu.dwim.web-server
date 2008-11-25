@@ -19,7 +19,8 @@
 
 (def method refresh-component ((self reference-component))
   (with-slots (target expand-command) self
-    (setf (label-of (icon-of expand-command)) (make-reference-label self (class-of target) target))))
+    (when (typep expand-command 'command-component)
+      (setf (label-of (icon-of expand-command)) (make-reference-label self (class-of target) target)))))
 
 (def render reference-component ()
   (render (expand-command-of -self-)))
@@ -32,8 +33,9 @@
   (:method ((component reference-component) class target)
     (princ-to-string (target-of component))))
 
-(def (function e) make-expand-reference-command (original-component replacement-component)
-  (make-replace-command original-component replacement-component :icon (icon expand)))
+(def (layered-function e) make-expand-reference-command (reference class target expansion)
+  (:method ((reference reference-component) (class standard-class) target expansion)
+    (make-replace-command reference expansion :icon (icon expand))))
 
 ;;;;;;
 ;;; Reference list

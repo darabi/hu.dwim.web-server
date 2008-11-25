@@ -95,6 +95,8 @@
        (setf-expand-reference-to-default-alternative-command reference))))
 
 (def function setf-expand-reference-to-default-alternative-command (reference)
-  (setf (expand-command-of reference)
-        (make-expand-reference-command reference (delay (find-default-alternative-component (alternatives-of (parent-component-of reference))))))
+  (bind ((target (target-of reference)))
+    (setf (expand-command-of reference)
+          (make-expand-reference-command reference (class-of target) target
+                                         (delay (find-default-alternative-component (alternatives-of (parent-component-of reference)))))))
   reference)

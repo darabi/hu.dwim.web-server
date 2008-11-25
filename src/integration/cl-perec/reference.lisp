@@ -7,6 +7,11 @@
 (def (dmm:operation e) expand-instance-operation (dmm::standard-operation)
   ())
 
+(def layered-method make-expand-reference-command ((reference reference-component) (class dmm::entity) target expansion)
+  (if (dmm::authorize-operation 'expand-instance-operation :-entity- class)
+      (call-next-method)
+      (make-reference-label reference class target)))
+
 (def method make-reference-label ((reference standard-object-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
   (reuse-standard-object-inspector-reference reference)
   (localized-instance-name instance))
