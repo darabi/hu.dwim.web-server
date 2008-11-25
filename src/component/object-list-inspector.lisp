@@ -20,8 +20,8 @@
   (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives)
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
 
-(def (macro e) standard-object-list-inspector (instances)
-  `(make-instance 'standard-object-list-inspector :instances ,instances))
+(def (macro e) standard-object-list-inspector (instances &rest args)
+  `(make-instance 'standard-object-list-inspector :instances ,instances ,@args))
 
 (def method refresh-component ((self standard-object-list-inspector))
   (with-slots (instances the-class default-component-type alternatives content command-bar) self

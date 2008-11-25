@@ -51,7 +51,7 @@
     't-inspector)
 
   (:method ((type cl-perec:set-type))
-    'standard-object-list-inspector)
+    `(standard-object-list-inspector :the-class ,(prc::element-type-of type)))
 
   (:method ((type cl-perec:ip-address-type))
     'ip-address-inspector))

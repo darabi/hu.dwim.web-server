@@ -17,30 +17,11 @@
 ;;; Time selector
 
 (def component time-selector (timestamp-inspector)
-  ((edited #t)))
+  ()
+  (:default-initargs :edited #t))
 
 (def (macro e) time-selector (time)
   `(make-instance 'time-selector :component-value ,time))
-
-;;;;;;
-;;; Validity provider
-
-(def component validity-provider (content-component)
-  ((validity-begin :type prc::timestamp)
-   (validity-end :type prc::timestamp)))
-
-(def (macro e) validity-provider ((&key validity validity-begin validity-end) &body forms)
-  `(make-instance 'validity-provider
-                  :content (progn ,@forms)
-                  :validity-begin ,(if validity
-                                       (prc::first-moment-for-partial-timestamp validity)
-                                       validity-begin)
-                  :validity-end ,(if validity
-                                     (prc::last-moment-for-partial-timestamp validity)
-                                     validity-end)))
-
-(def call-in-component-environment validity-provider ()
-  (prc::call-with-validity-range (validity-begin-of -self-) (validity-end-of -self-) #'call-next-method))
 
 ;;;;;;
 ;;; Validity selector
@@ -64,24 +45,22 @@
         (not-yet-implemented))))
 
 ;;;;;;
-;;; Validity selector and provider
+;;; Validity provider
 
-(def component validity-selector-and-provider (validity-selector content-component)
-  ())
+(def component validity-provider (content-component)
+  ((selector :type component)))
 
-(def (macro e) validity-selector-and-provider ((&key validity) &body forms)
-  `(make-instance 'validity-selector-and-provider
+(def (macro e) validity-provider ((&key validity) &body forms)
+  `(make-instance 'validity-provider
                   :content (progn ,@forms)
-                  :component-value ,(if (stringp validity)
-                                        (parse-integer validity)
-                                        validity)))
+                  :selector (validity-selector :validity ,validity)))
 
-(def render validity-selector-and-provider ()
-  <div ,(call-next-method)
-       ,(render (content-of -self-)) >)
+(def render validity-provider ()
+  <div ,(render (selector-of -self-))
+       ,(call-next-method) >)
 
-(def call-in-component-environment validity-selector-and-provider ()
-  (bind ((year (component-value-of -self-)))
+(def call-in-component-environment validity-provider ()
+  (bind ((year (component-value-of (selector-of -self-))))
     (prc::call-with-validity-range (local-time:encode-timestamp 0 0 0 0 1 1 year :offset 0)
                                    (local-time:encode-timestamp 0 0 0 0 1 1 (1+ year) :offset 0)
                                    #'call-next-method)))
