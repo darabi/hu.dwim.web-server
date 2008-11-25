@@ -78,9 +78,9 @@
 ;;;;;;
 ;;; Fake login
 
-(def (component ea) fake-identifier-and-password-login-component ()
-  ((identifier nil)
-   (password nil)
+(def (component e) fake-identifier-and-password-login-component ()
+  ((identifier nil :export :accessor)
+   (password nil :export :accessor)
    (comment nil))
   (:documentation "Useful to render one-click logins in test mode"))
 
