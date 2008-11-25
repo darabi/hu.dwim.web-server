@@ -126,14 +126,17 @@
             (mapc #'register-slot (collect-standard-object-tree-table-inspector-slots self the-class (class-prototype the-class))))
           (register-instance instance))
         (mapcar (lambda (slot-name->slot)
-                  (make-instance 'column-component
-                                 :content (label (localized-slot-name (cdr slot-name->slot)))
-                                 :cell-factory (lambda (node-component)
-                                                 (bind ((slot (find-slot (class-of (instance-of node-component)) (car slot-name->slot))))
-                                                   (if slot
-                                                       (make-instance 'standard-object-slot-value-cell-component :instance (instance-of node-component) :slot slot)
-                                                       (make-instance 'cell-component :content "N/A"))))))
+                  (make-standard-object-tree-table-inspector-slot-column (localized-slot-name (cdr slot-name->slot)) (car slot-name->slot)))
                 (nreverse slot-name->slot-map))))))
+
+(def (function e) make-standard-object-tree-table-inspector-slot-column (label slot-name)
+  (make-instance 'column-component
+                 :content label
+                 :cell-factory (lambda (node-component)
+                                 (bind ((slot (find-slot (class-of (instance-of node-component)) slot-name)))
+                                   (if slot
+                                       (make-instance 'standard-object-slot-value-cell-component :instance (instance-of node-component) :slot slot)
+                                       "")))))
 
 (def (layered-function e) collect-standard-object-tree-table-inspector-slots (component class instance)
   (:method ((component standard-object-tree-table-inspector) (class standard-class) instance)
