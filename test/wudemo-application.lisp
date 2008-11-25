@@ -150,14 +150,20 @@
               (t (inline-component <span "wudemo start page">)))))))
 
 (def function make-unauthenticated-menu-component ()
-  (menu nil
-    (menu-item (command #"menu.front-page" (make-application-relative-uri "")))
-    (menu-item (command #"menu.help" (make-application-relative-uri "help/")))
-    (menu-item (command #"menu.login" (make-application-relative-uri +login-entry-point-path+)))
-    (menu-item (command #"menu.about" (make-application-relative-uri "about/")))
-    (menu-item (command #"menu.example-rendering-error" (bind ((uri (make-application-relative-uri "")))
-                                                          (setf (uri-query-parameter-value uri "example-error") "t")
-                                                          uri)))))
+  (macrolet ((command* (title path)
+               `(command ,title
+                         ,(if (stringp path)
+                              `(make-application-relative-uri ,path)
+                              path)
+                         :send-client-state #f)))
+    (menu nil
+      (menu-item (command* #"menu.front-page"              ""))
+      (menu-item (command* #"menu.help"                    "help/"))
+      (menu-item (command* #"menu.login"                   +login-entry-point-path+))
+      (menu-item (command* #"menu.about"                   "about/"))
+      (menu-item (command* #"menu.example-rendering-error" (bind ((uri (make-application-relative-uri "")))
+                                                            (setf (uri-query-parameter-value uri "example-error") "t")
+                                                            uri))))))
 
 ;; TODO the onChange part hould be this simple, but it needs qq work.
 ;; ,(js-to-lisp-rpc
