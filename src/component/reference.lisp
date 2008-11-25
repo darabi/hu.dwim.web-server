@@ -34,7 +34,7 @@
     (princ-to-string (target-of component))))
 
 (def (layered-function e) make-expand-reference-command (reference class target expansion)
-  (:method ((reference reference-component) (class standard-class) target expansion)
+  (:method ((reference reference-component) class target expansion)
     (make-replace-command reference expansion :icon (icon expand))))
 
 ;;;;;;
