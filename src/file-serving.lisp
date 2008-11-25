@@ -19,6 +19,7 @@
 
 (def class* file-serving-broker (broker-with-path-prefix)
   ((root-directory)
+   ;; TODO (files-only #f)
    (file-path->cache-entry (make-hash-table :test 'equal)))
   (:metaclass funcallable-standard-class))
 

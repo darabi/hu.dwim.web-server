@@ -235,7 +235,7 @@
                                                                     (component-value-of value-component))))))))
                              (when predicate
                                (collect predicate)))))
-      (prog1-bind instances nil
+      (bind ((instances ()))
         (sb-vm::map-allocated-objects
          (lambda (instance type size)
            (declare (ignore type size))
@@ -246,7 +246,9 @@
                                  (funcall predicate instance))
                                predicates))
                (push instance instances))))
-         :dynamic)))))
+         :dynamic
+         t)
+        instances))))
 
 (def resources en
   (no-matches-were-found "No matching objects were found"))

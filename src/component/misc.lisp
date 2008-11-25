@@ -22,6 +22,7 @@
 ;;;;;;
 ;;; Top
 
+;; TODO rename to focus- something
 (def component top-component (remote-identity-component-mixin content-component)
   ()
   (:documentation "The top command will replace the content of a top-component with the component which the action refers to."))
