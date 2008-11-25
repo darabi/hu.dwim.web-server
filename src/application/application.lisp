@@ -134,7 +134,7 @@
             (-body-)))))
 
 (def (with-macro* eo) with-frame-logic (&key (requires-valid-frame #t) (ensure-frame #f))
-  (assert (and *application* *session* (boundp '*frame*)) () "May not use WITH-FRAME-LOGIC without a proper environment")
+  (assert (and *application* *session* (boundp '*frame*)) () "May not use WITH-FRAME-LOGIC without a proper session in the environment")
   (bind ((application *application*)
          (session *session*)
          ((:values frame frame-id-parameter-received? invalidity-reason frame-instance) (when session
@@ -161,7 +161,7 @@
            (-body-))))))
 
 (def (with-macro* eo) with-action-logic ()
-  (assert (and *application* (boundp '*session*) (boundp '*frame*)) () "May not use WITH-ACTION-LOGIC without a proper application/session/frame dynamic environment")
+  (assert (and *application* *session* *frame*) () "May not use WITH-ACTION-LOGIC without a proper application/session/frame dynamic environment")
   (bind ((application *application*)
          (session *session*)
          (frame *frame*))

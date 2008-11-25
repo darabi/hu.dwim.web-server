@@ -104,27 +104,33 @@
       (setf class ''path-entry-point))
     (when path-prefix-p
       (setf class ''path-prefix-entry-point)))
-  (bind ((final-body body))
+  (bind ((wrapper-expression '(entry-point)))
     (when with-action-logic
-      (setf final-body
-            `((with-action-logic ()
-                ,@final-body))))
+      (setf wrapper-expression
+            `(if *frame*
+                 (with-action-logic ()
+                   ,wrapper-expression)
+                 ,wrapper-expression)))
     (when with-frame-logic
-      (setf final-body
-            `((with-frame-logic (:requires-valid-frame ,requires-valid-frame :ensure-frame ,ensure-frame)
-                ,@final-body))))
+      (setf wrapper-expression
+            `(if *session*
+                 (with-frame-logic (:requires-valid-frame ,requires-valid-frame :ensure-frame ,ensure-frame)
+                   ,wrapper-expression)
+                 ,wrapper-expression)))
     (when with-session-logic
-      (setf final-body
-            `((with-session-logic (:requires-valid-session ,requires-valid-session :ensure-session ,ensure-session)
-                ,@final-body))))
+      (setf wrapper-expression
+            `(with-session-logic (:requires-valid-session ,requires-valid-session :ensure-session ,ensure-session)
+               ,wrapper-expression)))
     (with-unique-names (request)
       `(ensure-entry-point ,application
                            (make-instance
                             ,class ,@args
                             :handler (lambda (,request)
-                                       (block entry-point
-                                         (with-request-params* ,request ,request-lambda-list
-                                           ,@final-body))))))))
+                                       (flet ((entry-point ()
+                                                ;; in an intentionally visible BLOCK called 'entry-point
+                                                (with-request-params* ,request ,request-lambda-list
+                                                  ,@body)))
+                                         ,wrapper-expression)))))))
 
 (def (definer e) file-serving-entry-point (application path-prefix root-directory)
   `(ensure-entry-point ,application (make-file-serving-broker ,path-prefix ,root-directory)))
