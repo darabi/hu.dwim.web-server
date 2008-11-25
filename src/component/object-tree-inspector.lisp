@@ -373,11 +373,14 @@
 (def component selectable-standard-object-tree-node-inspector (standard-object-tree-node-inspector)
   ())
 
+(def (layered-function e) selected-component-p (component)
+  (:method ((self selectable-standard-object-tree-node-inspector))
+    (selected-instance-p (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component) (instance-of self))))
+
 (def layered-method tree-node-style-class ((self selectable-standard-object-tree-node-inspector))
   (concatenate-string (call-next-method)
-                      (when (selected-instance-p (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component) (instance-of self))
+                      (when (selected-component-p self)
                         " selected")))
 
 (def layered-method make-standard-commands ((component selectable-standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
-  (list* (make-select-instance-command (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) instance)
-         (call-next-method)))
+  (append (call-next-method) (optional-list (make-select-instance-command component class instance))))

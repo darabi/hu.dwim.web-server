@@ -171,12 +171,16 @@
           (remhash (hash-key-for instance) selected-instance-set))
       (invalidate-computed-slot component 'selected-instance-set))))
 
-(def (function e) make-select-instance-command (component instance)
-  (command (icon select)
-           (make-component-action component
-             (execute-select-instance component (class-of instance) instance))))
+(def (layered-function e) make-select-instance-command (component class instance)
+  (:method ((component component) (class standard-class) (instance standard-object))
+    (command (icon select)
+             (make-component-action component
+               (execute-select-instance component (class-of instance) instance)))))
 
 (def (layered-function e) execute-select-instance (component class instance)
+  (:method ((component component) (class standard-class) (instance standard-object))
+    (execute-select-instance (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) class instance))
+
   (:method ((component abstract-selectable-standard-object-component) (class standard-class) (instance standard-object))
     (when (single-selection-mode-p component)
       (setf (selected-instances-of component) nil))

@@ -261,5 +261,4 @@
                         " selected")))
 
 (def layered-method make-standard-commands ((component selectable-standard-object-row-inspector) (class standard-class) (instance standard-object))
-  (list* (make-select-instance-command (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) instance)
-         (call-next-method)))
+  (append (call-next-method) (optional-list (make-select-instance-command component class instance))))
