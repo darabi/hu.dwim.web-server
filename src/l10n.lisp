@@ -92,10 +92,7 @@
   (unless class
     (setf class (when slot
                   (owner-class-of-effective-slot-definition slot))))
-  (bind ((member-name (typecase member-value
-                        (symbol (symbol-name member-value))
-                        (class (class-name member-value))
-                        (t (write-to-string member-value))))
+  (bind ((member-name (member-component-value-name member-value))
          (slot-definition-type (when slot
                                  (slot-definition-type slot)))
          (class-name (when class

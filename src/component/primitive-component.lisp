@@ -360,6 +360,18 @@
         (localized-enumeration-member value :class class :slot slot :capitalize-first-letter #t)
         "")))
 
+(def function member-component-value-name (value)
+  (typecase value
+    (symbol (symbol-name value))
+    (class (class-name value))
+    (t (write-to-string value))))
+
+;; TODO: KLUDGE: we must use a string key here because we don't know the package
+(def function find-member-component-value-icon (component)
+  (when (slot-boundp component 'component-value)
+    (find-icon (concatenate-string "member-type-value." (string-downcase (member-component-value-name (component-value-of component))))
+               :otherwise nil)))
+
 (def method print-component-value ((component member-component))
   (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
     (if has-component-value?

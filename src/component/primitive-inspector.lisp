@@ -154,7 +154,10 @@
 (def render member-inspector ()
   (if (edited-p -self-)
       (render-member-component -self-)
-      `xml,(print-component-value -self-)))
+      (bind ((icon (find-member-component-value-icon -self-)))
+        (when icon
+          (render-icon icon (image-path-of icon)))
+        `xml,(print-component-value -self-))))
 
 ;;;;;;
 ;;; HTML inspector
