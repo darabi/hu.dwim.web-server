@@ -114,12 +114,12 @@
    <p <a (:href `js-inline(history.go -1)) "Go back">>>)
 
 (def resources en
-  ("error.internal-server-error" "Internal server error")
+  (error.internal-server-error "Internal server error")
   (render-internal-error-page (&rest args &key &allow-other-keys)
     (apply 'render-internal-error-page/english args)))
 
 (def resources hu
-  ("error.internal-server-error" "Programhiba")
+  (error.internal-server-error "Programhiba")
   (render-internal-error-page (&key admin-email-address &allow-other-keys)
     <div
      <h1 "Programhiba">
