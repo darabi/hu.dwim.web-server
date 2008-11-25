@@ -72,6 +72,7 @@
 
 (def (definer e) entry-point ((application &rest args &key
                                            (with-session-logic #t)
+                                           (requires-valid-session with-session-logic)
                                            (ensure-session #f)
                                            (with-frame-logic with-session-logic)
                                            (requires-valid-frame #t)
@@ -82,14 +83,19 @@
                                            class &allow-other-keys)
                                request-lambda-list &body body)
   (declare (ignore path path-prefix))
-  (bind ((boolean-values (list with-session-logic ensure-session with-frame-logic requires-valid-frame ensure-frame with-action-logic)))
+  (bind ((boolean-values (list with-session-logic ensure-session requires-valid-session
+                               with-frame-logic requires-valid-frame ensure-frame
+                               with-action-logic)))
     (unless (every [typep !1 'boolean] boolean-values)
       (error "The entry-point definer does not evaluate many of its boolean keyword arguments, so they must be either T or NIL. Please check them: ~S" boolean-values)))
   (when (and with-frame-logic (not with-session-logic))
     (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
   (when (and with-action-logic (not with-frame-logic))
     (error "Can't use WITH-ACTION-LOGIC without WITH-FRAME-LOGIC"))
-  (remove-from-plistf args :class :with-session-logic :ensure-session :with-frame-logic :ensure-frame :requires-valid-frame :with-action-logic)
+  (remove-from-plistf args :class
+                      :with-session-logic :requires-valid-session :ensure-session
+                      :with-frame-logic :requires-valid-frame :ensure-frame
+                      :with-action-logic)
   (assert (not (and path-p path-prefix-p)))
   (assert (or (not ensure-session) with-session-logic) () "It's quite contradictory to ask for ENSURE-SESSION without WITH-SESSION-LOGIC")
   (assert (or (not ensure-frame) with-frame-logic) () "It's quite contradictory to ask for ENSURE-FRAME without WITH-FRAME-LOGIC")
@@ -105,12 +111,11 @@
                 ,@final-body))))
     (when with-frame-logic
       (setf final-body
-            `((with-frame-logic (:requires-valid-frame ,requires-valid-frame
-                                 :ensure-frame ,ensure-frame)
+            `((with-frame-logic (:requires-valid-frame ,requires-valid-frame :ensure-frame ,ensure-frame)
                 ,@final-body))))
     (when with-session-logic
       (setf final-body
-            `((with-session-logic (:ensure-session ,ensure-session)
+            `((with-session-logic (:requires-valid-session ,requires-valid-session :ensure-session ,ensure-session)
                 ,@final-body))))
     (with-unique-names (request)
       `(ensure-entry-point ,application
