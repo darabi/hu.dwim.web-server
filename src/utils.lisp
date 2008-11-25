@@ -300,19 +300,20 @@
   (unread-char c1 stream)
   (let ((key (read stream)))
     (if (ends-with-subseq "<>" key)
-        `(bind (((:values str foundp) (lookup-resource ,(subseq key 0 (- (length key) 2)))))
+        `(bind (((:values str foundp) (lookup-resource ,(string-downcase (subseq key 0 (- (length key) 2))) :otherwise nil)))
            ,(when (and (> (length key) 0)
                        (upper-case-p (elt key 0)))
-                  `(setf str (capitalize-first-letter str)))
-           <span (:class ,(unless foundp
-                                  +missing-resource-css-class+))
-                 ,str>)
-        `(bind (((:values str foundp) (lookup-resource ,key)))
+              `(setf str (capitalize-first-letter str)))
+           (if foundp
+               `xml ,str
+               <span (:class #.+missing-resource-css-class+)
+                 ,str>))
+        `(bind (((:values str foundp) (lookup-resource ,(string-downcase key) :otherwise nil)))
            (declare (ignorable foundp))
            ,(when (and (> (length key) 0)
                        (upper-case-p (elt key 0)))
-                  `(when foundp
-                     (setf str (capitalize-first-letter str))))
+              `(when foundp
+                 (setf str (capitalize-first-letter str))))
            str))))
 
 (def function mailto-href (email-address)
