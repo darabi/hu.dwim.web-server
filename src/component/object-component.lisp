@@ -215,10 +215,9 @@
   (bind (((:read-only-slots name slot-values id) -self-))
     (if slot-values
         (progn
-          <thead <tr <th (:colspan ,(standard-object-slot-value-group-column-count -self-)) ,(if name
-                                                                                                 (render name)
-                                                                                                 "NO")>>>
-          <tbody ,(map nil #'render slot-values)>)
+          (when name
+            <thead <tr <th (:colspan ,(standard-object-slot-value-group-column-count -self-)) ,(render name) >>>)
+          <tbody ,(map nil #'render slot-values) >)
         <span (:id ,id) ,#"there-are-none">)))
 
 (def resources en
