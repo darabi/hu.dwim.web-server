@@ -172,7 +172,8 @@
   ((contents :type components)))
 
 (def render container-component ()
-  <div ,@(mapcar #'render (contents-of -self-))>)
+  (mapc #'render (contents-of -self-))
+  nil)
 
 (def (macro e) container (&body contents)
   `(make-instance 'container-component :contents (list ,@contents)))
