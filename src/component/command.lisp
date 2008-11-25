@@ -10,12 +10,16 @@
 ;;;;;;
 ;;; Command
 
-;; TODO this is a bit messy here... :ajax, the way :js is done, etc...
+;; TODO: this is a bit messy here... :ajax, the way :js is done, etc...
+;; TODO: do we need this premature optimization: full-featured-command-component?
 
 (def component command-component ()
   ((enabled #t :accessor enabled?)
+   ;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
+   ;; TODO: always wrap the action lambda with a call to execute-command
+   (available #t :accessor available?)
    (icon nil :type component)
-   (action)))
+   (action :type (or uri action))))
 
 (def component full-featured-command-component (command-component)
   ((action-arguments nil)
@@ -77,7 +81,18 @@
   (render (icon-of -self-)))
 
 (def (function e) execute-command (command)
-  (funcall (action-of command)))
+  (bind ((executable? #t))
+    (flet ((report-error (string)
+             (add-user-error command string)
+             (setf executable? #f)))
+      (unless (force (available? command))
+        (report-error #"execute-command.command-unavailable"))
+      (unless (force (enabled? command))
+        (report-error #"execute-command.command-disabled"))
+      (unless (force (visible-p command))
+        (report-error #"execute-command.command-invisible"))
+      (when executable?
+        (funcall (action-of command))))))
 
 ;;;;;;
 ;;; Command bar
