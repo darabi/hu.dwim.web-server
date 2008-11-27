@@ -22,6 +22,7 @@
            (root-component-of *frame*) :ignored-type '(or symbol
                                                           standard-class
                                                           standard-slot-definition
+                                                          standard-generic-function
                                                           sb-vm::code-component)))
          (last-total-count 0)
          (last-total-size 0)
