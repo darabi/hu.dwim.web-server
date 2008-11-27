@@ -39,29 +39,35 @@
     <div ,(if icon
               (render icon)
               +void+)
-         <ul ,@(mapcar #'render menu-items)>>))
+         ,(map nil #'render menu-items)>))
 
 (def icon menu "static/wui/icons/20x20/open-folder.png") ;; TODO: icon
 
 ;;;;;;
 ;;; Menu item
 
-(def component menu-item-component (abstract-menu-item-component)
+(def component menu-item-component (abstract-menu-item-component style-component-mixin)
   ((command nil :type component)))
 
-(def (function e) make-menu-item-component (command &rest menu-items)
+(def (function e) make-menu-item-component (command menu-items &key id css-class style)
   (bind ((menu-items (remove nil menu-items)))
     (when (or menu-items
               command)
-      (make-instance 'menu-item-component :command command :menu-items menu-items))))
+      (make-instance 'menu-item-component
+                     :command command
+                     :menu-items menu-items
+                     :id id
+                     :css-class css-class
+                     :style style))))
 
-(def (macro e) menu-item (command &body menu-items)
-  `(make-menu-item-component ,command ,@menu-items))
+(def (macro e) menu-item ((&key id css-class style) command &body menu-items)
+  `(make-menu-item-component ,command (list ,@menu-items) :id ,id :css-class ,css-class :style ,style))
 
 (def render menu-item-component ()
-  (bind (((:read-only-slots command menu-items) -self-))
-    <div ,(render command)
-         <ul ,@(mapcar #'render menu-items)>>))
+  (bind (((:read-only-slots command menu-items id css-class style) -self-))
+    <div (:id ,id :class ,css-class :style ,style)
+         ,(render command)
+         ,(map nil #'render menu-items)>))
 
 ;;;;;;
 ;;; Replace menu target command
@@ -87,25 +93,33 @@
 ;;;;;;
 ;;; Debug menu
 
-(def (function e) make-debug-menu ()
-  (menu "Debug"
-    (menu-item (command "Start over"
-                        (make-action (reset-frame-root-component))
-                        :send-client-state #f))
-    (menu-item (command "Toggle test mode"
-                        (make-action (notf (running-in-test-mode-p *application*)))))
-    (menu-item (command "Toggle profiling"
-                        (make-action (notf (profile-request-processing-p *server*)))))
-    (menu-item (command "Toggle hierarchy"
-                        (make-action (toggle-debug-component-hierarchy *frame*))))
-    (menu-item (command "Toggle debug client side"
-                        (make-action (notf (debug-client-side? (root-component-of *frame*))))))
+(def (function e) make-debug-menu (&key args &allow-other-keys)
+  (menu-item (:css-class "right-menu") "Debug"
+    (menu-item ()
+        (command "Start over"
+                 (make-action (reset-frame-root-component))
+                 :send-client-state #f))
+    (menu-item ()
+        (command "Toggle test mode"
+                 (make-action (notf (running-in-test-mode-p *application*)))))
+    (menu-item ()
+        (command "Toggle profiling"
+                 (make-action (notf (profile-request-processing-p *server*)))))
+    (menu-item ()
+        (command "Toggle hierarchy"
+                 (make-action (toggle-debug-component-hierarchy *frame*))))
+    (menu-item ()
+        (command "Toggle debug client side"
+                 (make-action (notf (debug-client-side? (root-component-of *frame*))))))
     ;; from http://turtle.dojotoolkit.org/~david/recss.html
-    (menu-item (inline-component
-                 <a (:href "javascript:void(function(){var i,a,s;a=document.getElementsByTagName('link');for(i=0;i<a.length;i++){s=a[i];if(s.rel.toLowerCase().indexOf('stylesheet')>=0&&s.href) {var h=s.href.replace(/(&|%5C?)forceReload=\d+/,'');s.href=h+(h.indexOf('?')>=0?'&':'?')+'forceReload='+(new Date().valueOf())}}})();")
-                    "ReCSS">))
+    (menu-item ()
+        (inline-component
+          <a (:href "javascript:void(function(){var i,a,s;a=document.getElementsByTagName('link');for(i=0;i<a.length;i++){s=a[i];if(s.rel.toLowerCase().indexOf('stylesheet')>=0&&s.href) {var h=s.href.replace(/(&|%5C?)forceReload=\d+/,'');s.href=h+(h.indexOf('?')>=0?'&':'?')+'forceReload='+(new Date().valueOf())}}})();")
+             "ReCSS">))
     #+sbcl
-    (menu-item (replace-menu-target-command "Frame size breakdown"
-                 (make-instance 'frame-size-breakdown-component)))
-    (menu-item (replace-menu-target-command "Web server"
-                 (make-instance 'server-info)))))
+    (menu-item ()
+        (replace-menu-target-command "Frame size breakdown"
+          (make-instance 'frame-size-breakdown-component)))
+    (menu-item ()
+        (replace-menu-target-command "Web server"
+          (make-instance 'server-info)))))
