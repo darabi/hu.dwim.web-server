@@ -40,7 +40,7 @@
         (when (and subject-preferences
                    ;; TODO use some preferences framework that can fall back to defaults unless overridden
                    ;; KLUDGE dmm dependency
-                   (slot-boundp subject-preferences 'dmm:display-command-labels)
+                   (slot-boundp subject-preferences 'dmm::display-command-labels)
                    (not (dmm:display-command-labels? subject-preferences)))
           (return-from render-icon-label nil))))
     label))
