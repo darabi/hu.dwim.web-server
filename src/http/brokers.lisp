@@ -11,11 +11,8 @@
   (:default-initargs :handler 'broker-based-server-handler))
 
 (def print-object broker-based-server
-  (write-string "host: ")
-  (princ (host-of -self-))
-  (write-string ", port: ")
-  (princ (port-of -self-))
-  (write-string ", brokers: ")
+  (print-object/server -self-)
+  (write-string "; brokers: ")
   (princ (length (brokers-of -self-))))
 
 (def function broker-based-server-handler ()

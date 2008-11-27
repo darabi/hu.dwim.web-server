@@ -7,12 +7,16 @@
 (def (class* e) request-counter-mixin ()
   ((processed-request-count 0)))
 
+(def class* server-listen-entry ()
+  ((host)
+   (port)
+   (ssl-certificate nil)
+   (socket nil)))
+
 (def (class* e) server (request-counter-mixin)
   ((admin-email-address nil)
-   (host)
-   (port)
-   (host-header-fallback :documentation "Used when parsing the request and there's no Host header sent from the client.")
-   (socket nil)
+   (listen-entries ())
+   (connection-multiplexer nil)
    (handler :type (or symbol function))
    (request-content-length-limit *request-content-length-limit*)
    (lock (make-recursive-lock "WUI server lock"))
@@ -20,18 +24,41 @@
    (workers (make-adjustable-vector 16))
    (maximum-worker-count 16 :export :accessor)
    (occupied-worker-count 0)
-   (started-at)
+   (started-at nil)
    (timer nil)
    (profile-request-processing #f :type boolean :export :accessor)))
 
+(def constructor (server (listen-entries nil listen-entries-p) host port ssl-certificate)
+  (when (and (or host port ssl-certificate)
+             listen-entries-p)
+    (error "Either use the :HOST, :PORT and :SSL-CERTIFICATE arguments or the full :LISTEN-ENTRIES version, but don't mix them"))
+  (cond
+    (listen-entries-p
+     (setf (listen-entries-of -self-) (mapcar (lambda (listen-entry)
+                                                (etypecase listen-entry
+                                                  (server-listen-entry listen-entry)
+                                                  (cons (apply #'make-instance 'server-listen-entry listen-entry))))
+                                              listen-entries)))
+    (host
+     (setf (listen-entries-of -self-) (list (make-instance 'server-listen-entry
+                                                           :host host
+                                                           :port (or port 80)
+                                                           :ssl-certificate ssl-certificate))))))
+
+(def function print-object/server (server)
+  (write-string "listen: ")
+  (iter (for listen-entry :in (listen-entries-of server))
+        (unless (first-time-p)
+          (write-string ", "))
+        (princ (host-of listen-entry))
+        (write-string "/")
+        (princ (port-of listen-entry))))
+
 (def print-object server
-  (write-string "host: ")
-  (princ (host-of -self-))
-  (write-string ", port: ")
-  (princ (port-of -self-)))
+  (print-object/server -self-))
 
 (def (function e) is-server-running? (server)
-  (not (null (socket-of server))))
+  (not (null (started-at-of server))))
 
 (def (with-macro* e) with-lock-held-on-server (server)
   (multiple-value-prog1
@@ -46,36 +73,54 @@
 
 (defmethod startup-server ((server server) &key (initial-worker-count 2) &allow-other-keys)
   (server.debug "STARTUP-SERVER of ~A" server)
-  (assert (host-of server))
-  (assert (port-of server))
+  (assert (listen-entries-of server))
   (setf (shutdown-initiated-p server) #f)
-  (setf (host-header-fallback-of server)
-        (print-uri-to-string (make-uri :scheme "http"
-                                       :host (host-of server)
-                                       :port (port-of server))))
   (restart-case
       (bind ((swank::*sldb-quit-restart* (find-restart 'abort)))
         (with-lock-held-on-server (server)
-          (loop
-             (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" (host-of server) (port-of server))
-               (server.debug "Binding socket to host ~A, port ~A" (host-of server) (port-of server))
-               (bind ((socket-is-ok nil)
-                      (socket (make-socket :connect :passive
-                                           :local-host (host-of server)
-                                           :local-port (port-of server)
-                                           :external-format +external-format+
-                                           :reuse-address #t)))
-                 (unwind-protect
-                      (progn
-                        (server.dribble "Setting socket ~A to be non-blocking" socket)
-                        (setf (io.streams:fd-non-blocking socket) #t)
-                        ;;(net.sockets:set-socket-option socket :receive-timeout :sec 1 :usec 0)
-                        (setf (socket-of server) socket)
-                        (setf socket-is-ok t)
-                        (return))
-                   (when (and (not socket-is-ok)
-                              socket)
-                     (close socket))))))
+          (bind ((listen-entries (listen-entries-of server))
+                 (mux (make-instance 'epoll-multiplexer)))
+            (unwind-protect-case ()
+                (progn
+                  (assert listen-entries)
+                  (assert (not (find-if (complement #'null) listen-entries :key 'socket-of)))
+                  (dolist (listen-entry listen-entries)
+                    (bind ((host (host-of listen-entry))
+                           (port (port-of listen-entry)))
+                      (loop :named binding :do
+                         (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" host port)
+                           (server.debug "Binding socket to host ~A, port ~A" host port)
+                           (bind ((socket (make-socket :connect :passive
+                                                       :local-host host
+                                                       :local-port port
+                                                       :external-format +external-format+
+                                                       :reuse-address #t))
+                                  (fd (fd-of socket)))
+                             (unwind-protect-case ()
+                                 (progn
+                                   (assert fd)
+                                   (server.dribble "Setting socket ~A to be non-blocking" socket)
+                                   (setf (io.streams:fd-non-blocking socket) #t)
+                                   ;;(net.sockets:set-socket-option socket :receive-timeout :sec 1 :usec 0)
+                                   (server.debug "Adding socket ~A, fd ~A to the accept multiplexer" socket fd)
+                                   (iomux::monitor-fd mux (aprog1
+                                                              (iomux::make-fd-entry fd)
+                                                             ;; KLUDGE to make the multiplexer do what we want
+                                                            (setf (iomux::fd-entry-read-handler it)
+                                                                  (iomux::make-fd-handler fd :read (lambda (&rest args)
+                                                                                                     (declare (ignore args))
+                                                                                                     (error "BUG"))
+                                                                                          nil))))
+                                   (setf (socket-of listen-entry) socket))
+                               (:abort (close socket)))
+                             (return-from binding))))))
+                  (setf (connection-multiplexer-of server) mux))
+              (:abort (dolist (listen-entry (listen-entries-of server))
+                        (awhen (socket-of listen-entry)
+                          (close it)
+                          (setf (socket-of listen-entry) nil)))
+                      (io.multiplex::close-multiplexer mux)
+                      (setf (connection-multiplexer-of server) nil))))
           (if (zerop (maximum-worker-count-of server))
               (unwind-protect
                    ;; run in single-threaded mode (for debugging and profiling)
@@ -83,21 +128,19 @@
                      (server.info "Starting server in the current thread, use C-c C-c to break out...")
                      (worker-loop server #f))
                 (shutdown-server server))
-              (let ((ok nil))
-                (unwind-protect
-                     (progn
-                       (server.debug "Setting up the timer")
-                       (assert (null (timer-of server)))
-                       (setf (timer-of server) (make-instance 'timer))
-                       (server.debug "Spawning the initial workers")
-                       (iter (for n :from 0 :below initial-worker-count)
-                             (make-worker server))
-                       (setf (started-at-of server) (local-time:now))
-                       (server.debug "Server successfully started")
-                       (setf ok t))
-                  (unless ok
-                    (server.debug "Cleaning up after a failed server start")
-                    (shutdown-server server :force #t))))))
+              (unwind-protect-case ()
+                  (progn
+                    (server.debug "Setting up the timer")
+                    (assert (null (timer-of server)))
+                    (setf (timer-of server) (make-instance 'timer))
+                    (server.debug "Spawning the initial workers")
+                    (iter (for n :from 0 :below initial-worker-count)
+                          (make-worker server))
+                    (setf (started-at-of server) (local-time:now))
+                    (server.debug "Server successfully started"))
+                (:abort
+                 (server.debug "Cleaning up after a failed server start")
+                 (shutdown-server server :force #t)))))
         server)
     (abort ()
       :report (lambda (stream)
@@ -115,11 +158,15 @@
                      (let ((os-thread (thread-of ,thread)))
                        (server.dribble "Killing thread ~A; os thread is ~A" ,thread os-thread)
                        (destroy-thread os-thread)))))))
-    (flet ((close-socket ()
-             (awhen (socket-of server)
-               (setf (socket-of server) nil)
-               (server.dribble "Closing socket ~A" it)
-               (close it :abort force))))
+    (flet ((close-sockets ()
+             (dolist (listen-entry (listen-entries-of server))
+               (awhen (socket-of listen-entry)
+                 (setf (socket-of listen-entry) nil)
+                 (server.dribble "Closing socket ~A" it)
+                 (close it :abort force)))
+             (io.multiplex::close-multiplexer (connection-multiplexer-of server))
+             (setf (connection-multiplexer-of server) nil)
+             (setf (started-at-of server) nil)))
       (server.dribble "Shutting down server ~A, force? ~A" server force)
       (bind ((threaded? (not (zerop (maximum-worker-count-of server)))))
         (when threaded?
@@ -130,7 +177,7 @@
               (when threaded?
                 (iter (for worker :in-sequence (copy-seq (workers-of server)))
                       (kill-thread-and-catch-error worker)))
-              (close-socket)
+              (close-sockets)
               (when threaded?
                 (setf (fill-pointer (workers-of server)) 0)
                 (setf (occupied-worker-count-of server) 0)))
@@ -143,7 +190,7 @@
                           (return-from waiting-for-workers)))
                       (sleep 1))
                 (assert (zerop (occupied-worker-count-of server))))
-              (close-socket)))))))
+              (close-sockets)))))))
 
 (def class* worker ()
   ((thread)))
@@ -173,17 +220,25 @@
     ;; wait until the startup procedure finished
     )
   (flet ((body ()
-           (iter (with socket = (socket-of server))
-                 (until (shutdown-initiated-p server))
-                 (for (values readable writable) = (wait-until-fd-ready (fd-of socket) :input 1))
-                 ;; (server.dribble "wait-until-fd-ready returned with readable ~S, writable ~S in thread ~A" readable writable (current-thread))
-                 (until (shutdown-initiated-p server))
-                 (unless readable
-                   (next-iteration))
-                 (iter (for stream-socket = (accept-connection socket :wait #f))
-                       (until (or (null stream-socket)
-                                  (shutdown-initiated-p server)))
-                       (worker-loop/serve-one-request threaded? server worker stream-socket)))
+           (bind ((mux (connection-multiplexer-of server))
+                  (listen-entries (listen-entries-of server)))
+             (assert mux)
+             (iter
+               (until (shutdown-initiated-p server))
+               ;; (server.dribble "Acceptor multiplexer ticked")
+               (iter (for (fd event-types) :in (iomux::harvest-events mux 1))
+                     (server.dribble "Acceptor multiplexer returned with fd ~A, events ~S" fd event-types)
+                     (until (shutdown-initiated-p server))
+                     (when (member :read event-types :test #'eq)
+                       (server.debug "Acceptor multiplexer handed a :read event for fd ~A" fd)
+                       (bind ((listen-entry (aprog1
+                                                (find fd listen-entries :key [fd-of (socket-of !1)])
+                                              (assert it () "listen-entry not found for fd?!")))
+                              (socket (socket-of listen-entry)))
+                         (iter (for stream-socket = (accept-connection socket :wait #f))
+                               (while (and stream-socket
+                                           (not (shutdown-initiated-p server))))
+                               (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
            (values)))
     (if threaded?
         (unwind-protect
