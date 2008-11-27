@@ -34,9 +34,13 @@
     (bind ((headers (aprog1
                         (read-http-request-headers stream)
                       (http.dribble "Request headers are ~S" it))))
-      (flet ((header-value (name)
-               (awhen (assoc name headers :test #'string=)
-                 (cdr it))))
+      (flet ((header-value (name &key mandatory)
+               (bind ((result (awhen (assoc name headers :test #'string=)
+                                (cdr it))))
+                 (when (and mandatory
+                            (not result))
+                   (abort-server-request (format nil "No ~S header in the request" name)))
+                 result)))
         (bind ((version-string (us-ascii-octets-to-string raw-version-string))
                ((:values major-version minor-version) (parse-http-version version-string))
                (raw-uri (us-ascii-octets-to-string uri-octets))
@@ -47,8 +51,7 @@
                                  (>= major-version 1)
                                  (>= minor-version 1)
                                  (not (string= (header-value +header/connection+) "close"))))
-               (host (or (header-value "Host")
-                         (host-header-fallback-of *server*)))
+               (host (header-value "Host" :mandatory #t))
                (host-length (length host))
                (scheme "http") ; TODO
                (scheme-length (length scheme))
