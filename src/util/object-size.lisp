@@ -85,6 +85,14 @@
                       (do ((i sb-vm::code-constants-offset (1+ i)))
                           ((= i length))
                         (recurse (sb-vm::code-header-ref object i)))))
+                   #+sbcl
+                   (sb-kernel::random-class
+                    ;; TODO:
+                    )
+                   #+sbcl
+                   (sb-sys:system-area-pointer
+                    ;; TODO:
+                    )
                    (function
                     #+sbcl
                     (bind ((widetag (sb-kernel:widetag-of object)))
@@ -187,6 +195,9 @@
             (round-to-dualword (* (the fixnum (1+ (sb-kernel:get-closure-length object)))
                                   sb-vm:n-word-bytes)))
            (t (error "Unknown function type ~A" object)))))
+      (sb-kernel::random-class
+       ;; TODO:
+       0)
       ((or structure-object standard-object)
        (round-to-dualword (* (+ (sb-kernel:%instance-length object) 1)
                              sb-vm:n-word-bytes))))))
