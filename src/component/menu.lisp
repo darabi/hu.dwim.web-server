@@ -17,11 +17,14 @@
   ((target-place nil :type place :export :accessor)
    (icon nil :type component)))
 
+(def function flatten-menu-items (menu-items)
+  (iter (for menu-item :in menu-items)
+        (if (listp menu-item)
+            (appending menu-item)
+            (collect menu-item))))
+
 (def (function e) make-menu-component (label menu-items)
-  (bind ((menu-items (iter (for menu-item :in menu-items)
-                           (if (listp menu-item)
-                               (appending menu-item)
-                               (collect menu-item)))))
+  (bind ((menu-items (flatten-menu-items menu-items)))
     (when menu-items
       (make-instance 'menu-component
                      :icon (when label
@@ -50,7 +53,7 @@
   ((command nil :type component)))
 
 (def (function e) make-menu-item-component (command menu-items &key id css-class style)
-  (bind ((menu-items (remove nil menu-items)))
+  (bind ((menu-items (flatten-menu-items menu-items)))
     (when (or menu-items
               command)
       (make-instance 'menu-item-component
