@@ -11,7 +11,7 @@
 (def (constant e :test 'string=) +login-entry-point-path+ "login/")
 (def (constant e :test 'string=) +session-timed-out-query-parameter-name+ "timed-out")
 (def (constant e :test 'string=) +user-action-query-parameter-name+ "user-action")
-(def (constant e :test 'string=) +continue-uri-query-parameter-name+ "continue-uri")
+(def (constant e :test 'string=) +continue-url-query-parameter-name+ "continue-url")
 
 (def (component ea) identifier-and-password-login-component (user-message-collector-component-mixin)
   ((identifier nil)
@@ -23,8 +23,8 @@
            (bind ((uri (make-application-relative-uri +login-entry-point-path+)))
              (setf (uri-query-parameter-value uri +user-action-query-parameter-name+) t)
              ;; TODO add copy-uri-query-parameter-values, use here
-             (setf (uri-query-parameter-value uri +continue-uri-query-parameter-name+)
-                   (uri-query-parameter-value (uri-of *request*) +continue-uri-query-parameter-name+))
+             (setf (uri-query-parameter-value uri +continue-url-query-parameter-name+)
+                   (uri-query-parameter-value (uri-of *request*) +continue-url-query-parameter-name+))
              uri)))
 
 (def (function e) make-identifier-and-password-login-component (&key (commands (list (make-default-identifier-and-password-login-command)))

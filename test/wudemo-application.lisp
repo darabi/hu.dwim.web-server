@@ -381,13 +381,13 @@
   (make-component-rendering-response (make-wudemo-frame-component)))
 
 (def entry-point (*wudemo-application* :path +login-entry-point-path+ :with-session-logic #f)
-    (identifier password continue-uri user-action)
-  (%login-entry-point identifier password continue-uri user-action))
+    (identifier password continue-url user-action)
+  (%login-entry-point identifier password continue-url user-action))
 
-(def function %login-entry-point (identifier password continue-uri user-action?)
-  (when (and continue-uri
-             (zerop (length (string-trim " " continue-uri))))
-    (setf continue-uri nil))
+(def function %login-entry-point (identifier password continue-url user-action?)
+  (when (and continue-url
+             (zerop (length (string-trim " " continue-url))))
+    (setf continue-url nil))
   (when (or (null identifier)
             (zerop (length identifier)))
     (setf identifier (cookie-value +login-identifier-cookie-name+)))
@@ -406,8 +406,8 @@
       (when *session*
         ;;(authentication.dribble "Login entry point reached while we already have a session: ~A" *session*)
         (return-from %login-entry-point
-          (if continue-uri
-              (make-redirect-response continue-uri)
+          (if continue-url
+              (make-redirect-response continue-url)
               (make-redirect-response-for-current-application)))))
     ;; TODO: there's no user feedback if not valid!
     (when (and (valid-login-identifier? identifier)
@@ -421,8 +421,8 @@
           (setf (authenticated-subject-of new-session) authenticated-subject)
           (with-lock-held-on-application (application)
             (register-session application new-session))
-          (bind ((response (if continue-uri
-                               (make-redirect-response continue-uri)
+          (bind ((response (if continue-url
+                               (make-redirect-response continue-url)
                                (make-redirect-response-for-current-application))))
             (add-cookie (make-cookie +login-identifier-cookie-name+ identifier
                                      :max-age #.(* 60 60 24 365 100)
@@ -443,7 +443,7 @@
 
 (def method handle-request-to-invalid-session ((application wudemo-application) session invalidity-reason)
   (bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
-    (setf (uri-query-parameter-value uri +continue-uri-query-parameter-name+)
+    (setf (uri-query-parameter-value uri +continue-url-query-parameter-name+)
           (print-uri-to-string (clone-request-uri :strip-frame-parameters #t)))
     (when (eq invalidity-reason :timed-out)
       (setf (uri-query-parameter-value uri +session-timed-out-query-parameter-name+) "t"))
