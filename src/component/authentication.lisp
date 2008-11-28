@@ -19,13 +19,21 @@
    (command-bar (make-instance 'command-bar-component) :type component)))
 
 (def function make-default-identifier-and-password-login-command ()
+  ;; alternatively... but this way enter does not submit the form
+  #+nil
   (command (icon login)
            (bind ((uri (make-application-relative-uri +login-entry-point-path+)))
              (setf (uri-query-parameter-value uri +user-action-query-parameter-name+) t)
-             ;; TODO add copy-uri-query-parameter-values, use here
-             (setf (uri-query-parameter-value uri +continue-url-query-parameter-name+)
-                   (uri-query-parameter-value (uri-of *request*) +continue-url-query-parameter-name+))
-             uri)))
+             (copy-uri-query-parameters (uri-of *request*) uri +continue-url-query-parameter-name+)
+             uri))
+  (inline-component
+    (render-simple-submit-command #"icon-label.login")
+    ;; TODO once we get rid of the one global form wrapping everything, then this should go away and a local <form tag should be rendered for login...
+    `js(setf (slot-value (aref document.forms 0) 'action)
+             ,(bind ((uri (make-application-relative-uri +login-entry-point-path+)))
+                (setf (uri-query-parameter-value uri +user-action-query-parameter-name+) t)
+                (copy-uri-query-parameters (uri-of *request*) uri +continue-url-query-parameter-name+)
+                (print-uri-to-string uri)))))
 
 (def (function e) make-identifier-and-password-login-component (&key (commands (list (make-default-identifier-and-password-login-command)))
                                                                      identifier password)
