@@ -57,7 +57,7 @@
    ,(when admin-email-address
           <p "You may contact the administrators at this email address: "
              <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>>)
-   <p ,(render back-command)>>)
+   <p ,(render* back-command)>>)
 
 (def resources en
   (error.internal-server-error "Internal server error")
@@ -75,4 +75,4 @@
         <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
            <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
            " email címen megteheti.">)
-     <p ,(render back-command)>>))
+     <p ,(render* back-command)>>))
