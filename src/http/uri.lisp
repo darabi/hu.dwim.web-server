@@ -64,6 +64,11 @@
                    (query-parameters-of uri)))
   uri)
 
+(def (function e) copy-uri-query-parameters (from to &rest parameter-names)
+  (dolist (name parameter-names)
+    (setf (uri-query-parameter-value to name)
+          (uri-query-parameter-value from name))))
+
 (defun add-query-parameter-to-uri (uri name value)
   (nconcf (query-parameters-of uri) (list (cons name value)))
   uri)
