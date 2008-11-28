@@ -13,13 +13,15 @@
 ;; TODO: this is a bit messy here... :ajax, the way :js is done, etc...
 ;; TODO: do we need this premature optimization: full-featured-command-component?
 
-(def component command-component ()
-  ((enabled #t :accessor enabled?)
+(def component abstract-command-component ()
+  ((enabled #t :accessor enabled?)))
+
+(def component command-component (abstract-command-component)
+  ((icon nil :type component)
+   (action :type (or uri action))
    ;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
-   (available #t :accessor available?)
-   (icon nil :type component)
-   (action :type (or uri action))))
+   (available #t :accessor available?)))
 
 (def component full-featured-command-component (command-component)
   ((action-arguments nil)
@@ -99,6 +101,23 @@
         (report-error #"execute-command.command-invisible"))
       (when executable?
         (funcall (action-of command))))))
+
+
+;;;;;;
+;;; simple submit button
+
+(def component simple-submit-command-component (abstract-command-component)
+  ((value)))
+
+(def render simple-submit-command-component ()
+  (render-simple-submit-command (value-of -self-) :enabled (enabled? -self-)))
+
+(def function render-simple-submit-command (value &key (enabled #t))
+  <input (:type "submit"
+          :value ,value
+          ,(unless enabled
+             (load-time-value (make-xml-attribute "disabled" "disabled"))))>)
+
 
 ;;;;;;
 ;;; Command bar
