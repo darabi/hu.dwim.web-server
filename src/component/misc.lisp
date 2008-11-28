@@ -16,6 +16,9 @@
 (def render-csv content-component ()
   (render-csv (content-of -self-)))
 
+(def render-pdf content-component ()
+  (render-pdf (content-of -self-)))
+
 (def method find-command-bar ((component content-component))
   (or (call-next-method)
       (awhen (content-of component)
@@ -64,6 +67,9 @@
 
 (def render-csv label-component ()
   (render-csv (component-value-of -self-)))
+
+(def render-pdf label-component ()
+  (render-pdf (component-value-of -self-)))
 
 ;;;;;;
 ;;; Delay

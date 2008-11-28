@@ -20,6 +20,9 @@
 (def render-csv icon-component ()
   (render-csv (force (label-of -self-))))
 
+(def render-pdf icon-component ()
+  (render-pdf (force (label-of -self-))))
+
 (def layered-function render-icon-label (icon label)
   (:method (icon label)
     `xml,label))

@@ -56,6 +56,9 @@
 (def render-csv command-component ()
   (render-csv (icon-of -self-)))
 
+(def render-pdf command-component ()
+  (render-pdf (icon-of -self-)))
+
 (def render full-featured-command-component ()
   (bind (((:read-only-slots enabled icon action action-arguments js) -self-))
     (render-command action icon :enabled enabled :ajax #f :js js :action-arguments action-arguments)))

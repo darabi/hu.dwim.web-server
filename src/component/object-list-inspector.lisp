@@ -55,6 +55,7 @@
 
 (def layered-method make-standard-commands ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
   (list* (make-export-csv-command component)
+         (make-export-pdf-command component)
          (append (make-editing-commands component class prototype) (call-next-method))))
 
 ;;;;;;

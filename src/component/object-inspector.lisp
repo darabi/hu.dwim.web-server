@@ -59,6 +59,7 @@
 
 (def layered-method make-standard-commands ((component standard-object-inspector) (class standard-class) (instance standard-object))
   (list* (make-export-csv-command component)
+         (make-export-pdf-command component)
          (append (make-editing-commands component class instance) (call-next-method))))
 
 (def (function e) make-delete-instance-command (self)

@@ -27,6 +27,9 @@
 (def render-csv alternator-component ()
   (render-csv (content-of -self-)))
 
+(def render-pdf alternator-component ()
+  (render-pdf (content-of -self-)))
+
 (def function make-alternative-commands (component alternatives)
   (delete nil
           (mapcar (lambda (alternative)

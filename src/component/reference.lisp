@@ -32,6 +32,9 @@
 (def render-csv reference-component ()
   (render-csv (expand-command-of -self-)))
 
+(def render-pdf reference-component ()
+  (render-pdf (expand-command-of -self-)))
+
 (def (generic e) make-reference-label (component class target)
   (:method ((component reference-component) class target)
     (princ-to-string (target-of component))))

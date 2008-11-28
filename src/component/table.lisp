@@ -50,6 +50,11 @@
 (def (macro e) column (content &rest args)
   `(make-instance 'column-component :content ,content ,@args))
 
+(def generic pdf-column-width (column)
+  (:method ((column column-component))
+    ;; TODO: KLUDGE:
+    100))
+
 (def render column-component ()
   <th ,(call-next-method)>)
 
@@ -121,10 +126,10 @@
     (ensure-uptodate cell))
 
   (:method ((table table-component) (row row-component) (column column-component) (cell component))
-    <td ,(render cell) >)
+    <td ,(render cell)>)
 
   (:method ((table table-component) (row row-component) (column column-component) (cell string))
-    <td ,cell>)
+    <td ,(render cell)>)
   
   (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
     (render cell)))

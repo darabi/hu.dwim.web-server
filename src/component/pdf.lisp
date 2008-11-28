@@ -27,9 +27,4 @@
                (bind ((*pdf-stream* (network-stream-of *request*)))
                  (execute-export-pdf component))))))
 
-(def layered-function execute-export-pdf (component)
-  (:method ((component component))
-    (render-pdf component)))
-
-;;;;;;
-;;; Render
+(def layered-function execute-export-pdf (component))

@@ -244,8 +244,8 @@
 (defmethod operation-done-p ((op test-op) (system wui-system))
   nil)
 
+;;;;;;
 ;;; Integration with other systems
-
 
 (defsystem* wui-and-cl-perec
   :depends-on (:wui :cl-perec :dwim-meta-model)
@@ -271,10 +271,18 @@
 (defmethod perform ((op load-op) (system (eql (find-system :wui-and-cl-perec))))
   (pushnew :wui-and-cl-perec *features*))
 
-
 #+nil ; TODO asdf-system-connections is broken
 (defsystem-connection wui-and-cl-perec
   :depends-on (:wui :cl-perec)
   :requires (:wui :wui-core :cl-perec)
-  :components ((:module "src"
-                :components ((:file "cl-perec-integration")))))
+  :components
+  ((:module "src"
+            :components ((:file "cl-perec-integration")))))
+
+(defsystem* wui-and-cl-typesetting
+  :depends-on (:wui :cl-typesetting)
+  :components
+  ((:module "src"
+            :components
+            ((:module "integration"
+                      :components ((:file "cl-typesetting")))))))

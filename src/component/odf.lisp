@@ -30,6 +30,3 @@
 (def layered-function execute-export-odf (component)
   (:method ((component component))
     (render-odf component)))
-
-;;;;;;
-;;; Render
