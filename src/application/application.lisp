@@ -118,6 +118,7 @@
         (bind ((local-time:*default-timezone* (client-timezone-of session)))
           (restart-case
               (if lock-session
+                  ;; TODO check if locking would hang, throw error if so
                   (with-lock-held-on-session (session)
                     (when (is-request-still-valid?)
                       (call-in-application-environment application session #'-body-)))

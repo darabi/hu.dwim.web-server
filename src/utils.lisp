@@ -51,12 +51,13 @@
 (def function every-type-p (type list)
   (every [typep !1 type] list))
 
+;; TODO rename to something like remove-nil or drop-nils
 (def function optional-list (&rest elements)
   (remove nil elements))
 
 (def function the-only-element (elements)
-  (assert (= 1 (length elements)))
-  (first elements))
+  (assert (length= 1 elements))
+  (elt elements 0))
 
 (def function filter (element list &key (key #'identity) (test #'eq))
   (remove element list :key key :test-not test))
