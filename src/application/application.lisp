@@ -445,8 +445,23 @@ Custom implementations should look something like this:
 
 (def (layered-function e) render (component))
 
+(def (layered-function e) render-csv (component))
+
+(def (layered-function e) render-pdf (component))
+
+(def (layered-function e) render-odf (component))
+
 (def (definer e) render (&body forms)
   (render-like-definer 'render forms))
+
+(def (definer e) render-csv (&body forms)
+  (render-like-definer 'render-csv forms))
+
+(def (definer e) render-pdf (&body forms)
+  (render-like-definer 'render-pdf forms))
+
+(def (definer e) render-odf (&body forms)
+  (render-like-definer 'render-odf forms))
 
 (def function render-like-definer (name forms)
   (bind ((layer (when (member (first forms) '(:in-layer :in))

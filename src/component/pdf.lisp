@@ -5,23 +5,19 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Render
-
-(def (layered-function e) render-pdf (component))
-
-(def (definer e) render-pdf (&body forms)
-  (render-like-definer 'render-pdf forms))
-
-;;;;;;
 ;;; Command
 
 (def icon export-pdf "static/wui/icons/20x20/pdf-document.png")
+
 (def resources hu
-  (icon-label.export-pdf "PDF")
+    (icon-label.export-pdf "PDF")
   (icon-tooltip.export-pdf "A tartalom mentése PDF formátumban"))
+
 (def resources en
-  (icon-label.export-pdf "PDF")
+    (icon-label.export-pdf "PDF")
   (icon-tooltip.export-pdf "Export content in PDF format"))
+
+(def special-variable *pdf-stream*)
 
 (def function make-export-pdf-command (component)
   (command (icon export-pdf)
@@ -37,5 +33,3 @@
 
 ;;;;;;
 ;;; Render
-
-(def special-variable *pdf-stream*)

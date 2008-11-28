@@ -5,23 +5,19 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Render
-
-(def (layered-function e) render-csv (component))
-
-(def (definer e) render-csv (&body forms)
-  (render-like-definer 'render-csv forms))
-
-;;;;;;
 ;;; Command
 
 (def icon export-csv "static/wui/icons/20x20/document.png")
+
 (def resources hu
-  (icon-label.export-csv "CSV")
+    (icon-label.export-csv "CSV")
   (icon-tooltip.export-csv "A tartalom mentése CSV formátumban"))
+
 (def resources en
-  (icon-label.export-csv "CSV")
+    (icon-label.export-csv "CSV")
   (icon-tooltip.export-csv "Export content in CSV format"))
+
+(def special-variable *csv-stream*)
 
 (def function make-export-csv-command (component)
   (command (icon export-csv)
@@ -37,8 +33,6 @@
 
 ;;;;;;
 ;;; Render
-
-(def special-variable *csv-stream*)
 
 (def (constant :test #'equal) +whitespace-chars+ '(#\Space #\Tab #\Linefeed #\Return #\Page))
 

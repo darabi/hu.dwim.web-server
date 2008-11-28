@@ -5,23 +5,19 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Render
-
-(def (layered-function e) render-odf (component))
-
-(def (definer e) render-odf (&body forms)
-  (render-like-definer 'render-odf forms))
-
-;;;;;;
 ;;; Command
 
 (def icon export-odf "static/wui/icons/20x20/document.png")
+
 (def resources hu
-  (icon-label.export-odf "ODF")
+    (icon-label.export-odf "ODF")
   (icon-tooltip.export-odf "A tartalom mentése ODF formátumban"))
+
 (def resources en
-  (icon-label.export-odf "ODF")
+    (icon-label.export-odf "ODF")
   (icon-tooltip.export-odf "Export content in ODF format"))
+
+(def special-variable *odf-stream*)
 
 (def function make-export-odf-command (component)
   (command (icon export-odf)
@@ -37,5 +33,3 @@
 
 ;;;;;;
 ;;; Render
-
-(def special-variable *odf-stream*)

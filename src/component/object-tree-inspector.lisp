@@ -47,7 +47,8 @@
     ,(call-next-method)>)
 
 (def layered-method make-standard-commands ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
-  (append (make-editing-commands component class instance) (call-next-method)))
+  (list* (make-export-csv-command component)
+         (append (make-editing-commands component class instance) (call-next-method))))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class instance)
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))

@@ -18,7 +18,7 @@
   (bind (((:read-only-slots root-nodes id) -self-))
     <table (:id ,id :class "tree")
       <thead <tr ,(render-tree-columns -self-) >>
-      <tbody ,(foreach nil #'render root-nodes) >>))
+      <tbody ,(foreach #'render root-nodes) >>))
 
 (def call-in-component-environment tree-component ()
   (bind ((*tree-level* -1))

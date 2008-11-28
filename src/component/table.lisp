@@ -56,9 +56,6 @@
 (def render column-component ()
   <th ,(call-next-method)>)
 
-(def render-csv row-component ()
-  (render-csv-line (cells-of -self-)))
-
 ;;;;;;
 ;;; Row
 
@@ -95,6 +92,9 @@
 
 (def render row-component ()
   (render-table-row (parent-component-of -self-) -self-))
+
+(def render-csv row-component ()
+  (render-csv-line (cells-of -self-)))
 
 ;;;;;;
 ;;; Entire row
