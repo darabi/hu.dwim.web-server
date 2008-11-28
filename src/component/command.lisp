@@ -113,7 +113,10 @@
     (render-horizontal-list sorted-commands :css-class "command-bar")))
 
 (def render-csv command-bar-component ()
-  (foreach #'render-csv (commands-of -self-)))
+  (iter (for command :in (commands-of -self-))
+        (unless (first-iteration-p)
+          (write-char #\Space *csv-stream*))
+        (render-csv command)))
 
 (def render :in passive-components-layer command-bar-component
   (values))

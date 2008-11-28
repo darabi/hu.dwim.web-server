@@ -35,10 +35,7 @@
 (def render-csv table-component ()
   (render-csv-line (columns-of -self-))
   (render-csv-line-separator)
-  (iter (for row :in (rows-of -self-))
-        (unless (first-iteration-p)
-          (render-csv-line-separator))
-        (render-csv row)))
+  (foreach #'render-csv (rows-of -self-)))
 
 (def (layered-function e) render-table-columns (table-component)
   (:method ((self table-component))
@@ -94,7 +91,8 @@
   (render-table-row (parent-component-of -self-) -self-))
 
 (def render-csv row-component ()
-  (render-csv-line (cells-of -self-)))
+  (render-csv-line (cells-of -self-))
+  (render-csv-line-separator))
 
 ;;;;;;
 ;;; Entire row

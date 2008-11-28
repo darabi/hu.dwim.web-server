@@ -38,7 +38,7 @@
 
 (def constant +csv-quote-char+ #\")
 
-(def constant +csv-value-separator+ #\Tab)
+(def constant +csv-value-separator+ #\,)
 
 (def constant +csv-line-separator+ #\NewLine)
 

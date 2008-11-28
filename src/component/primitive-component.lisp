@@ -73,6 +73,9 @@
 (def component unbound-component (primitive-component)
   ())
 
+(def method print-component-value ((self unbound-component))
+  #"value.unbound")
+
 (def (function io) render-unbound-component ()
   `xml,#"value.unbound")
 
@@ -90,6 +93,9 @@
 
 (def component null-component (primitive-component)
   ())
+
+(def method print-component-value ((self null-component))
+  #"value.nil")
 
 (def (function io) render-null-component ()
   `xml,#"value.nil")

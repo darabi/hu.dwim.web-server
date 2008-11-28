@@ -20,6 +20,11 @@
       <thead <tr ,(render-tree-columns -self-) >>
       <tbody ,(foreach #'render root-nodes) >>))
 
+(def render-csv tree-component ()
+  (render-csv-line (columns-of -self-))
+  (render-csv-line-separator)
+  (foreach #'render-csv (root-nodes-of -self-)))
+
 (def call-in-component-environment tree-component ()
   (bind ((*tree-level* -1))
     (call-next-method)))
@@ -44,6 +49,11 @@
       ,(render-tree-node-cells -self-) >
     (when expanded
       (foreach #'render child-nodes))))
+
+(def render-csv node-component ()
+  (render-csv-line (cells-of -self-))
+  (render-csv-line-separator)
+  (foreach #'render-csv (child-nodes-of -self-)))
 
 (def (layered-function e) tree-node-style-class (component)
   (:method ((self node-component))
