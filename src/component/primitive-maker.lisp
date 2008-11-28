@@ -46,26 +46,29 @@
     (if (and (eq the-type 'boolean)
              has-initform?
              constant-initform?)
-        <input (:type "checkbox"
-                      ,(when (and has-initform?
-                                  (eq initform #t))
-                             (make-xml-attribute "checked" "checked")))>
+        (bind ((checked (when (and has-initform?
+                                   (eq initform #t))
+                          "checked")))
+          <input (:type "checkbox" :checked ,checked)>)
         <select ()
           ;; TODO: add error marker when no initform and default value is selected
-          <option (,(unless (and has-initform?
-                                 constant-initform?)
-                            (make-xml-attribute "selected" "yes")))
-                  ,(cond (has-initform? #"value.default")
-                         ((eq the-type 'boolean) "")
-                         (t #"value.nil"))>
-          <option (,(when (and has-initform?
-                               (eq initform #t))
-                          (make-xml-attribute "selected" "yes")))
-                  ,#"boolean.true">
-          <option (,(when (and has-initform?
-                               (eq initform #f))
-                          (make-xml-attribute "selected" "yes")))
-                  ,#"boolean.false">>)))
+          ,(bind ((selected (unless (and has-initform?
+                                         constant-initform?)
+                              "yes")))
+                 <option (:selected ,selected)
+                         ,(cond (has-initform? #"value.default")
+                                ((eq the-type 'boolean) "")
+                                (t #"value.nil"))>)
+          ,(bind ((selected (when (and has-initform?
+                                       (eq initform #t))
+                              "yes")))
+                 <option (:selected ,selected)
+                         ,#"boolean.true">)
+          ,(bind ((selected (when (and has-initform?
+                                       (eq initform #f))
+                              "yes")))
+                 <option (:selected ,selected)
+                         ,#"boolean.false">) >)))
 
 ;;;;;;
 ;;; String maker

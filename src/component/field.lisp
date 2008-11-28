@@ -31,7 +31,8 @@
                      (id-of (client-state-sink (client-value)
                               (funcall value-sink (string-to-lisp-boolean client-value)))))))
          (custom checked-image)
-         (hidden-id (concatenate 'string id "_hidden")))
+         (hidden-id (concatenate 'string id "_hidden"))
+         (checked (when value "")))
     <input (:id ,hidden-id
             :name ,name
             :value ,(if value "true" "false")
@@ -55,8 +56,7 @@
           <input (:id ,id
                   :type "checkbox"
                   :onChange ,(force on-change)
-                  ,(when value
-                    (load-time-value (make-xml-attribute "checked" "") t)))>
+                  :checked ,checked)>
           `js(on-load
               (wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip))))))
 
@@ -99,9 +99,8 @@
              (for actual-value = (funcall key possible-value))
              (for client-name = (funcall client-name-generator actual-value))
              (for client-value = (integer-to-string index))
-             <option (:value ,client-value
-                      ,(when (funcall test value actual-value)
-                         (make-xml-attribute "selected" "yes")))
+             (for selected = (when (funcall test value actual-value) "yes"))
+             <option (:value ,client-value :selected ,selected)
                      ,client-name>)>))
 
 ;;;;;;
@@ -119,9 +118,8 @@
                (for actual-value = (funcall key possible-value))
                (for client-name = (funcall client-name-generator actual-value))
                (for client-value = (integer-to-string index))
-               <option (:value ,client-value
-                        ,(when (funcall test value actual-value)
-                           (make-xml-attribute "selected" "yes")))
+               (for selected = (when (funcall test value actual-value) "yes"))
+               <option (:value ,client-value :selected ,selected)
                        ,client-name>)>)))
 
 ;;;;;;

@@ -68,7 +68,7 @@
 
 (def render menu-item-component ()
   (bind (((:read-only-slots command menu-items id css-class style) -self-))
-    <div (:id ,id :class ,css-class ,(when style (make-xml-attribute "style" style)))
+    <div (:id ,id :class ,css-class :style ,style)
          ,(render command)
          ,(foreach #'render menu-items)>))
 

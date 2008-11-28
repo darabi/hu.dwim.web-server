@@ -39,25 +39,25 @@
     <div ,(when edited
                 <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "true" "false"))>)
          ,(if (eq the-type 'boolean)
-              <input (:type "checkbox"
-                            ,(when component-value
-                                   (make-xml-attribute "checked" "checked"))
-                            ,(unless edited
-                                     (make-xml-attribute "disabled" "disabled")))>
-              <select (,(unless edited
-                                (make-xml-attribute "disabled" "disabled")))
-                ;; TODO: add error marker when no initform and default value is selected
-                <option (,(unless has-component-value?
-                                  (make-xml-attribute "selected" "yes")))
-                        ,#"value.nil">
-                <option (,(when (and has-component-value?
-                                     component-value)
-                                (make-xml-attribute "selected" "yes")))
-                        ,#"boolean.true">
-                <option (,(when (and has-component-value?
-                                     (not component-value))
-                                (make-xml-attribute "selected" "yes")))
-                        ,#"boolean.false">>)>))
+              (bind ((checked (when component-value "checked"))
+                     (disabled (unless edited "disabled")))
+                <input (:type "checkbox" :checked ,checked :disabled ,disabled)>)
+              (bind ((disabled (unless edited "disabled")))
+                <select (:disabled ,disabled)
+                  ;; TODO: add error marker when no initform and default value is selected
+                  ,(bind ((selected (unless has-component-value? "yes")))
+                         <option (:selected ,selected)
+                                 ,#"value.nil">)
+                  ,(bind ((selected (when (and has-component-value?
+                                               component-value)
+                                      "yes")))
+                         <option (:selected ,selected)
+                                 ,#"boolean.true">)
+                  ,(bind ((selected (when (and has-component-value?
+                                               (not component-value))
+                                      "yes")))
+                         <option (:selected ,selected)
+                                 ,#"boolean.false">) >))>))
 
 ;;;;;;
 ;;; String inspector

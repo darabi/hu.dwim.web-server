@@ -18,7 +18,7 @@
                                       (:horizontal "horizontal "))
                               ,@(ensure-list css-class))
           :id ,id
-          ,(when style (make-xml-attribute "style" style)))
+          :style ,style)
     ,@(ecase orientation
              (:vertical (mapcar (lambda (element)
                                   <tr <td ,(render element)>>)

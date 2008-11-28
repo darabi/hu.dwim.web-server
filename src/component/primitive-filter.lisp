@@ -42,23 +42,23 @@
                                :on-change (delay `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t)))
         <select (:name ,(id-of (client-state-sink-of -self-))
                  :onchange `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t))
-          <option (:value ""
-                   ,(when (and use-in-filter?
-                               (not has-component-value?))
-                      (make-xml-attribute "selected" "yes")))
-            ,#"value.nil">
-          <option (:value "true"
-                   ,(when (and use-in-filter?
-                               has-component-value?
-                               component-value)
-                      (make-xml-attribute "selected" "yes")))
-            ,#"boolean.true">
-          <option (:value "false"
-                   ,(when (and use-in-filter?
-                               has-component-value?
-                               (not component-value))
-                      (make-xml-attribute "selected" "yes")))
-            ,#"boolean.false">>)))
+          ,(bind ((selected (when (and use-in-filter?
+                                       (not has-component-value?))
+                              "yes")))
+                 <option (:value "" :selected ,selected)
+                         ,#"value.nil">)
+          ,(bind ((selected (when (and use-in-filter?
+                                       has-component-value?
+                                       component-value)
+                              "yes")))
+                 <option (:value "true" :selected ,selected)
+                         ,#"boolean.true">)
+          ,(bind ((selected (when (and use-in-filter?
+                                       has-component-value?
+                                       (not component-value))
+                              "yes")))
+                 <option (:value "false" :selected ,selected)
+                         ,#"boolean.false">) >)))
 
 ;;;;;;
 ;;; String filter

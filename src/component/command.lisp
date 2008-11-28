@@ -76,12 +76,12 @@
                      (uri (print-uri-to-string action))))
              (onclick-js (or js
                              (lambda (href)
-                               `js-inline(wui.io.action ,href ,ajax ,send-client-state)))))
-        <a (:href "#" :onclick ,(funcall onclick-js href)
-            ,(when (running-in-test-mode-p *application*)
-               (make-xml-attribute "name" (if (typep body 'icon-component)
-                                              (symbol-name (name-of body))
-                                              (princ-to-string body)))))
+                               `js-inline(wui.io.action ,href ,ajax ,send-client-state))))
+             (name (when (running-in-test-mode-p *application*)
+                     (if (typep body 'icon-component)
+                         (symbol-name (name-of body))
+                         (princ-to-string body)))))
+        <a (:href "#" :onclick ,(funcall onclick-js href) :name ,name)
            ,(render body) >)
       (render body)))
 

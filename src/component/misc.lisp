@@ -154,7 +154,7 @@
 
 (def render style-component-mixin ()
   (bind (((:read-only-slots id css-class style) -self-))
-    <div (:id ,id :class ,css-class ,(when style (make-xml-attribute "style" style)))
+    <div (:id ,id :class ,css-class :style ,style)
          ,(call-next-method) >))
 
 (def component style-component (style-component-mixin content-component)
