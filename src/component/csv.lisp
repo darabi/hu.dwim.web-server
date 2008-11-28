@@ -19,7 +19,7 @@
 
 (def special-variable *csv-stream*)
 
-(def function make-export-csv-command (component)
+(def (function e) make-export-csv-command (component)
   (command (icon export-csv)
            (make-action
              (make-raw-functional-response ((+header/content-type+ +csv-mime-type+))

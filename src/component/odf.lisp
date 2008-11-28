@@ -19,7 +19,7 @@
 
 (def special-variable *odf-stream*)
 
-(def function make-export-odf-command (component)
+(def (function e) make-export-odf-command (component)
   (command (icon export-odf)
            (make-action
              (make-raw-functional-response ((+header/content-type+ +odf-mime-type+))

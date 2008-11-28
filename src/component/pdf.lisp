@@ -19,7 +19,7 @@
 
 (def special-variable *pdf-stream*)
 
-(def function make-export-pdf-command (component)
+(def (function e) make-export-pdf-command (component)
   (command (icon export-pdf)
            (make-action
              (make-raw-functional-response ((+header/content-type+ +pdf-mime-type+))
