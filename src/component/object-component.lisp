@@ -197,6 +197,9 @@
   (:method ((component standard-object-detail-component) (class standard-class) (prototype standard-object) (slots list))
     (list (cons #"standard-object-detail-component.primary-group" slots))))
 
+(def render-csv standard-object-detail-component ()
+  (foreach #'render-csv (slot-value-groups-of -self-)))
+
 (def resources en
   (standard-object-detail-component.primary-group "Primary properties")
   (standard-object-detail-component.secondary-group "Other properties"))
@@ -204,6 +207,7 @@
 (def resources hu
   (standard-object-detail-component.primary-group "Elsődleges tulajdonságok")
   (standard-object-detail-component.secondary-group "Egyéb tulajdonságok"))
+
 ;;;;;;
 ;;; Standard object slot value group 
 
@@ -223,6 +227,9 @@
             <thead <tr <th (:colspan ,(standard-object-slot-value-group-column-count -self-)) ,(render name) >>>)
           <tbody ,(foreach #'render slot-values) >)
         <span (:id ,id) ,#"there-are-none">)))
+
+(def render-csv standard-object-slot-value-group-component ()
+  (foreach #'render-csv (slot-values-of -self-)))
 
 (def resources en
   (standard-object-slot-value-group.there-are-no-slots "There are no properties"))
@@ -244,3 +251,9 @@
             ,(render label)>
         <td (:class "slot-value-value")
             ,(render value)>>))
+
+(def render-csv standard-object-slot-value-component ()
+  (render-csv (label-of -self-))
+  (render-csv-value-separator)
+  (render-csv (value-of -self-))
+  (render-csv-line-separator))

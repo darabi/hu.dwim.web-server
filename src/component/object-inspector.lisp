@@ -58,7 +58,8 @@
           (delay-alternative-reference-component 'standard-object-inspector-reference instance))))
 
 (def layered-method make-standard-commands ((component standard-object-inspector) (class standard-class) (instance standard-object))
-  (append (make-editing-commands component class instance) (call-next-method)))
+  (list* (make-export-csv-command component)
+         (append (make-editing-commands component class instance) (call-next-method))))
 
 (def (function e) make-delete-instance-command (self)
   (make-instance 'command-component
