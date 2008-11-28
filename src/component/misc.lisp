@@ -143,12 +143,13 @@
 
 (def component style-component-mixin ()
   ((id nil)
-   (style nil)
-   (css-class nil)))
+   (css-class nil)
+   (style nil)))
 
 (def render style-component-mixin ()
-  <div (:id ,(id-of -self-) :class ,(css-class-of -self-) :style ,(style-of -self-))
-       ,(call-next-method) >)
+  (bind (((:read-only-slots id css-class style) -self-))
+    <div (:id ,id :class ,css-class ,(when style (make-xml-attribute "style" style)))
+         ,(call-next-method) >))
 
 (def component style-component (style-component-mixin content-component)
   ())

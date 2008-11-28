@@ -41,10 +41,10 @@
    (cells nil :type components)))
 
 (def render node-component ()
-  (bind (((:read-only-slots child-nodes expanded id) -self-))
+  (bind (((:read-only-slots child-nodes expanded id style) -self-))
     <tr (:id ,id
-         :style ,(style-of -self-)
-         :class ,(tree-node-style-class -self-))
+         :class ,(tree-node-style-class -self-)
+         ,(when style (make-xml-attribute "style" style)))
       ,(render-tree-node-expander-cell -self-)
       ,(render-tree-node-cells -self-) >
     (when expanded
