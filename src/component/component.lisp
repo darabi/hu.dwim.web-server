@@ -39,6 +39,9 @@
 (def render string ()
   `xml,-self-)
 
+(def render-csv string ()
+  (render-csv-value -self-))
+
 (def (type e) components ()
   'sequence)
 

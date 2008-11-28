@@ -445,6 +445,9 @@ Custom implementations should look something like this:
       (call-next-method))))
 
 (def (definer e) render (&body forms)
+  (render-like-definer 'render forms))
+
+(def function render-like-definer (name forms)
   (bind ((layer (when (member (first forms) '(:in-layer :in))
                   (pop forms)
                   (pop forms)))
@@ -452,8 +455,8 @@ Custom implementations should look something like this:
                               (member (first forms) '(and or progn append nconc)))
                       (pop forms)))
          (type (pop forms)))
-    `(def layered-method render ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
-       ,@forms)))
+    `(def layered-method ,name ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
+          ,@forms)))
 
 (def (generic e) call-in-component-environment (component thunk)
   (:method (component thunk)

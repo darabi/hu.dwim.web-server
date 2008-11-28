@@ -5,22 +5,12 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Definer
+;;; Render
 
 (def (layered-function e) render-csv (component))
 
 (def (definer e) render-csv (&body forms)
-  (bind ((layer (when (member (first forms) '(:in-layer :in))
-                  (pop forms)
-                  (pop forms)))
-         (qualifier (when (or (keywordp (first forms))
-                              (member (first forms) '(and or progn append nconc)))
-                      (pop forms)))
-         (type (pop forms)))
-    `(def layered-method render-csv ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
-       ,@forms)))
-
-(def special-variable *csv-stream*)
+  (render-like-definer 'render-csv forms))
 
 ;;;;;;
 ;;; Command
@@ -39,10 +29,16 @@
              (make-raw-functional-response ((+header/content-type+ +csv-mime-type+))
                (send-headers *response*)
                (bind ((*csv-stream* (network-stream-of *request*)))
-                 (render-csv component))))))
+                 (execute-export-csv component))))))
+
+(def (layered-function e) execute-export-csv (component)
+  (:method ((component component))
+    (render-csv component)))
 
 ;;;;;;
 ;;; Render
+
+(def special-variable *csv-stream*)
 
 (def (constant :test #'equal) +whitespace-chars+ '(#\Space #\Tab #\Linefeed #\Return #\Page))
 
@@ -87,6 +83,3 @@
         (unless (first-iteration-p)
           (render-csv-value-separator))
         (render-csv element)))
-
-(def render-csv string ()
-  (render-csv-value -self-))
