@@ -118,7 +118,7 @@
   (bind (((:read-only-slots class slot-value-groups id) -self-))
     <div (:id ,id :class "standard-object")
          <span ,(standard-object-detail-inspector.instance class)>
-         <table ,(map nil #'render slot-value-groups)>>))
+         <table ,(foreach #'render slot-value-groups)>>))
 
 (def resources en
   (standard-object-detail-inspector.instance (class)

@@ -40,12 +40,12 @@
                                                (string it)
                                                (uri (print-uri-to-string it)))))>)
         <title ,(title-of -self-)>
-        ,@(mapcar (lambda (stylesheet-uri)
+        ,(foreach (lambda (stylesheet-uri)
                     <link (:rel "stylesheet"
-                           :type "text/css"
-                           :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
-                                                                    (string stylesheet-uri)
-                                                                    (uri (print-uri-to-string stylesheet-uri)))))>)
+                                :type "text/css"
+                                :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
+                                                                         (string stylesheet-uri)
+                                                                         (uri (print-uri-to-string stylesheet-uri)))))>)
                   (stylesheet-uris-of -self-))>
       <body (:class ,(dojo-skin-name-of -self-))
         <script (:type         #.+javascript-mime-type+
@@ -60,7 +60,7 @@
                                         (to-js-literal (default-locale-of application))))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">
-        ,@(mapcar (lambda (script-uri)
+        ,(foreach (lambda (script-uri)
                     <script (:type         #.+javascript-mime-type+
                              :src          ,(concatenate-string path-prefix script-uri))
                             ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head

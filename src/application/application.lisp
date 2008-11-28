@@ -500,10 +500,10 @@ Custom implementations should look something like this:
          ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
                <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
-                 ,(map nil (lambda (dirty-component)
+                 ,(foreach (lambda (dirty-component)
                              (with-restored-component-environment (parent-component-of dirty-component)
                                (render dirty-component)))
-                       dirty-components)>))
+                           dirty-components)>))
          <result "success">>)
       (render component)))
 

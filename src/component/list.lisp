@@ -23,7 +23,7 @@
              (:vertical (mapcar (lambda (element)
                                   <tr <td ,(render element)>>)
                                 components))
-             (:horizontal (list <tr ,@(mapcar (lambda (element)
+             (:horizontal (list <tr ,(foreach (lambda (element)
                                                 <td ,(render element)>)
                                               components)>)))>)
 

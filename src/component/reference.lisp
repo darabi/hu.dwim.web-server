@@ -55,7 +55,7 @@
                   targets))))
 
 (def render reference-list-component ()
-  <div ,@(mapcar #'render (references-of -self-))>)
+  <div ,(foreach #'render (references-of -self-))>)
 
 ;;;;;;
 ;;; Standard slot reference

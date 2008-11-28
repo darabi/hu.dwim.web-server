@@ -269,11 +269,11 @@
              (inline-component
                <div ,(render (command (icon wui::refresh)
                                       (make-action)))
-                    <table ,(map nil (lambda (component)
-                                       <tr ,(map nil (lambda (cell)
+                    <table ,(foreach (lambda (component)
+                                       <tr ,(foreach (lambda (cell)
                                                        <td ,(render cell)>)
-                                                 component)>)
-                                 components)>>))
+                                                     component)>)
+                                     components)>>))
            (make-primitive-menu-item (name types values initforms)
              (menu (string-capitalize (string-downcase (symbol-name name)))
                (menu-item () (replace-menu-target-command "Maker"

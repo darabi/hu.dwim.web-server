@@ -18,7 +18,7 @@
   (bind (((:read-only-slots root-nodes id) -self-))
     <table (:id ,id :class "tree")
       <thead <tr ,(render-tree-columns -self-) >>
-      <tbody ,(map nil #'render root-nodes) >>))
+      <tbody ,(foreach nil #'render root-nodes) >>))
 
 (def call-in-component-environment tree-component ()
   (bind ((*tree-level* -1))
@@ -26,7 +26,7 @@
 
 (def (layered-function e) render-tree-columns (tree-component)
   (:method ((self tree-component))
-    (map nil #'render (columns-of self))))
+    (foreach #'render (columns-of self))))
 
 ;;;;;;
 ;;; Node
@@ -43,7 +43,7 @@
       ,(render-tree-node-expander-cell -self-)
       ,(render-tree-node-cells -self-) >
     (when expanded
-      (map nil #'render child-nodes))))
+      (foreach #'render child-nodes))))
 
 (def (layered-function e) tree-node-style-class (component)
   (:method ((self node-component))
@@ -72,7 +72,7 @@
 
 (def (layered-function e) render-tree-node-cells (node-component)
   (:method ((self node-component))
-    (map nil #'render (rest (cells-of self)))))
+    (foreach #'render (rest (cells-of self)))))
 
 (def call-in-component-environment node-component ()
   (bind ((*tree-level* (1+ *tree-level*)))

@@ -221,7 +221,7 @@
         (progn
           (when name
             <thead <tr <th (:colspan ,(standard-object-slot-value-group-column-count -self-)) ,(render name) >>>)
-          <tbody ,(map nil #'render slot-values) >)
+          <tbody ,(foreach #'render slot-values) >)
         <span (:id ,id) ,#"there-are-none">)))
 
 (def resources en

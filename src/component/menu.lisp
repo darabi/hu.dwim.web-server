@@ -42,7 +42,7 @@
     <div ,(if icon
               (render icon)
               +void+)
-         ,(map nil #'render menu-items)>))
+         ,(foreach #'render menu-items)>))
 
 (def icon menu "static/wui/icons/20x20/open-folder.png") ;; TODO: icon
 
@@ -70,7 +70,7 @@
   (bind (((:read-only-slots command menu-items id css-class style) -self-))
     <div (:id ,id :class ,css-class :style ,style)
          ,(render command)
-         ,(map nil #'render menu-items)>))
+         ,(foreach #'render menu-items)>))
 
 ;;;;;;
 ;;; Replace menu target command

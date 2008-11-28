@@ -30,11 +30,10 @@
               <th "Maximum">
               <th "Átlag">
               <th "Összesen">>
-           <tbody
-            ,@(mapcar (lambda (slot-value)
-                        <tr (:class ,(odd/even-class slot-value slot-values))
-                            ,@(render slot-value)>)
-                      slot-values)>>>))
+           <tbody ,(foreach (lambda (slot-value)
+                              <tr (:class ,(odd/even-class slot-value slot-values))
+                                  ,@(render slot-value)>)
+                            slot-values)>>>))
 
 (def (layered-function e) collect-standard-object-list-aggregator-slots (component class)
   (:method ((component standard-object-list-aggregator) (class standard-class))

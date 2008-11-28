@@ -113,7 +113,7 @@
     (render-horizontal-list sorted-commands :css-class "command-bar")))
 
 (def render-csv command-bar-component ()
-  (map nil #'render-csv (commands-of -self-)))
+  (foreach #'render-csv (commands-of -self-)))
 
 (def render :in passive-components-layer command-bar-component
   (values))

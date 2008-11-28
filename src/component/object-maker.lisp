@@ -137,7 +137,7 @@
                      ,(render (command (icon refresh)
                                        (make-action
                                          (setf (outdated-p -self-) #t))))>)
-         <table ,(map nil #'render slot-value-groups)>>))
+         <table ,(foreach #'render slot-value-groups)>>))
 
 (def resources en
   (standard-object-detail-maker.instance (class)

@@ -73,7 +73,7 @@
     (when-bind class-selector (class-selector-of component)
       (when-bind selected-class (component-value-of class-selector)
         (prc::add-assert (query-of filter-query) `(typep ,(first (query-variable-stack-of filter-query)) ,selected-class))))
-    (map nil (lambda (slot-value-group)
+    (foreach (lambda (slot-value-group)
                (build-filter-query* slot-value-group filter-query)) (slot-value-groups-of component)))
 
   (:method ((component standard-object-filter-reference) filter-query)

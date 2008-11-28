@@ -307,15 +307,15 @@
                    (if (oddp *standard-object-tree-level*)
                        <table (:class "node")
                          <thead <tr <td ,(render-standard-object-tree-nested-box-inspector-node -self- node) >>>
-                         ,(map nil (lambda (child)
+                         ,(foreach (lambda (child)
                                      <tr <td ,(render-node child)>>)
-                               children)>
+                                   children)>
                        <table (:class "node")
                          <thead <tr <td (:colspan ,(length children))
                                         ,(render-standard-object-tree-nested-box-inspector-node -self- node)>>>
-                         <tr ,(map nil (lambda (child)
+                         <tr ,(foreach (lambda (child)
                                          <td ,(render-node child)>)
-                                   children)>>)
+                                       children)>>)
                    <table (:class "leaf")
                      <tr <td ,(render-standard-object-tree-nested-box-inspector-node -self- node)>>>))))
     <div (:class "standard-object-tree-nested-box")

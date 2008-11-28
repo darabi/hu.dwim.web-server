@@ -95,11 +95,11 @@
       ,(when page-icon
          <link (:rel "icon" :type "image/x-icon" :href ,page-icon)>)
       <title ,title>
-      ,@(mapcar (lambda (stylesheet-uri)
+      ,(foreach (lambda (stylesheet-uri)
                   <link (:rel "stylesheet" :type "text/css"
-                         :href ,(if (stringp stylesheet-uri)
-                                    (escape-as-uri stylesheet-uri)
-                                    (print-uri-to-string stylesheet-uri)))>)
+                              :href ,(if (stringp stylesheet-uri)
+                                         (escape-as-uri stylesheet-uri)
+                                         (print-uri-to-string stylesheet-uri)))>)
                 stylesheet-uris)
       ,@head>
      <body (,@body-element-attributes)

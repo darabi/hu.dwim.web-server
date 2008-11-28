@@ -42,7 +42,7 @@
 
 (def (layered-function e) render-table-columns (table-component)
   (:method ((self table-component))
-    (map nil #'render (columns-of self))))
+    (foreach #'render (columns-of self))))
 
 ;;;;;;
 ;;; Column

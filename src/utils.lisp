@@ -18,6 +18,9 @@
                  (collect place)
                  (collect `(not ,place)))))
 
+(def (macro e) foreach (function list)
+  `(map nil ,function ,list))
+
 (def (function io) find-slot (class-or-name slot-name)
   (find slot-name
         (the list
