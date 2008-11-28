@@ -24,6 +24,9 @@
         (render content)
         (render-vertical-list (list content command-bar)))))
 
+(def render-csv alternator-component ()
+  (render-csv (content-of -self-)))
+
 (def function make-alternative-commands (component alternatives)
   (delete nil
           (mapcar (lambda (alternative)

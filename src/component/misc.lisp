@@ -13,6 +13,9 @@
 (def render content-component ()
   (render (content-of -self-)))
 
+(def render-csv content-component ()
+  (render-csv (content-of -self-)))
+
 (def method find-command-bar ((component content-component))
   (or (call-next-method)
       (awhen (content-of component)
@@ -58,6 +61,9 @@
 
 (def render label-component ()
   <span ,(component-value-of -self-)>)
+
+(def render-csv label-component ()
+  (render-csv (component-value-of -self-)))
 
 ;;;;;;
 ;;; Delay

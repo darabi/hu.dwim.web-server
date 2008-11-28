@@ -17,6 +17,9 @@
   (bind (((:read-only-slots label image-path tooltip) -self-))
     (render-icon -self- image-path :label label :tooltip tooltip)))
 
+(def render-csv icon-component ()
+  (render-csv (force (label-of -self-))))
+
 (def layered-function render-icon-label (icon label)
   (:method (icon label)
     `xml,label))

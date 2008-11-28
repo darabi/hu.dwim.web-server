@@ -28,6 +28,9 @@
    (component-value)
    (client-state-sink nil)))
 
+(def render-csv primitive-component ()
+  (render-csv-value (print-component-value -self-)))
+
 (def function ensure-client-state-sink (component)
   (setf (client-state-sink-of component)
         (client-state-sink (client-value)
@@ -423,6 +426,14 @@
   ())
 
 (def render ip-address-component ()
-  (iter (for ip-element :in-sequence (component-value-of -self-))
-        `xml,(princ-to-string ip-element)
-        `xml,"."))
+  `xml,(print-component-value -self-))
+
+(def method print-component-value ((component ip-address-component))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if has-component-value?
+        (with-output-to-string (string)
+          (iter (for ip-element :in-sequence component-value)
+                (unless (first-iteration-p)
+                  (write-char #\. string))
+                (write-string (princ-to-string ip-element) string)))
+        "")))

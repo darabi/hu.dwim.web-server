@@ -32,6 +32,14 @@
               (render page-navigation-bar)
               +void+)>))
 
+(def render-csv table-component ()
+  (render-csv-line (columns-of -self-))
+  (render-csv-line-separator)
+  (iter (for row :in (rows-of -self-))
+        (unless (first-iteration-p)
+          (render-csv-line-separator))
+        (render-csv row)))
+
 (def (layered-function e) render-table-columns (table-component)
   (:method ((self table-component))
     (map nil #'render (columns-of self))))
@@ -47,6 +55,9 @@
 
 (def render column-component ()
   <th ,(call-next-method)>)
+
+(def render-csv row-component ()
+  (render-csv-line (cells-of -self-)))
 
 ;;;;;;
 ;;; Row

@@ -54,7 +54,8 @@
           (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
 
 (def layered-method make-standard-commands ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
-  (append (make-editing-commands component class prototype) (call-next-method)))
+  (list* (make-export-csv-command component)
+         (append (make-editing-commands component class prototype) (call-next-method))))
 
 ;;;;;;
 ;;; Standard object list list inspector

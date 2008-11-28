@@ -53,6 +53,9 @@
   (bind (((:read-only-slots enabled icon action) -self-))
     (render-command action icon :enabled enabled :ajax #f)))
 
+(def render-csv command-component ()
+  (render-csv (icon-of -self-)))
+
 (def render full-featured-command-component ()
   (bind (((:read-only-slots enabled icon action action-arguments js) -self-))
     (render-command action icon :enabled enabled :ajax #f :js js :action-arguments action-arguments)))
@@ -108,6 +111,9 @@
          (sorted-commands (sort-commands parent-component commands)))
     (setf (commands-of -self-) sorted-commands)
     (render-horizontal-list sorted-commands :css-class "command-bar")))
+
+(def render-csv command-bar-component ()
+  (map nil #'render-csv (commands-of -self-)))
 
 (def render :in passive-components-layer command-bar-component
   (values))
