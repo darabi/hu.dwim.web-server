@@ -63,7 +63,8 @@
             (progn
               (setf (slot-value form 'action) decorated-url)
               (form.submit))
-            (setf window.location.href decorated-url)))))
+            (setf window.location.href decorated-url))))
+  (return false))
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)

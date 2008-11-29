@@ -76,7 +76,7 @@
                      (uri (print-uri-to-string action))))
              (onclick-js (or js
                              (lambda (href)
-                               `js-inline(wui.io.action ,href ,ajax ,send-client-state))))
+                               `js-inline(return (wui.io.action ,href ,ajax ,send-client-state)))))
              (name (when (running-in-test-mode-p *application*)
                      (if (typep body 'icon-component)
                          (symbol-name (name-of body))
