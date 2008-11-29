@@ -658,8 +658,10 @@ Custom implementations should look something like this:
   (bind ((uri (clone-request-uri)))
     (clear-uri-query-parameters uri)
     (decorate-uri uri *application*)
-    (decorate-uri uri *session*)
-    (decorate-uri uri *frame*)
+    (when *session*
+      (decorate-uri uri *session*))
+    (when *frame*
+      (decorate-uri uri *frame*))
     (when relative-path
       (append-path-to-uri uri relative-path))
     uri))
