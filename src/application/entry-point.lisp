@@ -71,6 +71,7 @@
   entry-point)
 
 (def (definer e) entry-point ((application &rest args &key
+                                           (with-optional-session/frame-logic #f)
                                            (with-session-logic #t)
                                            (requires-valid-session with-session-logic)
                                            (ensure-session #f)
@@ -88,11 +89,17 @@
                                with-action-logic)))
     (unless (every [typep !1 'boolean] boolean-values)
       (error "The entry-point definer does not evaluate many of its boolean keyword arguments, so they must be either T or NIL. Please check them: ~S" boolean-values)))
+  (when with-optional-session/frame-logic
+    (setf with-session-logic #t)
+    (setf requires-valid-session #f)
+    (setf with-frame-logic #t)
+    (setf requires-valid-frame #f))
   (when (and with-frame-logic (not with-session-logic))
     (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
   (when (and with-action-logic (not with-frame-logic))
     (error "Can't use WITH-ACTION-LOGIC without WITH-FRAME-LOGIC"))
   (remove-from-plistf args :class
+                      :with-optional-session/frame-logic
                       :with-session-logic :requires-valid-session :ensure-session
                       :with-frame-logic :requires-valid-frame :ensure-frame
                       :with-action-logic)
