@@ -292,6 +292,7 @@
 (def (function o) application-handler (application request)
   (bind ((*application* application)
          (*brokers* (cons application *brokers*))
+         ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can freely setf it
          (*session* nil)
          (*frame* nil)
          ;; the request counter is not critical, so just ignore locking...
@@ -301,12 +302,7 @@
                      (sessions-last-purged-at-of application))
                   +session-purge-time-interval+))
       (purge-sessions application))
-    ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can setf it
-    (bind ((response (handle-request application request)))
-      (when response
-        (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of APPLICATION-HANDLER" response)
-        (send-response response)
-        (make-do-nothing-response)))))
+    (handle-request application request)))
 
 (def method handle-request ((application application) request)
   (bind (((:values matches? relative-path) (request-uri-matches-path-prefix? application request)))
@@ -317,7 +313,11 @@
                                               (delayed-content-request?)))
                (local-time:*default-timezone* (default-timezone-of application)))
           (app.debug "~A matched with relative-path ~S, querying entry-points for response" application relative-path)
-          (query-entry-points-for-response application request relative-path))))))
+          (bind ((response (query-entry-points-for-response application request relative-path)))
+            (when response
+              (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of the HANDLE-REQUEST method of application" response)
+              (send-response response)
+              (make-do-nothing-response))))))))
 
 (def (function o) query-entry-points-for-response (application initial-request relative-path)
   (assert (eq *application* application))
