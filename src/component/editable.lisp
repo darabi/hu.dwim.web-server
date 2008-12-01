@@ -172,3 +172,6 @@
           (list (make-begin-editing-command component)
                 (make-save-editing-command component)
                 (make-cancel-editing-command component))))))
+
+(def layered-method make-standard-commands ((component editable-component) (class standard-class) (instance-or-prototype standard-object))
+  (append (make-editing-commands component class instance-or-prototype) (call-next-method)))

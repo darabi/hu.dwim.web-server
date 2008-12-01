@@ -7,13 +7,17 @@
 ;;;;;;
 ;;; Customization points
 
-(def (layered-function e) make-standard-commands (component classs prototype-or-instance)
+(def (layered-function e) make-standard-commands (component class prototype-or-instance)
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
-    (optional-list (make-open-in-new-frame-command component class prototype-or-instance)
-                   (make-focus-command component class prototype-or-instance)))
+    (make-move-commands component class prototype-or-instance))
 
   (:method ((component inspector-component) (class standard-class) (prototype-or-instance standard-object))
     (list* (make-refresh-command component) (call-next-method))))
+
+(def (layered-function e) make-move-commands (component class prototype-or-instance)
+  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+    (optional-list (make-open-in-new-frame-command component class prototype-or-instance)
+                   (make-focus-command component class prototype-or-instance))))
 
 (def (layered-function e) make-expand-command (component class prototype-or-instance))
 

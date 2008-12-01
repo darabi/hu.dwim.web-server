@@ -11,6 +11,7 @@
                                                inspector-component
                                                alternator-component
                                                editable-component
+                                               exportable-component
                                                user-message-collector-component-mixin
                                                remote-identity-component-mixin
                                                initargs-component-mixin)
@@ -45,11 +46,6 @@
   <div (:class "standard-object-tree")
     ,(render-user-messages -self-)
     ,(call-next-method)>)
-
-(def layered-method make-standard-commands ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
-  (list* (make-export-csv-command component)
-         (make-export-pdf-command component)
-         (append (make-editing-commands component class instance) (call-next-method))))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class instance)
   (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
@@ -199,8 +195,11 @@
   (call-next-method))
 
 (def layered-method make-standard-commands ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
-  (append (make-editing-commands component class instance)
-          (optional-list (make-expand-command component class instance))))
+  (append (optional-list (make-expand-command component class instance))
+          (call-next-method)))
+
+(def layered-method make-move-commands ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
+  nil)
 
 (def layered-method make-expand-command ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-node-component) :content (make-viewer instance :default-component-type 'detail-component)))

@@ -11,6 +11,7 @@
                                                abstract-standard-class-component
                                                inspector-component
                                                editable-component
+                                               exportable-component
                                                alternator-component
                                                user-message-collector-component-mixin
                                                remote-identity-component-mixin
@@ -52,11 +53,6 @@
     (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
           (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
           (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
-
-(def layered-method make-standard-commands ((component standard-object-list-inspector) (class standard-class) (prototype standard-object))
-  (list* (make-export-csv-command component)
-         (make-export-pdf-command component)
-         (append (make-editing-commands component class prototype) (call-next-method))))
 
 ;;;;;;
 ;;; Standard object list list inspector
@@ -203,8 +199,11 @@
   (call-next-method))
 
 (def layered-method make-standard-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
-  (append (make-editing-commands component class instance)
-          (optional-list (make-expand-command component class instance))))
+  (append (optional-list (make-expand-command component class instance))
+          (call-next-method)))
+
+(def layered-method make-move-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
+  nil)
 
 (def layered-method make-expand-command ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer instance :default-component-type 'detail-component)))

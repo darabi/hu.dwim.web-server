@@ -10,6 +10,7 @@
 (def component standard-object-inspector (abstract-standard-object-component
                                           inspector-component
                                           editable-component
+                                          exportable-component
                                           alternator-component
                                           user-message-collector-component-mixin
                                           remote-identity-component-mixin
@@ -56,11 +57,6 @@
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
     (list (delay-alternative-component-with-initargs 'standard-object-detail-inspector :instance instance)
           (delay-alternative-reference-component 'standard-object-inspector-reference instance))))
-
-(def layered-method make-standard-commands ((component standard-object-inspector) (class standard-class) (instance standard-object))
-  (list* (make-export-csv-command component)
-         (make-export-pdf-command component)
-         (append (make-editing-commands component class instance) (call-next-method))))
 
 (def (function e) make-delete-instance-command (self)
   (make-instance 'command-component

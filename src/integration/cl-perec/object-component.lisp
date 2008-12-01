@@ -12,10 +12,6 @@
 (def method hash-key-for ((instance prc::persistent-object))
   (prc::oid-of instance))
 
-(def layered-method make-editing-commands ((component abstract-standard-object-component) (class prc::persistent-class) (instance-or-prototype prc::persistent-object))
-  (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
-    (call-next-method)))
-
 (def layered-method make-expand-command ((component standard-object-tree-node-inspector) (class prc::persistent-class) (instance prc::persistent-object))
   (when (dmm::authorize-operation 'expand-instance-operation :-entity- class)
     (call-next-method)))
