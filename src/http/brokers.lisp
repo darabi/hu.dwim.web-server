@@ -119,9 +119,9 @@
   (format *standard-output* "~S" (path-prefix-of -self-)))
 
 (defmethod matches-request? ((broker broker-with-path-prefix) request)
-  (matches-request-uri-path-prefix? (path-of broker) request))
+  (request-uri-matches-path-prefix? (path-of broker) request))
 
-(def (function o) matches-request-uri-path-prefix? (path-prefix request)
+(def (function o) request-uri-matches-path-prefix? (path-prefix request)
   (bind ((path-prefix (etypecase path-prefix
                         (string path-prefix)
                         (broker-with-path-prefix (path-prefix-of path-prefix))))

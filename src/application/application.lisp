@@ -309,7 +309,7 @@
         (make-do-nothing-response)))))
 
 (def method handle-request ((application application) request)
-  (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? application request)))
+  (bind (((:values matches? relative-path) (request-uri-matches-path-prefix? application request)))
     (when matches?
       (with-locale (default-locale-of application)
         (bind ((*ajax-aware-request* (ajax-aware-request?))

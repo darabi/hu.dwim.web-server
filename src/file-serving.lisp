@@ -35,7 +35,7 @@
       (file-serving-handler -self- request (root-directory-of -self-) (path-prefix-of -self-)))))
 
 (def function file-serving-handler (broker request root-directory path-prefix)
-  (bind (((:values matches? relative-path) (matches-request-uri-path-prefix? path-prefix request)))
+  (bind (((:values matches? relative-path) (request-uri-matches-path-prefix? path-prefix request)))
     (when matches?
       (server.debug "Returning file serving response for path-prefix ~S, relative-path ~S, root-directory ~A" path-prefix relative-path root-directory)
       (make-file-serving-response-for-query-path broker path-prefix relative-path root-directory))))
