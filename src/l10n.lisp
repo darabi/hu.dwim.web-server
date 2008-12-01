@@ -125,8 +125,7 @@
       ,str>))
 
 (def (constant :test 'equal) +timestamp-format+ '((:year 4) #\- (:month 2) #\- (:day 2) #\ 
-                                                  (:hour 2) #\: (:min 2) #\: (:sec 2) #\.
-                                                  (:usec 6)))
+                                                  (:hour 2) #\: (:min 2) #\: (:sec 2)))
 
 (def (function e) localized-timestamp (timestamp)
   ;; TODO many
