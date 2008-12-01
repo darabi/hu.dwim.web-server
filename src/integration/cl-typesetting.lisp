@@ -5,18 +5,30 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Render
+;;; Export
+
+(def (special-variable e) *total-page-count*)
 
 (def layered-method execute-export-pdf ((component component))
   (bind ((typeset::*default-font* (pdf:get-font "Times-Roman"))
-         (typeset::*font* typeset::*default-font*))
+         (typeset::*font* typeset::*default-font*)
+         (*total-page-count* 0))
     (typeset::with-document ()
-      (typeset:draw-pages (typeset:compile-text ()
-                            (render-pdf component))
-                          :margins '(72 72 72 50))
+      (render-pdf-pages component)
       (when pdf:*page*
         (typeset:finalize-page pdf:*page*))
       (typeset:write-document *pdf-stream*))))
+
+(def (layered-function e) render-pdf-pages (component)
+  (:method ((component component))
+    (typeset:draw-pages (typeset:compile-text ()
+                          (render-pdf component))
+                        :margins '(72 72 72 50)
+                        :header (render-pdf-header component)
+                        :footer (render-pdf-footer component))))
+
+;;;;;;
+;;; Render pdf
 
 (def render-pdf string ()
   (typeset:put-string -self-))
@@ -112,3 +124,28 @@
   
   (:method ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
     (render-pdf cell)))
+
+;;;;;;
+;;; Utilities
+
+(def (layered-function e) render-pdf-header (component)
+  (:method ((component component))
+    (values)))
+
+(def (layered-function e) render-pdf-footer (component)
+  (:method ((component component))
+    (values)))
+
+(def (function e) digest->bar-code (digest)
+  (iter (with bar-code = 0)
+        (for index :from (1- (length digest)) :downto 0)
+        (for digest-byte :in-vector digest)
+        (setf (ldb (byte 8 (* 8 index)) bar-code) digest-byte)
+        (finally (return bar-code))))
+
+(def (function e) render-pdf-bar-code (bar-code box x y)
+  (pdf:draw-bar-code128 (format nil "~10,'0d" bar-code) x y
+                        :width (typeset::dx box) :height (typeset::dy box) :font-size 6 :start-stop-factor 0.4 :segs-per-char 6.5))
+
+(def (function e) render-pdf-dots (count)
+  (typeset:put-string (make-array count :initial-element #\. :element-type 'character)))

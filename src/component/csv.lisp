@@ -5,40 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Command
-
-(def icon export-csv "static/wui/icons/20x20/document.png")
-
-(def resources hu
-    (icon-label.export-csv "CSV")
-  (icon-tooltip.export-csv "A tartalom mentése CSV formátumban"))
-
-(def resources en
-    (icon-label.export-csv "CSV")
-  (icon-tooltip.export-csv "Export content in CSV format"))
-
-(def special-variable *csv-stream*)
-
-(def (function e) make-export-csv-command (component)
-  (command (icon export-csv)
-           (make-action
-             (make-raw-functional-response ((+header/content-type+ +csv-mime-type+))
-               (send-headers *response*)
-               (bind ((*csv-stream* (network-stream-of *request*)))
-                 (execute-export-csv component))))))
-
-(def (layered-function e) execute-export-csv (component)
-  (:method ((component component))
-    (render-csv component)))
-
-;;;;;;
 ;;; Render
 
 (def (constant :test #'equal) +whitespace-chars+ '(#\Space #\Tab #\Linefeed #\Return #\Page))
 
 (def constant +csv-quote-char+ #\")
 
-(def constant +csv-value-separator+ #\,)
+(def constant +csv-value-separator+ #\Tab)
 
 (def constant +csv-line-separator+ #\NewLine)
 
