@@ -46,8 +46,8 @@
 ;; don't call these make-foo because that would be misleading. it's not only about making, but also
 ;; about registering the actions, and the time the registering happens is quite important. leave
 ;; the make-foo nameing convention for sideffect-free stuff...
-(def (macro e) action/uri ((&key scheme delayed-content) &body body)
-  `(register-action/uri (make-action ,@body) :scheme ,scheme :delayed-content ,delayed-content))
+(def (macro e) action/uri ((&key scheme path delayed-content) &body body)
+  `(register-action/uri (make-action ,@body) :scheme ,scheme :path ,path :delayed-content ,delayed-content))
 
 (def (macro e) action/href ((&key scheme delayed-content) &body body)
   `(print-uri-to-string
@@ -65,7 +65,7 @@
     (app.dribble "Registered action with id ~S in frame ~A" action-id frame))
   action)
 
-(def (function e) register-action/uri (action &key scheme delayed-content)
+(def (function e) register-action/uri (action &key scheme path delayed-content)
   (bind ((uri (clone-request-uri)))
     (register-action *frame* action)
     (decorate-uri uri *application*)
@@ -74,12 +74,14 @@
     (decorate-uri uri action)
     (when scheme
       (setf (scheme-of uri) scheme))
+    (when path
+      (append-path-to-uri uri path))
     (setf (uri-query-parameter-value uri +delayed-content-parameter-name+)
           (if delayed-content "t" nil))
     uri))
 
-(def (function e) register-action/href (action &key scheme delayed-content)
-  (print-uri-to-string (register-action/uri action :scheme scheme :delayed-content delayed-content)))
+(def (function e) register-action/href (action &key scheme path delayed-content)
+  (print-uri-to-string (register-action/uri action :scheme scheme :path path :delayed-content delayed-content)))
 
 (def (generic e) decorate-uri (uri thing)
   (:method progn (uri thing)
