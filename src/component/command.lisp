@@ -27,13 +27,10 @@
   ((action-arguments nil)
    (js nil)))
 
-(def (macro e) command (icon action &key (enabled #t) (visible #t)
-                             js
-                             scheme
+(def (macro e) command (icon action &key (enabled #t) (visible #t) js scheme path
                              (delayed-content nil delayed-content-provided?)
                              (send-client-state #t send-client-state-provided?))
-  (if (or js
-          scheme
+  (if (or js scheme path
           delayed-content-provided?
           send-client-state-provided?)
       `(make-instance 'full-featured-command-component
@@ -44,6 +41,7 @@
                       :js ,js
                       :action-arguments (list :delayed-content ,delayed-content
                                               :scheme ,scheme
+                                              :path ,path
                                               :send-client-state ,send-client-state))
       `(make-instance 'command-component
                       :icon ,icon
