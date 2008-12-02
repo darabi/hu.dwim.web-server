@@ -193,22 +193,20 @@
 
 (def layered-method render-table-row ((table standard-object-list-table-inspector) (row standard-object-row-inspector))
   (when (messages-of row)
-    (render-entire-row table
+    (render-entire-row table row
                        (lambda ()
                          (render-user-messages row))))
   (call-next-method))
 
 (def layered-method make-standard-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
-  (append (optional-list (make-expand-command component class instance))
-          (call-next-method)))
+  (append (optional-list (make-expand-command component class instance)) (call-next-method)))
 
 (def layered-method make-move-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
   nil)
 
 (def layered-method make-expand-command ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer instance :default-component-type 'detail-component)))
-                                      (list :icon (icon expand)
-                                            :visible (delay (not (has-edited-descendant-component-p component))))
+                                      (list :icon (icon expand) :visible (delay (not (has-edited-descendant-component-p component))))
                                       (list :icon (icon collapse))))
 
 ;;;;;;

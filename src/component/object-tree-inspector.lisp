@@ -181,7 +181,7 @@
 
 (def render standard-object-tree-node-inspector ()
   (when (messages-of -self-)
-    (render-entire-node -self- (find-ancestor-component-with-type -self- 'tree-component)
+    (render-entire-node (find-ancestor-component-with-type -self- 'tree-component) -self-
                         (lambda ()
                           (render-user-messages -self-))))
   (call-next-method))

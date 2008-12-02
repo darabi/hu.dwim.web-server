@@ -7,12 +7,19 @@
 ;;;;;;
 ;;; Tree
 
+(def special-variable *tree*)
+
 (def special-variable *tree-level*)
 
 (def component tree-component (remote-identity-component-mixin)
   ((columns nil :type components)
    (root-nodes nil :type components)
    (expand-nodes-by-default #f :type boolean)))
+
+(def call-in-component-environment tree-component ()
+  (bind ((*tree* -self-)
+         (*tree-level* -1))
+    (call-next-method)))
 
 (def render tree-component ()
   (bind (((:read-only-slots root-nodes id) -self-))
@@ -24,10 +31,6 @@
   (render-csv-line (columns-of -self-))
   (render-csv-line-separator)
   (foreach #'render-csv (root-nodes-of -self-)))
-
-(def call-in-component-environment tree-component ()
-  (bind ((*tree-level* -1))
-    (call-next-method)))
 
 (def (layered-function e) render-tree-columns (tree-component)
   (:method ((self tree-component))
@@ -41,8 +44,11 @@
    (cells nil :type components)))
 
 (def render node-component ()
-  (bind (((:read-only-slots child-nodes expanded id style) -self-))
-    <tr (:id ,id :class ,(tree-node-style-class -self-) :style ,style)
+  (bind (((:read-only-slots child-nodes expanded id style) -self-)
+         (tree-id (id-of *tree*)))
+    <tr (:id ,id :class ,(tree-node-style-class -self-) :style ,style
+         :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,tree-id ,id)
+         :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,tree-id ,id))
       ,(render-tree-node-expander-cell -self-)
       ,(render-tree-node-cells -self-) >
     (when expanded
@@ -92,11 +98,14 @@
 (def component entire-node-component (remote-identity-component-mixin content-component)
   ())
 
-(def function render-entire-node (node tree body-thunk)
-  (with-slots (id) node
+(def function render-entire-node (tree node body-thunk)
+  (bind (((:read-only-slots id) node)
+         (tree-id (id-of tree)))
     (list <tr (:id ,id)
-              <td (:colspan ,(length (columns-of tree)))
+              <td (:colspan ,(length (columns-of tree))
+                   :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,tree-id ,id)
+                   :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,tree-id ,id))
                   ,(funcall body-thunk)>>)))
 
 (def render entire-node-component ()
-  (render-entire-node -self- (find-ancestor-component-with-type -self- 'tree-component) #'call-next-method))
+  (render-entire-node *tree* -self- #'call-next-method))

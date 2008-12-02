@@ -7,6 +7,8 @@
 ;;;;;;
 ;;; Table
 
+(def special-variable *table*)
+
 (def component table-component (remote-identity-component-mixin)
   ((columns nil :type components)
    (rows nil :type components)
@@ -14,10 +16,14 @@
     (make-instance 'page-navigation-bar-component :page-count 10)
     :type component)))
 
+(def call-in-component-environment table-component ()
+  (bind ((*table* -self-))
+    (call-next-method)))
+
 (def render table-component ()
-  (bind (((:read-only-slots rows page-navigation-bar) -self-))
+  (bind (((:read-only-slots rows page-navigation-bar id) -self-))
     (setf (total-count-of page-navigation-bar) (length rows))
-    <div <table (:class "table")
+    <div <table (:id ,id :class "table")
            <thead
             <tr ,(render-table-columns -self-)>>
            <tbody
@@ -27,7 +33,7 @@
                                                (+ (position-of page-navigation-bar)
                                                   (page-count-of page-navigation-bar))))))
                    (iter (for row :in-sequence visible-rows)
-                         (render-table-row -self- row)))>>
+                         (render row)))>>
          ,(if (< (page-count-of page-navigation-bar) (total-count-of page-navigation-bar))
               (render page-navigation-bar)
               +void+)>))
@@ -77,9 +83,12 @@
         +void+))
 
   (:method ((table table-component) (row row-component))
-    (assert (eq (parent-component-of row) table))
-    <tr (:class ,(table-row-style-class table row))
-      ,(render-table-row-cells table row)>))
+    (bind (((:read-only-slots id) row)
+           (table-id (id-of table)))
+      <tr (:id ,id :class ,(table-row-style-class table row)
+           :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,table-id ,id)
+           :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,table-id ,id))
+        ,(render-table-row-cells table row)>)))
 
 (def (layered-function e) table-row-style-class (table row)
   (:method ((table table-component) (row row-component))
@@ -93,7 +102,7 @@
             (render-table-cell table row column cell)))))
 
 (def render row-component ()
-  (render-table-row (parent-component-of -self-) -self-))
+  (render-table-row *table* -self-))
 
 (def render-csv row-component ()
   (render-csv-line (cells-of -self-))
@@ -108,12 +117,17 @@
 (def layered-method render-table-row ((table table-component) (row entire-row-component))
   (render row))
 
-(def function render-entire-row (table body-thunk)
-  <tr <td (:colspan ,(length (columns-of table)))
-          ,(funcall body-thunk)>>)
+(def function render-entire-row (table row body-thunk)
+  (bind (((:read-only-slots id) row)
+           (table-id (id-of table)))
+    <tr (:id ,id)
+        <td (:colspan ,(length (columns-of table))
+             :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,table-id ,id)
+             :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,table-id ,id))
+            ,(funcall body-thunk)>>))
 
 (def render entire-row-component ()
-  (render-entire-row (parent-component-of -self-) #'call-next-method))
+  (render-entire-row *table* -self- #'call-next-method))
 
 ;;;;;;
 ;;; Cell

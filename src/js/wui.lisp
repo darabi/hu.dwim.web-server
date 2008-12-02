@@ -396,6 +396,15 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;
+;;; highlight
+
+(defun wui.highlight-mouse-enter-handler ((table :by-id) (row :by-id))
+  (dojo.add-class row "highlighted"))
+
+(defun wui.highlight-mouse-leave-handler ((table :by-id) (row :by-id))
+  (dojo.remove-class row "highlighted"))
+
+;;;;;;;;;;;;;;;;;;;;;
 ;;; fields
 
 (defun wui.field.setup-simple-checkbox (checkbox-id checked-tooltip unchecked-tooltip)
