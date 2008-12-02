@@ -422,6 +422,7 @@
               :type "hidden")>
       <div (:id       ,id
             :dojoType #.+dijit/editor+
+            :extraPlugins "['foreColor','hiliteColor',{name:'dijit._editor.plugins.FontChoice', command:'fontName', generic:true},'fontSize','createLink','insertImage']"
             :onChange `js-inline(setf (slot-value (dojo.byId ,field-id) 'value) (.getValue (dijit.byId ,id))))
         ,(emit-html-component-value component)>)))
 
