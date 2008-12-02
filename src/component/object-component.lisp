@@ -12,7 +12,7 @@
     (make-move-commands component class prototype-or-instance))
 
   (:method ((component inspector-component) (class standard-class) (prototype-or-instance standard-object))
-    (list* (make-refresh-command component) (call-next-method))))
+    (list* (make-refresh-command component class prototype-or-instance) (call-next-method))))
 
 (def (layered-function e) make-move-commands (component class prototype-or-instance)
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))

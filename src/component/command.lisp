@@ -229,11 +229,11 @@
   (:method :after ((self component))
     (setf (outdated-p self) #f)))
 
-(def (function e) make-refresh-command (component)
-  (make-instance 'command-component
-                 :icon (icon refresh)
-                 :action (make-component-action component
-                           (refresh-component component))))
+(def (layered-function e) make-refresh-command (component class prototype-or-instance)
+  (:method ((component inspector-component) (class standard-class) (prototype-or-instance standard-object))
+    (command (icon refresh)
+             (make-component-action component
+               (refresh-component component)))))
 
 (def (function e) make-replace-command (original-component replacement-component &rest replace-command-args)
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT"
