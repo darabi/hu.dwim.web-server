@@ -26,7 +26,7 @@
     (localized-class-name class)))
 
 ;;;;;;
-;;; Abstract standard class
+;;; Abstract standard class component
 
 (def component abstract-standard-class-component ()
   ((the-class nil :type (or null standard-class)))
@@ -39,7 +39,7 @@
   (setf (the-class-of component) new-value))
 
 ;;;;;;
-;;; Abstract standard slot definition
+;;; Abstract standard slot definition component
 
 (def component abstract-standard-slot-definition-component ()
   ((the-class nil :type (or null standard-class))
@@ -53,7 +53,7 @@
   (setf (slot-of component) new-value))
 
 ;;;;;;
-;;; Abstract standard slot definition group
+;;; Abstract standard slot definition group component
 
 (def component abstract-standard-slot-definition-group-component ()
   ((the-class nil :type (or null standard-class))
@@ -67,7 +67,7 @@
   (setf (slots-of component) new-value))
 
 ;;;;;;
-;;; Abstract standard object
+;;; Abstract standard object component
 
 (def component abstract-standard-object-component ()
   ((instance nil :type (or null standard-object)))
@@ -93,14 +93,14 @@
       (setf (instance-of self) reused-instance))))
 
 ;;;;;;
-;;; Abstract standard object slot value
+;;; Abstract standard object slot value component
 
 (def component abstract-standard-object-slot-value-component (abstract-standard-slot-definition-component abstract-standard-object-component)
   ()
   (:documentation "Base class with a STANDARD-SLOT-DEFINITION component value and a STANDARD-OBJECT instance."))
 
 ;;;;;;
-;;; Abstract standard object list
+;;; Abstract standard object list component
 
 (def component abstract-standard-object-list-component ()
   ((instances nil :type list))
@@ -120,12 +120,16 @@
                 (instances-of self))))
 
 ;;;;;;
-;;; Abstract standard object tree
+;;; Abstract standard object tree component
 
-(def component abstract-standard-object-tree-component (abstract-standard-object-component abstract-standard-class-component)
+(def component abstract-standard-object-tree-component (abstract-standard-object-list-component abstract-standard-class-component)
   ((parent-provider nil :type (or symbol function))
    (children-provider nil :type (or symbol function)))
-  (:documentation "Base class with a TREE of STANDARD-OBJECT instances as component value."))
+  (:documentation "Base class with a list of TREE of STANDARD-OBJECT instances as component value."))
+
+(def constructor (abstract-standard-object-tree-component (instance nil instance?))
+  (when instance?
+    (setf (instances-of -self-) (list instance))))
 
 (def method clone-component ((self abstract-standard-object-tree-component))
   (prog1-bind clone (call-next-method)
@@ -133,7 +137,16 @@
     (setf (children-provider-of clone) (children-provider-of self))))
 
 ;;;;;;
-;;; Abstract selectable standard object
+;;; Abstract standard object node component
+
+;; TODO: tree, tree-node and table, table-row or tree, node and table, row
+(def component abstract-standard-object-node-component (abstract-standard-object-component abstract-standard-class-component)
+  ((parent-provider nil :type (or symbol function))
+   (children-provider nil :type (or symbol function)))
+  (:documentation "Base class with a TREE of STANDARD-OBJECT instances as component value."))
+
+;;;;;;
+;;; Abstract selectable standard object component
 
 (def component abstract-selectable-standard-object-component ()
   ((selected-instance-set (compute-as (or -current-value- (make-hash-table :test #'eql))) :type (or null hash-table))
@@ -213,7 +226,7 @@
   (standard-object-detail-component.secondary-group "Egyéb tulajdonságok"))
 
 ;;;;;;
-;;; Standard object slot value group 
+;;; Standard object slot value group component
 
 (def component standard-object-slot-value-group-component (abstract-standard-slot-definition-group-component remote-identity-component-mixin)
   ((name nil :type component)
@@ -242,7 +255,7 @@
   (standard-object-slot-value-group.there-are-no-slots "Nincs egy tulajdonság sem"))
 
 ;;;;;;
-;;; Standard object slot value
+;;; Standard object slot value component
 
 (def component standard-object-slot-value-component (abstract-standard-slot-definition-component remote-identity-component-mixin)
   ((label nil :type component)

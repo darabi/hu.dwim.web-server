@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Standard object tree
+;;; Standard object tree inspector
 
 (def component standard-object-tree-inspector (abstract-standard-object-tree-component
                                                inspector-component
@@ -23,52 +23,44 @@
   `(make-instance 'standard-object-tree-inspector :instance ,root :children-provider ,children-provider :parent-provider ,parent-provider ,@args))
 
 (def method refresh-component ((self standard-object-tree-inspector))
-  (with-slots (instance the-class children-provider default-component-type alternatives alternatives-factory content command-bar) self
-    (if instance
-        (progn
-          (if (and alternatives
-                   (not (typep content 'null-component)))
-              (setf (component-value-for-alternatives self) instance)
-              (setf alternatives (funcall alternatives-factory self (class-of instance) instance)))
-          (if (and content
-                   (not (typep content 'null-component)))
-              (setf (component-value-of content) instance)
-              (setf content (if default-component-type
-                                (find-alternative-component alternatives default-component-type)
-                                (find-default-alternative-component alternatives))))
-          (setf command-bar (make-alternator-command-bar self alternatives
-                                                         (make-standard-commands self the-class instance))))
-        (setf alternatives (list (delay-alternative-component-with-initargs 'null-component))
-              content (find-default-alternative-component alternatives)
-              command-bar nil))))
+  (with-slots (instances the-class children-provider default-component-type alternatives alternatives-factory content command-bar) self
+    (if alternatives
+        (setf (component-value-for-alternatives self) instances)
+        (setf alternatives (funcall alternatives-factory self the-class (class-prototype the-class) instances)))
+    (if content
+        (setf (component-value-of content) instances)
+        (setf content (if default-component-type
+                          (find-alternative-component alternatives default-component-type)
+                          (find-default-alternative-component alternatives))))
+    (setf command-bar (make-alternator-command-bar self alternatives
+                                                   (make-standard-commands self the-class (class-prototype the-class))))))
 
 (def render standard-object-tree-inspector ()
   <div (:class "standard-object-tree")
     ,(render-user-messages -self-)
     ,(call-next-method)>)
 
-(def (layered-function e) make-standard-object-tree-inspector-alternatives (component class instance)
-  (:method ((component standard-object-tree-inspector) (class standard-class) (instance standard-object))
-    ;; TODO: factor
+(def (layered-function e) make-standard-object-tree-inspector-alternatives (component class prototype instances)
+  (:method ((component standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
     (list (delay-alternative-component-with-initargs 'standard-object-tree-table-inspector
-                                                     :instance instance
+                                                     :instances instances
                                                      :the-class (the-class-of component)
                                                      :children-provider (children-provider-of component)
                                                      :parent-provider (parent-provider-of component))
           (delay-alternative-component-with-initargs 'standard-object-tree-nested-box-inspector
-                                                     :instance instance
+                                                     :instances instances
                                                      :the-class (the-class-of component)
                                                      :children-provider (children-provider-of component)
                                                      :parent-provider (parent-provider-of component))
           (delay-alternative-component-with-initargs 'standard-object-tree-level-inspector
-                                                     :instance instance
+                                                     :instances instances
                                                      :the-class (the-class-of component)
                                                      :children-provider (children-provider-of component)
                                                      :parent-provider (parent-provider-of component))
-          (delay-alternative-reference-component 'standard-object-tree-inspector-reference instance))))
+          (delay-alternative-reference-component 'standard-object-tree-inspector-reference instances))))
 
 ;;;;;;
-;;; Standard object tree table
+;;; Standard object tree table inspector
 
 (def component standard-object-tree-table-inspector (abstract-standard-object-tree-component
                                                      inspector-component
@@ -78,11 +70,11 @@
 
 ;; TODO: factor out common parts with standard-object-list-table-inspector
 (def method refresh-component ((self standard-object-tree-table-inspector))
-  (with-slots (instance root-nodes columns) self
+  (with-slots (instances root-nodes columns) self
     (setf columns (make-standard-object-tree-table-inspector-columns self))
     (if root-nodes
-        (setf (component-value-of (first root-nodes)) instance)
-        (setf root-nodes (list (make-standard-object-tree-table-node self (class-of instance) instance))))))
+        (foreach [setf (component-value-of !1) !2] root-nodes instances)
+        (setf root-nodes (mapcar [make-standard-object-tree-table-node self (class-of !1) !1] instances)))))
 
 (def (function e) make-standard-object-tree-table-type-column ()
   (make-instance 'column-component
@@ -109,7 +101,7 @@
 
 (def (generic e) make-standard-object-tree-table-inspector-slot-columns (component)
   (:method ((self standard-object-tree-table-inspector))
-    (with-slots (instance children-provider the-class) self
+    (with-slots (instances children-provider the-class) self
       (bind ((slot-name->slot-map (list)))
         ;; KLUDGE: TODO: this register mapping is wrong, it maps slot-names to randomly choosen effective-slots
         (labels ((register-slot (slot)
@@ -122,7 +114,7 @@
                      (register-instance child))))
           (when the-class
             (mapc #'register-slot (collect-standard-object-tree-table-inspector-slots self the-class (class-prototype the-class))))
-          (register-instance instance))
+          (foreach #'register-instance instances))
         (mapcar (lambda (slot-name->slot)
                   (make-standard-object-tree-table-inspector-slot-column (localized-slot-name (cdr slot-name->slot)) (car slot-name->slot)))
                 (nreverse slot-name->slot-map))))))
@@ -149,9 +141,9 @@
   (object-tree-table.column.type "type"))
 
 ;;;;;;
-;;; Standard object node
+;;; Standard object node inspector
 
-(def component standard-object-tree-node-inspector (abstract-standard-object-tree-component
+(def component standard-object-tree-node-inspector (abstract-standard-object-node-component
                                                     inspector-component
                                                     node-component
                                                     editable-component
@@ -289,7 +281,7 @@
                      ,segment>>))))
 
 ;;;;;;
-;;; Standard object tree nested box
+;;; Standard object tree nested box inspector
 
 (def special-variable *standard-object-tree-level* 0)
 
@@ -336,24 +328,13 @@
   (awhen (content-of self)
     (selected-instance-of it)))
 
-(def layered-method make-standard-object-tree-inspector-alternatives ((component selectable-standard-object-tree-inspector) (class standard-class) (instance standard-object))
-  ;; TODO: factor
-  (list (delay-alternative-component-with-initargs 'selectable-standard-object-tree-table-inspector
-                                                   :instance instance
-                                                   :the-class (the-class-of component)
-                                                   :children-provider (children-provider-of component)
-                                                   :parent-provider (parent-provider-of component))
-        (delay-alternative-component-with-initargs 'standard-object-tree-nested-box-inspector
-                                                   :instance instance
-                                                   :the-class (the-class-of component)
-                                                   :children-provider (children-provider-of component)
-                                                   :parent-provider (parent-provider-of component))
-        (delay-alternative-component-with-initargs 'standard-object-tree-level-inspector
-                                                   :instance instance
-                                                   :the-class (the-class-of component)
-                                                   :children-provider (children-provider-of component)
-                                                   :parent-provider (parent-provider-of component))
-        (delay-alternative-reference-component 'standard-object-tree-inspector-reference instance)))
+(def layered-method make-standard-object-tree-inspector-alternatives ((component selectable-standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
+  (list* (delay-alternative-component-with-initargs 'selectable-standard-object-tree-table-inspector
+                                                    :instances instances
+                                                    :the-class (the-class-of component)
+                                                    :children-provider (children-provider-of component)
+                                                    :parent-provider (parent-provider-of component))
+         (call-next-method)))
 
 ;;;;;;
 ;;; Selectable standard object tree table inspector

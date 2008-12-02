@@ -44,9 +44,9 @@
             (map-tree value unfiltered-children-provider #'collect-visible-instance)
             (map-parent-chain value parent-provider #'collect-visible-instance)))))
 
-(def layered-method make-standard-object-tree-inspector-alternatives ((component filtered-standard-object-tree-inspector) (class standard-class) (instance standard-object))
+(def layered-method make-standard-object-tree-inspector-alternatives ((component filtered-standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
   (list* (delay-alternative-component-with-initargs 'filtered-standard-object-tree-table-inspector
-                                                    :instance instance
+                                                    :instances instances
                                                     :the-class class
                                                     :children-provider (children-provider-of component)
                                                     :parent-provider (parent-provider-of component))
