@@ -42,6 +42,8 @@
 (def render-csv string ()
   (render-csv-value -self-))
 
+(def (layered-function e) render-onclick-handler (component))
+
 (def (type e) components ()
   'sequence)
 

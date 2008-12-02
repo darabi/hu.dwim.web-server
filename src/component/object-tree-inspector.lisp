@@ -186,6 +186,11 @@
                           (render-user-messages -self-))))
   (call-next-method))
 
+(def layered-method render-onclick-handler ((self standard-object-tree-node-inspector))
+  (bind ((expand-command (find-command-bar-command (command-bar-of self) 'expand)))
+    (when expand-command
+      `js-inline(return (wui.io.action ,(register-action/href (action-of expand-command)) #f #t)))))
+
 (def layered-method make-standard-commands ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
   (append (optional-list (make-expand-command component class instance))
           (call-next-method)))
@@ -366,3 +371,8 @@
 
 (def layered-method make-standard-commands ((component selectable-standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
   (append (call-next-method) (optional-list (make-select-instance-command component class instance))))
+
+(def layered-method render-onclick-handler ((self selectable-standard-object-tree-node-inspector))
+  (bind ((select-command (find-command-bar-command (command-bar-of self) 'select)))
+    (when select-command
+      `js-inline(return (wui.io.action ,(register-action/href (action-of select-command)) #f #t)))))

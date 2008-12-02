@@ -75,6 +75,9 @@
       "even-row"
       "odd-row"))
 
+(def layered-method render-onclick-handler ((self row-component))
+  nil)
+
 (def (layered-function e) render-table-row (table row)
   (:method :around ((table table-component) (row row-component))
     (ensure-uptodate row)
@@ -86,6 +89,7 @@
     (bind (((:read-only-slots id) row)
            (table-id (id-of table)))
       <tr (:id ,id :class ,(table-row-style-class table row)
+           :onclick ,(render-onclick-handler row)
            :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,table-id ,id)
            :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,table-id ,id))
         ,(render-table-row-cells table row)>)))
@@ -117,11 +121,15 @@
 (def layered-method render-table-row ((table table-component) (row entire-row-component))
   (render row))
 
+(def layered-method render-onclick-handler ((self entire-row-component))
+  nil)
+
 (def function render-entire-row (table row body-thunk)
   (bind (((:read-only-slots id) row)
            (table-id (id-of table)))
     <tr (:id ,id)
         <td (:colspan ,(length (columns-of table))
+             :onclick ,(render-onclick-handler row)
              :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,table-id ,id)
              :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,table-id ,id))
             ,(funcall body-thunk)>>))

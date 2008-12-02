@@ -43,10 +43,14 @@
   ((child-nodes nil :type components)
    (cells nil :type components)))
 
+(def layered-method render-onclick-handler ((self node-component))
+  nil)
+
 (def render node-component ()
   (bind (((:read-only-slots child-nodes expanded id style) -self-)
          (tree-id (id-of *tree*)))
     <tr (:id ,id :class ,(tree-node-style-class -self-) :style ,style
+         :onclick ,(render-onclick-handler -self-)
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,tree-id ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,tree-id ,id))
       ,(render-tree-node-expander-cell -self-)
@@ -106,6 +110,9 @@
                    :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,tree-id ,id)
                    :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,tree-id ,id))
                   ,(funcall body-thunk)>>)))
+
+(def layered-method render-onclick-handler ((self entire-node-component))
+  nil)
 
 (def render entire-node-component ()
   (render-entire-node *tree* -self- #'call-next-method))
