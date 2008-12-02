@@ -7,6 +7,10 @@
 ;;;;;;
 ;;; Frame
 
+(def (constant e :test 'string=) +scroll-x-parameter-name+ "sx")
+
+(def (constant e :test 'string=) +scroll-y-parameter-name+ "sy")
+
 (def component frame-component (top-component layer-context-capturing-component-mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
@@ -47,7 +51,7 @@
                                                                          (string stylesheet-uri)
                                                                          (uri (print-uri-to-string stylesheet-uri)))))>)
                   (stylesheet-uris-of -self-))>
-      <body (:class ,(dojo-skin-name-of -self-))
+      <body (:class ,(dojo-skin-name-of -self-) :onload `js-inline(wui.reset-scroll-position "content"))
         <script (:type         #.+javascript-mime-type+
                  :src          ,(concatenate-string path-prefix
                                                     (dojo-path-of -self-)
@@ -70,7 +74,11 @@
             (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
             (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
             (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
-        <form (:method "post")
+        <form (:name "form" :method "post" :onsubmit `js-inline(wui.save-scroll-position "content"))
+          <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
+                  :value ,(first (ensure-list (request-parameter-value *request* +scroll-x-parameter-name+))))>
+          <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
+                  :value ,(first (ensure-list (request-parameter-value *request* +scroll-y-parameter-name+))))>
           ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
                (render (content-of -self-))))>>>))

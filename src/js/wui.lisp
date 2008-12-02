@@ -51,6 +51,7 @@
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if ajax "t" "")))
          (form (aref document.forms 0)))
+    (wui.save-scroll-position "content")
     (if ajax
         (bind ((params (create :url decorated-url
                                :form form)))
@@ -394,8 +395,22 @@
               (script-evaluator response args)
               (log.debug "...script-evaluator returned"))))))
 
+;;;;;;
+;;; scroll
 
-;;;;;;;;;;;;;;;;;;;;;
+(defun wui.reset-scroll-position ((content :by-id))
+  (let ((form (slot-value document 'form))
+        (scrollx (slot-value form 'scrollx))
+        (scrolly (slot-value form 'scrolly)))
+    (setf (slot-value content 'scrollLeft) (slot-value scrollx 'value))
+    (setf (slot-value content 'scrollTop) (slot-value scrolly 'value))))
+
+(defun wui.save-scroll-position ((content :by-id))
+  (let ((form (slot-value document 'form)))
+    (setf (slot-value (slot-value form 'scrollx) 'value) (slot-value content 'scrollLeft))
+    (setf (slot-value (slot-value form 'scrolly) 'value) (slot-value content 'scrollTop))))
+
+;;;;;;
 ;;; highlight
 
 (defun wui.highlight-mouse-enter-handler ((table :by-id) (row :by-id))
