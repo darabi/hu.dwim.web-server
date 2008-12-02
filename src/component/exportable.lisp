@@ -22,7 +22,7 @@
 (def (layered-function e) export-file-name (format component)
   (:method :around (format (component component))
     (awhen (call-next-method)
-      (concatenate-string "pdf/" it "." (string-downcase format))))
+      (concatenate-string it "." (string-downcase format))))
 
   (:method (format (component component))
     nil))
