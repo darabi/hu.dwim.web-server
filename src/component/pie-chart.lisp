@@ -39,6 +39,8 @@
                                              <line_color "#000000">
                                              <line_alpha 15>
                                              <hide_labels_percent 3>>
+                                            <background
+                                             <alpha "0">>
                                             <balloon
                                              <show "{title}: {value} ({percents}%)">>
                                             <legend

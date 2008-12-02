@@ -22,8 +22,9 @@
            (data-provider (data-provider-of component)))
       ;; TODO: generate variable name
       <div (:id ,id) ,#"chart.missing-flash-plugin">
-      `js(let ((variable (new SWFObject ,(concatenate 'string  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8" "#FFFFFF")))
-           (.addVariable variable "path" ,path)
+      `js(let ((variable (new SWFObject ,(concatenate 'string  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8")))
+           (.addParam variable "wmode" "transparent")
+           (.addVariable variable "path" ,path) 
            (.addVariable variable "settings_file"
                          (encodeURIComponent ,(action/href (:delayed-content #t)
                                                 (funcall (configuration-provider-of component)))))
