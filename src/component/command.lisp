@@ -200,10 +200,11 @@
    (previous-command :type component)
    (next-command :type component)
    (last-command :type component)
-   (jumper :type component)))
+   (jumper :type component)
+   (page-count-selector :type component)))
 
 (def constructor page-navigation-bar-component ()
-  (with-slots (position page-count total-count first-command previous-command next-command last-command jumper) -self-
+  (with-slots (position page-count total-count first-command previous-command next-command last-command jumper page-count-selector) -self-
     (setf first-command (make-instance 'command-component
                                        :icon (icon first)
                                        :enabled (delay (> position 0))
@@ -224,11 +225,22 @@
                                       :enabled (delay (< position (- total-count page-count)))
                                       :action (make-action
                                                 (setf (component-value-of jumper) (setf position (- total-count page-count)))))
-          jumper (make-instance 'integer-inspector :edited #t :component-value position))))
+          jumper (make-instance 'integer-inspector :edited #t :component-value position)
+          page-count-selector (make-instance 'page-count-selector :component-value page-count))))
 
 (def render page-navigation-bar-component ()
-  (bind (((:read-only-slots first-command previous-command next-command last-command jumper) -self-))
-    (render-horizontal-list (list first-command previous-command jumper next-command last-command))))
+  (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-count-selector) -self-))
+    (render-horizontal-list (list first-command previous-command jumper page-count-selector next-command last-command))))
+
+;;;;;;
+;;; Page count selector
+
+(def component page-count-selector (member-inspector)
+  ()
+  (:default-initargs :possible-values '(10 20 50 100) :edited #t :client-name-generator [princ-to-string !2]))
+
+(def method refresh-component ((self page-count-selector))
+  (setf (page-count-of (parent-component-of self)) (component-value-of self)))
 
 ;;;;;;
 ;;; Generic commands
