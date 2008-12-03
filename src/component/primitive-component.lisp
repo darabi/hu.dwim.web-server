@@ -360,14 +360,19 @@
   ((possible-values)
    (comparator #'equal)
    (key #'identity)
-   ;; TODO we need to get the class and slot here somehow
-   (client-name-generator [localized-member-component-value nil nil !1])))
+   (client-name-generator 'localized-member-component)))
+
+(def function localized-member-component (component value)
+  (bind ((slot-value (find-ancestor-component-with-type component 'abstract-standard-object-slot-value-component)))
+    (localized-member-component-value (when slot-value
+                                        (the-class-of slot-value))
+                                      (when slot-value
+                                        (slot-of slot-value))
+                                      value)))
 
 (def generic localized-member-component-value (class slot value)
   (:method (class slot value)
-    (if value
-        (localized-enumeration-member value :class class :slot slot :capitalize-first-letter #t)
-        "")))
+    (localized-enumeration-member value :class class :slot slot :capitalize-first-letter #t)))
 
 (def function member-component-value-name (value)
   (typecase value
@@ -378,13 +383,19 @@
 ;; TODO: KLUDGE: we must use a string key here because we don't know the package
 (def function find-member-component-value-icon (component)
   (when (slot-boundp component 'component-value)
-    (find-icon (concatenate-string "member-type-value." (string-downcase (member-component-value-name (component-value-of component))))
-               :otherwise nil)))
+    (bind ((slot-value (find-ancestor-component-with-type component 'abstract-standard-object-slot-value-component)))
+      (when slot-value
+        (bind ((slot-name (slot-definition-name (slot-of slot-value))))
+          (find-icon (format-symbol (symbol-package slot-name)
+                                    "~A.~A"
+                                    slot-name
+                                    (member-component-value-name (component-value-of component)))
+                     :otherwise nil))))))
 
 (def method print-component-value ((component member-component))
   (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
     (if has-component-value?
-        (funcall (client-name-generator-of component) component-value)
+        (funcall (client-name-generator-of component) component component-value)
         "")))
 
 (def method parse-component-value ((component member-component) client-value)
@@ -399,8 +410,15 @@
          (component-value (when has-component-value?
                             (component-value-of component))))
     (render-select-field component-value possible-values :name (id-of client-state-sink)
-                         :client-name-generator client-name-generator
+                         :client-name-generator [funcall client-name-generator component !1]
                          :on-change on-change)))
+
+(def resources en
+  (member-type-value.nil ""))
+
+(def resources hu
+  (member-type-value.nil ""))
+
 
 ;;;;;;
 ;;; HTML component

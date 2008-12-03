@@ -261,7 +261,7 @@
 ;;;;;;
 ;;; Standard object slot value component
 
-(def component standard-object-slot-value-component (abstract-standard-slot-definition-component remote-identity-component-mixin)
+(def component standard-object-slot-value-component (abstract-standard-object-slot-value-component remote-identity-component-mixin)
   ((label nil :type component)
    (value nil :type component)))
 

@@ -38,7 +38,7 @@
                                          :possible-values '(2007 2008 2009)
                                          ;; KLUDGE: what a kludge here
                                          :component-value (local-time:timestamp-year (range-begin-of -self-))
-                                         :client-name-generator #'integer-to-string)))
+                                         :client-name-generator [integer-to-string !2])))
 
 (def (macro e) timestamp-range (&key range-begin range-end)
   `(make-instance 'timestamp-range-component

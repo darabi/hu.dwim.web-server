@@ -28,7 +28,7 @@
 
 (def component validity-selector (member-inspector)
   ()
-  (:default-initargs :edited #t :possible-values '(2007 2008 2009) :client-name-generator #'integer-to-string))
+  (:default-initargs :edited #t :possible-values '(2007 2008 2009) :client-name-generator [integer-to-string !2]))
 
 (def (macro e) validity-selector (&key validity)
   `(make-instance 'validity-selector
