@@ -14,8 +14,8 @@
    (tooltip nil :export :accessor)))
 
 (def render icon-component ()
-  (bind (((:read-only-slots label image-path tooltip) -self-))
-    (render-icon -self- image-path :label label :tooltip tooltip)))
+  (bind (((:read-only-slots name label image-path tooltip) -self-))
+    (render-icon -self- image-path :name name :label label :tooltip tooltip)))
 
 (def render-csv icon-component ()
   (render-csv (force (label-of -self-))))
@@ -27,7 +27,7 @@
   (:method (icon label)
     `xml,label))
 
-(def (function e) render-icon (icon image-path &key label tooltip)
+(def (function e) render-icon (icon image-path &key name label tooltip)
   (bind ((tooltip (force tooltip))
          (delayed-content-tooltip? (and tooltip
                                         (not (stringp tooltip))))
@@ -44,8 +44,9 @@
                                 (action (register-action/href tooltip :delayed-content #t))
                                 (uri (print-uri-to-string tooltip)))))))
     <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip))
-          ,@(when image-path
-             (list <img (:src ,(concatenate-string (path-prefix-of *application*) image-path)) > " "))
+          ,(if image-path
+               <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>
+               <img (:class ,(concatenate-string (string-downcase (symbol-name name)) "-icon"))>)
           ,(awhen (force label)
              (render-icon-label icon it)) >))
 
