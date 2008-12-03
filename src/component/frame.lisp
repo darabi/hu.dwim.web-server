@@ -51,7 +51,7 @@
                                                                          (string stylesheet-uri)
                                                                          (uri (print-uri-to-string stylesheet-uri)))))>)
                   (stylesheet-uris-of -self-))>
-      <body (:class ,(dojo-skin-name-of -self-) :onload `js-inline(wui.reset-scroll-position "content"))
+      <body (:class ,(dojo-skin-name-of -self-) :style "margin-left: -10000px;")
         <script (:type         #.+javascript-mime-type+
                  :src          ,(concatenate-string path-prefix
                                                     (dojo-path-of -self-)
@@ -71,6 +71,7 @@
                             "">)
                   (script-uris-of -self-))
         `js(on-load
+            (wui.reset-scroll-position "content")
             (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
             (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
             (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
