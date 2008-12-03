@@ -9,6 +9,13 @@
     (with-thread-name " / HANDLE-TOPLEVEL-CONDITION"
       (call-next-method))))
 
+(def function is-error-from-network-stream? (error &optional (network-stream (network-stream-of *request*)))
+  (or (and (typep error 'stream-error)
+           (eq (stream-error-stream error) network-stream))
+      #+nil                             ; TODO
+      (and (typep error 'socket-error)
+           (eql (fd-of error)))))
+
 (defun call-with-server-error-handler (thunk network-stream error-handler)
   (bind ((level-1-error nil))
     (labels ((level-1-error-handler (error)
@@ -16,8 +23,7 @@
                (setf level-1-error error)
                (handler-bind ((serious-condition #'level-2-error-handler))
                  (with-thread-name " / LEVEL-1-ERROR-HANDLER"
-                   (if (and (typep error 'stream-error)
-                            (eq (stream-error-stream error) network-stream))
+                   (if (is-error-from-network-stream? error network-stream)
                        (server.debug "Ignoring stream error coming from the network stream: ~A" error)
                        (progn
                          (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
@@ -25,20 +31,28 @@
                    (abort-server-request error)
                    (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-1-ERROR-HANDLER"))))
              (level-2-error-handler (error)
+               ;; second level of error handling quarding against errors while handling the original error
+               (handler-bind ((serious-condition #'level-3-error-handler))
+                 (with-thread-name " / LEVEL-2-ERROR-HANDLER"
+                   (server.error "Nested error while handling original error: ~A; the nested error is: ~A. Backtrace follows..." level-1-error error)
+                   (log-error-with-backtrace error)
+                   (abort-server-request error)
+                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER"))))
+             (level-3-error-handler (error)
                ;; if we get here then do as little as feasible wrapped in ignore-errors to bail out and abort processing
                ;; the request as soon as we can.
-               (with-thread-name " / LEVEL-2-ERROR-HANDLER"
+               (with-thread-name " / LEVEL-3-ERROR-HANDLER"
                  (bind ((error-message (or (ignore-errors
-                                             (format nil "Nested error while handling error: ~A; the second error is: ~A"
+                                             (format nil "Nested error while handling original error: ~A; the nested error is: ~A"
                                                      level-1-error error))
                                            (ignore-errors
-                                             (format nil "Failed to log nested error message, probably due to nested print errors. Condition type is ~S."
+                                             (format nil "Failed to log nested error message, probably due to nested print errors. Condition type of the nested error is ~S."
                                                      (type-of error)))
-                                           "Failed to log nested error message, probably due to some nested printer errors.")))
+                                           "Completely failed to log error, giving up... It's probably due to some nested printer errors or the the whole VM is dying.")))
                    (ignore-errors
                      (server.error error-message))
                    (abort-server-request error)
-                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER")))))
+                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-3-ERROR-HANDLER")))))
       (handler-bind
           ((serious-condition #'level-1-error-handler))
         (funcall thunk)))))

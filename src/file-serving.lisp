@@ -74,22 +74,10 @@
 
 (defmethod send-response ((self file-serving-response))
   (server.info "Sending file serving response from ~S" (file-name-of self))
-  (bind (((:values success? condition network-stream-dirty?) (serve-file (file-name-of self)
-                                                                         :signal-errors #f
-                                                                         :headers (headers-of self)
-                                                                         :cookies (cookies-of self))))
-    (unless success?
-      (server.debug "File serving failed due to ~A" condition))
-    (when (and (not success?)
-               (or (not (typep condition 'stream-error))
-                   (not (eq (stream-error-stream condition) (network-stream-of *request*)))))
-      (server.error "Failed to serve file ~S: ~A. Network stream dirty? ~S" (file-name-of self) condition network-stream-dirty?)
-      (maybe-invoke-slime-debugger condition)
-      (unless network-stream-dirty?
-        (emit-simple-html-document-response (:status +http-not-found+
-                                             :title "File serving error")
-          <h1 "File serving error">
-          <p "There was an error while trying to serve this file.">)))))
+  (serve-file (file-name-of self)
+              :signal-errors #f
+              :headers (headers-of self)
+              :cookies (cookies-of self)))
 
 
 ;;;;;;;;;;;;;;;;;;;
