@@ -70,6 +70,10 @@
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
     (setf (component-value-of component) nil)))
 
+(def layered-method render-onclick-handler ((self standard-object-inspector))
+  (when-bind collapse-command (find-command-bar-command (command-bar-of self) 'collapse)
+    (render-onclick-handler collapse-command)))
+
 ;;;;;;
 ;;; Standard object detail inspector
 
@@ -114,7 +118,7 @@
 
 (def render standard-object-detail-inspector ()
   (bind (((:read-only-slots class slot-value-groups id) -self-))
-    <div (:id ,id :class "standard-object")
+    <div (:id ,id :class "standard-object" :onclick ,(render-onclick-handler (parent-component-of -self-)))
          <span ,(standard-object-detail-inspector.instance class)>
          <table ,(foreach #'render slot-value-groups)>>))
 
