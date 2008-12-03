@@ -387,7 +387,7 @@
       (when slot-value
         (bind ((slot-name (slot-definition-name (slot-of slot-value))))
           (find-icon (format-symbol (symbol-package slot-name)
-                                    "~A.~A"
+                                    "~A-~A"
                                     slot-name
                                     (member-component-value-name (component-value-of component)))
                      :otherwise nil))))))

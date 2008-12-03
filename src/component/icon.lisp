@@ -15,7 +15,7 @@
 
 (def render icon-component ()
   (bind (((:read-only-slots name label image-path tooltip) -self-))
-    (render-icon -self- image-path :name name :label label :tooltip tooltip)))
+    (render-icon -self- :image-path image-path :name name :label label :tooltip tooltip)))
 
 (def render-csv icon-component ()
   (render-csv (force (label-of -self-))))
@@ -27,7 +27,7 @@
   (:method (icon label)
     `xml,label))
 
-(def (function e) render-icon (icon image-path &key name label tooltip)
+(def (function e) render-icon (icon &key image-path name label tooltip)
   (bind ((tooltip (force tooltip))
          (delayed-content-tooltip? (and tooltip
                                         (not (stringp tooltip))))
@@ -78,7 +78,7 @@
 (def function (setf find-icon) (icon name)
   (setf (gethash name *icons*) icon))
 
-(def (definer e) icon (name image-path &key (label nil label-p) (tooltip nil tooltip-p))
+(def (definer e) icon (name &key image-path (label nil label-p) (tooltip nil tooltip-p))
   (bind ((name-as-string (string-downcase name)))
     `(setf (find-icon ',name)
            (make-instance 'icon-component
