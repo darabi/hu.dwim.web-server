@@ -12,7 +12,7 @@
     (make-move-commands component class prototype-or-instance))
 
   (:method ((component inspector-component) (class standard-class) (prototype-or-instance standard-object))
-    (list* (make-refresh-command component class prototype-or-instance) (call-next-method))))
+    (append (optional-list (make-refresh-command component class prototype-or-instance)) (call-next-method))))
 
 (def (layered-function e) make-move-commands (component class prototype-or-instance)
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
@@ -24,6 +24,10 @@
 (def (layered-function e) make-class-presentation (component class prototype-or-instance)
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
     (localized-class-name class)))
+
+(def (layered-function e) make-commands-presentation (component commands)
+  (:method ((component component) (commands list))
+    (make-instance 'command-bar-component :commands commands)))
 
 ;;;;;;
 ;;; Abstract standard class component

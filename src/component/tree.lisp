@@ -13,6 +13,7 @@
 
 (def component tree-component (remote-identity-component-mixin)
   ((columns nil :type components)
+   (expander-column-index 0 :type integer)
    (root-nodes nil :type components)
    (expand-nodes-by-default #f :type boolean)))
 
@@ -53,7 +54,6 @@
          :onclick ,(render-onclick-handler -self-)
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,tree-id ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,tree-id ,id))
-      ,(render-tree-node-expander-cell -self-)
       ,(render-tree-node-cells -self-) >
     (when expanded
       (foreach #'render child-nodes))))
@@ -81,16 +81,21 @@
   (with-slots (cells) node-component
     <td (:class "expander")
         ,(render-tree-node-expander node-component)
-        ,(bind ((first-cell (first cells)))
-               (if (stringp first-cell)
-                   `xml,first-cell
-                   (progn
-                     (ensure-uptodate first-cell)
-                     (render (content-of first-cell))))) >))
+        ,(bind ((expander-cell (elt cells (expander-column-index-of *tree*))))
+           (if (stringp expander-cell)
+               (render expander-cell)
+               (progn
+                 (ensure-uptodate expander-cell)
+                 (render (content-of expander-cell)))))>))
 
 (def (layered-function e) render-tree-node-cells (node-component)
   (:method ((self node-component))
-    (foreach #'render (rest (cells-of self)))))
+    (iter (with expander-column-index = (expander-column-index-of *tree*))
+          (for index :from 0)
+          (for cell :in (cells-of self))
+          (if (= index expander-column-index)
+              (render-tree-node-expander-cell self)
+              (render cell)))))
 
 (def call-in-component-environment node-component ()
   (bind ((*tree-level* (1+ *tree-level*)))

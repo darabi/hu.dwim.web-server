@@ -13,7 +13,7 @@
 ;;;;;;
 ;;; Menu
 
-(def component menu-component (abstract-menu-item-component)
+(def component menu-component (abstract-menu-item-component style-component-mixin)
   ((target-place nil :type place :export :accessor)
    (icon nil :type component)))
 
@@ -38,8 +38,9 @@
   (mapcar #'render menu-items))
 
 (def render menu-component ()
-  (bind (((:read-only-slots icon menu-items) -self-))
-    <div ,(if icon
+  (bind (((:read-only-slots icon menu-items id css-class style) -self-))
+    <div (:id ,id :class ,css-class :style ,style)
+         ,(if icon
               (render icon)
               +void+)
          ,(foreach #'render menu-items)>))

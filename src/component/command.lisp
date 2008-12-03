@@ -8,7 +8,7 @@
   ())
 
 ;;;;;;
-;;; Command
+;;; Command component
 
 ;; TODO: this is a bit messy here... :ajax, the way :js is done, etc...
 ;; TODO: do we need this premature optimization: full-featured-command-component?
@@ -102,7 +102,7 @@
 
 
 ;;;;;;
-;;; simple submit button
+;;; Simple submit button
 
 (def component simple-submit-command-component (abstract-command-component)
   ((value)))
@@ -118,7 +118,7 @@
 
 
 ;;;;;;
-;;; Command bar
+;;; Command bar component
 
 (def component command-bar-component ()
   ((commands nil :type components)))
@@ -178,8 +178,34 @@
 (def (function e) execute-command-bar-command (command-bar name)
   (execute-command (find-command-bar-command command-bar name)))
 
+;;;;;
+;;; Popup command menu
+
+(def component popup-command-menu-component (style-component-mixin remote-identity-component-mixin)
+  ((commands nil :type components)))
+
+(def render popup-command-menu-component ()
+  (bind (((:read-only-slots commands id css-class style) -self-)
+         (menu-id (generate-frame-unique-string)))
+    (when commands
+      <div (:id ,id :class ,css-class :style ,style)
+          <img (:src "static/wui/icons/20x20/green-star.png")>
+          ,(render-dojo-widget (menu-id)
+             <div (:id ,menu-id
+                   :dojoType #.+dijit/menu+
+                   :targetNodeIds ,id
+                   :style "display: none;")
+               ,(iter (for command :in commands)
+                      (for command-id = (generate-frame-unique-string))
+                      (when (force (visible-p command))
+                        (render-dojo-widget (command-id)
+                          <div (:id ,command-id
+                                :dojoType #.+dijit/menu-item+
+                                :iconClass ,(concatenate-string (string-downcase (name-of (icon-of command))) "-command"))
+                            ,(render command)>)))>)>)))
+
 ;;;;;;
-;;; Navigation bar
+;;; Navigation bar component
 
 (def component page-navigation-bar-component (command-bar-component)
   ((position 0)

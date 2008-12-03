@@ -66,7 +66,8 @@
                                                      inspector-component
                                                      tree-component
                                                      editable-component)
-  ())
+  ()
+  (:default-initargs :expander-column-index 1))
 
 ;; TODO: factor out common parts with standard-object-list-table-inspector
 (def method refresh-component ((self standard-object-tree-table-inspector))
@@ -78,14 +79,14 @@
 
 (def (function e) make-standard-object-tree-table-type-column ()
   (make-instance 'column-component
-                 :content (label #"Object-tree-table.column.type")
+                 :content (label #"object-tree-table.column.type")
                  :cell-factory (lambda (node-component)
                                  (bind ((class (class-of (instance-of node-component))))
                                    (make-instance 'cell-component :content (make-class-presentation node-component class (class-prototype class)))))))
 
 (def (function e) make-standard-object-tree-table-command-bar-column ()
   (make-instance 'column-component
-                 :content (label #"Object-tree-table.column.commands")
+                 :content (label #"object-tree-table.column.commands")
                  :visible (delay (not (layer-active-p 'passive-components-layer)))
                  :cell-factory (lambda (node-component)
                                  (make-instance 'cell-component :content (command-bar-of node-component)))))
@@ -133,12 +134,12 @@
     (class-slots class)))
 
 (def resources hu
-  (object-tree-table.column.commands "műveletek")
-  (object-tree-table.column.type "típus"))
+  (object-tree-table.column.commands "")
+  (object-tree-table.column.type "Típus"))
 
 (def resources en
-  (object-tree-table.column.commands "commands")
-  (object-tree-table.column.type "type"))
+  (object-tree-table.column.commands "")
+  (object-tree-table.column.type "Type"))
 
 ;;;;;;
 ;;; Standard object node inspector
@@ -153,7 +154,7 @@
 (def method refresh-component ((self standard-object-tree-node-inspector))
   (with-slots (children-provider instance command-bar child-nodes cells) self
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-commands self (class-of instance) instance))
+        (setf command-bar (make-commands-presentation self (make-standard-commands self (class-of instance) instance))
               child-nodes (sort-child-nodes self
                                             (iter (for child :in (funcall (children-provider-of self) instance))
                                                   (for node = (find instance child-nodes :key #'component-value-of))
@@ -170,6 +171,9 @@
 (def (layered-function e) sort-child-nodes (parent-node child-nodes)
   (:method ((self standard-object-tree-node-inspector) (child-nodes list))
     child-nodes))
+
+(def layered-method make-commands-presentation ((component standard-object-tree-node-inspector) (commands list))
+  (make-instance 'popup-command-menu-component :commands commands))
 
 (def (layered-function e) make-standard-object-tree-table-node (component class instance)
   (:method ((component standard-object-tree-table-inspector) (class standard-class) (instance standard-object))

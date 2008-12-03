@@ -161,13 +161,13 @@
 (def resources en
   (standard-object-list-table-inspector.instances (class)
     <span "Viewing instances of " ,(render class)>)
-  (object-list-table.column.commands "Commands")
+  (object-list-table.column.commands "")
   (object-list-table.column.type "Type"))
 
 (def resources hu
   (standard-object-list-table-inspector.instances (class)
     <span "Egy ",(render class) " lista megjelenítése">)
-  (object-list-table.column.commands "Műveletek")
+  (object-list-table.column.commands "")
   (object-list-table.column.type "Típus"))
 
 ;;;;;;
@@ -189,7 +189,7 @@
 (def method refresh-component ((self standard-object-row-inspector))
   (with-slots (instance command-bar cells) self
     (if instance
-        (setf command-bar (make-instance 'command-bar-component :commands (make-standard-commands self (class-of instance) instance))
+        (setf command-bar (make-commands-presentation self (make-standard-commands self (class-of instance) instance))
               cells (mapcar (lambda (column)
                               (funcall (cell-factory-of column) self))
                             (columns-of (find-ancestor-component-with-type self 'standard-object-list-table-inspector))))
@@ -202,6 +202,9 @@
                        (lambda ()
                          (render-user-messages row))))
   (call-next-method))
+
+(def layered-method make-commands-presentation ((component standard-object-row-inspector) (commands list))
+  (make-instance 'popup-command-menu-component :commands commands))
 
 (def layered-method make-standard-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
   (append (optional-list (make-expand-command component class instance)) (call-next-method)))
