@@ -51,12 +51,21 @@
 (def function toggle-debug-component-hierarchy (frame)
   (setf (debug-component-hierarchy-p frame) (not (debug-component-hierarchy-p frame))))
 
-(def (function ei) generate-unique-string (provider &optional (prefix "_u"))
-  ;; TODO optimize
-  (format nil "~A~A" prefix (incf (unique-counter-of provider))))
+(def (function ei) generate-unique-string (context &optional (prefix "_u"))
+  (bind ((*print-pretty* #f))
+    (with-output-to-string (str)
+      (princ prefix str)
+      (princ (incf (unique-counter-of context)) str))))
 
 (def (function ei) generate-frame-unique-string (&optional (prefix "_u") (frame *frame*))
   (generate-unique-string frame prefix))
+
+(def function invalidate-frame (frame)
+  (setf (is-frame-valid? frame) #f)
+  (setf (root-component-of frame) nil)
+  (clrhash (action-id->action-of frame))
+  (clrhash (client-state-sink-id->client-state-sink-of frame))
+  frame)
 
 (def function is-frame-alive? (frame)
   (cond

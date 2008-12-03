@@ -56,9 +56,7 @@
       ,@body)))
 
 (def function register-action (frame action)
-  (assert (or (not (boundp '*frame*))
-              (null *frame*)
-              (eq *frame* frame)))
+  (assert frame)
   (assert-session-lock-held (session-of frame))
   (bind ((action-id->action (action-id->action-of frame))
          (action-id (insert-with-new-random-hash-table-key action-id->action action +action-id-length+)))

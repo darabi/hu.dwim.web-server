@@ -33,7 +33,6 @@
          (cache-entry (gethash key cache))
          (file-write-date (file-write-date truename))
          (bytes-to-serve nil))
-    ;; TODO add expires, handle if-modified-since... by using a functional-response and serve-sequence?
     (if (and cache-entry
              (<= file-write-date (file-write-date-of cache-entry)))
         (progn
