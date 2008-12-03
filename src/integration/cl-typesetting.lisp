@@ -39,6 +39,12 @@
           (typeset:put-string " "))
         (render-pdf command)))
 
+(def render-pdf popup-command-menu-component ()
+  (iter (for command :in (commands-of -self-))
+        (unless (first-iteration-p)
+          (typeset:put-string " "))
+        (render-pdf command)))
+
 (def render-pdf primitive-component ()
   (typeset:put-string (print-component-value -self-)))
 

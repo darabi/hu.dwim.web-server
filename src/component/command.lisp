@@ -183,6 +183,12 @@
                                 :iconClass ,(concatenate-string (string-downcase (name-of (icon-of command))) "-command"))
                             ,(render command)>)))>)>)))
 
+(def render-csv popup-command-menu-component ()
+  (iter (for command :in (commands-of -self-))
+        (unless (first-iteration-p)
+          (write-char #\Space *csv-stream*))
+        (render-csv command)))
+
 ;;;;;;
 ;;; Navigation bar component
 
