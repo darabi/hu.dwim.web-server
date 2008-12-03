@@ -52,8 +52,8 @@
          (tree-id (id-of *tree*)))
     <tr (:id ,id :class ,(tree-node-style-class -self-) :style ,style
          :onclick ,(render-onclick-handler -self-)
-         :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,tree-id ,id)
-         :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,tree-id ,id))
+         :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,tree-id ,id)
+         :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,tree-id ,id))
       ,(render-tree-node-cells -self-) >
     (when expanded
       (foreach #'render child-nodes))))
@@ -112,8 +112,8 @@
          (tree-id (id-of tree)))
     (list <tr (:id ,id)
               <td (:colspan ,(length (columns-of tree))
-                   :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,tree-id ,id)
-                   :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,tree-id ,id))
+                   :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,tree-id ,id)
+                   :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,tree-id ,id))
                   ,(funcall body-thunk)>>)))
 
 (def layered-method render-onclick-handler ((self entire-node-component))

@@ -90,8 +90,8 @@
            (table-id (id-of table)))
       <tr (:id ,id :class ,(table-row-style-class table row)
            :onclick ,(render-onclick-handler row)
-           :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,table-id ,id)
-           :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,table-id ,id))
+           :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,table-id ,id)
+           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,table-id ,id))
         ,(render-table-row-cells table row)>)))
 
 (def (layered-function e) table-row-style-class (table row)
@@ -130,8 +130,8 @@
     <tr (:id ,id)
         <td (:colspan ,(length (columns-of table))
              :onclick ,(render-onclick-handler row)
-             :onmouseover `js-inline(wui.highlight-mouse-enter-handler ,table-id ,id)
-             :onmouseout `js-inline(wui.highlight-mouse-leave-handler ,table-id ,id))
+             :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,table-id ,id)
+             :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,table-id ,id))
             ,(funcall body-thunk)>>))
 
 (def render entire-row-component ()

@@ -413,10 +413,15 @@
 ;;;;;;
 ;;; highlight
 
-(defun wui.highlight-mouse-enter-handler ((table :by-id) (row :by-id))
-  (dojo.add-class row "highlighted"))
+(defun wui.highlight-mouse-enter-handler (event (table :by-id) (row :by-id))
+  (dojo.add-class row "highlighted")
+  (let ((parent (slot-value row 'parent-node)))
+    (while (not (= parent document))
+      (dojo.remove-class parent "highlighted")
+      (setf parent (slot-value parent 'parent-node))))
+  (dojo.stopEvent event))
 
-(defun wui.highlight-mouse-leave-handler ((table :by-id) (row :by-id))
+(defun wui.highlight-mouse-leave-handler (event (table :by-id) (row :by-id))
   (dojo.remove-class row "highlighted"))
 
 ;;;;;;;;;;;;;;;;;;;;;
