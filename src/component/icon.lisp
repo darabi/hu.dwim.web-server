@@ -421,3 +421,11 @@
 (def resources en
   (icon-label.upload "Upload")
   (icon-tooltip.upload "Upload file"))
+
+(def icon diagram "static/wui/icons/20x20/eye.png")
+(def resources hu
+  (icon-label.diagram "Ábra")
+  (icon-tooltip.diagram "Ábra megjelenítése"))
+(def resources en
+  (icon-label.diagram "Diagram")
+  (icon-tooltip.diagram "Show diagram"))
