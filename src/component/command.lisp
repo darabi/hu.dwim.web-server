@@ -194,7 +194,7 @@
 
 (def component page-navigation-bar-component (command-bar-component)
   ((position 0)
-   (page-count)
+   (page-count 10)
    (total-count)
    (first-command :type component)
    (previous-command :type component)

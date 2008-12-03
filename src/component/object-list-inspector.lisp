@@ -91,7 +91,9 @@
   ())
 
 (def method refresh-component ((self standard-object-list-table-inspector))
-  (with-slots (instances the-class columns rows) self
+  (with-slots (instances the-class columns rows page-navigation-bar) self
+    (awhen (getf (initargs-of (find-ancestor-component-with-type self 'initargs-component-mixin)) :page-count)
+      (setf (page-count-of page-navigation-bar) it))
     (setf columns (make-standard-object-list-table-inspector-columns self))
     (setf rows (iter (for instance :in instances)
                      (for row = (find instance rows :key #'component-value-of))

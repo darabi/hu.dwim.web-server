@@ -12,9 +12,7 @@
 (def component table-component (remote-identity-component-mixin)
   ((columns nil :type components)
    (rows nil :type components)
-   (page-navigation-bar
-    (make-instance 'page-navigation-bar-component :page-count 10)
-    :type component)))
+   (page-navigation-bar (make-instance 'page-navigation-bar-component) :type component)))
 
 (def call-in-component-environment table-component ()
   (bind ((*table* -self-))
