@@ -11,6 +11,8 @@
                 ,@(iter (for (name dojo-name) :on entries :by #'cddr)
                         (collect `(def (constant e :test 'string=) ,name ,dojo-name))))))
   (x
+   +dijit/button+                "dijit.form.Button"
+   +dijit/drop-down-button+      "dijit.form.DropDownButton"
    +dijit/date-text-box+         "dijit.form.DateTextBox"
    +dijit/simple-text-area+      "dijit.form.SimpleTextarea"
    +dijit/text-box+              "dijit.form.TextBox"

@@ -11,6 +11,7 @@ dependencies ={
             "dijit.PopupMenuItem",
             "dijit.CheckedMenuItem",
             "dijit.form.Button",
+            "dijit.form.DropDownButton",
             "dijit.form.DateTextBox",
             "dijit.form.TimeTextBox",
             "dijit.form.ComboBox",
