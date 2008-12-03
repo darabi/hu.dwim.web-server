@@ -162,8 +162,8 @@
       (menu-item () (command* #"menu.login"                   +login-entry-point-path+))
       (menu-item () (command* #"menu.about"                   "about/"))
       (menu-item () (command* #"menu.example-rendering-error" (bind ((uri (make-application-relative-uri "")))
-                                                            (setf (uri-query-parameter-value uri "example-error") "t")
-                                                            uri))))))
+                                                                (setf (uri-query-parameter-value uri "example-error") "t")
+                                                                uri))))))
 
 ;; TODO the onChange part hould be this simple, but it needs qq work.
 ;; ,(js-to-lisp-rpc

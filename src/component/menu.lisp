@@ -97,8 +97,8 @@
 ;;;;;;
 ;;; Debug menu
 
-(def (function e) make-debug-menu (&key args &allow-other-keys)
-  (menu-item (:css-class "right-menu") "Debug"
+(def (function e) make-debug-menu ()
+  (menu-item () "Debug"
     (menu-item ()
         (command "Start over"
                  (make-action (reset-frame-root-component))
