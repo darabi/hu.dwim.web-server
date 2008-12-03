@@ -19,6 +19,12 @@
 (def render-pdf content-component ()
   (render-pdf (content-of -self-)))
 
+(def method component-value-of ((self content-component))
+  (component-value-of (content-of self)))
+
+(def method (setf component-value-of) (new-value (self content-component))
+  (setf (component-value-of (content-of self)) new-value))
+
 (def method find-command-bar ((component content-component))
   (or (call-next-method)
       (awhen (content-of component)

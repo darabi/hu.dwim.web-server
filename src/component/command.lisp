@@ -4,54 +4,44 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Passive components layer
+
 (def (layer e) passive-components-layer ()
   ())
 
 ;;;;;;
 ;;; Command component
 
-;; TODO: this is a bit messy here... :ajax, the way :js is done, etc...
-;; TODO: do we need this premature optimization: full-featured-command-component?
-
-(def component abstract-command-component ()
-  ((enabled #t :accessor enabled?)))
-
-(def component command-component (abstract-command-component)
-  ((icon nil :type component)
+(def component command-component ()
+  ((icon :type component)
    (action :type (or uri action))
+   (enabled #t :type boolean)
    ;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
-   (available #t :accessor available?)))
+   (available #t :type boolean)
+   (default #f :type boolean)
+   (js nil)
+   (action-arguments nil)))
 
-(def component full-featured-command-component (command-component)
-  ((action-arguments nil)
-   (js nil)))
-
-(def (macro e) command (icon action &key (enabled #t) (visible #t) js scheme path
+(def (macro e) command (icon action &key (enabled #t) (visible #t) (default #f) js scheme path
                              (delayed-content nil delayed-content-provided?)
                              (send-client-state #t send-client-state-provided?))
-  (if (or js scheme path
-          delayed-content-provided?
-          send-client-state-provided?)
-      `(make-instance 'full-featured-command-component
-                      :icon ,icon
-                      :action ,action
-                      :enabled ,enabled
-                      :visible ,visible
-                      :js ,js
-                      :action-arguments (list :delayed-content ,delayed-content
-                                              :scheme ,scheme
-                                              :path ,path
-                                              :send-client-state ,send-client-state))
-      `(make-instance 'command-component
-                      :icon ,icon
-                      :action ,action
-                      :enabled ,enabled
-                      :visible ,visible)))
+  `(make-instance 'command-component
+                  :icon ,icon
+                  :action ,action
+                  :enabled ,enabled
+                  :visible ,visible
+                  :default ,default
+                  :js ,js
+                  :action-arguments (list :delayed-content ,delayed-content
+                                          :scheme ,scheme
+                                          :path ,path
+                                          :send-client-state ,send-client-state)))
 
 (def render command-component ()
-  (bind (((:read-only-slots enabled icon action) -self-))
-    (render-command action icon :enabled enabled :ajax #f)))
+  (bind (((:read-only-slots icon action enabled default js action-arguments) -self-))
+    (render-command action icon :enabled enabled :default default :ajax #f :js js :action-arguments action-arguments)))
 
 (def render-csv command-component ()
   (render-csv (icon-of -self-)))
@@ -59,11 +49,8 @@
 (def render-pdf command-component ()
   (render-pdf (icon-of -self-)))
 
-(def render full-featured-command-component ()
-  (bind (((:read-only-slots enabled icon action action-arguments js) -self-))
-    (render-command action icon :enabled enabled :ajax #f :js js :action-arguments action-arguments)))
-
-(def (function e) render-command (action body &key js (enabled #t) (ajax (not (null *frame*))) action-arguments)
+;; TODO: this is a bit messy here... :ajax, the way :js is done, etc...
+(def (function e) render-command (action body &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
   (if (force enabled)
       (bind ((send-client-state (prog1
                                     (getf action-arguments :send-client-state #t)
@@ -80,42 +67,34 @@
                          (symbol-name (name-of body))
                          (princ-to-string body)))))
         <a (:href "#" :onclick ,(funcall onclick-js href) :name ,name)
-           ,(render body) >)
+           ,(render body)>
+        (when default
+          <input (:type "submit" :style "display: none;" :onclick ,(funcall onclick-js href))>))
       (render body)))
 
 (def render :in passive-components-layer command-component
   (render (icon-of -self-)))
+
+(def layered-method render-onclick-handler ((command command-component))
+  (bind ((action (action-of command))
+         (href (etypecase action
+                 (action (register-action/href action))
+                 (uri (print-uri-to-string action)))))
+    `js-inline(return (wui.io.action ,href #f #t))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))
     (flet ((report-error (string)
              (add-user-error command string)
              (setf executable? #f)))
-      (unless (force (available? command))
+      (unless (force (available-p command))
         (report-error #"execute-command.command-unavailable"))
-      (unless (force (enabled? command))
+      (unless (force (enabled-p command))
         (report-error #"execute-command.command-disabled"))
       (unless (force (visible-p command))
         (report-error #"execute-command.command-invisible"))
       (when executable?
         (funcall (action-of command))))))
-
-
-;;;;;;
-;;; Simple submit button
-
-(def component simple-submit-command-component (abstract-command-component)
-  ((value)))
-
-(def render simple-submit-command-component ()
-  (render-simple-submit-command (value-of -self-) :enabled (enabled? -self-)))
-
-(def function render-simple-submit-command (value &key (enabled #t))
-  <input (:type "submit"
-          :value ,value
-          ,(unless enabled
-             (load-time-value (make-xml-attribute "disabled" "disabled"))))>)
-
 
 ;;;;;;
 ;;; Command bar component

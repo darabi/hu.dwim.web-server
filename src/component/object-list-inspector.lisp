@@ -182,9 +182,8 @@
   ((command-bar nil :type component)))
 
 (def layered-method render-onclick-handler ((self standard-object-row-inspector))
-  (bind ((expand-command (find-command-bar-command (command-bar-of self) 'expand)))
-    (when expand-command
-      `js-inline(return (wui.io.action ,(register-action/href (action-of expand-command)) #f #t)))))
+  (when-bind expand-command (find-command-bar-command (command-bar-of self) 'expand)
+    (render-onclick-handler expand-command)))
 
 (def method refresh-component ((self standard-object-row-inspector))
   (with-slots (instance command-bar cells) self
