@@ -551,7 +551,8 @@ Custom implementations should look something like this:
 (def special-variable *debug-component-hierarchy* #f)
 
 (def class* component-rendering-response (locked-session-response-mixin)
-  ((application)
+  ((unique-counter 0)
+   (application)
    (session)
    (frame)
    (component)))
