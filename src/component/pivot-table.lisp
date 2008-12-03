@@ -72,37 +72,37 @@
       (setf column-headers (append (axes-command-bars column-axes 'column-axes 'row-axes)
                                    (axes-headers column-axes))))))
 
-(def icon rotate-clockwise "static/wui/icons/20x20/clockwise-arrow.png")
+(def icon rotate-clockwise)
 (def resources hu
   (icon-tooltip.rotate-clockwise "Elforgatás a másik tengelyre"))
 (def resources en
   (icon-tooltip.rotate-clockwise "Rotate to other axis"))
 
-(def icon rotate-counter-clockwise "static/wui/icons/20x20/counter-clockwise-arrow.png")
+(def icon rotate-counter-clockwise)
 (def resources hu
   (icon-tooltip.rotate-counter-clockwise "Elforgatás a másik tengelyre"))
 (def resources en
   (icon-tooltip.rotate-counter-clockwise "Rotate to other axis"))
 
-(def icon move-up "static/wui/icons/20x20/up-arrow.png")
+(def icon move-up)
 (def resources hu
   (icon-tooltip.move-up "Mozgatás felfelé"))
 (def resources en
   (icon-tooltip.move-up "Move up"))
 
-(def icon move-down "static/wui/icons/20x20/down-arrow.png")
+(def icon move-down)
 (def resources hu
   (icon-tooltip.move-down "Mozgatás lefelé"))
 (def resources en
   (icon-tooltip.move-down "Move down"))
 
-(def icon move-left "static/wui/icons/20x20/left-arrow.png")
+(def icon move-left)
 (def resources hu
   (icon-tooltip.move-left "Mozgatás balra"))
 (def resources en
   (icon-tooltip.move-left "Move left"))
 
-(def icon move-right "static/wui/icons/20x20/right-arrow.png")
+(def icon move-right)
 (def resources hu
   (icon-tooltip.move-right "Mozgatás jobbra"))
 (def resources en

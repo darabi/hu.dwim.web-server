@@ -31,7 +31,7 @@
 (def function make-switch-to-tab-page-command (tab-container tab-page)
   (make-replace-command (delay (content-of tab-container)) tab-page :icon (icon-of tab-page)))
 
-(def icon swith-to-page "static/wui/icons/20x20/eye.png")
+(def icon swith-to-page)
 (def resources hu
   (icon-label.swith-to-page "Lap")
   (icon-tooltip.swith-to-page "A lap előrehozása"))

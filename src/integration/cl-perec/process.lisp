@@ -84,7 +84,7 @@
 ;;;;;;
 ;;; Command
 
-(def icon start-process "static/wui/icons/20x20/vcr-play.png")
+(def icon start-process)
 (def resources hu
   (icon-label.start-process "Elindítás")
   (icon-tooltip.start-process "A folyamat elindítása"))
@@ -92,7 +92,7 @@
   (icon-label.start-process "Start")
   (icon-tooltip.start-process "Start the process"))
 
-(def icon continue-process "static/wui/icons/20x20/vcr-play.png")
+(def icon continue-process)
 (def resources hu
   (icon-label.continue-process "Folytatás")
   (icon-tooltip.continue-process "A folyamat folytatása"))
@@ -100,7 +100,7 @@
   (icon-label.continue-process "Continue")
   (icon-tooltip.continue-process "Continue the process"))
 
-(def icon cancel-process "static/wui/icons/20x20/red-x.png")
+(def icon cancel-process)
 (def resources hu
   (icon-label.cancel-process "Elvetés")
   (icon-tooltip.cancel-process "A folyamat elvetése"))
@@ -108,7 +108,7 @@
   (icon-label.cancel-process "Cancel")
   (icon-tooltip.cancel-process "Cancel the process"))
 
-(def icon pause-process "static/wui/icons/20x20/stop-sign.png")
+(def icon pause-process)
 (def resources hu
   (icon-label.pause-process "Felfüggesztés")
   (icon-tooltip.pause-process "A folyamat felüggesztése"))

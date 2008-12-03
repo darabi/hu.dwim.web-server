@@ -30,7 +30,7 @@
 ;;;;;;
 ;;; CSV
 
-(def icon export-csv "static/wui/icons/20x20/document.png")
+(def icon export-csv)
 
 (def resources hu
   (icon-label.export-csv "CSV")
@@ -59,7 +59,7 @@
 ;;;;;;
 ;;; PDF
 
-(def icon export-pdf "static/wui/icons/20x20/pdf-document.png")
+(def icon export-pdf)
 
 (def resources hu
   (icon-label.export-pdf "PDF")
@@ -86,7 +86,7 @@
 ;;;;;;
 ;;; ODF
 
-(def icon export-odf "static/wui/icons/20x20/document.png")
+(def icon export-odf)
 
 (def resources hu
   (icon-label.export-odf "ODF")

@@ -45,7 +45,7 @@
               +void+)
          ,(foreach #'render menu-items)>))
 
-(def icon menu "static/wui/icons/20x20/open-folder.png") ;; TODO: icon
+(def icon menu) ;; TODO: icon
 
 ;;;;;;
 ;;; Menu item

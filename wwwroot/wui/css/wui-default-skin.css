@@ -311,3 +311,258 @@ table.frame-size-breakdown > tbody > tr > td.delta
   width: 20px;
   height: 20px;
 }
+
+/**
+  icon
+ */
+
+.icon {
+  width: 20px;
+  height: 20px;
+  padding-top: 3px;
+  padding-left: 20px
+}
+
+.login-icon {
+  background-image: url("/static/wui/icons/20x20/green-checkmark.png");
+}
+
+.logout-icon {
+  background-image: url("/static/wui/icons/20x20/red-arrow-on-door.png");
+}
+
+.impersonalize-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-play-with-people.png");
+}
+
+.cancel-impersonalization-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-backward-with-people.png");
+}
+
+.change-password-icon {
+  background-image: url("/static/wui/icons/20x20/green-checkmark.png");
+}
+
+.refresh-icon {
+  background-image: url("/static/wui/icons/20x20/ying-yang-arrows.png");
+}
+
+.edit-icon {
+  background-image: url("/static/wui/icons/20x20/pen-on-document.png");
+}
+
+.save-icon {
+  background-image: url("/static/wui/icons/20x20/disc-on-document.png");
+}
+
+.cancel-icon {
+  background-image: url("/static/wui/icons/20x20/yellow-x.png");
+}
+
+.store-icon {
+  background-image: url("/static/wui/icons/20x20/disc-on-document.png");
+}
+
+.revert-icon {
+  background-image: url("/static/wui/icons/20x20/yellow-x.png");
+}
+
+.new-icon {
+  background-image: url("/static/wui/icons/20x20/document.png");
+}
+
+.create-icon {
+  background-image: url("/static/wui/icons/20x20/disc-on-document.png");
+}
+
+.delete-icon {
+  background-image: url("/static/wui/icons/20x20/red-x.png");
+}
+
+.close-icon {
+  background-image: url("/static/wui/icons/20x20/red-x.png");
+}
+
+.focus-icon {
+  background-image: url("/static/wui/icons/20x20/blue-all-direction-arrows.png");
+}
+
+.open-in-new-frame-icon {
+  background-image: url("/static/wui/icons/20x20/split-vertically.png");
+}
+
+.back-icon {
+  background-image: url("/static/wui/icons/20x20/green-double-left-arrow.png");
+}
+
+.expand-icon {
+  background-image: url("/static/wui/icons/20x20/magnifier-plus.png");
+}
+
+.collapse-icon {
+  background-image: url("/static/wui/icons/20x20/magnifier-minus.png");
+}
+
+.first-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-begin.png");
+}
+
+.previous-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-backward.png");
+}
+
+.next-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-forward.png");
+}
+
+.last-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-end.png");
+}
+
+.filter-icon {
+  background-image: url("/static/wui/icons/20x20/binocular.png");
+}
+
+.find-icon {
+  background-image: url("/static/wui/icons/20x20/binocular.png");
+}
+
+.set-to-nil-icon {
+  background-image: url("/static/wui/icons/20x20/unplug.png");
+}
+
+.set-to-unbound-icon {
+  background-image: url("/static/wui/icons/20x20/unplug.png");
+}
+
+.select-icon {
+  background-image: url("/static/wui/icons/20x20/checkmark.png");
+}
+
+.equal-icon {
+  background-image: url("/static/wui/icons/20x20/equal-sign.png");
+}
+
+.like-icon {
+  background-image: url("/static/wui/icons/20x20/tilde.png");
+}
+
+.<-icon {
+  background-image: url("/static/wui/icons/20x20/less-than-sign.png");
+}
+
+.<=-icon {
+  background-image: url("/static/wui/icons/20x20/less-than-or-equal-sign.png");
+}
+
+.>-icon {
+  background-image: url("/static/wui/icons/20x20/greater-than-sign.png");
+}
+
+.>=-icon {
+  background-image: url("/static/wui/icons/20x20/greater-than-or-equal-sign.png");
+}
+
+.negated-icon {
+  background-image: url("/static/wui/icons/20x20/thumb-down.png");
+}
+
+.ponated-icon {
+  background-image: url("/static/wui/icons/20x20/thumb-up.png");
+}
+
+.view-icon {
+  background-image: url("/static/wui/icons/20x20/eye.png");
+}
+
+.finish-icon {
+  background-image: url("/static/wui/icons/20x20/checkmark.png");
+}
+
+.download-icon {
+  background-image: url("/static/wui/icons/20x20/file-download.png");
+}
+
+.upload-icon {
+  background-image: url("/static/wui/icons/20x20/file-upload.png");
+}
+
+.diagram-icon {
+  background-image: url("/static/wui/icons/20x20/eye.png");
+}
+
+.export-csv-icon {
+  background-image: url("/static/wui/icons/20x20/document.png");
+}
+
+.export-pdf-icon {
+  background-image: url("/static/wui/icons/20x20/pdf-document.png");
+}
+
+.export-odf-icon {
+  background-image: url("/static/wui/icons/20x20/document.png");
+}
+
+.swith-to-page-icon {
+  background-image: url("/static/wui/icons/20x20/eye.png");
+}
+
+.rotate-clockwise-icon {
+  background-image: url("/static/wui/icons/20x20/clockwise-arrow.png");
+}
+
+.rotate-counter-clockwise-icon {
+  background-image: url("/static/wui/icons/20x20/counter-clockwise-arrow.png");
+}
+
+.move-up-icon {
+  background-image: url("/static/wui/icons/20x20/up-arrow.png");
+}
+
+.move-down-icon {
+  background-image: url("/static/wui/icons/20x20/down-arrow.png");
+}
+
+.move-left-icon {
+  background-image: url("/static/wui/icons/20x20/left-arrow.png");
+}
+
+.move-right-icon {
+  background-image: url("/static/wui/icons/20x20/right-arrow.png");
+}
+
+.menu-icon {
+  background-image: url("/static/wui/icons/20x20/open-folder.png");
+}
+
+.start-process-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-play.png");
+}
+
+.continue-process-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-play.png");
+}
+
+.cancel-process-icon {
+  background-image: url("/static/wui/icons/20x20/red-x.png");
+}
+
+.pause-process-icon {
+  background-image: url("/static/wui/icons/20x20/stop-sign.png");
+}
+
+.restart-cluster-node-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-play.png");
+}
+
+.startup-cluster-node-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-play.png");
+}
+
+.shutdown-cluster-node-icon {
+  background-image: url("/static/wui/icons/20x20/stop-sign.png");
+}
+
+.generate-new-password-icon {
+  background-image: url("/static/wui/icons/20x20/pen-on-document.png");
+}

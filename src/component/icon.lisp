@@ -46,7 +46,7 @@
     <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip))
           ,(if image-path
                <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>
-               <img (:class ,(concatenate-string (string-downcase (symbol-name name)) "-icon"))>)
+               <img (:class ,(concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))>)
           ,(awhen (force label)
              (render-icon-label icon it)) >))
 
@@ -95,7 +95,7 @@
 ;;; Default icons
 ;;; TODO: move the icons where they are used?
 
-(def icon login "static/wui/icons/20x20/green-checkmark.png")
+(def icon login)
 (def resources hu
   (icon-label.login "Belépés")
   (icon-tooltip.login "Azonosítás és jogosultságok kérése"))
@@ -103,7 +103,7 @@
   (icon-label.login "Login")
   (icon-tooltip.login "Gain privileges by authentication"))
 
-(def icon logout "static/wui/icons/20x20/red-arrow-on-door.png")
+(def icon logout)
 (def resources hu
   (icon-label.logout "Kilépés")
   (icon-tooltip.logout "A munka befejezése és a jogosultságok feladása"))
@@ -111,7 +111,7 @@
   (icon-label.logout "Logout")
   (icon-tooltip.logout "Leave the current session and remove all privileges previously gained by authentication"))
 
-(def icon impersonalize "static/wui/icons/20x20/vcr-play-with-people.png")
+(def icon impersonalize)
 (def resources hu
   (icon-label.impersonalize "Megszemélyesítés")
   (icon-tooltip.impersonalize "A kiválasztott alany megszemélyesítése"))
@@ -119,7 +119,7 @@
   (icon-label.impersonalize "Impersonalization")
   (icon-tooltip.impersonalize "Impersonalize the selected subject"))
 
-(def icon cancel-impersonalization "static/wui/icons/20x20/vcr-backward-with-people.png")
+(def icon cancel-impersonalization)
 (def resources hu
   (icon-label.cancel-impersonalization "Megszemélyesítés megszüntetése")
   (icon-tooltip.cancel-impersonalization "Visszatérés az eredeti alanyhoz"))
@@ -127,7 +127,7 @@
   (icon-label.cancel-impersonalization "Cancel impersonalization")
   (icon-tooltip.cancel-impersonalization "Return back to the original subject"))
 
-(def icon change-password "static/wui/icons/20x20/green-checkmark.png")
+(def icon change-password)
 (def resources hu
   (icon-label.change-password "Jelszó megváltoztatása")
   (icon-tooltip.change-password "A munka befejezése és a jogosultságok feladása"))
@@ -135,7 +135,7 @@
   (icon-label.change-password "Change password")
   (icon-tooltip.change-password "Leave the current session and remove all privileges previously gained by authentication"))
 
-(def icon refresh "static/wui/icons/20x20/ying-yang-arrows.png")
+(def icon refresh)
 (def resources hu
   (icon-label.refresh "Frissítés")
   (icon-tooltip.refresh "A tartalom frissítése"))
@@ -143,7 +143,7 @@
   (icon-label.refresh "Refresh")
   (icon-tooltip.refresh "Refresh content"))
 
-(def icon edit "static/wui/icons/20x20/pen-on-document.png")
+(def icon edit)
 (def resources hu
   (icon-label.edit "Szerkesztés")
   (icon-tooltip.edit "Szerkesztés elkezdése"))
@@ -151,7 +151,7 @@
   (icon-label.edit "Edit")
   (icon-tooltip.edit "Start editing"))
 
-(def icon save "static/wui/icons/20x20/disc-on-document.png")
+(def icon save)
 (def resources hu
   (icon-label.save "Mentés")
   (icon-tooltip.save "Változtatások mentése és a szerkesztés befejezése"))
@@ -159,7 +159,7 @@
   (icon-label.save "Save")
   (icon-tooltip.save "Save changes and finish editing"))
 
-(def icon cancel "static/wui/icons/20x20/yellow-x.png")
+(def icon cancel)
 (def resources hu
   (icon-label.cancel "Elvetés")
   (icon-tooltip.cancel "Változtatások elvetése és a szerkesztés befejezése"))
@@ -167,7 +167,7 @@
   (icon-label.cancel "Cancel")
   (icon-tooltip.cancel "Cancel changes and finish editing"))
 
-(def icon store "static/wui/icons/20x20/disc-on-document.png")
+(def icon store)
 (def resources hu
   (icon-label.store "Mentés")
   (icon-tooltip.store "Változtatások mentése"))
@@ -175,7 +175,7 @@
   (icon-label.store "Store")
   (icon-tooltip.store "Store changes"))
 
-(def icon revert "static/wui/icons/20x20/yellow-x.png")
+(def icon revert)
 (def resources hu
   (icon-label.revert "Elvetés")
   (icon-tooltip.revert "Változtatások elvetése"))
@@ -183,7 +183,7 @@
   (icon-label.revert "Revert")
   (icon-tooltip.revert "Revert changes"))
 
-(def icon new "static/wui/icons/20x20/document.png")
+(def icon new)
 (def resources hu
   (icon-label.new "Új")
   (icon-tooltip.new "Új objektum szerkesztése"))
@@ -191,7 +191,7 @@
   (icon-label.new "New")
   (icon-tooltip.new "Start editing a new object"))
 
-(def icon create "static/wui/icons/20x20/disc-on-document.png")
+(def icon create)
 (def resources hu
   (icon-label.create "Létrehozás")
   (icon-tooltip.create "Új objektum felvétele"))
@@ -199,7 +199,7 @@
   (icon-label.create "Create")
   (icon-tooltip.create "Create object"))
 
-(def icon delete "static/wui/icons/20x20/red-x.png")
+(def icon delete)
 (def resources hu
   (icon-label.delete "Törlés")
   (icon-tooltip.delete "Az objektum törlése"))
@@ -207,7 +207,7 @@
   (icon-label.delete "Delete")
   (icon-tooltip.delete "Delete object"))
 
-(def icon close "static/wui/icons/20x20/red-x.png")
+(def icon close)
 (def resources hu
   (icon-label.close "Bezárás")
   (icon-tooltip.close "A komponens bezárása"))
@@ -215,7 +215,7 @@
   (icon-label.close "Close")
   (icon-tooltip.close "Close the component"))
 
-(def icon focus "static/wui/icons/20x20/blue-all-direction-arrows.png")
+(def icon focus)
 (def resources hu
   (icon-label.focus "Fókuszálás")
   (icon-tooltip.focus "Fókuszálás az objektumra"))
@@ -223,7 +223,7 @@
   (icon-label.focus "Focus")
   (icon-tooltip.focus "Focus on the object"))
 
-(def icon open-in-new-frame "static/wui/icons/20x20/split-vertically.png")
+(def icon open-in-new-frame)
 (def resources hu
   (icon-label.open-in-new-frame "Új ablak")
   (icon-tooltip.open-in-new-frame "Az objektum új ablakban való megnyitása"))
@@ -231,7 +231,7 @@
   (icon-label.open-in-new-frame "New window")
   (icon-tooltip.open-in-new-frame "Open object in new window"))
 
-(def icon back "static/wui/icons/20x20/green-double-left-arrow.png")
+(def icon back)
 (def resources hu
   (icon-label.back "Vissza")
   (icon-tooltip.back "Vissza a helyére"))
@@ -239,7 +239,7 @@
   (icon-label.back "Back")
   (icon-tooltip.back "Move back"))
 
-(def icon expand "static/wui/icons/20x20/magnifier-plus.png")
+(def icon expand)
 (def resources hu
   (icon-label.expand "Kinyitás")
   (icon-tooltip.expand "Részletek megjelenítése"))
@@ -247,7 +247,7 @@
   (icon-label.expand "Expand")
   (icon-tooltip.expand "Expand to detail"))
 
-(def icon collapse "static/wui/icons/20x20/magnifier-minus.png")
+(def icon collapse)
 (def resources hu
   (icon-label.collapse "Összecsukás")
   (icon-tooltip.collapse "Részletek elrejtése"))
@@ -255,7 +255,7 @@
   (icon-label.collapse "Collapse")
   (icon-tooltip.collapse "Collapse to reference"))
 
-(def icon first "static/wui/icons/20x20/vcr-begin.png")
+(def icon first)
 (def resources hu
   (icon-label.first "Első")
   (icon-tooltip.first "Ugrás az első lapra"))
@@ -263,7 +263,7 @@
   (icon-label.first "First")
   (icon-tooltip.first "Jump to first page"))
 
-(def icon previous "static/wui/icons/20x20/vcr-backward.png")
+(def icon previous)
 (def resources hu
   (icon-label.previous "Előző")
   (icon-tooltip.previous "Lapozás a előző lapra"))
@@ -271,7 +271,7 @@
   (icon-label.previous "Previous")
   (icon-tooltip.previous "Move to previous page"))
 
-(def icon next "static/wui/icons/20x20/vcr-forward.png")
+(def icon next)
 (def resources hu
   (icon-label.next "Következő")
   (icon-tooltip.next "Lapozás a következő lapra"))
@@ -279,7 +279,7 @@
   (icon-label.next "Next")
   (icon-tooltip.next "Move to next page"))
 
-(def icon last "static/wui/icons/20x20/vcr-end.png")
+(def icon last)
 (def resources hu
   (icon-label.last "Utolsó")
   (icon-tooltip.last "Ugrás az utolsó lapra"))
@@ -287,7 +287,7 @@
   (icon-label.last "Last")
   (icon-tooltip.last "Jump to last page"))
 
-(def icon filter "static/wui/icons/20x20/binocular.png")
+(def icon filter)
 (def resources hu
   (icon-label.filter "Keresés")
   (icon-tooltip.filter "A keresés végrehajtása"))
@@ -295,7 +295,7 @@
   (icon-label.filter "Filter")
   (icon-tooltip.filter "Execute the filter"))
 
-(def icon find "static/wui/icons/20x20/binocular.png")
+(def icon find)
 (def resources hu
   (icon-label.find "Keresés")
   (icon-tooltip.find "Egy objektum keresése"))
@@ -303,7 +303,7 @@
   (icon-label.find "Find")
   (icon-tooltip.find "Find an object"))
 
-(def icon set-to-nil "static/wui/icons/20x20/unplug.png")
+(def icon set-to-nil)
 (def resources hu
   (icon-label.set-to-nil "Szétkapcsolás")
   (icon-tooltip.set-to-nil "Az objektumok szétkapcsolása"))
@@ -311,7 +311,7 @@
   (icon-label.set-to-nil "Disconnect")
   (icon-tooltip.set-to-nil "Disconnect from object"))
 
-(def icon set-to-unbound "static/wui/icons/20x20/unplug.png")
+(def icon set-to-unbound)
 (def resources hu
   (icon-label.set-to-unbound "Alapértelmezett")
   (icon-tooltip.set-to-unbound "Az alapértelmezett értékre beállítása"))
@@ -319,7 +319,7 @@
   (icon-label.set-to-unbound "Default")
   (icon-tooltip.set-to-unbound "Set to default"))
 
-(def icon select "static/wui/icons/20x20/checkmark.png")
+(def icon select)
 (def resources hu
   (icon-label.select "Kiválasztás")
   (icon-tooltip.select "Egy objektum kiválasztása"))
@@ -327,7 +327,7 @@
   (icon-label.select "Select")
   (icon-tooltip.select "Select an object"))
 
-(def icon equal "static/wui/icons/20x20/equal-sign.png")
+(def icon equal)
 (def resources hu
   (icon-label.equal "Egyenlő")
   (icon-tooltip.equal "Ellenőrzes egyenlőségre"))
@@ -335,7 +335,7 @@
   (icon-label.equal "Equal")
   (icon-tooltip.equal "Compare for equality"))
 
-(def icon like "static/wui/icons/20x20/tilde.png")
+(def icon like)
 (def resources hu
   (icon-label.like "Hasonló")
   (icon-tooltip.like "Ellenőrzes hasonlóságra"))
@@ -343,7 +343,7 @@
   (icon-label.like "Like")
   (icon-tooltip.like "Compare for like"))
 
-(def icon < "static/wui/icons/20x20/less-than-sign.png")
+(def icon <)
 (def resources hu
   (icon-label.< "Kisebb")
   (icon-tooltip.< "Ellenőrzes kisebbre"))
@@ -351,7 +351,7 @@
   (icon-label.< "Less")
   (icon-tooltip.< "Compare for less then"))
 
-(def icon <= "static/wui/icons/20x20/less-than-or-equal-sign.png")
+(def icon <=)
 (def resources hu
   (icon-label.<= "Kisebb vagy egyenlő")
   (icon-tooltip.<= "Ellenőrzes kisebbre vagy egyenlőre"))
@@ -359,7 +359,7 @@
   (icon-label.<= "Less or equal")
   (icon-tooltip.<= "Compare for less than or equal"))
 
-(def icon > "static/wui/icons/20x20/greater-than-sign.png")
+(def icon >)
 (def resources hu
   (icon-label.> "Nagyobb")
   (icon-tooltip.> "Ellenőrzes nagyobbra"))
@@ -367,7 +367,7 @@
   (icon-label.> "Greater")
   (icon-tooltip.> "Compare for greater then"))
 
-(def icon >= "static/wui/icons/20x20/greater-than-or-equal-sign.png")
+(def icon >=)
 (def resources hu
   (icon-label.>= "Nagyobb vagy egyenlő")
   (icon-tooltip.>= "Ellenőrzes nagyobb vagy egyenlőre"))
@@ -375,7 +375,7 @@
   (icon-label.>= "Greater or equal")
   (icon-tooltip.>= "Compare for greater than or equal"))
 
-(def icon negated "static/wui/icons/20x20/thumb-down.png")
+(def icon negated)
 (def resources hu
   (icon-label.negated "Negált")
   (icon-tooltip.negated "Negált feltétel"))
@@ -383,7 +383,7 @@
   (icon-label.negated "Negated")
   (icon-tooltip.negated "Negate condition"))
 
-(def icon ponated "static/wui/icons/20x20/thumb-up.png")
+(def icon ponated)
 (def resources hu
   (icon-label.ponated "Ponált")
   (icon-tooltip.ponated "Ponált feltétel"))
@@ -391,7 +391,7 @@
   (icon-label.ponated "Ponated")
   (icon-tooltip.ponated "Ponate condition"))
 
-(def icon view "static/wui/icons/20x20/eye.png")
+(def icon view)
 (def resources hu
   (icon-label.view "Nézet")
   (icon-tooltip.view "Nézet váltás"))
@@ -399,7 +399,7 @@
   (icon-label.view "View")
   (icon-tooltip.view "Change view"))
 
-(def icon finish "static/wui/icons/20x20/checkmark.png")
+(def icon finish)
 (def resources hu
   (icon-label.finish "Befejezés")
   (icon-tooltip.finish "A varázsló befejezése"))
@@ -407,7 +407,7 @@
   (icon-label.finish "Finish")
   (icon-tooltip.finish "Finish wizard"))
 
-(def icon download "static/wui/icons/20x20/file-download.png")
+(def icon download)
 (def resources hu
   (icon-label.download "Letöltés")
   (icon-tooltip.download "Fájl letöltése"))
@@ -415,7 +415,7 @@
   (icon-label.download "Download")
   (icon-tooltip.download "Download file"))
 
-(def icon upload "static/wui/icons/20x20/file-upload.png")
+(def icon upload)
 (def resources hu
   (icon-label.upload "Feltöltés")
   (icon-tooltip.upload "Fájl feltöltése"))
@@ -423,7 +423,7 @@
   (icon-label.upload "Upload")
   (icon-tooltip.upload "Upload file"))
 
-(def icon diagram "static/wui/icons/20x20/eye.png")
+(def icon diagram)
 (def resources hu
   (icon-label.diagram "Ábra")
   (icon-tooltip.diagram "Ábra megjelenítése"))
