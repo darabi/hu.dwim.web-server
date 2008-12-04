@@ -215,13 +215,21 @@
   (icon-label.close "Close")
   (icon-tooltip.close "Close the component"))
 
-(def icon focus)
+(def icon focus-in)
 (def resources hu
-  (icon-label.focus "Fókuszálás")
-  (icon-tooltip.focus "Fókuszálás az objektumra"))
+  (icon-label.focus-in "Fókuszálás")
+  (icon-tooltip.focus-in "Fókuszálás az objektumra"))
 (def resources en
-  (icon-label.focus "Focus")
-  (icon-tooltip.focus "Focus on the object"))
+  (icon-label.focus-in "Focus")
+  (icon-tooltip.focus-in "Focus on the object"))
+
+(def icon focus-out)
+(def resources hu
+  (icon-label.focus-out "Vissza")
+  (icon-tooltip.focus-out "Fókuszálás megszüntetése"))
+(def resources en
+  (icon-label.focus-out "Back")
+  (icon-tooltip.focus-out "Undo focus"))
 
 (def icon open-in-new-frame)
 (def resources hu

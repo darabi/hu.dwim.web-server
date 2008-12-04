@@ -383,8 +383,12 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image: url("/static/wui/icons/20x20/red-x.png");
 }
 
-.focus-icon {
+.focus-in-icon {
   background-image: url("/static/wui/icons/20x20/blue-all-direction-arrows.png");
+}
+
+.focus-out-icon {
+  background-image: url("/static/wui/icons/20x20/green-double-left-arrow.png");
 }
 
 .open-in-new-frame-icon {

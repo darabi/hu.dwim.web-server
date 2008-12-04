@@ -132,7 +132,7 @@
     (sort commands #'<
           :key (lambda (command)
                  (or (position (name-of (icon-of command))
-                               '(answer back open-in-new-frame top collapse collapse-all expand-all refresh edit save cancel store revert new delete)
+                               '(answer back focus-out open-in-new-frame focus-in collapse collapse-all expand-all refresh edit save cancel store revert new delete)
                                :test #'eq)
                      most-positive-fixnum)))))
 
@@ -319,8 +319,8 @@
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
     (bind ((original-component (delay (find-top-component-content component))))
       (make-replace-and-push-back-command original-component component
-                                          (list :icon (icon focus) :visible (delay (not (top-component-p component))))
-                                          (list :icon (icon back))))))
+                                          (list :icon (icon focus-in) :visible (delay (not (top-component-p component))))
+                                          (list :icon (icon focus-out))))))
 
 (def (generic e) make-frame-component-with-content (application content))
 
