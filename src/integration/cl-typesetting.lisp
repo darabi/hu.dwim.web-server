@@ -49,7 +49,7 @@
   (typeset:put-string (print-component-value -self-)))
 
 (def render-pdf standard-object-detail-component ()
-  (typeset:table (:col-widths '(100 200) :border 1)
+  (typeset:table (:col-widths '(200 200) :splittable-p #t)
     (foreach #'render-pdf (slot-value-groups-of -self-))))
 
 (def render-pdf standard-object-slot-value-group-component ()
@@ -65,7 +65,7 @@
     (render-pdf (value-of -self-))))
 
 (def render-pdf table-component ()
-  (typeset:table (:col-widths (mapcar 'pdf-column-width (columns-of -self-)))
+  (typeset:table (:col-widths (normalized-column-widths (columns-of -self-)) :splittable-p #t)
     (typeset:row ()
       (foreach #'render-pdf (columns-of -self-)))
     (foreach #'render-pdf (root-nodes-of -self-))))
@@ -102,7 +102,7 @@
     (render-pdf cell)))
 
 (def render-pdf tree-component ()
-  (typeset:table (:col-widths (mapcar 'pdf-column-width (columns-of -self-)))
+  (typeset:table (:col-widths (normalized-column-widths (columns-of -self-)) :splittable-p #t)
     (typeset:row ()
       (foreach #'render-pdf (columns-of -self-)))
     (foreach #'render-pdf (root-nodes-of -self-))))
@@ -155,3 +155,11 @@
 
 (def (function e) render-pdf-dots (count)
   (typeset:put-string (make-array count :initial-element #\. :element-type 'character)))
+
+(def function normalized-column-widths (columns)
+  (bind ((column-widths (mapcar 'pdf-column-width columns))
+         (total-width (sum column-widths)))
+    (mapcar (lambda (width)
+              ;; TODO: consider page size and orientation
+              (* 710 (/ width total-width)))
+            column-widths)))
