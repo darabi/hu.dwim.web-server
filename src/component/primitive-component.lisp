@@ -126,7 +126,7 @@
 
 (def method parse-component-value ((component t-component) client-value)
   ;; TODO: this is kind of dangerous
-  (read-from-string client-value))
+  (values (read-from-string client-value)))
 
 ;;;;;;
 ;;; Boolean component
