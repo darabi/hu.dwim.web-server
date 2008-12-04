@@ -75,7 +75,7 @@
             (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
             (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
             (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
-        <form (:name "form" :method "post")
+        <form (:method "post")
           <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
                   :value ,(first (ensure-list (request-parameter-value *request* +scroll-x-parameter-name+))))>
           <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"

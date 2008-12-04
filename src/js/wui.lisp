@@ -399,14 +399,14 @@
 ;;; scroll
 
 (defun wui.reset-scroll-position ((content :by-id))
-  (let ((form (slot-value document 'form))
+  (let ((form (aref document.forms 0))
         (sx (slot-value form 'sx))
         (sy (slot-value form 'sy)))
     (setf (slot-value content 'scrollLeft) (slot-value sx 'value))
     (setf (slot-value content 'scrollTop) (slot-value sy 'value))))
 
 (defun wui.save-scroll-position ((content :by-id))
-  (let ((form (slot-value document 'form)))
+  (let ((form (aref document.forms 0)))
     (setf (slot-value (slot-value form 'sx) 'value) (slot-value content 'scrollLeft))
     (setf (slot-value (slot-value form 'sy) 'value) (slot-value content 'scrollTop))))
 
