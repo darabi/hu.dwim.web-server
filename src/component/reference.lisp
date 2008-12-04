@@ -84,6 +84,9 @@
 (def component standard-object-inspector-reference (reference-component)
   ())
 
+(def layered-method make-expand-reference-command :before ((reference standard-object-inspector-reference) (class standard-class) (target standard-object) expansion)
+  (reuse-standard-object-inspector-reference reference))
+
 (def method make-reference-label ((reference standard-object-inspector-reference) (class standard-class) (instance standard-object))
   (princ-to-string instance))
 
