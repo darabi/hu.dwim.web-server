@@ -169,11 +169,15 @@
     (assert-session-lock-held session)
     ;; TODO here? find its place...
     (notify-activity session)
-    (flet ((send-response-early (response)
-             (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and WITH-ACTION-LOGIC's dynamic scope" response)
-             (decorate-application-response application response)
-             (send-response response)
-             (make-do-nothing-response)))
+    (flet ((maybe-send-response-early (response)
+             (if (and response
+                      (typep response 'locked-session-response-mixin))
+                 (progn
+                   (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and WITH-ACTION-LOGIC's dynamic scope" response)
+                   (decorate-application-response application response)
+                   (send-response response)
+                   (make-do-nothing-response))
+                 response)))
       (bind ((response
               (if frame
                   (progn
@@ -205,16 +209,16 @@
                                            (bind ((response (call-action application session frame action)))
                                              (when (typep response 'response)
                                                (return-from with-action-logic
-                                                 (if (typep response 'locked-session-response-mixin)
-                                                     (send-response-early response)
-                                                     response)))))
+                                                 (maybe-send-response-early response)))))
                                          (handle-request-to-invalid-frame application session frame :out-of-sync))
                                    (:abort
                                     (when original-frame-index
                                       (revert-step-to-next-frame-index frame original-frame-index))))))
                               (incoming-frame-index
                                (unless (equal incoming-frame-index current-frame-index)
-                                 (handle-request-to-invalid-frame application session frame :out-of-sync)))
+                                 (return-from with-action-logic
+                                   (maybe-send-response-early
+                                    (handle-request-to-invalid-frame application session frame :out-of-sync)))))
                               #+nil ; TODO think about this. when the frame is registeres, there's no frame index param, but it's still a valid request
                               (t
                                (frame-index-missing-error frame)))
@@ -230,10 +234,7 @@
                       ;; error until a valid use-case requires something else...
                       (frame-not-found-error)
                       (-body-)))))
-        (if (and response
-                 (typep response 'locked-session-response-mixin))
-            (send-response-early response)
-            response)))))
+        (maybe-send-response-early response)))))
 
 (def (generic e) handle-request-to-invalid-session (application session invalidity-reason)
   (:method ((application application) session invalidity-reason)
@@ -246,18 +247,22 @@
   (:method ((application application) session frame invalidity-reason)
     (declare (type (member :nonexistent :timed-out :invalidated :out-of-sync) invalidity-reason)
              (type (or null frame) frame))
-    (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
+    (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speeking")
     (if (eq invalidity-reason :out-of-sync)
         (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
                (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))
                (args (list refresh-href new-frame-href)))
-          (emit-simple-html-document-response (:status +http-not-acceptable+
-                                               :headers #.(list 'quote +disallow-response-caching-header-values+))
+          (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
+          (emit-simple-html-document-http-response (:status +http-not-acceptable+
+                                                    :headers '#.+disallow-response-caching-header-values+)
             (lookup-resource 'render-frame-out-of-sync-error
                              :arguments args
                              :otherwise (lambda ()
-                                          (apply 'render-frame-out-of-sync-error/english args)))))
-        (make-redirect-response-for-current-application))))
+                                          (apply 'render-frame-out-of-sync-error/english args))))
+          (make-do-nothing-response))
+        (progn
+          (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
+          (make-redirect-response-for-current-application)))))
 
 (def (generic e) handle-request-to-invalid-action (application session frame action invalidity-reason)
   (:method ((application application) session frame action invalidity-reason)

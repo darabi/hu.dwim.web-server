@@ -390,9 +390,9 @@
     (setf (header-value it +header/status+) +http-not-found+)))
 
 (defmethod send-response ((self no-handler-response))
-  (emit-simple-html-document-response (:title "Page not found"
-                                       :headers (headers-of self)
-                                       :cookies (cookies-of self))
+  (emit-simple-html-document-http-response (:title "Page not found"
+                                            :headers (headers-of self)
+                                            :cookies (cookies-of self))
     <h1 "Page not found">
     <p <span (:style "background-color: #fdd;") ,(print-uri-to-string (uri-of *request*) #f)>
        " was not found on this server">))

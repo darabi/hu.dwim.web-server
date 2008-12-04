@@ -98,14 +98,14 @@
     (setf (header-value it +header/content-type+) +html-content-type+)))
 
 (defmethod send-response ((self directory-index-response))
-  (emit-simple-html-document-response (:title (concatenate-string
-                                               "Directory index of \""
-                                               (relative-path-of self)
-                                               "\" under \""
-                                               (path-prefix-of self)
-                                               "\"")
-                                       :headers (headers-of self)
-                                       :cookies (cookies-of self))
+  (emit-simple-html-document-http-response (:title (concatenate-string
+                                                    "Directory index of \""
+                                                    (relative-path-of self)
+                                                    "\" under \""
+                                                    (path-prefix-of self)
+                                                    "\"")
+                                            :headers (headers-of self)
+                                            :cookies (cookies-of self))
     <table
       ,@(bind ((elements (cl-fad:list-directory (directory-of self)))
                (path-prefix (path-prefix-of self))

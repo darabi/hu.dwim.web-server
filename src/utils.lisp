@@ -466,7 +466,7 @@
      (send-http-headers ,headers ,cookies)
      ,@body))
 
-(def (macro e) emit-simple-html-document-response ((&key title status headers cookies) &body body)
+(def (macro e) emit-simple-html-document-http-response ((&key title status headers cookies) &body body)
   `(emit-http-response* ((append
                           ,@(when headers (list headers))
                           ,@(when status `((list (cons +header/status+ ,status))))
