@@ -172,7 +172,8 @@
                         (render-dojo-widget (command-id)
                           <div (:id ,command-id
                                 :dojoType #.+dijit/menu-item+
-                                :iconClass ,(icon-class (name-of (content-of command))))
+                                :iconClass ,(icon-class (name-of (content-of command)))
+                                :onclick ,(render-onclick-handler command))
                             ,(render-icon :icon (content-of command) :class nil)>)))>)>)))
 
 (def render-csv popup-command-menu-component ()
