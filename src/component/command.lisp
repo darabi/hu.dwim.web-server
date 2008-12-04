@@ -226,7 +226,7 @@
 
 (def component page-count-selector (member-inspector)
   ()
-  (:default-initargs :possible-values '(10 20 50 100) :edited #t :client-name-generator [princ-to-string !2]))
+  (:default-initargs :possible-values '(10 20 50 100) :edited #t :client-name-generator [integer-to-string !2]))
 
 (def method refresh-component ((self page-count-selector))
   (setf (page-count-of (parent-component-of self)) (component-value-of self)))
