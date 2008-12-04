@@ -156,7 +156,7 @@
       (render-member-component -self-)
       (bind ((icon (find-member-component-value-icon -self-)))
         (when icon
-          (render-icon icon :image-path (image-path-of icon) :name (name-of icon)))
+          (render-icon :icon icon :label nil :tooltip nil))
         `xml,(print-component-value -self-))))
 
 ;;;;;;

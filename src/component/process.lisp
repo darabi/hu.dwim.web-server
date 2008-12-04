@@ -80,5 +80,5 @@
     (unless action
       (setf action (make-action (answer-component -self- value))))))
 
-(def (macro e) answer-command (icon &body forms)
-  `(make-instance 'answer-command-component :icon ,icon :value (delay ,@forms)))
+(def (macro e) answer-command (content &body forms)
+  `(make-instance 'answer-command-component :content ,content :value (delay ,@forms)))

@@ -20,14 +20,14 @@
 (def method refresh-component ((self reference-component))
   (with-slots (target expand-command) self
     (when (typep expand-command 'command-component)
-      (setf (label-of (icon-of expand-command)) (make-reference-label self (class-of target) target)))))
+      (setf (label-of (content-of expand-command)) (make-reference-label self (class-of target) target)))))
 
 (def render reference-component ()
   (render (expand-command-of -self-)))
 
 (def render :in passive-components-layer reference-component
   ;; TODO this is not too nice this way
-  <span ,(force (label-of (icon-of (expand-command-of -self-))))>)
+  <span ,(force (label-of (content-of (expand-command-of -self-))))>)
 
 (def render-csv reference-component ()
   (render-csv (expand-command-of -self-)))
@@ -41,7 +41,7 @@
 
 (def (layered-function e) make-expand-reference-command (reference class target expansion)
   (:method ((reference reference-component) class target expansion)
-    (make-replace-command reference expansion :icon (icon expand))))
+    (make-replace-command reference expansion :content (icon expand))))
 
 ;;;;;;
 ;;; Reference list

@@ -59,12 +59,11 @@
           (delay-alternative-reference-component 'standard-object-inspector-reference instance))))
 
 (def (function e) make-delete-instance-command (self)
-  (make-instance 'command-component
-                 :icon (icon delete)
-                 :visible (delay (not (edited-p self)))
-                 :action (make-action
-                           (bind ((instance (instance-of self)))
-                             (execute-delete-instance self (class-of instance) instance)))))
+  (command (icon delete)
+           (make-action
+             (bind ((instance (instance-of self)))
+               (execute-delete-instance self (class-of instance) instance)))
+           :visible (delay (not (edited-p self)))))
 
 (def (layered-function e) execute-delete-instance (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))

@@ -203,9 +203,9 @@
 
 (def layered-method make-expand-command ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-node-component) :content (make-viewer instance :default-component-type 'detail-component)))
-                                      (list :icon (icon expand)
+                                      (list :content (icon expand)
                                             :visible (delay (not (has-edited-descendant-component-p component))))
-                                      (list :icon (icon collapse))))
+                                      (list :content (icon collapse))))
 
 ;;;;;;
 ;;; Standadr object tree level inspector

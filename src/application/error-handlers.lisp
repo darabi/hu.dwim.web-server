@@ -37,7 +37,7 @@
                    application
                    (inline-component
                      (bind ((args (list (make-instance 'command-component
-                                                       :icon (icon back)
+                                                       :content (icon back)
                                                        :action (if rendering-in-progress
                                                                    (make-uri-for-new-frame)
                                                                    (make-uri-for-current-frame)))

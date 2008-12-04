@@ -91,8 +91,8 @@
             (setf (component-of -self-) component
                   (component-at-place (target-place-of menu-component)) component)))))
 
-(def (macro e) replace-menu-target-command (icon &body forms)
-  `(make-instance 'replace-menu-target-command-component :icon ,icon :component (delay ,@forms)))
+(def (macro e) replace-menu-target-command (content &body forms)
+  `(make-instance 'replace-menu-target-command-component :content ,content :component (delay ,@forms)))
 
 ;;;;;;
 ;;; Debug menu

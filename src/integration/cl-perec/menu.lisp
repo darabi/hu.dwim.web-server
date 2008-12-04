@@ -12,9 +12,8 @@
 
 (def constructor standard-object-filter-menu-item-component ()
   (with-slots (the-class command) -self-
-    (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (icon filter)
-                                 :component (make-filter the-class)))))
+    (setf command (replace-menu-target-command (icon filter)
+                    (make-filter the-class)))))
 
 (def (function e) make-standard-object-filter-menu-item-component (class-name)
   (bind ((class (find-class class-name)))
@@ -32,9 +31,8 @@
 
 (def constructor standard-object-maker-menu-item-component ()
   (with-slots (the-class command) -self-
-    (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (icon new)
-                                 :component (make-maker the-class)))))
+    (setf command (replace-menu-target-command (icon new)
+                    (make-maker the-class)))))
 
 (def (function e) make-standard-object-maker-menu-item-component (class-name)
   (bind ((class (find-class class-name)))
@@ -52,9 +50,8 @@
 
 (def constructor persistent-process-starter-menu-item-component ()
   (with-slots (the-class command) -self-
-    (setf command (make-instance 'replace-menu-target-command-component
-                                 :icon (icon new)
-                                 :component (make-maker the-class)))))
+    (setf command (replace-menu-target-command (icon new)
+                    (make-maker the-class)))))
 
 (def (function e) make-persistent-process-starter-menu-item-component (class-name)
   (bind ((class (find-class class-name)))

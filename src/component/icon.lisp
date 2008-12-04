@@ -8,14 +8,13 @@
 ;;; Icon
 
 (def component icon-component ()
-  ((name)
+  ((name :type symbol)
    (label nil :export :accessor)
    (image-path nil :export :accessor)
    (tooltip nil :export :accessor)))
 
 (def render icon-component ()
-  (bind (((:read-only-slots name label image-path tooltip) -self-))
-    (render-icon -self- :image-path image-path :name name :label label :tooltip tooltip)))
+  (render-icon :icon -self-))
 
 (def render-csv icon-component ()
   (render-csv (force (label-of -self-))))
@@ -27,12 +26,25 @@
   (:method (icon label)
     `xml,label))
 
-(def (function e) render-icon (icon &key image-path name label tooltip)
+(def (function e) render-icon (&key icon (name nil name?) (label nil label?) (image-path nil image-path?) (tooltip nil tooltip?) (class nil class?))
+  (when (and icon
+             (not (stringp icon)))
+    (unless name?
+      (setf name (name-of icon)))
+    (unless label?
+      (setf label (label-of icon)))
+    (unless image-path?
+      (setf image-path (image-path-of icon)))
+    (unless tooltip?
+      (setf tooltip (tooltip-of icon))))
   (bind ((tooltip (force tooltip))
          (delayed-content-tooltip? (and tooltip
                                         (not (stringp tooltip))))
          (id (when delayed-content-tooltip?
-               (generate-frame-unique-string))))
+               (generate-frame-unique-string)))
+         (class (if class?
+                    class
+                    (icon-class name))))
     ;; render the `js first, so the return value contract of qq is kept.
     (when delayed-content-tooltip?
       ;; TODO this could be collected and emitted using a (map ... data) to spare some space
@@ -43,12 +55,14 @@
                        :href ,(etypecase tooltip
                                 (action (register-action/href tooltip :delayed-content #t))
                                 (uri (print-uri-to-string tooltip)))))))
-    <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip)
-           :class ,(concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
+    <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip) :class ,class)
           ,(when image-path
-             <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
+                 <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
           ,(awhen (force label)
-             (render-icon-label icon it)) >))
+                  (render-icon-label icon it))>))
+
+(def function icon-class (name)
+  (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
 
 (def (macro e) icon (name &rest args)
   `(make-icon-component ',name ,@args))

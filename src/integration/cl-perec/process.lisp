@@ -145,8 +145,8 @@
                                                          (roll-persistent-process process-component
                                                                                   (lambda (process)
                                                                                     (nth-value 1 (dmm::start-persistent-process process))))))
-                                      (list :icon (icon start-process))
-                                      (list :icon (icon back))))
+                                      (list :content (icon start-process))
+                                      (list :content (icon back))))
 
 (def (function e) make-continue-persistent-process-command (component process &optional (wrapper-thunk #'identity))
   (make-replace-and-push-back-command component (delay (bind ((process-component (make-instance 'persistent-process-component :process process)))
@@ -154,9 +154,9 @@
                                                                                   (lambda (process)
                                                                                     (nth-value 1 (dmm::continue-persistent-process process))))
                                                          (funcall wrapper-thunk process-component)))
-                                      (list :icon (icon continue-process) :visible (delay (prc::revive-instance process)
-                                                                                          (dmm::persistent-process-in-progress-p process)))
-                                      (list :icon (icon back))))
+                                      (list :content (icon continue-process) :visible (delay (prc::revive-instance process)
+                                                                                             (dmm::persistent-process-in-progress-p process)))
+                                      (list :content (icon back))))
 
 (def (function e) make-cancel-persistent-process-command (component)
   (command (icon cancel-process)

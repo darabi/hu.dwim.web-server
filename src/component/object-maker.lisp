@@ -58,10 +58,9 @@
   (append (list (make-create-instance-command component)) (call-next-method)))
 
 (def (function e) make-create-instance-command (component)
-  (make-instance 'command-component
-                 :icon (icon create)
-                 :action (make-action
-                           (execute-create-instance component (the-class-of component)))))
+  (command (icon create)
+           (make-action
+             (execute-create-instance component (the-class-of component)))))
 
 (def (layered-function e) execute-create-instance (component class)
   (:method ((component standard-object-maker) (class standard-class))

@@ -54,8 +54,8 @@
 (def (function e) make-set-place-to-new-instance-command (place-component)
   (make-replace-and-push-back-command (delay (content-of place-component))
                                       (make-maker (the-type-of place-component))
-                                      (list :icon (icon new) )
-                                      (list :icon (icon back))))
+                                      (list :content (icon new) )
+                                      (list :content (icon back))))
 
 (def layer* set-place-to-find-instance-layer ()
   ;; TODO: KLUDGE: FIXME: make this a special slot (this way it is not thread safe)
@@ -78,8 +78,8 @@
   (make-replace-and-push-back-command (delay (content-of place-component))
                                       (with-active-layers ((set-place-to-find-instance-layer :place-component place-component))
                                         (make-filter (the-type-of place-component)))
-                                      (list :icon (icon find))
-                                      (list :icon (icon back))))
+                                      (list :content (icon find))
+                                      (list :content (icon back))))
 
 ;;;;;;
 ;;; Place inspector

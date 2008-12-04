@@ -43,11 +43,9 @@
     (render-horizontal-list (list first-command previous-command next-command last-command finish-command cancel-command))))
 
 (def (function e) make-finish-wizard-command (wizard)
-  (make-instance 'command-component
-                 :icon (icon finish)
-                 :action (make-action (finish-wizard wizard))))
+  (command (icon finish)
+           (make-action (finish-wizard wizard))))
 
 (def (function e) make-cancel-wizard-command (wizard)
-  (make-instance 'command-component
-                 :icon (icon cancel)
-                 :action (make-action (cancel-wizard wizard))))
+  (command (icon cancel)
+           (make-action (cancel-wizard wizard))))

@@ -46,11 +46,11 @@
     (bind ((prototype (class-prototype (the-class-of alternative)))
            (reference? (typep prototype 'reference-component)))
       (make-replace-command (delay (content-of component)) alternative
+                            :content (make-replace-with-alternative-command-icon prototype)
                             :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
                                                  (not (eq (the-class-of alternative) (class-of (content-of component))))
                                                  (or (not reference?)
-                                                     (find-ancestor-component-with-type (parent-component-of component) 'alternator-component))))
-                            :icon (make-replace-with-alternative-command-icon prototype)))))
+                                                     (find-ancestor-component-with-type (parent-component-of component) 'alternator-component))))))))
 
 (def (generic e) make-replace-with-alternative-command-icon (prototype)
   (:method ((prototype component))

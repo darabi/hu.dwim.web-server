@@ -121,47 +121,42 @@
 (def (function e) make-begin-editing-command (editable &key visible)
   "The BEGIN-EDITING command starts editing underneath the given EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
-  (make-instance 'command-component
-                 :icon (icon edit)
-                 :visible (or visible (delay (not (edited-p editable))))
-                 :action (make-component-action editable
-                           (begin-editing editable))))
+  (command (icon edit)
+           (make-component-action editable
+             (begin-editing editable))
+           :visible (or visible (delay (not (edited-p editable))))))
 
 (def (function e) make-save-editing-command (editable)
   "The SAVE-EDITING command actually makes the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
-  (make-instance 'command-component
-                 :icon (icon save)
-                 :visible (delay (edited-p editable))
-                 :action (make-component-action editable
-                           (save-editing editable))))
+  (command (icon save)
+           (make-component-action editable
+             (save-editing editable))
+           :visible (delay (edited-p editable))))
 
 (def (function e) make-cancel-editing-command (editable)
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
-  (make-instance 'command-component
-                 :icon (icon cancel)
-                 :visible (delay (edited-p editable))
-                 :action (make-component-action editable
-                           (cancel-editing editable))))
+  (command (icon cancel)
+           (make-component-action editable
+             (cancel-editing editable))
+           :visible (delay (edited-p editable))))
 
 (def (function e) make-store-editing-command (editable)
   "The STORE-EDITING command actually stores the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
-  (make-instance 'command-component
-                 :icon (icon store)
-                 :visible (delay (edited-p editable))
-                 :action (make-component-action editable
-                           (save-editing editable :leave-editing #f))))
+  (command (icon store)
+           (make-component-action editable
+             (save-editing editable :leave-editing #f))
+           :visible (delay (edited-p editable))))
 
 (def (function e) make-revert-editing-command (editable)
   "The REVERT-EDITING command rolls back the changes present under an EDITABLE-COMPNENT"
   (assert (typep editable 'editable-component))
-  (make-instance 'command-component
-                 :icon (icon revert)
-                 :visible (delay (edited-p editable))
-                 :action (make-component-action editable
-                           (revert-editing editable))))
+  (command (icon revert)
+           (make-component-action editable
+             (revert-editing editable))
+           :visible (delay (edited-p editable))))
 
 (def (layered-function e) make-editing-commands (component class instance-or-prototype)
   (:method ((component component) (class standard-class) (instance-or-prototype standard-object))

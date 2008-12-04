@@ -13,9 +13,8 @@
 ;;;;;;
 ;;; Command component
 
-(def component command-component ()
-  ((icon :type component)
-   (action :type (or uri action))
+(def component command-component (content-component)
+  ((action :type (or uri action))
    (enabled #t :type boolean)
    ;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
@@ -24,11 +23,11 @@
    (js nil)
    (action-arguments nil)))
 
-(def (macro e) command (icon action &key (enabled #t) (visible #t) (default #f) js scheme path
-                             (delayed-content nil delayed-content-provided?)
-                             (send-client-state #t send-client-state-provided?))
+(def (macro e) command (content action &key (enabled #t) (visible #t) (default #f) js scheme path
+                                (delayed-content nil delayed-content-provided?)
+                                (send-client-state #t send-client-state-provided?))
   `(make-instance 'command-component
-                  :icon ,icon
+                  :content ,content
                   :action ,action
                   :enabled ,enabled
                   :visible ,visible
@@ -40,17 +39,13 @@
                                           :send-client-state ,send-client-state)))
 
 (def render command-component ()
-  (bind (((:read-only-slots icon action enabled default js action-arguments) -self-))
-    (render-command action icon :enabled enabled :default default :ajax #f :js js :action-arguments action-arguments)))
+  (bind (((:read-only-slots content action enabled default js action-arguments) -self-))
+    (render-command content action :enabled enabled :default default :ajax #f :js js :action-arguments action-arguments)))
 
-(def render-csv command-component ()
-  (render-csv (icon-of -self-)))
+(def render :in passive-components-layer command-component
+  (render (content-of -self-)))
 
-(def render-pdf command-component ()
-  (render-pdf (icon-of -self-)))
-
-;; TODO: this is a bit messy here... :ajax, the way :js is done, etc...
-(def (function e) render-command (action body &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
+(def (function e) render-command (content action &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
   (if (force enabled)
       (bind ((send-client-state (prog1
                                     (getf action-arguments :send-client-state #t)
@@ -63,17 +58,14 @@
                              (lambda (href)
                                `js-inline(return (wui.io.action ,href ,ajax ,send-client-state)))))
              (name (when (running-in-test-mode-p *application*)
-                     (if (typep body 'icon-component)
-                         (symbol-name (name-of body))
-                         (princ-to-string body)))))
+                     (if (typep content 'icon-component)
+                         (symbol-name (name-of content))
+                         (princ-to-string content)))))
         <a (:href "#" :onclick ,(funcall onclick-js href) :name ,name)
-           ,(render body)>
+           ,(render content)>
         (when default
           <input (:type "submit" :style "display: none;" :onclick ,(funcall onclick-js href))>))
-      (render body)))
-
-(def render :in passive-components-layer command-component
-  (render (icon-of -self-)))
+      (render content)))
 
 (def layered-method render-onclick-handler ((command command-component))
   (bind ((action (action-of command))
@@ -131,7 +123,7 @@
   (:method ((component component) commands)
     (sort commands #'<
           :key (lambda (command)
-                 (or (position (name-of (icon-of command))
+                 (or (position (name-of (content-of command))
                                '(answer back focus-out open-in-new-frame focus-in collapse collapse-all expand-all refresh edit save cancel store revert new delete)
                                :test #'eq)
                      most-positive-fixnum)))))
@@ -152,7 +144,7 @@
 (def (function e) find-command-bar-command (command-bar name)
   (find name (commands-of command-bar)
         :key (lambda (command)
-               (name-of (icon-of command)))))
+               (name-of (content-of command)))))
 
 (def (function e) execute-command-bar-command (command-bar name)
   (execute-command (find-command-bar-command command-bar name)))
@@ -180,8 +172,8 @@
                         (render-dojo-widget (command-id)
                           <div (:id ,command-id
                                 :dojoType #.+dijit/menu-item+
-                                :iconClass ,(concatenate-string (string-downcase (name-of (icon-of command))) "-command"))
-                            ,(render command)>)))>)>)))
+                                :iconClass ,(icon-class (name-of (content-of command))))
+                            ,(render-icon :icon (content-of command) :class nil)>)))>)>)))
 
 (def render-csv popup-command-menu-component ()
   (iter (for command :in (commands-of -self-))
@@ -205,26 +197,22 @@
 
 (def constructor page-navigation-bar-component ()
   (with-slots (position page-count total-count first-command previous-command next-command last-command jumper page-count-selector) -self-
-    (setf first-command (make-instance 'command-component
-                                       :icon (icon first)
-                                       :enabled (delay (> position 0))
-                                       :action (make-action
-                                                 (setf (component-value-of jumper) (setf position 0))))
-          previous-command (make-instance 'command-component
-                                          :icon (icon previous)
-                                          :enabled (delay (> position 0))
-                                          :action (make-action
-                                                    (setf (component-value-of jumper) (decf position (min position page-count)))))
-          next-command (make-instance 'command-component
-                                      :icon (icon next)
-                                      :enabled (delay (< position (- total-count page-count)))
-                                      :action (make-action
-                                                (setf (component-value-of jumper) (incf position (min page-count (- total-count page-count))))))
-          last-command (make-instance 'command-component
-                                      :icon (icon last)
-                                      :enabled (delay (< position (- total-count page-count)))
-                                      :action (make-action
-                                                (setf (component-value-of jumper) (setf position (- total-count page-count)))))
+    (setf first-command (command (icon first)
+                                 (make-action
+                                   (setf (component-value-of jumper) (setf position 0)))
+                                 :enabled (delay (> position 0)))
+          previous-command (command (icon previous)
+                                    (make-action
+                                      (setf (component-value-of jumper) (decf position (min position page-count))))
+                                    :enabled (delay (> position 0)))
+          next-command (command (icon next)
+                                (make-action
+                                  (setf (component-value-of jumper) (incf position (min page-count (- total-count page-count)))))
+                                :enabled (delay (< position (- total-count page-count))))
+          last-command (command (icon last)
+                                (make-action
+                                  (setf (component-value-of jumper) (setf position (- total-count page-count))))
+                                :enabled (delay (< position (- total-count page-count))))
           jumper (make-instance 'integer-inspector :edited #t :component-value position)
           page-count-selector (make-instance 'page-count-selector :component-value page-count))))
 
@@ -319,8 +307,8 @@
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
     (bind ((original-component (delay (find-top-component-content component))))
       (make-replace-and-push-back-command original-component component
-                                          (list :icon (icon focus-in) :visible (delay (not (top-component-p component))))
-                                          (list :icon (icon focus-out))))))
+                                          (list :content (icon focus-in) :visible (delay (not (top-component-p component))))
+                                          (list :content (icon focus-out))))))
 
 (def (generic e) make-frame-component-with-content (application content))
 
