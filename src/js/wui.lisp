@@ -422,7 +422,7 @@
   (dojo.stopEvent event))
 
 (defun wui.highlight-mouse-leave-handler (event (table :by-id) (row :by-id))
-  (dojo.remove-class row "highlighted")))
+  (dojo.remove-class row "highlighted"))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;; fields
