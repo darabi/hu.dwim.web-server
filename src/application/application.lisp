@@ -534,6 +534,7 @@ Custom implementations should look something like this:
 
 (def (function e) render-to-string (component &key ajax-aware)
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
+         (*response* (make-instance 'response))
          (*application* (make-instance 'application :path-prefix ""))
          (*session* (make-instance 'session))
          (*frame* (make-instance 'frame :session *session*))
@@ -544,7 +545,10 @@ Custom implementations should look something like this:
        (with-output-to-sequence (buffer-stream :external-format :utf-8
                                                :initial-buffer-size 256)
          (emit-into-html-stream buffer-stream
-           (ajax-aware-render component)))
+           (with-collapsed-js-scripts
+             (with-dojo-widget-collector
+               (ajax-aware-render component)))
+           +void+))
        :encoding :utf-8))))
 
 (def class* locked-session-response-mixin (response)
