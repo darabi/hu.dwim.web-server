@@ -14,13 +14,9 @@
    (application-inspectors :type component)
    (command-bar :type component)))
 
-(def constructor server-info
-  (setf (command-bar-of -self-) (command-bar (make-refresh-command -self-))))
-
 (def method refresh-component ((self server-info))
   (setf (server-inspector-of self) (make-viewer (server-of self))))
 
 (def render server-info ()
   <div (:class "server-info")
-    ,(render (server-inspector-of -self-))
-    ,(render (command-bar-of -self-))>)
+    ,(render (server-inspector-of -self-)) >)
