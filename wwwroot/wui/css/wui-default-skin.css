@@ -320,7 +320,7 @@ table.frame-size-breakdown > tbody > tr > td.delta
   width: 20px;
   height: 20px;
   padding-top: 3px;
-  padding-left: 20px
+  padding-left: 20px;
 }
 
 .login-icon {
@@ -421,6 +421,14 @@ table.frame-size-breakdown > tbody > tr > td.delta
 
 .last-icon {
   background-image: url("/static/wui/icons/20x20/vcr-end.png");
+}
+
+.use-in-filter {
+  background-image: url("/static/wui/icons/20x20/checkmark.png");
+}
+
+.ignore-in-filter {
+  background-image: url("/static/wui/icons/20x20/checkmark.png");
 }
 
 .filter-icon {
