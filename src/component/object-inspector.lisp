@@ -71,6 +71,7 @@
     (setf (component-value-of component) nil)))
 
 (def layered-method render-onclick-handler ((self standard-object-inspector))
+  #+nil ;; TODO: this prevents clicking into edit fields in edit mode, because collapses the component
   (when-bind collapse-command (find-command-bar-command (command-bar-of self) 'collapse)
     (render-onclick-handler collapse-command)))
 
