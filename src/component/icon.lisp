@@ -43,10 +43,10 @@
                        :href ,(etypecase tooltip
                                 (action (register-action/href tooltip :delayed-content #t))
                                 (uri (print-uri-to-string tooltip)))))))
-    <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip))
-          ,(if image-path
-               <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>
-               <img (:class ,(concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))>)
+    <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip)
+           :class ,(concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
+          ,(when image-path
+             <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
           ,(awhen (force label)
              (render-icon-label icon it)) >))
 
