@@ -24,7 +24,7 @@
                (handler-bind ((serious-condition #'level-2-error-handler))
                  (with-thread-name " / LEVEL-1-ERROR-HANDLER"
                    (if (is-error-from-network-stream? error network-stream)
-                       (server.debug "Ignoring stream error coming from the network stream: ~A" error)
+                       (server.warn "Ignoring stream error coming from the network stream: ~A" error)
                        (progn
                          (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
                          (funcall error-handler error)))

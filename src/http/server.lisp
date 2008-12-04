@@ -287,7 +287,7 @@
              ;; no need to handle errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
              (handle-toplevel-condition broker condition))
            (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
-    (unwind-protect
+    (unwind-protect-case (interrupted)
          (with-thread-name (concatenate-string " / serving request "
                                                (integer-to-string (processed-request-count-of server)))
            (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response*))))
@@ -295,17 +295,25 @@
                   (*brokers* (list server))
                   (*request* nil)
                   (*response* nil))
-             (call-as-server-request-handler #'serve-one-request
-                                             stream-socket
-                                             :error-handler #'handle-request-error))
+             (restart-case
+                 (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
+                   (call-with-server-error-handler #'serve-one-request
+                                                   stream-socket
+                                                   #'handle-request-error))
+               (abort-server-request ()
+                 :report "Abort processing this request by simply closing the network socket"
+                 (server.dribble "ABORT-SERVER-REQUEST restart is being invoked")
+                 (values))))
            (server.dribble "Worker ~A finished processing a request" worker))
-      (block nil
-        (call-with-server-error-handler (lambda ()
-                                          (close stream-socket))
-                                        stream-socket
-                                        (lambda (error)
-                                          (server.warn "Failed to close the socket stream while unwinding in SERVE-ONE-REQUEST due to ~A" error)
-                                          (return)))))))
+      (:always
+       (block nil
+         (call-with-server-error-handler (lambda ()
+                                           (close stream-socket))
+                                         stream-socket
+                                         (lambda (error)
+                                           (server.error "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A. Backtrace follows..." (if interrupted "unwinding" "normally exiting"))
+                                           (log-error-with-backtrace error)
+                                           (return))))))))
 
 (def function store-response (response)
   (assert (boundp '*response*))
@@ -316,14 +324,6 @@
 
 (def (function e) invoke-retry-handling-request-restart ()
   (invoke-restart (find-restart 'retry-handling-request)))
-
-(defun call-as-server-request-handler (thunk network-stream &key (error-handler 'abort-server-request))
-  (restart-case
-      (let ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
-        (call-with-server-error-handler thunk network-stream error-handler))
-    (abort-server-request ()
-      :report "Abort processing this request by simply closing the network socket"
-      (values))))
 
 (def function abort-server-request (&optional (why nil why-p))
   (server.info "Gracefully aborting request~:[.~; because: ~A.~]" why-p why)
@@ -468,12 +468,16 @@
   (awhen content-disposition
     (setf (header-alist-value headers +header/content-disposition+) it))
   (send-http-headers headers cookies)
+  (server.debug "SERVE-STREAM starts to copy input stream ~A to the network stream ~A" input-stream stream)
   (loop
      :with buffer = (make-array 8192 :element-type 'unsigned-byte)
      :for end-pos = (read-sequence buffer input-stream)
      :until (zerop end-pos)
      :do
-     (write-sequence buffer stream :end end-pos)))
+     (progn
+       (server.dribble "SERVE-STREAM will write ~A bytes to the network stream ~A" end-pos stream)
+       (write-sequence buffer stream :end end-pos)))
+  (server.debug "SERVE-STREAM finished copying input stream ~A to the network stream ~A" input-stream stream))
 
 (def function serve-file (file-name &rest args &key
                                     (last-modified-at (local-time:universal-to-timestamp
