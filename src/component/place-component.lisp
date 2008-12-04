@@ -236,8 +236,8 @@
             (setf selected-predicate (first possible-predicates)))
           <td ,(render-checkbox-field negated
                                       :value-sink (lambda (value) (setf negated value))
-                                      :checked-image "static/wui/icons/20x20/thumb-down.png"
-                                      :unchecked-image "static/wui/icons/20x20/thumb-up.png")>
+                                      :checked-class "icon negated-icon"
+                                      :unchecked-class "icon ponated-icon")>
           <td ,(if (length= 1 possible-predicates)
                    <div (:class ,(predicate-class (first possible-predicates)))>
                    (render-popup-menu-select-field (localize-predicate selected-predicate)
@@ -254,10 +254,8 @@
     <td ,(render-checkbox-field (use-in-filter-p self)
                                 :id id
                                 :value-sink (lambda (value) (setf (use-in-filter-p self) value))
-                                :checked-image "static/wui/icons/20x20/checkmark.png"
-                                :unchecked-image "static/wui/icons/20x20/checkmark.png"
-                                :checked-class "use-in-filter"
-                                :unchecked-class "ignore-in-filter")>))
+                                :checked-class "icon use-in-filter"
+                                :unchecked-class "icon ignore-in-filter")>))
 
 (def render place-filter ()
   (render-filter-predicate -self-)
