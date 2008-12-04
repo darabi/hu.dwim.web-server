@@ -28,11 +28,14 @@
                (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot))
              (call-next-method)))
 
-(def layered-method execute-create-instance ((component standard-object-maker) (class prc::persistent-class))
+(def layered-method execute-create-instance :around ((ancestor recursion-point-component) (component standard-object-maker) (class prc::persistent-class))
   (rdbms::with-transaction
-    (prog1-bind instance (call-next-method)
-      (rdbms:register-transaction-hook :after :commit
-        (add-user-message component "Az új ~A létrehozása sikerült" (list (localized-class-name (the-class-of component)))
-                          :category :information
-                          :permanent #t
-                          :content (make-viewer instance :default-component-type 'reference-component))))))
+    (call-next-method)))
+
+(def layered-method execute-create-instance ((ancestor recursion-point-component) (component standard-object-maker) (class prc::persistent-class))
+  (prog1-bind instance (call-next-method)
+    (rdbms:register-transaction-hook :after :commit
+      (add-user-message component "Az új ~A létrehozása sikerült" (list (localized-class-name (the-class-of component)))
+                        :category :information
+                        :permanent #t
+                        :content (make-viewer instance :default-component-type 'reference-component)))))

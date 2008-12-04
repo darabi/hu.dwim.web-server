@@ -15,3 +15,15 @@
                (and (dmm::primary-p slot)
                     (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot)))
              (call-next-method)))
+
+(def layered-method make-begin-editing-new-instance-command ((component standard-object-list-inspector) (class dmm::entity) (instance prc::persistent-object))
+  (when (dmm::authorize-operation 'dmm::create-instance-operation :-entity- class)
+    (call-next-method)))
+
+(def layered-method execute-create-instance ((ancestor standard-object-list-inspector) (component standard-object-maker) (class prc::persistent-class))
+  (prog1-bind instance (call-next-method)
+    (bind ((slot-value (find-ancestor-component-with-type ancestor 'abstract-standard-object-slot-value-component)))
+      (when slot-value
+        (bind ((slot (slot-of slot-value))
+               (other-slot (prc::other-association-end-of slot)))
+          (setf (slot-value instance (slot-definition-name other-slot)) (instance-of slot-value)))))))

@@ -16,7 +16,8 @@
                                                user-message-collector-component-mixin
                                                remote-identity-component-mixin
                                                initargs-component-mixin
-                                               layer-context-capturing-component-mixin)
+                                               layer-context-capturing-component-mixin
+                                               recursion-point-component)
   ((the-class (find-class 'standard-object)))
   (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives)
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
@@ -53,6 +54,25 @@
     (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
           (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
           (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
+
+(def layered-method make-standard-commands ((component standard-object-list-inspector) (class standard-class) (instance standard-object))
+  (append (optional-list (make-begin-editing-new-instance-command component class instance)) (call-next-method)))
+
+(def (layered-function e) make-begin-editing-new-instance-command (component class instance)
+  (:method ((component standard-object-list-inspector) (class standard-class) (instance standard-object))
+    (command (icon new)
+             (make-action
+               (execute-begin-editing-new-instance component class instance)))))
+
+(def (layered-function e) execute-begin-editing-new-instance (component class instance)
+  (:method ((component standard-object-list-inspector) (class standard-class) (instance standard-object))
+    (appendf (rows-of (content-of component))
+             (list (make-instance 'entire-row-component :content (make-maker class))))))
+
+(def layered-method execute-create-instance ((ancestor standard-object-list-inspector) (component standard-object-maker) (class standard-class))
+  (prog1-bind instance (call-next-method)
+    (setf (component-at-place (make-component-place (parent-component-of component)))
+          (make-standard-object-list-table-row (content-of ancestor) (class-of instance) instance))))
 
 ;;;;;;
 ;;; Standard object list list inspector

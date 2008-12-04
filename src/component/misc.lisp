@@ -34,7 +34,7 @@
 ;;;;;;
 ;;; Top
 
-(def component top-component (remote-identity-component-mixin content-component)
+(def component top-component (remote-identity-component-mixin content-component recursion-point-component)
   ()
   (:documentation "The top command will replace the content of a top-component with the component which the action refers to."))
 
@@ -204,6 +204,12 @@
 
 (def (macro e) styled-container ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'styled-container-component ,@args :contents (list ,@contents)))
+
+;;;;;;
+;;; Recursion point
+
+(def component recursion-point-component ()
+  ())
 
 ;;;;;;
 ;;; Maker

@@ -13,7 +13,8 @@
                                       user-message-collector-component-mixin
                                       remote-identity-component-mixin
                                       initargs-component-mixin
-                                      layer-context-capturing-component-mixin)
+                                      layer-context-capturing-component-mixin
+                                      recursion-point-component)
   ()
   (:default-initargs :alternatives-factory #'make-standard-object-maker-alternatives)
   (:documentation "Maker for an instance of STANDARD-OBJECT in various alternative views."))
@@ -60,10 +61,11 @@
 (def (function e) make-create-instance-command (component)
   (command (icon create)
            (make-action
-             (execute-create-instance component (the-class-of component)))))
+             (execute-create-instance (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-component)
+                                      component (the-class-of component)))))
 
-(def (layered-function e) execute-create-instance (component class)
-  (:method ((component standard-object-maker) (class standard-class))
+(def (layered-function e) execute-create-instance (ancestor component class)
+  (:method ((ancestor recursion-point-component) (component standard-object-maker) (class standard-class))
     (place-component-value-of component)))
 
 (def method place-component-value-of ((self standard-object-maker))
