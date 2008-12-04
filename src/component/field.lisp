@@ -42,7 +42,9 @@
           ;; TODO :tabindex (tabindex field)
           ;; :class (css-class field)
           <a (:id ,id)
-            <img>>
+            ,(if (and checked-image
+                      unchecked-image)
+                 <img>)>
           `js(on-load
               (wui.field.setup-custom-checkbox ,id ,checked-image ,unchecked-image ,checked-tooltip ,unchecked-tooltip ,checked-class ,unchecked-class)))
         (progn

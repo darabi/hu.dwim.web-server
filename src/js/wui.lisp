@@ -460,28 +460,32 @@
     (bind ((image (aref (.get-elements-by-tag-name link "img") 0))
            (enabled (not (= hidden.value "false"))))
 ;; TODO:      (assert image)
-      (setf image.src (if enabled
-                          checked-image
-                          unchecked-image))
+      (if (and checked-image
+               unchecked-image)
+          (setf image.src (if enabled
+                              checked-image
+                              unchecked-image)))
       (setf link.className (if enabled
                                checked-class
                                unchecked-class))
-      (setf image.title (if enabled
-                            checked-tooltip
-                            unchecked-tooltip)))
+      (setf link.title (if enabled
+                           checked-tooltip
+                           unchecked-tooltip)))
     (setf link.wui-set-checked (lambda (enabled)
                                  (setf hidden.value (if enabled
                                                         "true"
                                                         "false"))
-                                 (setf image.src (if enabled
-                                                     checked-image
-                                                     unchecked-image))
+                                 (if (and checked-image
+                                          unchecked-image)
+                                     (setf image.src (if enabled
+                                                         checked-image
+                                                         unchecked-image)))
                                  (setf link.className (if enabled
                                                           checked-class
                                                           unchecked-class))
-                                 (setf image.title (if enabled
-                                                       checked-tooltip
-                                                       unchecked-tooltip))))
+                                 (setf link.title (if enabled
+                                                      checked-tooltip
+                                                      unchecked-tooltip))))
     (setf link.wui-is-checked (lambda ()
                                 (return (not (= hidden.value "false")))))
     (setf link.name hidden.name)        ; copy name of the form input
