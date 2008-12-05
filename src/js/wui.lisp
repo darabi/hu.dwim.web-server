@@ -426,7 +426,7 @@
 (defun wui.highlight-mouse-leave-handler (event (table :by-id) (row :by-id))
   (dojo.remove-class row "highlighted"))
 
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;
 ;;; fields
 
 (defun wui.field.setup-simple-checkbox (checkbox-id checked-tooltip unchecked-tooltip)
@@ -504,7 +504,22 @@
 (defun wui.field.update-use-in-filter ((field :by-id) value)
   (field.wui-set-checked value))
 
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;
+;;; compound
+
+(defun wui.setup-standard-object-maker (id)
+  (attachBorder id))
+
+(defun wui.setup-standard-object-inspector (id)
+  (attachBorder id))
+
+(defun wui.setup-standard-object-filter (id)
+  (attachBorder id))
+
+(defun wui.setup-standard-object-list-inspector (id)
+  (attachBorder id))
+
+;;;;;;
 ;;; i18n
 
 (setf wui.i18n.resources (create))

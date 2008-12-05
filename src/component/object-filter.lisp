@@ -57,8 +57,11 @@
       (if (typep content 'reference-component)
           <span (:id ,id :class "standard-object-filter")
             ,(body)>
-          <div (:id ,id :class "standard-object-filter")
-            ,(body)>))))
+          (progn
+            <div (:id ,id :class "standard-object-filter")
+               ,(body)>
+            `js(on-load
+                (wui.setup-standard-object-filter ,id)))))))
 
 ;;;;;;
 ;;; Standard object detail filter

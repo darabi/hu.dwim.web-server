@@ -46,8 +46,11 @@
       (if (typep content 'reference-component)
           <span (:id ,id :class "standard-object-list-inspector")
             ,(body)>
-          <div (:id ,id :class "standard-object-list-inspector")
-            ,(body)>))))
+          (progn
+            <div (:id ,id :class "standard-object-list-inspector")
+              ,(body)>
+            `js(on-load
+                (wui.setup-standard-object-list-inspector ,id)))))))
 
 (def (layered-function e) make-standard-object-list-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))

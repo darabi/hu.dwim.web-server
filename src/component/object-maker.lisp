@@ -47,8 +47,11 @@
       (if (typep content 'reference-component)
           <span (:id ,id :class "standard-object-maker")
             ,(body)>
-          <div (:id ,id :class "standard-object-maker")
-            ,(body)>))))
+          (progn
+            <div (:id ,id :class "standard-object-maker")
+              ,(body)>
+            `js(on-load
+                (wui.setup-standard-object-maker ,id)))))))
 
 (def (layered-function e) make-standard-object-maker-alternatives (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
