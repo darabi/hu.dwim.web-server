@@ -245,7 +245,8 @@
   (:method ((component inspector-component) (class standard-class) (prototype-or-instance standard-object))
     (command (icon refresh)
              (make-component-action component
-               (refresh-component component)))))
+               (refresh-component component))
+             :visible (delay (not (edited-p component))))))
 
 (def (function e) make-replace-command (original-component replacement-component &rest replace-command-args)
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT"
