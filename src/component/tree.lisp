@@ -93,13 +93,28 @@
     (iter (with expander-column-index = (expander-column-index-of *tree*))
           (for index :from 0)
           (for cell :in (cells-of self))
-          (if (= index expander-column-index)
-              (render-tree-node-expander-cell self)
-              (render cell)))))
+          (for column :in (columns-of *tree*))
+          (when (force (visible-p column))
+            (if (= index expander-column-index)
+                (render-tree-node-expander-cell self)
+                (render-tree-cell *tree* self column cell))))))
 
 (def call-in-component-environment node-component ()
   (bind ((*tree-level* (1+ *tree-level*)))
     (call-next-method)))
+
+(def (layered-function e) render-tree-cell (tree node column cell)
+  (:method :before ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
+    (ensure-uptodate cell))
+
+  (:method ((tree tree-component) (node node-component) (column column-component) (cell component))
+    <td ,(render cell)>)
+
+  (:method ((tree tree-component) (node node-component) (column column-component) (cell string))
+    <td ,(render cell)>)
+  
+  (:method ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
+    (render cell)))
 
 ;;;;;;
 ;;; Entire node
