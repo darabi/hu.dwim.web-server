@@ -175,3 +175,14 @@
 
 (def component ip-address-inspector (ip-address-component primitive-inspector)
   ())
+
+(def render ip-address-inspector ()
+  (if (edited-p -self-)
+      (call-next-method)
+      <span (:class "ip-address")
+        ,(bind ((value (component-value-of -self-)))
+           (iolib:address-to-string
+            (etypecase value
+              (iolib:inet-address                    value)
+              ((simple-array (unsigned-byte 8) (4))  (make-instance 'ipv4-address :name value))
+              ((simple-array (unsigned-byte 16) (8)) (make-instance 'ipv6-address :name value)))))>))
