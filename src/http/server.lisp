@@ -500,6 +500,7 @@
     (bind ((network-stream-dirty? #f))
       (handler-bind ((serious-condition (lambda (error)
                                           (unless signal-errors
+                                            (server.warn "SERVE-FILE muffles the following error due to :signal-errors #f: ~A" error)
                                             (return-from serve-file (values #f error network-stream-dirty?))))))
         (with-open-file (file file-name :direction :input :element-type '(unsigned-byte 8))
           (unless for-download

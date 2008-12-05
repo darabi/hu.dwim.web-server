@@ -75,7 +75,6 @@
 (defmethod send-response ((self file-serving-response))
   (server.info "Sending file serving response from ~S" (file-name-of self))
   (serve-file (file-name-of self)
-              :signal-errors #f
               :headers (headers-of self)
               :cookies (cookies-of self)))
 
