@@ -12,9 +12,10 @@
 (def function is-error-from-network-stream? (error &optional (network-stream (network-stream-of *request*)))
   (or (and (typep error 'stream-error)
            (eq (stream-error-stream error) network-stream))
-      #+nil                             ; TODO
-      (and (typep error 'socket-error)
-           (eql (fd-of error)))))
+      (bind ((error-fd (nix:posix-error-object error)))
+        (and (typep error 'socket-error)
+             error-fd
+             (eql error-fd (fd-of network-stream))))))
 
 (defun call-with-server-error-handler (thunk network-stream error-handler)
   (bind ((level-1-error nil))
