@@ -37,9 +37,18 @@
                                                    (make-standard-commands self the-class (class-prototype the-class))))))
 
 (def render standard-object-tree-inspector ()
-  <div (:class "standard-object-tree")
-    ,(render-user-messages -self-)
-    ,(call-next-method)>)
+  (bind (((:read-only-slots id content) -self-))
+    (flet ((body ()
+             (render-user-messages -self-)
+             (call-next-method)))
+      (if (typep content 'reference-component)
+          <span (:id ,id :class "standard-object-tree-insepctor")
+            ,(body)>
+          (progn
+            <div (:id ,id :class "standard-object-tree-insepctor")
+              ,(body)>
+            `js(on-load
+                (wui.setup-standard-object-tree-inspector ,id)))))))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
