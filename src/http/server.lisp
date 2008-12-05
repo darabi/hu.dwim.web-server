@@ -420,15 +420,16 @@
      :cookies cookies
      :stream stream)
   "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
-  (bind ((bytes (if (stringp sequence)
-                    (string-to-octets sequence :encoding (external-format-of stream))
-                    sequence)))
-    (setf (header-alist-value headers +header/content-type+) content-type)
-    (setf (header-alist-value headers +header/content-length+) (integer-to-string (length bytes)))
-    (awhen content-disposition
-      (setf (header-alist-value headers +header/content-disposition+) it))
-    (send-http-headers headers cookies :stream stream)
-    (write-sequence bytes stream)))
+  (with-thread-name " / SERVE-SEQUENCE"
+    (bind ((bytes (if (stringp sequence)
+                      (string-to-octets sequence :encoding (external-format-of stream))
+                      sequence)))
+      (setf (header-alist-value headers +header/content-type+) content-type)
+      (setf (header-alist-value headers +header/content-length+) (integer-to-string (length bytes)))
+      (awhen content-disposition
+        (setf (header-alist-value headers +header/content-disposition+) it))
+      (send-http-headers headers cookies :stream stream)
+      (write-sequence bytes stream))))
 
 (def content-serving-function serve-stream (input-stream &key
                                                          (last-modified-at (local-time:now))
@@ -446,38 +447,39 @@
      :headers headers
      :cookies cookies
      :stream stream)
-  (awhen content-type
-    (setf (header-alist-value headers +header/content-type+) it))
-  (when (and (not content-length)
-             (typep input-stream 'file-stream))
-    (setf content-length (integer-to-string (file-length input-stream))))
-  (unless (stringp content-length)
-    (setf content-length (integer-to-string content-length)))
-  (awhen content-length
-    (setf (header-alist-value headers +header/content-length+) it))
-  (unless content-disposition-p
-    ;; this ugliness here is to give a chance for the caller to pass NIL directly
-    ;; to disable the default content disposition parts.
-    (when (and (not content-disposition-size)
-               content-length)
-      (setf content-disposition-size content-length))
-    (awhen content-disposition-size
-      (setf content-disposition (concatenate 'string content-disposition ";size=" it))) ;
-    (awhen content-disposition-filename
-      (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
-  (awhen content-disposition
-    (setf (header-alist-value headers +header/content-disposition+) it))
-  (send-http-headers headers cookies)
-  (server.debug "SERVE-STREAM starts to copy input stream ~A to the network stream ~A" input-stream stream)
-  (loop
-     :with buffer = (make-array 8192 :element-type 'unsigned-byte)
-     :for end-pos = (read-sequence buffer input-stream)
-     :until (zerop end-pos)
-     :do
-     (progn
-       (server.dribble "SERVE-STREAM will write ~A bytes to the network stream ~A" end-pos stream)
-       (write-sequence buffer stream :end end-pos)))
-  (server.debug "SERVE-STREAM finished copying input stream ~A to the network stream ~A" input-stream stream))
+  (with-thread-name " / SERVE-STREAM"
+    (awhen content-type
+      (setf (header-alist-value headers +header/content-type+) it))
+    (when (and (not content-length)
+               (typep input-stream 'file-stream))
+      (setf content-length (integer-to-string (file-length input-stream))))
+    (unless (stringp content-length)
+      (setf content-length (integer-to-string content-length)))
+    (awhen content-length
+      (setf (header-alist-value headers +header/content-length+) it))
+    (unless content-disposition-p
+      ;; this ugliness here is to give a chance for the caller to pass NIL directly
+      ;; to disable the default content disposition parts.
+      (when (and (not content-disposition-size)
+                 content-length)
+        (setf content-disposition-size content-length))
+      (awhen content-disposition-size
+        (setf content-disposition (concatenate 'string content-disposition ";size=" it))) ;
+      (awhen content-disposition-filename
+        (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
+    (awhen content-disposition
+      (setf (header-alist-value headers +header/content-disposition+) it))
+    (send-http-headers headers cookies)
+    (server.debug "SERVE-STREAM starts to copy input stream ~A to the network stream ~A" input-stream stream)
+    (loop
+       :with buffer = (make-array 8192 :element-type 'unsigned-byte)
+       :for end-pos = (read-sequence buffer input-stream)
+       :until (zerop end-pos)
+       :do
+       (progn
+         (server.dribble "SERVE-STREAM will write ~A bytes to the network stream ~A" end-pos stream)
+         (write-sequence buffer stream :end end-pos)))
+    (server.debug "SERVE-STREAM finished copying input stream ~A to the network stream ~A" input-stream stream)))
 
 (def function serve-file (file-name &rest args &key
                                     (last-modified-at (local-time:universal-to-timestamp
@@ -493,42 +495,43 @@
                                     (seconds-until-expires #.(* 12 60 60))
                                     (signal-errors #t)
                                     &allow-other-keys)
-  (remove-from-plistf args :signal-errors)
-  (bind ((network-stream-dirty? #f))
-    (handler-bind ((serious-condition (lambda (error)
-                                        (unless signal-errors
-                                          (return-from serve-file (values #f error network-stream-dirty?))))))
-      (with-open-file (file file-name :direction :input :element-type '(unsigned-byte 8))
-        (unless for-download
-          (unless content-type-p
-            (setf content-type (or content-type
-                                   (switch ((pathname-type file-name) :test #'string=)
-                                     ;; this special-casing is an optimization to cons less
-                                     ("html" (content-type-for +html-mime-type+ encoding))
-                                     ("xml" (content-type-for +xml-mime-type+ encoding))
-                                     ("css"  (content-type-for +css-mime-type+ encoding))
-                                     ("csv"  (content-type-for +csv-mime-type+ encoding))
-                                     (t (or (first (awhen (pathname-type file-name)
-                                                     (mime-types-for-extension it)))
-                                            (content-type-for +plain-text-mime-type+ encoding)))))))
-          (unless content-disposition-filename-p
-            (setf content-disposition-filename (concatenate 'string
-                                                            (pathname-name file-name)
-                                                            (awhen (pathname-type file-name)
-                                                              (concatenate 'string "." it))))))
-        (setf network-stream-dirty? #t)
-        (apply 'serve-stream
-               file
-               :last-modified-at last-modified-at
-               :content-type content-type
-               :content-disposition-filename content-disposition-filename
-               :content-disposition-size content-disposition-size
-               :seconds-until-expires seconds-until-expires
-               :headers headers
-               :cookies cookies
-               :stream stream
-               (append
-                (unless for-download
-                  (list :content-disposition nil))
-                args))
-        (values #t nil #f)))))
+  (with-thread-name " / SERVE-FILE"
+    (remove-from-plistf args :signal-errors)
+    (bind ((network-stream-dirty? #f))
+      (handler-bind ((serious-condition (lambda (error)
+                                          (unless signal-errors
+                                            (return-from serve-file (values #f error network-stream-dirty?))))))
+        (with-open-file (file file-name :direction :input :element-type '(unsigned-byte 8))
+          (unless for-download
+            (unless content-type-p
+              (setf content-type (or content-type
+                                     (switch ((pathname-type file-name) :test #'string=)
+                                       ;; this special-casing is an optimization to cons less
+                                       ("html" (content-type-for +html-mime-type+ encoding))
+                                       ("xml" (content-type-for +xml-mime-type+ encoding))
+                                       ("css"  (content-type-for +css-mime-type+ encoding))
+                                       ("csv"  (content-type-for +csv-mime-type+ encoding))
+                                       (t (or (first (awhen (pathname-type file-name)
+                                                       (mime-types-for-extension it)))
+                                              (content-type-for +plain-text-mime-type+ encoding)))))))
+            (unless content-disposition-filename-p
+              (setf content-disposition-filename (concatenate 'string
+                                                              (pathname-name file-name)
+                                                              (awhen (pathname-type file-name)
+                                                                (concatenate 'string "." it))))))
+          (setf network-stream-dirty? #t)
+          (apply 'serve-stream
+                 file
+                 :last-modified-at last-modified-at
+                 :content-type content-type
+                 :content-disposition-filename content-disposition-filename
+                 :content-disposition-size content-disposition-size
+                 :seconds-until-expires seconds-until-expires
+                 :headers headers
+                 :cookies cookies
+                 :stream stream
+                 (append
+                  (unless for-download
+                    (list :content-disposition nil))
+                  args))
+          (values #t nil #f))))))
