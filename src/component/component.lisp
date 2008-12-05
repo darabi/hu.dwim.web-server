@@ -36,6 +36,21 @@
             (setf (dirty-p -self-) #f)))
         +void+)))
 
+(def function render-component-in-environment (component call-next-method)
+  (with-component-environment component 
+    (when (force (visible-p component))
+      (ensure-uptodate component)
+      (funcall call-next-method))))
+
+(def render-csv :around component ()
+  (render-component-in-environment -self- #'call-next-method))
+
+(def render-pdf :around component ()
+  (render-component-in-environment -self- #'call-next-method))
+
+(def render-odf :around component ()
+  (render-component-in-environment -self- #'call-next-method))
+
 (def render string ()
   `xml,-self-)
 
