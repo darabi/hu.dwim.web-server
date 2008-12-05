@@ -47,11 +47,9 @@
     (when plural
       (setf class-name (plural-of class-name)))
     (when with-article
-      (setf class-name (concatenate-string (if plural
-                                               (with-definite-article class-name)
-                                               (with-indefinite-article class-name))
-                                           " "
-                                           class-name)))
+      (setf class-name (if plural
+                           (with-definite-article class-name)
+                           (with-indefinite-article class-name))))
     (values (if capitalize-first-letter
                 (capitalize-first-letter class-name)
                 class-name)
