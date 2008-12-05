@@ -399,26 +399,28 @@
 ;;; scroll
 
 (defun wui.reset-scroll-position ((content :by-id))
-  (let ((form (aref document.forms 0))
-        (sx (slot-value form 'sx))
-        (sy (slot-value form 'sy)))
-    (setf (slot-value content 'scrollLeft) (slot-value sx 'value))
-    (setf (slot-value content 'scrollTop) (slot-value sy 'value))))
+  (bind ((form (aref document.forms 0))
+         (sx (aref form #.+scroll-x-parameter-name+))
+         (sy (aref form #.+scroll-y-parameter-name+)))
+    (setf content.scrollLeft sx.value)
+    (setf content.scrollTop sy.value)))
 
 (defun wui.save-scroll-position ((content :by-id))
-  (let ((form (aref document.forms 0)))
-    (setf (slot-value (slot-value form 'sx) 'value) (slot-value content 'scrollLeft))
-    (setf (slot-value (slot-value form 'sy) 'value) (slot-value content 'scrollTop))))
+  (bind ((form (aref document.forms 0))
+         (sx (aref form #.+scroll-x-parameter-name+))
+         (sy (aref form #.+scroll-y-parameter-name+)))
+    (setf sx.value content.scrollLeft)
+    (setf sy.value content.scrollTop)))
 
 ;;;;;;
 ;;; highlight
 
 (defun wui.highlight-mouse-enter-handler (event (table :by-id) (row :by-id))
   (dojo.add-class row "highlighted")
-  (let ((parent (slot-value row 'parent-node)))
+  (let ((parent row.parent-node))
     (while (not (= parent document))
       (dojo.remove-class parent "highlighted")
-      (setf parent (slot-value parent 'parent-node))))
+      (setf parent parent.parent-node)))
   (dojo.stopEvent event))
 
 (defun wui.highlight-mouse-leave-handler (event (table :by-id) (row :by-id))

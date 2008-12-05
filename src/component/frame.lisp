@@ -7,9 +7,9 @@
 ;;;;;;
 ;;; Frame
 
-(def (constant e :test 'string=) +scroll-x-parameter-name+ "sx")
+(def (constant e :test 'string=) +scroll-x-parameter-name+ "_sx")
 
-(def (constant e :test 'string=) +scroll-y-parameter-name+ "sy")
+(def (constant e :test 'string=) +scroll-y-parameter-name+ "_sy")
 
 (def component frame-component (top-component layer-context-capturing-component-mixin)
   ((content-type +xhtml-content-type+)
