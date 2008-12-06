@@ -251,6 +251,9 @@
                (remove-worker ()
                  :report (lambda (stream)
                            (format stream "Stop and remove worker ~A" worker))
+                 (with-lock-held-on-server (server)
+                   (when (zerop (length (workers-of server)))
+                     (make-worker server)))
                  (values)))
           (when worker
             (unregister-worker worker server))
