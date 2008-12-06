@@ -242,7 +242,7 @@
                          (iter (for stream-socket = (accept-connection socket :wait #f))
                                (while (and stream-socket
                                            (not (shutdown-initiated-p server))))
-                               (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
+                               (worker-loop/serve-one-request threaded? server (processed-request-count-of server) worker stream-socket)))))))
            (values)))
     (if threaded?
         (unwind-protect
@@ -260,11 +260,12 @@
           (server.dribble "Worker ~A is going away" worker))
         (body))))
 
-(def function worker-loop/serve-one-request (threaded? server worker stream-socket)
+(def function worker-loop/serve-one-request (threaded? server request-number worker stream-socket)
   (flet ((serve-one-request ()
            (unwind-protect
-                (bind ((*request-remote-host* (iolib:remote-host stream-socket)))
+                (progn
                   (server.dribble "Worker ~A is processing a request" worker)
+                  (setf *request-remote-host* (iolib:remote-host stream-socket))
                   (with-lock-held-on-server (server)
                     (incf (occupied-worker-count-of server))
                     (when (and threaded?
@@ -295,34 +296,34 @@
              ;; no need to handle (nested) errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
              (handle-toplevel-condition broker condition))
            (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
-    (unwind-protect-case (interrupted)
-         (with-thread-name (concatenate-string " / serving request "
-                                               (integer-to-string (processed-request-count-of server)))
-           (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response*))))
-           (bind ((*server* server)
-                  (*brokers* (list server))
-                  (*request* nil)
-                  (*response* nil))
-             (restart-case
-                 (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
-                   (call-with-server-error-handler #'serve-one-request
-                                                   stream-socket
-                                                   #'handle-request-error))
-               (abort-server-request ()
-                 :report "Abort processing this request by simply closing the network socket"
-                 (server.dribble "ABORT-SERVER-REQUEST restart is being invoked")
-                 (incf (gracefully-aborted-request-count-of server))
-                 (values))))
-           (server.dribble "Worker ~A finished processing a request" worker))
-      (:always
-       (block nil
-         (call-with-server-error-handler (lambda ()
-                                           (close stream-socket))
-                                         stream-socket
-                                         (lambda (error)
-                                           (server.error "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A. Backtrace follows..." (if interrupted "unwinding" "normally exiting"))
-                                           (log-error-with-backtrace error)
-                                           (return))))))))
+    (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response* *request-remote-host*))))
+    (bind ((*server* server)
+           (*brokers* (list server))
+           (*request* nil)
+           (*response* nil)
+           (*request-remote-host* nil))
+      (restart-case
+          (unwind-protect-case (interrupted)
+              (with-thread-name (concatenate-string " / serving request "
+                                                    (integer-to-string (processed-request-count-of server)))
+                (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
+                  (call-with-server-error-handler #'serve-one-request
+                                                  stream-socket
+                                                  #'handle-request-error))
+                (server.dribble "Worker ~A finished processing a request, closing the socket now" worker))
+            (:always
+             (block nil
+               (call-with-server-error-handler (lambda ()
+                                                 (close stream-socket))
+                                               stream-socket
+                                               (lambda (error)
+                                                 (server.error "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block. Backtrace follows..." (if interrupted "unwinding" "normally exiting"))
+                                                 (log-error-with-backtrace error)
+                                                 (return))))))
+        (abort-server-request ()
+          :report (lambda (stream)
+                    (format stream "~@<Abort processing request ~A by simply closing the network socket~@:>" request-number))
+          (values))))))
 
 (def function store-response (response)
   (assert (boundp '*response*))

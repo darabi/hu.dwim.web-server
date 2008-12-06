@@ -12,10 +12,10 @@
 (def function is-error-from-network-stream? (error &optional (network-stream (network-stream-of *request*)))
   (or (and (typep error 'stream-error)
            (eq (stream-error-stream error) network-stream))
-      (bind ((error-fd (nix:posix-error-object error)))
-        (and (typep error 'socket-error)
-             error-fd
-             (eql error-fd (fd-of network-stream))))))
+      (and (typep error 'iolib:socket-error)
+           (bind ((error-fd (nix:posix-error-object error)))
+             (and error-fd
+                  (eql error-fd (fd-of network-stream)))))))
 
 (defun call-with-server-error-handler (thunk network-stream error-handler)
   (bind ((level-1-error nil))
@@ -37,6 +37,7 @@
                  (with-thread-name " / LEVEL-2-ERROR-HANDLER"
                    (server.error "Nested error while handling original error: ~A; the nested error is: ~A. Backtrace follows..." level-1-error error)
                    (log-error-with-backtrace error)
+                   (maybe-invoke-slime-debugger error)
                    (abort-server-request error)
                    (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER"))))
              (level-3-error-handler (error)
@@ -44,12 +45,12 @@
                ;; the request as soon as we can.
                (with-thread-name " / LEVEL-3-ERROR-HANDLER"
                  (bind ((error-message (or (ignore-errors
-                                             (format nil "Nested error while handling original error: ~A; the nested error is: ~A"
+                                             (format nil "Nested error while handling original error: ~A; the second nested error is: ~A"
                                                      level-1-error error))
                                            (ignore-errors
-                                             (format nil "Failed to log nested error message, probably due to nested print errors. Condition type of the nested error is ~S."
+                                             (format nil "Failed to log nested error message (nested print errors?). Condition type of the third nested error is ~S."
                                                      (type-of error)))
-                                           "Completely failed to log error, giving up... It's probably due to some nested printer errors or the the whole VM is dying.")))
+                                           "Completely failed to log error, giving up... It's probably due to some nested printer errors or the the whole VM is dying...")))
                    (ignore-errors
                      (server.error error-message))
                    (abort-server-request error)
