@@ -429,6 +429,7 @@
 ;;;;;
 ;;; fields
 
+;; TODO rename to wui.primitive.*?
 (defun wui.field.setup-simple-checkbox (checkbox-id checked-tooltip unchecked-tooltip)
   (bind ((checkbox (dojo.byId checkbox-id))
          (hidden (dojo.byId (+ checkbox-id "_hidden"))))

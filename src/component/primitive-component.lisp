@@ -428,7 +428,7 @@
   ())
 
 (def function emit-html-component-value (component)
-  (write-sequence (babel:string-to-octets (print-component-value component) :encoding :utf-8) *html-stream*)
+  (write-sequence (babel:string-to-octets (print-component-value component) :encoding +encoding+) *html-stream*)
   (values))
 
 (def function render-html-component (component)

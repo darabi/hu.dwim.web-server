@@ -30,7 +30,7 @@
                          (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
                          (funcall error-handler error)))
                    (abort-server-request error)
-                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-1-ERROR-HANDLER"))))
+                   (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-1-ERROR-HANDLER"))))
              (level-2-error-handler (error)
                ;; second level of error handling quarding against errors while handling the original error
                (handler-bind ((serious-condition #'level-3-error-handler))
@@ -38,7 +38,7 @@
                    (server.error "Nested error while handling original error: ~A; the nested error is: ~A. Backtrace follows..." level-1-error error)
                    (log-error-with-backtrace error)
                    (abort-server-request error)
-                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER"))))
+                   (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER"))))
              (level-3-error-handler (error)
                ;; if we get here then do as little as feasible wrapped in ignore-errors to bail out and abort processing
                ;; the request as soon as we can.
@@ -53,7 +53,7 @@
                    (ignore-errors
                      (server.error error-message))
                    (abort-server-request error)
-                   (assert nil nil "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-3-ERROR-HANDLER")))))
+                   (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-3-ERROR-HANDLER")))))
       (handler-bind
           ((serious-condition #'level-1-error-handler))
         (funcall thunk)))))
@@ -82,7 +82,7 @@
       (server.debug "No Swank connection, not debugging error: ~A" condition)))
 
 (def function log-error-with-backtrace (error)
-  (server.error "~%*** At: ~A~%*** In thread: ~A~%*** Error:~%~A~%*** Backtrace is:~%~A"
+  (server.error "~%*** At: ~A~%*** In thread: ~A~%*** Error:~%~A~%*** Backtrace:~%~A"
                 (local-time:format-rfc3339-timestring nil (local-time:now))
                 (thread-name (current-thread))
                 error

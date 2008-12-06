@@ -233,7 +233,8 @@
                        (server.debug "Acceptor multiplexer handed a :read event for fd ~A" fd)
                        (bind ((listen-entry (aprog1
                                                 (find fd listen-entries :key [fd-of (socket-of !1)])
-                                              (assert it () "listen-entry not found for fd?!")))
+                                              (unless it
+                                                (error "listen-entry not found for fd ~A?!" fd))))
                               (socket (socket-of listen-entry)))
                          (iter (for stream-socket = (accept-connection socket :wait #f))
                                (while (and stream-socket
@@ -284,7 +285,7 @@
            (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition)
            (bind ((broker (when (boundp '*brokers*)
                             (first *brokers*))))
-             ;; no need to handle errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
+             ;; no need to handle (nested) errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
              (handle-toplevel-condition broker condition))
            (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
     (unwind-protect-case (interrupted)
