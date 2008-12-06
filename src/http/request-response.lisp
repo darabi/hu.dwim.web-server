@@ -6,7 +6,6 @@
 
 (def (generic e) header-value (message header-name))
 (def (generic e) (setf header-value) (value message header-name))
-(def (generic e) remote-host-of (message))
 (defgeneric send-response (response))
 (defgeneric send-headers (response))
 (defgeneric close-request (request))
@@ -122,9 +121,6 @@
    (raw-uri)
    (uri)
    (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")))
-
-(defmethod remote-host-of ((request request))
-  (iolib:remote-host (network-stream-of request)))
 
 (defmethod cookies-of :around ((request request))
   (if (slot-boundp request 'cookies)

@@ -260,7 +260,7 @@
 (def function worker-loop/serve-one-request (threaded? server worker stream-socket)
   (flet ((serve-one-request ()
            (unwind-protect
-                (progn
+                (bind ((*request-remote-host* (iolib:remote-host stream-socket)))
                   (server.dribble "Worker ~A is processing a request" worker)
                   (with-lock-held-on-server (server)
                     (incf (occupied-worker-count-of server))
@@ -332,7 +332,7 @@
   (invoke-restart (find-restart 'retry-handling-request)))
 
 (def function abort-server-request (&optional (why nil why-p))
-  (server.info "Gracefully aborting request coming from ~S for ~S ~:[.~; because: ~A.~]" (remote-host-of *request*) (raw-uri-of *request*) why-p why)
+  (server.info "Gracefully aborting request coming from ~S for ~S~:[.~; because: ~A.~]" *request-remote-host* (raw-uri-of *request*) why-p why)
   (typecase why
     (socket-connection-reset-error (incf (client-connection-reset-count-of *server*))))
   (invoke-restart (find-restart 'abort-server-request)))
@@ -344,9 +344,8 @@
 (def method handle-request :around ((server server) (request request))
   (bind ((start-time (get-monotonic-time))
          (start-bytes-allocated (get-bytes-allocated))
-         (remote-host (remote-host-of request))
          (raw-uri (raw-uri-of request)))
-    (http.info "Handling request from ~S for ~S, method ~S" remote-host raw-uri (http-method-of request))
+    (http.info "Handling request from ~S for ~S, method ~S" *request-remote-host* raw-uri (http-method-of request))
     (multiple-value-prog1
         (if (profile-request-processing-p server)
             (call-with-profiling #'call-next-method)
@@ -354,7 +353,7 @@
       (bind ((seconds (- (get-monotonic-time) start-time))
              (bytes-allocated (- (get-bytes-allocated) start-bytes-allocated)))
         (http.info "Handled request in ~,3f secs, ~,3f MB allocated (request came from ~S for ~S)"
-                   seconds (/ bytes-allocated 1024 1024) remote-host raw-uri)))))
+                   seconds (/ bytes-allocated 1024 1024) *request-remote-host* raw-uri)))))
 
 (def (function e) is-request-still-valid? ()
   (iolib:socket-connected-p (network-stream-of *request*)))
