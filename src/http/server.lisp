@@ -15,6 +15,9 @@
 
 (def (class* e) server (request-counter-mixin)
   ((admin-email-address nil)
+   (gracefully-aborted-request-count 0)
+   (failed-request-count 0)
+   (client-connection-reset-count 0)
    (listen-entries ())
    (connection-multiplexer nil)
    (handler :type (or symbol function))
@@ -282,6 +285,7 @@
              (with-lock-held-on-server (server)
                (decf (occupied-worker-count-of server)))))
          (handle-request-error (condition)
+           (incf (failed-request-count-of server))
            (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition)
            (bind ((broker (when (boundp '*brokers*)
                             (first *brokers*))))
@@ -304,6 +308,7 @@
                (abort-server-request ()
                  :report "Abort processing this request by simply closing the network socket"
                  (server.dribble "ABORT-SERVER-REQUEST restart is being invoked")
+                 (incf (gracefully-aborted-request-count-of server))
                  (values))))
            (server.dribble "Worker ~A finished processing a request" worker))
       (:always
@@ -327,7 +332,9 @@
   (invoke-restart (find-restart 'retry-handling-request)))
 
 (def function abort-server-request (&optional (why nil why-p))
-  (server.info "Gracefully aborting request~:[.~; because: ~A.~]" why-p why)
+  (server.info "Gracefully aborting request coming from ~S for ~S ~:[.~; because: ~A.~]" (remote-host-of *request*) (raw-uri-of *request*) why-p why)
+  (typecase why
+    (socket-connection-reset-error (incf (client-connection-reset-count-of *server*))))
   (invoke-restart (find-restart 'abort-server-request)))
 
 (defmethod read-request ((server server) stream)
