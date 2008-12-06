@@ -4,6 +4,16 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;
+;;; some DOS related limits
+
+(def constant +maximum-http-request-header-line-count+ 128)
+(def constant +maximum-http-request-header-line-length+ (* 4 1024))
+
+
+;;;;;
+;;; specials available while processing a request
+
 (def (special-variable e) *request*)
 (def (special-variable e) *response*)
 (def special-variable *request-remote-host*)
