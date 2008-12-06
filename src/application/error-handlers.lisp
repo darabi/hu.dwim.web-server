@@ -29,7 +29,7 @@
           (if (or (not *response*)
                   (not (headers-are-sent-p *response*)))
               (bind ((*response* nil) ; leave alone the original value, and keep an assert from firing
-                     (rendering-in-progress *rendering-in-progress*))
+                     (rendering-phase-reached *rendering-phase-reached*))
                 (server.info "Sending an internal server error page for request ~S coming to application ~A" request-uri application)
                 (send-response
                  (make-component-rendering-response
@@ -38,7 +38,7 @@
                    (inline-component
                      (bind ((args (list (make-instance 'command-component
                                                        :content (icon back)
-                                                       :action (if rendering-in-progress
+                                                       :action (if rendering-phase-reached
                                                                    (make-uri-for-new-frame)
                                                                    (make-uri-for-current-frame)))
                                         :admin-email-address (admin-email-address-of application))))
@@ -57,7 +57,7 @@
    ,(when admin-email-address
           <p "You may contact the administrators at this email address: "
              <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>>)
-   <p ,(render* back-command)>>)
+   <p ,(render back-command)>>)
 
 (def resources en
   (error.internal-server-error "Internal server error")
@@ -75,4 +75,4 @@
         <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
            <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
            " email címen megteheti.">)
-     <p ,(render* back-command)>>))
+     <p ,(render back-command)>>))

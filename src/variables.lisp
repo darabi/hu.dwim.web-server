@@ -14,8 +14,8 @@
 (def (special-variable e) *frame*)
 (def (special-variable e) *action*)
 
-(def special-variable *rendering-in-progress* #f
-  "This vairable is rebound to T while rendering is running. Needed for the error handling code...")
+(def (special-variable :documentation "This variable is bound in application contexts and set to T when the render protocol is invoked. Needed for the error handling code to decide what to do...")
+    *rendering-phase-reached*)
 
 (def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
     *delayed-content-request*)

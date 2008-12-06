@@ -295,11 +295,13 @@
   response)
 
 (def (function o) application-handler (application request)
+  (assert (not (boundp '*rendering-phase-reached*)))
   (bind ((*application* application)
          (*brokers* (cons application *brokers*))
          ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can freely setf it
          (*session* nil)
          (*frame* nil)
+         (*rendering-phase-reached* #f)
          ;; the request counter is not critical, so just ignore locking...
          (request-counter (incf (processed-request-count-of application))))
     (when (and (zerop (mod request-counter +session-purge-request-interval+)) ; get time less often
@@ -445,11 +447,10 @@ Custom implementations should look something like this:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; app specific responses
 
-(def function render* (component)
-  (bind ((*rendering-in-progress* #t))
-    (render component)))
-
-(def (layered-function e) render (component))
+(def (layered-function e) render (component)
+  (:method :around ((component t))
+    (setf *rendering-phase-reached* #t)
+    (call-next-method)))
 
 (def (layered-function e) render-csv (component))
 
@@ -527,10 +528,10 @@ Custom implementations should look something like this:
                <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
                  ,(foreach (lambda (dirty-component)
                              (with-restored-component-environment (parent-component-of dirty-component)
-                               (render* dirty-component)))
+                               (render dirty-component)))
                            dirty-components)>))
          <result "success">>)
-      (render* component)))
+      (render component)))
 
 (def (function e) render-to-string (component &key ajax-aware)
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
@@ -538,7 +539,8 @@ Custom implementations should look something like this:
          (*application* (make-instance 'application :path-prefix ""))
          (*session* (make-instance 'session))
          (*frame* (make-instance 'frame :session *session*))
-         (*ajax-aware-request* ajax-aware))
+         (*ajax-aware-request* ajax-aware)
+         (*rendering-phase-reached* #f))
     (setf (id-of *session*) "1234567890")
     (with-lock-held-on-session (*session*)
       (octets-to-string
