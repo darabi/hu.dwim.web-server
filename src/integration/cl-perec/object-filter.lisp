@@ -111,8 +111,17 @@
        (,(prc::reader-name-of slot) ,(first (query-variable-stack-of query)))
        (quote ,value)))
   (:method (component class (predicate (eql '~)) slot query value)
+    ;; TODO due to a postgres bug it doesn't work if there's an accented letter in the regexp with a non-matching upper/lower case
+    ;; http://wiki.postgresql.org/wiki/Todo
+    ;; "Fix ILIKE and regular expressions to handle case insensitivity properly in multibyte encodings"
+    #+nil
     `(cl-perec:re-like
       (,(prc::reader-name-of slot) ,(first (query-variable-stack-of query)))
       (quote ,value)
+      :case-sensitive-p #f)
+
+    `(cl-perec:like
+      (,(prc::reader-name-of slot) ,(first (query-variable-stack-of query)))
+      ,(concatenate-string "%" value "%")
       :case-sensitive-p #f)))
 
