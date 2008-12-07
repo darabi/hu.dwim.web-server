@@ -197,8 +197,14 @@
     'equal)
 
   (:method ((component string-component) (class standard-class) (predicate (eql '~)))
-    (lambda (string-1 string-2)
-      (cl-ppcre:all-matches string-2 (concatenate-string ".*" string-1 ".*"))))
+    (bind ((scanner nil)
+           (previous-regexp nil))
+      (lambda (value regexp)
+        (unless (equal regexp previous-regexp)
+          (setf scanner (cl-ppcre:create-scanner regexp :case-insensitive-mode #t)))
+        (and (stringp value)
+             (cl-ppcre:do-matches (match-start match-end scanner value nil)
+               (return #t))))))
 
   (:method ((component string-component) (class standard-class) (predicate (eql '<)))
     'string<)
