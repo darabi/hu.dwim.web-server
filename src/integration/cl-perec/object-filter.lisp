@@ -45,24 +45,22 @@
   ((query nil)
    (query-variable-stack nil)))
 
-(def function call-with-new-query-variable (component filter-query thunk)
+(def with-macro* with-new-query-variable (variable-name filter-query component)
   (bind ((query (query-of filter-query))
-         (query-variable
-          (prc::add-query-variable (query-of filter-query)
-                                   (gensym (symbol-name (class-name (the-class-of component)))))))
+         (query-variable (prc::add-query-variable query (gensym (symbol-name (class-name (the-class-of component)))))))
     (push query-variable (query-variable-stack-of filter-query))
     (prc::add-assert query `(typep ,query-variable ',(class-name (the-class-of component))))
-    (funcall thunk query-variable)
-    (pop (query-variable-stack-of filter-query))))
+    (multiple-value-prog1
+        (-body- (query-variable variable-name))
+      (pop (query-variable-stack-of filter-query)))))
 
 (def generic build-filter-query (component)
   (:method ((component standard-object-filter))
     (bind ((query (prc::make-instance 'prc::query))
            (filter-query (make-instance 'filter-query :query query)))
-      (call-with-new-query-variable component filter-query
-                                    (lambda (query-variable)
-                                      (prc::add-collect query query-variable)
-                                      (build-filter-query* component filter-query)))
+      (with-new-query-variable (query-variable filter-query component)
+        (prc::add-collect query query-variable)
+        (build-filter-query* component filter-query))
       query)))
 
 (def generic build-filter-query* (component filter-query)
@@ -102,13 +100,12 @@
                                         ponated-predicate)))))
               ((and (typep value-component 'standard-object-filter)
                     (not (typep (content-of value-component) 'standard-object-filter-reference)))
-               (call-with-new-query-variable value-component filter-query
-                                             (lambda (query-variable)
-                                               (prc::add-assert (query-of filter-query)
-                                                                `(eq ,query-variable
-                                                                     (,(prc::reader-name-of slot)
-                                                                       ,(second (query-variable-stack-of filter-query)))))
-                                               (build-filter-query* value-component filter-query)))))))))
+               (with-new-query-variable (query-variable filter-query value-component)
+                 (prc::add-assert (query-of filter-query)
+                                  `(eq ,query-variable
+                                       (,(prc::reader-name-of slot)
+                                         ,(second (query-variable-stack-of filter-query)))))
+                 (build-filter-query* value-component filter-query))))))))
 
 (def method predicate-function ((component string-component) (class prc::persistent-class) (predicate (eql '~)))
   'prc::re-like)
