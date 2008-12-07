@@ -13,6 +13,11 @@
    (ssl-certificate nil)
    (socket nil)))
 
+(def print-object (server-listen-entry :identity #f :type #f)
+  (princ (address-to-string (host-of -self-)))
+  (write-string "/")
+  (princ (port-of -self-)))
+
 (def (class* e) server (request-counter-mixin)
   ((admin-email-address nil)
    (gracefully-aborted-request-count 0)
@@ -53,7 +58,7 @@
   (iter (for listen-entry :in (listen-entries-of server))
         (unless (first-time-p)
           (write-string ", "))
-        (princ (host-of listen-entry))
+        (princ (address-to-string (host-of listen-entry)))
         (write-string "/")
         (princ (port-of listen-entry))))
 

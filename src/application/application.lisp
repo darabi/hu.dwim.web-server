@@ -29,7 +29,7 @@
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
 
-(def (class* e) application (broker-with-path-prefix)
+(def (class* e) application (broker-with-path-prefix request-counter-mixin)
   ((entry-points nil)
    (default-uri-scheme "http")
    (default-locale "en")
@@ -37,7 +37,6 @@
    (session-class)
    (session-timeout *default-session-timeout*)
    (frame-timeout *default-frame-timeout*)
-   (processed-request-count 0)
    (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal))

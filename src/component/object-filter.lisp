@@ -224,7 +224,7 @@
                              (for predicate = (bind ((slot-name (slot-definition-name (slot-of slot-value)))
                                                      (place-filter (value-of slot-value))
                                                      (value-component (content-of place-filter))
-                                                     (predicate-function (bind ((function (fdefinition (predicate-function place-filter class (selected-predicate-of place-filter)))))
+                                                     (predicate-function (bind ((function (ensure-function (predicate-function place-filter class (selected-predicate-of place-filter)))))
                                                                            (if (negated-p place-filter)
                                                                                (complement function)
                                                                                function))))

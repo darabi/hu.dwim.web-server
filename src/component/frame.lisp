@@ -23,6 +23,7 @@
    (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
    (debug-client-side (not *load-as-production-p*) :type boolean :accessor debug-client-side? :export :accessor)))
 
+;; TODO support appending an &timestamp=12345678 to the urls to allow longer expires header and faster following of updates?
 (def render frame-component ()
   (bind ((application *application*)
          (path-prefix (path-prefix-of application))
