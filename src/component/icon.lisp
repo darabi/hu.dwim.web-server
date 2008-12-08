@@ -79,10 +79,7 @@
             (apply #'make-instance 'icon-component :name name args)
             (error "The icon ~A cannot be found and no arguments were specified" name)))))
 
-;; TODO: KLUDGE: do we really need an equal hash table here?
-;; TODO: this was added because there are lookups with keys concatenated and there's no way currently
-;; TODO: to find out the correct package, see member-component
-(def special-variable *icons* (make-hash-table :test #'equal))
+(def special-variable *icons* (make-hash-table))
 
 (def (function e) find-icon (name &key (otherwise `(:error "The icon ~A cannot be found" ,name)))
   (prog1-bind icon (gethash name *icons*)

@@ -382,7 +382,6 @@
     (class (class-name value))
     (t (write-to-string value))))
 
-;; TODO: KLUDGE: we must use a string key here because we don't know the package
 (def function find-member-component-value-icon (component)
   (when (slot-boundp component 'component-value)
     (bind ((slot-value (find-ancestor-component-with-type component 'abstract-standard-object-slot-value-component)))
