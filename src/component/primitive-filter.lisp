@@ -41,7 +41,7 @@
                                :name (client-state-sink-of -self-)
                                :on-change (delay `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t)))
         <select (:name ,(id-of (client-state-sink-of -self-))
-                 :onchange `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t))
+                 :onChange `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t))
           ,(bind ((selected (when (and use-in-filter?
                                        (not has-component-value?))
                               "yes")))
@@ -71,7 +71,8 @@
 
 (def render string-filter ()
   (ensure-client-state-sink -self-)
-  (render-string-component -self- :on-change (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of -self-) (!= "" this.value)))))
+  (bind ((listener (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of -self-) (!= "" this.value)))))
+    (render-string-component -self- :on-change listener :on-key-down listener)))
 
 ;;;;;;
 ;;; Password filter

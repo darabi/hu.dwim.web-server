@@ -65,7 +65,7 @@
 ;;;;;;
 ;;; String field
 
-(def function render-string-field (type value client-state-sink &key on-change)
+(def function render-string-field (type value client-state-sink &key on-change on-key-down)
   (bind ((id (generate-frame-unique-string "_w")))
     (render-dojo-widget (id)
       ;; TODO dojoRows 3
@@ -74,6 +74,7 @@
               :name     ,(id-of client-state-sink)
               :value    ,value
               :onChange ,(force on-change)
+              :onKeyDown ,(force on-key-down)
               :dojoType #.+dijit/text-box+)>)))
 
 ;;;;;;
