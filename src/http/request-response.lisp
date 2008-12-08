@@ -190,7 +190,8 @@
 
 (def (function e) disallow-response-caching (response)
   "Sets the appropiate response headers that will instruct the clients not to cache this response."
-  (disallow-response-caching-in-header-alist (headers-of response)))
+  (disallow-response-caching-in-header-alist (headers-of response))
+  response)
 
 (def (function o) send-http-headers (headers cookies &key (stream (network-stream-of *request*)))
   (flet ((write-header-line (name value)
@@ -350,8 +351,7 @@
                  :headers headers
                  :cookies cookies))
 
-#+nil ; TODO is it needed? broken this way. delme?
-(def (macro e) make-byte-vector-response (body &optional headers-as-plist cookie-list)
+(def (macro e) make-byte-vector-response ((&optional headers-as-plist cookie-list) &body body)
   (with-unique-names (response)
     `(bind ((,response (make-byte-vector-response* nil)))
        (store-response ,response)
@@ -359,6 +359,9 @@
        (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
                                                   (collect `(cons ,name ,value)))))
        (setf (cookies-of ,response) (list ,@cookie-list))
+       (setf (body-of ,response)
+             (babel-streams:with-output-to-sequence (*standard-output* :external-format :utf-8)
+               ,@body))
        ,response)))
 
 (defmethod send-response ((response byte-vector-response))

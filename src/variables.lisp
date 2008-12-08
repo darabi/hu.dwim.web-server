@@ -133,7 +133,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (macrolet ((x (&rest pairs)
 	     `(progn
                 ,@(iter (for (name value) :on pairs :by #'cddr)
-                        (collect `(def (constant :test #'string=) ,name (coerce ,value 'simple-base-string)))))))
+                        (collect `(def (constant e :test #'string=) ,name (coerce ,value 'simple-base-string)))))))
   ;; constants for optimization
   (x
    +utf-8-html-content-type+            "text/html; charset=utf-8"

@@ -503,6 +503,7 @@
   (setf field.value value))
 
 (defun wui.field.update-use-in-filter ((field :by-id) value)
+  ;; TODO disable, or make transparent the other controls, too
   (field.wui-set-checked value))
 
 ;;;;;;

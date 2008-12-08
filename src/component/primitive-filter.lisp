@@ -58,7 +58,7 @@
                                        (not component-value))
                               "yes")))
                  <option (:value "false" :selected ,selected)
-                         ,#"boolean.false">) >)))
+                         ,#"boolean.false">)>)))
 
 ;;;;;;
 ;;; String filter
