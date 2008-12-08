@@ -30,7 +30,8 @@
   (apply #'make-instance 'application :path-prefix path-prefix args))
 
 (def (class* e) application (broker-with-path-prefix request-counter-mixin)
-  ((entry-points nil)
+  ((number-of-requests-to-sessions 0 :export :accessor)
+   (entry-points nil)
    (default-uri-scheme "http")
    (default-locale "en")
    (default-timezone local-time:*default-timezone*)
@@ -39,7 +40,7 @@
    (frame-timeout *default-frame-timeout*)
    (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
-   (session-id->session (make-hash-table :test 'equal))
+   (session-id->session (make-hash-table :test 'equal) :export :accessor)
    (admin-email-address nil)
    (lock)
    (running-in-test-mode #f :type boolean :export :accessor)
@@ -115,6 +116,7 @@
     (setf *session* session)
     (if session
         (bind ((local-time:*default-timezone* (client-timezone-of session)))
+          (incf (number-of-requests-to-sessions-of application))
           (restart-case
               (if lock-session
                   ;; TODO check if locking would hang, throw error if so

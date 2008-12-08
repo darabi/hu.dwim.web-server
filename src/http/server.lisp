@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 (def (class* e) request-counter-mixin ()
-  ((processed-request-count 0)))
+  ((processed-request-count 0 :export :accessor)))
 
 (def class* server-listen-entry ()
   ((host)
@@ -20,9 +20,9 @@
 
 (def (class* e) server (request-counter-mixin)
   ((admin-email-address nil)
-   (gracefully-aborted-request-count 0)
-   (failed-request-count 0)
-   (client-connection-reset-count 0)
+   (gracefully-aborted-request-count 0 :export :accessor)
+   (failed-request-count 0 :export :accessor)
+   (client-connection-reset-count 0 :export :accessor)
    (listen-entries ())
    (connection-multiplexer nil)
    (handler :type (or symbol function))

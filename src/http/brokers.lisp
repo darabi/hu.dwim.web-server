@@ -7,7 +7,7 @@
 (def (generic e) handle-request (thing request))
 
 (def (class* e) broker-based-server (server)
-  ((brokers))
+  ((brokers :export :accessor))
   (:default-initargs :handler 'broker-based-server-handler))
 
 (def print-object broker-based-server
