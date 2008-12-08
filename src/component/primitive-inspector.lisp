@@ -186,3 +186,34 @@
               (iolib:inet-address                    value)
               ((simple-array (unsigned-byte 8) (4))  (make-instance 'ipv4-address :name value))
               ((simple-array (unsigned-byte 16) (8)) (make-instance 'ipv6-address :name value)))))>))
+
+;;;;;;
+;;; File inspector
+
+(def component file-inspector (file-component primitive-inspector)
+  ((upload-command :type component)
+   (download-command :type component)
+   (directory "/tmp/")
+   (file-name)
+   (url-prefix "static/")))
+
+(def method refresh-component ((self file-inspector))
+  (bind (((:slots upload-command download-command directory file-name url-prefix) self)
+         ((:values class instance slot) (extract-primitive-component-place self)))
+    (setf upload-command (command (icon upload)
+                                  (make-action
+                                    (execute-upload-file self))))
+    (setf download-command (command (icon download)
+                                    (make-action
+                                      (execute-download-file self))
+                                    :delayed-content #t
+                                    :path (download-file-name self class instance slot)))))
+
+(def render file-inspector ()
+  (if (edited-p -self-)
+      (render (upload-command-of -self-))
+      (render (download-command-of -self-))))
+
+(def (layered-function e) execute-upload-file (component))
+
+(def (layered-function e) execute-download-file (component))

@@ -467,3 +467,13 @@
                   (write-char #\. string))
                 (write-string (princ-to-string ip-element) string)))
         "")))
+
+;;;;;;
+;;; File component
+
+(def component file-component (primitive-component)
+  ())
+
+(def (layered-function e) download-file-name (component class instance slot)
+  (:method ((component file-component) class instance slot)
+    (random-string)))
