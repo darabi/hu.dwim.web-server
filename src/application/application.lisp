@@ -448,10 +448,7 @@ Custom implementations should look something like this:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; app specific responses
 
-(def (layered-function e) render (component)
-  (:method :around ((component t))
-    (setf *rendering-phase-reached* #t)
-    (call-next-method)))
+(def (layered-function e) render (component))
 
 (def (layered-function e) render-csv (component))
 
@@ -529,10 +526,13 @@ Custom implementations should look something like this:
                <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
                  ,(foreach (lambda (dirty-component)
                              (with-restored-component-environment (parent-component-of dirty-component)
+                               (setf *rendering-phase-reached* #t)
                                (render dirty-component)))
                            dirty-components)>))
          <result "success">>)
-      (render component)))
+      (progn
+        (setf *rendering-phase-reached* #t)
+        (render component))))
 
 (def (function e) render-to-string (component &key ajax-aware)
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
