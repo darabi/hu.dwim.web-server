@@ -77,20 +77,21 @@
 
 (def (layered-function e) collect-standard-object-detail-filter-subclasses (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
-    (subclasses class)))
+    (list* class (subclasses class))))
 
 (def method refresh-component ((self standard-object-detail-filter))
   (with-slots (class class-selector the-class slot-value-groups command-bar) self
     (bind ((selected-class (or (when class-selector (component-value-of class-selector))
                                the-class)))
-      (setf class-selector
-          (when-bind subclasses (collect-standard-object-detail-filter-subclasses self the-class (class-prototype the-class))
-            (make-instance 'member-inspector
-                           :edited #t
-                           :the-type `(or null (member ,subclasses))
-                           :component-value the-class
-                           :client-name-generator [localized-class-name !2]
-                           :possible-values (list* the-class subclasses))))
+      (when-bind subclasses (collect-standard-object-detail-filter-subclasses self the-class (class-prototype the-class))
+        (if class-selector
+            (setf (possible-values-of class-selector) subclasses)
+            (setf class-selector (make-instance 'member-inspector
+                                                :edited #t
+                                                :the-type `(or null (member ,subclasses))
+                                                :component-value the-class
+                                                :client-name-generator [localized-class-name !2]
+                                                :possible-values subclasses))))
       (setf class (make-standard-object-detail-filter-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-filter-slots self selected-class prototype))

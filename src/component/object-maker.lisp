@@ -95,17 +95,22 @@
          it
          (the-class-of component))))
 
+(def (layered-function e) collect-standard-object-detail-maker-subclasses (component class prototype)
+  (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
+    (list* class (subclasses class))))
+
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class class-selector the-class slot-value-groups) self
     (bind ((selected-class (find-selected-class self)))
-      (setf class-selector
-            (when-bind subclasses (subclasses the-class)
-              (make-instance 'member-inspector
-                             :edited #t
-                             :the-type `(or null (member ,subclasses))
-                             :component-value the-class
-                             :client-name-generator [localized-class-name !2]
-                             :possible-values (list* the-class subclasses))))
+      (when-bind subclasses (collect-standard-object-detail-maker-subclasses self the-class (class-prototype the-class))
+        (if class-selector
+            (setf (possible-values-of class-selector) class-selector)
+            (setf class-selector (make-instance 'member-inspector
+                                                :edited #t
+                                                :the-type `(or null (member ,subclasses))
+                                                :component-value the-class
+                                                :client-name-generator [localized-class-name !2]
+                                                :possible-values class-selector))))
       (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
