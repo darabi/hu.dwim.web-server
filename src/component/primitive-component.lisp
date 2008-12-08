@@ -59,6 +59,14 @@
 
 (def generic print-component-value (component))
 
+(def function extract-primitive-component-place (component)
+  (bind ((parent-component (parent-component-of component)))
+    (when (typep parent-component 'place-component)
+      (bind ((place (place-of parent-component)))
+        (when (typep place 'slot-value-place)
+          (bind ((instance (instance-of place)))
+            (values (class-of instance) instance (slot-of place))))))))
+
 (def resources en
   (value.default "default")
   (value.defaults-to "defaults to :"))
@@ -365,12 +373,8 @@
    (client-name-generator 'localized-member-component)))
 
 (def function localized-member-component (component value)
-  (bind ((slot-value (find-ancestor-component-with-type component 'abstract-standard-object-slot-value-component)))
-    (localized-member-component-value (when slot-value
-                                        (the-class-of slot-value))
-                                      (when slot-value
-                                        (slot-of slot-value))
-                                      value)))
+  (bind (((:values class nil slot) (extract-primitive-component-place component)))
+    (localized-member-component-value class slot value)))
 
 (def generic localized-member-component-value (class slot value)
   (:method (class slot value)
@@ -384,9 +388,9 @@
 
 (def function find-member-component-value-icon (component)
   (when (slot-boundp component 'component-value)
-    (bind ((slot-value (find-ancestor-component-with-type component 'abstract-standard-object-slot-value-component)))
-      (when slot-value
-        (bind ((slot-name (slot-definition-name (slot-of slot-value))))
+    (bind (((:values nil nil slot) (extract-primitive-component-place component)))
+      (when slot
+        (bind ((slot-name (slot-definition-name slot)))
           (find-icon (format-symbol (symbol-package slot-name)
                                     "~A-~A"
                                     slot-name
