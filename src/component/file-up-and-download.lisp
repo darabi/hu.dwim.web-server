@@ -8,27 +8,24 @@
 ;;; File download
 
 (def component file-download-component (command-component)
-  ((icon (icon download))
+  ((content (icon download))
    (action nil)
-   (directory)
+   (directory "/tmp/")
    (file-name)
    (url-prefix "static/")))
 
 (def constructor (file-download-component (label nil label?) &allow-other-keys) ()
   (when label?
-    (setf (icon-of -self-) (icon download :label label))))
+    (setf (content-of -self-) (icon download :label label))))
 
 (def method refresh-component ((self file-download-component))
   (with-slots (file-name action url-prefix) self
-    (unless action
-      (setf action
-            (make-uri :path (concatenate 'string url-prefix (namestring file-name)))))))
+    (setf action (make-uri :path (concatenate-string url-prefix (namestring file-name))))))
 
 (def render file-download-component ()
-  (bind (((:read-only-slots file-name directory enabled) -self-)
-         (absolute-file-name (merge-pathnames file-name directory)))
+  (bind ((absolute-file-name (merge-pathnames (file-name-of -self-) (directory-of -self-))))
     (unless (probe-file absolute-file-name)
-      (setf enabled #f))
+      (setf (enabled-p -self-) #f))
     <div (:class "file-download")
          ,(call-next-method)
          " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
@@ -52,8 +49,10 @@
 ;;;;;;
 ;;; File upload
 
-(def component file-upload-component ()
-  ((icon (icon upload) :type component)))
+(def component file-upload-component (command-component)
+  ((content (icon upload) :type component)
+   (directory "/tmp/")
+   (file-name)))
 
 (def render file-upload-component ()
   (bind (((:read-only-slots icon) -self-))
