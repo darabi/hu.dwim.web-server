@@ -104,7 +104,10 @@
           (unless (edited-p content)
             (revert-place-inspector-content self))
           content)
-        (make-place-inspector-content self))))
+        (if (typep place 'slot-value-place)
+            (bind ((instance (instance-of place)))
+              (make-place-inspector-content self (class-of instance) instance (slot-of place)))
+            (make-place-inspector-content self nil nil nil)))))
 
 (def method (setf place-of) :after (new-value (self place-inspector))
   (setf (outdated-p self) #t))
@@ -114,11 +117,12 @@
     (bind ((value (value-at-place place)))
       (setf (component-value-of component) value))))
 
-(def function make-place-inspector-content (component)
-  (bind ((place (place-of component)))
-    (prog1-bind content
-        (make-inspector (place-type place) :default-component-type 'reference-component)
-      (update-component-value-from-place place content))))
+(def (layered-function e) make-place-inspector-content (component class instance slot)
+  (:method ((component place-inspector) class instance slot)
+    (bind ((place (place-of component)))
+      (prog1-bind content
+          (make-inspector (place-type place) :default-component-type 'reference-component)
+        (update-component-value-from-place place content)))))
 
 (def method map-editable-child-components ((self place-inspector) function)
   (bind ((content (content-of self)))

@@ -157,9 +157,9 @@
                     (collect slot-value-component)))
         (setf slot-values nil))))
 
-(def (generic e) make-standard-object-slot-value-inspector (component class instance slot)
+(def (layered-function e) make-standard-object-slot-value-inspector (component class instance slot)
   (:method ((component standard-object-slot-value-group-inspector) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
-    (make-instance 'standard-object-slot-value-inspector :instance instance :slot slot)))
+    (make-instance 'standard-object-slot-value-inspector :the-class class :instance instance :slot slot)))
 
 ;;;;;;
 ;;; Standard object slot value inspector
