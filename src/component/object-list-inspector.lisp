@@ -110,11 +110,18 @@
                                                      abstract-standard-class-component
                                                      inspector-component
                                                      table-component
-                                                     editable-component)
-  ())
+                                                     editable-component
+                                                     title-component-mixin)
+  ((class nil :accessor nil :type component)))
 
 (def method refresh-component ((self standard-object-list-table-inspector))
-  (with-slots (instances the-class columns rows page-navigation-bar) self
+  (with-slots (instances the-class class columns rows page-navigation-bar) self
+    (if the-class
+          (if class
+              (when (typep the-class 'abstract-standard-class-component)
+                (setf (the-class-of class) the-class))
+              (setf class (make-class-presentation self the-class (class-prototype the-class))))
+          (setf class nil))
     (awhen (getf (initargs-of (find-ancestor-component-with-type self 'initargs-component-mixin)) :page-count)
       (setf (page-count-of page-navigation-bar) it))
     (setf columns (make-standard-object-list-table-inspector-columns self))
@@ -180,18 +187,21 @@
     (class-slots class)))
 
 (def render standard-object-list-table-inspector ()
-  <span ,(standard-object-list-table-inspector.instances (localized-class-name (the-class-of -self-)))>
-  (call-next-method))
+  <div ,(render-title -self-)
+       ,(call-next-method)>)
+
+(def layered-method render-title ((self standard-object-list-table-inspector))
+  (standard-object-list-table-inspector.title (slot-value self 'class)))
 
 (def resources en
-  (standard-object-list-table-inspector.instances (class)
-    <span "Viewing instances of " ,(render class)>)
+  (standard-object-list-table-inspector.title (class)
+    <span (:class "title") "Viewing instances of " ,(render class)>)
   (object-list-table.column.commands "")
   (object-list-table.column.type "Type"))
 
 (def resources hu
-  (standard-object-list-table-inspector.instances (class)
-    <span "Egy ",(render class) " lista megjelenítése">)
+  (standard-object-list-table-inspector.title (class)
+    <span (:class "title") "Egy ",(render class) " lista megjelenítése">)
   (object-list-table.column.commands "")
   (object-list-table.column.type "Típus"))
 

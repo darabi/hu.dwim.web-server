@@ -61,7 +61,7 @@
 
 (def function extract-primitive-component-place (component)
   (bind ((parent-component (parent-component-of component)))
-    (when (typep parent-component 'place-component)
+    (when (typep parent-component 'place-inspector)
       (bind ((place (place-of parent-component)))
         (when (typep place 'slot-value-place)
           (bind ((instance (instance-of place)))

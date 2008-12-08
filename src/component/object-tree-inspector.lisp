@@ -75,17 +75,31 @@
 (def component standard-object-tree-table-inspector (abstract-standard-object-tree-component
                                                      inspector-component
                                                      tree-component
-                                                     editable-component)
-  ()
+                                                     editable-component
+                                                     title-component-mixin)
+  ((class nil :accessor nil :type component))
   (:default-initargs :expander-column-index 1))
 
 ;; TODO: factor out common parts with standard-object-list-table-inspector
 (def method refresh-component ((self standard-object-tree-table-inspector))
-  (with-slots (instances root-nodes columns) self
+  (with-slots (instances the-class class root-nodes columns) self
+    (if the-class
+          (if class
+              (when (typep the-class 'abstract-standard-class-component)
+                (setf (the-class-of class) the-class))
+              (setf class (make-class-presentation self the-class (class-prototype the-class))))
+          (setf class nil))
     (setf columns (make-standard-object-tree-table-inspector-columns self))
     (if root-nodes
         (foreach [setf (component-value-of !1) !2] root-nodes instances)
         (setf root-nodes (mapcar [make-standard-object-tree-table-node self (class-of !1) !1] instances)))))
+
+(def render standard-object-tree-table-inspector ()
+  <div ,(render-title -self-)
+       ,(call-next-method)>)
+
+(def layered-method render-title ((self standard-object-tree-table-inspector))
+  (standard-object-tree-table-inspector.title (slot-value self 'class)))
 
 (def (function e) make-standard-object-tree-table-type-column ()
   (make-instance 'column-component
@@ -144,10 +158,14 @@
     (class-slots class)))
 
 (def resources hu
+  (standard-object-tree-table-inspector.title (class)
+    <span (:class "title") "Egy " ,(render class) " fa megjelenítése">)
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Típus"))
 
 (def resources en
+  (standard-object-tree-table-inspector.title (class)
+    <span (:class "title") "Viewing a tree of " ,(render class)>)
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Type"))
 
@@ -357,8 +375,7 @@
 ;;;;;;
 ;;; Selectable standard object tree table inspector
 
-(def component selectable-standard-object-tree-table-inspector (standard-object-tree-table-inspector
-                                                                abstract-selectable-standard-object-component)
+(def component selectable-standard-object-tree-table-inspector (standard-object-tree-table-inspector abstract-selectable-standard-object-component)
   ())
 
 (def layered-method make-standard-object-tree-table-node ((component selectable-standard-object-tree-table-inspector) (class standard-class) (instance standard-object))
@@ -366,6 +383,17 @@
                  :instance instance
                  :children-provider (children-provider-of component)
                  :expanded (expand-nodes-by-default-p component)))
+
+(def layered-method render-title ((self selectable-standard-object-tree-table-inspector))
+  (selectable-standard-object-tree-table-inspector.title (slot-value self 'class)))
+
+(def resources hu
+  (selectable-standard-object-tree-table-inspector.title (class)
+    <span (:class "title") "Egy " ,(render class) " kiválasztása">))
+
+(def resources en
+  (selectable-standard-object-tree-table-inspector.title (class)
+    <span (:class "title") "Selecting an instance of " ,(render class)>))
 
 ;;;;;;
 ;;; Selectable standard object tree node inspector

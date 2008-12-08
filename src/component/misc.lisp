@@ -177,11 +177,15 @@
 (def method initialize-instance :after ((-self- initargs-component-mixin) &rest args &key &allow-other-keys)
   (setf (initargs-of -self-)
         ;; TODO: KLUDGE: dispatch on component for saved args?
-        (iter (for arg :in '(:store-mode :page-count))
+        (iter (for arg :in '(:title :store-mode :page-count))
               (for value = (getf args arg :unbound))
               (unless (eq value :unbound)
                 (collect arg)
                 (collect value)))))
+
+(def function inherited-initarg (component key)
+  (awhen (find-ancestor-component-with-type component 'initargs-component-mixin)
+    (getf (initargs-of it) key)))
 
 ;;;;;;
 ;;; Container
@@ -204,6 +208,16 @@
 
 (def (macro e) styled-container ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'styled-container-component ,@args :contents (list ,@contents)))
+
+;;;;;;
+;;; Title component mixin
+
+(def component title-component-mixin ()
+  ((title :type component)))
+
+(def method refresh-component :before ((self title-component-mixin))
+  (unless (slot-boundp self 'title)
+    (setf (title-of self) (inherited-initarg self :title))))
 
 ;;;;;;
 ;;; Recursion point

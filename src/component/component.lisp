@@ -74,6 +74,9 @@
 (def (function e) mark-outdated (component)
   (setf (outdated-p component) #t))
 
+(def (function e) mark-top-content-outdated (component)
+  (mark-outdated (find-top-component-content component)))
+
 (def function ensure-uptodate (component)
   (when (or (outdated-p component)
             (some (lambda (slot)

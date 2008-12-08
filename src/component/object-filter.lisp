@@ -66,22 +66,14 @@
 ;;;;;;
 ;;; Standard object detail filter
 
-(def component standard-object-detail-filter (standard-object-detail-component abstract-standard-class-component filter-component)
+(def component standard-object-detail-filter (standard-object-detail-component
+                                              abstract-standard-class-component
+                                              filter-component
+                                              title-component-mixin)
   ((class-selector nil :type component)))
 
 (def (macro e) standard-object-detail-filter (class)
   `(make-instance 'standard-object-detail-filter :the-class ,class))
-
-(def constructor standard-object-detail-filter ()
-  (with-slots (the-class class-selector) -self-
-    (setf class-selector
-          (when-bind subclasses (collect-standard-object-detail-filter-subclasses -self- the-class (class-prototype the-class))
-            (make-instance 'member-inspector
-                           :edited #t
-                           :the-type `(or null (member ,subclasses))
-                           :component-value the-class
-                           :client-name-generator [localized-class-name !2]
-                           :possible-values (list* the-class subclasses))))))
 
 (def (layered-function e) collect-standard-object-detail-filter-subclasses (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
@@ -91,6 +83,14 @@
   (with-slots (class class-selector the-class slot-value-groups command-bar) self
     (bind ((selected-class (or (when class-selector (component-value-of class-selector))
                                the-class)))
+      (setf class-selector
+          (when-bind subclasses (collect-standard-object-detail-filter-subclasses self the-class (class-prototype the-class))
+            (make-instance 'member-inspector
+                           :edited #t
+                           :the-type `(or null (member ,subclasses))
+                           :component-value the-class
+                           :client-name-generator [localized-class-name !2]
+                           :possible-values (list* the-class subclasses))))
       (setf class (make-standard-object-detail-filter-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-filter-slots self selected-class prototype))
@@ -117,9 +117,9 @@
     (class-slots class)))
 
 (def render standard-object-detail-filter ()
-  (bind (((:read-only-slots class-selector class slot-value-groups id) -self-))
+  (bind (((:read-only-slots class-selector slot-value-groups id) -self-))
     <div (:id ,id)
-         <div ,(standard-object-detail-filter.instance class)>
+         ,(render-title -self-)
          ,(when class-selector
                 <div ,#"standard-object-detail-filter.select-class"
                      ,(render class-selector)
@@ -128,14 +128,17 @@
                                          (setf (outdated-p -self-) #t))))>)
          <table ,(foreach #'render slot-value-groups)>>))
 
+(def layered-method render-title ((self standard-object-detail-filter))
+  (standard-object-detail-filter.title (slot-value self 'class)))
+
 (def resources en
-  (standard-object-detail-filter.instance (class)
-    <span "Searching for instances of" ,(render class)>)
+  (standard-object-detail-filter.title (class)
+    <span (:class "title") "Searching for instances of" ,(render class)>)
   (standard-object-detail-filter.select-class "Select class"))
 
 (def resources hu
-  (standard-object-detail-filter.instance (class)
-    <span ,(render class) " keresése">)
+  (standard-object-detail-filter.title (class)
+    <span (:class "title") ,(render class) " keresése">)
   (standard-object-detail-filter.select-class "Típus kiválasztása"))
 
 ;;;;;;

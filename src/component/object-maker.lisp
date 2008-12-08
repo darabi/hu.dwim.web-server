@@ -78,23 +78,15 @@
 ;;;;;;
 ;;; Standard object detail maker
 
-(def component standard-object-detail-maker (standard-object-detail-component abstract-standard-class-component maker-component)
+(def component standard-object-detail-maker (standard-object-detail-component
+                                             abstract-standard-class-component
+                                             maker-component
+                                             title-component-mixin)
   ((class-selector nil :type component))
   (:documentation "Maker for an instance of STANDARD-OBJECT in detail."))
 
 (def (macro e) standard-object-detail-maker (class)
   `(make-instance 'standard-object-detail-maker :the-class ,class))
-
-(def constructor standard-object-detail-maker ()
-  (with-slots (the-class class-selector) -self-
-    (setf class-selector
-          (when-bind subclasses (subclasses the-class)
-            (make-instance 'member-inspector
-                           :edited #t
-                           :the-type `(or null (member ,subclasses))
-                           :component-value the-class
-                           :client-name-generator [localized-class-name !2]
-                           :possible-values (list* the-class subclasses))))))
 
 (def function find-selected-class (component)
   (bind ((class-selector (class-selector-of component)))
@@ -106,6 +98,14 @@
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class class-selector the-class slot-value-groups) self
     (bind ((selected-class (find-selected-class self)))
+      (setf class-selector
+            (when-bind subclasses (subclasses the-class)
+              (make-instance 'member-inspector
+                             :edited #t
+                             :the-type `(or null (member ,subclasses))
+                             :component-value the-class
+                             :client-name-generator [localized-class-name !2]
+                             :possible-values (list* the-class subclasses))))
       (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
@@ -132,9 +132,9 @@
     (class-slots class)))
 
 (def render standard-object-detail-maker ()
-  (bind (((:read-only-slots class-selector class slot-value-groups id) -self-))
+  (bind (((:read-only-slots class-selector slot-value-groups id) -self-))
     <div (:id ,id)
-         <span ,(standard-object-detail-maker.instance class)>
+         ,(render-title -self-)
          ,(when class-selector
                 <div ,#"standard-object-detail-maker.select-class"
                      ,(render class-selector)
@@ -143,14 +143,17 @@
                                          (setf (outdated-p -self-) #t))))>)
          <table ,(foreach #'render slot-value-groups)>>))
 
+(def layered-method render-title ((self standard-object-detail-maker))
+  (standard-object-detail-maker.title (slot-value self 'class)))
+
 (def resources en
-  (standard-object-detail-maker.instance (class)
-    <span "Creating an instance of" ,(render class)>)
+  (standard-object-detail-maker.title (class)
+    <span (:class "title") "Creating an instance of" ,(render class)>)
   (standard-object-detail-maker.select-class "Select class"))
 
 (def resources hu
-  (standard-object-detail-maker.instance (class)
-    <span "Egy új " ,(render class) " felvétele">)
+  (standard-object-detail-maker.title (class)
+    <span (:class "title") "Egy új " ,(render class) " felvétele">)
   (standard-object-detail-maker.select-class "Típus kiválasztása"))
 
 ;;;;;;

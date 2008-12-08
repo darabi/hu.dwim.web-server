@@ -84,16 +84,18 @@
 (def component standard-object-detail-inspector (abstract-standard-object-component
                                                  standard-object-detail-component
                                                  inspector-component
-                                                 editable-component)
+                                                 editable-component
+                                                 title-component-mixin)
   ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT in detail."))
 
 (def method refresh-component ((self standard-object-detail-inspector))
   (with-slots (instance class slot-value-groups) self
     (bind ((the-class (when instance (class-of instance))))
+      ;; TODO: factor this out into a base class throughout this directory
       (if the-class
           (if class
-              (when (typep class 'abstract-standard-class-component)
+              (when (typep the-class 'abstract-standard-class-component)
                 (setf (the-class-of class) the-class))
               (setf class (make-class-presentation self the-class (class-prototype the-class))))
           (setf class nil))
@@ -121,18 +123,21 @@
     (class-slots class)))
 
 (def render standard-object-detail-inspector ()
-  (bind (((:read-only-slots class slot-value-groups id) -self-))
+  (bind (((:read-only-slots slot-value-groups id) -self-))
     <div (:id ,id :class "standard-object" :onclick ,(render-onclick-handler (parent-component-of -self-)))
-         <span ,(standard-object-detail-inspector.instance class)>
+         ,(render-title -self-)
          <table ,(foreach #'render slot-value-groups)>>))
 
+(def layered-method render-title ((self standard-object-detail-inspector))
+  (standard-object-detail-inspector.title (slot-value self 'class)))
+
 (def resources en
-  (standard-object-detail-inspector.instance (class)
-    <span "Viewing an instance of " ,(render class)>))
+  (standard-object-detail-inspector.title (class)
+    <span (:class "title") "Viewing an instance of " ,(render class)>))
 
 (def resources hu
-  (standard-object-detail-inspector.instance (class)
-    <span "Egy " ,(render class) " megjelenítése">))
+  (standard-object-detail-inspector.title (class)
+    <span (:class "title") "Egy " ,(render class) " megjelenítése">))
 
 ;;;;;;
 ;;; Standard object slot value group inspector
