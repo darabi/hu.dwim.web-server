@@ -37,8 +37,9 @@
   (bind (((:read-only-slots identifier password) -self-)
          (focused-field-id (if identifier
                                "password-field"
-                               "identifier-field")))
-    <div (:id "login-component")
+                               "identifier-field"))
+         (id "login-component"))
+    <div (:id ,id)
      ,(render-user-messages -self-)
      <table
        <tr <td ,#"login.identifier<>">
@@ -53,7 +54,8 @@
        <tr <td (:colspan 2)
              ,(render (command-bar-of -self-))>>>
      `js(on-load
-         (.focus ($ ,focused-field-id)))>))
+         (.focus ($ ,focused-field-id))
+         (wui.setup-login-component ,id))>))
 
 (def (generic e) make-logout-command (application)
   (:method ((application application))

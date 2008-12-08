@@ -524,6 +524,9 @@
 (defun wui.setup-standard-object-tree-inspector (id)
   (attachBorder id))
 
+(defun wui.setup-login-component (id)
+  (attachBorder id))
+
 ;;;;;;
 ;;; i18n
 
