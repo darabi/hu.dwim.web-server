@@ -317,10 +317,3 @@
 (def render class-selector ()
   (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
     (render-member-component -self- :on-change (delay `js-inline(return (wui.io.action ,href #f #t))))))
-
-(def function find-selected-class (component)
-  (bind ((class-selector (class-selector-of component)))
-    (aif (and class-selector
-              (component-value-of class-selector))
-         it
-         (the-class-of component))))

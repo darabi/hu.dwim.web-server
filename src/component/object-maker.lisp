@@ -88,33 +88,37 @@
 (def (macro e) standard-object-detail-maker (class)
   `(make-instance 'standard-object-detail-maker :the-class ,class))
 
-(def (layered-function e) collect-standard-object-detail-maker-subclasses (component class prototype)
+(def (layered-function e) collect-standard-object-detail-maker-classes (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (list* class (subclasses class))))
 
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class class-selector the-class slot-value-groups) self
-    (when-bind subclasses (collect-standard-object-detail-maker-subclasses self the-class (class-prototype the-class))
-      (if class-selector
-          (setf (possible-values-of class-selector) class-selector)
-          (setf class-selector (make-class-selector subclasses))))
-    (bind ((selected-class (find-selected-class self)))
-      (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
-            slot-value-groups (bind ((prototype (class-prototype selected-class))
-                                     (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
-                                     (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
-                                (iter (for (name . slot-group) :in slot-groups)
-                                      (when slot-group
-                                        (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
-                                        (if slot-value-group
-                                            (setf (component-value-of slot-value-group) slot-group
-                                                  (the-class-of slot-value-group) selected-class
-                                                  (name-of slot-value-group) name)
-                                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-maker
-                                                                                  :the-class selected-class
-                                                                                  :slots slot-group
-                                                                                  :name name)))
-                                        (collect slot-value-group))))))))
+    (bind ((selectable-classes (collect-standard-object-detail-maker-classes self the-class (class-prototype the-class))))
+      (if (length= selectable-classes 1)
+          (setf class-selector nil)
+          (if class-selector
+              (setf (possible-values-of class-selector) selectable-classes)
+              (setf class-selector (make-class-selector selectable-classes))))
+      (bind ((selected-class (if class-selector
+                                 (component-value-of class-selector)
+                                 (first selectable-classes))))
+        (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
+              slot-value-groups (bind ((prototype (class-prototype selected-class))
+                                       (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
+                                       (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
+                                  (iter (for (name . slot-group) :in slot-groups)
+                                        (when slot-group
+                                          (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
+                                          (if slot-value-group
+                                              (setf (component-value-of slot-value-group) slot-group
+                                                    (the-class-of slot-value-group) selected-class
+                                                    (name-of slot-value-group) name)
+                                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-maker
+                                                                                    :the-class selected-class
+                                                                                    :slots slot-group
+                                                                                    :name name)))
+                                          (collect slot-value-group)))))))))
 
 (def (layered-function e) make-standard-object-detail-maker-class (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
