@@ -65,7 +65,7 @@
            ,(render content)>
         (when default
           <input (:type "submit" :style "display: none;" :onclick ,(funcall onclick-js href))>))
-      (render content)))
+      <span (:class "disabled") ,(render content)>))
 
 (def layered-method render-onclick-handler ((command command-component))
   (bind ((action (action-of command))
