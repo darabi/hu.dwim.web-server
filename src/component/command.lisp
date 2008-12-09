@@ -104,10 +104,7 @@
     (render-horizontal-list sorted-commands :css-class "command-bar")))
 
 (def render-csv command-bar-component ()
-  (iter (for command :in (commands-of -self-))
-        (unless (first-iteration-p)
-          (write-char #\Space *csv-stream*))
-        (render-csv command)))
+  (render-csv-separated-elements #\Space (commands-of -self-)))
 
 (def render :in passive-components-layer command-bar-component
   (values))
@@ -177,10 +174,7 @@
                             ,(render-icon :icon (content-of command) :class nil)>)))>)>)))
 
 (def render-csv popup-command-menu-component ()
-  (iter (for command :in (commands-of -self-))
-        (unless (first-iteration-p)
-          (write-char #\Space *csv-stream*))
-        (render-csv command)))
+  (render-csv-separated-elements #\Space (commands-of -self-)))
 
 ;;;;;;
 ;;; Navigation bar component

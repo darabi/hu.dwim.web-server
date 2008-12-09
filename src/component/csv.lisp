@@ -15,6 +15,8 @@
 
 (def constant +csv-line-separator+ #\NewLine)
 
+(def special-variable *csv-stream*)
+
 (def function whitespacep (char)
   (member char +whitespace-chars+ :test #'char=))
 
@@ -49,4 +51,10 @@
   (iter (for element :in elements)
         (unless (first-iteration-p)
           (render-csv-value-separator))
+        (render-csv element)))
+
+(def function render-csv-separated-elements (separator elements)
+  (iter (for element :in elements)
+        (unless (first-iteration-p)
+          (write-char separator *csv-stream*))
         (render-csv element)))

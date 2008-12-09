@@ -9,20 +9,24 @@
 
 (def special-variable *stroke-width* 2.5)
 
+(def special-variable *graph-inset* 5)
+
+(def special-variable *vertex-inset* 5)
+
 (def component graph-component ()
   ((graph)))
 
 (def render graph-component ()
   (bind ((graph (graph-of -self-))
-         (inset-string (princ-to-string dmm::*graph-inset*)))
+         (inset-string (princ-to-string *graph-inset*)))
     (dmm::layout-graph graph)
     (flet ((marker (id &key path stroke stroke-width fill refX refY)
              <svg:marker (:id ,id :orient "auto" :stroke ,stroke :stroke-width ,stroke-width :fill ,fill
                           :viewBox "0 0 10 10" :refX ,refX :refY ,refY
                           :markerUnits "strokeWidth" :markerWidth 10 :markerHeight 5)
                          <svg:path (:d ,path)>>))
-      <embed (:width ,(+ (* 2 dmm::*graph-inset*) (dmm::width-of graph))
-              :height ,(+ (* 2 dmm::*graph-inset*) (dmm::height-of graph))
+      <embed (:width ,(+ (* 2 *graph-inset*) (dmm::width-of graph))
+              :height ,(+ (* 2 *graph-inset*) (dmm::height-of graph))
               :type "image/svg+xml"
               :src ,(action/href (:delayed-content #t)
                       (make-buffered-functional-html-response ((+header/content-type+ +svg-xml-mime-type+))
@@ -55,8 +59,8 @@
                :rx 6 :ry 6 :width ,dmm::width :height ,dmm::height
                :fill "rgb(224,224,255)" :stroke "blue" :stroke-width ,*stroke-width*)>
     (svg-stroke (dmm::compiled-content-of vertex)
-                (+ dmm::*vertex-inset* dmm::x)
-                (- (+ dmm::y dmm::height) dmm::*vertex-inset*))))
+                (+ *vertex-inset* dmm::x)
+                (- (+ dmm::y dmm::height) *vertex-inset*))))
 
 (def function render-edge (edge)
   (flet ((p->string (p)

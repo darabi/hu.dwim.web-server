@@ -40,8 +40,6 @@
   (icon-label.export-csv "CSV")
   (icon-tooltip.export-csv "Export content in CSV format"))
 
-(def special-variable *csv-stream*)
-
 (def layered-method make-export-command ((format (eql :csv)) (component component) (class standard-class) (prototype-or-instance standard-object))
   (command (icon export-csv)
            (make-action
