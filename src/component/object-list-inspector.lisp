@@ -18,8 +18,8 @@
                                                initargs-component-mixin
                                                layer-context-capturing-component-mixin
                                                recursion-point-component)
-  ((the-class (find-class 'standard-object)))
-  (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives)
+  ()
+  (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives :the-class (find-class 'standard-object))
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
 
 (def (macro e) standard-object-list-inspector (instances &rest args)
@@ -112,7 +112,8 @@
                                                      table-component
                                                      editable-component
                                                      title-component-mixin)
-  ((class nil :accessor nil :type component)))
+  ((class nil :accessor nil :type component))
+  (:default-initargs :the-class (find-class 'standard-object)))
 
 (def method refresh-component ((self standard-object-list-table-inspector))
   (with-slots (instances the-class class columns rows page-navigation-bar) self
@@ -122,7 +123,7 @@
                 (setf (the-class-of class) the-class))
               (setf class (make-class-presentation self the-class (class-prototype the-class))))
           (setf class nil))
-    (awhen (getf (initargs-of (find-ancestor-component-with-type self 'initargs-component-mixin)) :page-count)
+    (awhen (inherited-initarg self :page-count)
       (setf (page-count-of page-navigation-bar) it))
     (setf columns (make-standard-object-list-table-inspector-columns self))
     (setf rows (iter (for instance :in instances)

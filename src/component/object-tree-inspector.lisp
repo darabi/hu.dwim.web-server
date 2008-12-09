@@ -16,8 +16,8 @@
                                                remote-identity-component-mixin
                                                initargs-component-mixin
                                                recursion-point-component)
-  ((the-class (find-class 'standard-object)))
-  (:default-initargs :alternatives-factory #'make-standard-object-tree-inspector-alternatives)
+  ()
+  (:default-initargs :alternatives-factory #'make-standard-object-tree-inspector-alternatives :the-class (find-class 'standard-object))
   (:documentation "Component for a tree of STANDARD-OBJECTs in various alternative views"))
 
 (def (macro e) standard-object-tree-inspector (root children-provider parent-provider &rest args)
