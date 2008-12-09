@@ -204,7 +204,9 @@
 
 (def (generic e) make-instance-using-initargs (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
-    (apply #'make-instance (find-selected-class (content-of component))
+    (apply #'make-instance (aif (class-selector-of (content-of component))
+                                (component-value-of it)
+                                (the-class-of (content-of component)))
            (collect-make-instance-initargs component))))
 
 (def (generic e) collect-make-instance-initargs (component)
