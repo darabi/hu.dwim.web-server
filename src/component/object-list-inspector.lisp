@@ -49,8 +49,7 @@
           (progn
             <div (:id ,id :class "standard-object-list-inspector")
               ,(body)>
-            `js(on-load
-                (wui.setup-standard-object-list-inspector ,id)))))))
+            `js(on-load (wui.setup-standard-object-list-inspector ,id)))))))
 
 (def (layered-function e) make-standard-object-list-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
@@ -196,13 +195,13 @@
 
 (def resources en
   (standard-object-list-table-inspector.title (class)
-    <span (:class "title") "Viewing instances of " ,(render class)>)
+    `xml,"Viewing instances of " (render class))
   (object-list-table.column.commands "")
   (object-list-table.column.type "Type"))
 
 (def resources hu
   (standard-object-list-table-inspector.title (class)
-    <span (:class "title") "Egy ",(render class) " lista megjelenítése">)
+    `xml,"Egy " (render class) `xml," lista megjelenítése")
   (object-list-table.column.commands "")
   (object-list-table.column.type "Típus"))
 

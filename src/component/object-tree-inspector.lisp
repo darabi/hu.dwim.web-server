@@ -47,8 +47,7 @@
           (progn
             <div (:id ,id :class "standard-object-tree-insepctor")
               ,(body)>
-            `js(on-load
-                (wui.setup-standard-object-tree-inspector ,id)))))))
+            `js(on-load (wui.setup-standard-object-tree-inspector ,id)))))))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
@@ -159,13 +158,13 @@
 
 (def resources hu
   (standard-object-tree-table-inspector.title (class)
-    <span (:class "title") "Egy " ,(render class) " fa megjelenítése">)
+    `xml,"Egy " (render class) `xml," fa megjelenítése")
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Típus"))
 
 (def resources en
   (standard-object-tree-table-inspector.title (class)
-    <span (:class "title") "Viewing a tree of " ,(render class)>)
+    `xml,"Viewing a tree of " (render class))
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Type"))
 
@@ -387,13 +386,13 @@
 (def layered-method render-title ((self selectable-standard-object-tree-table-inspector))
   (selectable-standard-object-tree-table-inspector.title (slot-value self 'class)))
 
-(def resources hu
-  (selectable-standard-object-tree-table-inspector.title (class)
-    <span (:class "title") "Egy " ,(render class) " kiválasztása">))
-
 (def resources en
   (selectable-standard-object-tree-table-inspector.title (class)
-    <span (:class "title") "Selecting an instance of " ,(render class)>))
+    `xml,"Selecting an instance of " (render class)))
+
+(def resources hu
+  (selectable-standard-object-tree-table-inspector.title (class)
+    `xml,"Egy " (render class) `xml," kiválasztása"))
 
 ;;;;;;
 ;;; Selectable standard object tree node inspector

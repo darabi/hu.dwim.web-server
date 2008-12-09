@@ -64,12 +64,14 @@
    (permanent #f :type boolean)))
 
 (def render user-message-component ()
-  (bind (((:read-only-slots category message permanent content) -self-))
-    <div (:class ,(string-downcase category))
+  (bind (((:read-only-slots category message permanent content) -self-)
+         (id (generate-unique-string (or *frame* *response*))))
+    <div (:id ,id :class ,(string-downcase category))
          ,(when permanent
             (render (command (icon close :label nil)
                              (make-action
                                (removef (messages-of (parent-component-of -self-)) -self-)))))
          ,message
          ,(when content
-            (call-next-method))>))
+            (call-next-method))>
+    `js (wui.setup-user-message ,id ,(concatenate-string (string-downcase category) "-message"))))

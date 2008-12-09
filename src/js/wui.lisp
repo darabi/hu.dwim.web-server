@@ -510,22 +510,28 @@
 ;;; compound
 
 (defun wui.setup-standard-object-maker (id)
-  (attachBorder id))
+  (attachBorder id "box-border"))
 
 (defun wui.setup-standard-object-inspector (id)
-  (attachBorder id))
+  (attachBorder id "box-border"))
 
 (defun wui.setup-standard-object-filter (id)
-  (attachBorder id))
+  (attachBorder id "box-border"))
 
 (defun wui.setup-standard-object-list-inspector (id)
-  (attachBorder id))
+  (attachBorder id "box-border"))
 
 (defun wui.setup-standard-object-tree-inspector (id)
-  (attachBorder id))
+  (attachBorder id "box-border"))
 
 (defun wui.setup-login-component (id)
-  (attachBorder id))
+  (attachBorder id "box-border"))
+
+(defun wui.setup-user-message (id class)
+  (attach-border id class))
+
+(defun wui.setup-title (id)
+  (attach-border id "title-border"))
 
 ;;;;;;
 ;;; i18n

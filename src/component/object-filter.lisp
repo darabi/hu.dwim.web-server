@@ -60,8 +60,7 @@
           (progn
             <div (:id ,id :class "standard-object-filter")
                ,(body)>
-            `js(on-load
-                (wui.setup-standard-object-filter ,id)))))))
+            `js(on-load (wui.setup-standard-object-filter ,id)))))))
 
 ;;;;;;
 ;;; Standard object detail filter
@@ -130,12 +129,12 @@
 
 (def resources en
   (standard-object-detail-filter.title (class)
-    <span (:class "title") "Searching for instances of" ,(render class)>)
+    `xml,"Searching for instances of" (render class))
   (standard-object-detail-filter.class-selector-label "Class"))
 
 (def resources hu
   (standard-object-detail-filter.title (class)
-    <span (:class "title") ,(render class) " keresése">)
+    (render class) `xml," keresése")
   (standard-object-detail-filter.class-selector-label "Típus"))
 
 ;;;;;;

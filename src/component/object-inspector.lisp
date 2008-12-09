@@ -54,8 +54,7 @@
           (progn
             <div (:id ,id :class "standard-object-inspector")
               ,(body)>
-            `js(on-load
-                (wui.setup-standard-object-inspector ,id)))))))
+            `js(on-load (wui.setup-standard-object-inspector ,id)))))))
 
 (def (layered-function e) make-standard-object-inspector-alternatives (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
@@ -133,11 +132,11 @@
 
 (def resources en
   (standard-object-detail-inspector.title (class)
-    <span (:class "title") "Viewing an instance of " ,(render class)>))
+    `xml,"Viewing an instance of " (render class)))
 
 (def resources hu
   (standard-object-detail-inspector.title (class)
-    <span (:class "title") "Egy " ,(render class) " megjelenítése">))
+    `xml,"Egy " (render class) `xml," megjelenítése"))
 
 ;;;;;;
 ;;; Standard object slot value group inspector

@@ -50,8 +50,7 @@
           (progn
             <div (:id ,id :class "standard-object-maker")
               ,(body)>
-            `js(on-load
-                (wui.setup-standard-object-maker ,id)))))))
+            `js(on-load (wui.setup-standard-object-maker ,id)))))))
 
 (def (layered-function e) make-standard-object-maker-alternatives (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
@@ -142,12 +141,12 @@
 
 (def resources en
   (standard-object-detail-maker.title (class)
-    <span (:class "title") "Creating an instance of" ,(render class)>)
+    `xml,"Creating an instance of" (render class))
   (standard-object-detail-maker.class-selector-label "Class"))
 
 (def resources hu
   (standard-object-detail-maker.title (class)
-    <span (:class "title") "Egy új " ,(render class) " felvétele">)
+    `xml,"Egy új " (render class) `xml," felvétele")
   (standard-object-detail-maker.class-selector-label "Típus"))
 
 ;;;;;;

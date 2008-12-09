@@ -31,11 +31,13 @@
 
 (def layered-function render-title (component)
   (:method :around ((component title-component-mixin))
-    (if (slot-boundp component 'title)
-        (bind ((title (force (title-of component))))
-          (when title
-            <div (:class "title") ,title>))
-        (call-next-method))))
+    (bind ((id (generate-frame-unique-string)))
+      <span (:id ,id :class "title")
+            ,(if (slot-boundp component 'title)
+                 (when-bind title (force (title-of component))
+                   `xml,title)
+                 (call-next-method))>
+      `js(on-load (wui.setup-title ,id)))))
 
 ;;;;;;
 ;;; Abstract standard class component
