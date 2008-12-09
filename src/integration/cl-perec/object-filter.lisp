@@ -45,25 +45,25 @@
   ((query nil)
    (query-variable-stack nil)))
 
-(def with-macro* with-new-query-variable (variable-name filter-query component)
+(def (with-macro* e) with-new-query-variable (variable-name filter-query class-name)
   (bind ((query (query-of filter-query))
-         (query-variable (prc::add-query-variable query (gensym (symbol-name (class-name (the-class-of component)))))))
+         (query-variable (prc::add-query-variable query (gensym (symbol-name class-name)))))
     (push query-variable (query-variable-stack-of filter-query))
-    (prc::add-assert query `(typep ,query-variable ',(class-name (the-class-of component))))
+    (prc::add-assert query `(typep ,query-variable ',class-name))
     (multiple-value-prog1
         (-body- (query-variable variable-name))
       (pop (query-variable-stack-of filter-query)))))
 
-(def generic build-filter-query (component)
+(def (generic e) build-filter-query (component)
   (:method ((component standard-object-filter))
     (bind ((query (prc::make-instance 'prc::query))
            (filter-query (make-instance 'filter-query :query query)))
-      (with-new-query-variable (query-variable filter-query component)
+      (with-new-query-variable (query-variable filter-query (class-name (the-class-of component)))
         (prc::add-collect query query-variable)
         (build-filter-query* component filter-query))
       query)))
 
-(def generic build-filter-query* (component filter-query)
+(def (generic e) build-filter-query* (component filter-query)
   (:method ((component standard-object-filter) filter-query)
     (build-filter-query* (content-of component) filter-query))
 
@@ -98,7 +98,7 @@
                                         ponated-predicate)))))
               ((and (typep value-component 'standard-object-filter)
                     (not (typep (content-of value-component) 'standard-object-filter-reference)))
-               (with-new-query-variable (query-variable filter-query value-component)
+               (with-new-query-variable (query-variable filter-query (class-name (the-class-of component)))
                  (prc::add-assert (query-of filter-query)
                                   `(eq ,query-variable
                                        (,(prc::reader-name-of slot)
