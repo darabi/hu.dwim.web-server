@@ -125,7 +125,7 @@
   (bind (((:read-only-slots slot-value-groups id) -self-))
     <div (:id ,id :class "standard-object" :onclick ,(render-onclick-handler (parent-component-of -self-)))
          ,(render-title -self-)
-         <table ,(foreach #'render slot-value-groups)>>))
+         <table (:class "slot-table") ,(foreach #'render slot-value-groups)>>))
 
 (def layered-method render-title ((self standard-object-detail-inspector))
   (standard-object-detail-inspector.title (slot-value self 'class)))

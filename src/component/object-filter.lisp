@@ -118,11 +118,12 @@
   (bind (((:read-only-slots class-selector slot-value-groups id) -self-))
     <div (:id ,id)
          ,(render-title -self-)
-         <table ,(when class-selector
-                   <tbody <tr <td ,#"standard-object-detail-filter.class-selector-label">
-                              <td (:colspan 3)>
-                              <td ,(render class-selector)>>>)
-                 ,(foreach #'render slot-value-groups)>>))
+         <table (:class "slot-table")
+           ,(when class-selector
+                  <tbody <tr <td ,#"standard-object-detail-filter.class-selector-label">
+                             <td (:colspan 3)>
+                             <td ,(render class-selector)>>>)
+           ,(foreach #'render slot-value-groups)>>))
 
 (def layered-method render-title ((self standard-object-detail-filter))
   (standard-object-detail-filter.title (slot-value self 'class)))
