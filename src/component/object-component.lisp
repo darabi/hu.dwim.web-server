@@ -29,7 +29,7 @@
   (:method ((component component) (commands list))
     (make-instance 'command-bar-component :commands commands)))
 
-(def layered-function render-title (component)
+(def (layered-function e) render-title (component)
   (:method :around ((component title-component-mixin))
     (bind ((id (generate-frame-unique-string)))
       <span (:id ,id :class "title")
