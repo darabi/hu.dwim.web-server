@@ -92,7 +92,7 @@
                                      (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
                                 (iter (for (name . slot-group) :in slot-groups)
                                       (when slot-group
-                                        (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
+                                        (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
                                         (if slot-value-group
                                             (setf (component-value-of slot-value-group) slot-group
                                                   (the-class-of slot-value-group) selected-class
@@ -144,7 +144,7 @@
   (with-slots (the-class slots slot-values) self
     (setf slot-values
           (iter (for slot :in slots)
-                (for slot-value = (find slot slot-values :key #'component-value-of))
+                (for slot-value = (find-slot-value-component slot slot-values))
                 (if slot-value
                     (setf (component-value-of slot-value) slot)
                     (setf slot-value (make-instance 'standard-object-slot-value-filter :the-class the-class :slot slot)))
@@ -162,8 +162,13 @@
 
 (def method refresh-component ((self standard-object-slot-value-filter))
   (with-slots (slot label value) self
-    (setf label (label (localized-slot-name slot))
-          value (make-place-filter (slot-type slot) :name (slot-definition-name slot)))))
+    (bind ((type (slot-type slot))
+           (name (slot-definition-name slot)))
+      (setf label (label (localized-slot-name slot)))
+      (unless (and value
+                   (type= (the-type-of value) type)
+                   (eq (name-of value) name))
+        (setf value (make-place-filter type :name name))))))
 
 (def render standard-object-slot-value-filter ()
   (bind (((:read-only-slots label value id) -self-))

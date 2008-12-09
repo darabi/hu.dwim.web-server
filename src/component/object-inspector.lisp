@@ -105,7 +105,7 @@
             (setf slot-value-groups
                   (iter (for (name . slot-group) :in slot-groups)
                         (when slot-group
-                          (bind ((slot-value-group (find slot-group slot-value-groups :key 'slots-of :test 'equal)))
+                          (bind ((slot-value-group (find-slot-value-group-component slot-group slot-value-groups)))
                             (if slot-value-group
                                 (setf (component-value-of slot-value-group) slot-group
                                       (instance-of slot-value-group) instance
@@ -154,7 +154,7 @@
     (if instance
         (setf slot-values
               (iter (for slot :in slots)
-                    (for slot-value-component = (find slot slot-values :key #'component-value-of))
+                    (for slot-value-component = (find-slot-value-component slot slot-values))
                     (if slot-value-component
                         (setf (component-value-of slot-value-component) slot
                               (instance-of slot-value-component) instance)

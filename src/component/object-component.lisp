@@ -229,6 +229,15 @@
 (def render-csv standard-object-detail-component ()
   (foreach #'render-csv (slot-value-groups-of -self-)))
 
+(def function find-slot-value-group-component (slot-group slot-value-groups)
+  (find slot-group slot-value-groups :key #'slots-of
+        :test (lambda (slot-group-1 slot-group-2)
+                (every (lambda (slot-1 slot-2)
+                         (eq (slot-definition-name slot-1)
+                             (slot-definition-name slot-2)))
+                       slot-group-1
+                       slot-group-2))))
+
 (def resources en
   (standard-object-detail-component.primary-group "Primary properties")
   (standard-object-detail-component.secondary-group "Other properties"))
@@ -259,6 +268,11 @@
 
 (def render-csv standard-object-slot-value-group-component ()
   (foreach #'render-csv (slot-values-of -self-)))
+
+(def function find-slot-value-component (slot slot-values)
+  (find (slot-definition-name slot) slot-values
+        :key (lambda (slot-value)
+               (slot-definition-name (slot-of slot-value)))))
 
 (def resources en
   (standard-object-slot-value-group.there-are-no-slots "There are no properties"))

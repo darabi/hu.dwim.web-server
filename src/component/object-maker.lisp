@@ -105,7 +105,7 @@
                                      (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
                                 (iter (for (name . slot-group) :in slot-groups)
                                       (when slot-group
-                                        (for slot-value-group = (find slot-group slot-value-groups :key 'slots-of :test 'equal))
+                                        (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
                                         (if slot-value-group
                                             (setf (component-value-of slot-value-group) slot-group
                                                   (the-class-of slot-value-group) selected-class
@@ -157,7 +157,7 @@
   (with-slots (the-class slots slot-values) self
     (setf slot-values
           (iter (for slot :in slots)
-                (for slot-value-component = (find slot slot-values :key #'component-value-of))
+                (for slot-value-component = (find-slot-value-component slot slot-values))
                 (if slot-value-component
                     (setf (slot-of slot-value-component) slot)
                     (setf slot-value-component (make-standard-object-slot-value-maker self the-class (class-prototype the-class) slot)))

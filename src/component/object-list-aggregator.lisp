@@ -14,7 +14,7 @@
   (with-slots (slot-values instances the-class) self
     (setf slot-values
           (iter (for slot :in (collect-standard-object-list-aggregator-slots self the-class))
-                (for slot-value = (find slot slot-values :key #'component-value-of))
+                (for slot-value = (find-slot-value-component slot slot-values))
                 (if slot-value
                     (setf (component-value-of slot-value) instances)
                     (setf slot-value (make-instance 'standard-object-list-slot-value-aggregator :instances instances :slot slot)))
