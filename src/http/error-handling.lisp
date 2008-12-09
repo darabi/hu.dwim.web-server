@@ -35,9 +35,12 @@
                ;; second level of error handling quarding against errors while handling the original error
                (handler-bind ((serious-condition #'level-3-error-handler))
                  (with-thread-name " / LEVEL-2-ERROR-HANDLER"
-                   (server.error "Nested error while handling original error: ~A; the nested error is: ~A. Backtrace follows..." level-1-error error)
-                   (log-error-with-backtrace error)
-                   (maybe-invoke-slime-debugger error)
+                   (if (is-error-from-network-stream? error network-stream)
+                       (server.debug "Ignoring stream error coming from the network stream: ~A" error)
+                       (progn
+                         (server.error "Nested error while handling original error: ~A; the nested error is: ~A. Backtrace follows..." level-1-error error)
+                         (log-error-with-backtrace error)
+                         (maybe-invoke-slime-debugger error)))
                    (abort-server-request error)
                    (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER"))))
              (level-3-error-handler (error)
