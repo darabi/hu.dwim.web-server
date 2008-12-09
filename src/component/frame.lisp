@@ -51,8 +51,7 @@
                                 :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
                                                                          (string stylesheet-uri)
                                                                          (uri (print-uri-to-string stylesheet-uri)))))>)
-                  (stylesheet-uris-of -self-))>
-      <body (:class ,(dojo-skin-name-of -self-) :style "margin-left: -10000px;")
+                  (stylesheet-uris-of -self-))
         <script (:type         #.+javascript-mime-type+
                  :src          ,(concatenate-string path-prefix
                                                     (dojo-path-of -self-)
@@ -70,7 +69,8 @@
                              :src          ,(concatenate-string path-prefix script-uri))
                             ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                             "">)
-                  (script-uris-of -self-))
+                  (script-uris-of -self-))>
+      <body (:class ,(dojo-skin-name-of -self-) :style "margin-left: -10000px;")
         `js(on-load
             (wui.reset-scroll-position "content")
             (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
