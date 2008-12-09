@@ -61,11 +61,16 @@
 
 (def function extract-primitive-component-place (component)
   (bind ((parent-component (parent-component-of component)))
-    (when (typep parent-component 'place-inspector)
-      (bind ((place (place-of parent-component)))
-        (when (typep place 'slot-value-place)
-          (bind ((instance (instance-of place)))
-            (values (class-of instance) instance (slot-of place))))))))
+    (typecase parent-component
+      (place-inspector
+       (bind ((place (place-of parent-component)))
+         (when (typep place 'slot-value-place)
+           (bind ((instance (instance-of place)))
+             (values (class-of instance) instance (slot-of place))))))
+      (t
+       (setf parent-component (parent-component-of parent-component))
+       (when (typep parent-component 'abstract-standard-slot-definition-component)
+         (values (the-class-of parent-component) nil (slot-of parent-component)))))))
 
 (def resources en
   (value.default "default")
