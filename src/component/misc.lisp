@@ -185,7 +185,10 @@
 
 (def function inherited-initarg (component key)
   (awhen (find-ancestor-component-with-type component 'initargs-component-mixin)
-    (getf (initargs-of it) key)))
+    (bind ((value (getf (initargs-of it) key :unbound)))
+      (if (eq value :unbound)
+          (values nil #f)
+          (values value #t)))))
 
 ;;;;;;
 ;;; Container
@@ -217,7 +220,9 @@
 
 (def method refresh-component :before ((self title-component-mixin))
   (unless (slot-boundp self 'title)
-    (setf (title-of self) (inherited-initarg self :title))))
+    (bind (((:values title provided?) (inherited-initarg self :title)))
+      (when provided?
+        (setf (title-of self) title)))))
 
 ;;;;;;
 ;;; Recursion point

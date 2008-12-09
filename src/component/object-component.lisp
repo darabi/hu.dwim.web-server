@@ -31,10 +31,11 @@
 
 (def layered-function render-title (component)
   (:method :around ((component title-component-mixin))
-    (bind ((title (force (title-of component))))
-      (if title
-          <div (:class "title") ,title>
-          (call-next-method)))))
+    (if (slot-boundp component 'title)
+        (bind ((title (force (title-of component))))
+          (when title
+            <div (:class "title") ,title>))
+        (call-next-method))))
 
 ;;;;;;
 ;;; Abstract standard class component
