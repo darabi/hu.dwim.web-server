@@ -414,5 +414,6 @@
   (append (call-next-method) (optional-list (make-select-instance-command component class instance))))
 
 (def layered-method render-onclick-handler ((self selectable-standard-object-tree-node-inspector))
-  (when-bind select-command (find-command-bar-command (command-bar-of self) 'select)
-    (render-onclick-handler select-command)))
+  (if-bind select-command (find-command-bar-command (command-bar-of self) 'select)
+    (render-onclick-handler select-command)
+    (call-next-method)))

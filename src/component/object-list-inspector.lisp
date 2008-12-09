@@ -304,3 +304,8 @@
 
 (def layered-method make-standard-commands ((component selectable-standard-object-row-inspector) (class standard-class) (instance standard-object))
   (append (call-next-method) (optional-list (make-select-instance-command component class instance))))
+
+(def layered-method render-onclick-handler ((self selectable-standard-object-row-inspector))
+  (if-bind select-command (find-command-bar-command (command-bar-of self) 'select)
+    (render-onclick-handler select-command)
+    (call-next-method)))

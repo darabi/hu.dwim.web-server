@@ -110,6 +110,7 @@
     `(,(predicate-function component class predicate)
        (,(prc::reader-name-of slot) ,(first (query-variable-stack-of query)))
        (quote ,value)))
+
   (:method (component class (predicate (eql '~)) slot query value)
     ;; TODO due to a postgres bug it doesn't work if there's an accented letter in the regexp with a non-matching upper/lower case
     ;; http://wiki.postgresql.org/wiki/Todo
