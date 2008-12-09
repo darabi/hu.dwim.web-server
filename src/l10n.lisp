@@ -4,8 +4,27 @@
 
 (in-package :hu.dwim.wui)
 
+(def function locale-loaded-listener (name)
+  (l10n.debug "Loading resources for locale ~S" name)
+  (bind ((file (project-relative-pathname (concatenate-string "resources/" name ".lisp"))))
+    (awhen (load file :if-does-not-exist nil)
+      (l10n.info "Loaded resources for locale ~S from ~A" name file))))
+
+(register-locale-loaded-listener 'locale-loaded-listener)
+
 ;;;;;;
 ;;; localization primitives
+
+(def (function e) localized-mime-type-description (mime-type)
+  (lookup-first-matching-resource
+    ("mime-type" mime-type)))
+
+(def (function e) localized-mime-type-description<> (mime-type)
+  (bind (((:values str found) (localized-mime-type-description mime-type)))
+    <span (:class ,@(concatenate-string "slot-name "
+                                        (unless found
+                                          +missing-resource-css-class+)))
+          ,str>))
 
 (def method localize ((class class))
   (lookup-first-matching-resource

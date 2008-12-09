@@ -15,6 +15,7 @@
 
 (deflogger http   (rerl))
 (deflogger app    (rerl))
+(deflogger l10n   (app))
 
 (deflogger server (rerl))
 (deflogger files  (server))
