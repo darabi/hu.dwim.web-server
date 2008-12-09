@@ -105,12 +105,7 @@
       (when-bind subclasses (collect-standard-object-detail-maker-subclasses self the-class (class-prototype the-class))
         (if class-selector
             (setf (possible-values-of class-selector) class-selector)
-            (setf class-selector (make-instance 'member-inspector
-                                                :edited #t
-                                                :the-type `(or null (member ,subclasses))
-                                                :component-value the-class
-                                                :client-name-generator [localized-class-name !2]
-                                                :possible-values class-selector))))
+            (setf class-selector (make-instance 'class-selector :component-value the-class :possible-values subclasses))))
       (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
@@ -140,13 +135,10 @@
   (bind (((:read-only-slots class-selector slot-value-groups id) -self-))
     <div (:id ,id)
          ,(render-title -self-)
-         ,(when class-selector
-                <div ,#"standard-object-detail-maker.select-class"
-                     ,(render class-selector)
-                     ,(render (command (icon refresh)
-                                       (make-action
-                                         (setf (outdated-p -self-) #t))))>)
-         <table ,(foreach #'render slot-value-groups)>>))
+         <table ,(when class-selector
+                   <tbody <tr <td ,#"standard-object-detail-maker.class-selector-label">
+                              <td ,(render class-selector)>>>)
+                ,(foreach #'render slot-value-groups)>>))
 
 (def layered-method render-title ((self standard-object-detail-maker))
   (standard-object-detail-maker.title (slot-value self 'class)))
@@ -154,12 +146,12 @@
 (def resources en
   (standard-object-detail-maker.title (class)
     <span (:class "title") "Creating an instance of" ,(render class)>)
-  (standard-object-detail-maker.select-class "Select class"))
+  (standard-object-detail-maker.class-selector-label "Class"))
 
 (def resources hu
   (standard-object-detail-maker.title (class)
     <span (:class "title") "Egy új " ,(render class) " felvétele">)
-  (standard-object-detail-maker.select-class "Típus kiválasztása"))
+  (standard-object-detail-maker.class-selector-label "Típus"))
 
 ;;;;;;
 ;;; Standard object slot value group maker

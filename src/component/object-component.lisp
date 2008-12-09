@@ -286,3 +286,17 @@
   (render-csv-value-separator)
   (render-csv (value-of -self-))
   (render-csv-line-separator))
+
+;;;;;;
+;;; Class selector
+
+(def component class-selector (member-inspector)
+  ()
+  (:default-initargs :edited #t :client-name-generator [localized-class-name !2]))
+
+(def constructor class-selector ()
+  (setf (the-type-of -self-) `(or null (member ,@(possible-values-of -self-)))))
+
+(def render class-selector ()
+  (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
+    (render-member-component -self- :on-change (delay `js-inline(return (wui.io.action ,href #f #t))))))
