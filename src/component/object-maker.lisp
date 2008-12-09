@@ -88,24 +88,17 @@
 (def (macro e) standard-object-detail-maker (class)
   `(make-instance 'standard-object-detail-maker :the-class ,class))
 
-(def function find-selected-class (component)
-  (bind ((class-selector (class-selector-of component)))
-    (aif (and class-selector
-              (component-value-of class-selector))
-         it
-         (the-class-of component))))
-
 (def (layered-function e) collect-standard-object-detail-maker-subclasses (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (list* class (subclasses class))))
 
 (def method refresh-component ((self standard-object-detail-maker))
   (with-slots (class class-selector the-class slot-value-groups) self
+    (when-bind subclasses (collect-standard-object-detail-maker-subclasses self the-class (class-prototype the-class))
+      (if class-selector
+          (setf (possible-values-of class-selector) class-selector)
+          (setf class-selector (make-class-selector subclasses))))
     (bind ((selected-class (find-selected-class self)))
-      (when-bind subclasses (collect-standard-object-detail-maker-subclasses self the-class (class-prototype the-class))
-        (if class-selector
-            (setf (possible-values-of class-selector) class-selector)
-            (setf class-selector (make-instance 'class-selector :component-value the-class :possible-values subclasses))))
       (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
             slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots self selected-class prototype))

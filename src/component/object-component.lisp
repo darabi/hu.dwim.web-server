@@ -297,6 +297,16 @@
 (def constructor class-selector ()
   (setf (the-type-of -self-) `(or null (member ,@(possible-values-of -self-)))))
 
+(def function make-class-selector (classes)
+  (make-instance 'class-selector :component-value (first classes) :possible-values classes))
+
 (def render class-selector ()
   (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
     (render-member-component -self- :on-change (delay `js-inline(return (wui.io.action ,href #f #t))))))
+
+(def function find-selected-class (component)
+  (bind ((class-selector (class-selector-of component)))
+    (aif (and class-selector
+              (component-value-of class-selector))
+         it
+         (the-class-of component))))
