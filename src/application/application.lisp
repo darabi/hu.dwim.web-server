@@ -519,7 +519,7 @@ Custom implementations should look something like this:
       (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         ;; FF does not like proper xml prologue, probably the other browsers even more so...
-        ;; (emit-xml-prologue +encoding+)
+        ;; (emit-xml-prologue)
         <ajax-response
          ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector

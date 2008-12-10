@@ -36,7 +36,7 @@
 (def macro make-xml-provider (&body forms)
   `(lambda ()
      (emit-http-response (("Content-Type" +xml-mime-type+))
-       (emit-xml-prologue +encoding+)
+       (emit-xml-prologue)
        ,@forms)))
 
 (def resources en

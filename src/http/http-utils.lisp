@@ -39,7 +39,7 @@
 (def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +encoding+))
 (def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +encoding+))
 
-(def function emit-xml-prologue (encoding &key (stream *html-stream*) version)
+(def function emit-xml-prologue (&key (encoding +encoding+) (stream *html-stream*) version)
   (macrolet ((emit (string)
                `(write-string ,string stream)))
     (if (and (eq encoding :utf-8)
