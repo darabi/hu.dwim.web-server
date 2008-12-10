@@ -203,37 +203,34 @@
           debug-menu))
       (menu "Charts"
        (menu "Charts from files"
-         (menu-item () (replace-menu-target-command "Column chart"
-                         (make-chart-from-files
-                          'column-chart
-                          :settings-file-relative-path "test/chart/examples/amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
-                          :data-file-relative-path "test/chart/examples/amcolumn/3d_stacked_bar_chart/amcolumn_data.txt")))
-         (menu-item () (replace-menu-target-command "Line chart"
-                         (make-chart-from-files
-                          'line-chart
-                          :settings-file-relative-path "test/chart/examples/amline/stacked_area_chart/amline_settings.xml"
-                          :data-file-relative-path "test/chart/examples/amline/stacked_area_chart/amline_data.xml")))
-         (menu-item () (replace-menu-target-command "Pie chart"
-                         (make-chart-from-files
-                          'pie-chart
-                          :settings-file-relative-path "test/chart/examples/ampie/donut/ampie_settings.xml"
-                          :data-file-relative-path "test/chart/examples/ampie/donut/ampie_data.txt")))
-         (menu-item () (replace-menu-target-command "Radar chart"
-                         (make-chart-from-files
-                          'radar-chart
-                          :settings-file-relative-path "test/chart/examples/amradar/stacked/amradar_settings.xml"
-                          :data-file-relative-path "test/chart/examples/amradar/stacked/amradar_data.xml")))
-         (menu-item () (replace-menu-target-command "Stock chart"
-                         (make-chart-from-files
-                          'stock-chart
-                          :settings-file-relative-path "test/chart/examples/amstock/ohlc/amstock_settings.xml"
-                          :data-file-relative-path "test/chart/examples/amstock/ohlc/data.csv")))
-         (menu-item () (replace-menu-target-command "Xy chart"
-                         (make-chart-from-files
-                          'xy-chart
-                          :settings-file-relative-path "test/chart/examples/amxy/time_plot/amxy_settings.xml"
-                          :data-file-relative-path "test/chart/examples/amxy/time_plot/amxy_data.xml")))
-         ))
+         (macrolet ((make-chart (type settings-file data-file)
+                      `(make-chart-from-files ',type
+                                              :settings-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" settings-file))
+                                              :data-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" data-file)))))
+           (menu-item () (replace-menu-target-command "Column chart"
+                           (make-chart column-chart
+                                       "amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
+                                       "amcolumn/3d_stacked_bar_chart/amcolumn_data.txt")))
+          (menu-item () (replace-menu-target-command "Line chart"
+                          (make-chart line-chart
+                                      "amline/stacked_area_chart/amline_settings.xml"
+                                      "amline/stacked_area_chart/amline_data.xml")))
+          (menu-item () (replace-menu-target-command "Pie chart"
+                          (make-chart pie-chart
+                                      "ampie/donut/ampie_settings.xml"
+                                      "ampie/donut/ampie_data.txt")))
+          (menu-item () (replace-menu-target-command "Radar chart"
+                          (make-chart radar-chart
+                                      "amradar/stacked/amradar_settings.xml"
+                                      "amradar/stacked/amradar_data.xml")))
+          (menu-item () (replace-menu-target-command "Stock chart"
+                          (make-chart stock-chart
+                                      "amstock/ohlc/amstock_settings.xml"
+                                      "amstock/ohlc/data.csv")))
+          (menu-item () (replace-menu-target-command "Xy chart"
+                          (make-chart xy-chart
+                                      "amxy/time_plot/amxy_settings.xml"
+                                      "amxy/time_plot/amxy_data.xml"))))))
       (make-primitive-component-menu)
       (menu "Metagui"
         (menu "Parent"

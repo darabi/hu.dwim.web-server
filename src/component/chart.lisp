@@ -15,8 +15,7 @@
 
 (def function render-chart (component kind)
   ;; TODO: move this to frame or something higher?
-  
-  (bind ((path (concatenate 'string "static/charting/" kind "/")))
+  (bind ((path (concatenate 'string "static/amCharts/" kind "/")))
     <script (:type "text/javascript" :src ,(concatenate 'string path "swfobject.js")) "">
     (bind ((id (generate-frame-unique-string))
            (data-provider (data-provider-of component)))
@@ -47,9 +46,9 @@
   (chart.missing-flash-plugin "Flash Player nem elérhető"))
 
 
-(def function make-chart-from-files (type &key settings-file-relative-path data-file-relative-path)
+(def function make-chart-from-files (type &key settings-file data-file)
   (make-instance type
-                 :configuration-provider (lambda () (make-file-serving-response
-                                                (merge-pathnames settings-file-relative-path (asdf::component-pathname (asdf::find-system :wui))) ))
-                 :data-provider (lambda () (make-file-serving-response
-                                       (merge-pathnames data-file-relative-path (asdf::component-pathname (asdf::find-system :wui)))))))
+                 :configuration-provider (lambda ()
+                                           (make-file-serving-response settings-file))
+                 :data-provider (lambda ()
+                                  (make-file-serving-response data-file))))
