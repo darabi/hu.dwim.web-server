@@ -257,3 +257,57 @@
 (def component detail-component ()
   ()
   (:documentation "Abstract base class for components which show their component value in detail."))
+
+;;;;;;
+;;; Context sensitive help
+
+(def component conext-sensitive-help (content-component)
+  ((content (icon help) :type component)))
+
+(def icon help)
+(def resources hu
+  (icon-label.help "Segítség")
+  (icon-tooltip.help "Környezetfüggő segítség megjelenítése"))
+(def resources en
+  (icon-label.login "Help")
+  (icon-tooltip.login "Display context sensitive help"))
+
+(def render conext-sensitive-help ()
+  ;; TODO: move these js into js/wui.lisp
+  ;; TODO: add help icon
+  <div (:onclick `js-inline(progn (setf helpMode #t) (setf document.body.style.cursor "help") (dojo.stopEvent event)))
+    ,(call-next-method)>
+  `js(progn
+       (setf helpMode #f)
+       (on-load
+        (bind ((help (new dojox.widget.DynamicTooltip
+                          (create :position (array "below" "right")
+                                  :href ,(register-action/href (make-action (execute-context-sensitive-help)) :delayed-content #t)))))
+          ;; TODO: do not override
+          (setf document.onclick (lambda (event)
+                                   (when helpMode
+                                     (let ((node event.target))
+                                       #+nil ;; TODO: find the element which has an id (how do we know that it is a remote id? some prefix or?)
+                                       (while (and (not (= node document))
+                                                   (not node.id))
+                                         (setf node node.parent-node))
+                                       ;; TODO: add id to href
+                                       (help.open node))
+                                     (dojo.stopEvent event)
+                                     (setf document.body.style.cursor "default")
+                                     (setf helpMode #f))))))))
+
+(def function execute-context-sensitive-help ()
+  (bind ((id (request-parameter-value *request* "_id"))
+         (component (find-descendant-component (root-component-of *frame*)
+                                               (lambda (descendant)
+                                                 (and (typep descendant 'remote-identity-component-mixin)
+                                                      (string= id (id-of descendant)))))))
+    (aif (make-context-sensitive-help component)
+         (make-component-rendering-response it)
+         (make-do-nothing-response))))
+
+(def generic make-context-sensitive-help (component)
+  (:method ((component remote-identity-component-mixin))
+    ;; TODO: return nil by default
+    "Hello World for the moment"))
