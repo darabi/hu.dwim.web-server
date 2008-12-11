@@ -7,7 +7,7 @@
 
 (def entry-point (*test-application* :path "params") ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
   (make-functional-response ()
-    (emit-simple-html-document-response (:title "foo")
+    (emit-simple-html-document-http-response (:title "foo")
       <p "Parameters:"
         <a (:href ,(concatenate-string (path-prefix-of *test-application*)
                                        (if (or number? the-answer?)
@@ -67,7 +67,7 @@
         (make-root-component-rendering-response *frame*))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-raw-functional-response ()
-          (emit-simple-html-document-response ()
+          (emit-simple-html-document-http-response ()
             <p "There's no session... "
                <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
                   "create new session">>)))))

@@ -6,11 +6,11 @@
   (when maximum-worker-count
     (setf (maximum-worker-count-of server) maximum-worker-count))
   (finishes
-    (is (null (socket-of server)))
+    (is (not (is-server-running? server)))
     (write-string (test-server-info-string server) *debug-io*)
     (startup-server server)
     (unless (zerop (maximum-worker-count-of server))
-      (is (not (null (socket-of server))))
+      (is (is-server-running? server))
       (pushnew server *running-test-servers*)
       (setf *test-server* server))))
 
@@ -52,8 +52,9 @@
     server))
 
 (def function test-server-info-string (server)
-  (bind ((host (host-of server))
-         (port (port-of server))
+  (bind ((listen-entry (first (listen-entries-of server)))
+         (host (address-to-string (host-of listen-entry)))
+         (port (port-of listen-entry))
          (uri (make-uri :scheme "http" :host host :port port))
          (uri-string (print-uri-to-string uri)))
     (format nil "Server running at ~A. You can use STOP-TEST-SERVER to stop it. See also *TEST-SERVER* and *RUNNING-TEST-SERVERS*.~%~
@@ -61,7 +62,7 @@
                  siege -c100 -t10S ~A (add -b for full throttle benchmarking)~%~
                  httperf --rate 1000 --num-conn 10000 --port ~A --server ~A --uri /foo/bar/~%~
                  "
-            uri-string
+            server
             uri-string
             port
             host)))
@@ -86,7 +87,7 @@
 
 (def (function o) functional-response-broker (request)
   (make-functional-response ()
-    (emit-simple-html-document-response (:title "foo")
+    (emit-simple-html-document-http-response (:title "foo")
       <p "bar">)))
 
 (defun start-functional-response-server (&key (maximum-worker-count 16) (log-level +dribble+))
