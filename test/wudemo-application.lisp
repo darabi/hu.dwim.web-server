@@ -203,34 +203,29 @@
           debug-menu))
       (menu "Charts"
        (menu "Charts from files"
-         (macrolet ((make-chart (type settings-file data-file)
-                      `(make-chart-from-files ',type
-                                              :settings-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" settings-file))
-                                              :data-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" data-file)))))
-           (menu-item () (replace-menu-target-command "Column chart"
-                           (make-chart column-chart
-                                       "amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
-                                       "amcolumn/3d_stacked_bar_chart/amcolumn_data.txt")))
-          (menu-item () (replace-menu-target-command "Line chart"
-                          (make-chart line-chart
-                                      "amline/stacked_area_chart/amline_settings.xml"
-                                      "amline/stacked_area_chart/amline_data.xml")))
-          (menu-item () (replace-menu-target-command "Pie chart"
-                          (make-chart pie-chart
-                                      "ampie/donut/ampie_settings.xml"
-                                      "ampie/donut/ampie_data.txt")))
-          (menu-item () (replace-menu-target-command "Radar chart"
-                          (make-chart radar-chart
-                                      "amradar/stacked/amradar_settings.xml"
-                                      "amradar/stacked/amradar_data.xml")))
-          (menu-item () (replace-menu-target-command "Stock chart"
-                          (make-chart stock-chart
-                                      "amstock/ohlc/amstock_settings.xml"
-                                      "amstock/ohlc/data.csv")))
-          (menu-item () (replace-menu-target-command "Xy chart"
-                          (make-chart xy-chart
-                                      "amxy/time_plot/amxy_settings.xml"
-                                      "amxy/time_plot/amxy_data.xml"))))))
+         (macrolet ((make-chart-menu (name type settings-file data-file)
+                      `(replace-menu-target-command ,name
+                         (make-chart-from-files ',type
+                                                :settings-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" settings-file))
+                                                :data-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" data-file))))))
+           (menu-item () (make-chart-menu "Column chart" column-chart
+                                          "amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
+                                          "amcolumn/3d_stacked_bar_chart/amcolumn_data.txt"))
+           (menu-item () (make-chart-menu "Line chart" line-chart
+                                          "amline/stacked_area_chart/amline_settings.xml"
+                                          "amline/stacked_area_chart/amline_data.xml"))
+           (menu-item () (make-chart-menu "Pie chart" pie-chart
+                                          "ampie/donut/ampie_settings.xml"
+                                          "ampie/donut/ampie_data.txt"))
+           (menu-item () (make-chart-menu "Radar chart" radar-chart
+                                          "amradar/stacked/amradar_settings.xml"
+                                          "amradar/stacked/amradar_data.xml"))
+           (menu-item () (make-chart-menu "Stock chart" stock-chart
+                                          "amstock/ohlc/amstock_settings.xml"
+                                          "amstock/ohlc/data.csv"))
+           (menu-item () (make-chart-menu "Xy chart" xy-chart
+                                          "amxy/time_plot/amxy_settings.xml"
+                                          "amxy/time_plot/amxy_data.xml")))))
       (make-primitive-component-menu)
       (menu "Metagui"
         (menu "Parent"
