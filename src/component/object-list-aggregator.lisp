@@ -24,12 +24,11 @@
   (bind (((:read-only-slots slot-values instances) -self-))
     <div "Darab: " ,(length instances)
          <table
-             <thead
-              <th "Név">
-              <th "Minimum">
-              <th "Maximum">
-              <th "Átlag">
-              <th "Összesen">>
+             <thead <tr <th "Név">
+                        <th "Minimum">
+                        <th "Maximum">
+                        <th "Átlag">
+                        <th "Összesen">>>
            <tbody ,(foreach (lambda (slot-value)
                               <tr (:class ,(odd/even-class slot-value slot-values))
                                   ,@(render slot-value)>)

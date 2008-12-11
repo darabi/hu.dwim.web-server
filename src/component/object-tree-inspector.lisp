@@ -334,12 +334,12 @@
                (if children
                    (if (oddp *standard-object-tree-level*)
                        <table (:class "node")
-                         <thead <tr <td ,(render-standard-object-tree-nested-box-inspector-node -self- node) >>>
+                         <thead <tr <th ,(render-standard-object-tree-nested-box-inspector-node -self- node) >>>
                          ,(foreach (lambda (child)
                                      <tr <td ,(render-node child)>>)
                                    children)>
                        <table (:class "node")
-                         <thead <tr <td (:colspan ,(length children))
+                         <thead <tr <th (:colspan ,(length children))
                                         ,(render-standard-object-tree-nested-box-inspector-node -self- node)>>>
                          <tr ,(foreach (lambda (child)
                                          <td ,(render-node child)>)
