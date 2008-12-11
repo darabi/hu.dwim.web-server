@@ -8,6 +8,6 @@
   ())
 
 (def method make-replace-with-alternative-command :around ((component alternator-component) alternative)
-  (when (or (typep (class-prototype (the-class-of alternative)) 'reference-component)
+  (when (or (subtypep (the-class-of alternative) 'reference-component)
             (dmm::authorize-operation 'replace-with-alternative-operation))
     (call-next-method)))

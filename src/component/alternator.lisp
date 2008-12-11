@@ -50,7 +50,7 @@
                             :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
                                                  (not (eq (the-class-of alternative) (class-of (content-of component))))
                                                  (or (not reference?)
-                                                     (find-ancestor-component-with-type (parent-component-of component) 'alternator-component))))))))
+                                                     (find-ancestor-component-with-type (parent-component-of component) 'inspector-component))))))))
 
 (def (generic e) make-replace-with-alternative-command-icon (prototype)
   (:method ((prototype component))
