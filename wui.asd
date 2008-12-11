@@ -150,7 +150,7 @@
                                (:file "factory" :depends-on ("component"))
                                (:file "place" :depends-on ("component"))
                                (:file "icon" :depends-on ("component"))
-                               (:file "misc" :depends-on ("component"))
+                               (:file "misc" :depends-on ("component" "icon"))
                                (:file "csv")
                                (:file "command" :depends-on ("icon" "place" "misc" "csv"))
                                (:file "exportable" :depends-on ("command" "object-component" "csv"))
