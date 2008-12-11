@@ -29,7 +29,7 @@
                        (progn
                          (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
                          (funcall error-handler error)))
-                   (abort-server-request error)
+                   (abort-server-request "Level 1 error handler returned normally")
                    (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-1-ERROR-HANDLER"))))
              (level-2-error-handler (error)
                ;; second level of error handling quarding against errors while handling the original error
@@ -119,7 +119,7 @@
                                :otherwise (lambda ()
                                             (apply 'render-internal-error-page/english args))))))
         (server.info "Internal server error for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
-  (abort-server-request error))
+  (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the error by sending an error page"))
 
 (def function render-internal-error-page/english (&key admin-email-address &allow-other-keys)
   <div

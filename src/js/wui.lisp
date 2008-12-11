@@ -495,7 +495,6 @@
     (setf link.onclick (lambda (event)
                          (link.wui-set-checked (not (link.wui-is-checked)))))))
 
-
 (defun wui.field.update-popup-menu-select-field ((node :by-id) (field :by-id) value class)
   (if class
       (setf node.className class)

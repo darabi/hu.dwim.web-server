@@ -34,6 +34,7 @@
    (entry-points nil)
    (default-uri-scheme "http")
    (default-locale "en")
+   (supported-locales '("en"))
    (default-timezone local-time:*default-timezone*)
    (session-class)
    (session-timeout *default-session-timeout*)

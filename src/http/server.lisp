@@ -525,7 +525,7 @@
                                      (switch ((pathname-type file-name) :test #'string=)
                                        ;; this special-casing is an optimization to cons less
                                        ("html" (content-type-for +html-mime-type+ encoding))
-                                       ("xml" (content-type-for +xml-mime-type+ encoding))
+                                       ("xml"  (content-type-for +xml-mime-type+ encoding))
                                        ("css"  (content-type-for +css-mime-type+ encoding))
                                        ("csv"  (content-type-for +csv-mime-type+ encoding))
                                        (t (or (first (awhen (pathname-type file-name)
