@@ -304,7 +304,7 @@
   (unread-char c1 stream)
   (let ((key (read stream)))
     (if (ends-with-subseq "<>" key)
-        `(bind (((:values str foundp) (lookup-resource ,(string-downcase (subseq key 0 (- (length key) 2))) :otherwise nil)))
+        `(bind (((:values str foundp) (lookup-resource ,(string-downcase (subseq key 0 (- (length key) 2))))))
            ,(when (and (> (length key) 0)
                        (upper-case-p (elt key 0)))
               `(setf str (capitalize-first-letter str)))
@@ -312,7 +312,7 @@
                `xml ,str
                <span (:class #.+missing-resource-css-class+)
                  ,str>))
-        `(bind (((:values str foundp) (lookup-resource ,(string-downcase key) :otherwise nil)))
+        `(bind (((:values str foundp) (lookup-resource ,(string-downcase key))))
            (declare (ignorable foundp))
            ,(when (and (> (length key) 0)
                        (upper-case-p (elt key 0)))
