@@ -533,6 +533,9 @@
 (defun wui.setup-title (id)
   (attach-border id "title-border"))
 
+(defun wui.setup-column (id)
+  (attach-border id "table-header-border"))
+
 ;;;;;;
 ;;; i18n
 

@@ -60,7 +60,9 @@
     100))
 
 (def render column-component ()
-  <th ,(call-next-method)>)
+  (bind ((id (generate-frame-unique-string)))
+    <th <div (:id ,id) ,(call-next-method)>>
+    `js(on-load (wui.setup-column ,id))))
 
 ;;;;;;
 ;;; Row
