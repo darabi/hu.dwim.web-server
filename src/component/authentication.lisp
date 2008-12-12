@@ -13,10 +13,11 @@
 (def (constant e :test 'string=) +user-action-query-parameter-name+ "user-action")
 (def (constant e :test 'string=) +continue-url-query-parameter-name+ "continue-url")
 
-(def (component ea) identifier-and-password-login-component (user-message-collector-component-mixin)
+(def (component ea) identifier-and-password-login-component (title-component-mixin user-message-collector-component-mixin)
   ((identifier nil)
    (password nil)
-   (command-bar (make-instance 'command-bar-component) :type component)))
+   (command-bar (make-instance 'command-bar-component) :type component))
+  (:default-initargs :title #"login.title"))
 
 (def function make-default-identifier-and-password-login-command ()
   (command (icon login)
@@ -40,17 +41,20 @@
                                "identifier-field"))
          (id "login-component"))
     <div (:id ,id)
+     ,(render-title -self-)
      ,(render-user-messages -self-)
      <table
-       <tr <td ,#"login.identifier<>">
-           <td <input (:id "identifier-field"
-                       :name "identifier"
-                       :value ,identifier)>>>
-       <tr <td ,#"login.password<>">
-           <td <input (:id "password-field"
-                       :name "password"
-                       :value ,password
-                       :type "password")>>>
+       <tr <td (:class "label") ,#"login.identifier<>">
+           <td (:class "value")
+               <input (:id "identifier-field"
+                           :name "identifier"
+                           :value ,identifier)>>>
+       <tr <td (:class "label") ,#"login.password<>">
+           <td (:class "value")
+               <input (:id "password-field"
+                           :name "password"
+                           :value ,password
+                           :type "password")>>>
        <tr <td (:colspan 2)
              ,(render (command-bar-of -self-))>>>
      `js(on-load
@@ -98,12 +102,14 @@
   `(make-instance 'fake-identifier-and-password-login-component :identifier ,identifier :password ,password :comment ,comment))
 
 (def resources hu
+  (login.title "Belépés")
   (login.identifier "Azonosító")
   (login.password "Jelszó")
   (login.message.authentication-failed "Azonosítás sikertelen")
   (login.message.session-timed-out "Lejárt a biztonsági idő, kérem lépjen be újra"))
 
 (def resources en
+  (login.title "Login")
   (login.identifier "Identifier")
   (login.password "Password")
   (login.message.authentication-failed "Authentication failed")
