@@ -341,7 +341,7 @@
   (invoke-restart (find-restart 'retry-handling-request)))
 
 (def function abort-server-request (&optional (why nil why-p))
-  (server.info "Gracefully aborting request coming from ~S for ~S~:[.~; because: ~A.~]" *request-remote-host* (raw-uri-of *request*) why-p why)
+  (server.info "Gracefully aborting request coming from ~S for ~S~:[.~; because: ~A.~]" *request-remote-host* (when *request* (raw-uri-of *request*)) why-p why)
   (typecase why
     (socket-connection-reset-error (incf (client-connection-reset-count-of *server*))))
   (invoke-restart (find-restart 'abort-server-request)))
