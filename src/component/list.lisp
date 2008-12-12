@@ -21,10 +21,12 @@
           :style ,style)
     ,@(ecase orientation
              (:vertical (mapcar (lambda (element)
-                                  <tr <td ,(render element)>>)
+                                  (when (force (visible-p element))
+                                    <tr <td ,(render element)>>))
                                 components))
              (:horizontal (list <tr ,(foreach (lambda (element)
-                                                <td ,(render element)>)
+                                                (when (force (visible-p element))
+                                                  <td ,(render element)>))
                                               components)>)))>)
 
 (def (function e) render-vertical-list (components &key id css-class style)
