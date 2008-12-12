@@ -560,3 +560,44 @@
       (setf (aref wui.i18n.resources name) value))))
 
 (log.debug "Finished evaluating wui.js")
+
+;;;;;;
+;;; Context sensitive help
+
+(defun wui.decorate-context-sensitive-help-url (url id)
+  (if (or (= id "")
+          (= id undefined))
+      (return url)
+      (return (wui.append-query-parameter url #.(escape-as-uri +context-sensitive-help-parameter-name+) id))))
+
+(defun wui.setup-context-sensitive-help (event url)
+  (bind ((help nil)
+         (mouseover-handler (lambda (event)
+                              (bind ((decorated-url url)
+                                     (node event.target))
+                                (while (not (= node document))
+                                  (setf decorated-url (wui.decorate-context-sensitive-help-url decorated-url node.id))
+                                  (setf node node.parent-node))
+                                (when (or (= help nil)
+                                          (and help.has-loaded
+                                               (not (= help.href decorated-url))))
+                                  (unless (= help nil)
+                                    (help.close))
+                                  (setf help (new dojox.widget.DynamicTooltip
+                                                  (create :connectId (array event.target)
+                                                          :position (array "below" "right")
+                                                          :href decorated-url)))
+                                  (help.open event.target)
+                                  (dojo.stopEvent event)))))
+         (mouseclick-handler (lambda (event)
+                               (setf document.body.style.cursor "default")
+                               (document.remove-event-listener "mouseover" mouseover-handler true)
+                               (document.remove-event-listener "click" mouseclick-handler true)
+                               (help.close)
+                               (dojo.stopEvent event)))
+         (original-onmouseover document.onmouseover)
+         (original-onclick document.onclick))
+    (document.add-event-listener "mouseover" mouseover-handler #t)
+    (document.add-event-listener "click" mouseclick-handler #t)
+    (setf document.body.style.cursor "help")
+    (dojo.stopEvent event)))

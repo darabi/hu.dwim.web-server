@@ -261,7 +261,9 @@
 ;;;;;;
 ;;; Context sensitive help
 
-(def component conext-sensitive-help (content-component)
+(def (constant :test #'string=) +context-sensitive-help-parameter-name+ "_hlp")
+
+(def component context-sensitive-help (content-component)
   ((content (icon help) :type component)))
 
 (def icon help)
@@ -272,42 +274,33 @@
   (icon-label.login "Help")
   (icon-tooltip.login "Display context sensitive help"))
 
-(def render conext-sensitive-help ()
-  ;; TODO: move these js into js/wui.lisp
-  ;; TODO: add help icon
-  <div (:onclick `js-inline(progn (setf helpMode #t) (setf document.body.style.cursor "help") (dojo.stopEvent event)))
-    ,(call-next-method)>
-  `js(progn
-       (setf helpMode #f)
-       (on-load
-        (bind ((help (new dojox.widget.DynamicTooltip
-                          (create :position (array "below" "right")
-                                  :href ,(register-action/href (make-action (execute-context-sensitive-help)) :delayed-content #t)))))
-          ;; TODO: do not override
-          (setf document.onclick (lambda (event)
-                                   (when helpMode
-                                     (let ((node event.target))
-                                       #+nil ;; TODO: find the element which has an id (how do we know that it is a remote id? some prefix or?)
-                                       (while (and (not (= node document))
-                                                   (not node.id))
-                                         (setf node node.parent-node))
-                                       ;; TODO: add id to href
-                                       (help.open node))
-                                     (dojo.stopEvent event)
-                                     (setf document.body.style.cursor "default")
-                                     (setf helpMode #f))))))))
+(def render context-sensitive-help ()
+  (when *frame*
+    (bind ((href (register-action/href (make-action (execute-context-sensitive-help)) :delayed-content #t)))
+      <div (:onclick `js-inline(wui.setup-context-sensitive-help event ,href)) ,(call-next-method)>)))
 
 (def function execute-context-sensitive-help ()
-  (bind ((id (request-parameter-value *request* "_id"))
-         (component (find-descendant-component (root-component-of *frame*)
-                                               (lambda (descendant)
-                                                 (and (typep descendant 'remote-identity-component-mixin)
-                                                      (string= id (id-of descendant)))))))
-    (aif (make-context-sensitive-help component)
+  (bind ((ids (ensure-list (request-parameter-value *request* +context-sensitive-help-parameter-name+)))
+         (components nil))
+    (map-descendant-components (root-component-of *frame*)
+                               (lambda (descendant)
+                                 (when (and (typep descendant 'remote-identity-component-mixin)
+                                            (member (id-of descendant) ids :test #'string=))
+                                   (push descendant components))))
+    (aif (and components
+              (make-context-sensitive-help (first components)))
          (make-component-rendering-response it)
-         (make-do-nothing-response))))
+         (make-component-rendering-response #"help.no-context-sensitive-help-available"))))
 
 (def generic make-context-sensitive-help (component)
   (:method ((component remote-identity-component-mixin))
-    ;; TODO: return nil by default
-    "Hello World for the moment"))
+    nil
+    ;; TODO: kill, used for debugging
+    #+nil
+    (string-downcase (class-name (class-of component)))))
+
+(def resources hu
+  (help.no-context-sensitive-help-available "Nincs környezetfüggő segítség"))
+
+(def resources en
+  (help.no-context-sensitive-help-available "No conext sensitive help available"))
