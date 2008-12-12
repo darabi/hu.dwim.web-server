@@ -508,6 +508,18 @@
 ;;;;;;
 ;;; compound
 
+(defun wui.setup-user-message (id class)
+  (attach-border id class))
+
+(defun wui.setup-title (id)
+  (attach-border id "title-border"))
+
+(defun wui.setup-column (id)
+  (attach-border id "table-header-border"))
+
+(defun wui.setup-slot-group (id)
+  (attach-border id "slot-group-header-border"))
+
 (defun wui.setup-standard-object-maker (id)
   (attachBorder id "box-border"))
 
@@ -525,15 +537,6 @@
 
 (defun wui.setup-login-component (id)
   (attachBorder id "box-border"))
-
-(defun wui.setup-user-message (id class)
-  (attach-border id class))
-
-(defun wui.setup-title (id)
-  (attach-border id "title-border"))
-
-(defun wui.setup-column (id)
-  (attach-border id "table-header-border"))
 
 ;;;;;;
 ;;; i18n

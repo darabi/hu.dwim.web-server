@@ -31,13 +31,16 @@
 
 (def (layered-function e) render-title (component)
   (:method :around ((component title-component-mixin))
-    (bind ((id (generate-frame-unique-string)))
+    (bind ((id (generate-unique-string (or *frame* *response*))))
       <span (:id ,id :class "title")
             ,(if (slot-boundp component 'title)
                  (when-bind title (force (title-of component))
                    `xml,title)
                  (call-next-method))>
-      `js(on-load (wui.setup-title ,id)))))
+      `js(on-load (wui.setup-title ,id))))
+
+  (:method ((component title-component-mixin))
+    (values)))
 
 ;;;;;;
 ;;; Abstract standard class component
@@ -264,7 +267,10 @@
     (if slot-values
         (progn
           (when name
-            <thead <tr <th (:colspan ,(standard-object-slot-value-group-column-count -self-)) ,(render name) >>>)
+            (bind ((id (generate-frame-unique-string)))
+              <thead <tr <th (:class "slot-value-group" :colspan ,(standard-object-slot-value-group-column-count -self-))
+                             <div (:id ,id) ,(render name)>>>>
+              `js(on-load (wui.setup-slot-group ,id))))
           <tbody ,(foreach #'render slot-values) >)
         <span (:id ,id) ,#"there-are-none">)))
 
