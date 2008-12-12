@@ -68,4 +68,4 @@
     (bind ((filtered-standard-object-tree-inspector (parent-component-of component)))
       (when (and (highlight-filtered-instances-p filtered-standard-object-tree-inspector)
                  (gethash (hash-key-for instance) (filtered-instances-of filtered-standard-object-tree-inspector)))
-        (setf (css-class-of tree-node) "highlighted")))))
+        (setf (css-class-of tree-node) "filter-result")))))
