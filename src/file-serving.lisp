@@ -174,12 +174,12 @@
 
 (defun extensions-for-mime-type (mime-type)
   "Extensions that can be given to file of given MIME type."
-  (declare (type string mime-type))
+  (check-type mime-type string)
   (gethash mime-type *mime-type->extensions*))
 
 (defun mime-types-for-extension (extension)
   "MIME types associated with the given file extension."
-  (declare (type string extension))
+  (check-type extension string)
   (gethash extension *extension->mime-types*))
 
 (with-simple-restart (continue "Ignore the error and continue without reading ~A" *mime-types-file*)

@@ -61,6 +61,7 @@
                      (if (typep content 'icon-component)
                          (symbol-name (name-of content))
                          (princ-to-string content)))))
+        ;; KLUDGE name is not a legal attribute
         <a (:href "#" :onclick ,(funcall onclick-js href) :name ,name)
            ,(render content)>
         (when default

@@ -399,18 +399,20 @@
 ;;; scroll
 
 (defun wui.reset-scroll-position ((content :by-id))
-  (bind ((form (aref document.forms 0))
-         (sx (aref form #.+scroll-x-parameter-name+))
-         (sy (aref form #.+scroll-y-parameter-name+)))
-    (setf content.scrollLeft sx.value)
-    (setf content.scrollTop sy.value)))
+  (when content
+    (bind ((form (aref document.forms 0))
+           (sx (aref form #.+scroll-x-parameter-name+))
+           (sy (aref form #.+scroll-y-parameter-name+)))
+      (setf content.scrollLeft sx.value)
+      (setf content.scrollTop sy.value))))
 
 (defun wui.save-scroll-position ((content :by-id))
-  (bind ((form (aref document.forms 0))
-         (sx (aref form #.+scroll-x-parameter-name+))
-         (sy (aref form #.+scroll-y-parameter-name+)))
-    (setf sx.value content.scrollLeft)
-    (setf sy.value content.scrollTop)))
+  (when content
+    (bind ((form (aref document.forms 0))
+           (sx (aref form #.+scroll-x-parameter-name+))
+           (sy (aref form #.+scroll-y-parameter-name+)))
+      (setf sx.value content.scrollLeft)
+      (setf sy.value content.scrollTop))))
 
 ;;;;;;
 ;;; highlight
