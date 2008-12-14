@@ -301,7 +301,7 @@
               (setf result.innerHTML node.xml)
               (log.debug "innerHTML was assigned succesfully")
               (assert (= 1 result.child-nodes.length))
-              (setf result (dojo.dom.first-element result))))
+              (setf result (dojox.data.dom.first-element result))))
        (log.debug "Succesfully imported answer node, returning")
        (return result))))
   (log.warn "Unknown browser in import-ajax-received-xhtml-node, this will probably cause some troubles later. Browser is " navigator.userAgent)
@@ -383,7 +383,7 @@
                    (wui.io.make-node-walking-ajax-answer-processor "script"
                                                                    (lambda (script-node)
                                                                      ;; TODO handle/assert for script type attribute
-                                                                     (let ((script (dojo.dom.text-content script-node)))
+                                                                     (let ((script (dojox.data.dom.text-content script-node)))
                                                                        (log.debug "About to eval AJAX-received script " #\Newline script)
                                                                        ;; isolate the local bindings from the script to be executed
                                                                        ;; and only bind with the given name what we explicitly list here
