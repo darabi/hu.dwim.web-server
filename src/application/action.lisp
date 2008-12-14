@@ -116,6 +116,8 @@
                               +frame-index-parameter-name+
                               +action-id-parameter-name+))))
 
+#|
+;; TODO
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
   (bind ((walked-body (cl-walker:walk-form `(progn ,@body) nil (cl-walker:make-walk-environment env)))
          (free-variable-references (cl-walker:collect-variable-references walked-body :type 'cl-walker:free-variable-reference-form))
@@ -142,3 +144,4 @@
                             ;; TODO process the return value, possible ajax replacements, etc
                             )))
        nil)))
+|#
