@@ -248,8 +248,8 @@
 
 (def layered-method make-expand-command ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
   (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer instance :default-component-type 'detail-component)))
-                                      (list :content (icon expand) :visible (delay (not (has-edited-descendant-component-p component))))
-                                      (list :content (icon collapse))))
+                                      (list :content (icon expand) :visible (delay (not (has-edited-descendant-component-p component))) :ajax #t)
+                                      (list :content (icon collapse) :ajax #t)))
 
 ;;;;;;
 ;;; Standard object slot value cell inspector

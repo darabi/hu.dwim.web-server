@@ -41,7 +41,7 @@
 
 (def (layered-function e) make-expand-reference-command (reference class target expansion)
   (:method ((reference reference-component) class target expansion)
-    (make-replace-command reference expansion :content (icon expand))))
+    (make-replace-command reference expansion :content (icon expand) :ajax #t)))
 
 ;;;;;;
 ;;; Reference list
