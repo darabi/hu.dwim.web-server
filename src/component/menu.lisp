@@ -118,8 +118,7 @@
     ;; from http://turtle.dojotoolkit.org/~david/recss.html
     (menu-item ()
         (inline-component
-          <a (:href "javascript:void(function(){var i,a,s;a=document.getElementsByTagName('link');for(i=0;i<a.length;i++){s=a[i];if(s.rel.toLowerCase().indexOf('stylesheet')>=0&&s.href) {var h=s.href.replace(/(&|%5C?)forceReload=\d+/,'');s.href=h+(h.indexOf('?')>=0?'&':'?')+'forceReload='+(new Date().valueOf())}}})();")
-             "ReCSS">))
+          <a (:href `js-inline(wui.reload-css)) "Reload CSS">))
     #+sbcl
     (menu-item ()
         (replace-menu-target-command "Frame size breakdown"

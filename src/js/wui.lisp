@@ -396,6 +396,16 @@
               (log.debug "...script-evaluator returned"))))))
 
 ;;;;;;
+;;; debug
+
+(defun wui.reload-css ()
+  (dolist (link (document.getElementsByTagName "link"))
+    (when (and (>= (.indexOf (.toLowerCase link.rel) "stylesheet") 0)
+               link.href)
+      (bind ((href (.replace link.href (regexp "(&|\\?)forceReload=\\d+") "")))
+        (setf link.href (wui.append-query-parameter href "forceReload" (.valueOf (new Date))))))))
+
+;;;;;;
 ;;; scroll
 
 (defun wui.reset-scroll-position ((content :by-id))
