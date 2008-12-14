@@ -45,8 +45,7 @@
    '*html-stream*
    :binary *transform-quasi-quote-to-binary*
    :encoding +encoding+
-   ;; KLUDGE see comment in qq/test/js.lisp
-   :with-inline-emitting nil #+nil *transform-quasi-quote-to-inline-emitting*))
+   :with-inline-emitting *transform-quasi-quote-to-inline-emitting*))
 
 (def function make-js-transformation-pipeline (embedded-in-xml? &optional inline? (inline-prefix? inline?))
   (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
@@ -57,9 +56,7 @@
    :encoding +encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*
    :indentation-width *quasi-quote-indentation-width*
-   ;; FIXME see comments in qq
-   ;;:string-escape-function (when inline?
-   ;;                          'cl-quasi-quote-xml:escape-as-xml)
+   :escape-as-xml (and embedded-in-xml? inline?)
    :output-prefix (cond
                     ;; TODO inline stuff must also be xml escaped... think through how this should work in qq.
                     ;; should `str() inside <> automatically be escaped? how could you insert unescaped

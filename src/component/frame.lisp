@@ -36,7 +36,7 @@
            xmlns:dojo #.+dojo-namespace-uri+)
       <head
         <meta (:http-equiv #.+header/content-type+
-               :content ,(content-type-for +html-mime-type+ encoding))>
+               :content ,(content-type-for +xhtml-mime-type+ encoding))>
         ,(awhen (page-icon-of -self-)
            <link (:rel "icon"
                   :type "image/x-icon"
@@ -52,16 +52,17 @@
                                                                          (string stylesheet-uri)
                                                                          (uri (print-uri-to-string stylesheet-uri)))))>)
                   (stylesheet-uris-of -self-))
+        <script (:type #.+javascript-mime-type+)
+          ,(format nil "djConfig = { parseOnLoad: ~A, isDebug: ~A, locale: ~A }"
+                   (to-js-boolean (parse-dojo-widgets-on-load? -self-))
+                   (to-js-boolean debug-client-side?)
+                   (to-js-literal (default-locale-of application)))>
         <script (:type         #.+javascript-mime-type+
                  :src          ,(concatenate-string path-prefix
                                                     (dojo-path-of -self-)
                                                     (dojo-file-name-of -self-)
                                                     (when debug-client-side?
-                                                      ".uncompressed.js"))
-                 :djConfig     ,(format nil "parseOnLoad: ~A, isDebug: ~A, locale: ~A"
-                                        (to-js-boolean (parse-dojo-widgets-on-load? -self-))
-                                        (to-js-boolean debug-client-side?)
-                                        (to-js-literal (default-locale-of application))))
+                                                      ".uncompressed.js")))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">
         ,(foreach (lambda (script-uri)
@@ -77,12 +78,14 @@
             (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
             (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
             (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
-        <form (:method "post")
+        <form (:method "post"
+               :action "")
           ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
-          <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
-                  :value ,(first (ensure-list (request-parameter-value *request* +scroll-x-parameter-name+))))>
-          <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
-                  :value ,(first (ensure-list (request-parameter-value *request* +scroll-y-parameter-name+))))>
+          <div (:style "display: none")
+            <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
+                    :value ,(first (ensure-list (request-parameter-value *request* +scroll-x-parameter-name+))))>
+            <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
+                    :value ,(first (ensure-list (request-parameter-value *request* +scroll-y-parameter-name+))))>>
           ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
                (render (content-of -self-))))>>>))

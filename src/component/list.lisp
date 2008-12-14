@@ -16,7 +16,7 @@
   <table (:class `str("list " ,(ecase orientation
                                       (:vertical "vertical ")
                                       (:horizontal "horizontal "))
-                              ,@(ensure-list css-class))
+                              ,css-class)
           :id ,id
           :style ,style)
     ,@(ecase orientation

@@ -63,7 +63,7 @@
      (ensure-list result)
      (unless (zerop (length script-body))
        (list (cl-quasi-quote::as-delayed-emitting
-	       (write-sequence #.(format nil "<script>// <![CDATA[~%") *html-stream*)
+	       (write-sequence #.(format nil "<script type=\"text/javascript\">// <![CDATA[~%") *html-stream*)
 	       (write-sequence script-body *html-stream*)
 	       (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)))))))
 
