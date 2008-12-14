@@ -20,6 +20,7 @@
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available #t :type boolean)
    (default #f :type boolean)
+   (ajax #f :type boolean)
    (js nil)
    (action-arguments nil)))
 
@@ -39,8 +40,8 @@
                                           :send-client-state ,send-client-state)))
 
 (def render command-component ()
-  (bind (((:read-only-slots content action enabled default js action-arguments) -self-))
-    (render-command content action :enabled enabled :default default :ajax #f :js js :action-arguments action-arguments)))
+  (bind (((:read-only-slots content action enabled default ajax js action-arguments) -self-))
+    (render-command content action :enabled enabled :default default :ajax ajax :js js :action-arguments action-arguments)))
 
 (def render :in passive-components-layer command-component
   (render (content-of -self-)))
