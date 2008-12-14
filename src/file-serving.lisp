@@ -135,16 +135,16 @@
 ;;;;;;;;;;;;;;;;;;;
 ;;; MIME stuff for serving static files
 
-(defparameter *mime-type->extensions* nil)
-(defparameter *extension->mime-types* nil)
-(defvar *mime-types-file* #P"/etc/mime.types")
+(def special-variable *mime-type->extensions* nil)
+(def special-variable *extension->mime-types* nil)
+(def (constant :test 'equal) +mime-types-file+ #P"/etc/mime.types")
 
 (def function ensure-mime-types-are-read ()
   (when (and (null *mime-type->extensions*)
-             (probe-file *mime-types-file*))
-    (read-mime-types-file *mime-types-file*)))
+             (probe-file +mime-types-file+))
+    (read-mime-types-file +mime-types-file+)))
 
-(defun parse-mime-types-file (mime-types-file visitor)
+(def function parse-mime-types-file (mime-types-file visitor)
   "Parser for /etc/mime.types"
   (iter
     (for line :in-file mime-types-file :using #'read-line)
@@ -157,7 +157,7 @@
     (unless (null pieces)
       (funcall visitor pieces))))
 
-(defun read-mime-types-file (mime-types-file)
+(def function read-mime-types-file (mime-types-file)
   "Read in /etc/mime.types file."
   (setf *mime-type->extensions* (make-hash-table :test #'equal))
   (setf *extension->mime-types* (make-hash-table :test #'equal))
@@ -172,15 +172,15 @@
          (setf (gethash extension *extension->mime-types*)
                (list* type (gethash extension *extension->mime-types*))))))))
 
-(defun extensions-for-mime-type (mime-type)
+(def (function e) extensions-for-mime-type (mime-type)
   "Extensions that can be given to file of given MIME type."
   (check-type mime-type string)
   (gethash mime-type *mime-type->extensions*))
 
-(defun mime-types-for-extension (extension)
+(def (function e) mime-types-for-extension (extension)
   "MIME types associated with the given file extension."
   (check-type extension string)
   (gethash extension *extension->mime-types*))
 
-(with-simple-restart (continue "Ignore the error and continue without reading ~A" *mime-types-file*)
+(with-simple-restart (continue "Ignore the error and continue without reading ~A" +mime-types-file+)
   (ensure-mime-types-are-read))
