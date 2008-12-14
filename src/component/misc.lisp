@@ -132,6 +132,9 @@
     (setf (id-of -self-) (generate-frame-unique-string "c"))))
 
 (def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
+  ;; KLUDGE: return top for now
+  (list (find-descendant-component-with-type component 'top-component))
+  #+nil ;; TODO: this is broken
   (prog1-bind covering-components nil
     (labels ((traverse-1 (parent-component)
                (if (typep parent-component 'remote-identity-component-mixin)
@@ -141,11 +144,10 @@
              (traverse-2 (parent-component)
                ;; TODO: typep instead of find-slot
                (when (force (visible-p parent-component))
-                 (if (dirty-p parent-component)
+                 (if (or (dirty-p parent-component)
+                         (outdated-p parent-component))
                      (bind ((remote-identity-component
-                             (if (typep parent-component 'remote-identity-component-mixin)
-                                 parent-component
-                                 (find-ancestor-component-with-type parent-component 'remote-identity-component-mixin))))
+                             (find-ancestor-component-with-type parent-component 'remote-identity-component-mixin)))
                        (assert remote-identity-component nil "There is no ancestor component with remote identity for ~A" parent-component)
                        (pushnew remote-identity-component covering-components)
                        (throw remote-identity-component nil))
