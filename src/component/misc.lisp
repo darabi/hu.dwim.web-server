@@ -38,6 +38,9 @@
   ()
   (:documentation "The top command will replace the content of a top-component with the component which the action refers to."))
 
+(def render top-component ()
+  <div (:id ,(id-of -self-)) ,(call-next-method)>)
+
 (def (macro e) top (&body content)
   `(make-instance 'top-component :content ,(the-only-element content)))
 
