@@ -133,8 +133,7 @@
 
 (def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
   ;; KLUDGE: find top-component and go down from there to avoid
-  (list (find-descendant-component-with-type component 'top-component))
-  #+nil
+  (setf component (find-descendant-component-with-type component 'top-component))
   (bind ((covering-components nil))
     (labels ((traverse (component)
                (when (force (visible-p component))
