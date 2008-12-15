@@ -11,6 +11,8 @@
 
 (def (constant e :test 'string=) +scroll-y-parameter-name+ "_sy")
 
+(def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
+
 (def component frame-component (top-component layer-context-capturing-component-mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
@@ -30,13 +32,21 @@
          (encoding (or (when *response*
                          (encoding-name-of *response*))
                        +encoding+))
-         (debug-client-side? (debug-client-side? -self-)))
+         (debug-client-side? (debug-client-side? -self-))
+         (no-javascript? (request-parameter-value *request* +no-javascript-error-parameter-name+)))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
     <html (:xmlns     #.+xhtml-namespace-uri+
            xmlns:dojo #.+dojo-namespace-uri+)
       <head
         <meta (:http-equiv #.+header/content-type+
                :content ,(content-type-for +xhtml-mime-type+ encoding))>
+        ,(unless no-javascript?
+           <noscript <meta (:http-equiv #.+header/refresh+
+                            :content ,(concatenate-string "0; URL="
+                                                          (application-relative-path-for-no-javascript-support-error *application*)
+                                                          "?"
+                                                          +no-javascript-error-parameter-name+
+                                                          "=t"))>>)
         ,(awhen (page-icon-of -self-)
            <link (:rel "icon"
                   :type "image/x-icon"
@@ -71,13 +81,18 @@
                             ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                             "">)
                   (script-uris-of -self-))>
-      <body (:class ,(dojo-skin-name-of -self-) :style "margin-left: -10000px;")
+      <body (:class ,(dojo-skin-name-of -self-)
+             :style ,(unless no-javascript? "margin-left: -10000px;"))
         `js(on-load
             ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
             (wui.reset-scroll-position "content")
             (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
             (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
             (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
+        ;; NOTE: if there's javascript turned on just reload without parameter (this might be true after enabling it and pressing refresh)
+        ,(when no-javascript?
+           (bind ((href (print-uri-to-string (clone-request-uri :strip-query-parameters (list +no-javascript-error-parameter-name+)))))
+             `js(on-load (wui.io.action ,href #f #f))))
         <form (:method "post"
                :action "")
           ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
@@ -92,3 +107,7 @@
 
 (def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'frame-component ,@args :content ,(the-only-element content)))
+
+(def generic application-relative-path-for-no-javascript-support-error (application)
+  (:method ((application application))
+    "/help/"))
