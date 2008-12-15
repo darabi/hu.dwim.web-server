@@ -13,6 +13,12 @@
 
 (def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
 
+(def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}[\.0-9]{0,})"))
+
+(def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}[\.0-9]{0,})"))
+
+(def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}[\.0-9]{0,})"))
+
 (def component frame-component (top-component layer-context-capturing-component-mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
@@ -108,6 +114,17 @@
 (def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'frame-component ,@args :content ,(the-only-element content)))
 
-(def generic application-relative-path-for-no-javascript-support-error (application)
+(def (generic e) application-relative-path-for-no-javascript-support-error (application)
   (:method ((application application))
     "/help/"))
+
+(def (generic e) supported-user-agent? (application request)
+  (:method ((application application) (request request))
+    (bind ((http-agent (header-value request +header/user-agent+)))
+      (flet ((check (version-scanner minimum-version)
+               (bind (((:values success? version) (cl-ppcre:scan-to-strings version-scanner http-agent)))
+                 (and success?
+                      (<= minimum-version (parse-number:parse-number (first-elt version)))))))
+        (or (check +mozilla-version-scanner+ 5)
+            (check +opera-version-scanner+ 9)
+            (check +msie-version-scanner+ 7))))))
