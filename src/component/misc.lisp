@@ -132,27 +132,26 @@
     (setf (id-of -self-) (generate-frame-unique-string "c"))))
 
 (def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
-  ;; KLUDGE: return top for now
+  ;; KLUDGE: find top-component and go down from there to avoid
   (list (find-descendant-component-with-type component 'top-component))
-  #+nil ;; TODO: this is broken
-  (prog1-bind covering-components nil
-    (labels ((traverse-1 (parent-component)
-               (if (typep parent-component 'remote-identity-component-mixin)
-                   (catch parent-component
-                     (traverse-2 parent-component))
-                   (traverse-2 parent-component)))
-             (traverse-2 (parent-component)
-               ;; TODO: typep instead of find-slot
-               (when (force (visible-p parent-component))
-                 (if (or (dirty-p parent-component)
-                         (outdated-p parent-component))
+  #+nil
+  (bind ((covering-components nil))
+    (labels ((traverse (component)
+               (when (force (visible-p component))
+                 (if (or (dirty-p component)
+                         (outdated-p component))
                      (bind ((remote-identity-component
-                             (find-ancestor-component-with-type parent-component 'remote-identity-component-mixin)))
-                       (assert remote-identity-component nil "There is no ancestor component with remote identity for ~A" parent-component)
-                       (pushnew remote-identity-component covering-components)
-                       (throw remote-identity-component nil))
-                     (map-child-components parent-component #'traverse-1)))))
-      (traverse-1 component))))
+                             (find-ancestor-component-with-type component 'remote-identity-component-mixin)))
+                       (assert remote-identity-component nil "There is no ancestor component with remote identity for ~A" component)
+                       (pushnew remote-identity-component covering-components))
+                     (map-child-components component #'traverse)))))
+      (traverse component))
+    (remove-if (lambda (component-to-be-removed)
+                 (find-if (lambda (covering-component)
+                            (and (not (eq component-to-be-removed covering-component))
+                                 (find-ancestor-component component-to-be-removed [eq !1 covering-component])))
+                          covering-components))
+               covering-components)))
 
 ;;;;;;;;;
 ;;; Style
