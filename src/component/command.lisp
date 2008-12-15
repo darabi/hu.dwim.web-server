@@ -74,7 +74,7 @@
          (href (etypecase action
                  (action (register-action/href action))
                  (uri (print-uri-to-string action)))))
-    `js-inline(return (wui.io.action ,href #f #t))))
+    `js-inline(return (wui.io.action ,href ,(ajax-p command) #t))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))
