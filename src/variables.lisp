@@ -43,6 +43,10 @@
 (def (constant :test 'string=) +ajax-aware-parameter-name+      "_j")
 (def (constant :test 'string=) +delayed-content-parameter-name+ "_d")
 
+(def (constant :test 'equal) +frame-query-parameter-names+ (list +frame-id-parameter-name+
+                                                                 +frame-index-parameter-name+
+                                                                 +action-id-parameter-name+))
+
 (def (constant :test 'string=) +session-cookie-name+ "sid")
 
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))

@@ -436,7 +436,7 @@
 (def method handle-request-to-invalid-session ((application wudemo-application) session invalidity-reason)
   (bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
     (setf (uri-query-parameter-value uri +continue-url-query-parameter-name+)
-          (print-uri-to-string (clone-request-uri :strip-frame-parameters #t)))
+          (print-uri-to-string (clone-request-uri :strip-query-parameters wui::+frame-query-parameter-names+)))
     (when (eq invalidity-reason :timed-out)
       (setf (uri-query-parameter-value uri +session-timed-out-query-parameter-name+) "t"))
     (make-redirect-response uri)))

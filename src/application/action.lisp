@@ -104,17 +104,14 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def (function e) clone-request-uri (&key strip-frame-parameters)
+(def (function e) clone-request-uri (&key strip-query-parameters)
   (prog1-bind uri
       (clone-uri (uri-of *request*))
     (delete-query-parameter uri
                             +ajax-aware-parameter-name+
                             +delayed-content-parameter-name+)
-    (when strip-frame-parameters
-      (delete-query-parameter uri
-                              +frame-id-parameter-name+
-                              +frame-index-parameter-name+
-                              +action-id-parameter-name+))))
+    (dolist (parameter-name strip-query-parameters)
+      (delete-query-parameter uri parameter-name))))
 
 #|
 ;; TODO
