@@ -94,7 +94,8 @@
         (setf root-nodes (mapcar [make-standard-object-tree-table-node self (class-of !1) !1] instances)))))
 
 (def render standard-object-tree-table-inspector ()
-  <div ,(render-title -self-)
+  <div (:id ,(id-of -self-))
+       ,(render-title -self-)
        ,(call-next-method)>)
 
 (def layered-method render-title ((self standard-object-tree-table-inspector))

@@ -187,7 +187,8 @@
     (class-slots class)))
 
 (def render standard-object-list-table-inspector ()
-  <div ,(render-title -self-)
+  <div (:id ,(id-of -self-))
+       ,(render-title -self-)
        ,(call-next-method)>)
 
 (def layered-method render-title ((self standard-object-list-table-inspector))
