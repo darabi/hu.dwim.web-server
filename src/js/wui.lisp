@@ -215,8 +215,7 @@
   (log.error "Processing AJAX error, name " response.name ", message: " response.message)
   (if dojo.config.isDebug
       debugger
-      ;; TODO an alert is bullshit
-      (alert #"network-error")))
+      (window.location.reload)))
 
 #+nil
 (defun wui.io.execute-ajax-action (params)
