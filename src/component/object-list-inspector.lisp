@@ -213,8 +213,7 @@
                                               inspector-component
                                               editable-component
                                               row-component
-                                              user-message-collector-component-mixin
-                                              remote-identity-component-mixin)
+                                              user-message-collector-component-mixin)
   ((command-bar nil :type component)))
 
 (def layered-method render-onclick-handler ((self standard-object-row-inspector))
@@ -248,9 +247,13 @@
   nil)
 
 (def layered-method make-expand-command ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
-  (make-replace-and-push-back-command component (delay (make-instance '(editable-component entire-row-component) :content (make-viewer instance :default-component-type 'detail-component)))
-                                      (list :content (icon expand) :visible (delay (not (has-edited-descendant-component-p component))) :ajax #t)
-                                      (list :content (icon collapse) :ajax #t)))
+  (bind ((replacement-component nil))
+    (make-replace-and-push-back-command component
+                                        (delay (setf replacement-component
+                                                     (make-instance '(editable-component entire-row-component)
+                                                                    :content (make-viewer instance :default-component-type 'detail-component))))
+                                        (list :content (icon expand) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
+                                        (list :content (icon collapse) :ajax (delay (id-of replacement-component))))))
 
 ;;;;;;
 ;;; Standard object slot value cell inspector

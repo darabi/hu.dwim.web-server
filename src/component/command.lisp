@@ -24,7 +24,7 @@
    (js nil)
    (action-arguments nil)))
 
-(def (macro e) command (content action &key (enabled #t) (visible #t) (default #f) js scheme path
+(def (macro e) command (content action &key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path
                                 (delayed-content nil delayed-content-provided?)
                                 (send-client-state #t send-client-state-provided?))
   `(make-instance 'command-component
@@ -33,6 +33,7 @@
                   :enabled ,enabled
                   :visible ,visible
                   :default ,default
+                  :ajax ,ajax
                   :js ,js
                   :action-arguments (list :delayed-content ,delayed-content
                                           :scheme ,scheme
@@ -57,7 +58,7 @@
                      (uri (print-uri-to-string action))))
              (onclick-js (or js
                              (lambda (href)
-                               `js-inline(return (wui.io.action ,href ,ajax ,send-client-state)))))
+                               `js-inline(return (wui.io.action ,href ,(force ajax) ,send-client-state)))))
              (name (when (running-in-test-mode-p *application*)
                      (if (typep content 'icon-component)
                          (symbol-name (name-of content))
@@ -74,7 +75,7 @@
          (href (etypecase action
                  (action (register-action/href action))
                  (uri (print-uri-to-string action)))))
-    `js-inline(return (wui.io.action ,href ,(ajax-p command) #t))))
+    `js-inline(return (wui.io.action ,href ,(force (ajax-p command)) #t))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))
@@ -194,24 +195,29 @@
 
 (def constructor page-navigation-bar-component ()
   (with-slots (position page-size total-count first-command previous-command next-command last-command jumper page-size-selector) -self-
-    (setf first-command (command (icon first)
-                                 (make-action
-                                   (setf (component-value-of jumper) (setf position 0)))
-                                 :enabled (delay (> position 0)))
-          previous-command (command (icon previous)
-                                    (make-action
-                                      (setf (component-value-of jumper) (decf position (min position page-size))))
-                                    :enabled (delay (> position 0)))
-          next-command (command (icon next)
-                                (make-action
-                                  (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size)))))
-                                :enabled (delay (< position (- total-count page-size))))
-          last-command (command (icon last)
-                                (make-action
-                                  (setf (component-value-of jumper) (setf position (- total-count page-size))))
-                                :enabled (delay (< position (- total-count page-size))))
-          jumper (make-instance 'integer-inspector :edited #t :component-value position)
-          page-size-selector (make-instance 'page-size-selector :component-value page-size))))
+    (bind ((ajax (delay (id-of (parent-component-of -self-)))))
+      (setf first-command (command (icon first)
+                                   (make-action
+                                     (setf (component-value-of jumper) (setf position 0)))
+                                   :enabled (delay (> position 0))
+                                   :ajax ajax)
+            previous-command (command (icon previous)
+                                      (make-action
+                                        (setf (component-value-of jumper) (decf position (min position page-size))))
+                                      :enabled (delay (> position 0))
+                                      :ajax ajax)
+            next-command (command (icon next)
+                                  (make-action
+                                    (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size)))))
+                                  :enabled (delay (< position (- total-count page-size)))
+                                  :ajax ajax)
+            last-command (command (icon last)
+                                  (make-action
+                                    (setf (component-value-of jumper) (setf position (- total-count page-size))))
+                                  :enabled (delay (< position (- total-count page-size)))
+                                  :ajax ajax)
+            jumper (make-instance 'integer-inspector :edited #t :component-value position)
+            page-size-selector (make-instance 'page-size-selector :component-value page-size)))))
 
 (def render page-navigation-bar-component ()
   (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-size) -self-))

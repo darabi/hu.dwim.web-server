@@ -51,7 +51,9 @@
                                                  (not (eq (the-class-of alternative) (class-of (content-of component))))
                                                  (or (not reference?)
                                                      (find-ancestor-component-with-type (parent-component-of component) 'inspector-component))))
-                            :ajax #t))))
+                            :ajax (if (typep component 'remote-identity-component-mixin)
+                                      (delay (id-of component))
+                                      #t)))))
 
 (def (generic e) make-replace-with-alternative-command-icon (prototype)
   (:method ((prototype component))

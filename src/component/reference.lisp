@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Reference
 
-(def component reference-component ()
+(def component reference-component (remote-identity-component-mixin)
   ((target)
    (expand-command :type component)))
 
@@ -23,7 +23,8 @@
       (setf (label-of (content-of expand-command)) (make-reference-label self (class-of target) target)))))
 
 (def render reference-component ()
-  (render (expand-command-of -self-)))
+  <span (:id ,(id-of -self-) :class "reference")
+    ,(render (expand-command-of -self-))>)
 
 (def render :in passive-components-layer reference-component
   ;; TODO this is not too nice this way
@@ -41,7 +42,7 @@
 
 (def (layered-function e) make-expand-reference-command (reference class target expansion)
   (:method ((reference reference-component) class target expansion)
-    (make-replace-command reference expansion :content (icon expand) :ajax #t)))
+    (make-replace-command reference expansion :content (icon expand) :ajax (delay (id-of reference)))))
 
 ;;;;;;
 ;;; Reference list
