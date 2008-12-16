@@ -98,7 +98,7 @@
         ;; NOTE: if there's javascript turned on just reload without parameter (this might be true after enabling it and pressing refresh)
         ,(when no-javascript?
            (bind ((href (print-uri-to-string (clone-request-uri :strip-query-parameters (list +no-javascript-error-parameter-name+)))))
-             `js(on-load (wui.io.action ,href #f #f))))
+             `js(setf window.location.href ,href)))
         <form (:method "post"
                :action "")
           ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
