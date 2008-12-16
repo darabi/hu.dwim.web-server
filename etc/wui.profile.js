@@ -23,6 +23,7 @@ dependencies ={
             "dijit._editor.plugins.TextColor",
             "dijit._editor.plugins.LinkDialog",
             "dojox.widget.DynamicTooltip",
+            "dojox.data.dom",
             "dojox.wire.Wire",
             "dojox.wire.XmlWire",
             //"explosive.space.Modulator"
