@@ -10,11 +10,13 @@
 (def method handle-toplevel-condition :around ((application application) error)
   (if (and (boundp '*ajax-aware-request*)
            *ajax-aware-request*)
-      (emit-http-response ((+header/status+       +http-not-acceptable+
-                            +header/content-type+ +xml-mime-type+))
-        <ajax-response
-         <error-message ,#"error-message-for-ajax-requests">
-         <result "failure">>)
+      (progn
+        (maybe-invoke-slime-debugger error)
+        (emit-http-response ((+header/status+       +http-not-acceptable+
+                              +header/content-type+ +xml-mime-type+))
+          <ajax-response
+           <error-message ,#"error-message-for-ajax-requests">
+           <result "failure">>))
       (call-next-method)))
 
 
