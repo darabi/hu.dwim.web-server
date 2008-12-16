@@ -299,12 +299,14 @@
          (make-component-rendering-response it)
          (make-component-rendering-response #"help.no-context-sensitive-help-available"))))
 
-(def generic make-context-sensitive-help (component)
-  (:method ((component remote-identity-component-mixin))
-    nil
-    ;; TODO: kill, used for debugging
-    #+nil
-    (string-downcase (class-name (class-of component)))))
+(def (generic e) make-context-sensitive-help (component)
+  (:method ((component component))
+    nil)
+
+  (:method :around ((component remote-identity-component-mixin))
+    (or (call-next-method)
+        (awhen (parent-component-of component)
+          (make-context-sensitive-help it)))))
 
 (def resources hu
   (help.no-context-sensitive-help-available "Nincs környezetfüggő segítség"))
