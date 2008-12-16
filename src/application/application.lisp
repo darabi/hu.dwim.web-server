@@ -120,11 +120,15 @@
           (incf (number-of-requests-to-sessions-of application))
           (restart-case
               (if lock-session
-                  ;; TODO check if locking would hang, throw error if so
-                  (with-lock-held-on-session (session)
-                    (when (is-request-still-valid?)
-                      (call-in-application-environment application session #'-body-)))
-                  (call-in-application-environment application session #'-body-))
+                  (progn
+                    (app.debug "WITH-SESSION-LOGIC is locking session ~A as requested" session)
+                    ;; TODO check if locking would hang, throw error if so
+                    (with-lock-held-on-session (session)
+                      (when (is-request-still-valid?)
+                        (call-in-application-environment application session #'-body-))))
+                  (progn
+                    (app.debug "WITH-SESSION-LOGIC is NOT locking session ~A, it wasn't requested" session)
+                    (call-in-application-environment application session #'-body-)))
             (delete-current-session ()
               :report (lambda (stream)
                         (format stream "Delete session ~A and rety handling the request" session))
