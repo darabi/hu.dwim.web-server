@@ -594,7 +594,7 @@
                                           (and help.has-loaded
                                                (not (= help.href decorated-url))))
                                   (unless (= help nil)
-                                    (help.close))
+                                    (help.destroy))
                                   (setf help (new dojox.widget.DynamicTooltip
                                                   (create :connectId (array event.target)
                                                           :position (array "below" "right")
@@ -605,7 +605,7 @@
                                (setf document.body.style.cursor "default")
                                (document.remove-event-listener "mouseover" mouseover-handler true)
                                (document.remove-event-listener "click" mouseclick-handler true)
-                               (help.close)
+                               (help.destroy)
                                (dojo.stopEvent event)))
          (original-onmouseover document.onmouseover)
          (original-onclick document.onclick))
