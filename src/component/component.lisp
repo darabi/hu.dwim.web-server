@@ -72,7 +72,8 @@
   (setf (dirty-p component) #t))
 
 (def (function e) mark-outdated (component)
-  (setf (outdated-p component) #t))
+  (unless (stringp component)
+    (setf (outdated-p component) #t)))
 
 (def (function e) mark-top-content-outdated (component)
   (mark-outdated (find-top-component-content component)))

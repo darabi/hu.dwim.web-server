@@ -19,6 +19,10 @@
 (def render-pdf content-component ()
   (render-pdf (content-of -self-)))
 
+(def method refresh-component ((self content-component))
+  (when-bind content (content-of self)
+    (mark-outdated content)))
+
 (def method component-value-of ((self content-component))
   (component-value-of (content-of self)))
 

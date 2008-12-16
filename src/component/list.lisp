@@ -39,6 +39,9 @@
   (bind (((:read-only-slots orientation components id css-class style) -self-))
     (render-list orientation components :id id :css-class css-class :style style)))
 
+(def method refresh-component ((self list-component))
+  (foreach #'mark-outdated (components-of self)))
+
 ;;;;;;
 ;;; Horizontal list
 
