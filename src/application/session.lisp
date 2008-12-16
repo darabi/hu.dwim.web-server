@@ -74,6 +74,7 @@
       (progn
         (threads.dribble "Entering with-lock-held-on-session for ~S in thread ~S" session (current-thread))
         (with-recursive-lock-held ((lock-of session))
+          (threads.dribble "Entered with-lock-held-on-session for ~S in thread ~S" session (current-thread))
           (-body-)))
     (threads.dribble "Leaving with-lock-held-on-session for ~S in thread ~S" session (current-thread))))
 
