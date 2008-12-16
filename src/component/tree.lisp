@@ -49,9 +49,10 @@
 
 (def render node-component ()
   (bind (((:read-only-slots child-nodes expanded id style) -self-)
-         (tree-id (id-of *tree*)))
-    <tr (:id ,id :class ,(tree-node-style-class -self-) :style ,style
-         :onclick ,(render-onclick-handler -self-)
+         (tree-id (id-of *tree*))
+         (onclick-handler? #f))
+    <tr (:id ,id :onclick ,(setf onclick-handler? (render-onclick-handler -self-)) :style ,style
+         :class ,(concatenate-string (tree-node-style-class -self-) (when onclick-handler? " selectable"))
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,tree-id ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,tree-id ,id))
       ,(render-tree-node-cells -self-) >
