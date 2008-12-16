@@ -29,10 +29,10 @@
                                           (position-of page-navigation-bar)
                                           (min (length rows)
                                                (+ (position-of page-navigation-bar)
-                                                  (page-count-of page-navigation-bar))))))
+                                                  (page-size-of page-navigation-bar))))))
                    (iter (for row :in-sequence visible-rows)
                          (render row)))>>
-         ,(if (< (page-count-of page-navigation-bar) (total-count-of page-navigation-bar))
+         ,(if (< (page-size-of page-navigation-bar) (total-count-of page-navigation-bar))
               (render page-navigation-bar)
               +void+)>))
 

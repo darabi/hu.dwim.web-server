@@ -183,49 +183,59 @@
 
 (def component page-navigation-bar-component (command-bar-component)
   ((position 0)
-   (page-count 10)
+   (page-size 10)
    (total-count)
    (first-command :type component)
    (previous-command :type component)
    (next-command :type component)
    (last-command :type component)
    (jumper :type component)
-   (page-count-selector :type component)))
+   (page-size-selector :type component)))
 
 (def constructor page-navigation-bar-component ()
-  (with-slots (position page-count total-count first-command previous-command next-command last-command jumper page-count-selector) -self-
+  (with-slots (position page-size total-count first-command previous-command next-command last-command jumper page-size-selector) -self-
     (setf first-command (command (icon first)
                                  (make-action
                                    (setf (component-value-of jumper) (setf position 0)))
                                  :enabled (delay (> position 0)))
           previous-command (command (icon previous)
                                     (make-action
-                                      (setf (component-value-of jumper) (decf position (min position page-count))))
+                                      (setf (component-value-of jumper) (decf position (min position page-size))))
                                     :enabled (delay (> position 0)))
           next-command (command (icon next)
                                 (make-action
-                                  (setf (component-value-of jumper) (incf position (min page-count (- total-count page-count)))))
-                                :enabled (delay (< position (- total-count page-count))))
+                                  (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size)))))
+                                :enabled (delay (< position (- total-count page-size))))
           last-command (command (icon last)
                                 (make-action
-                                  (setf (component-value-of jumper) (setf position (- total-count page-count))))
-                                :enabled (delay (< position (- total-count page-count))))
+                                  (setf (component-value-of jumper) (setf position (- total-count page-size))))
+                                :enabled (delay (< position (- total-count page-size))))
           jumper (make-instance 'integer-inspector :edited #t :component-value position)
-          page-count-selector (make-instance 'page-count-selector :component-value page-count))))
+          page-size-selector (make-instance 'page-size-selector :component-value page-size))))
 
 (def render page-navigation-bar-component ()
-  (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-count-selector) -self-))
-    (render-horizontal-list (list first-command previous-command jumper page-count-selector next-command last-command))))
+  (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-size) -self-))
+    ;; FIXME: the select field rendered for page-count does not work by some fucking dojo reason
+    (render-horizontal-list (list first-command previous-command jumper #+nil page-size-selector next-command last-command))))
 
 ;;;;;;
 ;;; Page count selector
 
-(def component page-count-selector (member-inspector)
+(def component page-size-selector (member-inspector)
   ()
-  (:default-initargs :possible-values '(10 20 50 100) :edited #t :client-name-generator [integer-to-string !2]))
+  (:default-initargs
+   :edited #t
+   :possible-values '(10 20 50 100)
+   :client-name-generator [concatenate-string (integer-to-string !2) #"page-size-selector.rows/page"]))
 
-(def method refresh-component ((self page-count-selector))
-  (setf (page-count-of (parent-component-of self)) (component-value-of self)))
+(def method refresh-component ((self page-size-selector))
+  (setf (page-size-of (parent-component-of self)) (component-value-of self)))
+
+(def resources en
+  (page-size-selector.rows/page " rows/page"))
+
+(def resources hu
+  (page-size-selector.rows/page " sor/oldal"))
 
 ;;;;;;
 ;;; Generic commands

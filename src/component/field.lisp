@@ -122,8 +122,7 @@
                (for client-name = (funcall client-name-generator actual-value))
                (for client-value = (integer-to-string index))
                (for selected = (when (funcall test value actual-value) "yes"))
-               <option (:value ,client-value :selected ,selected)
-                       ,client-name>)>)))
+               <option (:value ,client-value :selected ,selected) ,client-name>)>)))
 
 ;;;;;;
 ;;; Popup menu select field

@@ -184,7 +184,7 @@
 (def method initialize-instance :after ((-self- initargs-component-mixin) &rest args &key &allow-other-keys)
   (setf (initargs-of -self-)
         ;; TODO: KLUDGE: dispatch on component for saved args?
-        (iter (for arg :in '(:title :store-mode :page-count))
+        (iter (for arg :in '(:title :store-mode :page-size))
               (for value = (getf args arg :unbound))
               (unless (eq value :unbound)
                 (collect arg)

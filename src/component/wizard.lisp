@@ -16,7 +16,7 @@
     (setf page-navigation-bar (make-instance 'wizard-navigation-bar-component
                                              :position 0
                                              :total-count (length pages)
-                                             :page-count 1))))
+                                             :page-size 1))))
 
 (def render wizard-component ()
   (bind (((:read-only-slots pages page-navigation-bar) -self-))
