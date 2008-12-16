@@ -55,18 +55,21 @@
                           :message (apply #'format nil message message-args)
                           initargs)))))
 
+(def (function e) has-user-message-p (collector category)
+  (find category (messages-of collector) :key #'category-of))
+
 ;;;;;;
 ;;; User message
 
-(def component user-message-component (content-component)
+(def component user-message-component (content-component style-component-mixin)
   ((category :information :type (member :information :warning :error))
    (message nil :type string)
    (permanent #f :type boolean)))
 
 (def render user-message-component ()
-  (bind (((:read-only-slots category message permanent content) -self-)
+  (bind (((:read-only-slots category message permanent content css-class style) -self-)
          (id (generate-unique-string (or *frame* *response*))))
-    <div (:id ,id :class ,(string-downcase category))
+    <div (:id ,id :class ,(concatenate-string (string-downcase category) " " css-class) :style ,style)
          ,(when permanent
             (render (command (icon close :label nil)
                              (make-action
