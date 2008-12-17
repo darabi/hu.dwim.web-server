@@ -13,11 +13,11 @@
 
 (def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
 
-(def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}[\.0-9]{0,})"))
+(def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
 
-(def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}[\.0-9]{0,})"))
+(def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
 
-(def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}[\.0-9]{0,})"))
+(def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
 
 (def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
 
