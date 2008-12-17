@@ -131,9 +131,8 @@
   ((id nil)))
 
 (def render :before remote-identity-component-mixin
-  (when (and *frame*
-             (not (id-of -self-)))
-    (setf (id-of -self-) (generate-frame-unique-string "c"))))
+  (when (not (id-of -self-))
+    (setf (id-of -self-) (generate-unique-string "c"))))
 
 (def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
   ;; KLUDGE: find top-component and go down from there to avoid
