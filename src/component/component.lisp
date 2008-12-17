@@ -14,7 +14,6 @@
      (:metaclass component-class)
      ,@options))
 
-
 ;;;;;;
 ;;; Component
 

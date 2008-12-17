@@ -19,15 +19,15 @@
                               ,css-class)
           :id ,id
           :style ,style)
-    ,@(ecase orientation
-             (:vertical (mapcar (lambda (element)
-                                  (when (force (visible-p element))
-                                    <tr <td ,(render element)>>))
-                                components))
-             (:horizontal (list <tr ,(foreach (lambda (element)
-                                                (when (force (visible-p element))
-                                                  <td ,(render element)>))
-                                              components)>)))>)
+    <tbody ,@(ecase orientation
+                    (:vertical (mapcar (lambda (element)
+                                         (when (force (visible-p element))
+                                           <tr <td ,(render element)>>))
+                                       components))
+                    (:horizontal (list <tr ,(foreach (lambda (element)
+                                                       (when (force (visible-p element))
+                                                         <td ,(render element)>))
+                                                     components)>)))>>)
 
 (def (function e) render-vertical-list (components &key id css-class style)
   (render-list :vertical components :id id :css-class css-class :style style))
