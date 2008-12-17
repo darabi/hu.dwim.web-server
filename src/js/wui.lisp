@@ -82,7 +82,9 @@
             (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
             (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
           (wui.io.xhr-post params))))
-  (dojo.stop-event event))
+  ;; TODO: event should be mandatory 
+  (when event
+    (dojo.stop-event event)))
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)
