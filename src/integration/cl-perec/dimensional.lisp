@@ -104,3 +104,11 @@
                 (mark-outdated -self-))
               (collect new-coordinate)))
   (ensure-uptodate -self-))
+
+(def (function e) coordinates-bound-according-to-dimension-type-p (component)
+  (iter (for dimension :in (dimensions-of component))
+        (always (etypecase dimension
+                  (prc::inheriting-dimension #t)
+                  (prc::ordering-dimension #t)
+                  (prc::dimension
+                   (typep (prc::coordinate dimension) (prc::the-type-of dimension)))))))
