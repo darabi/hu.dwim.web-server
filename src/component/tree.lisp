@@ -77,7 +77,8 @@
                                                       "static/wui/icons/20x20/arrowhead-right.png")))>
           `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
                                     (lambda (event)
-                                      (wui.io.action event ,(action/href () (setf expanded (not expanded))) ,(id-of *tree*) #t)))))
+                                      ;; TODO: pass down (id-of *tree*) for ajax
+                                      (wui.io.action event ,(action/href () (setf expanded (not expanded))) #f #t)))))
         <span (:class "non-expandable")>)))
 
 (def (function e) render-tree-node-expander-cell (node-component)
