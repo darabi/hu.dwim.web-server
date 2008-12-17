@@ -50,9 +50,8 @@
 (def render node-component ()
   (bind (((:read-only-slots child-nodes expanded id style) -self-)
          (tree-id (id-of *tree*))
-         (onclick-handler? #f))
-    <tr (:id ,id :onclick ,(setf onclick-handler? (render-onclick-handler -self-)) :style ,style
-         :class ,(concatenate-string (tree-node-style-class -self-) (when onclick-handler? " selectable"))
+         (onclick-handler? (render-onclick-handler -self-)))
+    <tr (:id ,id :style ,style :class ,(concatenate-string (tree-node-style-class -self-) (when onclick-handler? " selectable"))
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,tree-id ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,tree-id ,id))
       ,(render-tree-node-cells -self-) >
@@ -71,11 +70,14 @@
 (def (function e) render-tree-node-expander (node-component)
   (with-slots (child-nodes expanded) node-component
     (if child-nodes
-        <a (:href ,(action/href () (setf expanded (not expanded))))
-           <img (:src ,(concatenate-string (path-prefix-of *application*)
-                                           (if expanded
-                                               "static/wui/icons/20x20/arrowhead-down.png"
-                                               "static/wui/icons/20x20/arrowhead-right.png")))>>
+        (bind ((id (generate-unique-string)))
+          <img (:id ,id :src ,(concatenate-string (path-prefix-of *application*)
+                                                  (if expanded
+                                                      "static/wui/icons/20x20/arrowhead-down.png"
+                                                      "static/wui/icons/20x20/arrowhead-right.png")))>
+          `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
+                                    (lambda (event)
+                                      (wui.io.action event ,(action/href () (setf expanded (not expanded))) ,(id-of *tree*) #t)))))
         <span (:class "non-expandable")>)))
 
 (def (function e) render-tree-node-expander-cell (node-component)

@@ -220,7 +220,7 @@
 
 (def layered-method render-onclick-handler ((self standard-object-tree-node-inspector))
   (when-bind expand-command (find-command-bar-command (command-bar-of self) 'expand)
-    (render-onclick-handler expand-command)))
+    (render-command-onclick-handler expand-command (id-of self))))
 
 (def layered-method make-standard-commands ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object))
   (append (optional-list (make-expand-command component class instance))
@@ -418,5 +418,5 @@
 
 (def layered-method render-onclick-handler ((self selectable-standard-object-tree-node-inspector))
   (if-bind select-command (find-command-bar-command (command-bar-of self) 'select)
-    (render-onclick-handler select-command)
+    (render-command-onclick-handler select-command (id-of self))
     (call-next-method)))

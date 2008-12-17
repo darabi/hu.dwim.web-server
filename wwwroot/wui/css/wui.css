@@ -76,3 +76,12 @@ div.list.vertical > div
 {
   white-space: nowrap;
 }
+
+/*
+  command
+*/
+
+.command
+{
+  cursor: pointer;
+}

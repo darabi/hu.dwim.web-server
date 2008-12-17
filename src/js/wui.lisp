@@ -46,7 +46,7 @@
 ;;;;;;
 ;;; io
 
-(defun wui.io.action (url (ajax true) (send-client-state true))
+(defun wui.io.action (event url (ajax true) (send-client-state true))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if (null ajax) "" "t")))
@@ -82,7 +82,7 @@
             (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
             (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
           (wui.io.xhr-post params))))
-  (return false))
+  (dojo.stop-event event))
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)
@@ -449,7 +449,7 @@
     (while (not (= parent document))
       (dojo.remove-class parent "highlighted")
       (setf parent parent.parent-node)))
-  (dojo.stopEvent event))
+  (dojo.stop-event event))
 
 (defun wui.highlight-mouse-leave-handler (event (table :by-id) (row :by-id))
   (dojo.remove-class row "highlighted"))
@@ -616,16 +616,16 @@
                                                           :position (array "below" "right")
                                                           :href decorated-url)))
                                   (help.open event.target)
-                                  (dojo.stopEvent event)))))
+                                  (dojo.stop-event event)))))
          (mouseclick-handler (lambda (event)
                                (setf document.body.style.cursor "default")
                                (document.remove-event-listener "mouseover" mouseover-handler true)
                                (document.remove-event-listener "click" mouseclick-handler true)
                                (help.destroy)
-                               (dojo.stopEvent event)))
+                               (dojo.stop-event event)))
          (original-onmouseover document.onmouseover)
          (original-onclick document.onclick))
     (document.add-event-listener "mouseover" mouseover-handler true)
     (document.add-event-listener "click" mouseclick-handler true)
     (setf document.body.style.cursor "help")
-    (dojo.stopEvent event)))
+    (dojo.stop-event event)))

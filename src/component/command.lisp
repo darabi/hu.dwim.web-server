@@ -14,15 +14,15 @@
 ;;; Command component
 
 (def component command-component (content-component)
-  ((action :type (or uri action))
-   (enabled #t :type boolean)
+  ((enabled #t :type boolean)
    ;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available #t :type boolean)
    (default #f :type boolean)
    (ajax #f :type boolean)
-   (js nil)
-   (action-arguments nil)))
+   (action :type (or uri action))
+   (action-arguments nil)
+   (js nil)))
 
 (def (macro e) command (content action &key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path
                                 (delayed-content nil delayed-content-provided?)
@@ -49,33 +49,39 @@
 
 (def (function e) render-command (content action &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
   (if (force enabled)
-      (bind ((send-client-state (prog1
+      (bind ((id (generate-unique-string))
+             (send-client-state (prog1
                                     (getf action-arguments :send-client-state #t)
                                   (remove-from-plistf action-arguments :send-client-state)))
              (href (etypecase action
                      (action (apply 'register-action/href action action-arguments))
-                     ;; TODO wastes resources. store back the printed uri? see below also...
+                     ;; TODO: wastes resources. store back the printed uri? see below also...
                      (uri (print-uri-to-string action))))
              (onclick-js (or js
                              (lambda (href)
-                               `js-inline(return (wui.io.action ,href ,(force ajax) ,send-client-state)))))
+                               `js(wui.io.action event ,href ,(force ajax) ,send-client-state))))
              (name (when (running-in-test-mode-p *application*)
                      (if (typep content 'icon-component)
                          (symbol-name (name-of content))
                          (princ-to-string content)))))
-        ;; KLUDGE name is not a legal attribute
-        <a (:href "#" :onclick ,(funcall onclick-js href) :name ,name)
-           ,(render content)>
+        ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
+        <span (:id ,id :class "command" :name ,name) ,(render content)>
+        `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil (lambda (event) ,(funcall onclick-js href))))
+        ;; TODO: use dojo.connect for keyboard events
         (when default
-          <input (:type "submit" :style "display: none;" :onclick ,(funcall onclick-js href))>))
-      <span (:class "disabled") ,(render content)>))
+          (bind ((submit-id (generate-unique-string)))
+            <input (:id ,submit-id :type "submit" :style "display: none;")>
+            `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" nil (lambda (event) ,(funcall onclick-js href)))))))
+      <span (:class "command disabled") ,(render content)>))
 
-(def layered-method render-onclick-handler ((command command-component))
+(def (function e) render-command-onclick-handler (command id)
   (bind ((action (action-of command))
          (href (etypecase action
                  (action (register-action/href action))
                  (uri (print-uri-to-string action)))))
-    `js-inline(return (wui.io.action ,href ,(force (ajax-p command)) #t))))
+    `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
+                              (lambda (event)
+                                (wui.io.action event ,href ,(force (ajax-p command)) #t))))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))
@@ -172,9 +178,9 @@
                         (render-dojo-widget (command-id)
                           <div (:id ,command-id
                                 :dojoType #.+dijit/menu-item+
-                                :iconClass ,(icon-class (name-of (content-of command)))
-                                :onclick ,(render-onclick-handler command))
-                            ,(render-icon :icon (content-of command) :class nil)>)))>)>)))
+                                :iconClass ,(icon-class (name-of (content-of command))))
+                            ,(render-icon :icon (content-of command) :class nil)>
+                          (render-command-onclick-handler command command-id))))>)>)))
 
 (def render-csv popup-command-menu-component ()
   (render-csv-separated-elements #\Space (commands-of -self-)))
@@ -339,5 +345,5 @@
                  (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
                  (make-redirect-response-with-frame-id-decorated *frame*)))
              :js (lambda (href)
-                   `js-inline(window.open ,href))
+                   `js(window.open ,href))
              :delayed-content #t)))

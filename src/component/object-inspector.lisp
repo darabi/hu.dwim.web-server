@@ -75,7 +75,7 @@
 (def layered-method render-onclick-handler ((self standard-object-inspector))
   #+nil ;; TODO: this prevents clicking into edit fields in edit mode, because collapses the component
   (when-bind collapse-command (find-command-bar-command (command-bar-of self) 'collapse)
-    (render-onclick-handler collapse-command)))
+    (render-command-onclick-handler collapse-command (id-of self))))
 
 ;;;;;;
 ;;; Standard object detail inspector
@@ -123,9 +123,10 @@
 
 (def render standard-object-detail-inspector ()
   (bind (((:read-only-slots slot-value-groups id) -self-))
-    <div (:id ,id :class "standard-object" :onclick ,(render-onclick-handler (parent-component-of -self-)))
+    <div (:id ,id :class "standard-object")
          ,(render-title -self-)
-         <table (:class "slot-table") ,(foreach #'render slot-value-groups)>>))
+         <table (:class "slot-table") ,(foreach #'render slot-value-groups)>>
+    (render-onclick-handler (parent-component-of -self-))))
 
 (def layered-method render-title ((self standard-object-detail-inspector))
   (standard-object-detail-inspector.title (slot-value self 'class)))

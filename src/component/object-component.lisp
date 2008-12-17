@@ -55,6 +55,10 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-class-component))
   (setf (the-class-of component) new-value))
 
+(def method clone-component ((self abstract-standard-class-component))
+  (prog1-bind clone (call-next-method)
+    (setf (the-class-of clone) (the-class-of self))))
+
 ;;;;;;
 ;;; Abstract standard slot definition component
 
@@ -68,6 +72,11 @@
 
 (def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-component))
   (setf (slot-of component) new-value))
+
+(def method clone-component ((self abstract-standard-slot-definition-component))
+  (prog1-bind clone (call-next-method)
+    (setf (the-class-of clone) (the-class-of self))
+    (setf (slot-of clone) (slot-of self))))
 
 ;;;;;;
 ;;; Abstract standard slot definition group component
@@ -324,4 +333,4 @@
 
 (def render class-selector ()
   (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
-    (render-member-component -self- :on-change (delay `js-inline(return (wui.io.action ,href #f #t))))))
+    (render-member-component -self- :on-change (delay `js-inline(wui.io.action ,href #f #t)))))

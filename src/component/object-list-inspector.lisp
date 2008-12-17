@@ -218,7 +218,7 @@
 
 (def layered-method render-onclick-handler ((self standard-object-row-inspector))
   (when-bind expand-command (find-command-bar-command (command-bar-of self) 'expand)
-    (render-onclick-handler expand-command)))
+    (render-command-onclick-handler expand-command (id-of self))))
 
 (def method refresh-component ((self standard-object-row-inspector))
   (with-slots (instance command-bar cells) self
@@ -310,5 +310,5 @@
 
 (def layered-method render-onclick-handler ((self selectable-standard-object-row-inspector))
   (if-bind select-command (find-command-bar-command (command-bar-of self) 'select)
-    (render-onclick-handler select-command)
+    (render-command-onclick-handler select-command (id-of self))
     (call-next-method)))
