@@ -19,6 +19,8 @@
 
 (def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}[\.0-9]{0,})"))
 
+(def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
+
 (def component frame-component (top-component layer-context-capturing-component-mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
@@ -126,5 +128,6 @@
                  (and success?
                       (<= minimum-version (parse-number:parse-number (first-elt version)))))))
         (or (check +mozilla-version-scanner+ 5)
-            (check +opera-version-scanner+ 9)
-            (check +msie-version-scanner+ 7))))))
+            (check +opera-version-scanner+ 9.6)
+            (check +msie-version-scanner+ 7)
+            (check +drakma-version-scanner+ 0))))))
