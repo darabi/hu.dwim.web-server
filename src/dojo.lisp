@@ -32,12 +32,12 @@
     (multiple-value-prog1
         (-body-)
       (when *dojo-widget-ids*
-        `js(on-load
-            (let ((widget-ids (array ,@*dojo-widget-ids*)))
-              (log.debug "Instantiating the following widgets " widget-ids)
-              (dojo.parser.instantiate (map 'dojo.by-id widget-ids))
-              ;; KLUDGE: this must be done after all widgets are loaded
-              (setf (slot-value (slot-value (slot-value document 'body) 'style) 'margin-left) "0px")))))))
+        ;; NOTE: this must come first before any additional widget setup
+        `xml,@(with-collapsed-js-scripts
+               `js(on-load
+                   (let ((widget-ids (array ,@*dojo-widget-ids*)))
+                     (log.debug "Instantiating the following widgets " widget-ids)
+                     (dojo.parser.instantiate (map 'dojo.by-id widget-ids)))))))))
 
 (def macro render-dojo-widget ((&optional (id '(generate-frame-unique-string "_w")))
                                 &body body)

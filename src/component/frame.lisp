@@ -111,7 +111,10 @@
                     :value ,(first (ensure-list (request-parameter-value *request* +scroll-y-parameter-name+))))>>
           ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
-               (render (content-of -self-))))>>>))
+               (render (content-of -self-)))
+             ;; KLUDGE: this must be done after all widgets are loaded
+             `js(on-load
+                 (setf (slot-value (slot-value (slot-value document 'body) 'style) 'margin-left) "0px")))>>>))
 
 (def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'frame-component ,@args :content ,(the-only-element content)))
