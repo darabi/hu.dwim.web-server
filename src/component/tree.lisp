@@ -68,7 +68,8 @@
     (concatenate-string "level-" (integer-to-string *tree-level*) " " (css-class-of self))))
 
 (def (function e) render-tree-node-expander (node-component)
-  (with-slots (child-nodes expanded) node-component
+  (bind (((:slots child-nodes expanded) node-component)
+         (tree *tree*))
     (if child-nodes
         (bind ((id (generate-unique-string)))
           <img (:id ,id :src ,(concatenate-string (path-prefix-of *application*)
@@ -78,7 +79,11 @@
           `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
                                     (lambda (event)
                                       ;; TODO: pass down (id-of *tree*) for ajax
-                                      (wui.io.action event ,(action/href () (setf expanded (not expanded))) #f #t)))))
+                                      (wui.io.action event ,(action/href ()
+                                                              (setf expanded (not expanded))
+                                                              ;; NOTE: we make dirty the whole tree, because it is difficult to replace the rows corresponding to the tree node
+                                                              (mark-dirty tree))
+                                                     ,(id-of tree) #t)))))
         <span (:class "non-expandable")>)))
 
 (def (function e) render-tree-node-expander-cell (node-component)
