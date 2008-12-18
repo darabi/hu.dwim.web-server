@@ -37,11 +37,15 @@
           (handler-bind ((invalid-client-value (lambda (error)
                                                  (setf (component-value-of component) error)
                                                  (return))))
-            (bind (((:values value no-value?)
-                    (parse-component-value component client-value)))
+            (bind (((:values new-value no-value?) (parse-component-value component client-value))
+                   (bound? (slot-boundp component 'component-value))
+                   (old-value (when bound? (component-value-of component))))
               (if no-value?
-                  (slot-makunbound component 'component-value)
-                  (setf (component-value-of component) value)))))))
+                  (when bound?
+                    (slot-makunbound component 'component-value))
+                  (unless (and bound?
+                               (equal old-value new-value))
+                    (setf (component-value-of component) new-value))))))))
 
 (def method component-value-of :around ((-self- primitive-component))
   (bind ((result (call-next-method)))
