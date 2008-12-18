@@ -163,6 +163,12 @@
 
 (def method (setf slot-value-using-class) :after (new-value (class component-class) (instance component) (slot standard-effective-slot-definition))
   (unless (eq 'dirty (slot-definition-name slot))
+    ;; TODO: why not mark-outdated?
+    (mark-dirty instance)))
+
+(def method slot-makunbound-using-class :after ((class component-class) (instance component) (slot standard-effective-slot-definition))
+  (unless (eq 'dirty (slot-definition-name slot))
+    ;; TODO: why not mark-outdated?
     (mark-dirty instance)))
 
 (def method (setf slot-value-using-class) :after (new-value (class component-class) (instance component) (slot component-effective-slot-definition))
