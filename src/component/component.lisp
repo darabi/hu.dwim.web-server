@@ -161,15 +161,17 @@
 ;;;;;;
 ;;; Parent child relationship
 
-(def method (setf slot-value-using-class) :after (new-value (class component-class) (instance component) (slot standard-effective-slot-definition))
+(def method (setf slot-value-using-class) (new-value (class component-class) (instance component) (slot standard-effective-slot-definition))
   (unless (eq 'dirty (slot-definition-name slot))
-    ;; TODO: why not mark-outdated?
-    (mark-dirty instance)))
+    (unless (eq (standard-instance-access instance (slot-definition-location slot)) new-value)
+      (call-next-method)
+      (mark-dirty instance))))
 
-(def method slot-makunbound-using-class :after ((class component-class) (instance component) (slot standard-effective-slot-definition))
+(def method slot-makunbound-using-class ((class component-class) (instance component) (slot standard-effective-slot-definition))
   (unless (eq 'dirty (slot-definition-name slot))
-    ;; TODO: why not mark-outdated?
-    (mark-dirty instance)))
+    (unless (slot-boundp-using-class class instance slot)
+      (call-next-method)
+      (mark-dirty instance))))
 
 (def method (setf slot-value-using-class) :after (new-value (class component-class) (instance component) (slot component-effective-slot-definition))
   (setf-parent-component-references new-value instance))
