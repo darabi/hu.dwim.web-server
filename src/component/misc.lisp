@@ -297,10 +297,10 @@
                                  (when (and (typep descendant 'remote-identity-component-mixin)
                                             (member (id-of descendant) ids :test #'string=))
                                    (push descendant components))))
-    (aif (and components
-              (make-context-sensitive-help (first components)))
-         (make-component-rendering-response it)
-         (make-component-rendering-response #"help.no-context-sensitive-help-available"))))
+    (make-component-rendering-response (make-instance 'context-sensitive-help-popup
+                                                      :content (or (and components
+                                                                        (make-context-sensitive-help (first components)))
+                                                                   #"help.no-context-sensitive-help-available")))))
 
 (def (generic e) make-context-sensitive-help (component)
   (:method ((component component))
@@ -316,3 +316,12 @@
 
 (def resources en
   (help.no-context-sensitive-help-available "No conext sensitive help available"))
+
+;;;;;;
+;;; Help popup
+
+(def component context-sensitive-help-popup (content-component)
+  ())
+
+(def render context-sensitive-help-popup ()
+  <div (:class "context-sensitive-help-popup") ,(call-next-method)>)
