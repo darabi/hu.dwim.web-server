@@ -59,7 +59,10 @@
                      (uri (print-uri-to-string action))))
              (onclick-js (or js
                              (lambda (href)
-                               `js(wui.io.action event ,href ,(force ajax) ,send-client-state))))
+                               `js(wui.io.action event ,href
+                                                 ,(when (ajax-enabled? *application*)
+                                                    (force ajax))
+                                                 ,send-client-state))))
              (name (when (running-in-test-mode-p *application*)
                      (if (typep content 'icon-component)
                          (symbol-name (name-of content))
@@ -81,7 +84,10 @@
                  (uri (print-uri-to-string action)))))
     `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
                               (lambda (event)
-                                (wui.io.action event ,href ,(force (ajax-p command)) #t))))))
+                                (wui.io.action event ,href ,
+                                               (when (ajax-enabled? *application*)
+                                                 (force (ajax-p command)))
+                                               #t))))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))

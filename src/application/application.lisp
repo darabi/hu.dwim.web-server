@@ -26,6 +26,9 @@
 (def (special-variable e) *default-frame-timeout* *default-session-timeout*
   "The default for the same slot in applications.")
 
+(def (special-variable e) *default-ajax-enabled* #f
+  "The default for the same slot in applications")
+
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
 
@@ -45,7 +48,8 @@
    (admin-email-address nil)
    (lock)
    (running-in-test-mode #f :type boolean :export :accessor)
-   (compile-time-debug-client-side :type boolean :accessor compile-time-debug-client-side? :export :accessor))
+   (compile-time-debug-client-side :type boolean :accessor compile-time-debug-client-side? :export :accessor)
+   (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:metaclass funcallable-standard-class))
 
 (def method compile-time-debug-client-side? :around ((self application))
@@ -520,7 +524,8 @@ Custom implementations should look something like this:
 
 (def function ajax-aware-render (component)
   (app.debug "Inside AJAX-AWARE-RENDER; is this an ajax-aware-request? ~A" *ajax-aware-request*)
-  (if *ajax-aware-request*
+  (if (and *ajax-aware-request*
+           (ajax-enabled? *application*))
       (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         ;; FF does not like proper xml prologue, probably the other browsers even more so...
