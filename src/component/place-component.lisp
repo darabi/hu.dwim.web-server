@@ -253,8 +253,7 @@
                    (render-popup-menu-select-field (localize-predicate selected-predicate)
                                                    (mapcar #'localize-predicate possible-predicates)
                                                    :value-sink (lambda (value)
-                                                                 (setf (selected-predicate-of self)
-                                                                       (find value possible-predicates :key #'localize-predicate :test #'string=)))
+                                                                 (setf selected-predicate (find value possible-predicates :key #'localize-predicate :test #'string=)))
                                                    :classes (mapcar #'predicate-class possible-predicates)))>)
         <td (:colspan 2)>)))
 

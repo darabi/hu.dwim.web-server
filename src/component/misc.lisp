@@ -140,15 +140,17 @@
   (bind ((covering-components nil))
     (labels ((traverse (component)
                ;; NOTE: we cannot evaluate delayed visible here, because we are not in the component's environment
-               (with-component-environment component
-                 (when (force (visible-p component))
-                   (if (or (dirty-p component)
-                           (outdated-p component))
-                       (bind ((remote-identity-component
-                               (find-ancestor-component-with-type component 'remote-identity-component-mixin)))
-                         (assert remote-identity-component nil "There is no ancestor component with remote identity for ~A" component)
-                         (pushnew remote-identity-component covering-components))
-                       (map-child-components component #'traverse))))))
+               (catch component
+                 (with-component-environment component
+                   (when (force (visible-p component))
+                     (if (or (dirty-p component)
+                             (outdated-p component))
+                         (bind ((remote-identity-component
+                                 (find-ancestor-component-with-type component 'remote-identity-component-mixin)))
+                           (assert remote-identity-component nil "There is no ancestor component with remote identity for ~A" component)
+                           (pushnew remote-identity-component covering-components)
+                           (throw remote-identity-component nil))
+                         (map-child-components component #'traverse)))))))
       (traverse component))
     (remove-if (lambda (component-to-be-removed)
                  (find-if (lambda (covering-component)
