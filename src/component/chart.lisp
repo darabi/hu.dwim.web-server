@@ -10,8 +10,8 @@
 (def component chart ()
   ((configuration-provider)
    (data-provider nil)
-   (width 800)
-   (height 400)))
+   (width)
+   (height)))
 
 (def function render-chart (component kind)
   ;; TODO: move this to frame or something higher?
