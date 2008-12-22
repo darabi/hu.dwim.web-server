@@ -169,3 +169,9 @@
 
 (def layered-method make-standard-commands ((component editable-component) (class standard-class) (instance-or-prototype standard-object))
   (append (make-editing-commands component class instance-or-prototype) (call-next-method)))
+
+(def layered-method make-refresh-command ((component editable-component) (class standard-class) (prototype-or-instance standard-object))
+  (command (icon refresh)
+           (make-component-action component
+             (refresh-component component))
+           :visible (delay (not (edited-p component)))))
