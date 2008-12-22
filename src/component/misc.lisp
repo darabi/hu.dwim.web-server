@@ -121,7 +121,7 @@
 (def component layer-context-capturing-component-mixin ()
   ((layer-context (current-layer-context))))
 
-(def call-in-component-environment layer-context-capturing-component-mixin ()
+(def component-environment layer-context-capturing-component-mixin
   (funcall-with-layer-context (layer-context-of -self-) #'call-next-method))
 
 ;;;;;;

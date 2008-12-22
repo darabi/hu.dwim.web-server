@@ -10,7 +10,7 @@
 (def component time-provider (content-component)
   ((time :type prc::timestamp)))
 
-(def call-in-component-environment time-provider ()
+(def component-environment time-provider
   (prc::call-with-time (time-of -self-) #'call-next-method))
 
 ;;;;;;
@@ -59,7 +59,7 @@
   <div ,(render (selector-of -self-))
        ,(call-next-method) >)
 
-(def call-in-component-environment validity-provider ()
+(def component-environment validity-provider
   (bind ((year (component-value-of (selector-of -self-))))
     (prc::call-with-validity-range (local-time:encode-timestamp 0 0 0 0 1 1 year :offset 0)
                                    (local-time:encode-timestamp 0 0 0 0 1 1 (1+ year) :offset 0)
@@ -78,7 +78,7 @@
                   :coordinates ,coordinates
                   :content (progn ,@content)))
 
-(def call-in-component-environment coordinates-provider ()
+(def component-environment coordinates-provider
   (bind (((:read-only-slots dimensions coordinates) -self-))
     (prc:with-coordinates dimensions (force coordinates)
       (call-next-method))))

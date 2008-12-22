@@ -17,7 +17,7 @@
    (root-nodes nil :type components)
    (expand-nodes-by-default #f :type boolean)))
 
-(def call-in-component-environment tree-component ()
+(def component-environment tree-component
   (bind ((*tree* -self-)
          (*tree-level* -1))
     (call-next-method)))
@@ -109,7 +109,7 @@
                 (render-tree-node-expander-cell self)
                 (render-tree-cell *tree* self column cell))))))
 
-(def call-in-component-environment node-component ()
+(def component-environment node-component
   (bind ((*tree-level* (1+ *tree-level*)))
     (call-next-method)))
 

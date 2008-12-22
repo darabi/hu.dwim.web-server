@@ -14,7 +14,7 @@
    (rows nil :type components)
    (page-navigation-bar (make-instance 'page-navigation-bar-component) :type component)))
 
-(def call-in-component-environment table-component ()
+(def component-environment table-component
   (bind ((*table* -self-))
     (call-next-method)))
 
