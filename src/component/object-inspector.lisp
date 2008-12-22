@@ -181,7 +181,7 @@
     (if slot
         (if label
             (setf (component-value-of label) (localized-slot-name slot))
-            (setf label (label (localized-slot-name slot))))
+            (setf label (localized-slot-name slot)))
         (setf label nil))
     (if instance
         (if value

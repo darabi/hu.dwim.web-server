@@ -180,7 +180,7 @@
 
 (def method refresh-component ((self standard-object-slot-value-maker)) ()
   (with-slots (slot label value) self
-    (setf label (label (localized-slot-name slot))
+    (setf label (localized-slot-name slot)
           value (make-place-maker (slot-type slot) :name (slot-definition-name slot) :initform (slot-definition-initform slot)))))
 
 ;;;;;;

@@ -168,7 +168,7 @@
   (with-slots (slot label value) self
     (bind ((type (slot-type slot))
            (name (slot-definition-name slot)))
-      (setf label (label (localized-slot-name slot)))
+      (setf label (localized-slot-name slot))
       (unless (and value
                    (type= (the-type-of value) type)
                    (eq (name-of value) name))
