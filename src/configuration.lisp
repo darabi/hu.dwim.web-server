@@ -71,7 +71,7 @@
                      ((not embedded-in-xml?) (format nil ";~%")))))
 
 (def function make-xml-transformation-pipeline ()
-  (make-quasi-quoted-xm-to-form-emitting-transformation-pipeline
+  (make-quasi-quoted-xml-to-form-emitting-transformation-pipeline
    '*html-stream*
    :binary *transform-quasi-quote-to-binary*
    :encoding +encoding+
