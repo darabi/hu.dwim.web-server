@@ -77,21 +77,19 @@
   (bind ((frame-id (parameter-value +frame-id-parameter-name+))
          (frame nil)
          (frame-instance nil)
-         (invalidity-reason nil))
+         (invalidity-reason :nonexistent))
     (when frame-id
       (app.debug "Found frame-id parameter ~S" frame-id)
-      (progn
-        (setf frame-instance (gethash frame-id (frame-id->frame-of session)))
-        (setf frame frame-instance)
-        (if frame
-            (bind ((alive? #f))
-              (setf (values alive? invalidity-reason) (is-frame-alive? frame))
-              (if alive?
-                  (app.debug "Looked up as valid, alive frame ~A" frame)
-                  (progn
-                    (app.debug "Looked up as a frame, but it's not valid anymore due to ~S. It's ~A." invalidity-reason frame)
-                    (setf frame nil))))
-            (setf invalidity-reason :nonexistent))))
+      (setf frame-instance (gethash frame-id (frame-id->frame-of session)))
+      (setf frame frame-instance)
+      (when frame
+        (bind ((alive? #f))
+          (setf (values alive? invalidity-reason) (is-frame-alive? frame))
+          (if alive?
+              (app.debug "Looked up as valid, alive frame ~A" frame)
+              (progn
+                (app.debug "Looked up as a frame, but it's not valid anymore due to ~S. It's ~A." invalidity-reason frame)
+                (setf frame nil))))))
     (values frame (not (null frame-id)) invalidity-reason frame-instance)))
 
 (def method purge-frames (application (session session))
