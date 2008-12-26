@@ -106,7 +106,8 @@
          (session nil)
          (session-instance nil)
          (session-cookie-exists? #f)
-         (invalidity-reason nil))
+         (invalidity-reason nil)
+         (new-session? #f))
     (app.debug "Request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
     (with-lock-held-on-application (application)
       (setf (values session session-cookie-exists? invalidity-reason session-instance)
@@ -114,7 +115,8 @@
       (when (and (not session)
                  ensure-session)
         (setf session (make-new-session application))
-        (register-session application session))
+        (register-session application session)
+        (setf new-session? #t))
       ;; FIXME locking the session should happen while having the lock to the application
       )
     (abort-request-unless-still-valid)
@@ -123,16 +125,20 @@
         (bind ((local-time:*default-timezone* (client-timezone-of session)))
           (incf (number-of-requests-to-sessions-of application))
           (restart-case
-              (if lock-session
-                  (progn
-                    (app.debug "WITH-SESSION-LOGIC is locking session ~A as requested" session)
-                    ;; TODO check if locking would hang, throw error if so
-                    (with-lock-held-on-session (session)
-                      (when (is-request-still-valid?)
-                        (call-in-application-environment application session #'-body-))))
-                  (progn
-                    (app.debug "WITH-SESSION-LOGIC is NOT locking session ~A, it wasn't requested" session)
-                    (call-in-application-environment application session #'-body-)))
+              (bind ((response (if lock-session
+                                   (progn
+                                     (app.debug "WITH-SESSION-LOGIC is locking session ~A as requested" session)
+                                     ;; TODO check if locking would hang, throw error if so
+                                     (with-lock-held-on-session (session)
+                                       (when (is-request-still-valid?)
+                                         (call-in-application-environment application session #'-body-))))
+                                   (progn
+                                     (app.debug "WITH-SESSION-LOGIC is NOT locking session ~A, it wasn't requested" session)
+                                     (call-in-application-environment application session #'-body-)))))
+                (when (and new-session?
+                           response)
+                  (decorate-application-response application response))
+                response)
             (delete-current-session ()
               :report (lambda (stream)
                         (format stream "Delete session ~A and rety handling the request" session))
@@ -180,6 +186,7 @@
     ;; TODO here? find its place...
     (notify-activity session)
     (flet ((maybe-send-response-early (response)
+             (app.dribble "MAYBE-SEND-RESPONSE-EARLY for ~A" response)
              (if (and response
                       (typep response 'locked-session-response-mixin))
                  (progn

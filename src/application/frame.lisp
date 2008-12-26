@@ -71,13 +71,13 @@
   (cond
     ((not (is-frame-valid? frame)) (values #f :invalidated))
     ((is-timed-out? frame) (values #f :timed-out))
-    (t (values #t))))
+    (t (values #t nil))))
 
 (def (function o) find-frame-from-request (session)
   (bind ((frame-id (parameter-value +frame-id-parameter-name+))
          (frame nil)
          (frame-instance nil)
-         (invalidity-reason :nonexistent))
+         (invalidity-reason nil))
     (when frame-id
       (app.debug "Found frame-id parameter ~S" frame-id)
       (setf frame-instance (gethash frame-id (frame-id->frame-of session)))
@@ -90,6 +90,9 @@
               (progn
                 (app.debug "Looked up as a frame, but it's not valid anymore due to ~S. It's ~A." invalidity-reason frame)
                 (setf frame nil))))))
+    (when (and (not frame)
+               (not invalidity-reason))
+      (setf invalidity-reason :nonexistent))
     (values frame (not (null frame-id)) invalidity-reason frame-instance)))
 
 (def method purge-frames (application (session session))
