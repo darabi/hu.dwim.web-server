@@ -4,13 +4,20 @@
 
 (in-package :hu.dwim.wui)
 
-(def function locale-loaded-listener (name)
-  (l10n.debug "Loading resources for locale ~S" name)
-  (bind ((file (project-relative-pathname (concatenate-string "resources/" name ".lisp"))))
-    (awhen (load file :if-does-not-exist nil)
-      (l10n.info "Loaded resources for locale ~S from ~A" name file))))
+(def (definer e) resource-loading-locale-loaded-listener (name base-directory &key log-discriminator)
+  (setf log-discriminator (or log-discriminator ""))
+  (with-standard-definer-options name
+    (once-only (base-directory log-discriminator)
+      `(def function ,name (locale-name)
+         (l10n.debug "Loading ~A resources for locale ~S" ,log-discriminator locale-name)
+         (bind ((file (merge-pathnames (concatenate-string locale-name ".lisp") ,base-directory)))
+           (when (load file :if-does-not-exist nil)
+             (l10n.info "Loaded ~A resources for locale ~S from ~A" ,log-discriminator locale-name file)))))))
 
-(register-locale-loaded-listener 'locale-loaded-listener)
+(def resource-loading-locale-loaded-listener wui-resource-loader (project-relative-pathname "resources/")
+  :log-discriminator "WUI")
+
+(register-locale-loaded-listener 'wui-resource-loader)
 
 ;;;;;;
 ;;; localization primitives
