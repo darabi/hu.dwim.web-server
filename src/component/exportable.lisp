@@ -45,7 +45,7 @@
            (make-action
              (make-raw-functional-response ((+header/content-type+ +csv-mime-type+))
                (send-headers *response*)
-               (bind ((*csv-stream* (network-stream-of *request*)))
+               (bind ((*csv-stream* (client-stream-of *request*)))
                  (execute-export-csv component))))
            :delayed-content #t
            :path (export-file-name format component)))
@@ -74,7 +74,7 @@
            (make-action
              (make-raw-functional-response ((+header/content-type+ +pdf-mime-type+))
                (send-headers *response*)
-               (bind ((*pdf-stream* (network-stream-of *request*)))
+               (bind ((*pdf-stream* (client-stream-of *request*)))
                  (execute-export-pdf component))))
            :delayed-content #t
            :path (export-file-name format component)))
@@ -101,7 +101,7 @@
            (make-action
              (make-raw-functional-response ((+header/content-type+ +odf-mime-type+))
                (send-headers *response*)
-               (bind ((*odf-stream* (network-stream-of *request*)))
+               (bind ((*odf-stream* (client-stream-of *request*)))
                  (execute-export-odf component))))
            :delayed-content #t
            :path (export-file-name format component)))

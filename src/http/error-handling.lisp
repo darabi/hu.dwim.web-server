@@ -9,22 +9,22 @@
     (with-thread-name " / HANDLE-TOPLEVEL-CONDITION"
       (call-next-method))))
 
-(def function is-error-from-network-stream? (error &optional (network-stream (network-stream-of *request*)))
+(def function is-error-from-client-stream? (error &optional (client-stream (client-stream-of *request*)))
   (or (and (typep error 'stream-error)
-           (eq (stream-error-stream error) network-stream))
+           (eq (stream-error-stream error) client-stream))
       (and (typep error 'iolib:socket-error)
            (bind ((error-fd (nix:posix-error-object error)))
              (and error-fd
-                  (eql error-fd (fd-of network-stream)))))))
+                  (eql error-fd (fd-of client-stream)))))))
 
-(defun call-with-server-error-handler (thunk network-stream error-handler)
+(defun call-with-server-error-handler (thunk client-stream error-handler)
   (bind ((level-1-error nil))
     (labels ((level-1-error-handler (error)
                ;; first level of error handling, call around participants, give them a chance to render an error page, etc
                (setf level-1-error error)
                (handler-bind ((serious-condition #'level-2-error-handler))
                  (with-thread-name " / LEVEL-1-ERROR-HANDLER"
-                   (if (is-error-from-network-stream? error network-stream)
+                   (if (is-error-from-client-stream? error client-stream)
                        (server.debug "Ignoring stream error coming from the network stream: ~A" error)
                        (progn
                          (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
@@ -35,7 +35,7 @@
                ;; second level of error handling quarding against errors while handling the original error
                (handler-bind ((serious-condition #'level-3-error-handler))
                  (with-thread-name " / LEVEL-2-ERROR-HANDLER"
-                   (if (is-error-from-network-stream? error network-stream)
+                   (if (is-error-from-client-stream? error client-stream)
                        (server.debug "Ignoring stream error coming from the network stream: ~A" error)
                        (progn
                          (server.error "Nested error while handling original error: ~A; the nested error is: ~A. Backtrace follows..." level-1-error error)

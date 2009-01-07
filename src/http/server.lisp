@@ -365,7 +365,7 @@
                    seconds (/ bytes-allocated 1024 1024) *request-remote-host* raw-uri)))))
 
 (def (function e) is-request-still-valid? ()
-  (iolib:socket-connected-p (network-stream-of *request*)))
+  (iolib:socket-connected-p (client-stream-of *request*)))
 
 (def (function e) abort-request-unless-still-valid ()
   (unless (is-request-still-valid?)
@@ -375,7 +375,7 @@
 ;;;;;;;;;;;;;;;;;
 ;;; serving stuff
 
-(def definer content-serving-function (name args (&key headers cookies (stream '(network-stream-of *request*))
+(def definer content-serving-function (name args (&key headers cookies (stream '(client-stream-of *request*))
                                                        last-modified-at seconds-until-expires content-length)
                                             &body body)
   (bind (((:values body declarations documentation) (parse-body body :documentation #t))
@@ -428,7 +428,7 @@
                                                        headers
                                                        cookies
                                                        content-disposition
-                                                       (stream (network-stream-of *request*))
+                                                       (stream (client-stream-of *request*))
                                                        (seconds-until-expires #.(* 60 60)))
     (:last-modified-at last-modified-at
      :seconds-until-expires seconds-until-expires
@@ -456,7 +456,7 @@
                                                          cookies
                                                          content-disposition-filename
                                                          content-disposition-size
-                                                         (stream (network-stream-of *request*))
+                                                         (stream (client-stream-of *request*))
                                                          (seconds-until-expires #.(* 24 60 60)))
     (:last-modified-at last-modified-at
      :seconds-until-expires seconds-until-expires
@@ -505,7 +505,7 @@
                                     (content-disposition-filename nil content-disposition-filename-p)
                                     headers
                                     cookies
-                                    (stream (network-stream-of *request*))
+                                    (stream (client-stream-of *request*))
                                     content-disposition-size
                                     (encoding :utf-8)
                                     (seconds-until-expires #.(* 12 60 60))
@@ -513,11 +513,11 @@
                                     &allow-other-keys)
   (with-thread-name " / SERVE-FILE"
     (remove-from-plistf args :signal-errors)
-    (bind ((network-stream-dirty? #f))
+    (bind ((client-stream-dirty? #f))
       (handler-bind ((serious-condition (lambda (error)
                                           (unless signal-errors
                                             (server.warn "SERVE-FILE muffles the following error due to :signal-errors #f: ~A" error)
-                                            (return-from serve-file (values #f error network-stream-dirty?))))))
+                                            (return-from serve-file (values #f error client-stream-dirty?))))))
         (with-open-file (file file-name :direction :input :element-type '(unsigned-byte 8))
           (unless for-download
             (unless content-type-p
@@ -536,7 +536,7 @@
                                                               (pathname-name file-name)
                                                               (awhen (pathname-type file-name)
                                                                 (concatenate 'string "." it))))))
-          (setf network-stream-dirty? #t)
+          (setf client-stream-dirty? #t)
           (apply 'serve-stream
                  file
                  :last-modified-at last-modified-at

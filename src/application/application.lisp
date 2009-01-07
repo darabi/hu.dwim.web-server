@@ -660,8 +660,8 @@ Custom implementations should look something like this:
                     (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
     ;; TODO use multiplexing when writing to the network stream, including the headers
     (app.debug "Sending component rendering response of ~A bytes" (length body))
-    (write-sequence headers (network-stream-of *request*))
-    (write-sequence body (network-stream-of *request*)))
+    (write-sequence headers (client-stream-of *request*))
+    (write-sequence body (client-stream-of *request*)))
   (values))
 
 

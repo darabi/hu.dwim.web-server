@@ -77,7 +77,7 @@
                            :raw-uri raw-uri
                            :uri uri
                            :keep-alive keep-alive?
-                           :network-stream stream
+                           :client-stream stream
                            :query-parameters parameters
                            :http-method (us-ascii-octets-to-string http-method)
                            :http-version-string version-string

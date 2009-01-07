@@ -112,7 +112,7 @@
 ;;; Request
 
 (def (class* e) request (http-message)
-  ((network-stream)
+  ((client-stream)
    (keep-alive :initform #t :accessor keep-alive?)
    (http-method)
    (http-version-string)
@@ -193,7 +193,7 @@
   (disallow-response-caching-in-header-alist (headers-of response))
   response)
 
-(def (function o) send-http-headers (headers cookies &key (stream (network-stream-of *request*)))
+(def (function o) send-http-headers (headers cookies &key (stream (client-stream-of *request*)))
   (flet ((write-header-line (name value)
            (http.dribble "Sending header ~S: ~S" name value)
            (write-sequence (string-to-us-ascii-octets name) stream)
@@ -230,14 +230,14 @@
 
 (defmethod send-response :around ((response response))
   (store-response response)
-  (bind ((network-stream (network-stream-of *request*))
-         (original-external-format (io.streams:external-format-of network-stream)))
+  (bind ((client-stream (client-stream-of *request*))
+         (original-external-format (io.streams:external-format-of client-stream)))
     (http.debug "Sending response ~A" response)
     (unwind-protect
          (progn
-           (setf (iolib:external-format-of network-stream) (external-format-of response))
+           (setf (iolib:external-format-of client-stream) (external-format-of response))
            (call-next-method))
-      (setf (iolib:external-format-of network-stream) original-external-format))))
+      (setf (iolib:external-format-of client-stream) original-external-format))))
 
 (defmethod send-response ((response response))
   (assert (not (headers-are-sent-p response)) () "The headers of ~A have already been sent, this is a program error." response)
@@ -269,7 +269,7 @@
     (when (and content
                (not (string= "HEAD" (http-method-of *request*))))
       (http.dribble "Sending ~S (~D bytes) as body" content (length content))
-      (write-sequence content (network-stream-of response)))))
+      (write-sequence content (client-stream-of response)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -321,7 +321,7 @@
   `(make-functional-response ((+header/content-type+ +html-content-type+
                                ,@headers-as-plist)
                               (,@cookie-list))
-     (emit-into-html-stream (network-stream-of *request*)
+     (emit-into-html-stream (client-stream-of *request*)
        ,@body)))
 
 (def (macro e) make-buffered-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
@@ -366,7 +366,7 @@
 
 (defmethod send-response ((response byte-vector-response))
   (bind ((body (ensure-list (body-of response)))
-         (network-stream (network-stream-of *request*))
+         (client-stream (client-stream-of *request*))
          (length 0))
     (dolist (piece body)
       (incf length (length piece)))
@@ -374,7 +374,7 @@
     (setf (header-value response +header/content-length+) (integer-to-string length))
     (call-next-method)
     (dolist (piece body)
-      (write-sequence piece network-stream))))
+      (write-sequence piece client-stream))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -461,7 +461,7 @@
 (def method send-response ((self redirect-response))
   ;; can't use emit-http-response, because +header/content-location+ is not constant
   (call-next-method)
-  (emit-into-html-stream (network-stream-of *request*)
+  (emit-into-html-stream (client-stream-of *request*)
     (with-html-document (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
 

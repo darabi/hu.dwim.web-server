@@ -461,7 +461,7 @@
 
 (def (macro e) emit-http-response ((&optional headers-as-plist cookie-list) &body body)
   "Emit a full http response and also bind html stream, so you are ready to output directly into the network stream."
-  `(emit-into-html-stream (network-stream-of *request*)
+  `(emit-into-html-stream (client-stream-of *request*)
      (send-http-headers (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
                                       (collect `(cons ,name ,value))))
                         (list ,@cookie-list))
@@ -469,7 +469,7 @@
 
 (def (macro e) emit-http-response* ((&optional headers cookies) &body body)
   "Just like EMIT-HTML-RESPONSE, but HEADERS and COOKIES are simply evaluated as expressions."
-  `(emit-into-html-stream (network-stream-of *request*)
+  `(emit-into-html-stream (client-stream-of *request*)
      (send-http-headers ,headers ,cookies)
      ,@body))
 

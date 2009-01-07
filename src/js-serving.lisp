@@ -63,7 +63,7 @@
                                                  headers
                                                  cookies
                                                  content-disposition
-                                                 (stream (network-stream-of *request*))
+                                                 (stream (client-stream-of *request*))
                                                  (encoding (encoding-name-of (external-format-of stream)))
                                                  (content-type (content-type-for +javascript-mime-type+ encoding))
                                                  (seconds-until-expires #.(* 60 60)))
