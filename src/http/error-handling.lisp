@@ -62,10 +62,14 @@
           ((serious-condition #'level-1-error-handler))
         (funcall thunk)))))
 
-(def function maybe-invoke-slime-debugger (condition &key (broker (when (boundp '*brokers*)
-                                                                    (first *brokers*)))
+(def function maybe-invoke-slime-debugger (condition &key (context (or (and (boundp '*session*)
+                                                                            *session*)
+                                                                       (and (boundp '*application*)
+                                                                            *application*)
+                                                                       (and (boundp '*brokers*)
+                                                                            (first *brokers*))))
                                                      (with-continue-restart #t))
-  (when (debug-on-error broker condition)
+  (when (debug-on-error context condition)
     (typecase condition
       ;; this is a place to skip errors that we don't want to catch in the debugger...
       ;; (frame-index-missing-error)
@@ -100,7 +104,7 @@
                           (terpri str))))))
 
 (defmethod handle-toplevel-condition :before (broker (error serious-condition))
-  (maybe-invoke-slime-debugger error :broker broker))
+  (maybe-invoke-slime-debugger error :context broker))
 
 (defmethod handle-toplevel-condition (broker (error serious-condition))
   (log-error-with-backtrace error)

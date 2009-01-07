@@ -83,9 +83,16 @@
            (iter (for element :in-vector result)
                  (collect (nreverse element)))))))
 
+(def class* debug-context-mixin ()
+  ((debug-on-error :type boolean :accessor nil)))
+
 (def (generic e) debug-on-error (context error)
   (:method (context error)
-    *debug-on-error*))
+    *debug-on-error*)
+  (:method ((context debug-context-mixin) error)
+    (if (slot-boundp context 'debug-on-error)
+        (slot-value context 'debug-on-error)
+        (call-next-method))))
 
 (deftype simple-ub8-vector (&optional (length '*))
   `(simple-array (unsigned-byte 8) (,length)))

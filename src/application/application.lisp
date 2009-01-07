@@ -32,7 +32,9 @@
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
 
-(def (class* e) application (broker-with-path-prefix request-counter-mixin)
+(def (class* e) application (broker-with-path-prefix
+                             request-counter-mixin
+                             debug-context-mixin)
   ((number-of-requests-to-sessions 0 :export :accessor)
    (entry-points nil)
    (default-uri-scheme "http")

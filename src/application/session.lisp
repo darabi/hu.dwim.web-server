@@ -51,7 +51,9 @@
 ;;;;;;;;;;;
 ;;; session
 
-(def class* session (string-id-mixin activity-monitor-mixin)
+(def class* session (string-id-mixin
+                     activity-monitor-mixin
+                     debug-context-mixin)
   ((application nil)
    (client-timezone (default-timezone-of *application*))
    (unique-dom-id-counter 0)
