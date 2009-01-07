@@ -58,9 +58,6 @@
    :indentation-width *quasi-quote-indentation-width*
    :escape-as-xml (and embedded-in-xml? inline?)
    :output-prefix (cond
-                    ;; TODO inline stuff must also be xml escaped... think through how this should work in qq.
-                    ;; should `str() inside <> automatically be escaped? how could you insert unescaped
-                    ;; then?
                     (inline?          (when inline-prefix?
                                         "javascript: "))
                     (embedded-in-xml? (format nil "~%<script type=\"text/javascript\">~%// <![CDATA[~%")))
@@ -77,6 +74,7 @@
    :encoding +encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*
    :indentation-width *quasi-quote-indentation-width*
+   ;; :emit-short-xml-element-form #f ; browsers simply suck, but for now let's just not disable it alltogether and use "" explicitly where it's supposed to be avoided
    :encoding +encoding+))
 
 (define-syntax js-sharpquote ()
@@ -96,6 +94,7 @@
                                           (localized-string-reader stream c1 c2))))
 
 (defun setup-readtable ()
+  (enable-quasi-quoted-list-to-list-emitting-form-syntax)
   (enable-sharp-boolean-syntax)
   (enable-feature-cond-syntax)
   (enable-lambda-with-bang-args-syntax :start-character #\[ :end-character #\])
@@ -112,7 +111,7 @@
    :dispatched-quasi-quote-name 'js-inline)
   (enable-quasi-quoted-js-syntax
    :transformation-pipeline (make-js-transformation-pipeline t t nil)
-   ;; TODO get rid of this and make js-inline work so that it only prepends when it's at toplevel
+   ;; js-inline* does not prepend the "javascript: " prefix
    :dispatched-quasi-quote-name 'js-inline*)
   (enable-quasi-quoted-xml-syntax
    :transformation-pipeline (make-xml-transformation-pipeline)))

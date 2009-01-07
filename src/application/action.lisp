@@ -113,8 +113,7 @@
     (dolist (parameter-name strip-query-parameters)
       (delete-query-parameter uri parameter-name))))
 
-#|
-;; TODO
+;; TODO this is broken
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
   (bind ((walked-body (cl-walker:walk-form `(progn ,@body) nil (cl-walker:make-walk-environment env)))
          (free-variable-references (cl-walker:collect-variable-references walked-body :type 'cl-walker:free-variable-reference-form))
@@ -122,23 +121,17 @@
                                                     free-variable-references)))
          (query-parameters (mapcar [unique-js-name (string-downcase !1)]
                                    variable-names)))
-    `(progn
-       `js-inline*(wui.io.xhr-post
-                   (create
-                    :content (create ,@(list ,@(iter (for variable-name :in variable-names)
-                                                     (for query-parameter :in query-parameters)
-                                                     (collect `(quote ,query-parameter))
-                                                     (collect ;;`str ,(concatenate 'string (lisp-name-to-js-name variable-name) ".toString()")
-                                                              ;; FIXME qq is broken, needs the ` reader. see qq/test/js.lisp for the detailed TODO
-                                                              `js-inline*(.toString ,variable-name)
-                                                              ))))
-                    :url ,(action/href (:delayed-content #t)
-                            (with-request-params ,(mapcar [list !1 !2]
-                                                          variable-names
-                                                          query-parameters)
-                              ,@body))
-                    :load (lambda (response args)
-                            ;; TODO process the return value, possible ajax replacements, etc
-                            )))
-       nil)))
-|#
+    ` `js-inline*(wui.io.xhr-post
+                  (create
+                   :content (create ,@(list ,@(iter (for variable-name :in variable-names)
+                                                    (for query-parameter :in query-parameters)
+                                                    (collect `(quote ,query-parameter))
+                                                    (collect `js-inline*(.toString ,variable-name)))))
+                   :url ,(action/href (:delayed-content #t)
+                           (with-request-params ,(mapcar [list !1 !2]
+                                                         variable-names
+                                                         query-parameters)
+                             ,@body))
+                   :load (lambda (response args)
+                           ;; TODO process the return value, possible ajax replacements, etc
+                           )))))

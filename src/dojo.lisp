@@ -46,11 +46,15 @@
     `(progn
        ,@body
        (push ,id *dojo-widget-ids*)
-       (values)))
-  ;; TODO could skip the ,@(list ...) if qq list quoting worked
-  ;; TODO nees numerous qq fixes
-  ;`<,,xml-element-name (:id ,,id
-  ;                      dojo:name ,,name
-  ;                      ,@(list ,@(iter (for (name value) :on attributes :by #'cddr)
-  ;                                      (collect (make-xml-attribute name (make-xml-unquote value))))))>
-  )
+       (values))))
+
+;; TODO delme?
+(def (macro e) render-dojo-widget* (dojo-type (&rest attributes &key (id '(generate-frame-unique-string "_w")) (xml-element-name "span")
+                                                     &allow-other-keys)
+                                     &body body)
+  (remove-from-plistf attributes :id :xml-element-name)
+  `<,,xml-element-name (:id ,,id
+                        :dojoType ,,dojo-type
+                        ,@,@(iter (for (name value) :on attributes :by #'cddr)
+                                  (collect (make-xml-attribute (hyphened-to-camel-case (string name)) (make-xml-unquote value)))))
+                       ,@,@body>)

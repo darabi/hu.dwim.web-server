@@ -81,7 +81,8 @@
 
 (def special-variable *icons* (make-hash-table))
 
-(def (function e) find-icon (name &key (otherwise `(:error "The icon ~A cannot be found" ,name)))
+(def (function e) find-icon (name &key (otherwise ;; TODO breaks sbcl, bug reported `(:error "The icon ~A cannot be found" ,name)
+                                                  (list :error "The icon ~A cannot be found" name)))
   (prog1-bind icon (gethash name *icons*)
     (unless icon
       (handle-otherwise otherwise))))
