@@ -589,8 +589,6 @@
           (value (aref names-and-values (1+ idx))))
       (setf (aref wui.i18n.resources name) value))))
 
-(log.debug "Finished evaluating wui.js")
-
 ;;;;;;
 ;;; Context sensitive help
 
@@ -631,3 +629,8 @@
     (document.add-event-listener "click" mouseclick-handler true)
     (setf document.body.style.cursor "help")
     (dojo.stop-event event)))
+
+
+
+
+(log.debug "Finished evaluating wui.js")

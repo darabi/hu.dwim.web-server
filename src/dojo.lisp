@@ -25,6 +25,7 @@
    +dijit/menu+                  "dijit.Menu"
    +dijit/menu-item+             "dijit.MenuItem"
    +dijit/popup-menu-item+       "dijit.PopupMenuItem"
+   +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
 
 (def with-macro with-dojo-widget-collector ()

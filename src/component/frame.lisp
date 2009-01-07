@@ -65,10 +65,10 @@
         <title ,(title-of -self-)>
         ,(foreach (lambda (stylesheet-uri)
                     <link (:rel "stylesheet"
-                                :type "text/css"
-                                :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
-                                                                         (string stylesheet-uri)
-                                                                         (uri (print-uri-to-string stylesheet-uri)))))>)
+                           :type "text/css"
+                           :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
+                                                                    (string stylesheet-uri)
+                                                                    (uri (print-uri-to-string stylesheet-uri)))))>)
                   (stylesheet-uris-of -self-))
         <script (:type #.+javascript-mime-type+)
           ,(format nil "djConfig = { parseOnLoad: ~A, isDebug: ~A, locale: ~A }"

@@ -27,18 +27,21 @@
 (def (macro e) command (content action &key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path
                                 (delayed-content nil delayed-content-provided?)
                                 (send-client-state #t send-client-state-provided?))
-  `(make-instance 'command-component
-                  :content ,content
-                  :action ,action
-                  :enabled ,enabled
-                  :visible ,visible
-                  :default ,default
-                  :ajax ,ajax
-                  :js ,js
-                  :action-arguments (list :delayed-content ,delayed-content
-                                          :scheme ,scheme
-                                          :path ,path
-                                          :send-client-state ,send-client-state)))
+  (once-only (content)
+    `(progn
+       (debug-only (assert ,content () "Command factory called without a valid CONTENT"))
+       (make-instance 'command-component
+                      :content ,content
+                      :action ,action
+                      :enabled ,enabled
+                      :visible ,visible
+                      :default ,default
+                      :ajax ,ajax
+                      :js ,js
+                      :action-arguments (list :delayed-content ,delayed-content
+                                              :scheme ,scheme
+                                              :path ,path
+                                              :send-client-state ,send-client-state)))))
 
 (def render command-component ()
   (bind (((:read-only-slots content action enabled default ajax js action-arguments) -self-))

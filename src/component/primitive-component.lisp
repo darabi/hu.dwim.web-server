@@ -142,9 +142,11 @@
         #"value.unbound")))
 
 (def method parse-component-value ((component t-component) client-value)
-  (bind ((*read-eval* #f))
-    ;; TODO: this is kind of dangerous
-    (values (read-from-string client-value))))
+  (if (zerop (length client-value))
+      (values nil #t)
+      (bind ((*read-eval* #f))
+        ;; TODO: READ-FROM-STRING is kind of dangerous, even with *READ-EVAL* #f
+        (values (read-from-string client-value)))))
 
 ;;;;;;
 ;;; Boolean component
