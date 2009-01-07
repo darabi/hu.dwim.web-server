@@ -82,13 +82,15 @@
 (defgeneric produce-response (broker request))
 
 (def class* broker (closer-mop:funcallable-standard-object request-counter-mixin)
-  ()
+  ((priority 0))
   (:metaclass funcallable-standard-class))
 
 (def constructor broker
   (set-funcallable-instance-function
     -self- (lambda (request)
-             (default-broker-handler -self- request))))
+             (default-broker-handler -self- request)))
+  (unless (priority-of -self-)
+    (setf (priority-of -self-) 0)))
 
 (def function default-broker-handler (broker request)
   (when (matches-request? broker request)

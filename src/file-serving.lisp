@@ -25,8 +25,8 @@
 
 ;; TODO caching
 
-(def (function e) make-file-serving-broker (path-prefix root-directory)
-  (make-instance 'file-serving-broker :path-prefix path-prefix :root-directory root-directory))
+(def (function e) make-file-serving-broker (path-prefix root-directory &key priority)
+  (make-instance 'file-serving-broker :path-prefix path-prefix :root-directory root-directory :priority priority))
 
 (def constructor file-serving-broker
   (set-funcallable-instance-function

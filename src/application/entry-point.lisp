@@ -5,8 +5,7 @@
 (in-package :hu.dwim.wui)
 
 (def class* entry-point (broker)
-  ((priority 0)
-   (handler :type function))
+  ((handler :type function))
   (:metaclass funcallable-standard-class))
 
 (def method priority-of ((broker broker))
@@ -65,9 +64,9 @@
                    (entry-points-of application)))
   (appendf (entry-points-of application) (list entry-point))
   (setf (entry-points-of application)
-        (sort (entry-points-of application)
-              #'>
-              :key #'priority-of))
+        (stable-sort (entry-points-of application)
+                     #'>
+                     :key #'priority-of))
   entry-point)
 
 (def (definer e) entry-point ((application &rest args &key
@@ -139,8 +138,8 @@
                                                   ,@body)))
                                          ,wrapper-expression)))))))
 
-(def (definer e) file-serving-entry-point (application path-prefix root-directory)
-  `(ensure-entry-point ,application (make-file-serving-broker ,path-prefix ,root-directory)))
+(def (definer e) file-serving-entry-point (application path-prefix root-directory &key priority)
+  `(ensure-entry-point ,application (make-file-serving-broker ,path-prefix ,root-directory :priority ,priority)))
 
-(def (definer e) js-file-serving-entry-point (application path-prefix root-directory)
-  `(ensure-entry-point ,application (make-js-file-serving-broker ,path-prefix ,root-directory)))
+(def (definer e) js-file-serving-entry-point (application path-prefix root-directory &key priority)
+  `(ensure-entry-point ,application (make-js-file-serving-broker ,path-prefix ,root-directory :priority ,priority)))

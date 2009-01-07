@@ -8,8 +8,8 @@
   ()
   (:metaclass funcallable-standard-class))
 
-(def (function e) make-js-file-serving-broker (path-prefix root-directory)
-  (make-instance 'js-file-serving-broker :path-prefix path-prefix :root-directory root-directory))
+(def (function e) make-js-file-serving-broker (path-prefix root-directory &key priority)
+  (make-instance 'js-file-serving-broker :path-prefix path-prefix :root-directory root-directory :priority priority))
 
 (def method make-file-serving-response-for-query-path ((broker js-file-serving-broker) path-prefix relative-path root-directory)
   (when (and (or (zerop (length relative-path))
