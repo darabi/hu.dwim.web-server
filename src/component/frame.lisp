@@ -55,20 +55,25 @@
                                                           "?"
                                                           +no-javascript-error-parameter-name+
                                                           "=t"))>>)
-        ,(awhen (page-icon-of -self-)
-           <link (:rel "icon"
-                  :type "image/x-icon"
-                  :href ,(concatenate-string path-prefix
-                                             (etypecase it
-                                               (string it)
-                                               (uri (print-uri-to-string it)))))>)
+        ,(bind (((icon-uri &optional file-name) (ensure-list (page-icon-of -self-))))
+           (when icon-uri
+             <link (:rel "icon"
+                    :type "image/x-icon"
+                    :href ,(append-file-write-date-to-uri (etypecase icon-uri
+                                                            (string (concatenate-string path-prefix icon-uri))
+                                                            (uri (setf (path-of icon-uri) (concatenate-string path-prefix (path-of icon-uri)))
+                                                                 icon-uri))
+                                                          file-name))>))
         <title ,(title-of -self-)>
-        ,(foreach (lambda (stylesheet-uri)
-                    <link (:rel "stylesheet"
-                           :type "text/css"
-                           :href ,(concatenate-string path-prefix (etypecase stylesheet-uri
-                                                                    (string stylesheet-uri)
-                                                                    (uri (print-uri-to-string stylesheet-uri)))))>)
+        ,(foreach (lambda (el)
+                    (bind (((stylesheet-uri &optional file-name) (ensure-list el)))
+                      <link (:rel "stylesheet"
+                             :type "text/css"
+                             :href ,(append-file-write-date-to-uri (etypecase stylesheet-uri
+                                                                     (string (concatenate-string path-prefix stylesheet-uri))
+                                                                     (uri (setf (path-of stylesheet-uri) (concatenate-string path-prefix (path-of stylesheet-uri)))
+                                                                          stylesheet-uri))
+                                                                   file-name))>))
                   (stylesheet-uris-of -self-))
         <script (:type #.+javascript-mime-type+)
           ,(format nil "djConfig = { parseOnLoad: ~A, isDebug: ~A, locale: ~A }"
@@ -83,11 +88,12 @@
                                                       ".uncompressed.js")))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">
-        ,(foreach (lambda (script-uri)
-                    <script (:type         #.+javascript-mime-type+
-                             :src          ,(concatenate-string path-prefix script-uri))
-                            ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
-                            "">)
+        ,(foreach (lambda (el)
+                    (bind (((script-uri &optional file-name) (ensure-list el)))
+                      <script (:type         #.+javascript-mime-type+
+                               :src          ,(append-file-write-date-to-uri (concatenate-string path-prefix script-uri) file-name))
+                              ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
+                              "">))
                   (script-uris-of -self-))>
       <body (:class ,(dojo-skin-name-of -self-)
              :style ,(unless no-javascript? "margin-left: -10000px;"))
