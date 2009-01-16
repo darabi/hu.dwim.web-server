@@ -65,8 +65,25 @@
   (appendf (entry-points-of application) (list entry-point))
   (setf (entry-points-of application)
         (stable-sort (entry-points-of application)
-                     #'>
-                     :key #'priority-of))
+                     (lambda (a b)
+                       (block comparing
+                         (bind ((a-priority (priority-of a))
+                                (b-priority (priority-of b)))
+                           (when (= a-priority
+                                    b-priority)
+                             (when (and (typep a 'path-prefix-entry-point)
+                                        (typep b 'path-entry-point))
+                               (return-from comparing #f))
+                             (when (and (typep a 'path-entry-point)
+                                        (typep b 'path-prefix-entry-point))
+                               (return-from comparing #t))
+                             (bind ((a-path (broker-path-or-path-prefix-or-nil a))
+                                    (b-path (broker-path-or-path-prefix-or-nil b)))
+                               (when (and a-path
+                                          b-path)
+                                 ;; if we can extract path for brokers of the same priority then the one with a longer path goes first
+                                 (return-from comparing (> (length a-path) (length b-path))))))
+                           (> a-priority b-priority))))))
   entry-point)
 
 (def (definer e) entry-point ((application &rest args &key

@@ -101,7 +101,7 @@
   (:metaclass funcallable-standard-class))
 
 (def print-object broker-with-path
-  (format *standard-output* "~S" (path-of -self-)))
+  (format *standard-output* "~S ~S" (path-of -self-) (priority-of -self-)))
 
 (defmethod matches-request? ((broker broker-with-path) request)
   (matches-request-uri-path? (path-of broker) request))
@@ -118,7 +118,13 @@
   (:metaclass funcallable-standard-class))
 
 (def print-object broker-with-path-prefix
-  (format *standard-output* "~S" (path-prefix-of -self-)))
+  (format *standard-output* "~S ~S" (path-prefix-of -self-) (priority-of -self-)))
+
+(def function broker-path-or-path-prefix-or-nil (broker)
+  (typecase broker
+    (broker-with-path (path-of broker))
+    (broker-with-path-prefix (path-prefix-of broker))
+    (t nil)))
 
 (defmethod matches-request? ((broker broker-with-path-prefix) request)
   (request-uri-matches-path-prefix? (path-of broker) request))
