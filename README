@@ -3,3 +3,9 @@ WUI
 
 Full lisp web server, based on iolib with some borrowed ideas from UCW,
 but as a new codebase.
+
+(asdf:operate 'asdf:test-op :wui)
+
+(start-test-server-with-wudemo-application)
+
+http://localhost.localdomain:8080/
