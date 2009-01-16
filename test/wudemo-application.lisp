@@ -38,7 +38,7 @@
   (make-instance 'wudemo-application
                  :path-prefix "/"
                  :home-package (find-package :wui-test)
-                 :default-locale "hu"))
+                 :default-locale "en"))
 
 ;;;;;;
 ;;; Test classes
