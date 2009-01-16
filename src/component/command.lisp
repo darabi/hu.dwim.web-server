@@ -71,6 +71,7 @@
                          (symbol-name (name-of content))
                          (princ-to-string content)))))
         ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
+        ;; TODO: when rendering a span, tab navigation skips the commands
         <span (:id ,id :class "command" :name ,name) ,(render content)>
         `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil (lambda (event) ,(funcall onclick-js href))))
         ;; TODO: use dojo.connect for keyboard events

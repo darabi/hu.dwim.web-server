@@ -92,6 +92,7 @@
 (def (generic e) call-in-application-environment (application session thunk)
   (:documentation "Everything related to an application goes through this method, so it can be used to set up wrappers like WITH-TRANSACTION. The SESSION argument may or may not be a valid session.")
   (:method (application session thunk)
+    (app.dribble "CALL-IN-APPLICATION-ENVIRONMENT is calling the thunk")
     (funcall thunk)))
 
 (def (generic e) call-action (application session frame action)

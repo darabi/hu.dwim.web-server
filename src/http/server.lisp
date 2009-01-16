@@ -488,7 +488,7 @@
     (send-http-headers headers cookies)
     (server.debug "SERVE-STREAM starts to copy input stream ~A to the network stream ~A" input-stream stream)
     (loop
-       :with buffer = (make-array 8192 :element-type 'unsigned-byte)
+       :with buffer = (make-array 8192 :element-type '(unsigned-byte 8))
        :for end-pos = (read-sequence buffer input-stream)
        :until (zerop end-pos)
        :do

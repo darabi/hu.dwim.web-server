@@ -116,6 +116,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +header/refresh+             "Refresh"
    +header/if-modified-since+   "If-Modified-Since"
    +header/user-agent+          "User-Agent"
+   +header/forwarded-for+       "X-Forwarded-For"
    ;; response
    +header/status+              "Status"
    +header/age+                 "Age"
