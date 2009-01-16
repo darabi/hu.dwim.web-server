@@ -16,6 +16,22 @@
 (def component user-message-collector-component (user-message-collector-component-mixin)
   ())
 
+(def render user-message-collector-component ()
+  (render-user-messages -self-))
+
+(def component user-message-collector-wrapper-component (user-message-collector-component)
+  ((body :type component)))
+
+(def (macro e) user-message-collector-wrapper-component (&body components)
+  `(make-instance 'user-message-collector-wrapper-component
+                  :body ,(if (length= 1 components)
+                             (first components)
+                             `(make-instance 'vertical-list-component :body (remove nil (list ,@components))))))
+
+(def render user-message-collector-wrapper-component ()
+  (render-user-messages -self-)
+  (render (body-of -self-)))
+
 (def (function e) render-user-messages (user-message-collector)
   (bind ((messages (messages-of user-message-collector)))
     (setf (messages-of user-message-collector) (delete-if (complement #'permanent-p) messages))
@@ -29,9 +45,6 @@
                ,(render-message-category :warning)
                ,(render-message-category :error)>
           +void+))))
-
-(def render user-message-collector-component ()
-  (render-user-messages -self-))
 
 (def (function e) add-user-information (collector message &rest message-args)
   (add-user-message collector message message-args :category :information))
