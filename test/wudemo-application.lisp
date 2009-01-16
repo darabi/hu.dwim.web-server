@@ -170,25 +170,34 @@
 ;;   (setf (example-inline-edit-box-value-of *session*) (aref |arguments| 0)))
 
 (def function render-example-inline-edit-box ()
-  `js(dojo.require "dijit.InlineEditBox")
+  `js(dojo.require #.+dijit/inline-edit-box+)
   (bind ((id (generate-frame-unique-string "inlineEditor")))
     <span
       "This is stored in the session, click to edit: "
       ,(render-dojo-widget (id)
+        <span (:id ,id
+               :dojoType #.+dijit/inline-edit-box+
+               :autoSave false
+               :onChange `js-inline*(wui.io.xhr-post
+                                     (create
+                                      :content (create :example-inline-edit-box-value (aref arguments 0))
+                                      :url ,(action/href (:delayed-content #t)
+                                                         (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
+                                                           (setf (example-inline-edit-box-value-of *session*) value))
+                                                         ;; TODO this is, well, proof-of-concept quality for now...
+                                                         (make-do-nothing-response))
+                                      :load (lambda (response args)))))
+          ,(example-inline-edit-box-value-of *session*)>)
+#|
+      ,(render-dojo-widget (id)
          <span (:id ,id
-                :dojoType "dijit.InlineEditBox"
+                :dojoType #.+dijit/inline-edit-box+
                 :autoSave false
-                :onChange
-                `js-inline*(wui.io.xhr-post
-                            (create
-                             :content (create :example-inline-edit-box-value (aref arguments 0))
-                             :url ,(action/href (:delayed-content #t)
-                                     (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
-                                       (setf (example-inline-edit-box-value-of *session*) value))
-                                     ;; TODO this is, well, proof-of-concept quality for now...
-                                     (make-do-nothing-response))
-                             :load (lambda (response args)))))
-           ,(example-inline-edit-box-value-of *session*)>)>))
+                :onChange ,(js-to-lisp-rpc
+                            (setf (example-inline-edit-box-value-of *session*) (aref |arguments| 0))))
+           ,(example-inline-edit-box-value-of *session*)>)
+|#
+      >))
 
 (def function make-authenticated-menu-component ()
   (bind ((authenticated-subject (current-authenticated-subject)))
@@ -365,6 +374,16 @@
               (setf (root-component-of *frame*) (make-wudemo-frame-component))
               (make-redirect-response-for-current-application))))
       (make-component-rendering-response (make-wudemo-frame-component))))
+
+(def entry-point (*wudemo-application* :path "session-info" :priority 1000) ()
+  (if *session*
+      (progn
+        (setf (root-component-of *frame*) (make-viewer *session*))
+        (if (find-frame-from-request *session*)
+            (make-root-component-rendering-response *frame*)
+            (make-redirect-response-for-current-application "session-info")))
+      (make-functional-html-response ()
+        <p "There's no session">)))
 
 (def entry-point (*wudemo-application* :path "about/") ()
   (make-component-rendering-response (make-wudemo-frame-component)))
