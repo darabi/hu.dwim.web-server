@@ -36,6 +36,23 @@
      (lambda ()
        ,@BODY))})
 
+(def (js-macro e) |with-dom-nodes| (bindings &body body)
+  (iter (for binding :in bindings)
+        (bind (((variable-name tag-name &key ((:|class| class))) binding))
+          (collect {with-preserved-readtable-case
+                     `(,VARIABLE-NAME (document.createElement ,TAG-NAME))} :into node-bindings)
+          (when class
+            (collect {with-preserved-readtable-case
+                       `(.setAttribute ,VARIABLE-NAME "class" ,CLASS)} :into forms)))
+        (finally (return {with-preserved-readtable-case
+                           `(bind (,@NODE-BINDINGS)
+                              ,@FORMS
+                              ,@BODY)}))))
+
+(def (js-macro e) |create-dom-node| (name)
+  {with-preserved-readtable-case
+    `(document.createElement ,NAME)})
+
 (def (js-macro e) |hide-dom-node| (node)
   {with-preserved-readtable-case
    `(setf (slot-value (slot-value ,NODE 'style) 'display) "none")})
