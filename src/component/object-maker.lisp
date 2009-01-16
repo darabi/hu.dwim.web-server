@@ -50,7 +50,7 @@
           (progn
             <div (:id ,id :class "standard-object-maker")
               ,(body)>
-            `js(on-load (wui.setup-standard-object-maker ,id)))))))
+            `js(wui.setup-widget "standard-object-maker" ,id))))))
 
 (def (layered-function e) make-standard-object-maker-alternatives (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))

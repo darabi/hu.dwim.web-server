@@ -59,7 +59,7 @@
              ,(render (command-bar-of -self-))>>>
      `js(on-load
          (.focus ($ ,focused-field-id))
-         (wui.setup-login-component ,id))>))
+         (wui.setup-widget "login-component" ,id))>))
 
 (def (generic e) make-logout-command (application)
   (:method ((application application))

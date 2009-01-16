@@ -60,7 +60,7 @@
           (progn
             <div (:id ,id :class "standard-object-filter")
                ,(body)>
-            `js(on-load (wui.setup-standard-object-filter ,id)))))))
+            `js(wui.setup-widget "standard-object-filter" ,id))))))
 
 ;;;;;;
 ;;; Standard object detail filter

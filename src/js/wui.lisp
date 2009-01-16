@@ -538,35 +538,25 @@
 ;;;;;;
 ;;; compound
 
-(defun wui.setup-user-message (id class)
-  (attach-border id class))
+(setf wui.theme-setup-callbacks (create))
 
-(defun wui.setup-title (id)
-  (attach-border id "title-border"))
+(defun wui.call-theme-setup-callbacks (type id args)
+  (bind ((callbacks (aref wui.theme-setup-callbacks type)))
+    (when callbacks
+      (dolist (callback callbacks)
+        (callback id args)))))
 
-(defun wui.setup-column (id)
-  (attach-border id "table-header-border"))
+(defun wui.register-theme-setup-callback (type fn)
+  (bind ((callbacks (aref wui.theme-setup-callbacks type)))
+    (unless callbacks
+      (setf callbacks (array))
+      (setf (aref wui.theme-setup-callbacks type) callbacks))
+    (.push callbacks fn)))
 
-(defun wui.setup-slot-group (id)
-  (attach-border id "slot-group-header-border"))
+(defun wui.setup-widget (type id args)
+  ;; TODO support &key args in js and use it here for args
+  (wui.call-theme-setup-callbacks type id args))
 
-(defun wui.setup-standard-object-maker (id)
-  (attachBorder id "box-border"))
-
-(defun wui.setup-standard-object-inspector (id)
-  (attachBorder id "box-border"))
-
-(defun wui.setup-standard-object-filter (id)
-  (attachBorder id "box-border"))
-
-(defun wui.setup-standard-object-list-inspector (id)
-  (attachBorder id "box-border"))
-
-(defun wui.setup-standard-object-tree-inspector (id)
-  (attachBorder id "box-border"))
-
-(defun wui.setup-login-component (id)
-  (attachBorder id "box-border"))
 
 ;;;;;;
 ;;; i18n

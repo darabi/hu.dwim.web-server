@@ -37,7 +37,7 @@
                  (when-bind title (force (title-of component))
                    `xml,title)
                  (call-next-method))>
-      `js(on-load (wui.setup-title ,id))))
+      `js(wui.setup-widget "title" ,id)))
 
   (:method ((component title-component-mixin))
     (values)))
@@ -279,7 +279,7 @@
             (bind ((id (generate-frame-unique-string)))
               <thead <tr <th (:class "slot-value-group" :colspan ,(standard-object-slot-value-group-column-count -self-))
                              <div (:id ,id) ,(render name)>>>>
-              `js(on-load (wui.setup-slot-group ,id))))
+              `js(wui.setup-widget "slot-group" ,id)))
           <tbody ,(foreach #'render slot-values) >)
         <span (:id ,id) ,#"there-are-none">)))
 

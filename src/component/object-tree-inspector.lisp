@@ -47,7 +47,7 @@
           (progn
             <div (:id ,id :class "standard-object-tree-insepctor")
               ,(body)>
-            `js(on-load (wui.setup-standard-object-tree-inspector ,id)))))))
+            `js(wui.setup-widget "standard-object-tree-inspector" ,id))))))
 
 (def (layered-function e) make-standard-object-tree-inspector-alternatives (component class prototype instances)
   (:method ((component standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))

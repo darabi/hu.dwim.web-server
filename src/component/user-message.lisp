@@ -77,4 +77,4 @@
          ,message
          ,(when content
             (call-next-method))>
-    `js (wui.setup-user-message ,id ,(concatenate-string (string-downcase category) "-message"))))
+    `js(wui.setup-widget "user-message" ,id (create :css-class ,(concatenate-string (string-downcase category) "-message")))))
