@@ -9,3 +9,10 @@ but as a new codebase.
 (start-test-server-with-wudemo-application)
 
 http://localhost.localdomain:8080/
+
+
+DOJO
+
+# next to the wui/ directory:
+svn co http://svn.dojotoolkit.org/src/view/anon/all/trunk dojo
+wui/etc/build-dojo.sh
