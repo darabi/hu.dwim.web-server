@@ -546,6 +546,10 @@ Custom implementations should look something like this:
 (def (macro e) with-restored-component-environment (component &body forms)
   `(call-with-restored-component-environment ,component (lambda () ,@forms)))
 
+(def (generic e) call-in-rendering-environment (application session thunk)
+  (:method (application session thunk)
+    (funcall thunk)))
+
 (def function ajax-aware-render (component)
   (app.debug "Inside AJAX-AWARE-RENDER; is this an ajax-aware-request? ~A" *ajax-aware-request*)
   (if (and *ajax-aware-request*
@@ -584,7 +588,9 @@ Custom implementations should look something like this:
          (emit-into-html-stream buffer-stream
            (with-collapsed-js-scripts
              (with-dojo-widget-collector
-               (ajax-aware-render component)))
+               (call-in-rendering-environment *application* *session*
+                                              (lambda ()
+                                                (ajax-aware-render component)))))
            +void+))
        :encoding :utf-8))))
 
@@ -659,7 +665,9 @@ Custom implementations should look something like this:
                  (emit-into-html-stream buffer-stream
                    (bind ((start-time (get-monotonic-time)))
                      (multiple-value-prog1
-                         (ajax-aware-render (component-of self))
+                         (call-in-rendering-environment *application* *session*
+                                                        (lambda ()
+                                                          (ajax-aware-render (component-of self))))
                        (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time)))))))
          (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
                                                           :initial-buffer-size 256)
