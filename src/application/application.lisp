@@ -441,26 +441,32 @@ Custom implementations should look something like this:
       (iter (for (session-id session) :in-hashtable (session-id->session-of application))
             (if (is-session-alive? session)
                 (push session live-sessions)
-                (handler-bind ((serious-condition
-                                (lambda (error)
-                                  (app.warn "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error)
-                                  (log-error-with-backtrace error))))
-                  (delete-session application session)
-                  (push session deleted-sessions)))))
+                (block deleting-a-session
+                  (handler-bind ((serious-condition
+                                  (lambda (error)
+                                    (app.warn "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error)
+                                    (log-error-with-backtrace error)
+                                    (return-from deleting-a-session))))
+                    (delete-session application session)
+                    (push session deleted-sessions))))))
     (dolist (session deleted-sessions)
-      (handler-bind ((serious-condition
-                      (lambda (error)
-                        (app.warn "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error)
-                        (log-error-with-backtrace error))))
-        (with-lock-held-on-session (session)
-          (notify-session-expiration application session))))
+      (block noifying-a-session
+        (handler-bind ((serious-condition
+                        (lambda (error)
+                          (app.warn "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error)
+                          (log-error-with-backtrace error)
+                          (return-from noifying-a-session))))
+          (with-lock-held-on-session (session)
+            (notify-session-expiration application session)))))
     (dolist (session live-sessions)
-      (handler-bind ((serious-condition
-                      (lambda (error)
-                        (app.warn "Error happened while purging frames of ~A of application ~A. Got error ~A" session application error)
-                        (log-error-with-backtrace error))))
-        (with-lock-held-on-session (session)
-          (purge-frames application session))))
+      (block purging-a-session
+        (handler-bind ((serious-condition
+                        (lambda (error)
+                          (app.warn "Error happened while purging frames of ~A of application ~A. Got error ~A" session application error)
+                          (log-error-with-backtrace error)
+                          (return-from purging-a-session))))
+          (with-lock-held-on-session (session)
+            (purge-frames application session)))))
     (values)))
 
 (def (class* e) application-with-home-package (application)
