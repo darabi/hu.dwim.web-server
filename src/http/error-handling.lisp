@@ -136,23 +136,26 @@
          " email address.">)
    <p <a (:href `js-inline(history.go -1)) "Go back">>>)
 
-(def resources en
-  (error.internal-server-error "Internal server error")
-  (render-internal-error-page (&rest args &key &allow-other-keys)
-    (apply 'render-internal-error-page/english args)))
+(defmethod handle-toplevel-condition (broker (error access-denied-error))
+  (bind ((request-uri (if *request*
+                          (raw-uri-of *request*)
+                          "<unavailable>")))
+    (if (or (not *response*)
+            (not (headers-are-sent-p *response*)))
+        (progn
+          (server.info "Sending an access denied error page for request ~S" request-uri)
+          (emit-simple-html-document-http-response (:status +http-forbidden+ :title #"error.access-denied-error")
+            (lookup-resource 'render-internal-error-page
+                             :otherwise (lambda ()
+                                          (render-access-denied-error-page/english)))))
+        (server.info "Access denied for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
+  (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the access denied error by sending an error page"))
 
-(def resources hu
-  (error.internal-server-error "Programhiba")
-  (render-internal-error-page (&key admin-email-address &allow-other-keys)
-    <div
-     <h1 "Programhiba">
-     <p "A szerverhez érkezett kérés feldolgozása közben egy váratlan programhiba történt. Elnézést kérünk az esetleges kellemetlenségért!">
-     <p "A hibáról értesülni fognak a fejlesztők és valószínűleg a közeljövőben javítják azt.">
-     ,(when admin-email-address
-        <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
-           <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
-           " email címen megteheti.">)
-     <p <a (:href `js-inline(history.go -1)) "Vissza">>>))
+(def function render-access-denied-error-page/english (&key &allow-other-keys)
+  <div
+   <h1 "Access denied">
+   <p "You have no permission to access the requested resource.">
+   <p <a (:href `js-inline(history.go -1)) "Go back">>>)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;

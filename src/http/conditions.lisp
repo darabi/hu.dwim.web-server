@@ -50,7 +50,13 @@ TODO delme?
   (error 'broker-recursion-limit-reached :request *request* :brokers brokers))
 
 
-(def condition dos-attack-detected (simple-error)
+(def (condition e) access-denied-error (request-processing-error)
+  ())
+
+(def (function e) access-denied-error ()
+  (error 'access-denied-error))
+
+(def condition dos-attack-detected (simple-error request-processing-error)
   ())
 
 (def function report-dos (&optional (format-control "Denial of Service attack?") &rest format-arguments)
