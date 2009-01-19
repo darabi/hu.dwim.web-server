@@ -113,6 +113,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +header/connection+          "Connection"
    +header/date+                "Date"
    +header/host+                "Host"
+   +header/referer+             "Referer"
    +header/refresh+             "Refresh"
    +header/if-modified-since+   "If-Modified-Since"
    +header/user-agent+          "User-Agent"
