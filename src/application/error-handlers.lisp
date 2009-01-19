@@ -24,7 +24,14 @@
 ;;; internal server error for applications
 
 (defmethod handle-toplevel-condition ((application application) (error serious-condition))
-  (if *session*
+  (when (and (not *inside-user-code*)
+             *session*)
+    ;; oops, this error comes from inside WUI or at least not from an action or from render. let's try to invalidate the session if there's any...
+    (server.warn "Invalidating session ~A because an error came from inside WUI while processing a request coming to it" *session*)
+    (mark-session-invalid *session*)
+    (setf *session* nil))
+  (if (and *session*
+           *inside-user-code*)
       (progn
         (log-error-with-backtrace error)
         (bind ((request-uri (raw-uri-of *request*)))

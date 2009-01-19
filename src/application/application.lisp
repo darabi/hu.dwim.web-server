@@ -96,8 +96,11 @@
     (funcall thunk)))
 
 (def (generic e) call-action (application session frame action)
-  (:method (application session frame (action funcallable-standard-object))
-    (funcall action)))
+  (:method (application session frame (action function))
+    (funcall action))
+  (:method :around (application session frame action)
+    (bind ((*inside-user-code* #t))
+      (call-next-method))))
 
 (def (with-macro* eo) with-session-logic (&key ensure-session (requires-valid-session #t) (lock-session #t))
   (assert (and (boundp '*application*)
@@ -324,12 +327,14 @@
 
 (def (function o) application-handler (application request)
   (assert (not (boundp '*rendering-phase-reached*)))
+  (assert (not (boundp '*inside-user-code*)))
   (bind ((*application* application)
          (*brokers* (cons application *brokers*))
          ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can freely setf it
          (*session* nil)
          (*frame* nil)
          (*rendering-phase-reached* #f)
+         (*inside-user-code* #f)
          ;; the request counter is not critical, so just ignore locking...
          (request-counter (incf (processed-request-count-of application))))
     (when (and (zerop (mod request-counter +session-purge-request-interval+)) ; get time less often

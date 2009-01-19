@@ -127,7 +127,7 @@
       (setf class ''path-entry-point))
     (when path-prefix-p
       (setf class ''path-prefix-entry-point)))
-  (bind ((wrapper-expression '(entry-point)))
+  (bind ((wrapper-expression '(call-entry-point *application* *session* #'entry-point)))
     (when with-action-logic
       (setf wrapper-expression
             `(if *frame*
@@ -153,7 +153,13 @@
                                                 ;; in an intentionally visible BLOCK called 'entry-point
                                                 (with-request-params* ,request ,request-lambda-list
                                                   ,@body)))
+                                         (declare (dynamic-extent #'entry-point))
                                          ,wrapper-expression)))))))
+
+(def generic call-entry-point (application session thunk)
+  (:method (application session thunk)
+    (bind ((*inside-user-code* #t))
+      (funcall thunk))))
 
 (def (definer e) file-serving-entry-point (application path-prefix root-directory &key priority)
   `(ensure-entry-point ,application (make-file-serving-broker ,path-prefix ,root-directory :priority ,priority)))
