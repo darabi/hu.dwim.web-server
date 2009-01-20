@@ -256,13 +256,13 @@
                (remove-worker ()
                  :report (lambda (stream)
                            (format stream "Stop and remove worker ~A" worker))
-                 (with-lock-held-on-server (server)
-                   (when (zerop (length (workers-of server)))
-                     (make-worker server)))
                  (values)))
-          (when worker
-            (unregister-worker worker server))
-          (server.dribble "Worker ~A is going away" worker))
+          (server.dribble "Worker ~A is about to leave. There are ~A workers currently." worker (length (workers-of server)))
+          (with-lock-held-on-server (server)
+            (when worker
+              (unregister-worker worker server))
+            (when (zerop (length (workers-of server)))
+              (make-worker server))))
         (body))))
 
 (def function worker-loop/serve-one-request (threaded? server request-number worker stream-socket)
