@@ -95,6 +95,12 @@
     (app.dribble "CALL-IN-APPLICATION-ENVIRONMENT is calling the thunk")
     (funcall thunk)))
 
+(def (generic e) call-in-post-action-environment (application session thunk)
+  (:documentation "This call wraps entry points and rendering, but does not wrap actions. The SESSION argument may or may not be a valid session.")
+  (:method (application session thunk)
+    (app.dribble "CALL-IN-POST-ACTION-ENVIRONMENT is calling the thunk")
+    (funcall thunk)))
+
 (def (generic e) call-action (application session frame action)
   (:method (application session frame (action function))
     (funcall action))
@@ -193,73 +199,69 @@
     (assert-session-lock-held session)
     ;; TODO here? find its place...
     (notify-activity session)
-    (flet ((maybe-send-response-early (response)
-             (app.dribble "MAYBE-SEND-RESPONSE-EARLY for ~A" response)
-             (if (and response
-                      (typep response 'locked-session-response-mixin))
-                 (progn
-                   (app.debug "Calling SEND-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and WITH-ACTION-LOGIC's dynamic scope" response)
-                   (decorate-application-response application response)
-                   (send-response response)
-                   (make-do-nothing-response))
-                 response)))
-      (bind ((response
-              (if frame
-                  (progn
-                    (restart-case
-                        (progn
-                          (setf *frame* frame)
-                          (notify-activity frame)
-                          (process-client-state-sinks frame (query-parameters-of *request*))
-                          (bind ((action (find-action-from-request frame))
-                                 (incoming-frame-index (parameter-value +frame-index-parameter-name+))
-                                 (current-frame-index (frame-index-of frame))
-                                 (next-frame-index (next-frame-index-of frame)))
-                            (unless (stringp current-frame-index)
-                              (setf current-frame-index (integer-to-string current-frame-index)))
-                            (unless (stringp next-frame-index)
-                              (setf next-frame-index (integer-to-string next-frame-index)))
-                            (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index current-frame-index next-frame-index action)
-                            (cond
-                              ((and action
-                                    incoming-frame-index)
-                               (bind ((original-frame-index nil))
-                                 (unwind-protect-case ()
-                                     (if (equal incoming-frame-index next-frame-index)
-                                         (progn
-                                           (app.dribble "Found an action and frame is in sync...")
-                                           (unless *delayed-content-request*
-                                             (setf original-frame-index (step-to-next-frame-index frame)))
-                                           (app.dribble "Calling action...")
-                                           (bind ((response (call-action application session frame action)))
-                                             (when (typep response 'response)
-                                               (return-from with-action-logic
-                                                 (maybe-send-response-early response)))))
-                                         (handle-request-to-invalid-frame application session frame :out-of-sync))
-                                   (:abort
-                                    (when original-frame-index
-                                      (revert-step-to-next-frame-index frame original-frame-index))))))
-                              (incoming-frame-index
-                               (unless (equal incoming-frame-index current-frame-index)
-                                 (return-from with-action-logic
-                                   (maybe-send-response-early
-                                    (handle-request-to-invalid-frame application session frame :out-of-sync)))))
-                              #+nil ; TODO think about this. when the frame is registeres, there's no frame index param, but it's still a valid request
-                              (t
-                               (frame-index-missing-error frame)))
-                            (app.dribble "Action logic fell through, proceeding to the thunk...")))
-                      (delete-current-frame ()
-                        :report (lambda (stream)
-                                  (format stream "Delete frame ~A" frame))
-                        (mark-expired frame)
-                        (invoke-retry-handling-request-restart)))
-                    (-body-))
-                  (if *ajax-aware-request*
-                      ;; we can't find a valid frame but received an ajax aware request. for now treat this as an
-                      ;; error until a valid use-case requires something else...
-                      (frame-not-found-error)
-                      (-body-)))))
-        (maybe-send-response-early response)))))
+    (labels ((convert-to-primitive-response* (response)
+               (app.debug "Calling CONVERT-TO-PRIMITIVE-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and WITH-ACTION-LOGIC's dynamic scope" response)
+               (decorate-application-response *application* response)
+               (convert-to-primitive-response response))
+             (call-body ()
+               (values (call-in-post-action-environment *application* *session*
+                                                        (named-lambda call-in-post-action-environment-body ()
+                                                          (convert-to-primitive-response* (-body-)))))))
+      (if frame
+          (progn
+            (restart-case
+                (progn
+                  (setf *frame* frame)
+                  (notify-activity frame)
+                  (process-client-state-sinks frame (query-parameters-of *request*))
+                  (bind ((action (find-action-from-request frame))
+                         (incoming-frame-index (parameter-value +frame-index-parameter-name+))
+                         (current-frame-index (frame-index-of frame))
+                         (next-frame-index (next-frame-index-of frame)))
+                    (unless (stringp current-frame-index)
+                      (setf current-frame-index (integer-to-string current-frame-index)))
+                    (unless (stringp next-frame-index)
+                      (setf next-frame-index (integer-to-string next-frame-index)))
+                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index current-frame-index next-frame-index action)
+                    (cond
+                      ((and action
+                            incoming-frame-index)
+                       (bind ((original-frame-index nil))
+                         (unwind-protect-case ()
+                             (if (equal incoming-frame-index next-frame-index)
+                                 (progn
+                                   (app.dribble "Found an action and frame is in sync...")
+                                   (unless *delayed-content-request*
+                                     (setf original-frame-index (step-to-next-frame-index frame)))
+                                   (app.dribble "Calling action...")
+                                   (bind ((response (call-action application session frame action)))
+                                     (when (typep response 'response)
+                                       (return-from with-action-logic
+                                         (convert-to-primitive-response* response)))))
+                                 (handle-request-to-invalid-frame application session frame :out-of-sync))
+                           (:abort
+                            (when original-frame-index
+                              (revert-step-to-next-frame-index frame original-frame-index))))))
+                      (incoming-frame-index
+                       (unless (equal incoming-frame-index current-frame-index)
+                         (return-from with-action-logic
+                           (convert-to-primitive-response*
+                            (handle-request-to-invalid-frame application session frame :out-of-sync)))))
+                      #+nil ; TODO think about this. at the time the frame is first registered, there's no frame index param, but it's still a valid request
+                      (t
+                       (frame-index-missing-error frame)))
+                    (app.dribble "Action logic fell through, proceeding to the thunk...")))
+              (delete-current-frame ()
+                :report (lambda (stream)
+                          (format stream "Delete frame ~A" frame))
+                (mark-expired frame)
+                (invoke-retry-handling-request-restart)))
+            (call-body))
+          (if *ajax-aware-request*
+              ;; we can't find a valid frame but received an ajax aware request. for now treat this as an
+              ;; error until a valid use-case requires something else...
+              (frame-not-found-error)
+              (call-body))))))
 
 (def type session-invalidity-reason ()
   `(member :nonexistent :timed-out :invalidated))
@@ -653,7 +655,7 @@ Custom implementations should look something like this:
            (cons (some [not (string= !1 "")] value))
            (string (not (string= value "")))))))
 
-(def method send-response ((self component-rendering-response))
+(def method convert-to-primitive-response ((self component-rendering-response))
   (disallow-response-caching self)
   (bind ((*frame* (frame-of self))
          (*session* (session-of self))
@@ -675,16 +677,9 @@ Custom implementations should look something like this:
                          (call-in-rendering-environment *application* *session*
                                                         (lambda ()
                                                           (ajax-aware-render (component-of self))))
-                       (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time)))))))
-         (headers (with-output-to-sequence (header-stream :element-type '(unsigned-byte 8)
-                                                          :initial-buffer-size 256)
-                    (setf (header-value self +header/content-length+) (integer-to-string (length body)))
-                    (send-http-headers (headers-of self) (cookies-of self) :stream header-stream))))
-    ;; TODO use multiplexing when writing to the network stream, including the headers
-    (app.debug "Sending component rendering response of ~A bytes" (length body))
-    (write-sequence headers (client-stream-of *request*))
-    (write-sequence body (client-stream-of *request*)))
-  (values))
+                       (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time))))))))
+    (app.debug "CONVERT-TO-PRIMITIVE-RESPONSE is returning a byte-vector-response of ~A bytes in the body" (length body))
+    (make-byte-vector-response* body :headers (headers-of self) :cookies (cookies-of self))))
 
 
 ;;;;;;;;;

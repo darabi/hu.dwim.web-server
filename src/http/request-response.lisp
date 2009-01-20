@@ -478,3 +478,14 @@
 (def method send-response ((self do-nothing-response))
   ;; nop
   )
+
+(def generic convert-to-primitive-response (response)
+  (:method :around (response)
+    (bind ((*response* response))
+      (call-next-method)))
+  (:method ((response byte-vector-response))
+    response)
+  (:method ((response redirect-response))
+    response)
+  (:method ((response null))
+    nil))

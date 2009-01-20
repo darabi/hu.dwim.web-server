@@ -127,13 +127,19 @@
       (setf class ''path-entry-point))
     (when path-prefix-p
       (setf class ''path-prefix-entry-point)))
-  (bind ((wrapper-expression '(call-entry-point *application* *session* #'entry-point)))
-    (when with-action-logic
-      (setf wrapper-expression
-            `(if *frame*
-                 (with-action-logic ()
-                   ,wrapper-expression)
-                 ,wrapper-expression)))
+  (bind ((wrapper-expression '(call-in-entry-point-environment *application* *session* #'entry-point)))
+    (if with-action-logic
+        (setf wrapper-expression
+              `(if *frame*
+                   (with-action-logic ()
+                     ,wrapper-expression)
+                   (call-in-post-action-environment *application* *session*
+                                                    (named-lambda call-in-post-action-environment-body ()
+                                                      (convert-to-primitive-response ,wrapper-expression)))))
+        (setf wrapper-expression
+              `(call-in-post-action-environment *application* *session*
+                                                (named-lambda call-in-post-action-environment-body ()
+                                                  (convert-to-primitive-response ,wrapper-expression)))))
     (when with-frame-logic
       (setf wrapper-expression
             `(if *session*
@@ -156,7 +162,7 @@
                                          (declare (dynamic-extent #'entry-point))
                                          ,wrapper-expression)))))))
 
-(def generic call-entry-point (application session thunk)
+(def (generic e) call-in-entry-point-environment (application session thunk)
   (:method (application session thunk)
     (bind ((*inside-user-code* #t))
       (funcall thunk))))

@@ -78,6 +78,9 @@
               :headers (headers-of self)
               :cookies (cookies-of self)))
 
+(def method convert-to-primitive-response ((response file-serving-response))
+  response)
+
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; directory index
