@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; error in AJAX requests
 
-(def method handle-toplevel-condition :around ((application application) error)
+(def method handle-toplevel-condition :around (error (application application))
   (if (and (boundp '*ajax-aware-request*)
            *ajax-aware-request*)
       (progn
@@ -23,7 +23,7 @@
 ;;;;;;
 ;;; internal server error for applications
 
-(defmethod handle-toplevel-condition ((application application) (error serious-condition))
+(defmethod handle-toplevel-condition ((error serious-condition) (application application))
   (when (and (not *inside-user-code*)
              *session*)
     ;; oops, this error comes from inside WUI or at least not from an action or from render. let's try to invalidate the session if there's any...

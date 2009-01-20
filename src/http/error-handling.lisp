@@ -4,8 +4,8 @@
 
 (in-package :hu.dwim.wui)
 
-(def (generic e) handle-toplevel-condition (broker error)
-  (:method :around (broker error)
+(def (generic e) handle-toplevel-condition (error broker)
+  (:method :around (error broker)
     (with-thread-name " / HANDLE-TOPLEVEL-CONDITION"
       (call-next-method))))
 
@@ -72,7 +72,7 @@
   (when (debug-on-error context condition)
     (typecase condition
       ;; this is a place to skip errors that we don't want to catch in the debugger...
-      ;; (frame-index-missing-error)
+      (access-denied-error)
       (t (invoke-slime-debugger condition :with-continue-restart with-continue-restart)))))
 
 (def function invoke-slime-debugger (condition &key (with-continue-restart #t))
@@ -103,10 +103,10 @@
                           (write-string (description-of stack-frame) str)
                           (terpri str))))))
 
-(defmethod handle-toplevel-condition :before (broker (error serious-condition))
+(defmethod handle-toplevel-condition :before ((error serious-condition) broker)
   (maybe-invoke-slime-debugger error :context broker))
 
-(defmethod handle-toplevel-condition (broker (error serious-condition))
+(defmethod handle-toplevel-condition ((error serious-condition) broker)
   (log-error-with-backtrace error)
   (bind ((request-uri (if *request*
                           (raw-uri-of *request*)
@@ -136,7 +136,7 @@
          " email address.">)
    <p <a (:href `js-inline(history.go -1)) "Go back">>>)
 
-(defmethod handle-toplevel-condition (broker (error access-denied-error))
+(defmethod handle-toplevel-condition ((error access-denied-error) broker)
   (bind ((request-uri (if *request*
                           (raw-uri-of *request*)
                           "<unavailable>")))
@@ -145,7 +145,7 @@
         (progn
           (server.info "Sending an access denied error page for request ~S" request-uri)
           (emit-simple-html-document-http-response (:status +http-forbidden+ :title #"error.access-denied-error")
-            (lookup-resource 'render-internal-error-page
+            (lookup-resource 'render-access-denied-error-page
                              :otherwise (lambda ()
                                           (render-access-denied-error-page/english)))))
         (server.info "Access denied for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
