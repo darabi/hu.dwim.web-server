@@ -119,6 +119,7 @@
       (setf (values session session-cookie-exists? invalidity-reason session-instance)
             (find-session-from-request application))
       (when (and (not session)
+                 (eq invalidity-reason :nonexistent)
                  ensure-session)
         (setf session (make-new-session application))
         (register-session application session)
@@ -150,7 +151,8 @@
                         (format stream "Delete session ~A and rety handling the request" session))
               (mark-expired session)
               (invoke-retry-handling-request-restart))))
-        (if requires-valid-session
+        (if (or requires-valid-session
+                (not (eq invalidity-reason :nonexistent)))
             (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
               (decorate-application-response application response)
               response)
