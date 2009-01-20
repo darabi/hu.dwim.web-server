@@ -17,6 +17,7 @@
 (def (special-variable e) *request*)
 (def (special-variable e) *response*)
 (def (special-variable e) *request-remote-host*)
+(def special-variable *request-id*)
 
 (def (special-variable e) *server*)
 (def (special-variable e) *application*)

@@ -247,7 +247,7 @@
                          (iter (for stream-socket = (accept-connection socket :wait #f))
                                (while (and stream-socket
                                            (not (shutdown-initiated-p server))))
-                               (worker-loop/serve-one-request threaded? server (processed-request-count-of server) worker stream-socket)))))))
+                               (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
            (values)))
     (if threaded?
         (unwind-protect
@@ -265,7 +265,7 @@
               (make-worker server))))
         (body))))
 
-(def function worker-loop/serve-one-request (threaded? server request-number worker stream-socket)
+(def function worker-loop/serve-one-request (threaded? server worker stream-socket)
   (flet ((serve-one-request ()
            (unwind-protect
                 (progn
@@ -280,17 +280,18 @@
                                   (maximum-worker-count-of server)))
                       (server.info "All ~A worker threads are occupied, starting a new one" (length (workers-of server)))
                       (make-worker server))
-                    (incf (processed-request-count-of server)))
-                  (setf *request* (read-request server stream-socket))
-                  (loop
-                     (with-simple-restart (retry-handling-request "Try again handling this request")
-                       (when (and *response*
-                                  (headers-are-sent-p *response*))
-                         (cerror "Continue" "Some data was already written to the network stream, so restarting the request handling will probably not result in what you would expect."))
-                       (setf *response* nil)
-                       (funcall (handler-of server))
-                       (return)))
-                  (close-request *request*))
+                    (setf *request-id* (incf (processed-request-count-of server))))
+                  (with-thread-name (concatenate-string " / serving request " (integer-to-string *request-id*))
+                    (setf *request* (read-request server stream-socket))
+                    (loop
+                       (with-simple-restart (retry-handling-request "Try again handling this request")
+                         (when (and *response*
+                                    (headers-are-sent-p *response*))
+                           (cerror "Continue" "Some data was already written to the network stream, so restarting the request handling will probably not result in what you would expect."))
+                         (setf *response* nil)
+                         (funcall (handler-of server))
+                         (return)))
+                    (close-request *request*)))
              (with-lock-held-on-server (server)
                (decf (occupied-worker-count-of server)))))
          (handle-request-error (condition)
@@ -301,16 +302,16 @@
              ;; no need to handle (nested) errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
              (handle-toplevel-condition broker condition))
            (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
-    (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response* *request-remote-host*))))
+    (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response* *request-remote-host* *request-id*))))
     (bind ((*server* server)
            (*brokers* (list server))
            (*request* nil)
            (*response* nil)
-           (*request-remote-host* nil))
+           (*request-remote-host* nil)
+           (*request-id* nil))
       (restart-case
           (unwind-protect-case (interrupted)
-              (with-thread-name (concatenate-string " / serving request "
-                                                    (integer-to-string (processed-request-count-of server)))
+              (progn
                 (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
                   (call-with-server-error-handler #'serve-one-request
                                                   stream-socket
@@ -327,7 +328,7 @@
                                                  (return))))))
         (abort-server-request ()
           :report (lambda (stream)
-                    (format stream "~@<Abort processing request ~A by simply closing the network socket~@:>" request-number))
+                    (format stream "~@<Abort processing request ~A by simply closing the network socket~@:>" *request-id*))
           (values))))))
 
 (def function store-response (response)
@@ -354,15 +355,15 @@
   (bind ((start-time (get-monotonic-time))
          (start-bytes-allocated (get-bytes-allocated))
          (raw-uri (raw-uri-of request)))
-    (http.info "Handling request from ~S for ~S, method ~S" *request-remote-host* raw-uri (http-method-of request))
+    (http.info "Handling request ~S from ~S for ~S, method ~S" *request-id* *request-remote-host* raw-uri (http-method-of request))
     (multiple-value-prog1
         (if (profile-request-processing-p server)
             (call-with-profiling #'call-next-method)
             (call-next-method))
       (bind ((seconds (- (get-monotonic-time) start-time))
              (bytes-allocated (- (get-bytes-allocated) start-bytes-allocated)))
-        (http.info "Handled request in ~,3f secs, ~,3f MB allocated (request came from ~S for ~S)"
-                   seconds (/ bytes-allocated 1024 1024) *request-remote-host* raw-uri)))))
+        (http.info "Handled request ~S in ~,3f secs, ~,3f MB allocated (request came from ~S for ~S)"
+                   *request-id* seconds (/ bytes-allocated 1024 1024) *request-remote-host* raw-uri)))))
 
 (def (function e) is-request-still-valid? ()
   (iolib:socket-connected-p (client-stream-of *request*)))
