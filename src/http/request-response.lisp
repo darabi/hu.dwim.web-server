@@ -175,6 +175,10 @@
   ((headers-are-sent #f :type boolean)
    (external-format +external-format+ :documentation "May or may not be used by some higher level functionalities")))
 
+(def (class* e) primitive-response (response)
+  ()
+  (:documentation "Primitive responses are the ones that are ready to be serialized into the network stream and transferred to the client."))
+
 (def constructor response
   (setf (header-value -self- +header/status+) +http-ok+)
   (setf (cookies-of -self-) (list)))
@@ -227,11 +231,11 @@
       (write-crlf stream)
       status)))
 
-(defmethod send-headers ((response response))
+(defmethod send-headers ((response primitive-response))
   (http.debug "Sending headers of ~A" response)
   (send-http-headers (headers-of response) (cookies-of response)))
 
-(defmethod send-response :around ((response response))
+(defmethod send-response :around ((response primitive-response))
   (store-response response)
   (bind ((client-stream (client-stream-of *request*))
          (original-external-format (io.streams:external-format-of client-stream)))
@@ -243,6 +247,9 @@
       (setf (iolib:external-format-of client-stream) original-external-format))))
 
 (defmethod send-response ((response response))
+  (send-response (convert-to-primitive-response response)))
+
+(defmethod send-response ((response primitive-response))
   (assert (not (headers-are-sent-p response)) () "The headers of ~A have already been sent, this is a program error." response)
   (setf (headers-are-sent-p response) #t)
   (send-headers response))
@@ -345,7 +352,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; byte-vector-response
 
-(def (class* e) byte-vector-response (response)
+(def (class* e) byte-vector-response (primitive-response)
   ((body :type (or list vector))))
 
 (def (function e) make-byte-vector-response* (bytes &key headers cookies external-format)
@@ -444,7 +451,7 @@
 ;;;;;;;;;;;;;;;;;;;;;
 ;;; redirect response
 
-(def class* redirect-response (response)
+(def class* redirect-response (primitive-response)
   ((target-uri :type string)))
 
 (def print-object (redirect-response :identity #f :type #t)
@@ -474,7 +481,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; do nothing response
 
-(def class* do-nothing-response (response)
+(def class* do-nothing-response (primitive-response)
   ())
 
 (def (function e) make-do-nothing-response ()
@@ -488,9 +495,7 @@
   (:method :around (response)
     (bind ((*response* response))
       (call-next-method)))
-  (:method ((response byte-vector-response))
-    response)
-  (:method ((response redirect-response))
+  (:method ((response primitive-response))
     response)
   (:method ((response null))
     nil))
