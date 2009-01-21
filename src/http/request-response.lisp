@@ -12,6 +12,7 @@
 
 (def class* http-message ()
   ((headers nil)
+   ;; left unbound, which is a marker for the lazy request cookie parser to do the parsing
    (cookies)))
 
 (def (function io) header-alist-value (alist header-name)
@@ -128,7 +129,9 @@
       (setf (cookies-of request)
             ;; if we called SAFE-PARSE-COOKIES here, then cookies that don't match the domain restrinctions were dropped.
             ;; instead we parse all cookies and let the users control what they will accept.
-            (rfc2109:parse-cookies (header-value request "Cookie")))))
+            (aprog1
+                (rfc2109:parse-cookies (header-value request "Cookie"))
+              (http.dribble "Parsed the cookies for the request: ~A" it)))))
 
 (def (function e) parameter-value (name &optional default)
   (bind (((:values value found?) (request-parameter-value *request* name)))
@@ -169,7 +172,7 @@
 ;;; Response
 
 (def (class* e) response (http-message)
-  ((headers-are-sent nil :type boolean)
+  ((headers-are-sent #f :type boolean)
    (external-format +external-format+ :documentation "May or may not be used by some higher level functionalities")))
 
 (def constructor response
@@ -345,11 +348,12 @@
 (def (class* e) byte-vector-response (response)
   ((body :type (or list vector))))
 
-(def (function e) make-byte-vector-response* (bytes &key headers cookies)
+(def (function e) make-byte-vector-response* (bytes &key headers cookies external-format)
   (make-instance 'byte-vector-response
                  :body bytes
                  :headers headers
-                 :cookies cookies))
+                 :cookies cookies
+                 :external-format external-format))
 
 (def (macro e) make-byte-vector-response ((&optional headers-as-plist cookie-list) &body body)
   (with-unique-names (response)
@@ -372,6 +376,7 @@
       (incf length (length piece)))
     ;; TODO use serve-sequence here? so that it adds expires, handles if-modified-since
     (setf (header-value response +header/content-length+) (integer-to-string length))
+    ;; send the headers
     (call-next-method)
     (dolist (piece body)
       (write-sequence piece client-stream))))

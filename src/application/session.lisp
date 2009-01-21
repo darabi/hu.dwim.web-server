@@ -100,6 +100,7 @@
          (session nil)
          (session-instance nil)
          (invalidity-reason nil))
+    (app.dribble "Looking for session-id cookie ~S among ~A" +session-cookie-name+ (cookies-of *request*))
     (when session-id
       (app.debug "Found session-id parameter ~S" session-id)
       (setf session-instance (gethash session-id (session-id->session-of application)))

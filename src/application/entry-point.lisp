@@ -156,6 +156,7 @@
                             ,class ,@args
                             :handler (lambda (,request)
                                        (flet ((entry-point ()
+                                                (app.debug "Entry point body reached")
                                                 ;; in an intentionally visible BLOCK called 'entry-point
                                                 (with-request-params* ,request ,request-lambda-list
                                                   ,@body)))

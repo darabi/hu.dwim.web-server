@@ -120,7 +120,7 @@
          (session-cookie-exists? #f)
          (invalidity-reason nil)
          (new-session? #f))
-    (app.debug "Request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
+    (app.debug "WITH-SESSION-LOGIC speaking, request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
     (with-lock-held-on-application (application)
       (setf (values session session-cookie-exists? invalidity-reason session-instance)
             (find-session-from-request application))
@@ -681,7 +681,10 @@ Custom implementations should look something like this:
                                                           (ajax-aware-render (component-of self))))
                        (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time))))))))
     (app.debug "CONVERT-TO-PRIMITIVE-RESPONSE is returning a byte-vector-response of ~A bytes in the body" (length body))
-    (make-byte-vector-response* body :headers (headers-of self) :cookies (cookies-of self))))
+    (make-byte-vector-response* body
+                                :headers (headers-of self)
+                                :cookies (cookies-of self)
+                                :external-format (external-format-of self))))
 
 
 ;;;;;;;;;
