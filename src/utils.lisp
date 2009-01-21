@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 (def (macro e) delay (&body forms)
-  `(lambda ()
+  `(named-lambda delay ()
      ,@forms))
 
 (def (function e) force (value)

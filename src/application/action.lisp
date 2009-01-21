@@ -34,13 +34,15 @@
 (def (macro e) make-action (&body body)
   (with-unique-names (action)
     `(bind ((,action (make-instance 'action)))
-       (set-funcallable-instance-function ,action (lambda () ,@body))
+       (set-funcallable-instance-function ,action (named-lambda action-body ()
+                                                    ,@body))
        ,action)))
 
 (def (macro e) make-component-action (component &body body)
   (with-unique-names (action)
     `(bind ((,action (make-instance 'component-action :component ,component)))
-       (set-funcallable-instance-function ,action (lambda () ,@body))
+       (set-funcallable-instance-function ,action (named-lambda component-action-body ()
+                                                    ,@body))
        ,action)))
 
 ;; don't call these make-foo because that would be misleading. it's not only about making, but also

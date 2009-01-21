@@ -526,7 +526,8 @@ Custom implementations should look something like this:
     (funcall thunk)))
 
 (def macro with-component-environment (component &body forms)
-  `(call-in-component-environment ,component (lambda () ,@forms)))
+  `(call-in-component-environment ,component (named-lambda with-component-environment-body ()
+                                               ,@forms)))
 
 (def (definer e) component-environment (&body forms)
   (bind ((qualifier (when (or (keywordp (first forms))
