@@ -574,11 +574,12 @@ Custom implementations should look something like this:
                <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
                  ,(foreach (lambda (dirty-component)
                              (with-restored-component-environment (parent-component-of dirty-component)
-                               (setf *rendering-phase-reached* #t)
-                               (render dirty-component)))
+                               (bind ((*inside-user-code* #t))
+                                 (setf *rendering-phase-reached* #t)
+                                 (render dirty-component))))
                            dirty-components)>))
          <result "success">>)
-      (progn
+      (bind ((*inside-user-code* #t))
         (setf *rendering-phase-reached* #t)
         (render component))))
 
