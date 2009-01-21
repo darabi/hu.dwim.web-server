@@ -133,11 +133,11 @@
               `(if *frame*
                    (with-action-logic ()
                      ,wrapper-expression)
-                   (call-in-post-action-environment *application* *session*
+                   (call-in-post-action-environment *application* *session* *frame*
                                                     (named-lambda call-in-post-action-environment-body ()
                                                       (convert-to-primitive-response ,wrapper-expression)))))
         (setf wrapper-expression
-              `(call-in-post-action-environment *application* *session*
+              `(call-in-post-action-environment *application* *session* *frame*
                                                 (named-lambda call-in-post-action-environment-body ()
                                                   (convert-to-primitive-response ,wrapper-expression)))))
     (when with-frame-logic

@@ -95,9 +95,9 @@
     (app.dribble "CALL-IN-APPLICATION-ENVIRONMENT is calling the thunk")
     (funcall thunk)))
 
-(def (generic e) call-in-post-action-environment (application session thunk)
+(def (generic e) call-in-post-action-environment (application session frame thunk)
   (:documentation "This call wraps entry points and rendering, but does not wrap actions. The SESSION argument may or may not be a valid session.")
-  (:method (application session thunk)
+  (:method (application session frame thunk)
     (app.dribble "CALL-IN-POST-ACTION-ENVIRONMENT is calling the thunk")
     (funcall thunk)))
 
@@ -204,7 +204,7 @@
                (decorate-application-response *application* response)
                (convert-to-primitive-response response))
              (call-body ()
-               (values (call-in-post-action-environment *application* *session*
+               (values (call-in-post-action-environment *application* *session* *frame*
                                                         (named-lambda call-in-post-action-environment-body ()
                                                           (convert-to-primitive-response* (-body-)))))))
       (if frame
