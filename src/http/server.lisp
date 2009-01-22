@@ -261,7 +261,8 @@
           (with-lock-held-on-server (server)
             (when worker
               (unregister-worker worker server))
-            (when (zerop (length (workers-of server)))
+            (when (and (not (shutdown-initiated-p server))
+                       (zerop (length (workers-of server))))
               (make-worker server))))
         (body))))
 
