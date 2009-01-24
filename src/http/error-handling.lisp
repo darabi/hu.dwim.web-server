@@ -13,7 +13,7 @@
   (or (and (typep error 'stream-error)
            (eq (stream-error-stream error) client-stream))
       (and (typep error 'iolib:socket-error)
-           (bind ((error-fd (nix:posix-error-object error)))
+           (bind ((error-fd (isys:handle-of error)))
              (and error-fd
                   (eql error-fd (fd-of client-stream)))))))
 

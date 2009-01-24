@@ -100,7 +100,6 @@
                :net-telent-date ;; TODO get rid of this
                :cl-fad
                :bordeaux-threads
-               :osicat
                :iolib
                :local-time
                :babel
