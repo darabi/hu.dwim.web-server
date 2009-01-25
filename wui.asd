@@ -144,8 +144,8 @@
                                       :pathname "../application/error-handlers.lisp"
                                       :depends-on ("command" "icon" "misc"))
                                (:file "mop" )
-                               #+sbcl(:file "constructor")
-                               (:file "component" :depends-on ("mop" "constructor"))
+                               #+sbcl(:file "sbcl-ctor-kludge")
+                               (:file "component" :depends-on ("mop" "sbcl-ctor-kludge"))
                                (:file "factory" :depends-on ("component"))
                                (:file "place" :depends-on ("component"))
                                (:file "icon" :depends-on ("component"))
