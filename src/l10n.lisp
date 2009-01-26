@@ -178,7 +178,6 @@
                    (setf (slot-value ($ ,id) 'value)
                          (dojo.date.to-rfc-3339 (new *date)))))))
 
-;; TODO rename to short-textual-representation-for or anything else without "name" in it
-(def (generic e) localized-instance-name (instance)
+(def (generic e) localized-instance-reference-string (instance)
   (:method ((instance standard-object))
     (princ-to-string instance)))
