@@ -285,8 +285,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; functional-response
 
-(def (class* e) functional-response (response)
-  ((thunk :type (or symbol function))))
+(def (class* e) functional-response (primitive-response)
+  ((thunk :type (or symbol function)))
+  (:documentation "A primitive-response that sends the headers and then calling its thunk. Keep in mind that it will not do any buffering, so it uses up a worker thread while sending the response through the network."))
 
 (defmethod send-response ((response functional-response))
   (call-next-method)
