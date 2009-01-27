@@ -24,11 +24,14 @@
                (setf level-1-error error)
                (handler-bind ((serious-condition #'level-2-error-handler))
                  (with-thread-name " / LEVEL-1-ERROR-HANDLER"
-                   (if (is-error-from-client-stream? error client-stream)
-                       (server.debug "Ignoring stream error coming from the network stream: ~A" error)
-                       (progn
-                         (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
-                         (funcall error-handler error)))
+                   (cond
+                     ((null *request*)
+                      (server.warn "Ignoring error coming from the request parsing code in the belief that it's an illegal request. Remote host: ~A, error: ~A" *request-remote-host* error))
+                     ((is-error-from-client-stream? error client-stream)
+                      (server.debug "Ignoring stream error coming from the network stream: ~A" error))
+                     (t
+                       (server.debug "Calling custom error handler from CALL-WITH-SERVER-ERROR-HANDLER for error: ~A" error)
+                       (funcall error-handler error)))
                    (abort-server-request "Level 1 error handler returned normally")
                    (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-1-ERROR-HANDLER"))))
              (level-2-error-handler (error)
