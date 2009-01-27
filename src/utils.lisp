@@ -21,6 +21,21 @@
 (def (macro e) foreach (function first-list &rest more-lists)
   `(map nil ,function ,first-list ,@more-lists))
 
+(def macro surround-body-when (test surround-with &body body)
+  (cond
+    ((eq test t)
+     `(macrolet ((body ()
+                   `(progn ,',@body)))
+        (,@surround-with)))
+    ((null test)
+     `(progn
+        ,@body))
+    (t `(flet ((-body- () (progn ,@body)))
+          (declare (inline -body-) (dynamic-extent #'-body-))
+          (if ,test
+              (,@surround-with)
+              (-body-))))))
+
 (def (function io) find-slot (class-or-name slot-name)
   (find slot-name
         (the list
