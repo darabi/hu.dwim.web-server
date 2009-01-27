@@ -86,6 +86,34 @@
                            (> a-priority b-priority))))))
   entry-point)
 
+(def function %call-with-entry-point-logic (thunk with-session-logic requires-valid-session ensure-session
+                                                  with-frame-logic requires-valid-frame ensure-frame
+                                                  with-action-logic)
+  (when (and with-frame-logic (not with-session-logic))
+    (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
+  (when (and with-action-logic (not with-frame-logic))
+    (error "Can't use WITH-ACTION-LOGIC without WITH-FRAME-LOGIC"))
+  (when (and ensure-session (not with-session-logic))
+    (error "Can't use ENSURE-SESSION without WITH-SESSION-LOGIC"))
+  (when (and ensure-frame (not with-frame-logic))
+    (error "Can't use ENSURE-FRAME without WITH-FRAME-LOGIC"))
+  (surround-body-when with-session-logic
+      (with-session-logic (:requires-valid-session requires-valid-session :ensure-session ensure-session)
+        (-body-))
+    (surround-body-when with-frame-logic
+        (if *session*
+            (with-frame-logic (:requires-valid-frame requires-valid-frame :ensure-frame ensure-frame)
+              (-body-))
+            (-body-))
+      (surround-body-when with-action-logic
+          (if *frame*
+              (with-action-logic ()
+                (-body-))
+              (-body-))
+        (call-in-post-action-environment *application* *session* *frame*
+                                         (named-lambda call-in-post-action-environment-body ()
+                                           (convert-to-primitive-response (call-in-entry-point-environment *application* *session* thunk))))))))
+
 (def (definer e) entry-point ((application &rest args &key
                                            (with-optional-session/frame-logic #f)
                                            (with-session-logic #t)
@@ -100,68 +128,38 @@
                                            class &allow-other-keys)
                                request-lambda-list &body body)
   (declare (ignore path path-prefix))
-  (bind ((boolean-values (list with-session-logic ensure-session requires-valid-session
-                               with-frame-logic requires-valid-frame ensure-frame
-                               with-action-logic)))
-    (unless (every [typep !1 'boolean] boolean-values)
-      (error "The entry-point definer does not evaluate many of its boolean keyword arguments, so they must be either T or NIL. Please check them: ~S" boolean-values)))
   (when with-optional-session/frame-logic
+    ;; TODO style warn when any of these is provided
     (setf with-session-logic #t)
     (setf requires-valid-session #f)
     (setf with-frame-logic #t)
+    (setf ensure-frame #t)
     (setf requires-valid-frame #f))
-  (when (and with-frame-logic (not with-session-logic))
-    (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
-  (when (and with-action-logic (not with-frame-logic))
-    (error "Can't use WITH-ACTION-LOGIC without WITH-FRAME-LOGIC"))
   (remove-from-plistf args :class
                       :with-optional-session/frame-logic
                       :with-session-logic :requires-valid-session :ensure-session
                       :with-frame-logic :requires-valid-frame :ensure-frame
                       :with-action-logic)
   (assert (not (and path-p path-prefix-p)))
-  (assert (or (not ensure-session) with-session-logic) () "It's quite contradictory to ask for ENSURE-SESSION without WITH-SESSION-LOGIC")
-  (assert (or (not ensure-frame) with-frame-logic) () "It's quite contradictory to ask for ENSURE-FRAME without WITH-FRAME-LOGIC")
   (unless class
     (when path-p
       (setf class ''path-entry-point))
     (when path-prefix-p
       (setf class ''path-prefix-entry-point)))
-  (bind ((wrapper-expression '(call-in-entry-point-environment *application* *session* #'entry-point)))
-    (if with-action-logic
-        (setf wrapper-expression
-              `(if *frame*
-                   (with-action-logic ()
-                     ,wrapper-expression)
-                   (call-in-post-action-environment *application* *session* *frame*
-                                                    (named-lambda call-in-post-action-environment-body ()
-                                                      (convert-to-primitive-response ,wrapper-expression)))))
-        (setf wrapper-expression
-              `(call-in-post-action-environment *application* *session* *frame*
-                                                (named-lambda call-in-post-action-environment-body ()
-                                                  (convert-to-primitive-response ,wrapper-expression)))))
-    (when with-frame-logic
-      (setf wrapper-expression
-            `(if *session*
-                 (with-frame-logic (:requires-valid-frame ,requires-valid-frame :ensure-frame ,ensure-frame)
-                   ,wrapper-expression)
-                 ,wrapper-expression)))
-    (when with-session-logic
-      (setf wrapper-expression
-            `(with-session-logic (:requires-valid-session ,requires-valid-session :ensure-session ,ensure-session)
-               ,wrapper-expression)))
-    (with-unique-names (request)
-      `(ensure-entry-point ,application
-                           (make-instance
-                            ,class ,@args
-                            :handler (lambda (,request)
-                                       (flet ((entry-point ()
-                                                (app.debug "Entry point body reached")
-                                                ;; in an intentionally visible BLOCK called 'entry-point
-                                                (with-request-params* ,request ,request-lambda-list
-                                                  ,@body)))
-                                         (declare (dynamic-extent #'entry-point))
-                                         ,wrapper-expression)))))))
+  (with-unique-names (request)
+    `(ensure-entry-point ,application
+                         (make-instance
+                          ,class ,@args
+                          :handler (lambda (,request)
+                                     (%call-with-entry-point-logic (lambda ()
+                                                                     (app.debug "Entry point body reached")
+                                                                     (block entry-point
+                                                                       ;; BODY is in an intentionally visible block called 'ENTRY-POINT
+                                                                       (with-request-params* ,request ,request-lambda-list
+                                                                         ,@body)))
+                                                                   ,with-session-logic ,requires-valid-session ,ensure-session
+                                                                   ,with-frame-logic   ,requires-valid-frame ,ensure-frame
+                                                                   ,with-action-logic))))))
 
 (def (generic e) call-in-entry-point-environment (application session thunk)
   (:method (application session thunk)
