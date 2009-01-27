@@ -240,6 +240,10 @@
                                          (convert-to-primitive-response* response)))))
                                  (handle-request-to-invalid-frame application session frame :out-of-sync))
                            (:abort
+                            ;; TODO hrm, seems like this is not needed anymore with the new application specific error handling code
+                            ;; because that will render the back link while inside the uwp block, so it'll point to the next frame index
+                            ;; delme?
+                            #+nil
                             (when original-frame-index
                               (revert-step-to-next-frame-index frame original-frame-index))))))
                       (incoming-frame-index
