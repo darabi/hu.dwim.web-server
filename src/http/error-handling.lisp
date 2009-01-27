@@ -108,22 +108,25 @@
 
 (defmethod handle-toplevel-condition ((error serious-condition) broker)
   (log-error-with-backtrace error)
-  (bind ((request-uri (if *request*
-                          (raw-uri-of *request*)
-                          "<unavailable>")))
-    (if (or (not *response*)
-            (not (headers-are-sent-p *response*)))
-        (progn
-          (server.info "Sending an internal server error page for request ~S" request-uri)
-          (emit-simple-html-document-http-response (:status +http-internal-server-error+ :title #"error.internal-server-error")
-            (bind ((args (list :admin-email-address (and (boundp '*server*)
-                                                         (admin-email-address-of *server*)))))
-              (lookup-resource 'render-internal-error-page
-                               :arguments args
-                               :otherwise (lambda ()
-                                            (apply 'render-internal-error-page/english args))))))
-        (server.info "Internal server error for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
-  (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the error by sending an error page"))
+  (cond
+    ((null *request*)
+     (server.info "Internal server error while the request it not yet parsed, so closing the socket as-is without sending any useful error message.")
+     (abort-server-request "HANDLE-TOPLEVEL-CONDITION bailed out without any response because *request* was not yet parsed"))
+    ((or (not *response*)
+         (not (headers-are-sent-p *response*)))
+     (server.info "Sending an internal server error page for request ~S" (raw-uri-of *request*))
+     (emit-simple-html-document-http-response (:status +http-internal-server-error+ :title #"error.internal-server-error")
+       (bind ((args (list :admin-email-address (and (boundp '*server*)
+                                                    (admin-email-address-of *server*)))))
+         (lookup-resource 'render-internal-error-page
+                          :arguments args
+                          :otherwise (lambda ()
+                                       (apply 'render-internal-error-page/english args)))))
+     (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the error by sending an error page"))
+    (t
+     (server.info "Internal server error for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." (raw-uri-of *request*))
+     (abort-server-request "HANDLE-TOPLEVEL-CONDITION bailed out without any response because the HTTP headers are already sent")))
+  (error "This HANDLE-TOPLEVEL-CONDITION method should never return"))
 
 (def function render-internal-error-page/english (&key admin-email-address &allow-other-keys)
   <div
