@@ -204,9 +204,7 @@
                (decorate-application-response *application* response)
                (convert-to-primitive-response response))
              (call-body ()
-               (values (call-in-post-action-environment *application* *session* *frame*
-                                                        (named-lambda call-in-post-action-environment-body ()
-                                                          (convert-to-primitive-response* (-body-)))))))
+               (values (convert-to-primitive-response* (-body-)))))
       (if frame
           (progn
             (restart-case
