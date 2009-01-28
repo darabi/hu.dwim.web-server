@@ -249,9 +249,9 @@
                          (return-from with-action-logic
                            (convert-to-primitive-response*
                             (handle-request-to-invalid-frame application session frame :out-of-sync)))))
-                      #+nil ; TODO think about this. at the time the frame is first registered, there's no frame index param, but it's still a valid request
-                      (t
-                       (frame-index-missing-error frame)))
+                      ;; at the time the frame is first registered, there's no frame index param in the url, so just fall through here and
+                      ;; end up at the entry points.
+                      )
                     (app.dribble "Action logic fell through, proceeding to the thunk...")))
               (delete-current-frame ()
                 :report (lambda (stream)

@@ -52,10 +52,7 @@
      (lambda ()
        (serve-js bytes-to-serve
                  :last-modified-at (local-time:universal-to-timestamp file-write-date)
-                 :seconds-until-expires (if (and (boundp '*application*)
-                                                 (running-in-test-mode-p *application*))
-                                            30
-                                            (* 60 60))))
+                 :seconds-until-expires (* 60 60)))
      :raw #t)))
 
 (def content-serving-function serve-js (sequence &key

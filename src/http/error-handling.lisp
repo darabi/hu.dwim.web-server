@@ -9,7 +9,7 @@
     (with-thread-name " / HANDLE-TOPLEVEL-CONDITION"
       (call-next-method))))
 
-(def function is-error-from-client-stream? (error &optional (client-stream (client-stream-of *request*)))
+(def function is-error-from-client-stream? (error client-stream)
   (or (and (typep error 'stream-error)
            (eq (stream-error-stream error) client-stream))
       (and (typep error 'iolib:socket-error)

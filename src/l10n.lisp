@@ -48,6 +48,7 @@
 
   (:method :around ((slot effective-slot-definition) &key (capitalize-first-letter #t) prefix-with)
     (bind (((:values str found?) (call-next-method)))
+      (assert str)
       (when capitalize-first-letter
         (setf str (capitalize-first-letter str)))
       (values (if prefix-with
