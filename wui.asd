@@ -246,7 +246,11 @@
 ;;; Integration with other systems
 
 (defsystem* wui-and-cl-perec
-  :depends-on (:wui :cl-perec :dwim-meta-model)
+  :depends-on (:wui
+               :cl-perec
+               :cl-l10n
+               :dwim-meta-model
+               )
   :components
   ((:module "src/integration/cl-perec"
     :components ((:file "kludge")
