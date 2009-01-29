@@ -108,8 +108,8 @@
                                  (progn
                                    (assert fd)
                                    (server.dribble "Setting socket ~A to be non-blocking" socket)
-                                   (setf (io.streams:fd-non-blocking socket) #t)
-                                   ;;(net.sockets:set-socket-option socket :receive-timeout :sec 1 :usec 0)
+                                   (setf (iolib.streams:fd-non-blocking socket) #t)
+                                   ;;(setf (iolib:socket-option socket :receive-timeout) 1)
                                    (server.debug "Adding socket ~A, fd ~A to the accept multiplexer" socket fd)
                                    (iomux::monitor-fd mux (aprog1
                                                               (iomux::make-fd-entry fd)
@@ -127,7 +127,7 @@
                         (awhen (socket-of listen-entry)
                           (close it)
                           (setf (socket-of listen-entry) nil)))
-                      (io.multiplex::close-multiplexer mux)
+                      (iolib.multiplex::close-multiplexer mux)
                       (setf (connection-multiplexer-of server) nil))))
           (if (zerop (maximum-worker-count-of server))
               (unwind-protect
@@ -172,7 +172,7 @@
                  (setf (socket-of listen-entry) nil)
                  (server.dribble "Closing socket ~A" it)
                  (close it :abort force)))
-             (io.multiplex::close-multiplexer (connection-multiplexer-of server))
+             (iolib.multiplex::close-multiplexer (connection-multiplexer-of server))
              (setf (connection-multiplexer-of server) nil)
              (setf (started-at-of server) nil)))
       (server.dribble "Shutting down server ~A, force? ~A" server force)

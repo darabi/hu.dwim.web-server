@@ -238,7 +238,7 @@
 (defmethod send-response :around ((response primitive-response))
   (store-response response)
   (bind ((client-stream (client-stream-of *request*))
-         (original-external-format (io.streams:external-format-of client-stream)))
+         (original-external-format (iolib.streams:external-format-of client-stream)))
     (http.debug "Sending response ~A" response)
     (unwind-protect
          (progn
