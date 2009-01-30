@@ -65,7 +65,9 @@
     (assert (typep content '(or null component)))
     (appendf (messages-of collector)
              (list (apply #'make-instance 'user-message-component
-                          :message (apply #'format nil message message-args)
+                          :message (if (stringp message)
+                                       (apply #'format nil message message-args)
+                                       message)
                           initargs)))))
 
 (def (function e) has-user-message-p (collector category)
@@ -87,7 +89,7 @@
             (render (command (icon close :label nil)
                              (make-action
                                (removef (messages-of (parent-component-of -self-)) -self-)))))
-         ,message
+         ,(render message)
          ,(when content
             (call-next-method))>
     `js(wui.setup-widget "user-message" ,id (create :css-class ,(concatenate-string (string-downcase category) "-message")))))
