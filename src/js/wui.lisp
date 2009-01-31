@@ -6,6 +6,7 @@
 (dojo.get-object "wui.io" #t)
 (dojo.get-object "wui.i18n" #t)
 (dojo.get-object "wui.field" #t)
+(dojo.get-object "wui.help" #t)
 
 (defun wui.shallow-copy (object)
   (return (dojo.mixin (create) object)))
@@ -582,36 +583,41 @@
 ;;;;;;
 ;;; Context sensitive help
 
-(defun wui.decorate-context-sensitive-help-url (url id)
+(defun wui.help.decorate-url (url id)
   (if (or (= id "")
           (= id undefined))
       (return url)
       (return (wui.append-query-parameter url #.(escape-as-uri +context-sensitive-help-parameter-name+) id))))
 
-(defun wui.setup-context-sensitive-help (event url)
-  (bind ((help nil)
-         (mouseover-handler (lambda (event)
-                              (bind ((decorated-url url)
-                                     (node event.target))
-                                (while (not (= node document))
-                                  (setf decorated-url (wui.decorate-context-sensitive-help-url decorated-url node.id))
-                                  (setf node node.parent-node))
-                                (when (or (= help nil)
-                                          (and help.has-loaded
-                                               (not (= help.href decorated-url))))
-                                  (unless (= help nil)
-                                    (help.destroy))
-                                  (setf help (new dojox.widget.DynamicTooltip
-                                                  (create :connectId (array event.target)
-                                                          :position (array "below" "right")
-                                                          :href decorated-url)))
-                                  (help.open event.target)
-                                  (dojo.stop-event event)))))
+(defun wui.help.make-mouseover-handler (url)
+  (return
+    (lambda (event)
+      (bind ((decorated-url url)
+             (node event.target)
+             (help wui.help.tooltip))
+        (while (not (= node document))
+          (setf decorated-url (wui.help.decorate-url decorated-url node.id))
+          (setf node node.parent-node))
+        (when (or (= help nil)
+                  (and help.has-loaded
+                       (not (= help.href decorated-url))))
+          (wui.help.teardown)
+          (setf help (new dojox.widget.DynamicTooltip
+                          (create :connectId (array event.target)
+                                  :position (array "below" "right")
+                                  :href decorated-url)))
+          (setf wui.help.tooltip help)
+          (help.open event.target)
+          (dojo.stop-event event))))))
+
+(defun wui.help.setup (event url)
+  (bind ((help wui.help.tooltip)
+         (mouseover-handler (wui.help.make-mouseover-handler url))
          (mouseclick-handler (lambda (event)
                                (setf document.body.style.cursor "default")
                                (document.remove-event-listener "mouseover" mouseover-handler true)
                                (document.remove-event-listener "click" mouseclick-handler true)
-                               (help.destroy)
+                               (wui.help.teardown)
                                (dojo.stop-event event)))
          (original-onmouseover document.onmouseover)
          (original-onclick document.onclick))
@@ -619,6 +625,11 @@
     (document.add-event-listener "click" mouseclick-handler true)
     (setf document.body.style.cursor "help")
     (dojo.stop-event event)))
+
+(defun wui.help.teardown ()
+  (when wui.help.tooltip
+    (wui.help.tooltip.destroy)
+    (setf wui.help.tooltip nil)))
 
 
 

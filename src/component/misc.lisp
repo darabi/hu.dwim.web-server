@@ -273,34 +273,34 @@
 
 (def (constant :test #'string=) +context-sensitive-help-parameter-name+ "_hlp")
 
-(def component context-sensitive-help (content-component)
+(def component context-sensitive-help (content-component remote-identity-component-mixin)
   ((content (icon help) :type component)))
 
-(def icon help)
-(def resources hu
-  (icon-label.help "Segítség")
-  (icon-tooltip.help "Környezetfüggő segítség megjelenítése"))
-(def resources en
-  (icon-label.login "Help")
-  (icon-tooltip.login "Display context sensitive help"))
+(def icon help :tooltip nil)
 
 (def render context-sensitive-help ()
   (when *frame*
     (bind ((href (register-action/href (make-action (execute-context-sensitive-help)) :delayed-content #t)))
-      <div (:onclick `js-inline(wui.setup-context-sensitive-help event ,href)) ,(call-next-method)>)))
+      <div (:id ,(id-of -self-)
+            :onclick `js-inline(wui.help.setup event ,href)
+            :onmouseover `js-inline(bind ((kludge (wui.help.make-mouseover-handler ,href)))
+                                     ;; KLUDGE for now cl-qq-js chokes on ((wui.help.make-mouseover-handler ,href))
+                                     (kludge event)))
+           ,(call-next-method)>)))
 
 (def function execute-context-sensitive-help ()
-  (bind ((ids (ensure-list (request-parameter-value *request* +context-sensitive-help-parameter-name+)))
-         (components nil))
-    (map-descendant-components (root-component-of *frame*)
-                               (lambda (descendant)
-                                 (when (and (typep descendant 'remote-identity-component-mixin)
-                                            (member (id-of descendant) ids :test #'string=))
-                                   (push descendant components))))
-    (make-component-rendering-response (make-instance 'context-sensitive-help-popup
-                                                      :content (or (and components
-                                                                        (make-context-sensitive-help (first components)))
-                                                                   #"help.no-context-sensitive-help-available")))))
+  (with-request-params (((ids +context-sensitive-help-parameter-name+) nil))
+    (setf ids (ensure-list ids))
+    (bind ((components nil))
+      (map-descendant-components (root-component-of *frame*)
+                                 (lambda (descendant)
+                                   (when (and (typep descendant 'remote-identity-component-mixin)
+                                              (member (id-of descendant) ids :test #'string=))
+                                     (push descendant components))))
+      (make-component-rendering-response (make-instance 'context-sensitive-help-popup
+                                                        :content (or (and components
+                                                                          (make-context-sensitive-help (first components)))
+                                                                     #"help.no-context-sensitive-help-available"))))))
 
 (def (generic e) make-context-sensitive-help (component)
   (:method ((component component))
@@ -309,13 +309,11 @@
   (:method :around ((component remote-identity-component-mixin))
     (or (call-next-method)
         (awhen (parent-component-of component)
-          (make-context-sensitive-help it)))))
+          (make-context-sensitive-help it))))
 
-(def resources hu
-  (help.no-context-sensitive-help-available "Nincs környezetfüggő segítség"))
+  (:method ((self context-sensitive-help))
+    #"help.help-about-context-sensitive-help-button"))
 
-(def resources en
-  (help.no-context-sensitive-help-available "No conext sensitive help available"))
 
 ;;;;;;
 ;;; Help popup

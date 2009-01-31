@@ -20,3 +20,9 @@
   (error.access-denied-error "Access denied")
   (render-access-denied-error-page (&rest args &key &allow-other-keys)
     (apply 'render-access-denied-error-page/english args)))
+
+;;; Context sensitive help
+(def resources en
+  (icon-label.help "Help")
+  (help.no-context-sensitive-help-available "No conext sensitive help available")
+  (help.help-about-context-sensitive-help-button "This is the switch that can be used to turn on the context sensitive help. In help mode hovering the mouse over certain parts of the screen opens a tooltip just like this, but containing the most relevant help to that point (in this case the description of the help mode). Clicking the mouse anywhere in help mode turns off the mode."))

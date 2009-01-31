@@ -32,3 +32,8 @@
      <p "Nincs joga a kívánt oldal megtekintéséhez.">
      <p <a (:href `js-inline(history.go -1)) "Vissza">>>))
 
+;;; Context sensitive help
+(def resources hu
+  (icon-label.help "Segítség")
+  (help.no-context-sensitive-help-available "Nincs környezetfüggő segítség")
+  (help.help-about-context-sensitive-help-button "Ez a környezetfüggő segítség üzemmódnak a ki- és bekapcsoló gombja. Segítség üzemmódban az egérrel megállva a képernyő különböző pontjain feljön egy hasonló buborék mint ez, ami megmutatja az adott pontra legrelevánsabb környezetfüggő segítséget (jelen esetben a segítség üzemmód leírását). Segítség üzemmódban az egérrel bárhova kattintva a segítség üzemmód kikapcsol."))
