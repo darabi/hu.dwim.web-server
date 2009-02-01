@@ -68,11 +68,13 @@
     (mark-outdated component)))
 
 (def (function e) mark-dirty (component)
-  (setf (dirty-p component) #t))
+  (setf (dirty-p component) #t)
+  component)
 
 (def (function e) mark-outdated (component)
   (unless (stringp component)
-    (setf (outdated-p component) #t)))
+    (setf (outdated-p component) #t))
+  component)
 
 (def (function e) mark-top-content-outdated (component)
   (mark-outdated (find-top-component-content component)))
@@ -82,7 +84,8 @@
             (some (lambda (slot)
                     (not (computed-slot-valid-p component slot)))
                   (computed-slots-of (class-of component))))
-    (refresh-component component)))
+    (refresh-component component))
+  component)
 
 ;;;;;;
 ;;; Debug
