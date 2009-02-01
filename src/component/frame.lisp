@@ -61,8 +61,7 @@
                     :type "image/x-icon"
                     :href ,(append-file-write-date-to-uri (etypecase icon-uri
                                                             (string (concatenate-string path-prefix icon-uri))
-                                                            (uri (setf (path-of icon-uri) (concatenate-string path-prefix (path-of icon-uri)))
-                                                                 icon-uri))
+                                                            (uri (prefix-uri-path (clone-uri icon-uri) path-prefix)))
                                                           file-name))>))
         <title ,(title-of -self-)>
         ,(foreach (lambda (el)
@@ -71,8 +70,7 @@
                              :type "text/css"
                              :href ,(append-file-write-date-to-uri (etypecase stylesheet-uri
                                                                      (string (concatenate-string path-prefix stylesheet-uri))
-                                                                     (uri (setf (path-of stylesheet-uri) (concatenate-string path-prefix (path-of stylesheet-uri)))
-                                                                          stylesheet-uri))
+                                                                     (uri (prefix-uri-path (clone-uri stylesheet-uri) path-prefix)))
                                                                    file-name))>))
                   (stylesheet-uris-of -self-))
         <script (:type #.+javascript-mime-type+)
