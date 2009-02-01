@@ -137,7 +137,7 @@
 (def function append-file-write-date-to-uri (uri &optional file-name)
   (if file-name
       (bind ((*print-pretty* #f)
-             (value (file-write-date file-name)))
+             (value (mod (file-write-date file-name) 10000)))
         (etypecase uri
           (uri (setf (uri-query-parameter-value uri "_ts") value))
           ;; TODO this is not correct, but parsing the uri string not such a good idea either... decide.
