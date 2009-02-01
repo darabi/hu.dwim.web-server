@@ -71,7 +71,7 @@
   (:method ((application application))
     (make-action
       (execute-logout-action application *session*)
-      (make-redirect-response (make-uri-for-application *application* +login-entry-point-path+)))))
+      (make-redirect-response-for-current-application))))
 
 (def (generic e) execute-logout-action (application session)
   (:method (application session)
