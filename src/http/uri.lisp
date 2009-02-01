@@ -77,8 +77,12 @@
   (setf (query-parameters-of uri) '())
   uri)
 
-(def (function e) append-path-to-uri (uri path)
-  (setf (path-of uri) (concatenate 'string (path-of uri) path))
+(def (function e) append-path-to-uri (uri path-to-append)
+  (setf (path-of uri) (concatenate 'string (path-of uri) path-to-append))
+  uri)
+
+(def (function e) prefix-uri-path (uri path-to-prefix)
+  (setf (path-of uri) (concatenate 'string path-to-prefix (path-of uri)))
   uri)
 
 (def (function o) write-uri-sans-query (uri stream &optional (escape t))
