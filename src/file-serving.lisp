@@ -99,7 +99,7 @@
                      :relative-path relative-path :directory directory)
     (setf (header-value it +header/content-type+) +html-content-type+)))
 
-(defmethod send-response ((self directory-index-response))
+(def method send-response ((self directory-index-response))
   (emit-simple-html-document-http-response (:title (concatenate-string
                                                     "Directory index of \""
                                                     (relative-path-of self)

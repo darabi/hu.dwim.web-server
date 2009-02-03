@@ -488,6 +488,7 @@
         (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
     (awhen content-disposition
       (setf (header-alist-value headers +header/content-disposition+) it))
+    ;; TODO set socket buffering option?
     (send-http-headers headers cookies)
     (server.debug "SERVE-STREAM starts to copy input stream ~A to the network stream ~A" input-stream stream)
     (loop

@@ -85,3 +85,8 @@ div.list.vertical > div
 {
   cursor: pointer;
 }
+
+.command:hover span
+{
+  text-decoration: underline;
+}

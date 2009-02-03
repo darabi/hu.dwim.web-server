@@ -205,6 +205,7 @@
                (convert-to-primitive-response response))
              (call-body ()
                (values (convert-to-primitive-response* (-body-)))))
+      (declare (inline call-body))
       (if frame
           (progn
             (restart-case

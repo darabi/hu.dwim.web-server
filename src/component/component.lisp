@@ -27,7 +27,7 @@
    (outdated #t :type boolean :documentation "True means the component must be refreshed before render.")))
 
 (def render :around component ()
-  (with-component-environment -self- 
+  (with-component-environment -self-
     (if (force (visible-p -self-))
         (prog1
             (render-with-debug-component-hierarchy -self- #'call-next-method)

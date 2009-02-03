@@ -140,7 +140,7 @@
              (value (mod (file-write-date file-name) 10000)))
         (etypecase uri
           (uri (setf (uri-query-parameter-value uri "_ts") value))
-          ;; TODO this is not correct, but parsing the uri string not such a good idea either... decide.
+          ;; TODO this is not correct, but parsing the uri string is not such a good idea here either... decide.
           (string (concatenate-string uri "?_ts=" (princ-to-string value)))))
       uri))
 
