@@ -58,6 +58,7 @@
 (def component filtered-standard-object-tree-table-inspector (standard-object-tree-table-inspector)
   ())
 
+#+nil ; TODO this is not always desirable by default, e.g. in felmérési-alany-tree-table-inspector
 (def method refresh-component :before ((self filtered-standard-object-tree-table-inspector))
   (setf (expand-nodes-by-default-p self)
         (< (hash-table-count (visible-instances-of (parent-component-of self))) 100)))
