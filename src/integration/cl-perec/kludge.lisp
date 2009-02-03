@@ -49,12 +49,15 @@
 (def (function e) save-editing (editable &key (leave-editing #t))
   (assert (typep editable 'editable-component))
   ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
-  (rdbms::with-transaction
-    (store-editing editable)
-    (when leave-editing
-      (leave-editing editable))
-    (rdbms:register-transaction-hook :after :commit
-      (add-user-information editable "A változtatások elmentése sikerült"))))
+  (cl-rdbms:with-transaction
+    (when (catch 'abort-save-editing
+            (store-editing editable)
+            (when leave-editing
+              (leave-editing editable))
+            (cl-rdbms:register-transaction-hook :after :commit
+              (add-user-information editable "A változtatások elmentése sikerült"))
+            #f)
+      (cl-rdbms:mark-transaction-for-rollback-only))))
 
 ;; KLUDGE: TODO: redefined for now
 (def method make-place-component-command-bar ((self standard-object-place-maker))

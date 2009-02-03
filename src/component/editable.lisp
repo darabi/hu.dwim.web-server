@@ -32,9 +32,13 @@
 
 (def (function e) save-editing (editable &key (leave-editing #t))
   (assert (typep editable 'editable-component))
-  (store-editing editable)
-  (when leave-editing
-    (leave-editing editable)))
+  (catch 'abort-save-editing
+    (store-editing editable)
+    (when leave-editing
+      (leave-editing editable))))
+
+(def (function e) abort-save-editing ()
+  (throw 'abort-save-editing #t))
 
 (def (function e) cancel-editing (editable)
   (assert (typep editable 'editable-component))
