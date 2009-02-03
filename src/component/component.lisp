@@ -29,11 +29,14 @@
 (def render :around component ()
   (with-component-environment -self- 
     (if (force (visible-p -self-))
-        (progn
-          (ensure-uptodate -self-)
-          (prog1 (render-with-debug-component-hierarchy -self- #'call-next-method)
-            (setf (dirty-p -self-) #f)))
+        (prog1
+            (render-with-debug-component-hierarchy -self- #'call-next-method)
+          (setf (dirty-p -self-) #f))
         +void+)))
+
+(def render :before component ()
+  ;; we put it in a :before so that more specialized :before's can happend before it
+  (ensure-uptodate -self-))
 
 (def function render-component-in-environment (component call-next-method)
   (with-component-environment component 
