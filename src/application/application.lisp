@@ -500,19 +500,19 @@ Custom implementations should look something like this:
 
 (def (layered-function e) render-odf (component))
 
-(def (definer e) render (&body forms)
-  (render-like-definer 'render forms))
+(def (definer e :available-flags "do") render (&body forms)
+  (render-like-definer 'render forms -options-))
 
-(def (definer e) render-csv (&body forms)
-  (render-like-definer 'render-csv forms))
+(def (definer e :available-flags "do") render-csv (&body forms)
+  (render-like-definer 'render-csv forms -options-))
 
-(def (definer e) render-pdf (&body forms)
-  (render-like-definer 'render-pdf forms))
+(def (definer e :available-flags "do") render-pdf (&body forms)
+  (render-like-definer 'render-pdf forms -options-))
 
-(def (definer e) render-odf (&body forms)
-  (render-like-definer 'render-odf forms))
+(def (definer e :available-flags "do") render-odf (&body forms)
+  (render-like-definer 'render-odf forms -options-))
 
-(def function render-like-definer (name forms)
+(def function render-like-definer (name forms options)
   (bind ((layer (when (member (first forms) '(:in-layer :in))
                   (pop forms)
                   (pop forms)))
@@ -520,7 +520,7 @@ Custom implementations should look something like this:
                               (member (first forms) '(and or progn append nconc)))
                       (pop forms)))
          (type (pop forms)))
-    `(def layered-method ,name ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
+    `(def (layered-method ,@options) ,name ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
           ,@forms)))
 
 (def (generic e) call-in-component-environment (component thunk)
