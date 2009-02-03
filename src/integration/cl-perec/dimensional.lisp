@@ -100,10 +100,9 @@
         (iter (for dimension :in (dimensions-of -self-))
               (for old-coordinate :in (coordinates-of -self-))
               (for new-coordinate = (prc:coordinate dimension))
-              (unless (prc:coordinate-equal dimension old-coordinate new-coordinate)
+              (unless (prc:coordinate-equal dimension (ensure-list old-coordinate) (ensure-list new-coordinate))
                 (mark-outdated -self-))
-              (collect new-coordinate)))
-  (ensure-uptodate -self-))
+              (collect new-coordinate))))
 
 (def (function e) coordinates-bound-according-to-dimension-type-p (component)
   (iter (for dimension :in (dimensions-of component))
