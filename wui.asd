@@ -176,7 +176,7 @@
                                (:file "reference" :depends-on ("command"))
                                (:file "editable" :depends-on ("command" "object-component"))
                                (:file "field")
-                               (:file "primitive-component" :depends-on ("misc" "field" "place"))
+                               (:file "primitive-component" :depends-on ("misc" "field" "place" "command"))
                                (:file "primitive-maker" :depends-on ("primitive-component"))
                                (:file "primitive-inspector" :depends-on ("primitive-component"))
                                (:file "primitive-filter" :depends-on ("primitive-component"))
