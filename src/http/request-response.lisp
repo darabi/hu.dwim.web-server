@@ -235,16 +235,19 @@
   (http.debug "Sending headers of ~A" response)
   (send-http-headers (headers-of response) (cookies-of response)))
 
-(defmethod send-response :around ((response primitive-response))
+(def method send-response :around ((response primitive-response))
   (store-response response)
   (bind ((client-stream (client-stream-of *request*))
+         (new-external-format (external-format-of response))
          (original-external-format (iolib.streams:external-format-of client-stream)))
-    (http.debug "Sending response ~A" response)
-    (unwind-protect
-         (progn
-           (setf (iolib:external-format-of client-stream) (external-format-of response))
-           (call-next-method))
-      (setf (iolib:external-format-of client-stream) original-external-format))))
+    (http.debug "Sending primitive response ~A, new external-format ~A, original external-format ~A" response new-external-format original-external-format)
+    (if new-external-format
+        (unwind-protect
+             (progn
+               (setf (iolib:external-format-of client-stream) new-external-format)
+               (call-next-method))
+          (setf (iolib:external-format-of client-stream) original-external-format))
+        (call-next-method))))
 
 (defmethod send-response ((response response))
   (send-response (convert-to-primitive-response response)))
@@ -356,12 +359,12 @@
 (def (class* e) byte-vector-response (primitive-response)
   ((body :type (or list vector))))
 
-(def (function e) make-byte-vector-response* (bytes &key headers cookies external-format)
+(def (function e) make-byte-vector-response* (bytes &key headers cookies)
   (make-instance 'byte-vector-response
                  :body bytes
                  :headers headers
                  :cookies cookies
-                 :external-format external-format))
+                 :external-format nil))
 
 (def (macro e) make-byte-vector-response ((&optional headers-as-plist cookie-list) &body body)
   (with-unique-names (response)
