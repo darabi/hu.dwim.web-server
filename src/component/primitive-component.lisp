@@ -234,7 +234,7 @@
     (if (or (not has-component-value?)
             (null component-value))
         ""
-        (princ-to-string component-value))))
+        (format-number/decimal nil component-value))))
 
 (def method parse-component-value ((component number-component) client-value)
   (if (or (string= client-value "")
