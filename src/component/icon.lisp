@@ -38,8 +38,7 @@
     (unless tooltip?
       (setf tooltip (tooltip-of icon))))
   (bind ((tooltip (force tooltip))
-         (delayed-content-tooltip? (and tooltip
-                                        (not (stringp tooltip))))
+         (delayed-content-tooltip? (typep tooltip '(or action uri)))
          (id (when delayed-content-tooltip?
                (generate-response-unique-string)))
          (class (if class?
@@ -47,19 +46,14 @@
                     (icon-class name))))
     ;; render the `js first, so the return value contract of qq is kept.
     (when delayed-content-tooltip?
-      ;; TODO this could be collected and emitted using a (map ... data) to spare some space
-      `js(on-load
-          (new dojox.widget.DynamicTooltip
-               (create :connectId (array ,id)
-                       :position (array "below" "right")
-                       :href ,(etypecase tooltip
-                                (action (register-action/href tooltip :delayed-content #t))
-                                (uri (print-uri-to-string tooltip)))))))
-    <span (:id ,id :title ,(unless delayed-content-tooltip? tooltip) :class ,class)
-          ,(when image-path
-                 <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
-          ,(awhen (force label)
-                  (render-icon-label icon it))>))
+      (render-tooltip id tooltip))
+    <span (:id ,id
+           :title ,(unless delayed-content-tooltip? tooltip)
+           :class ,class)
+      ,(when image-path
+         <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
+      ,(awhen (force label)
+         (render-icon-label icon it))>))
 
 (def function icon-class (name)
   (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
