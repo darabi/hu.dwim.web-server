@@ -686,8 +686,7 @@ Custom implementations should look something like this:
     (app.debug "CONVERT-TO-PRIMITIVE-RESPONSE is returning a byte-vector-response of ~A bytes in the body" (length body))
     (make-byte-vector-response* body
                                 :headers (headers-of self)
-                                :cookies (cookies-of self)
-                                :external-format (external-format-of self))))
+                                :cookies (cookies-of self))))
 
 
 ;;;;;;;;;
