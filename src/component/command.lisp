@@ -52,7 +52,7 @@
 
 (def (function e) render-command (content action &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
   (if (force enabled)
-      (bind ((id (generate-unique-string))
+      (bind ((id (generate-response-unique-string))
              (send-client-state (prog1
                                     (getf action-arguments :send-client-state #t)
                                   (remove-from-plistf action-arguments :send-client-state)))
@@ -76,7 +76,7 @@
         `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil (lambda (event) ,(funcall onclick-js href))))
         ;; TODO: use dojo.connect for keyboard events
         (when default
-          (bind ((submit-id (generate-unique-string)))
+          (bind ((submit-id (generate-response-unique-string)))
             <input (:id ,submit-id :type "submit" :style "display: none;")>
             `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" nil (lambda (event) ,(funcall onclick-js href)))))))
       <span (:class "command disabled") ,(render content)>))

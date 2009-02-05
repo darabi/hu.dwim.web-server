@@ -51,14 +51,14 @@
 (def function toggle-debug-component-hierarchy (frame)
   (setf (debug-component-hierarchy-p frame) (not (debug-component-hierarchy-p frame))))
 
-(def (function ei) generate-unique-string (&optional (prefix "_u") (context (or *frame* *response*)))
+(def (function ei) generate-response-unique-string (&optional (prefix "_u") (context (or *frame* *response*)))
   (bind ((*print-pretty* #f))
     (with-output-to-string (str)
       (princ prefix str)
       (princ (incf (unique-counter-of context)) str))))
 
 (def (function ei) generate-frame-unique-string (&optional (prefix "_u") (frame *frame*))
-  (generate-unique-string prefix frame))
+  (generate-response-unique-string prefix frame))
 
 (def function invalidate-frame (frame)
   (setf (is-frame-valid? frame) #f)

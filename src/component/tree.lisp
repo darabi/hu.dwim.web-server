@@ -71,7 +71,7 @@
   (bind (((:slots child-nodes expanded) node-component)
          (tree *tree*))
     (if child-nodes
-        (bind ((id (generate-unique-string)))
+        (bind ((id (generate-response-unique-string)))
           <img (:id ,id :src ,(concatenate-string (path-prefix-of *application*)
                                                   (if expanded
                                                       "static/wui/icons/20x20/arrowhead-down.png"

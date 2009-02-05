@@ -41,7 +41,7 @@
          (delayed-content-tooltip? (and tooltip
                                         (not (stringp tooltip))))
          (id (when delayed-content-tooltip?
-               (generate-frame-unique-string)))
+               (generate-response-unique-string)))
          (class (if class?
                     class
                     (icon-class name))))

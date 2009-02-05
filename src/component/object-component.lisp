@@ -31,7 +31,7 @@
 
 (def (layered-function e) render-title (component)
   (:method :around ((component title-component-mixin))
-    (bind ((id (generate-unique-string)))
+    (bind ((id (generate-response-unique-string)))
       <span (:id ,id :class "title")
             ,(if (slot-boundp component 'title)
                  (when-bind title (force (title-of component))

@@ -83,7 +83,7 @@
 
 (def render user-message-component ()
   (bind (((:read-only-slots category message permanent content css-class style) -self-)
-         (id (generate-unique-string)))
+         (id (generate-response-unique-string)))
     <div (:id ,id :class ,(concatenate-string (string-downcase category) " " css-class) :style ,style)
          ,(when permanent
             (render (command (icon close :label nil)
