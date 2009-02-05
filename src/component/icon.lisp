@@ -38,17 +38,14 @@
     (unless tooltip?
       (setf tooltip (tooltip-of icon))))
   (bind ((tooltip (force tooltip))
-         (delayed-content-tooltip? (typep tooltip '(or action uri)))
-         (id (when delayed-content-tooltip?
-               (generate-response-unique-string)))
+         (id (generate-response-unique-string))
          (class (if class?
                     class
                     (icon-class name))))
     ;; render the `js first, so the return value contract of qq is kept.
-    (when delayed-content-tooltip?
+    (when tooltip
       (render-tooltip id tooltip))
     <span (:id ,id
-           :title ,(unless delayed-content-tooltip? tooltip)
            :class ,class)
       ,(when image-path
          <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
