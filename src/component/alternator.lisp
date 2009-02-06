@@ -73,7 +73,9 @@
   (unless (typep (content-of alternator) 'reference-component)
     (call-next-method)))
 
-(def class* component-factory ()
+;; KLUDGE? the usage of delay/force and component-factory is mixed up, so we need this delayed-processing inheritance here.
+;; but it smells... maybe the component-factory stuff should be cleaned up instead of this inheritance?
+(def class* component-factory (delayed-processing)
   ((the-class)
    (component nil))
   (:metaclass funcallable-standard-class))

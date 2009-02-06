@@ -4,12 +4,19 @@
 
 (in-package :hu.dwim.wui)
 
+(def class* delayed-processing ()
+  ()
+  (:metaclass funcallable-standard-class))
+
 (def (macro e) delay (&body forms)
-  `(named-lambda delay ()
-     ,@forms))
+  (with-unique-names (delayed-processing)
+    `(bind ((,delayed-processing (make-instance 'delayed-processing)))
+       (set-funcallable-instance-function ,delayed-processing (named-lambda delay-body ()
+                                                                ,@forms))
+       ,delayed-processing)))
 
 (def (function e) force (value)
-  (if (functionp value)
+  (if (typep value 'delayed-processing)
       (funcall value)
       value))
 
