@@ -99,41 +99,45 @@
                      :relative-path relative-path :directory directory)
     (setf (header-value it +header/content-type+) +html-content-type+)))
 
-(def method send-response ((self directory-index-response))
-  (emit-simple-html-document-http-response (:title (concatenate-string
-                                                    "Directory index of \""
-                                                    (relative-path-of self)
-                                                    "\" under \""
-                                                    (path-prefix-of self)
-                                                    "\"")
-                                            :headers (headers-of self)
-                                            :cookies (cookies-of self))
-    <table
-      ,@(bind ((elements (cl-fad:list-directory (directory-of self)))
-               (path-prefix (path-prefix-of self))
-               (relative-path (relative-path-of self))
-               ((:values directories files)
-                (iter (for element :in elements)
-                      (if (cl-fad:directory-pathname-p element)
-                          (collect element :into dirs)
-                          (collect element :into files))
-                      (finally (return (values dirs files))))))
-          (iter (for directory :in directories)
-                (for name = (lastcar (pathname-directory directory)))
-                <tr
-                  <td
-                    <a (:href ,(concatenate-string path-prefix relative-path name "/"))
-                      ,name "/">>>)
-          (iter (for file :in files)
-                (for name = (apply 'concatenate-string
-                                   (pathname-name file)
-                                   (awhen (pathname-type file)
-                                     (list "." it))))
-                <tr
-                  <td
-                    <a (:href ,(escape-as-uri (concatenate-string path-prefix relative-path name)))
-                      ,name>>
-                  <td ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))>>))>))
+(def method convert-to-primitive-response ((self directory-index-response))
+  (bind ((title (concatenate-string "Directory index of \"" (relative-path-of self) "\" under \"" (path-prefix-of self) "\""))
+         (body (with-output-to-sequence (*html-stream* :external-format (external-format-of self)
+                                                       :initial-buffer-size 256)
+                 (with-html-document (:content-type +html-content-type+ :title title)
+                   (render-directory-as-html (directory-of self) (path-prefix-of self) (relative-path-of self))))))
+    (make-byte-vector-response* body
+                                :headers (headers-of self)
+                                :cookies (cookies-of self))))
+
+(def function render-directory-as-html (directory path-prefix relative-path)
+  <table
+    ,@(bind ((elements (cl-fad:list-directory directory))
+             ((:values directories files)
+              (iter (for element :in elements)
+                    (if (cl-fad:directory-pathname-p element)
+                        (collect element :into dirs)
+                        (collect element :into files))
+                    (finally (return (values dirs files))))))
+        (iter (for directory :in directories)
+              (for name = (lastcar (pathname-directory directory)))
+              <tr
+                <td
+                  <a (:href ,(concatenate-string path-prefix relative-path name "/"))
+                    ,name "/">>>)
+        (iter (for file :in files)
+              (for name = (apply 'concatenate-string
+                                 (pathname-name file)
+                                 (awhen (pathname-type file)
+                                   (list "." it))))
+              <tr
+                <td
+                  <a (:href ,(escape-as-uri (concatenate-string path-prefix relative-path name)))
+                    ,name>>
+                <td ;; TODO iolib pending bug, replace when fixed... ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))
+                    ,(integer-to-string
+                      (with-open-file (file-stream file)
+                        (file-length file-stream)))
+                    >>))>)
 
 ;;;;;;;;;;;;;;;;;;;
 ;;; MIME stuff for serving static files
