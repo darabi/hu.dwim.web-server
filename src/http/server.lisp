@@ -194,8 +194,10 @@
                 (iter waiting-for-workers
                       (server.debug "Waiting for the workers of ~A to quit..." server)
                       (with-lock-held-on-server (server)
-                        (when (zerop (length (workers-of server)))
-                          (return-from waiting-for-workers)))
+                        (bind ((worker-count (length (workers-of server))))
+                          (server.dribble "Polling workers to quit, worker-count is ~A" worker-count)
+                          (when (zerop worker-count)
+                            (return-from waiting-for-workers))))
                       (sleep 1))
                 (assert (zerop (occupied-worker-count-of server))))
               (close-sockets)))))))
