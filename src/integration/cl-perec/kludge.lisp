@@ -33,6 +33,7 @@
     ;; TODO: use a flag in the component to mark the label as important (so cannot be hidden) and forget about typep here
     ;; TODO: factor this out into a preferences accessor function
     (when (and (dmm::has-authenticated-session)
+               (parent-component-of icon)
                (typep (parent-component-of (parent-component-of icon)) 'command-bar-component))
       (bind ((effective-subject (dmm::current-effective-subject))
              (subject-preferences (when effective-subject
