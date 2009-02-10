@@ -43,7 +43,7 @@
                      `(,VARIABLE-NAME (document.createElement ,TAG-NAME))} :into node-bindings)
           (when class
             (collect {with-preserved-readtable-case
-                       `(.setAttribute ,VARIABLE-NAME "class" ,CLASS)} :into forms)))
+                       `(dojo.addClass ,VARIABLE-NAME ,CLASS)} :into forms)))
         (finally (return {with-preserved-readtable-case
                            `(bind (,@NODE-BINDINGS)
                               ,@FORMS
