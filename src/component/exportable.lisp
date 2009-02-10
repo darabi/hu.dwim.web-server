@@ -11,7 +11,7 @@
                               ,@body)))
        (make-byte-vector-response* ,response-body :headers (bind ((,content-type-tmp ,content-type))
                                                              (when ,content-type-tmp
-                                                               `((+header/content-type+ . ,,content-type-tmp))))))))
+                                                               `((,,+header/content-type+ . ,,content-type-tmp))))))))
 
 ;;;;;;
 ;;; Exportable component
