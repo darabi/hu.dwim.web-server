@@ -4,6 +4,15 @@
 
 (in-package :hu.dwim.wui)
 
+(def macro with-output-to-export-stream ((stream-name &key external-format content-type) &body body)
+  (with-unique-names (response-body content-type-tmp)
+    `(bind ((,response-body (with-output-to-sequence (,stream-name :external-format ,external-format
+                                                                   :initial-buffer-size 256)
+                              ,@body)))
+       (make-byte-vector-response* ,response-body :headers (bind ((,content-type-tmp ,content-type))
+                                                             (when ,content-type-tmp
+                                                               `((+header/content-type+ . ,,content-type-tmp))))))))
+
 ;;;;;;
 ;;; Exportable component
 
@@ -43,10 +52,8 @@
 (def layered-method make-export-command ((format (eql :csv)) (component component) (class standard-class) (prototype-or-instance standard-object))
   (command (icon export-csv)
            (make-action
-             (make-raw-functional-response ((+header/content-type+ +csv-mime-type+))
-               (send-headers *response*)
-               (bind ((*csv-stream* (client-stream-of *request*)))
-                 (execute-export-csv component))))
+             (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format :utf-8)
+               (execute-export-csv component)))
            :delayed-content #t
            :path (export-file-name format component)))
 
@@ -72,10 +79,8 @@
 (def layered-method make-export-command ((format (eql :pdf)) (component component) (class standard-class) (prototype-or-instance standard-object))
   (command (icon export-pdf)
            (make-action
-             (make-raw-functional-response ((+header/content-type+ +pdf-mime-type+))
-               (send-headers *response*)
-               (bind ((*pdf-stream* (client-stream-of *request*)))
-                 (execute-export-pdf component))))
+             (with-output-to-export-stream (*pdf-stream* :content-type +pdf-mime-type+ :external-format :iso-8859-1)
+               (execute-export-pdf component)))
            :delayed-content #t
            :path (export-file-name format component)))
 
@@ -99,10 +104,8 @@
 (def layered-method make-export-command ((format (eql :odf)) (component component) (class standard-class) (prototype-or-instance standard-object))
   (command (icon export-odf)
            (make-action
-             (make-raw-functional-response ((+header/content-type+ +odf-mime-type+))
-               (send-headers *response*)
-               (bind ((*odf-stream* (client-stream-of *request*)))
-                 (execute-export-odf component))))
+             (with-output-to-export-stream (*odf-stream* :content-type +odf-mime-type+ :external-format :utf-8)
+               (execute-export-odf component)))
            :delayed-content #t
            :path (export-file-name format component)))
 
