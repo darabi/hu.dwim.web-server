@@ -57,38 +57,48 @@
           ;; :style (css-style field)
           <input (:id ,id
                   :type "checkbox"
-                  :onChange ,(force on-change)
-                  :checked ,checked)>
+                  :checked ,checked
+                  ,(awhen (force on-change)
+                     (make-xml-attribute "onChange" it)))>
           `js(on-load
               (wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip))))))
 
 ;;;;;;
 ;;; String field
 
-(def function render-string-field (type value client-state-sink &key on-change on-key-down)
+(def function render-string-field (type value client-state-sink &key on-change on-key-down on-key-up)
   (bind ((id (generate-frame-unique-string "_w")))
     (render-dojo-widget (id)
       ;; TODO dojoRows 3
-      <input (:type     ,type
+      <input (:dojoType #.+dijit/text-box+
+              :type     ,type
               :id       ,id
               :name     ,(id-of client-state-sink)
               :value    ,value
-              :onChange ,(force on-change)
-              :onKeyDown ,(force on-key-down)
-              :dojoType #.+dijit/text-box+)>)))
+              ,(awhen (force on-change)
+                 (make-xml-attribute "onChange" it))
+              ,(awhen (force on-key-down)
+                 (make-xml-attribute "onKeyDown" it))
+              ,(awhen (force on-key-up)
+                 (make-xml-attribute "onKeyUp" it)))>)))
 
 ;;;;;;
 ;;; Number field
 
-(def function render-number-field (value client-state-sink &key on-change)
+(def function render-number-field (value client-state-sink &key on-change on-key-down on-key-up)
   (bind ((id (generate-frame-unique-string "_w")))
     (render-dojo-widget (id)
-      <input (:type     "text"
+      <input (:dojoType #.+dijit/number-text-box+
+              :type     "text"
               :id       ,id
               :name     ,(id-of client-state-sink)
               :value    ,value
-              :onChange ,(force on-change)
-              :dojoType #.+dijit/number-text-box+)>)))
+              ,(awhen (force on-change)
+                 (make-xml-attribute "onChange" it))
+              ,(awhen (force on-key-down)
+                 (make-xml-attribute "onKeyDown" it))
+              ,(awhen (force on-key-up)
+                 (make-xml-attribute "onKeyUp" it)))>)))
 
 ;;;;;;
 ;;; Combo box
@@ -115,7 +125,8 @@
       <select (:id ,id
                :dojoType #.+dijit/filtering-select+
                :name ,name
-               :onChange ,(force on-change))
+               ,(awhen (force on-change)
+                  (make-xml-attribute "onChange" it)))
         ,(iter (for index :upfrom 0)
                (for possible-value :in-sequence possible-values)
                (for actual-value = (funcall key possible-value))

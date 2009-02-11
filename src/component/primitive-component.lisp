@@ -177,12 +177,13 @@
   (:method ((self string-component))
     "text"))
 
-(def function render-string-component (component &key on-change on-key-down)
+(def function render-string-component (component &key on-change on-key-down on-key-up)
   (render-string-field (string-field-type component)
                        (print-component-value component)
                        (client-state-sink-of component)
                        :on-change on-change
-                       :on-key-down on-key-down))
+                       :on-key-down on-key-down
+                       :on-key-up on-key-up))
 
 (def method print-component-value ((component string-component))
   (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
@@ -224,10 +225,11 @@
 (def component number-component (primitive-component)
   ())
 
-(def function render-number-component (component &key on-change)
+(def function render-number-component (component &key on-change on-key-down)
   (render-number-field (print-component-value component)
                        (client-state-sink-of component)
-                       :on-change on-change))
+                       :on-change on-change
+                       :on-key-down on-key-down))
 
 (def method print-component-value ((component number-component))
   (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
