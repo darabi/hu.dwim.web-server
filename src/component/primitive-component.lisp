@@ -177,10 +177,11 @@
   (:method ((self string-component))
     "text"))
 
-(def function render-string-component (component &key on-change on-key-down on-key-up)
+(def function render-string-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-down on-key-up)
   (render-string-field (string-field-type component)
                        (print-component-value component)
                        (client-state-sink-of component)
+                       :id id
                        :on-change on-change
                        :on-key-down on-key-down
                        :on-key-up on-key-up))
@@ -225,10 +226,12 @@
 (def component number-component (primitive-component)
   ())
 
-(def function render-number-component (component &key on-change on-key-down)
+(def function render-number-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-up on-key-down)
   (render-number-field (print-component-value component)
                        (client-state-sink-of component)
+                       :id id
                        :on-change on-change
+                       :on-key-up on-key-up
                        :on-key-down on-key-down))
 
 (def method print-component-value ((component number-component))
@@ -280,9 +283,8 @@
 (def component date-component (primitive-component)
   ())
 
-(def function render-date-component (component &key on-change (printer #'print-component-value))
-  (bind (((:read-only-slots client-state-sink) component)
-         (id (generate-frame-unique-string)))
+(def function render-date-component (component &key (id (generate-frame-unique-string "_dtw")) on-change (printer #'print-component-value))
+  (bind (((:read-only-slots client-state-sink) component))
     (render-dojo-widget (id)
       <input (:type     "text"
               :id       ,id
@@ -318,9 +320,8 @@
 (def component time-component (primitive-component)
   ())
 
-(def function render-time-component (component &key on-change (printer #'print-component-value))
-  (bind (((:read-only-slots client-state-sink) component)
-         (id (generate-frame-unique-string)))
+(def function render-time-component (component &key (id (generate-frame-unique-string "_tmw")) on-change (printer #'print-component-value))
+  (bind (((:read-only-slots client-state-sink) component))
     (render-dojo-widget (id)
       <input (:type     "text"
               :id       ,id

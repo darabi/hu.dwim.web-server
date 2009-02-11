@@ -61,79 +61,79 @@
                   ,(awhen (force on-change)
                      (make-xml-attribute "onChange" it)))>
           `js(on-load
-              (wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip))))))
+              (wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip)))))
+  (values))
 
 ;;;;;;
 ;;; String field
 
-(def function render-string-field (type value client-state-sink &key on-change on-key-down on-key-up)
-  (bind ((id (generate-frame-unique-string "_w")))
-    (render-dojo-widget (id)
-      ;; TODO dojoRows 3
-      <input (:dojoType #.+dijit/text-box+
-              :type     ,type
-              :id       ,id
-              :name     ,(id-of client-state-sink)
-              :value    ,value
-              ,(awhen (force on-change)
-                 (make-xml-attribute "onChange" it))
-              ,(awhen (force on-key-down)
-                 (make-xml-attribute "onKeyDown" it))
-              ,(awhen (force on-key-up)
-                 (make-xml-attribute "onKeyUp" it)))>)))
+(def function render-string-field (type value client-state-sink &key (id (generate-frame-unique-string "_stw")) on-change on-key-down on-key-up)
+  (render-dojo-widget (id)
+    ;; TODO dojoRows 3
+    <input (:dojoType #.+dijit/text-box+
+            :type     ,type
+            :id       ,id
+            :name     ,(id-of client-state-sink)
+            :value    ,value
+            ,(awhen (force on-change)
+               (make-xml-attribute "onChange" it))
+            ,(awhen (force on-key-down)
+               (make-xml-attribute "onKeyDown" it))
+            ,(awhen (force on-key-up)
+               (make-xml-attribute "onKeyUp" it)))>))
 
 ;;;;;;
 ;;; Number field
 
-(def function render-number-field (value client-state-sink &key on-change on-key-down on-key-up)
-  (bind ((id (generate-frame-unique-string "_w")))
-    (render-dojo-widget (id)
-      <input (:dojoType #.+dijit/number-text-box+
-              :type     "text"
-              :id       ,id
-              :name     ,(id-of client-state-sink)
-              :value    ,value
-              ,(awhen (force on-change)
-                 (make-xml-attribute "onChange" it))
-              ,(awhen (force on-key-down)
-                 (make-xml-attribute "onKeyDown" it))
-              ,(awhen (force on-key-up)
-                 (make-xml-attribute "onKeyUp" it)))>)))
+(def function render-number-field (value client-state-sink &key (id (generate-frame-unique-string "_nrw")) on-change on-key-down on-key-up)
+  (render-dojo-widget (id)
+    <input (:dojoType #.+dijit/number-text-box+
+            :type     "text"
+            :id       ,id
+            :name     ,(id-of client-state-sink)
+            :value    ,value
+            ,(awhen (force on-change)
+               (make-xml-attribute "onChange" it))
+            ,(awhen (force on-key-down)
+               (make-xml-attribute "onKeyDown" it))
+            ,(awhen (force on-key-up)
+               (make-xml-attribute "onKeyUp" it)))>))
 
 ;;;;;;
 ;;; Combo box
 
-(def function render-combo-box-field (value possible-values &key name (key #'identity) (test #'equal) (client-name-generator #'princ-to-string))
-  (bind ((id (generate-frame-unique-string "_w")))
+(def function render-combo-box-field (value possible-values &key (id (generate-frame-unique-string "_w")) name
+                                            (key #'identity) (test #'equal) (client-name-generator #'princ-to-string))
+  <select (:id ,id
+           :name ,name)
+    ,(iter (for index :upfrom 0)
+           (for possible-value :in-sequence possible-values)
+           (for actual-value = (funcall key possible-value))
+           (for client-name = (funcall client-name-generator actual-value))
+           (for client-value = (integer-to-string index))
+           (for selected = (when (funcall test value actual-value) "yes"))
+           <option (:value ,client-value :selected ,selected)
+                   ,client-name>)>)
+
+;;;;;;
+;;; Select field
+
+(def function render-select-field (value possible-values &key (id (generate-frame-unique-string "_w")) name
+                                         (key #'identity) (test #'equal) (client-name-generator #'princ-to-string) on-change)
+  (render-dojo-widget (id)
     <select (:id ,id
-             :name ,name)
+             :dojoType #.+dijit/filtering-select+
+             :name ,name
+             ,(awhen (force on-change)
+                (make-xml-attribute "onChange" it)))
       ,(iter (for index :upfrom 0)
              (for possible-value :in-sequence possible-values)
              (for actual-value = (funcall key possible-value))
              (for client-name = (funcall client-name-generator actual-value))
              (for client-value = (integer-to-string index))
              (for selected = (when (funcall test value actual-value) "yes"))
-             <option (:value ,client-value :selected ,selected)
-                     ,client-name>)>))
-
-;;;;;;
-;;; Select field
-
-(def function render-select-field (value possible-values &key name (key #'identity) (test #'equal) (client-name-generator #'princ-to-string) on-change)
-  (bind ((id (generate-frame-unique-string "_w")))
-    (render-dojo-widget (id)
-      <select (:id ,id
-               :dojoType #.+dijit/filtering-select+
-               :name ,name
-               ,(awhen (force on-change)
-                  (make-xml-attribute "onChange" it)))
-        ,(iter (for index :upfrom 0)
-               (for possible-value :in-sequence possible-values)
-               (for actual-value = (funcall key possible-value))
-               (for client-name = (funcall client-name-generator actual-value))
-               (for client-value = (integer-to-string index))
-               (for selected = (when (funcall test value actual-value) "yes"))
-               <option (:value ,client-value :selected ,selected) ,client-name>)>)))
+             <option (:value ,client-value :selected ,selected) ,client-name>)>)
+  (values))
 
 ;;;;;;
 ;;; Popup menu select field
