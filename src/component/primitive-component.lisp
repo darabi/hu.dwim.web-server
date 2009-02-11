@@ -250,6 +250,13 @@
 (def component integer-component (number-component)
   ())
 
+(def render-csv integer-component ()
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p -self-)))
+    (when (and has-component-value?
+            (not (null component-value)))
+      (render-csv-value (princ-to-string component-value)))))
+
+
 (def method parse-component-value ((component integer-component) client-value)
   (if (or (string= client-value "")
           (string= client-value "NaN"))
