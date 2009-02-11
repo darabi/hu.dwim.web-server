@@ -71,8 +71,9 @@
 
 (def render string-filter ()
   (ensure-client-state-sink -self-)
-  (bind ((listener (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of -self-) (!= "" this.value)))))
-    (render-string-component -self- :on-change listener :on-key-down listener)))
+  (bind ((widget-id (generate-frame-unique-string "_stw")))
+    (render-string-component -self- :id widget-id)
+    `js(wui.field.setup-string-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
 ;;;;;;
 ;;; Password filter
@@ -97,7 +98,9 @@
 
 (def render number-filter ()
   (ensure-client-state-sink -self-)
-  (render-number-component -self- :on-change (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of -self-) (!= "" this.value)))))
+  (bind ((widget-id (generate-frame-unique-string "_stw")))
+    (render-number-component -self- :id widget-id)
+    `js(wui.field.setup-number-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
 ;;;;;;
 ;;; Integer filter

@@ -536,6 +536,22 @@
   ;; TODO disable, or make transparent the other controls, too
   (field.wui-set-checked value))
 
+(defun wui.field._setup-filter-field (widget-id use-in-filter-id)
+  ;; for now it's shared between a few fields...
+  (on-load
+   (bind ((widget (dijit.byId widget-id))
+          (listener (lambda ()
+                      (wui.field.update-use-in-filter use-in-filter-id (!= "" (.getValue this))))))
+     (assert widget)
+     (widget.connect widget "onKeyUp" listener)
+     (widget.connect widget "onChange" listener))))
+
+(defun wui.field.setup-string-filter (widget-id use-in-filter-id)
+  (wui.field._setup-filter-field widget-id use-in-filter-id))
+
+(defun wui.field.setup-number-filter (widget-id use-in-filter-id)
+  (wui.field._setup-filter-field widget-id use-in-filter-id))
+
 ;;;;;;
 ;;; compound
 
