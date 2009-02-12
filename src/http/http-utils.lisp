@@ -87,8 +87,8 @@
       )
     (when xhtml-doctype
       (emit-xhtml-prologue encoding xhtml-doctype))
-    <html (:xmlns     #.+xhtml-namespace-uri+
-           xmlns:dojo #.+dojo-namespace-uri+)
+    <html (:xmlns     #.+xml-namespace-uri/xhtml+
+           xmlns:dojo #.+xml-namespace-uri/dojo+)
      <head
       ,(when content-type
          <meta (:http-equiv #.+header/content-type+ :content ,content-type)>)

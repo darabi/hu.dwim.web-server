@@ -43,8 +43,8 @@
          (debug-client-side? (debug-client-side? -self-))
          (no-javascript? (request-parameter-value *request* +no-javascript-error-parameter-name+)))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
-    <html (:xmlns     #.+xhtml-namespace-uri+
-           xmlns:dojo #.+dojo-namespace-uri+)
+    <html (:xmlns     #.+xml-namespace-uri/xhtml+
+           xmlns:dojo #.+xml-namespace-uri/dojo+)
       <head
         <meta (:http-equiv #.+header/content-type+
                :content ,(content-type-for +xhtml-mime-type+ encoding))>

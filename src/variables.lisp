@@ -197,8 +197,8 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
   (list (cons +header/expires+ "Wed, 01 Mar 2000 00:00:00 GMT")
         (cons +header/cache-control+ "no-store")))
 
-(def (constant e :test 'string=) +xhtml-namespace-uri+ "http://www.w3.org/1999/xhtml")
-(def (constant e :test 'string=) +dojo-namespace-uri+  "http://www.dojotoolkit.org/2004/dojoml")
+(def (constant e :test 'string=) +xml-namespace-uri/xhtml+ "http://www.w3.org/1999/xhtml")
+(def (constant e :test 'string=) +xml-namespace-uri/dojo+  "http://www.dojotoolkit.org/2004/dojoml")
 
 (def constant +space+           #.(char-code #\Space))
 (def constant +tab+             #.(char-code #\Tab))

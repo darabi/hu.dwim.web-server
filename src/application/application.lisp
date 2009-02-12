@@ -574,7 +574,7 @@ Custom implementations should look something like this:
         <ajax-response
          ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
-               <dom-replacements (:xmlns #.+xhtml-namespace-uri+)
+               <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
                  ,(foreach (lambda (dirty-component)
                              (with-restored-component-environment (parent-component-of dirty-component)
                                (bind ((*inside-user-code* #t))
