@@ -9,9 +9,10 @@
     `(bind ((,response-body (with-output-to-sequence (,stream-name :external-format ,external-format
                                                                    :initial-buffer-size 256)
                               ,@body)))
-       (make-byte-vector-response* ,response-body :headers (bind ((,content-type-tmp ,content-type))
-                                                             (when ,content-type-tmp
-                                                               `((,,+header/content-type+ . ,,content-type-tmp))))))))
+       (make-byte-vector-response* ,response-body :headers (nconc (bind ((,content-type-tmp ,content-type))
+                                                                    (when ,content-type-tmp
+                                                                      (list (cons +header/content-type+ ,content-type-tmp))))
+                                                                  (list (cons +header/content-disposition+ "attachment")))))))
 
 ;;;;;;
 ;;; Exportable component
