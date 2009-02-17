@@ -179,7 +179,7 @@
 (def method refresh-component ((self standard-object-slot-value-inspector))
   (with-slots (instance slot label value) self
     (if slot
-        (if label
+        (if (typep label 'component)
             (setf (component-value-of label) (localized-slot-name slot))
             (setf label (localized-slot-name slot)))
         (setf label nil))
