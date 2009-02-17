@@ -151,6 +151,10 @@
           (string (concatenate-string uri "?_ts=" (princ-to-string value)))))
       uri))
 
+(def (function e) substitute-illegal-characters-in-file-name (name &key (replacement "_"))
+  (cl-ppcre:regex-replace-all "/" name replacement))
+
+
 ;;;;;;
 ;;; Tree
 
