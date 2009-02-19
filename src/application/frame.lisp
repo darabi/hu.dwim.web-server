@@ -57,8 +57,27 @@
       (princ prefix str)
       (princ (incf (unique-counter-of context)) str))))
 
-(def (function ei) generate-frame-unique-string (&optional (prefix "_u") (frame *frame*))
+(def (function ei) generate-frame-unique-string (&optional prefix (frame *frame*))
+  (unless prefix
+    (setf prefix "_u"))
   (generate-response-unique-string prefix frame))
+
+(def function %expand-with-frame-unique-strings (generator names body)
+  `(let ,(mapcar (lambda (name)
+                   (bind (((:values symbol string) (etypecase name
+                                                     (symbol
+                                                      (values name nil))
+                                                     ((cons symbol (cons string-designator null))
+                                                      (values (first name) (string (second name)))))))
+                     `(,symbol (,generator ,string))))
+                 names)
+     ,@body))
+
+(def (macro e) with-frame-unique-strings ((&rest names) &body body)
+  (%expand-with-frame-unique-strings 'generate-frame-unique-string names body))
+
+(def (macro e) with-response-unique-strings ((&rest names) &body body)
+  (%expand-with-frame-unique-strings 'generate-response-unique-string names body))
 
 (def function invalidate-frame (frame)
   (setf (is-frame-valid? frame) #f)
