@@ -8,11 +8,12 @@
 ;;; File download
 
 (def component file-download-component (command-component)
-  ((content (icon download))
-   (action nil)
-   (directory "/tmp/")
+  ((directory "/tmp/")
    (file-name)
-   (url-prefix "static/")))
+   (url-prefix "static/"))
+  (:default-initargs
+     :content (icon download)
+     :action nil))
 
 (def constructor (file-download-component (label nil label?) &allow-other-keys) ()
   (when label?
