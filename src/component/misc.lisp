@@ -358,3 +358,14 @@
 
 (def render context-sensitive-help-popup ()
   <div (:class "context-sensitive-help-popup") ,(call-next-method)>)
+
+
+;;;;;;
+;;; Center tag wrapper
+
+(def component center-tag-wrapper-mixin ()
+  ())
+
+(def render :around center-tag-wrapper-mixin
+  <center
+    ,(call-next-method)>)
