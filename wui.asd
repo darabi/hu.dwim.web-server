@@ -159,7 +159,7 @@
                                #+sbcl(:file "frame-size-breakdown" :depends-on ("component"))
                                (:file "file-up-and-download" :depends-on ("component"))
                                (:file "timestamp-range" :depends-on ("component"))
-                               (:file "list" :depends-on ("component"))
+                               (:file "list" :depends-on ("component" "misc"))
                                (:file "table" :depends-on ("component"))
                                (:file "tab-container" :depends-on ("icon"))
                                (:file "extended-table" :depends-on ("command"))
