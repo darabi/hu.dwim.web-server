@@ -29,8 +29,8 @@ echo "dojo  - $DOJO_HOME"
 
 if [ ! -d "$DOJO_HOME" -o ! -d "$WUI_HOME" ]; then
     echo Some of the paths are not correct!
-    echo Some hints:
-    echo svn co http://svn.dojotoolkit.org/src/view/anon/all/trunk dojo
+    echo Hint:
+    echo svn co http://svn.dojotoolkit.org/src/tags/release-1.2.3/ dojo/
     exit -1
 fi
 

@@ -239,9 +239,11 @@
                                          (convert-to-primitive-response* response)))))
                                  (handle-request-to-invalid-frame application session frame :out-of-sync))
                            (:abort
-                            ;; TODO hrm, seems like this is not needed anymore with the new application specific error handling code
-                            ;; because that will render the back link while inside the uwp block, so it'll point to the next frame index
-                            ;; delme?
+                            ;; TODO the problem at hand is this: when the app specific error handler is called the stack is not yet unwinded
+                            ;; so this REVERT-STEP-TO-NEXT-FRAME-INDEX is not yet called, therefore the page it renders will point to an invalid
+                            ;; frame index after this unwind block is executed.
+                            ;; but on the other hand without this uwp, the retry rendering this request restart is broken...
+                            ;; we chose the lesser badness here and don't do the revert, so break the restart instead of the user visible error page
                             #+nil
                             (when original-frame-index
                               (revert-step-to-next-frame-index frame original-frame-index))))))

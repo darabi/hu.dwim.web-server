@@ -13,6 +13,7 @@
 
 (def component tree-component (remote-identity-component-mixin)
   ((columns nil :type components)
+   ;; TODO expander-column-index should be marked by a special column type, or something similar. this way it's very fragile...
    (expander-column-index 0 :type integer)
    (root-nodes nil :type components)
    (expand-nodes-by-default #f :type boolean)))
