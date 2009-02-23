@@ -410,6 +410,14 @@
   (:method ((self selectable-standard-object-tree-node-inspector))
     (selected-instance-p (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component) (instance-of self))))
 
+(def method refresh-component :after ((self selectable-standard-object-tree-node-inspector))
+  (when (and (find-command-bar-command (command-bar-of self) 'select)
+             (instance-of self))
+   (when-bind selectable-ancestor (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component)
+     (when (< (length (selected-instances-of selectable-ancestor))
+              (minimum-selection-cardinality-of selectable-ancestor))
+       (execute-select-instance self (class-of (instance-of self)) (instance-of self))))))
+
 (def layered-method tree-node-style-class ((self selectable-standard-object-tree-node-inspector))
   (concatenate-string (call-next-method)
                       (when (selected-component-p self)
