@@ -16,7 +16,7 @@
    (socket nil)))
 
 (def print-object (server-listen-entry :identity #f :type #f)
-  (princ (address-to-string (host-of -self-)))
+  (princ (iolib:address-to-string (host-of -self-)))
   (write-string "/")
   (princ (port-of -self-)))
 
@@ -60,7 +60,7 @@
   (iter (for listen-entry :in (listen-entries-of server))
         (unless (first-time-p)
           (write-string ", "))
-        (princ (address-to-string (host-of listen-entry)))
+        (princ (iolib:address-to-string (host-of listen-entry)))
         (write-string "/")
         (princ (port-of listen-entry))))
 
@@ -89,7 +89,7 @@
       (bind ((swank::*sldb-quit-restart* (find-restart 'abort)))
         (with-lock-held-on-server (server)
           (bind ((listen-entries (listen-entries-of server))
-                 (mux (make-instance 'epoll-multiplexer)))
+                 (mux (make-instance 'iolib:epoll-multiplexer)))
             (unwind-protect-case ()
                 (progn
                   (assert listen-entries)
@@ -100,12 +100,12 @@
                       (loop :named binding :do
                          (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" host port)
                            (server.debug "Binding socket to host ~A, port ~A" host port)
-                           (bind ((socket (make-socket :connect :passive
-                                                       :local-host host
-                                                       :local-port port
-                                                       :external-format +external-format+
-                                                       :reuse-address #t))
-                                  (fd (fd-of socket)))
+                           (bind ((socket (iolib:make-socket :connect :passive
+                                                             :local-host host
+                                                             :local-port port
+                                                             :external-format +external-format+
+                                                             :reuse-address #t))
+                                  (fd (iolib:fd-of socket)))
                              (unwind-protect-case ()
                                  (progn
                                    (assert fd)
@@ -244,11 +244,11 @@
                      (when (member :read event-types :test #'eq)
                        (server.debug "Acceptor multiplexer handed a :read event for fd ~A" fd)
                        (bind ((listen-entry (aprog1
-                                                (find fd listen-entries :key [fd-of (socket-of !1)])
+                                                (find fd listen-entries :key [iolib:fd-of (socket-of !1)])
                                               (unless it
                                                 (error "listen-entry not found for fd ~A?!" fd))))
                               (socket (socket-of listen-entry)))
-                         (iter (for stream-socket = (accept-connection socket :wait #f))
+                         (iter (for stream-socket = (iolib:accept-connection socket :wait #f))
                                (while (and stream-socket
                                            (not (shutdown-initiated-p server))))
                                (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
@@ -350,7 +350,7 @@
 (def function abort-server-request (&optional (why nil why-p))
   (server.info "Gracefully aborting request coming from ~S for ~S~:[.~; because: ~A.~]" *request-remote-host* (when *request* (raw-uri-of *request*)) why-p why)
   (typecase why
-    (socket-connection-reset-error (incf (client-connection-reset-count-of *server*))))
+    (iolib:socket-connection-reset-error (incf (client-connection-reset-count-of *server*))))
   (invoke-restart (find-restart 'abort-server-request)))
 
 (defmethod read-request ((server server) stream)
@@ -436,6 +436,7 @@
                                                        cookies
                                                        content-disposition
                                                        (stream (client-stream-of *request*))
+                                                       (encoding (encoding-name-of (iolib:external-format-of stream)))
                                                        (seconds-until-expires #.(* 60 60)))
     (:last-modified-at last-modified-at
      :seconds-until-expires seconds-until-expires
@@ -445,7 +446,7 @@
   "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
   (with-thread-name " / SERVE-SEQUENCE"
     (bind ((bytes (if (stringp sequence)
-                      (string-to-octets sequence :encoding (external-format-of stream))
+                      (string-to-octets sequence :encoding encoding)
                       sequence)))
       (setf (header-alist-value headers +header/content-type+) content-type)
       (setf (header-alist-value headers +header/content-length+) (integer-to-string (length bytes)))

@@ -102,12 +102,12 @@
       (when host
         ;; don't escape host
         (etypecase host
-          (ipv6-address
+          (iolib:ipv6-address
            (write-char #\[ stream)
-           (write-string (address-to-string host) stream)
+           (write-string (iolib:address-to-string host) stream)
            (write-char #\] stream))
-          (ipv4-address
-           (write-string (address-to-string host) stream))
+          (iolib:ipv4-address
+           (write-string (iolib:address-to-string host) stream))
           (string
            (write-string host stream))))
       (when port

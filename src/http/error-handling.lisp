@@ -15,7 +15,7 @@
       (and (typep error 'iolib:socket-error)
            (bind ((error-fd (isys:handle-of error)))
              (and error-fd
-                  (eql error-fd (fd-of client-stream)))))))
+                  (eql error-fd (iolib:fd-of client-stream)))))))
 
 (defun call-with-server-error-handler (thunk client-stream error-handler)
   (bind ((level-1-error nil))

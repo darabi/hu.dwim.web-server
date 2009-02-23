@@ -61,7 +61,7 @@
                                                  cookies
                                                  content-disposition
                                                  (stream (client-stream-of *request*))
-                                                 (encoding (encoding-name-of (external-format-of stream)))
+                                                 (encoding (encoding-name-of (iolib:external-format-of stream)))
                                                  (content-type (content-type-for +javascript-mime-type+ encoding))
                                                  (seconds-until-expires #.(* 60 60)))
     (:last-modified-at last-modified-at
@@ -70,7 +70,7 @@
      :cookies cookies
      :stream stream)
   (bind ((bytes (if (stringp sequence)
-                    (string-to-octets sequence :encoding (external-format-of stream))
+                    (string-to-octets sequence :encoding encoding)
                     sequence)))
     (setf (header-alist-value headers +header/content-type+) content-type)
     (setf (header-alist-value headers +header/content-length+) (integer-to-string (length bytes)))

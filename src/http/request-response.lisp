@@ -239,7 +239,7 @@
   (store-response response)
   (bind ((client-stream (client-stream-of *request*))
          (new-external-format (external-format-of response))
-         (original-external-format (iolib.streams:external-format-of client-stream)))
+         (original-external-format (iolib:external-format-of client-stream)))
     (http.debug "Sending primitive response ~A, new external-format ~A, original external-format ~A" response new-external-format original-external-format)
     (if new-external-format
         (unwind-protect

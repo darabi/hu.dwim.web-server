@@ -31,7 +31,6 @@
    :trivial-garbage
    :babel
    :babel-streams
-   :iolib
    )
 
   (:shadow
@@ -39,7 +38,6 @@
    #:class-slots
    #:class-precedence-list
    #:|defun|
-   #:timer
    )
 
   (:shadowing-import-from :cl-syntax-sugar
