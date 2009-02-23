@@ -13,7 +13,9 @@
 (def (constant e :test 'string=) +user-action-query-parameter-name+ "user-action")
 (def (constant e :test 'string=) +continue-url-query-parameter-name+ "continue-url")
 
-(def (component ea) identifier-and-password-login-component (title-component-mixin user-message-collector-component-mixin)
+(def (component ea) identifier-and-password-login-component (title-component-mixin
+                                                             user-message-collector-component-mixin
+                                                             remote-identity-component-mixin)
   ((identifier nil)
    (password nil)
    (command-bar (make-instance 'command-bar-component) :type component))
@@ -41,8 +43,9 @@
          (focused-field-id (if identifier
                                "password-field"
                                "identifier-field"))
-         (id "login-component"))
-    <div (:id ,id)
+         (id (id-of -self-)))
+    <div (:id ,id
+          :class "identifier-and-password-login-component")
      ,(render-title -self-)
      ,(render-user-messages -self-)
      <table
