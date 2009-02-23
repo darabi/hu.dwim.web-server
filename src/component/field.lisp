@@ -4,6 +4,27 @@
 
 (in-package :hu.dwim.wui)
 
+(def function %emit-or-make-xml-attribute (name value)
+  (cond
+    ((delayed-processing? value)
+     ;; this is kinda KLUDGEy: we must make sure we capture the output of any inline emitting done while force'ing the attribute value.
+     ;; this piece of code relies on the actual setup of qq (namely: inline emitting into *html-stream*)
+     ;; it feels like there must be a better solution to all this delay/force `js misery...
+     (bind ((body (with-output-to-sequence (*html-stream*) :external-format +encoding+
+                    (force value))))
+       (unless (zerop (length body))
+         (qq::write-quasi-quoted-binary
+          (qq::transform-quasi-quoted-string-to-quasi-quoted-binary name :encoding +encoding+)
+          *html-stream*)
+         (write-sequence #.(babel:string-to-octets "=\"" :encoding +encoding+) *html-stream*)
+         (write-sequence body *html-stream*)
+         (write-sequence #.(babel:string-to-octets "\"" :encoding +encoding+) *html-stream*))
+       nil))
+    (value
+     (make-xml-attribute name value))
+    (t
+     nil)))
+
 ;;;;;;
 ;;; Checkbox field
 
@@ -58,8 +79,7 @@
           <input (:id ,id
                   :type "checkbox"
                   :checked ,checked
-                  ,(awhen (force on-change)
-                     (make-xml-attribute "onChange" it)))>
+                  ,(%emit-or-make-xml-attribute "onChange" on-change))>
           `js(on-load
               (wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip)))))
   (values))
@@ -75,12 +95,9 @@
             :id       ,id
             :name     ,(id-of client-state-sink)
             :value    ,value
-            ,(awhen (force on-change)
-               (make-xml-attribute "onChange" it))
-            ,(awhen (force on-key-down)
-               (make-xml-attribute "onKeyDown" it))
-            ,(awhen (force on-key-up)
-               (make-xml-attribute "onKeyUp" it)))>))
+            ,(%emit-or-make-xml-attribute "onChange" on-change)
+            ,(%emit-or-make-xml-attribute "onKeyDown" on-key-down)
+            ,(%emit-or-make-xml-attribute "onKeyUp" on-key-up))>))
 
 ;;;;;;
 ;;; Number field
@@ -92,12 +109,9 @@
             :id       ,id
             :name     ,(id-of client-state-sink)
             :value    ,value
-            ,(awhen (force on-change)
-               (make-xml-attribute "onChange" it))
-            ,(awhen (force on-key-down)
-               (make-xml-attribute "onKeyDown" it))
-            ,(awhen (force on-key-up)
-               (make-xml-attribute "onKeyUp" it)))>))
+            ,(%emit-or-make-xml-attribute "onChange" on-change)
+            ,(%emit-or-make-xml-attribute "onKeyDown" on-key-down)
+            ,(%emit-or-make-xml-attribute "onKeyUp" on-key-up))>))
 
 ;;;;;;
 ;;; Combo box
@@ -124,8 +138,7 @@
     <select (:id ,id
              :dojoType #.+dijit/filtering-select+
              :name ,name
-             ,(awhen (force on-change)
-                (make-xml-attribute "onChange" it)))
+             ,(%emit-or-make-xml-attribute "onChange" on-change))
       ,(iter (for index :upfrom 0)
              (for possible-value :in-sequence possible-values)
              (for actual-value = (funcall key possible-value))

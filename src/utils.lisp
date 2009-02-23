@@ -20,6 +20,9 @@
       (funcall value)
       value))
 
+(def (function e) delayed-processing? (thing)
+  (typep thing 'delayed-processing))
+
 (def macro notf (&rest places)
   `(setf ,@(iter (for place in places)
                  (collect place)
