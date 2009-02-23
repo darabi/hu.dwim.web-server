@@ -164,7 +164,7 @@
                                (:file "tab-container" :depends-on ("icon"))
                                (:file "extended-table" :depends-on ("command"))
                                (:file "pivot-table" :depends-on ("extended-table" "icon"))
-                               (:file "tree" :depends-on ("component"))
+                               (:file "tree" :depends-on ("table"))
                                (:file "chart" :depends-on ("component"))
                                (:file "column-chart" :depends-on ("chart"))
                                (:file "line-chart" :depends-on ("chart"))
