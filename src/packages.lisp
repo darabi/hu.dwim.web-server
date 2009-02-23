@@ -39,6 +39,7 @@
    #:class-slots
    #:class-precedence-list
    #:|defun|
+   #:timer
    )
 
   (:shadowing-import-from :cl-syntax-sugar
