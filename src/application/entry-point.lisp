@@ -8,9 +8,6 @@
   ((handler :type function))
   (:metaclass funcallable-standard-class))
 
-(def method priority-of ((broker broker))
-  0)
-
 (defmethod produce-response ((entry-point entry-point) request)
   (funcall (handler-of entry-point) request))
 

@@ -137,6 +137,8 @@
 (def method print-object ((self component) *standard-output*)
   (print-component self))
 
+(def generic print-component (component &optional stream))
+
 (def method print-component (self &optional (*standard-output* *standard-output*))
   (if (and *print-level*
            (>= *component-print-object-level* *print-level*))

@@ -4,8 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (generic e) handle-request (thing request))
-
 (def (class* e) broker-based-server (server)
   ((brokers :export :accessor))
   (:default-initargs :handler 'broker-based-server-handler))

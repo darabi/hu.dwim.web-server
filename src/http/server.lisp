@@ -4,6 +4,8 @@
 
 (in-package :hu.dwim.wui)
 
+(def (generic e) handle-request (thing request))
+
 (def (class* e) request-counter-mixin ()
   ((processed-request-count 0 :export :accessor)))
 
