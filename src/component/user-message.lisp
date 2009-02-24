@@ -67,11 +67,13 @@
   (:method ((collector user-message-collector-component-mixin) message message-args &rest initargs &key content &allow-other-keys)
     (assert (typep content '(or null component)))
     (appendf (messages-of collector)
-             (list (apply #'make-instance 'user-message-component
-                          :message (if (stringp message)
-                                       (apply #'format nil message message-args)
-                                       message)
-                          initargs)))))
+             (list (if (typep message 'user-message-component)
+                       message
+                       (apply #'make-instance 'user-message-component
+                              :message (if (stringp message)
+                                           (apply #'format nil message message-args)
+                                           message)
+                              initargs))))))
 
 (def (function e) has-user-message-p (collector category)
   (find category (messages-of collector) :key #'category-of))
