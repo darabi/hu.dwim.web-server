@@ -237,7 +237,8 @@
                                      (when (typep response 'response)
                                        (return-from with-action-logic
                                          (convert-to-primitive-response* response)))))
-                                 (handle-request-to-invalid-frame application session frame :out-of-sync))
+                                 (return-from with-action-logic
+                                   (convert-to-primitive-response* (handle-request-to-invalid-frame application session frame :out-of-sync))))
                            (:abort
                             ;; TODO the problem at hand is this: when the app specific error handler is called the stack is not yet unwinded
                             ;; so this REVERT-STEP-TO-NEXT-FRAME-INDEX is not yet called, therefore the page it renders will point to an invalid
