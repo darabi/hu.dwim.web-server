@@ -50,22 +50,26 @@
 (def render :in passive-components-layer command-component
   (render (content-of -self-)))
 
+(def function href-for-command (action action-arguments)
+  (bind ((send-client-state? (prog1
+                                 (getf action-arguments :send-client-state #t)
+                               (remove-from-plistf action-arguments :send-client-state)))
+         (href (etypecase action
+                 (action (apply 'register-action/href action action-arguments))
+                 ;; TODO: wastes resources. store back the printed uri? see below also...
+                 (uri (print-uri-to-string action)))))
+    (values href send-client-state?)))
+
 (def (function e) render-command (content action &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
   (if (force enabled)
       (bind ((id (generate-response-unique-string))
-             (send-client-state (prog1
-                                    (getf action-arguments :send-client-state #t)
-                                  (remove-from-plistf action-arguments :send-client-state)))
-             (href (etypecase action
-                     (action (apply 'register-action/href action action-arguments))
-                     ;; TODO: wastes resources. store back the printed uri? see below also...
-                     (uri (print-uri-to-string action))))
+             ((:values href send-client-state?) (href-for-command action action-arguments))
              (onclick-js (or js
                              (lambda (href)
                                `js(wui.io.action event ,href
                                                  ,(when (ajax-enabled? *application*)
                                                     (force ajax))
-                                                 ,send-client-state))))
+                                                 ,send-client-state?))))
              (name (when (running-in-test-mode-p *application*)
                      (if (typep content 'icon-component)
                          (symbol-name (name-of content))
@@ -83,15 +87,13 @@
 
 (def (function e) render-command-onclick-handler (command id)
   (bind ((action (action-of command))
-         (href (etypecase action
-                 (action (register-action/href action))
-                 (uri (print-uri-to-string action)))))
+         (action-arguments (action-arguments-of command))
+         ((:values href send-client-state?) (href-for-command action action-arguments)))
     `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
                               (lambda (event)
-                                (wui.io.action event ,href ,
-                                               (when (ajax-enabled? *application*)
-                                                 (force (ajax-p command)))
-                                               #t))))))
+                                (wui.io.action event ,href ,(when (ajax-enabled? *application*)
+                                                              (force (ajax-p command)))
+                                               ,send-client-state?))))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))
