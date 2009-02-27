@@ -24,24 +24,38 @@
    (action-arguments nil)
    (js nil)))
 
-(def (macro e) command (content action &key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path
+(def (macro e) command (content action &key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path application-relative-path
                                 (delayed-content nil delayed-content-provided?)
                                 (send-client-state #t send-client-state-provided?))
   (once-only (content)
-    `(progn
-       (debug-only (assert ,content () "Command factory called without a valid CONTENT"))
-       (make-instance 'command-component
-                      :content ,content
-                      :action ,action
-                      :enabled ,enabled
-                      :visible ,visible
-                      :default ,default
-                      :ajax ,ajax
-                      :js ,js
-                      :action-arguments (list :delayed-content ,delayed-content
-                                              :scheme ,scheme
-                                              :path ,path
-                                              :send-client-state ,send-client-state)))))
+    (with-unique-names (action-arguments)
+      (flet ((maybe-push (key expression)
+               (when expression
+                 `(awhen ,expression
+                    (push it ,action-arguments)
+                    (push ,key ,action-arguments)))))
+        `(bind ((,action-arguments ()))
+           (debug-only (assert ,content () "Command factory called without a valid CONTENT"))
+           ,(when delayed-content-provided?
+              `(progn
+                 (push ,delayed-content ,action-arguments)
+                 (push :delayed-content ,action-arguments)))
+           ,(when send-client-state-provided?
+              `(progn
+                 (push ,send-client-state ,action-arguments)
+                 (push :send-client-state ,action-arguments)))
+           ,(maybe-push :scheme scheme)
+           ,(maybe-push :path path)
+           ,(maybe-push :application-relative-path application-relative-path)
+           (make-instance 'command-component
+                          :content ,content
+                          :action ,action
+                          :enabled ,enabled
+                          :visible ,visible
+                          :default ,default
+                          :ajax ,ajax
+                          :js ,js
+                          :action-arguments ,action-arguments))))))
 
 (def render command-component ()
   (bind (((:read-only-slots content action enabled default ajax js action-arguments) -self-))
