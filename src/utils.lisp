@@ -10,10 +10,14 @@
 
 (def (macro e) delay (&body forms)
   (with-unique-names (delayed-processing)
-    `(bind ((,delayed-processing (make-instance 'delayed-processing)))
-       (set-funcallable-instance-function ,delayed-processing (named-lambda delay-body ()
-                                                                ,@forms))
-       ,delayed-processing)))
+    (if (and (length= 1 forms)
+             (not (consp (first forms)))
+             (constantp (first forms)))
+        (first forms)
+        `(bind ((,delayed-processing (make-instance 'delayed-processing)))
+           (set-funcallable-instance-function ,delayed-processing (named-lambda delay-body ()
+                                                                    ,@forms))
+           ,delayed-processing))))
 
 (def (function e) force (value)
   (if (typep value 'delayed-processing)
