@@ -275,6 +275,7 @@
            (unwind-protect
                 (progn
                   (server.dribble "Worker ~A is processing a request" worker)
+                  (setf (iolib:socket-option stream-socket :receive-timeout) 5) ;; TODO is this a constant or depends on server network load?
                   (setf *request-remote-host* (iolib:remote-host stream-socket))
                   (with-lock-held-on-server (server)
                     (incf (occupied-worker-count-of server))
