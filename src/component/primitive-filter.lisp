@@ -11,7 +11,7 @@
   ())
 
 (def function make-update-use-in-filter-js (component)
-  (delay `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of component) #t)))
+  `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of component) #t))
 
 ;;;;;;
 ;;; T filter
@@ -39,7 +39,7 @@
     (if (eq (the-type-of -self-) 'boolean)
         (render-checkbox-field component-value
                                :name (client-state-sink-of -self-)
-                               :on-change (delay `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t)))
+                               :on-change `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t))
         <select (:name ,(id-of (client-state-sink-of -self-))
                  :onChange `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t))
           ,(bind ((selected (when (and use-in-filter?

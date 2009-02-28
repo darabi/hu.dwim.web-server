@@ -47,25 +47,25 @@
    :encoding +encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*))
 
-(def function make-js-transformation-pipeline (embedded-in-xml? &optional inline? (inline-prefix? inline?))
+(def function make-js-transformation-pipeline (&key embedded-in-xml inline-into-xml-attribute (inline-emitting *transform-quasi-quote-to-inline-emitting*))
   (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
-   (if embedded-in-xml?
+   (if embedded-in-xml
        '*html-stream*
        '*js-stream*)
    :binary *transform-quasi-quote-to-binary*
    :encoding +encoding+
-   :with-inline-emitting *transform-quasi-quote-to-inline-emitting*
+   :with-inline-emitting inline-emitting
    :indentation-width *quasi-quote-indentation-width*
-   :escape-as-xml (and embedded-in-xml? inline?)
+   :escape-as-xml (and embedded-in-xml inline-into-xml-attribute)
    :output-prefix (cond
-                    (inline?          (when inline-prefix?
-                                        "javascript: "))
-                    (embedded-in-xml? (format nil "~%<script type=\"text/javascript\">~%// <![CDATA[~%")))
+                    ((and embedded-in-xml
+                          (not inline-into-xml-attribute))
+                     (format nil "~%<script type=\"text/javascript\">~%// <![CDATA[~%")))
    :output-postfix (cond
-                     ((and embedded-in-xml?
-                           (not inline?))
+                     ((and embedded-in-xml
+                           (not inline-into-xml-attribute))
                       (format nil "~%// ]]>~%</script>~%"))
-                     ((not embedded-in-xml?) (format nil ";~%")))))
+                     ((not embedded-in-xml) (format nil ";~%")))))
 
 (def function make-xml-transformation-pipeline ()
   (make-quasi-quoted-xml-to-form-emitting-transformation-pipeline
@@ -102,17 +102,24 @@
   (enable-sharpquote<>-syntax)
   (enable-quasi-quoted-string-syntax
    :transformation-pipeline (make-str-transformation-pipeline))
+  ;; TODO these (= 1 *quasi-quote-lexical-depth*) should check for an xml lexically-parent syntax. what happens for ``js-inline() when used in a macro?
   (enable-quasi-quoted-js-syntax
-   :transformation-pipeline (make-js-transformation-pipeline nil)
-   :nested-transformation-pipeline (make-js-transformation-pipeline t)
+   :transformation-pipeline (lambda ()
+                              (if (= 1 *quasi-quote-lexical-depth*)
+                                  (make-js-transformation-pipeline :embedded-in-xml nil)
+                                  (make-js-transformation-pipeline :embedded-in-xml t)))
    :dispatched-quasi-quote-name 'js)
   (enable-quasi-quoted-js-syntax
-   :transformation-pipeline (make-js-transformation-pipeline t t)
+   :transformation-pipeline (lambda ()
+                              ;; the js-inline qq syntax is only in inline-emitting mode when used lexically-below another qq reader.
+                              ;; this way it works as expected:
+                              ;; (some-function `js-inline(+ 2 40))
+                              ;; (defun some-function (on-click)
+                              ;;   <div (:on-click ,on-click)>)
+                              (if (= 1 *quasi-quote-lexical-depth*)
+                                  (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t :inline-emitting nil)
+                                  (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t)))
    :dispatched-quasi-quote-name 'js-inline)
-  (enable-quasi-quoted-js-syntax
-   :transformation-pipeline (make-js-transformation-pipeline t t nil)
-   ;; js-inline* does not prepend the "javascript: " prefix
-   :dispatched-quasi-quote-name 'js-inline*)
   (enable-quasi-quoted-xml-syntax
    :transformation-pipeline (make-xml-transformation-pipeline)))
 

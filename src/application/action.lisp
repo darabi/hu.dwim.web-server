@@ -123,12 +123,12 @@
                                                     free-variable-references)))
          (query-parameters (mapcar [unique-js-name (string-downcase !1)]
                                    variable-names)))
-    ` `js-inline*(wui.io.xhr-post
+    ` `js-inline(wui.io.xhr-post
                   (create
                    :content (create ,@(list ,@(iter (for variable-name :in variable-names)
                                                     (for query-parameter :in query-parameters)
                                                     (collect `(quote ,query-parameter))
-                                                    (collect `js-inline*(.toString ,variable-name)))))
+                                                    (collect `js-inline(.toString ,variable-name)))))
                    :url ,(action/href (:delayed-content #t)
                            (with-request-params ,(mapcar [list !1 !2]
                                                          variable-names
