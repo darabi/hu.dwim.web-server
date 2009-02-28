@@ -23,6 +23,10 @@
 (def (function e) delayed-processing? (thing)
   (typep thing 'delayed-processing))
 
+(def (function io) maybe-make-xml-attribute (name value)
+  (when value
+    (make-xml-attribute name value)))
+
 (def macro notf (&rest places)
   `(setf ,@(iter (for place in places)
                  (collect place)
