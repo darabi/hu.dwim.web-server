@@ -222,6 +222,7 @@
 
 (def (layered-function e) execute-select-instance (component class instance)
   (:method ((component component) (class standard-class) (instance standard-object))
+    ;; TODO delme eventually (attila)
     (execute-select-instance (find-ancestor-component-with-type component 'abstract-selectable-standard-object-component) class instance))
 
   (:method ((component abstract-selectable-standard-object-component) (class standard-class) (instance standard-object))

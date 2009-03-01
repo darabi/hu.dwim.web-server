@@ -78,6 +78,7 @@
                    (to-js-boolean (parse-dojo-widgets-on-load? -self-))
                    (to-js-boolean debug-client-side?)
                    (to-js-literal (default-locale-of application)))>
+        ;; TODO find out a nice way to get to the dojo.js file and append-file-write-date-to-uri
         <script (:type         #.+javascript-mime-type+
                  :src          ,(concatenate-string path-prefix
                                                     (dojo-path-of -self-)
@@ -110,9 +111,9 @@
           ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
           <div (:style "display: none")
             <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
-                    :value ,(first (ensure-list (request-parameter-value *request* +scroll-x-parameter-name+))))>
+                    :value ,(first (ensure-list (parameter-value +scroll-x-parameter-name+))))>
             <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
-                    :value ,(first (ensure-list (request-parameter-value *request* +scroll-y-parameter-name+))))>>
+                    :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
           ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
                (render (content-of -self-)))

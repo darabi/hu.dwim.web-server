@@ -366,6 +366,7 @@
   ())
 
 (def method selected-instance-of ((self selectable-standard-object-tree-inspector))
+  ;; FIXME should behave consistently regardless the component outdated states
   (awhen (content-of self)
     (selected-instance-of it)))
 

@@ -20,6 +20,7 @@
    +dijit/combo-box+             "dijit.form.ComboBox"
    +dijit/filtering-select+      "dijit.form.FilteringSelect"
    +dijit/number-text-box+       "dijit.form.NumberTextBox"
+   +dijit/dialog+                "dijit.Dialog"
    +dijit/tooltip-dialog+        "dijit.TooltipDialog"
    +dijit/editor+                "dijit.Editor"
    +dijit/menu+                  "dijit.Menu"

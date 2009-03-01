@@ -55,8 +55,8 @@
 
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
-(def special-variable *html-stream*)
-(def special-variable *js-stream*)
+(def (special-variable e) *html-stream*)
+(def (special-variable e) *js-stream*)
 
 (def (with-macro e) with-collapsed-js-scripts ()
   (bind ((result nil)

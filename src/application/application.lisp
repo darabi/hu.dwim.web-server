@@ -243,7 +243,7 @@
                             ;; TODO the problem at hand is this: when the app specific error handler is called the stack is not yet unwinded
                             ;; so this REVERT-STEP-TO-NEXT-FRAME-INDEX is not yet called, therefore the page it renders will point to an invalid
                             ;; frame index after this unwind block is executed.
-                            ;; but on the other hand without this uwp, the retry rendering this request restart is broken...
+                            ;; but on the other hand without this uwp, the "retry rendering this request" restart is broken...
                             ;; we chose the lesser badness here and don't do the revert, so break the restart instead of the user visible error page
                             #+nil
                             (when original-frame-index
@@ -288,7 +288,7 @@
     (check-type invalidity-reason frame-invalidity-reason)
     (check-type frame (or null frame)))
   (:method ((application application) session frame invalidity-reason)
-    (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speeking")
+    (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speeking, invalidity-reason is ~S" invalidity-reason)
     (if (eq invalidity-reason :out-of-sync)
         (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
                (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))

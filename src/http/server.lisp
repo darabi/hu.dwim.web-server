@@ -318,11 +318,10 @@
            (*request-id* nil))
       (restart-case
           (unwind-protect-case (interrupted)
-              (progn
-                (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
-                  (call-with-server-error-handler #'serve-one-request
-                                                  stream-socket
-                                                  #'handle-request-error))
+              (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
+                (call-with-server-error-handler #'serve-one-request
+                                                stream-socket
+                                                #'handle-request-error)
                 (server.dribble "Worker ~A finished processing a request, closing the socket now" worker))
             (:always
              (block nil
