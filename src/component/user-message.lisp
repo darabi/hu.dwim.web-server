@@ -34,17 +34,17 @@
 
 (def (function e) render-user-messages (user-message-collector)
   (bind ((messages (messages-of user-message-collector)))
-    (remove-user-messages-if user-message-collector (complement #'permanent-p))
     (flet ((render-message-category (category)
              (aif (filter category messages :key #'category-of)
                   <div (:class ,(concatenate-string "user-messages " (string-downcase category) "s"))
                        ,(render-vertical-list it)>
                   +void+)))
-      (if messages
-          <div ,(render-message-category :information)
-               ,(render-message-category :warning)
-               ,(render-message-category :error)>
-          +void+))))
+      (multiple-value-prog1
+          (when messages
+            <div ,(render-message-category :information)
+                 ,(render-message-category :warning)
+                 ,(render-message-category :error)>)
+        (remove-user-messages-if user-message-collector (complement #'permanent-p))))))
 
 (def (function e) remove-user-messages-if (collector predicate)
   (setf (messages-of collector) (delete-if predicate (messages-of collector))))
