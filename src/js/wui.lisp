@@ -602,6 +602,9 @@
 ;;;;;;
 ;;; Context sensitive help
 
+(setf wui.help.popup-timeout 400)
+(setf wui.help.timer nil)
+
 (defun wui.help.decorate-url (url id)
   (if (or (= id "")
           (= id undefined))
@@ -611,44 +614,52 @@
 (defun wui.help.make-mouseover-handler (url)
   (return
     (lambda (event)
-      (bind ((decorated-url url)
-             (node event.target)
-             (help wui.help.tooltip))
-        (while (not (= node document))
-          (setf decorated-url (wui.help.decorate-url decorated-url node.id))
-          (setf node node.parent-node))
-        (when (or (= help nil)
-                  (and help.has-loaded
-                       (not (= help.href decorated-url))))
-          (wui.help.teardown)
-          (setf help (new dojox.widget.DynamicTooltip
-                          (create :connectId (array event.target)
-                                  :position (array "below" "right")
-                                  :href decorated-url)))
-          (setf wui.help.tooltip help)
-          (help.open event.target)
-          (dojo.stop-event event))))))
+      (when wui.help.timer
+        (clearTimeout wui.help.timer)
+        (setf wui.help.timer nil))
+      (setf wui.help.timer
+            (setTimeout (lambda ()
+                          (bind ((decorated-url url)
+                                 (node event.target)
+                                 (help wui.help.tooltip))
+                            (while (not (= node document))
+                              (setf decorated-url (wui.help.decorate-url decorated-url node.id))
+                              (setf node node.parent-node))
+                            (when (or (= help nil)
+                                      (and help.has-loaded
+                                           (not (= help.href decorated-url))))
+                              (wui.help.teardown)
+                              (setf help (new dojox.widget.DynamicTooltip
+                                              (create :connectId (array event.target)
+                                                      :position (array "below" "right")
+                                                      :href decorated-url)))
+                              (setf wui.help.tooltip help)
+                              (help.open event.target))))
+                        wui.help.popup-timeout))
+      (dojo.stop-event event))))
 
 (defun wui.help.setup (event url)
-  (bind ((help wui.help.tooltip)
-         (mouseover-handler (wui.help.make-mouseover-handler url))
-         (mouseclick-handler (lambda (event)
-                               (setf document.body.style.cursor "default")
-                               (document.remove-event-listener "mouseover" mouseover-handler true)
-                               (document.remove-event-listener "click" mouseclick-handler true)
-                               (wui.help.teardown)
-                               (dojo.stop-event event)))
-         (original-onmouseover document.onmouseover)
-         (original-onclick document.onclick))
-    (document.add-event-listener "mouseover" mouseover-handler true)
-    (document.add-event-listener "click" mouseclick-handler true)
-    (setf document.body.style.cursor "help")
+  (bind ((handles (array))
+         (aborter (lambda (event)
+                    (dojo.style document.body "cursor" "default")
+                    (map 'dojo.disconnect handles)
+                    (wui.help.teardown)
+                    (dojo.stop-event event))))
+    (handles.push (dojo.connect document "mouseover" (wui.help.make-mouseover-handler url)))
+    (handles.push (dojo.connect document "click" aborter))
+    (handles.push (dojo.connect document "keypress" (lambda (event)
+                                                      (when (= event.charOrCode dojo.keys.ESCAPE)
+                                                        (aborter event)))))
+    (dojo.style document.body "cursor" "help")
     (dojo.stop-event event)))
 
 (defun wui.help.teardown ()
   (when wui.help.tooltip
     (wui.help.tooltip.destroy)
-    (setf wui.help.tooltip nil)))
+    (setf wui.help.tooltip nil)
+    (when wui.help.timer
+      (clearTimeout wui.help.timer)
+      (setf wui.help.timer nil))))
 
 
 
