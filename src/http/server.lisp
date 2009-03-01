@@ -406,9 +406,11 @@
            (when ,seconds-until-expires
              (if (<= ,seconds-until-expires 0)
                  (disallow-response-caching-in-header-alist ,headers)
-                 (setf (header-alist-value ,headers +header/expires+)
-                       (local-time:to-http-timestring
-                        (local-time:adjust-timestamp (local-time:now) (offset :sec ,seconds-until-expires))))))
+                 (progn
+                   (setf (header-alist-value ,headers +header/expires+)
+                         (local-time:to-http-timestring
+                          (local-time:adjust-timestamp (local-time:now) (offset :sec ,seconds-until-expires))))
+                   (setf (header-alist-value ,headers +header/cache-control+) (concatenate-string "max-age=" (integer-to-string ,seconds-until-expires))))))
            (when ,last-modified-at
              (setf (header-alist-value ,headers +header/last-modified+)
                    (local-time:to-http-timestring ,last-modified-at)))
