@@ -50,17 +50,10 @@
 (defun wui.io.action (event url (ajax true) (send-client-state true))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
-                                                    (if (null ajax) "" "t")))
+                                                    (if ajax "t" "")))
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
-    (if (null ajax)
-        (if (and send-client-state
-                 form
-                 (< 0 form.elements.length))
-            (progn
-              (setf (slot-value form 'action) decorated-url)
-              (form.submit))
-            (setf window.location.href decorated-url))
+    (if ajax
         (bind ((ajax-target (dojo.byId ajax))
                (ajax-request-in-progress-indicator (document.create-element "div"))
                (ajax-request-in-progress-teardown (lambda ()
@@ -83,8 +76,15 @@
             (dojo.add-class ajax-request-in-progress-indicator "ajax-request-in-progress")
             (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
             (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
-          (wui.io.xhr-post params))))
-  ;; TODO: event should be mandatory 
+          (wui.io.xhr-post params))
+        (if (and send-client-state
+                 form
+                 (< 0 form.elements.length))
+            (progn
+              (setf (slot-value form 'action) decorated-url)
+              (form.submit))
+            (setf window.location.href decorated-url))))
+  ;; TODO: event should be mandatory (really? what about firing actions from custom js code bodies?)
   (when event
     (dojo.stop-event event)))
 
