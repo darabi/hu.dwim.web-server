@@ -64,11 +64,14 @@
            (find-ancestor-component-with-type component 'user-message-collector-component-mixin)
            message message-args initargs))
 
-  (:method ((collector user-message-collector-component-mixin) message message-args &rest initargs &key content &allow-other-keys)
+  (:method ((collector user-message-collector-component-mixin) message message-args &rest initargs &key content category &allow-other-keys)
     (assert (typep content '(or null component)))
     (appendf (messages-of collector)
              (list (if (typep message 'user-message-component)
-                       message
+                       (progn
+                         (when category
+                           (setf (category-of message) category))
+                         message)
                        (apply #'make-instance 'user-message-component
                               :message (if (stringp message)
                                            (apply #'format nil message message-args)
