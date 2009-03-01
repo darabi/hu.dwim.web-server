@@ -181,7 +181,7 @@
                                (:file "primitive-inspector" :depends-on ("primitive-component"))
                                (:file "primitive-filter" :depends-on ("primitive-component"))
                                (:file "place-component" :depends-on ("place" "editable" "factory" "object-list-inspector" "object-component" "primitive-filter"))
-                               (:file "user-message" :depends-on ("component"))
+                               (:file "user-message" :depends-on ("component" "icon" "command"))
                                (:file "wizard" :depends-on ("component"))
                                (:file "alternator" :depends-on ("reference" "command" "editable" "misc" "primitive-component"))
                                (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
