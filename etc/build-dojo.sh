@@ -1,7 +1,7 @@
 #!/bin/sh
 
-WUI_HOME="`dirname $0`/.."
-DOJO_HOME="`dirname $0`/../../dojo"
+# http://docs.dojocampus.org/build/buildScript
+# example usage: ~/workspace/wui/etc/build-dojo.sh ~/workspace/ebr42/etc/ebr42-dojo-profile.js "en-us,hu"
 
 absolutize ()
 {
@@ -16,16 +16,30 @@ absolutize ()
   cd - >/dev/null
 }
 
-if [ "$1" != "" ]; then
-    DOJO_HOME=$1
-fi
+LOCALE_LIST="en-us"
+WUI_HOME="`dirname $0`/.."
+DOJO_HOME="`dirname $0`/../../dojo"
 
 WUI_HOME=`absolutize "$WUI_HOME"`
 DOJO_HOME=`absolutize "$DOJO_HOME"`
+RELEASE_DIR=${WUI_HOME}/wwwroot/
 
-echo "Assuming the following paths:"
-echo "wui   - $WUI_HOME"
-echo "dojo  - $DOJO_HOME"
+PROFILE="${WUI_HOME}/etc/wui/profile.js"
+
+if [ "$1" != "" ]; then
+    PROFILE=$1
+fi
+
+if [ "$2" != "" ]; then
+    LOCALE_LIST=$2
+fi
+
+echo "Will build dojo into ${RELEASE_DIR} now..."
+echo "Assuming the following parameters:"
+echo "profile - $PROFILE"
+echo "locales - $LOCALE_LIST"
+echo "wui     - $WUI_HOME"
+echo "dojo    - $DOJO_HOME"
 
 if [ ! -d "$DOJO_HOME" -o ! -d "$WUI_HOME" ]; then
     echo Some of the paths are not correct!
@@ -34,13 +48,8 @@ if [ ! -d "$DOJO_HOME" -o ! -d "$WUI_HOME" ]; then
     exit -1
 fi
 
-cp "$WUI_HOME/etc/wui.profile.js" "$DOJO_HOME/util/buildscripts/profiles/wui.profile.js"
-cd "$DOJO_HOME/util/buildscripts"
-./build.sh profile="wui" action="release"
+echo Starting the dojo build script now...
+echo
 
-rm -rf "$WUI_HOME/wwwroot/dojo/"
-
-cp -r "$DOJO_HOME/release/dojo/" "$WUI_HOME/wwwroot/"
-#cp "$DOJO_HOME/release/dojo/iframe_history.html" "$WUI_HOME/wwwroot/dojo/"
-#cp -r "$DOJO_HOME/release/dojo/src/" "$WUI_HOME/wwwroot/dojo/"
-#ln -s "$DOJO_HOME/dijit" "$WUI_HOME/wwwroot/dijit"
+cd "${DOJO_HOME}/util/buildscripts"
+./build.sh profileFile="$PROFILE" releaseDir=${RELEASE_DIR} action="clean,release" copyTests=false layerOptimize=shrinksafe.keepLines localeList=${LOCALE_LIST}
