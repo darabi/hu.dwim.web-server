@@ -212,7 +212,7 @@
         (t
          (error "Don't know how to handle the mime-part ~S (content-disposition: ~S)" mime-part content-disposition-header))))))
 
-(def (function o) read-http-request-body (stream raw-content-length raw-content-type initial-parameters)
+(def (function o) read-http-request-body (stream raw-content-length raw-content-type initial-parameter-alist)
   (when (and raw-content-length
              raw-content-type)
     (with-thread-name " / READ-REQUEST-BODY"
@@ -238,18 +238,19 @@
                    (http.dribble "Parsing application/x-www-form-urlencoded body. Attributes: ~S, value: ~S" attributes buffer-as-string)
                    ;; TODO buffer-as-string should never be non-ascii... read up on the standard, do something about that coerce...
                    (setf buffer-as-string (coerce buffer-as-string 'simple-base-string))
-                   (return-from read-http-request-body (parse-query-parameters buffer-as-string initial-parameters)))))
+                   (return-from read-http-request-body (parse-query-parameters buffer-as-string initial-parameter-alist)))))
               ("multipart/form-data"
                (http.dribble "Parsing multipart/form-data body. Attributes: ~S." attributes)
+               (setf initial-parameter-alist (copy-alist initial-parameter-alist)) ; we will modify initial-parameter-alist, so make sure we don't sideffect our input
                (bind ((boundary (cdr (assoc "boundary" attributes :test #'string=))))
                  ;; TODO DOS prevention: add support for rfc2388-binary to limit parsing length if the ContentLength header is fake, pass in *request-content-length-limit*
                  (rfc2388-binary:read-mime stream boundary
                                            (make-rfc2388-callback
                                             (lambda (name value)
-                                              (record-query-parameter (cons name value) initial-parameters))
+                                              (record-query-parameter (cons name value) initial-parameter-alist))
                                             (lambda (name file-mime-part)
-                                              (record-query-parameter (cons name file-mime-part) initial-parameters))))
-                 (return-from read-http-request-body initial-parameters)))
+                                              (record-query-parameter (cons name file-mime-part) initial-parameter-alist))))
+                 (return-from read-http-request-body initial-parameter-alist)))
               (t (abort-server-request "Invalid request content type"))))))))
   (http.debug "Skipped parsing request body, raw Content-Type is [~S], raw Content-Length is [~S]" raw-content-type raw-content-length)
-  initial-parameters)
+  initial-parameter-alist)
