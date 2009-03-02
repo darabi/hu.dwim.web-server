@@ -411,6 +411,7 @@
   (:method ((self selectable-standard-object-tree-node-inspector))
     (selected-instance-p (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component) (instance-of self))))
 
+#+nil ; TODO delme, valahogy mashogy kene ezt...
 (def method refresh-component :after ((self selectable-standard-object-tree-node-inspector))
   (when (and (find-command-bar-command (command-bar-of self) 'select)
              (instance-of self))
