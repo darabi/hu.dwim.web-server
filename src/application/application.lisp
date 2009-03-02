@@ -60,6 +60,49 @@
       (or (running-in-test-mode-p self)
           (not *load-as-production-p*))))
 
+(def (function e) human-readable-broker-path (server application)
+  (bind ((path (broker-path-to-broker server application)))
+    (assert (member application path))
+    (apply #'concatenate-string
+           (iter (for el :in path)
+                 (etypecase el
+                   (application (collect (path-prefix-of el)))
+                   (server nil))))))
+
+(def function broker-path-to-broker (root broker)
+  (map-broker-tree root (lambda (path)
+                          (when (eq (first path) broker)
+                            (return-from broker-path-to-broker (nreverse path))))))
+
+(def function total-web-session-count (server)
+  (bind ((sum 0))
+    (map-broker-tree server (lambda (path)
+                              (bind ((el (first path)))
+                                (when (typep el 'application)
+                                  (incf sum (hash-table-count (session-id->session-of el)))))))
+    sum))
+
+(def function map-broker-tree (root visitor)
+  (macrolet ((visit ()
+               `(funcall visitor path))
+             (recurse (children)
+               `(map nil (lambda (child)
+                           (%recurse (cons child path)))
+                     ,children)))
+    (labels ((%recurse (path)
+               (bind ((el (first path)))
+                 (etypecase el
+                   ;; TODO handle delegate-broker when implemented
+                   (broker-based-server (visit)
+                                        (recurse (brokers-of el)))
+                   (application (visit)
+                                (recurse (entry-points-of el)))
+                   (entry-point (visit))
+                   (broker nil)
+                   (null nil)))))
+      (%recurse (list root))))
+  (values))
+
 (def (function i) assert-application-lock-held (application)
   (assert (is-lock-held? (lock-of application)) () "You must have a lock on the application here"))
 
