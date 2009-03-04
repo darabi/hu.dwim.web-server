@@ -95,6 +95,16 @@
     (setf dimensions (mapcar 'prc:lookup-dimension dimensions)
           coordinates (prc:make-empty-coordinates dimensions))))
 
+(def (function e) print-object/coordinates-dependent-component-mixin (self)
+  (princ "dimensions: ")
+  (princ (if (slot-boundp self 'dimensions)
+             (wui::dimensions-of self)
+             "<unbound>"))
+  (princ ", coordinates: ")
+  (princ (if (slot-boundp self 'coordinates)
+             (wui::coordinates-of self)
+             "<unbound>")))
+
 (def render :before coordinates-dependent-component-mixin ()
   (setf (coordinates-of -self-)
         (iter (for dimension :in (dimensions-of -self-))
