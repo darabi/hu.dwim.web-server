@@ -279,13 +279,16 @@
                   (setf *request-remote-host* (iolib:remote-host stream-socket))
                   (with-lock-held-on-server (server)
                     (incf (occupied-worker-count-of server))
-                    (when (and threaded?
-                               (= (occupied-worker-count-of server)
-                                  (length (workers-of server)))
-                               (< (length (workers-of server))
-                                  (maximum-worker-count-of server)))
-                      (server.info "All ~A worker threads are occupied, starting a new one" (length (workers-of server)))
-                      (make-worker server))
+                    (bind ((worker-count (length (workers-of server))))
+                      (when (and threaded?
+                                 (= (occupied-worker-count-of server)
+                                    worker-count))
+                        (if (< worker-count
+                               (maximum-worker-count-of server))
+                            (progn
+                              (server.info "All ~A worker threads are occupied, starting a new one" worker-count)
+                              (make-worker server))
+                            (server.warn "All ~A worker threads are occupied, and can't start new workers due to already at maximum-worker-count" worker-count))))
                     (setf *request-id* (incf (processed-request-count-of server))))
                   (with-thread-name (concatenate-string " / serving request " (integer-to-string *request-id*))
                     (setf *request* (read-request server stream-socket))
