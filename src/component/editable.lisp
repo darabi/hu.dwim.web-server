@@ -27,10 +27,12 @@
   ((edited #f :type boolean :documentation "TRUE indicates the component is currently being edited, FALSE otherwise.")))
 
 (def (function e) begin-editing (editable)
+  (declare (optimize (debug 2))) ;; we always want to see it in backtraces
   (assert (typep editable 'editable-component))
   (join-editing editable))
 
 (def (function e) save-editing (editable &key (leave-editing #t))
+  (declare (optimize (debug 2))) ;; we always want to see it in backtraces
   (assert (typep editable 'editable-component))
   (catch 'abort-save-editing
     (store-editing editable)
@@ -41,6 +43,7 @@
   (throw 'abort-save-editing #t))
 
 (def (function e) cancel-editing (editable)
+  (declare (optimize (debug 2))) ;; we always want to see it in backtraces
   (assert (typep editable 'editable-component))
   (revert-editing editable)
   (leave-editing editable))
