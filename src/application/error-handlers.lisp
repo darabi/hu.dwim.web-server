@@ -70,8 +70,8 @@
 
 (def resources en
   (error.internal-server-error "Internal server error")
-  (render-application-internal-error-page (&rest args &key &allow-other-keys)
-    (apply 'render-application-internal-error-page/english args)))
+  (render-application-internal-error-page (back-command &rest args &key &allow-other-keys)
+    (apply 'render-application-internal-error-page/english back-command args)))
 
 (def resources hu
   (error.internal-server-error "Programhiba")
