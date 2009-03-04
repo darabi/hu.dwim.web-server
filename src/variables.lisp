@@ -200,6 +200,9 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (def (constant e :test 'string=) +xml-namespace-uri/xhtml+ "http://www.w3.org/1999/xhtml")
 (def (constant e :test 'string=) +xml-namespace-uri/dojo+  "http://www.dojotoolkit.org/2004/dojoml")
 
+(def (constant e :test 'string=) +form-encoding/multipart-form-data+  "multipart/form-data")
+(def (constant e :test 'string=) +form-encoding/url-encoded+  "application/x-www-form-urlencoded")
+
 (def constant +space+           #.(char-code #\Space))
 (def constant +tab+             #.(char-code #\Tab))
 (def constant +colon+           #.(char-code #\:))

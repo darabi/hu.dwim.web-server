@@ -107,6 +107,7 @@
            (bind ((href (print-uri-to-string (clone-request-uri :strip-query-parameters (list +no-javascript-error-parameter-name+)))))
              `js(setf window.location.href ,href)))
         <form (:method "post"
+               :enctype #.+form-encoding/multipart-form-data+
                :action "")
           ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
           <div (:style "display: none")
