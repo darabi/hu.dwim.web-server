@@ -421,7 +421,7 @@
            (setf (header-alist-value ,headers +header/date+) (local-time:to-http-timestring (local-time:now)))
            (server.dribble "~A: if-modified-since is ~S, last-modified-at is ~A, if-modified-since-value is ~A" ',name ,if-modified-since ,last-modified-at ,if-modified-since-value)
            (if (and ,last-modified-at
-                    ,if-modified-since
+                    ,if-modified-since-value
                     (local-time:timestamp<= ,last-modified-at ,if-modified-since-value))
                (progn
                  (server.debug "~A: Sending 304 not modified. if-modified-since is ~S, last-modified-at is ~S" ',name ,if-modified-since ,last-modified-at)
