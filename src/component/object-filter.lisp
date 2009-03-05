@@ -69,7 +69,8 @@
                                               abstract-standard-class-component
                                               filter-component
                                               title-component-mixin)
-  ((class-selector nil :type component)))
+  ((class-selector nil :type component)
+   (ordering-specifier nil :type component)))
 
 (def (macro e) standard-object-detail-filter (class)
   `(make-instance 'standard-object-detail-filter :the-class ,class))
@@ -79,7 +80,7 @@
     (list* class (subclasses class))))
 
 (def method refresh-component ((self standard-object-detail-filter))
-  (with-slots (class class-selector the-class slot-value-groups command-bar) self
+  (with-slots (class class-selector ordering-specifier the-class slot-value-groups command-bar) self
     (bind ((selectable-classes (collect-standard-object-detail-filter-classes self the-class (class-prototype the-class))))
       (if (length= selectable-classes 1)
           (setf class-selector nil)
@@ -88,11 +89,12 @@
               (setf class-selector (make-class-selector selectable-classes))))
       (bind ((selected-class (if class-selector
                                  (component-value-of class-selector)
-                                 (first selectable-classes))))
-        (setf class (make-standard-object-detail-filter-class self the-class (class-prototype the-class))
-              slot-value-groups (bind ((prototype (class-prototype selected-class))
-                                       (slots (collect-standard-object-detail-filter-slots self selected-class prototype))
-                                       (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
+                                 (first selectable-classes)))
+             (prototype (class-prototype selected-class))
+             (slots (collect-standard-object-detail-filter-slots self selected-class prototype)))
+        (setf ordering-specifier (when slots (make-slot-selector slots))
+              class (make-standard-object-detail-filter-class self the-class (class-prototype the-class))
+              slot-value-groups (bind ((slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
                                   (iter (for (name . slot-group) :in slot-groups)
                                         (when slot-group
                                           (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
@@ -115,14 +117,19 @@
     (class-slots class)))
 
 (def render standard-object-detail-filter ()
-  (bind (((:read-only-slots class-selector slot-value-groups id) -self-))
+  (bind (((:read-only-slots class-selector ordering-specifier slot-value-groups id) -self-))
     <div (:id ,id)
          ,(render-title -self-)
          <table (:class "slot-table")
-           ,(when class-selector
-                  <tbody <tr <td ,#"standard-object-detail-filter.class-selector-label">
-                             <td (:colspan 3)>
-                             <td ,(render class-selector)>>>)
+           ,(when (or class-selector ordering-specifier)
+                  <tbody ,(when class-selector
+                                <tr <td ,#"standard-object-detail-filter.class-selector-label">
+                                    <td (:colspan 3)>
+                                    <td ,(render class-selector)>>)
+                         ,(when ordering-specifier
+                                <tr <td ,#"standard-object-detail-filter.ordering-specifier-label">
+                                    <td (:colspan 3)>
+                                    <td ,(render ordering-specifier)>>) >)
            ,(foreach #'render slot-value-groups)>>))
 
 (def layered-method render-title ((self standard-object-detail-filter))
@@ -131,12 +138,14 @@
 (def resources en
   (standard-object-detail-filter.title (class)
     `xml,"Searching for instances of" (render class))
-  (standard-object-detail-filter.class-selector-label "Class"))
+  (standard-object-detail-filter.class-selector-label "Class")
+  (standard-object-detail-filter.ordering-specifier-label "Ordering"))
 
 (def resources hu
   (standard-object-detail-filter.title (class)
     (render class) `xml," keresése")
-  (standard-object-detail-filter.class-selector-label "Típus"))
+  (standard-object-detail-filter.class-selector-label "Típus")
+  (standard-object-detail-filter.ordering-specifier-label "Rendezés"))
 
 ;;;;;;
 ;;; Standard object slot value group filter

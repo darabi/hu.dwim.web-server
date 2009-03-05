@@ -336,3 +336,15 @@
   (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
     ;; TODO: use dojo.connect and pass down event
     (render-member-component -self- :on-change `js-inline(wui.io.action nil ,href #f #t))))
+
+;;;;;;
+;;; Slot selector
+
+(def component slot-selector (member-inspector)
+  ()
+  (:default-initargs :edited #t :client-name-generator [if !2
+                                                           (localized-slot-name !2)
+                                                           ""]))
+
+(def function make-slot-selector (slots)
+  (make-instance 'slot-selector :component-value nil :possible-values (list* nil slots)))

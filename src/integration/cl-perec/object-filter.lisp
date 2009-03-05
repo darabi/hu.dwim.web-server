@@ -68,9 +68,14 @@
     (build-filter-query* (content-of component) filter-query))
 
   (:method ((component standard-object-detail-filter) filter-query)
-    (when-bind class-selector (class-selector-of component)
-      (when-bind selected-class (component-value-of class-selector)
-        (prc::add-assert (query-of filter-query) `(typep ,(first (query-variable-stack-of filter-query)) ,selected-class))))
+    (bind ((query (query-of filter-query))
+           (query-variable (first (query-variable-stack-of filter-query))))
+      (when-bind class-selector (class-selector-of component)
+        (when-bind selected-class (component-value-of class-selector)
+          (prc::add-assert query `(typep ,query-variable ,selected-class))))
+      (when-bind ordering-specifier (ordering-specifier-of component)
+        (awhen (component-value-of ordering-specifier)
+          (prc::add-order-by query `(slot-value ,query-variable ',(slot-definition-name it))))))
     (foreach (lambda (slot-value-group)
                (build-filter-query* slot-value-group filter-query)) (slot-value-groups-of component)))
 
