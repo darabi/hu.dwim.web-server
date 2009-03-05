@@ -195,7 +195,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 
 (def (constant :test 'equal) +disallow-response-caching-header-values+
   (list (cons +header/expires+ "Wed, 01 Mar 2000 00:00:00 GMT")
-        (cons +header/cache-control+ "no-store")))
+        (cons +header/cache-control+ "no-cache no-store must-revalidate")))
 
 (def (constant e :test 'string=) +xml-namespace-uri/xhtml+ "http://www.w3.org/1999/xhtml")
 (def (constant e :test 'string=) +xml-namespace-uri/dojo+  "http://www.dojotoolkit.org/2004/dojoml")

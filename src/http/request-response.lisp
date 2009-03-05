@@ -195,6 +195,14 @@
     `(iter (for (,header-name . ,header-value) :in +disallow-response-caching-header-values+)
            (setf (header-alist-value ,headers ,header-name) ,header-value))))
 
+(def macro enforce-response-caching-in-header-alist (headers)
+  `(setf
+    ;; the w3c spec requires a maximum age of 1 year
+    ;; Firefox 3+ needs 'public' to cache this resource when received via SSL
+    (header-alist-value ,headers +header/cache-control+) "public max-age=31536000"
+    (header-alist-value ,headers +header/expires+) (local-time:to-http-timestring
+                                                    (local-time:adjust-timestamp (local-time:now) (offset :year 1)))))
+
 (def (function e) disallow-response-caching (response)
   "Sets the appropiate response headers that will instruct the clients not to cache this response."
   (disallow-response-caching-in-header-alist (headers-of response))
