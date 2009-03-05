@@ -98,11 +98,11 @@
 (def (function e) print-object/coordinates-dependent-component-mixin (self)
   (princ "dimensions: ")
   (princ (if (slot-boundp self 'dimensions)
-             (wui::dimensions-of self)
+             (hu.dwim.wui::dimensions-of self)
              "<unbound>"))
   (princ ", coordinates: ")
   (princ (if (slot-boundp self 'coordinates)
-             (wui::coordinates-of self)
+             (hu.dwim.wui::coordinates-of self)
              "<unbound>")))
 
 (def render :before coordinates-dependent-component-mixin ()
