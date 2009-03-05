@@ -128,16 +128,13 @@
                   (value-start (1+ colon-position))
                   (value-end (length line)))
              (declare (type array-index name-length value-start value-end))
-             ;; skip any leading space char in the header value
              (iter
-               (for start :upfrom value-start)
-               (while (< start value-end))
-               (for byte = (aref line start))
+               ;; skip leading space and tab chars in the header value
+               (while (< value-start value-end))
+               (for byte = (aref line value-start))
                (while (or (= +space+ byte)
                           (= +tab+ byte)))
-               (declare (type array-index start))
-               (incf start)
-               (finally (setf value-start (1- start))))
+               (incf value-start))
              (cons (subseq line 0 name-length)
                    (subseq line value-start value-end)))))
     (iter
