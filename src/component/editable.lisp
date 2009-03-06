@@ -118,10 +118,10 @@
     (call-in-component-environment component #'call-next-method)))
 
 (def method refresh-component :after ((self editable-component))
-  (map-editable-child-components self
-                                 (if (edited-p self)
-                                     'join-editing
-                                     'leave-editing)))
+  (if (edited-p self)
+      (join-editing self)
+      (leave-editing self)))
+
 ;;;;;;
 ;;; Commands
 
