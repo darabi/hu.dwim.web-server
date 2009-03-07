@@ -14,7 +14,8 @@
   (render-chart -self- "ampie"))
 
 (def (function e) make-pie-chart (&key title names values width height colors
-                                       (3d #f) (animation #f) (font-size 12))
+                                       (3d #f) (animation #f) (font-size 12) (label-format "{title}: {value} ({percents}%)")
+                                       (tooltip-format label-format))
   (make-instance 'pie-chart
                  :width width
                  :height height
@@ -45,14 +46,14 @@
                                                   <pull_out_effect "strong">
                                                   <pull_out_only_one "true">>)
                                             <data_labels
-                                             <show "{title}: {percents}%">
+                                             <show ,label-format>
                                              <line_color "#000000">
                                              <line_alpha 15>
                                              <hide_labels_percent 3>>
                                             <background
                                              <alpha "0">>
                                             <balloon
-                                             <show "{title}: {value} ({percents}%)">>
+                                             <show ,tooltip-format>>
                                             <legend
                                              <enabled "false">>
                                             ,(when title
