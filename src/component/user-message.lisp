@@ -96,7 +96,7 @@
          ,(when permanent
             (render (command (icon close :label nil)
                              (make-action
-                               (removef (messages-of (parent-component-of -self-)) -self-)))))
+                               (deletef (messages-of (parent-component-of -self-)) -self-)))))
          ,(render message)
          ,(when content
             (call-next-method))>
