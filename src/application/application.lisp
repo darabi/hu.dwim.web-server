@@ -502,8 +502,9 @@ Custom implementations should look something like this:
                 (block deleting-a-session
                   (handler-bind ((serious-condition
                                   (lambda (error)
-                                    (app.warn "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error)
-                                    (log-error-with-backtrace error)
+                                    (log-error-with-backtrace error :logger (find-logger 'app) :level +warn+
+                                                              :message (list "Could not delete expired/invalid session ~A of application ~A, got error ~A"
+                                                                             session application error))
                                     (return-from deleting-a-session))))
                     (delete-session application session)
                     (push session deleted-sessions))))))
@@ -511,8 +512,9 @@ Custom implementations should look something like this:
       (block noifying-a-session
         (handler-bind ((serious-condition
                         (lambda (error)
-                          (app.warn "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error)
-                          (log-error-with-backtrace error)
+                          (log-error-with-backtrace error :logger (find-logger 'app) :level +warn+
+                                                    :message (list "Error happened while notifying session ~A of application ~A about its exiration, got error ~A"
+                                                                   session application error))
                           (return-from noifying-a-session))))
           (with-lock-held-on-session (session)
             (notify-session-expiration application session)))))
@@ -520,8 +522,9 @@ Custom implementations should look something like this:
       (block purging-a-session
         (handler-bind ((serious-condition
                         (lambda (error)
-                          (app.warn "Error happened while purging frames of ~A of application ~A. Got error ~A" session application error)
-                          (log-error-with-backtrace error)
+                          (log-error-with-backtrace error :logger (find-logger 'app) :level +warn+
+                                                    :message (list "Error happened while purging frames of ~A of application ~A. Got error ~A"
+                                                                   session application error))
                           (return-from purging-a-session))))
           (with-lock-held-on-session (session)
             (purge-frames application session)))))

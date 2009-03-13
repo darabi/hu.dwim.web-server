@@ -25,6 +25,9 @@
                (handler-bind ((serious-condition #'level-2-error-handler))
                  (with-thread-name " / LEVEL-1-ERROR-HANDLER"
                    (cond
+                     ((typep error 'storage-condition)
+                      ;; on SBCL it includes control stack exhaustion, too
+                      (server.error "Got a STORAGE-CONDITION, bailing out as quickly as possible with crossed fingers..."))
                      ((null *request*)
                       (server.warn "Ignoring error coming from the request parsing code in the belief that it's an illegal request. Remote host: ~A, error: ~A" *request-remote-host* error))
                      ((is-error-from-client-stream? error client-stream)
@@ -41,8 +44,7 @@
                    (if (is-error-from-client-stream? error client-stream)
                        (server.debug "Ignoring stream error coming from the network stream: ~A" error)
                        (progn
-                         (server.error "Nested error while handling original error: ~A; the nested error is: ~A. Backtrace follows..." level-1-error error)
-                         (log-error-with-backtrace error)
+                         (log-error-with-backtrace error :message (list "Nested error while handling original error: ~A; the nested error is: ~A" level-1-error error))
                          (maybe-invoke-slime-debugger error)))
                    (abort-server-request error)
                    (error "Impossible code path in CALL-WITH-SERVER-ERROR-HANDLER / LEVEL-2-ERROR-HANDLER"))))
@@ -91,20 +93,6 @@
                 :report "Continue processing the error (and probably send an error page)"))
             (body)))
       (server.debug "No Swank connection, not debugging error: ~A" condition)))
-
-(def function log-error-with-backtrace (error)
-  (server.error "~%*** At: ~A~%*** In thread: ~A~%*** Error:~%~A~%*** Backtrace:~%~A"
-                (local-time:format-rfc3339-timestring nil (local-time:now))
-                (thread-name (current-thread))
-                error
-                (let ((backtrace (collect-backtrace error))
-                      (*print-pretty* #f))
-                  (with-output-to-string (str)
-                    (iter (for stack-frame :in backtrace)
-                          (for index :upfrom 0)
-                          (format str "~3,'0D: " index)
-                          (write-string (description-of stack-frame) str)
-                          (terpri str))))))
 
 (defmethod handle-toplevel-condition :before ((error serious-condition) broker)
   (maybe-invoke-slime-debugger error :context broker))
@@ -178,15 +166,126 @@
                  :source-location source-location
                  :local-variables local-variables))
 
-(defun collect-backtrace (condition &key (start 4) (end 500))
-  (let ((swank::*swank-debugger-condition* condition)
-        (swank::*buffer-package* *package*))
-    (swank-backend:call-with-debugging-environment
-     (lambda ()
-       (iter (for (index description) :in (swank:backtrace start end))
-             (collect (make-stack-frame description
-                                        (ignore-errors
-                                          (if (numberp index)
-                                              (swank-backend:frame-source-location-for-emacs index)
-                                              index))
-                                        (swank-backend:frame-locals index))))))))
+(def special-variable *error-log-decorators* ())
+
+(def (definer e :available-flags "eiod") error-log-decorator (name &body body)
+  `(def function ,name ()
+     ,@body))
+
+(def (macro e) error-log-decorator (&body body)
+  `(lambda ()
+     ,@body))
+
+(def (macro e) special-variable-printing-error-log-decorator (&rest variables)
+  `(lambda ()
+     (bind ((*package* (find-package "COMMON-LISP"))
+            (*print-right-margin* 150))
+       ,@(iter (for variable :in variables)
+               (collect `(format t ,(bind ((*package* (find-package "COMMON-LISP")))
+                                      (format nil "~~%~S: ~~A" variable))
+                                 (if (boundp ',variable)
+                                     ,variable
+                                     'unbound)))))))
+
+(def (macro e) with-error-log-decorator (decorator &body body)
+  `(bind ((*error-log-decorators* (cons ,(if (symbolp decorator)
+                                             `(quote ,decorator)
+                                             decorator)
+                                        *error-log-decorators*)))
+     ,@body))
+
+(def (function e) log-error-with-backtrace (error &key (logger (find-logger 'server)) (level +error+) message)
+  (handler-bind ((serious-condition
+                  (lambda (nested-error)
+                    (handler-bind ((serious-condition
+                                    (lambda (nested-error2)
+                                      (declare (ignore nested-error2))
+                                      (ignore-errors
+                                        (cl-yalog:handle-log-message logger
+                                                                     (list "Failed to log backtrace due to another nested error...")
+                                                                     '+error+)))))
+                      (cl-yalog:handle-log-message logger
+                                                   (list (format nil "Failed to log backtrace due to: ~A. The orignal error is: ~A" nested-error error))
+                                                   '+error+)))))
+    (setf logger (find-logger logger))
+    (when (cl-yalog::enabled-p logger level)
+      (bind ((log-line (with-output-to-string (*standard-output*)
+                         (format t "~%*** At: ~A" (local-time:format-rfc3339-timestring nil (local-time:now)))
+                         (when message
+                           (format t "~%*** Message:~%")
+                           (apply #'format t (ensure-list message)))
+                         (format t "~%*** In thread: ~A~%*** Error:~%~A~%*** Backtrace:~%" (thread-name (current-thread)) error)
+                         (bind ((backtrace (collect-backtrace))
+                                (*print-pretty* #f))
+                           (iter (for stack-frame :in backtrace)
+                                 (for index :upfrom 0)
+                                 (write-string stack-frame)
+                                 (terpri)))
+                         (when *error-log-decorators*
+                           (format t "~%*** Backtrace decorators:")
+                           (dolist (decorator *error-log-decorators*)
+                             (when (symbolp decorator)
+                               (bind ((*package* (find-package :keyword)))
+                                 (format t "~%~S:" decorator)))
+                             (funcall decorator)))
+                         (format t "~%*** End"))))
+        (cl-yalog:handle-log-message logger log-line (elt cl-yalog::+log-level-names+ level))))))
+
+#*((:sbcl (def special-variable *special-variables-to-print-with-backtrace* '())
+          (def special-variable *current-backtrace-special-variable-values*)
+
+          (def function %print-special-variables-for-frame ()
+            (with-output-to-string (stream)
+              (bind ((found-one? #f))
+                (dolist (var *special-variables-to-print-with-backtrace*)
+                  (bind (((:values previous-value found?) (gethash var *current-backtrace-special-variable-values*))
+                         (current-value (if (boundp var)
+                                            (symbol-value var)
+                                            'unbound)))
+                    (when (or (not found?)
+                              (not (eq previous-value current-value)))
+                      (setf (gethash var *current-backtrace-special-variable-values*) current-value)
+                      (unless found-one?
+                        (setf found-one? #t)
+                        (format stream "~%---- Special variables follow:"))
+                      (bind ((printed-value (or (ignore-errors
+                                                  (princ-to-string current-value))
+                                                "<error printing value>")))
+                        (format stream "~%---- ~S: ~A" var printed-value))))))))
+
+          (def function collect-backtrace (&key (start 4) (count sb-debug::*default-backtrace-size-limit*)
+                                                ((:verbosity sb-debug::*verbosity*) sb-debug::*verbosity*)
+                                                (print-frame-source (> sb-debug::*verbosity* 1))
+                                                &allow-other-keys)
+            (bind ((backtrace ())
+                   (*print-right-margin* most-positive-fixnum)
+                   (*print-level* 3)
+                   (*print-length* 10)
+                   (*current-backtrace-special-variable-values* (make-hash-table :test 'eq)))
+              (sb-debug::map-backtrace
+               (lambda (frame)
+                 (bind ((frame-as-string (with-output-to-string (stream)
+                                           (handler-case
+                                               (progn
+                                                 (sb-debug::print-frame-call frame stream :number #t
+                                                                             :print-frame-source print-frame-source)
+                                                 #+nil ; TODO eval-in-frame does not eval with the proper dynamic environment, so this is pretty useless for now
+                                                 (write-string (funcall (the function
+                                                                          (sb-di:preprocess-for-eval '(%print-special-variables-for-frame) (sb-di:frame-code-location frame)))
+                                                                        frame)
+                                                               stream))
+                                             (serious-condition (error)
+                                               ;; NOTE: the usage of ~S is important here to avoid calling
+                                               ;; any custom PRINT-OBJECT methods that may error again.
+                                               (format nil "<<< Error while printing frame: ~S >>>" error))))))
+                   (push frame-as-string backtrace)))
+               :start start :count count)
+              (nreversef backtrace)
+              backtrace)))
+
+   (t (defun collect-backtrace (&key (start 4) (count 500) &allow-other-keys)
+        (bind ((swank::*buffer-package* *package*))
+          (swank-backend:call-with-debugging-environment
+           (lambda ()
+             (iter (for (index description) :in (swank:backtrace start (+ start count)))
+                   (collect (format nil "~3,'0D: ~A" index description)))))))))

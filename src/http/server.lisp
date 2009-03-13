@@ -319,26 +319,26 @@
            (*response* nil)
            (*request-remote-host* nil)
            (*request-id* nil))
-      (restart-case
-          (unwind-protect-case (interrupted)
-              (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
-                (call-with-server-error-handler #'serve-one-request
-                                                stream-socket
-                                                #'handle-request-error)
-                (server.dribble "Worker ~A finished processing a request, closing the socket now" worker))
-            (:always
-             (block nil
-               (call-with-server-error-handler (lambda ()
-                                                 (close stream-socket))
-                                               stream-socket
-                                               (lambda (error)
-                                                 (server.error "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block. Backtrace follows..." (if interrupted "unwinding" "normally exiting"))
-                                                 (log-error-with-backtrace error)
-                                                 (return))))))
-        (abort-server-request ()
-          :report (lambda (stream)
-                    (format stream "~@<Abort processing request ~A by simply closing the network socket~@:>" *request-id*))
-          (values))))))
+      (with-error-log-decorator (special-variable-printing-error-log-decorator *request-remote-host* *request-id*)
+        (restart-case
+            (unwind-protect-case (interrupted)
+                (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
+                  (call-with-server-error-handler #'serve-one-request
+                                                  stream-socket
+                                                  #'handle-request-error)
+                  (server.dribble "Worker ~A finished processing a request, closing the socket now" worker))
+              (:always
+               (block nil
+                 (call-with-server-error-handler (lambda ()
+                                                   (close stream-socket))
+                                                 stream-socket
+                                                 (lambda (error)
+                                                   (log-error-with-backtrace error :message (list "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block." (if interrupted "unwinding" "normally exiting")))
+                                                   (return))))))
+          (abort-server-request ()
+            :report (lambda (stream)
+                      (format stream "~@<Abort processing request ~A by simply closing the network socket~@:>" *request-id*))
+            (values)))))))
 
 (def function store-response (response)
   (assert (boundp '*response*))

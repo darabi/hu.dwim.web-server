@@ -79,9 +79,15 @@
                   :content (progn ,@content)))
 
 (def component-environment coordinates-provider
-  (bind (((:read-only-slots dimensions coordinates) -self-))
-    (prc:with-coordinates dimensions (force coordinates)
-      (call-next-method))))
+  (bind ((dimensions (dimensions-of -self-))
+         (coordinates (force (coordinates-of -self-))))
+    (prc:with-coordinates dimensions coordinates
+      (with-error-log-decorator (error-log-decorator
+                                  (format t "~%The environment of the coordinates-provider ~A follows:" -self-)
+                                  (iter (for dimension :in dimensions)
+                                        (for coordinate :in coordinates)
+                                        (format t "~%  ~S: ~@<~A~:>" (cl-perec:name-of dimension) coordinate)))
+        (call-next-method)))))
 
 ;;;;;;
 ;;; Coordinates dependent component mixin
