@@ -81,7 +81,7 @@
 (def component-environment coordinates-provider
   (bind ((dimensions (dimensions-of -self-))
          (coordinates (force (coordinates-of -self-))))
-    (prc:with-coordinates dimensions coordinates
+    (cl-perec:with-coordinates dimensions coordinates
       (with-error-log-decorator (error-log-decorator
                                   (format t "~%The environment of the coordinates-provider ~A follows:" -self-)
                                   (iter (for dimension :in dimensions)
@@ -104,11 +104,11 @@
 (def (function e) print-object/coordinates-dependent-component-mixin (self)
   (princ "dimensions: ")
   (princ (if (slot-boundp self 'dimensions)
-             (hu.dwim.wui::dimensions-of self)
+             (dimensions-of self)
              "<unbound>"))
   (princ ", coordinates: ")
   (princ (if (slot-boundp self 'coordinates)
-             (hu.dwim.wui::coordinates-of self)
+             (coordinates-of self)
              "<unbound>")))
 
 (def render :before coordinates-dependent-component-mixin ()

@@ -606,7 +606,7 @@ Custom implementations should look something like this:
       (%call-with-restored-component-environment path))))
 
 (def (macro e) with-restored-component-environment (component &body forms)
-  `(call-with-restored-component-environment ,component (lambda () ,@forms)))
+  `(call-with-restored-component-environment ,component (named-lambda with-restored-component-environment-body () ,@forms)))
 
 (def (generic e) call-in-rendering-environment (application session thunk)
   (:method (application session thunk)

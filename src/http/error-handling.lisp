@@ -228,7 +228,7 @@
                                (bind ((*package* (find-package :keyword)))
                                  (format t "~%~S:" decorator)))
                              (funcall decorator)))
-                         (format t "~%*** End"))))
+                         (format t "~%*** End of error details"))))
         (cl-yalog:handle-log-message logger log-line (elt cl-yalog::+log-level-names+ level))))))
 
 #*((:sbcl (def special-variable *special-variables-to-print-with-backtrace* '())

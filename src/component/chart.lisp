@@ -33,6 +33,8 @@
                                                   (funcall (data-provider-of component))))))
            (.write variable ,id)))))
 
+;; TODO add two variants instead of this: one that builds up the xml at creation time and serves the constant
+;; and another one that delays and runs the xml building each time the request is served. 
 (def macro make-xml-provider (&body forms)
   `(lambda ()
      (emit-http-response (("Content-Type" +xml-mime-type+))

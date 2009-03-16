@@ -155,10 +155,76 @@
 (def (constant :test 'equal) +timestamp-format+ '((:year 4) #\- (:month 2) #\- (:day 2) #\ 
                                                   (:hour 2) #\: (:min 2) #\: (:sec 2)))
 
-(def (function e) localized-timestamp (timestamp)
+(def (function e) localized-timestamp (timestamp &key verbosity (relative-mode #f) display-day-of-week)
+  (declare (ignore verbosity relative-mode display-day-of-week))
   ;; TODO many
-  (local-time:format-timestring nil timestamp :format +timestamp-format+))
+  (local-time:format-timestring nil timestamp :format +timestamp-format+)
+  ;; TODO (cl-l10n:format-timestamp nil timestamp)
+  )
 
+#+nil ;; TODO port this old localized-timestamp that supports relative mode
+(defun localized-timestamp (local-time &key
+                           (relative-mode nil)
+                           (display-day-of-week nil display-day-of-week-provided?))
+  "DWIMish timestamp printer. RELATIVE-MODE requests printing human friendly dates based on (NOW)."
+  (setf local-time (local-time:adjust-local-time local-time (set :timezone ucw:*client-timezone*)))
+  (bind ((*print-pretty* nil)
+         (*print-circle* nil)
+         (cl-l10n::*time-zone* nil)
+         (now (local-time:now)))
+    (with-output-to-string (stream)
+      (with-decoded-local-time (:year year1 :month month1 :day day1 :day-of-week day-of-week1) now
+        (with-decoded-local-time (:year year2 :month month2 :day day2) local-time
+          (bind ((year-distance (abs (- year1 year2)))
+                 (month-distance (abs (- month1 month2)))
+                 (day-distance (- day2 day1))
+                 (day-of-week-already-encoded? nil)
+                 (day-of-week-should-be-encoded? (or display-day-of-week
+                                                     (and relative-mode
+                                                          (zerop year-distance)
+                                                          (zerop month-distance)
+                                                          (< (abs day-distance) 7))))
+                 (format-string/date (if (and relative-mode
+                                              (zerop year-distance))
+                                         (if (zerop month-distance)
+                                             (cond
+                                               ((<= -1 day-distance 1)
+                                                (setf day-of-week-already-encoded? t)
+                                                (setf day-of-week-should-be-encoded? nil)
+                                                (case day-distance
+                                                  (0  #"today")
+                                                  (-1 #"yesterday")
+                                                  (1  #"tomorrow")))
+                                               (t
+                                                ;; if we are within the current week
+                                                ;; then print only the name of the day.
+                                                (if (and (< (abs day-distance) 7)
+                                                         (<= 1 ; but sunday can be a potential source of confusion
+                                                             (+ day-of-week1
+                                                                day-distance)
+                                                             6))
+                                                    (progn
+                                                      (setf day-of-week-already-encoded? t)
+                                                      "%A")
+                                                    (progn
+                                                      (setf day-of-week-should-be-encoded? nil)
+                                                      "%b. %e."))))
+                                             "%b. %e.")
+                                         "%Y. %b. %e."))
+                 (format-string (concatenate 'string
+                                             format-string/date
+                                             (if (or day-of-week-already-encoded?
+                                                     (not day-of-week-should-be-encoded?)
+                                                     (and display-day-of-week-provided?
+                                                          (not display-day-of-week)))
+                                                 ""
+                                                 " %A")
+                                             " %H:%M:%S")))
+            (cl-l10n::print-time-string format-string stream
+                                        (local-time:universal-time
+                                         (local-time:adjust-local-time! local-time
+                                           (set :timezone local-time:*default-timezone*)))
+                                        (current-locale))))))))
 
 ;;;;;;
 ;;; utilities
