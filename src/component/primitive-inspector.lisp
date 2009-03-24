@@ -155,9 +155,9 @@
   (if (edited-p -self-)
       (render-member-component -self-)
       (bind ((icon (find-member-component-value-icon -self-)))
-        (when icon
-          (render-icon :icon icon :label nil :tooltip nil))
-        `xml,(print-component-value -self-))))
+        (if icon
+            (render-icon :icon icon :label (print-component-value -self-) :tooltip nil)
+            `xml,(print-component-value -self-)))))
 
 ;;;;;;
 ;;; HTML inspector
