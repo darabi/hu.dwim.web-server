@@ -194,42 +194,62 @@
                                         *error-log-decorators*)))
      ,@body))
 
+(def with-macro with-backtrace-bindings ()
+  (bind ((rlist (reverse `((*print-pretty*           . #t)
+                           (*print-level*            . 3)
+                           (*print-length*           . 10)
+                           (*print-circle*           . #t)
+                           (*print-readably*         . #f)
+                           (*print-pprint-dispatch*  . ,(copy-pprint-dispatch nil))
+                           (*print-gensym*           . #t)
+                           (*print-base*             . 10)
+                           (*print-radix*            . #f)
+                           (*print-array*            . #t)
+                           (*print-lines*            . 10)
+                           (*print-escape*           . #t)
+                           (*print-right-margin*     . ,most-positive-fixnum))))
+         (vars (mapcar #'car rlist))
+         (vals (mapcar #'cdr rlist)))
+    (progv vars vals
+      (-body-))))
+
 (def (function e) log-error-with-backtrace (error &key (logger (find-logger 'server)) (level +error+) message)
-  (handler-bind ((serious-condition
-                  (lambda (nested-error)
-                    (handler-bind ((serious-condition
-                                    (lambda (nested-error2)
-                                      (declare (ignore nested-error2))
-                                      (ignore-errors
-                                        (cl-yalog:handle-log-message logger
-                                                                     (list "Failed to log backtrace due to another nested error...")
-                                                                     '+error+)))))
-                      (cl-yalog:handle-log-message logger
-                                                   (list (format nil "Failed to log backtrace due to: ~A. The orignal error is: ~A" nested-error error))
-                                                   '+error+)))))
-    (setf logger (find-logger logger))
-    (when (cl-yalog::enabled-p logger level)
-      (bind ((log-line (with-output-to-string (*standard-output*)
-                         (format t "~%*** At: ~A" (local-time:format-rfc3339-timestring nil (local-time:now)))
-                         (when message
-                           (format t "~%*** Message:~%")
-                           (apply #'format t (ensure-list message)))
-                         (format t "~%*** In thread: ~A~%*** Error:~%~A~%*** Backtrace:~%" (thread-name (current-thread)) error)
-                         (bind ((backtrace (collect-backtrace))
-                                (*print-pretty* #f))
-                           (iter (for stack-frame :in backtrace)
-                                 (for index :upfrom 0)
-                                 (write-string stack-frame)
-                                 (terpri)))
-                         (when *error-log-decorators*
-                           (format t "~%*** Backtrace decorators:")
-                           (dolist (decorator *error-log-decorators*)
-                             (when (symbolp decorator)
-                               (bind ((*package* (find-package :keyword)))
-                                 (format t "~%~S:" decorator)))
-                             (funcall decorator)))
-                         (format t "~%*** End of error details"))))
-        (cl-yalog:handle-log-message logger log-line (elt cl-yalog::+log-level-names+ level))))))
+  (with-backtrace-bindings
+    (handler-bind ((serious-condition
+                    (lambda (nested-error)
+                      (handler-bind ((serious-condition
+                                      (lambda (nested-error2)
+                                        (declare (ignore nested-error2))
+                                        (ignore-errors
+                                          (cl-yalog:handle-log-message logger
+                                                                       (list "Failed to log backtrace due to another nested error...")
+                                                                       '+error+)))))
+                        (cl-yalog:handle-log-message logger
+                                                     (list (format nil "Failed to log backtrace due to: ~A. The orignal error is: ~A" nested-error error))
+                                                     '+error+)))))
+      (setf logger (find-logger logger))
+      (when (cl-yalog::enabled-p logger level)
+        (bind ((log-line (with-output-to-string (*standard-output*)
+                           (format t "~%*** At: ~A" (local-time:format-rfc3339-timestring nil (local-time:now)))
+                           (when message
+                             (format t "~%*** Message:~%")
+                             (apply #'format t (ensure-list message)))
+                           (format t "~%*** In thread: ~A~%*** Error:~%~A~%*** Backtrace:~%" (thread-name (current-thread)) error)
+                           (bind ((backtrace (collect-backtrace))
+                                  (*print-pretty* #f))
+                             (iter (for stack-frame :in backtrace)
+                                   (for index :upfrom 0)
+                                   (write-string stack-frame)
+                                   (terpri)))
+                           (when *error-log-decorators*
+                             (format t "~%*** Backtrace decorators:")
+                             (dolist (decorator *error-log-decorators*)
+                               (when (symbolp decorator)
+                                 (bind ((*package* (find-package :keyword)))
+                                   (format t "~%~S:" decorator)))
+                               (funcall decorator)))
+                           (format t "~%*** End of error details"))))
+          (cl-yalog:handle-log-message logger log-line (elt cl-yalog::+log-level-names+ level)))))))
 
 #*((:sbcl (def special-variable *special-variables-to-print-with-backtrace* '())
           (def special-variable *current-backtrace-special-variable-values*)
@@ -258,9 +278,6 @@
                                                 (print-frame-source (> sb-debug::*verbosity* 1))
                                                 &allow-other-keys)
             (bind ((backtrace ())
-                   (*print-right-margin* most-positive-fixnum)
-                   (*print-level* 3)
-                   (*print-length* 10)
                    (*current-backtrace-special-variable-values* (make-hash-table :test 'eq)))
               (sb-debug::map-backtrace
                (lambda (frame)
