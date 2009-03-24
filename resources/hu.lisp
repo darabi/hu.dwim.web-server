@@ -17,6 +17,8 @@
 ;;; Error handling
 (def resources hu
   (error.internal-server-error "Ismeretlen eredetű hiba")
+  (error.access-denied-error "Hozzáférés megtagadva")
+
   (render-internal-error-page (&key admin-email-address &allow-other-keys)
     <div
      <h1 "Programhiba">
@@ -28,12 +30,18 @@
            " email címen megteheti.">)
      <p <a (:href `js-inline(history.go -1)) "Vissza">>>)
 
-  (error.access-denied-error "Hozzáférés megtagadva")
   (render-access-denied-error-page (&key &allow-other-keys)
     <div
      <h1 "Hozzáférés megtagadva">
      <p "Nincs joga a kívánt oldal megtekintéséhez.">
-     <p <a (:href `js-inline(history.go -1)) "Vissza">>>))
+     <p <a (:href `js-inline(history.go -1)) "Vissza">>>)
+
+  (render-failed-to-load-page (&key &allow-other-keys)
+    <div (:id ,+page-failed-to-load-id+)
+     <h1 "Gyanúsan sokáig tart az oldal betöltése...">
+     <p "Sajnos egyes böngészők néha összezavarodnak az oldal betöltése közben. Próbálja meg "
+        <a (:href "#" :onclick "return _wui_handleFailedToLoad()") "újratölteni az oldalt">
+        ", és ha az többszöri próbálkozásra sem segít, akkor törölje a böngésző gyorsítótárát.">>))
 
 ;;; Context sensitive help
 (def resources hu

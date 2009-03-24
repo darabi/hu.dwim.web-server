@@ -17,12 +17,20 @@
 ;;; Error handling
 (def resources en
   (error.internal-server-error "Internal server error")
+  (error.access-denied-error "Access denied")
+
   (render-internal-error-page (&rest args &key &allow-other-keys)
     (apply 'render-internal-error-page/english args))
 
-  (error.access-denied-error "Access denied")
   (render-access-denied-error-page (&rest args &key &allow-other-keys)
-    (apply 'render-access-denied-error-page/english args)))
+    (apply 'render-access-denied-error-page/english args))
+
+  (render-failed-to-load-page (&key &allow-other-keys)
+    <div (:id ,+page-failed-to-load-id+)
+     <h1 "It takes suspiciously long time to load the page...">
+     <p "Unfortunately certain browsers get confused when loading the page. Try to "
+        <a (:href "#" :onclick "_wui_handleFailedToLoad()") "reload the page">
+        ", and if it doesn't help, then clear the browser cache.">>))
 
 ;;; Context sensitive help
 (def resources en

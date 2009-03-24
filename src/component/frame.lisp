@@ -13,8 +13,10 @@
 
 (def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
 
-(def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
+(def (constant e :test 'string=) +page-failed-to-load-id+ "_failed-to-load")
+(def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 5000)
 
+(def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
 (def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
 
 (def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
@@ -129,12 +131,28 @@
                     :value ,(first (ensure-list (parameter-value +scroll-x-parameter-name+))))>
             <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
+          ,(render-failed-to-load-page)
+          `js(progn
+               ;; don't use any non-standard js stuff here, because if things go wrong then nothing is guaranteed to be loaded...
+               (defun _wui_handleFailedToLoad ()
+                 (setf document.location.href document.location.href)
+                 (return false))
+               (bind ((failed-page (document.getElementById ,+page-failed-to-load-id+)))
+                 (setf failed-page.style.display "none")
+                 (setf document._wui_failed-to-load-timer (setTimeout (lambda ()
+                                                                        ;; if things go wrong, at least have a timer that brings stuff back in the view
+                                                                        (setf document.body.style.margin "0px")
+                                                                        (setf failed-page.style.display ""))
+                                                                      ,+page-failed-to-load-grace-period-in-millisecs+))))
           ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
                (render (content-of -self-)))
-             ;; KLUDGE: this must be done after all widgets are loaded
              `js(on-load
-                 (setf (slot-value (slot-value (slot-value document 'body) 'style) 'margin-left) "0px")))>>>))
+                 (log.debug "Clearing the failed to load timer")
+                 (clearTimeout document._wui_failed-to-load-timer)
+                 ;; KLUDGE: this should be done after, not only the page, but all widgets are loaded
+                 (log.debug "Clearing the margin -10000px hackery")
+                 (dojo.style document.body "margin" "0px")))>>>))
 
 (def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'frame-component ,@args :content ,(the-only-element content)))
