@@ -21,15 +21,27 @@
 
 (def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
 
+(def (special-variable e) *dojo-skin-name* "tundra")
+(def (special-variable e) *dojo-file-name* "dojo.js")
+(def (special-variable e) *dojo-directory-name* "dojo/")
+
+(def function find-latest-dojo-directory-name (wwwroot-directory)
+  (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
+                                           (mapcar [last-elt (pathname-directory !1)]
+                                                   (cl-fad:list-directory wwwroot-directory)))
+                                #'string>=))))
+    (assert dojo-dir () "Seems like there's not any dojo directory in ~S. Hint: see wui/etc/build-dojo.sh" wwwroot-directory)
+    (concatenate-string dojo-dir "/")))
+
 (def component frame-component (top-component layer-context-capturing-component-mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
    (script-uris nil)
    (page-icon nil)
    (title nil)
-   (dojo-skin-name "tundra")
-   (dojo-path "static/dojo/dojo/")
-   (dojo-file-name "dojo.js")
+   (dojo-skin-name *dojo-skin-name*)
+   (dojo-release-uri (parse-uri (concatenate-string "static/" *dojo-directory-name* "dojo/")))
+   (dojo-file-name *dojo-file-name*)
    (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
    (debug-client-side (not *load-as-production-p*) :type boolean :accessor debug-client-side? :export :accessor)))
 
@@ -80,11 +92,13 @@
                    (to-js-literal (default-locale-of application)))>
         ;; TODO find out a nice way to get to the dojo.js file and append-file-write-date-to-uri
         <script (:type         #.+javascript-mime-type+
-                 :src          ,(concatenate-string path-prefix
-                                                    (dojo-path-of -self-)
-                                                    (dojo-file-name-of -self-)
-                                                    (when debug-client-side?
-                                                      ".uncompressed.js")))
+                 :src          ,(bind ((dojo-release-uri (dojo-release-uri-of -self-)))
+                                  (concatenate-string (unless (host-of dojo-release-uri)
+                                                        path-prefix)
+                                                      (print-uri-to-string dojo-release-uri)
+                                                      (dojo-file-name-of -self-)
+                                                      (when debug-client-side?
+                                                        ".uncompressed.js"))))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">
         ,(foreach (lambda (el)
