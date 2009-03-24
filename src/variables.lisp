@@ -82,6 +82,9 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (def special-variable *debug-on-error* (not *load-as-production-p*)
   "The default, system wide, value for debug-on-error. Applications may override this.")
 
+(def special-variable *debug-client-side* (not *load-as-production-p*)
+  "The default, system wide, value for the debug-client-side slots of frames.")
+
 (def (special-variable e) *directory-for-temporary-files* "/tmp/"
   "Used for file uploads, too.")
 

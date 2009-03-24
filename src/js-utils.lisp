@@ -14,7 +14,7 @@
              `(def js-macro ,(symbolicate "log." name) (&rest args)
                 (when (if (boundp '*application*)
                           (compile-time-debug-client-side? *application*)
-                          (not *load-as-production-p*))
+                          *debug-client-side*)
                  (list* ',(symbolicate "window.console." name) args)))))
   (forward |debug|)
   (forward |info|)
