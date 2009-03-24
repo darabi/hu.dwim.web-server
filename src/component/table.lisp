@@ -152,7 +152,7 @@
 
   (:method ((table table-component) (row row-component) (column column-component) (cell string))
     <td ,(render cell)>)
-  
+
   (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
     (render cell)))
 

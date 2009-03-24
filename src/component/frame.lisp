@@ -8,9 +8,7 @@
 ;;; Frame
 
 (def (constant e :test 'string=) +scroll-x-parameter-name+ "_sx")
-
 (def (constant e :test 'string=) +scroll-y-parameter-name+ "_sy")
-
 (def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
 
 (def (constant e :test 'string=) +page-failed-to-load-id+ "_failed-to-load")
@@ -18,9 +16,7 @@
 
 (def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
 (def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
-
 (def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
-
 (def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
 
 (def (special-variable e) *dojo-skin-name* "tundra")
@@ -47,7 +43,6 @@
    (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
    (debug-client-side *debug-client-side* :type boolean :accessor debug-client-side? :export :accessor)))
 
-;; TODO support appending an &timestamp=12345678 to the urls to allow longer expires header and faster following of updates?
 (def render frame-component ()
   (bind ((application *application*)
          (path-prefix (path-prefix-of application))
@@ -92,7 +87,6 @@
                    (to-js-boolean (parse-dojo-widgets-on-load? -self-))
                    (to-js-boolean debug-client-side?)
                    (to-js-literal (default-locale-of application)))>
-        ;; TODO find out a nice way to get to the dojo.js file and append-file-write-date-to-uri
         <script (:type         #.+javascript-mime-type+
                  :src          ,(bind ((dojo-release-uri (dojo-release-uri-of -self-)))
                                   (concatenate-string (unless (host-of dojo-release-uri)
@@ -118,7 +112,7 @@
             (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
             (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
             (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
-        ;; NOTE: if there's javascript turned on just reload without parameter (this might be true after enabling it and pressing refresh)
+        ;; NOTE: if javascript is turned on in the browser, then just reload without the marker parameter (this might be true after enabling it and pressing refresh)
         ,(when no-javascript?
            (bind ((href (print-uri-to-string (clone-request-uri :strip-query-parameters (list +no-javascript-error-parameter-name+)))))
              `js(setf window.location.href ,href)))
