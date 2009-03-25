@@ -266,3 +266,23 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
     +http-service-unavailable+             503 "Service Unavailable"
     +http-gateway-time-out+                504 "Gateway Time-out"
     +http-version-not-supported+           505 "Version not supported"))
+
+;;;
+;;; Stuff needed for applications and components
+;;;
+
+(def (constant e :test 'string=) +scroll-x-parameter-name+ "_sx")
+(def (constant e :test 'string=) +scroll-y-parameter-name+ "_sy")
+(def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
+
+(def (constant e :test 'string=) +page-failed-to-load-id+ "_failed-to-load")
+(def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 5000)
+
+(def (special-variable e) *dojo-skin-name* "tundra")
+(def (special-variable e) *dojo-file-name* "dojo.js")
+(def (special-variable e) *dojo-directory-name* "dojo/")
+
+(def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
+(def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
+(def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
+(def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
