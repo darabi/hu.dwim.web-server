@@ -82,12 +82,28 @@
                   (script-uris-of -self-))>
       <body (:class ,(dojo-skin-name-of -self-)
              :style ,(unless no-javascript? "margin-left: -10000px;"))
-        `js(on-load
-            ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
-            (wui.reset-scroll-position "content")
-            (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
-            (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
-            (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) "")))
+        ,(render-failed-to-load-page)
+        `js(progn
+             ;; don't use any non-standard js stuff for the failed-to-load machinery, because if things go wrong then nothing is guaranteed to be loaded...
+             (defun _wui_handleFailedToLoad ()
+               (setf document.location.href document.location.href)
+               (return false))
+             (bind ((failed-page (document.getElementById ,+page-failed-to-load-id+)))
+               (setf failed-page.style.display "none")
+               (setf document._wui_failed-to-load-timer (setTimeout (lambda ()
+                                                                      ;; if things go wrong, at least have a timer that brings stuff back in the view
+                                                                      (setf document.body.style.margin "0px")
+                                                                      (dolist (child document.body.childNodes)
+                                                                        (when child.style
+                                                                          (setf child.style.display "none")))
+                                                                      (setf failed-page.style.display ""))
+                                                                    ,+page-failed-to-load-grace-period-in-millisecs+)))
+             (on-load
+              ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
+              (wui.reset-scroll-position "content")
+              (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
+              (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
+              (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) ""))))
         ;; NOTE: if javascript is turned on in the browser, then just reload without the marker parameter (this might be true after enabling it and pressing refresh)
         ,(when no-javascript?
            (bind ((href (print-uri-to-string (clone-request-uri :strip-query-parameters (list +no-javascript-error-parameter-name+)))))
@@ -101,19 +117,6 @@
                     :value ,(first (ensure-list (parameter-value +scroll-x-parameter-name+))))>
             <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
-          ,(render-failed-to-load-page)
-          `js(progn
-               ;; don't use any non-standard js stuff here, because if things go wrong then nothing is guaranteed to be loaded...
-               (defun _wui_handleFailedToLoad ()
-                 (setf document.location.href document.location.href)
-                 (return false))
-               (bind ((failed-page (document.getElementById ,+page-failed-to-load-id+)))
-                 (setf failed-page.style.display "none")
-                 (setf document._wui_failed-to-load-timer (setTimeout (lambda ()
-                                                                        ;; if things go wrong, at least have a timer that brings stuff back in the view
-                                                                        (setf document.body.style.margin "0px")
-                                                                        (setf failed-page.style.display ""))
-                                                                      ,+page-failed-to-load-grace-period-in-millisecs+))))
           ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
                (render (content-of -self-)))

@@ -90,3 +90,24 @@ div.list.vertical > div
 {
   text-decoration: underline;
 }
+
+/*
+  failed to load help
+*/
+
+/* KLUDGE: _failed-to-load is the value of +page-failed-to-load-id+ */
+#_failed-to-load
+{
+  margin: 1em;
+}
+
+#_failed-to-load a
+{
+  font-size: x-large;
+  text-decoration: underline;
+}
+
+#_failed-to-load h1
+{
+  margin: 1em;
+}
