@@ -59,29 +59,3 @@
         (abort-server-request error))
       (call-next-method)))
 
-(def function render-application-internal-error-page/english (back-command &key admin-email-address &allow-other-keys)
-  <div
-   <h1 "Internal server error">
-   <p "An internal server error has occured, we are sorry for the inconvenience.">
-   ,(when admin-email-address
-          <p "You may contact the administrators at this email address: "
-             <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>>)
-   <p ,(render back-command)>>)
-
-(def resources en
-  (error.internal-server-error "Internal server error")
-  (render-application-internal-error-page (back-command &rest args &key &allow-other-keys)
-    (apply 'render-application-internal-error-page/english back-command args)))
-
-(def resources hu
-  (error.internal-server-error "Programhiba")
-  (render-application-internal-error-page (back-command &key admin-email-address &allow-other-keys)
-    <div
-     <h1 "Programhiba">
-     <p "Váratlan hiba történt az előző művelet végrehajtása közben. Elnézést kérünk az esetleges kellemetlenségért!">
-     <p "A hibáról értesülni fognak a fejlesztők és várhatóan a közeljövőben javítják azt.">
-     ,(when admin-email-address
-        <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
-           <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
-           " email címen megteheti.">)
-     <p ,(render back-command)>>))

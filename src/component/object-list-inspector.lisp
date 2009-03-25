@@ -194,17 +194,6 @@
 (def layered-method render-title ((self standard-object-list-table-inspector))
   (standard-object-list-table-inspector.title (slot-value self 'class)))
 
-(def resources en
-  (standard-object-list-table-inspector.title (class)
-    `xml,"Viewing instances of " (render class))
-  (object-list-table.column.commands "")
-  (object-list-table.column.type "Type"))
-
-(def resources hu
-  (standard-object-list-table-inspector.title (class)
-    `xml,"Egy " (render class) `xml," lista megjelenítése")
-  (object-list-table.column.commands "")
-  (object-list-table.column.type "Típus"))
 
 ;;;;;;
 ;;; Standard object row inspector

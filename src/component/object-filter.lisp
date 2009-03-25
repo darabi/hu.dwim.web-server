@@ -135,17 +135,6 @@
 (def layered-method render-title ((self standard-object-detail-filter))
   (standard-object-detail-filter.title (slot-value self 'class)))
 
-(def resources en
-  (standard-object-detail-filter.title (class)
-    `xml,"Searching for instances of" (render class))
-  (standard-object-detail-filter.class-selector-label "Class")
-  (standard-object-detail-filter.ordering-specifier-label "Ordering"))
-
-(def resources hu
-  (standard-object-detail-filter.title (class)
-    (render class) `xml," keresése")
-  (standard-object-detail-filter.class-selector-label "Típus")
-  (standard-object-detail-filter.ordering-specifier-label "Rendezés"))
 
 ;;;;;;
 ;;; Standard object slot value group filter

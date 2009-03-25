@@ -19,8 +19,15 @@
 
 (def resource-loading-locale-loaded-listener wui-resource-loader (project-relative-pathname "resources/")
   :log-discriminator "WUI")
-
 (register-locale-loaded-listener 'wui-resource-loader)
+
+(def resource-loading-locale-loaded-listener wui-resource-loader/application (project-relative-pathname "resources/application/")
+  :log-discriminator "WUI")
+(register-locale-loaded-listener 'wui-resource-loader/application)
+
+(def resource-loading-locale-loaded-listener wui-resource-loader/component (project-relative-pathname "resources/component/")
+  :log-discriminator "WUI")
+(register-locale-loaded-listener 'wui-resource-loader/component)
 
 ;;;;;;
 ;;; localization primitives

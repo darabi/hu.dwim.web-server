@@ -132,7 +132,7 @@
                  (:module "application"
                   :serial t
                   :depends-on ("dojo")
-                  :components ((:file "resources")
+                  :components ((:file "utils")
                                (:file "session")
                                (:file "frame")
                                (:file "application")

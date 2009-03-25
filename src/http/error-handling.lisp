@@ -145,12 +145,6 @@
         (server.info "Access denied for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
   (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the access denied error by sending an error page"))
 
-(def function render-access-denied-error-page/english (&key &allow-other-keys)
-  <div
-   <h1 "Access denied">
-   <p "You have no permission to access the requested resource.">
-   <p <a (:href `js-inline(history.go -1)) "Go back">>>)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Backtrace extraction

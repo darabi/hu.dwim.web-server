@@ -131,13 +131,6 @@
 (def layered-method render-title ((self standard-object-detail-inspector))
   (standard-object-detail-inspector.title (slot-value self 'class)))
 
-(def resources en
-  (standard-object-detail-inspector.title (class)
-    `xml,"Viewing an instance of " (render class)))
-
-(def resources hu
-  (standard-object-detail-inspector.title (class)
-    `xml,"Egy " (render class) `xml," megjelenítése"))
 
 ;;;;;;
 ;;; Standard object slot value group inspector

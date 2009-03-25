@@ -159,17 +159,6 @@
   (:method ((component standard-object-tree-table-inspector) (class standard-class) instance)
     (class-slots class)))
 
-(def resources hu
-  (standard-object-tree-table-inspector.title (class)
-    `xml,"Egy " (render class) `xml," fa megjelenítése")
-  (object-tree-table.column.commands "")
-  (object-tree-table.column.type "Típus"))
-
-(def resources en
-  (standard-object-tree-table-inspector.title (class)
-    `xml,"Viewing a tree of " (render class))
-  (object-tree-table.column.commands "")
-  (object-tree-table.column.type "Type"))
 
 ;;;;;;
 ;;; Standard object node inspector
@@ -393,13 +382,6 @@
 (def layered-method render-title ((self selectable-standard-object-tree-table-inspector))
   (selectable-standard-object-tree-table-inspector.title (slot-value self 'class)))
 
-(def resources en
-  (selectable-standard-object-tree-table-inspector.title (class)
-    `xml,"Selecting an instance of " (render class)))
-
-(def resources hu
-  (selectable-standard-object-tree-table-inspector.title (class)
-    `xml,"Egy " (render class) `xml," kiválasztása"))
 
 ;;;;;;
 ;;; Selectable standard object tree node inspector
