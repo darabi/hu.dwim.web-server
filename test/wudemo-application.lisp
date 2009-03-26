@@ -38,7 +38,9 @@
   (make-instance 'wudemo-application
                  :path-prefix "/"
                  :home-package (find-package :wui-test)
-                 :default-locale "en"))
+                 :default-locale "en"
+                 ;; force ajax eanbled regardless *default-ajax-enabled*
+                 :ajax-enabled t))
 
 ;;;;;;
 ;;; Test classes
@@ -178,26 +180,16 @@
         <span (:id ,id
                :dojoType #.+dijit/inline-edit-box+
                :autoSave false
-               :onChange `js-inline*(wui.io.xhr-post
-                                     (create
-                                      :content (create :example-inline-edit-box-value (aref arguments 0))
-                                      :url ,(action/href (:delayed-content #t)
-                                                         (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
-                                                           (setf (example-inline-edit-box-value-of *session*) value))
-                                                         ;; TODO this is, well, proof-of-concept quality for now...
-                                                         (make-do-nothing-response))
-                                      :load (lambda (response args)))))
-          ,(example-inline-edit-box-value-of *session*)>)
-#|
-      ,(render-dojo-widget (id)
-         <span (:id ,id
-                :dojoType #.+dijit/inline-edit-box+
-                :autoSave false
-                :onChange ,(js-to-lisp-rpc
-                            (setf (example-inline-edit-box-value-of *session*) (aref |arguments| 0))))
-           ,(example-inline-edit-box-value-of *session*)>)
-|#
-      >))
+               :onChange `js(wui.io.xhr-post
+                             (create
+                              :content (create :example-inline-edit-box-value (aref arguments 0))
+                              :url ,(action/href (:delayed-content #t)
+                                      (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
+                                        (setf (example-inline-edit-box-value-of *session*) value))
+                                      ;; TODO this is, well, proof-of-concept quality for now...
+                                      (make-do-nothing-response))
+                              :load (lambda (response args)))))
+          ,(example-inline-edit-box-value-of *session*)>)>))
 
 (def function make-authenticated-menu-component ()
   (bind ((authenticated-subject (current-authenticated-subject)))
@@ -349,13 +341,12 @@
     "A counter local to this component: "
     ,(counter-of -self-)
     " "
-    ,(bind ((action-href (escape-as-xml ; FIXME this should be handled by cl-qq
-                          (action/href ()
-                            (incf (counter-of -self-))))))
-       <a (:href `js-inline(wui.io.action ,action-href))
+    ,(bind ((action-href (action/href ()
+                           (incf (counter-of -self-)))))
+       <a (:href "#" :onclick `js-inline(wui.io.action event ,action-href))
           "increment">
-       <a (:href `js-inline(wui.io.action ,action-href false))
-          "increment without ajax">) >)
+       <a (:href "#" :onclick `js-inline(wui.io.action event ,action-href false))
+          "increment without ajax">)>)
 
 ;;;;;;
 ;;; the entry points
