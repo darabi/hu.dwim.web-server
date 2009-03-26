@@ -54,7 +54,7 @@
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
     (if ajax
-        (bind ((ajax-target (if (== ajax true)
+        (bind ((ajax-target (if (=== ajax true)
                                 nil
                                 (dojo.byId ajax))))
           (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
