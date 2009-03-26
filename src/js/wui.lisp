@@ -54,29 +54,31 @@
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
     (if ajax
-        (bind ((ajax-target (dojo.byId ajax))
-               (ajax-request-in-progress-indicator (document.create-element "div"))
-               (ajax-request-in-progress-teardown (lambda ()
-                                                    (when ajax-target
-                                                      (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
-                                                      (dojo.remove-class ajax-target "ajax-target"))))
-               (params (create :url decorated-url
-                               :form form
-                               :error (lambda (response io-args)
-                                        (ajax-request-in-progress-teardown)
-                                        (wui.io.process-ajax-error response io-args))
-                               :load (lambda (response io-args)
-                                       (ajax-request-in-progress-teardown)
-                                       (wui.io.process-ajax-answer response io-args)))))
+        (bind ((ajax-target (if (== ajax-target true)
+                                nil
+                                (dojo.byId ajax))))
           (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
-          (when send-client-state
-            (setf params.form form))
-          (when ajax-target
-            (dojo.add-class ajax-target "ajax-target")
-            (dojo.add-class ajax-request-in-progress-indicator "ajax-request-in-progress")
-            (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
-            (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
-          (wui.io.xhr-post params))
+          (bind ((ajax-request-in-progress-indicator (document.create-element "div"))
+                 (ajax-request-in-progress-teardown (lambda ()
+                                                      (when ajax-target
+                                                        (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
+                                                        (dojo.remove-class ajax-target "ajax-target"))))
+                 (params (create :url decorated-url
+                                 :form form
+                                 :error (lambda (response io-args)
+                                          (ajax-request-in-progress-teardown)
+                                          (wui.io.process-ajax-error response io-args))
+                                 :load (lambda (response io-args)
+                                         (ajax-request-in-progress-teardown)
+                                         (wui.io.process-ajax-answer response io-args)))))
+            (when send-client-state
+              (setf params.form form))
+            (when ajax-target
+              (dojo.add-class ajax-target "ajax-target")
+              (dojo.add-class ajax-request-in-progress-indicator "ajax-request-in-progress")
+              (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
+              (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
+            (wui.io.xhr-post params)))
         (if (and send-client-state
                  form
                  (< 0 form.elements.length))
