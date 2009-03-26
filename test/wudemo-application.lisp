@@ -180,15 +180,15 @@
         <span (:id ,id
                :dojoType #.+dijit/inline-edit-box+
                :autoSave false
-               :onChange `js(wui.io.xhr-post
-                             (create
-                              :content (create :example-inline-edit-box-value (aref arguments 0))
-                              :url ,(action/href (:delayed-content #t)
-                                      (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
-                                        (setf (example-inline-edit-box-value-of *session*) value))
-                                      ;; TODO this is, well, proof-of-concept quality for now...
-                                      (make-do-nothing-response))
-                              :load (lambda (response args)))))
+               :onChange `js-inline(wui.io.xhr-post
+                                    (create
+                                     :content (create :example-inline-edit-box-value (aref arguments 0))
+                                     :url ,(action/href (:delayed-content #t)
+                                                        (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
+                                                          (setf (example-inline-edit-box-value-of *session*) value))
+                                                        ;; TODO this is, well, proof-of-concept quality for now...
+                                                        (make-do-nothing-response))
+                                     :load (lambda (response args)))))
           ,(example-inline-edit-box-value-of *session*)>)>))
 
 (def function make-authenticated-menu-component ()
