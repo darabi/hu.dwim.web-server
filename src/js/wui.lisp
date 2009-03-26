@@ -54,7 +54,7 @@
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
     (if ajax
-        (bind ((ajax-target (if (== ajax-target true)
+        (bind ((ajax-target (if (== ajax true)
                                 nil
                                 (dojo.byId ajax))))
           (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
@@ -405,7 +405,7 @@
                    (wui.io.make-node-walking-ajax-answer-processor "script"
                                                                    (lambda (script-node)
                                                                      ;; TODO handle/assert for script type attribute
-                                                                     (let ((script (dojox.data.dom.text-content script-node)))
+                                                                     (let ((script (dojox.xml.parser.textContent script-node)))
                                                                        (log.debug "About to eval AJAX-received script " #\Newline script)
                                                                        ;; isolate the local bindings from the script to be executed
                                                                        ;; and only bind with the given name what we explicitly list here
