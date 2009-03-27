@@ -198,35 +198,35 @@
         (bind ((debug-menu (make-debug-menu)))
           (appendf (menu-items-of debug-menu)
                    (list (menu-item () (command "Example error in action body"
-                                             (make-action (error "This is an example error which is signaled when running the action body"))))
+                                         (make-action (error "This is an example error which is signaled when running the action body"))))
                          (menu-item () (replace-menu-target-command "Example error while rendering"
                                          (inline-component (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
           debug-menu))
       (menu "Charts"
-       (menu "Charts from files"
-         (macrolet ((make-chart-menu (name type settings-file data-file)
-                      `(replace-menu-target-command ,name
-                         (make-chart-from-files ',type
-                                                :settings-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" settings-file))
-                                                :data-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" data-file))))))
-           (menu-item () (make-chart-menu "Column chart" column-chart
-                                          "amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
-                                          "amcolumn/3d_stacked_bar_chart/amcolumn_data.txt"))
-           (menu-item () (make-chart-menu "Line chart" line-chart
-                                          "amline/stacked_area_chart/amline_settings.xml"
-                                          "amline/stacked_area_chart/amline_data.xml"))
-           (menu-item () (make-chart-menu "Pie chart" pie-chart
-                                          "ampie/donut/ampie_settings.xml"
-                                          "ampie/donut/ampie_data.txt"))
-           (menu-item () (make-chart-menu "Radar chart" radar-chart
-                                          "amradar/stacked/amradar_settings.xml"
-                                          "amradar/stacked/amradar_data.xml"))
-           (menu-item () (make-chart-menu "Stock chart" stock-chart
-                                          "amstock/ohlc/amstock_settings.xml"
-                                          "amstock/ohlc/data.csv"))
-           (menu-item () (make-chart-menu "Xy chart" xy-chart
-                                          "amxy/time_plot/amxy_settings.xml"
-                                          "amxy/time_plot/amxy_data.xml")))))
+        (menu "Charts from files"
+          (macrolet ((make-chart-menu (name type settings-file data-file)
+                       `(replace-menu-target-command ,name
+                          (make-chart-from-files ',type
+                                                 :settings-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" settings-file))
+                                                 :data-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" data-file))))))
+            (menu-item () (make-chart-menu "Column chart" column-chart
+                                           "amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
+                                           "amcolumn/3d_stacked_bar_chart/amcolumn_data.txt"))
+            (menu-item () (make-chart-menu "Line chart" line-chart
+                                           "amline/stacked_area_chart/amline_settings.xml"
+                                           "amline/stacked_area_chart/amline_data.xml"))
+            (menu-item () (make-chart-menu "Pie chart" pie-chart
+                                           "ampie/donut/ampie_settings.xml"
+                                           "ampie/donut/ampie_data.txt"))
+            (menu-item () (make-chart-menu "Radar chart" radar-chart
+                                           "amradar/stacked/amradar_settings.xml"
+                                           "amradar/stacked/amradar_data.xml"))
+            (menu-item () (make-chart-menu "Stock chart" stock-chart
+                                           "amstock/ohlc/amstock_settings.xml"
+                                           "amstock/ohlc/data.csv"))
+            (menu-item () (make-chart-menu "Xy chart" xy-chart
+                                           "amxy/time_plot/amxy_settings.xml"
+                                           "amxy/time_plot/amxy_data.xml")))))
       (make-primitive-component-menu)
       (menu "Metagui"
         (menu "Parent"

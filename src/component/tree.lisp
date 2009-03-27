@@ -89,7 +89,7 @@
         <span (:class "non-expandable")>)))
 
 (def (function e) render-tree-node-expander-cell (node-component)
-  (with-slots (cells) node-component
+  (bind (((:read-only-slots cells) node-component))
     <td (:class "expander")
         ,(render-tree-node-expander node-component)
         ,(bind ((expander-cell (elt cells (expander-column-index-of *tree*))))

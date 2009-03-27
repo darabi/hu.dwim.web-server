@@ -42,10 +42,10 @@
        ,@forms)))
 
 (def resources en
-  (chart.missing-flash-plugin "Flash Player is not available"))
+  (chart.missing-flash-plugin "Flash Plugin is not available"))
 
 (def resources hu
-  (chart.missing-flash-plugin "Flash Player nem elérhető"))
+  (chart.missing-flash-plugin "A Flash Plugin nem elérhető"))
 
 
 (def function make-chart-from-files (type &key settings-file data-file)

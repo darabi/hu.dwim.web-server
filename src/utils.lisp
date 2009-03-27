@@ -407,8 +407,8 @@
         :finally (return result)))))
 
 (def (function io) random-simple-base-string (&optional (length 32) (alphabet +ascii-alphabet+) prefix)
-  (declare (type array-index length)
-           (type simple-base-string alphabet))
+  (check-type length array-index)
+  (check-type alphabet simple-base-string)
   (assert (or (null prefix)
               (< (length prefix) length)))
   (loop
