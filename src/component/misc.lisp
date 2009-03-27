@@ -63,7 +63,6 @@
 (def (macro e) empty ()
   '+empty-component-instance+)
 
-
 ;;;;;;;
 ;;; Label
 
@@ -137,6 +136,7 @@
 (def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
   ;; KLUDGE: find top-component and go down from there to avoid
   (setf component (find-descendant-component-with-type component 'top-component))
+  (assert component nil "There is no TOP-COMPONENT above ~A, AJAX cannot be used in this situation at the moment" component)
   (bind ((covering-components nil))
     (labels ((traverse (component)
                ;; NOTE: we cannot evaluate delayed visible here, because we are not in the component's environment
