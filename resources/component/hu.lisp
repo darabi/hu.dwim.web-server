@@ -33,10 +33,27 @@
     `xml,"Egy " (render class) `xml," fa megjelenítése")
   (standard-object-detail-inspector.title (class)
     `xml,"Egy " (render class) `xml," megjelenítése")
+  (standard-object-detail-maker.title (class)
+    `xml,"Egy új " (render class) `xml," felvétele")
 
   (object-list-table.column.commands "")
   (object-list-table.column.type "Típus")
 
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Típus")
+  (standard-object-detail-maker.class-selector-label "Típus")
   )
+
+;;; Process stuff
+(def resources hu
+  (process.message.waiting-for-other-subject "A folyamat jelenleg másra várakozik.")
+  (process.message.waiting "A folyamat jelenleg várakozik.")
+  (process.message.report-process-state (process)
+    (ecase (dmm::element-name-of (dmm::process-state-of process))
+      ;; a process in 'running state may not reach this point
+      (dmm::finished    "Folyamat normálisan befejeződött")
+      (dmm::failed      "Folyamat hibára futott")
+      (dmm::broken      "Folyamat technikai hiba miatt megállítva")
+      (dmm::cancelled   "Folyamat felhasználó által leállítva")
+      (dmm::in-progress "Folyamat folyamatban")
+      (dmm::paused      "Folyamat félbeszakítva"))))

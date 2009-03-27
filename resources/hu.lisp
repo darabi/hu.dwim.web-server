@@ -21,18 +21,18 @@
 
   (render-internal-error-page (&key admin-email-address &allow-other-keys)
     <div
-     <h1 "Programhiba">
-     <p "A szerverhez érkezett kérés feldolgozása közben váratlan hiba történt. Elnézést kérünk az esetleges kellemetlenségért!">
-     <p "A hibáról értesülni fognak a fejlesztők és valószínűleg a közeljövőben javítják azt.">
-     ,(when admin-email-address
-        <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
-           <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
-           " email címen megteheti.">)
-     <p <a (:href `js-inline(history.go -1)) "Vissza">>>)
+      <h1 "Programhiba">
+      <p "A szerverhez érkezett kérés feldolgozása közben váratlan hiba történt. Elnézést kérünk az esetleges kellemetlenségért!">
+      <p "A hibáról értesülni fognak a fejlesztők és valószínűleg a közeljövőben javítják azt.">
+      ,(when admin-email-address
+         <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
+            <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
+            " email címen megteheti.">)
+      <p <a (:href `js-inline(history.go -1)) "Vissza">>>)
 
   (render-access-denied-error-page (&key &allow-other-keys)
     <div
-     <h1 "Hozzáférés megtagadva">
-     <p "Nincs joga a kívánt oldal megtekintéséhez.">
-     <p <a (:href `js-inline(history.go -1)) "Vissza">>>))
+      <h1 "Hozzáférés megtagadva">
+      <p "Nincs joga a kívánt oldal megtekintéséhez.">
+      <p <a (:href `js-inline(history.go -1)) "Vissza">>>))
 

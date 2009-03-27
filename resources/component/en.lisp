@@ -8,10 +8,10 @@
 (def resources en
   (render-failed-to-load-page (&key &allow-other-keys)
     <div (:id ,+page-failed-to-load-id+)
-     <h1 "It takes suspiciously long time to load the page...">
-     <p "Unfortunately certain browsers get confused when loading the page. Try to "
-        <a (:href "#" :onclick "_wui_handleFailedToLoad()") "reload the page">
-        ", and if it doesn't help, then clear the browser cache.">>))
+      <h1 "It takes suspiciously long to load the page...">
+      <p "Unfortunately certain browsers sometimes get confused when loading the page. Try to "
+         <a (:href "#" :onclick "_wui_handleFailedToLoad()") "reload the page">
+         ", and if it doesn't help, then clear the browser cache.">>))
 
 ;;; Context sensitive help
 (def resources en
@@ -33,10 +33,26 @@
     `xml,"Viewing a tree of " (render class))
   (standard-object-detail-inspector.title (class)
     `xml,"Viewing an instance of " (render class))
+  (standard-object-detail-maker.title (class)
+    `xml,"Creating an instance of" (render class))
 
   (object-list-table.column.commands "")
   (object-list-table.column.type "Type")
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Type")
+  (standard-object-detail-maker.class-selector-label "Class")
   )
 
+;;; Process stuff
+(def resources en
+  (process.message.waiting-for-other-subject "Process is waiting for other subject.")
+  (process.message.waiting "Process is currently waiting.")
+  (process.message.report-process-state (process)
+    (ecase (dmm::element-name-of (dmm::process-state-of process))
+      ;; a process in 'running state may not reach this point
+      (dmm::finished    "Process finished normally")
+      (dmm::failed      "Process failed")
+      (dmm::broken      "Process was stopped due to technical failures")
+      (dmm::cancelled   "Process has been cancelled")
+      (dmm::in-progress "Process is in progress")
+      (dmm::paused      "Process is paused"))))

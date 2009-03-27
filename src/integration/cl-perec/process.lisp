@@ -177,32 +177,3 @@
                (clear-process-component component)))
            :visible (delay (or (dmm::persistent-process-paused-p (process-of component))
                                (dmm::persistent-process-in-progress-p (process-of component))))))
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (process.message.waiting-for-other-subject "A folyamat jelenleg másra várakozik.")
-  (process.message.waiting "A folyamat jelenleg várakozik.")
-  (process.message.report-process-state (process)
-    (ecase (dmm::element-name-of (dmm::process-state-of process))
-      ;; a process in 'running state may not reach this point
-      (dmm::finished    "Folyamat normálisan befejeződött")
-      (dmm::failed      "Folyamat hibára futott")
-      (dmm::broken      "Folyamat technikai hiba miatt megállítva")
-      (dmm::cancelled   "Folyamat felhasználó által leállítva")
-      (dmm::in-progress "Folyamat folyamatban")
-      (dmm::paused      "Folyamat félbeszakítva"))))
-
-(def resources en
-  (process.message.waiting-for-other-subject "Process is waiting for other subject.")
-  (process.message.waiting "Process is currently waiting.")
-  (process.message.report-process-state (process)
-    (ecase (dmm::element-name-of (dmm::process-state-of process))
-      ;; a process in 'running state may not reach this point
-      (dmm::finished    "Process finished normally")
-      (dmm::failed      "Process failed")
-      (dmm::broken      "Process was stopped due to technical failures")
-      (dmm::cancelled   "Process has been cancelled")
-      (dmm::in-progress "Process is in progress")
-      (dmm::paused      "Process is paused"))))

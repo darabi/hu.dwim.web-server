@@ -140,15 +140,6 @@
 (def layered-method render-title ((self standard-object-detail-maker))
   (standard-object-detail-maker.title (slot-value self 'class)))
 
-(def resources en
-  (standard-object-detail-maker.title (class)
-    `xml,"Creating an instance of" (render class))
-  (standard-object-detail-maker.class-selector-label "Class"))
-
-(def resources hu
-  (standard-object-detail-maker.title (class)
-    `xml,"Egy új " (render class) `xml," felvétele")
-  (standard-object-detail-maker.class-selector-label "Típus"))
 
 ;;;;;;
 ;;; Standard object slot value group maker
