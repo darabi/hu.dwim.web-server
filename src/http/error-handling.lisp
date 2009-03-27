@@ -109,26 +109,12 @@
      (emit-simple-html-document-http-response (:status +http-internal-server-error+ :title #"error.internal-server-error")
        (bind ((args (list :admin-email-address (and (boundp '*server*)
                                                     (admin-email-address-of *server*)))))
-         (lookup-resource 'render-internal-error-page
-                          :arguments args
-                          :otherwise (lambda ()
-                                       (apply 'render-internal-error-page/english args)))))
+         (apply-resource-function 'render-internal-error-page args)))
      (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the error by sending an error page"))
     (t
      (server.info "Internal server error for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." (raw-uri-of *request*))
      (abort-server-request "HANDLE-TOPLEVEL-CONDITION bailed out without any response because the HTTP headers are already sent")))
   (error "This HANDLE-TOPLEVEL-CONDITION method should never return"))
-
-(def function render-internal-error-page/english (&key admin-email-address &allow-other-keys)
-  <div
-   <h1 "Internal server error">
-   <p "An internal server error has occured while processing your request. We are sorry for the inconvenience.">
-   <p "The developers will be notified about this error and will hopefully fix it in the near future.">
-   ,(when admin-email-address
-      <p "You may contact the administrators at the "
-         <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
-         " email address.">)
-   <p <a (:href `js-inline(history.go -1)) "Go back">>>)
 
 (defmethod handle-toplevel-condition ((error access-denied-error) broker)
   (bind ((request-uri (if *request*
@@ -139,9 +125,7 @@
         (progn
           (server.info "Sending an access denied error page for request ~S" request-uri)
           (emit-simple-html-document-http-response (:status +http-forbidden+ :title #"error.access-denied-error")
-            (lookup-resource 'render-access-denied-error-page
-                             :otherwise (lambda ()
-                                          (render-access-denied-error-page/english)))))
+            (apply-resource-function 'render-access-denied-error-page)))
         (server.info "Access denied for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
   (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the access denied error by sending an error page"))
 

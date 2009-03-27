@@ -82,7 +82,7 @@
                   (script-uris-of -self-))>
       <body (:class ,(dojo-skin-name-of -self-)
              :style ,(unless no-javascript? "margin-left: -10000px;"))
-        ,(render-failed-to-load-page)
+        ,(apply-resource-function 'render-failed-to-load-page)
         `js(progn
              ;; don't use any non-standard js stuff for the failed-to-load machinery, because if things go wrong then nothing is guaranteed to be loaded...
              (defun _wui_handleFailedToLoad ()

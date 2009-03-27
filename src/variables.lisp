@@ -286,3 +286,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
 (def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
 (def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
+
+;; initialized to "en" in l10n.lisp
+(def special-variable *fallback-locale-for-functional-resources* nil
+  "This is used as a fallback locale if a functional resource can not be found and there's no *application* that would provide a default locale. It's not possible to use the usual name fallback strategy for functional resources, so make sure that the default locale has a 100% coverage for them, otherwise it may effect the behavior of the application in certain situations.")

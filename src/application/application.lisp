@@ -339,10 +339,7 @@
           (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
           (emit-simple-html-document-http-response (:status +http-not-acceptable+
                                                     :headers '#.+disallow-response-caching-header-values+)
-            (lookup-resource 'render-frame-out-of-sync-error
-                             :arguments args
-                             :otherwise (lambda ()
-                                          (apply 'render-frame-out-of-sync-error/english args))))
+            (apply-resource-function 'render-frame-out-of-sync-error args))
           (make-do-nothing-response))
         (progn
           (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)

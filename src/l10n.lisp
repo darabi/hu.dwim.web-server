@@ -258,3 +258,20 @@
 (def (generic e) localized-instance-reference-string (instance)
   (:method ((instance standard-object))
     (princ-to-string instance)))
+
+(def function apply-resource-function (name &optional args)
+  (flet ((fallback-locale-for-functional-resources ()
+           (acond
+             ((and (boundp '*application*)
+                   *application*)
+              (default-locale-of it))
+             (*fallback-locale-for-functional-resources*
+              (locale it))
+             (t (error "Could not identify a fallback locale for functional resources.")))))
+    (lookup-resource name :arguments args
+                     :otherwise (lambda ()
+                                  (with-locale (fallback-locale-for-functional-resources)
+                                    (lookup-resource name :arguments args
+                                                     :otherwise [error "Functional resource ~S is missing even for the fallback locale ~A" name (current-locale)]))))))
+
+(setf *fallback-locale-for-functional-resources* "en")

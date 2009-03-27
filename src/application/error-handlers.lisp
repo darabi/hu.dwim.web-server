@@ -51,10 +51,7 @@
                                                                    (make-uri-for-new-frame)
                                                                    (make-uri-for-current-frame)))
                                         :admin-email-address (admin-email-address-of application))))
-                       (lookup-resource 'render-application-internal-error-page
-                                        :arguments args
-                                        :otherwise (lambda ()
-                                                     (apply 'render-application-internal-error-page/english args)))))))))
+                       (apply-resource-function 'render-application-internal-error-page args)))))))
               (server.info "Internal server error for request ~S to application ~A and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri application)))
         (abort-server-request error))
       (call-next-method)))
