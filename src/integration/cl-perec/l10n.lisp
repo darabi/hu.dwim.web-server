@@ -4,6 +4,10 @@
 
 (in-package :hu.dwim.wui)
 
+(def resource-loading-locale-loaded-listener wui-resource-loader/cl-perec (project-relative-pathname "resources/integration/cl-perec/")
+  :log-discriminator "WUI")
+(register-locale-loaded-listener 'wui-resource-loader/cl-perec)
+
 (def method localized-instance-reference-string ((instance prc::persistent-object))
   (bind ((class (class-of instance)))
     (if (typep class 'dmm::entity)
