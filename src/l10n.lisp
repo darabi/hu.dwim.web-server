@@ -4,28 +4,29 @@
 
 (in-package :hu.dwim.wui)
 
-(def (definer e) resource-loading-locale-loaded-listener (name base-directory &key log-discriminator (setup-readtable-function ''setup-readtable))
+(def (definer e) resource-loading-locale-loaded-listener (name asdf-system base-directory &key log-discriminator (setup-readtable-function ''setup-readtable))
   (setf log-discriminator (or log-discriminator ""))
   (with-standard-definer-options name
-    (once-only (setup-readtable-function base-directory log-discriminator)
+    (once-only (setup-readtable-function asdf-system base-directory log-discriminator)
       `(def function ,name (locale-name)
          (l10n.debug "Loading ~A resources for locale ~S" ,log-discriminator locale-name)
-         (bind ((file (merge-pathnames (concatenate-string locale-name ".lisp") ,base-directory))
-                (*readtable* (copy-readtable *readtable*)))
-           (awhen ,setup-readtable-function
-             (funcall it))
-           (when (load file :if-does-not-exist nil)
-             (l10n.info "Loaded ~A resources for locale ~S from ~A" ,log-discriminator locale-name file)))))))
+         (bind ((file (merge-pathnames (concatenate-string locale-name ".lisp") (system-relative-pathname ,asdf-system ,base-directory))))
+           (when (probe-file file)
+             (bind ((*readtable* (copy-readtable *readtable*)))
+               (awhen ,setup-readtable-function
+                 (funcall it))
+               (cl-l10n::load-resource-file :wui file)
+               (l10n.info "Loaded ~A resources for locale ~S from ~A" ,log-discriminator locale-name file))))))))
 
-(def resource-loading-locale-loaded-listener wui-resource-loader (project-relative-pathname "resources/")
+(def resource-loading-locale-loaded-listener wui-resource-loader :wui "resources/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader)
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/application (project-relative-pathname "resources/application/")
+(def resource-loading-locale-loaded-listener wui-resource-loader/application :wui "resources/application/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader/application)
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/component (project-relative-pathname "resources/component/")
+(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resources/component/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader/component)
 
