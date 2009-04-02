@@ -27,11 +27,13 @@
                            (make-instance 'table-header-component
                                           :content (clone-component (content-of category))
                                           :children (axes-headers (rest axes) (cons category path))
-                                          :expanded (find-if (lambda (instance)
-                                                               (every (lambda (c)
-                                                                        (funcall (predicate-of c) instance))
-                                                                      (cons category path)))
-                                                             instances)))
+                                          ;; TODO: instances is not a slot in the abstract pivot-table
+                                          #+nil :expanded #+nil
+                                          (find-if (lambda (instance)
+                                                     (every (lambda (c)
+                                                              (funcall (predicate-of c) instance))
+                                                            (cons category path)))
+                                                   instances)))
                          (categories-of (first axes)))))
              (axes-command-bars (axes primary-axes-slot-name secondary-axes-slot-name)
                (bind ((row-axes? (eq primary-axes-slot-name 'row-axes)))
@@ -109,13 +111,13 @@
   (icon-tooltip.move-right "Move right"))
 
 ;;;;;;
-;;; Pivot table axis
+;;; Pivot table axis component
 
 (def component pivot-table-axis-component ()
   ((categories nil :type component)))
 
 ;;;;;
-;;; Pivot table category
+;;; Pivot table category component
 
 (def component pivot-table-category-component (content-component)
   ())

@@ -127,3 +127,192 @@
                   (prc::ordering-dimension #t)
                   (prc::dimension
                    (typep (prc::coordinate dimension) (prc::the-type-of dimension)))))))
+
+;;;;;;
+;;; D value inspector reference
+
+(def component d-value-inspector-reference (reference-component)
+  ())
+
+(def method make-reference-label ((reference d-value-inspector-reference) class (instance prc::d-value))
+  (concatenate-string (write-to-string (length (prc::c-values-of instance))) " values"))
+
+;;;;;
+;;; Abstract d value component
+
+(def component abstract-d-value-component (abstract-standard-object-component)
+  ())
+
+;;;;;;
+;;; D value inspector
+
+(def component d-value-inspector (abstract-d-value-component
+                                  inspector-component
+                                  alternator-component
+                                  user-message-collector-component-mixin
+                                  remote-identity-component-mixin
+                                  initargs-component-mixin
+                                  layer-context-capturing-component-mixin
+                                  recursion-point-component)
+  ()
+  (:default-initargs :alternatives-factory #'make-d-value-inspector-alternatives)
+  (:documentation "Inspector for a D-VALUE instance in various alternative views."))
+
+(def method refresh-component ((self d-value-inspector))
+  (bind (((:slots instance default-component-type alternatives content command-bar) self)
+         (class (find-class 'prc::d-value)))
+    (if alternatives
+        (setf (component-value-for-alternatives self) instance)
+        (setf alternatives (funcall (alternatives-factory-of self) self instance)))
+    (if content
+        (setf (component-value-of content) instance)
+        (setf content (if default-component-type
+                          (find-alternative-component alternatives default-component-type)
+                          (find-default-alternative-component alternatives))))
+    (setf command-bar (make-alternator-command-bar self alternatives
+                                                   (make-standard-commands self class (class-prototype class))))))
+
+;; TODO: factor this out all over the place
+(def render d-value-inspector ()
+  (bind (((:read-only-slots id content) -self-))
+    (flet ((body ()
+             (render-user-messages -self-)
+             (call-next-method)))
+      (if (typep content 'reference-component)
+          <span (:id ,id :class "d-value-inspector")
+            ,(body)>
+          (progn
+            <div (:id ,id :class "d-value-inspector")
+              ,(body)>
+            `js(wui.setup-widget "d-value-inspector" ,id))))))
+
+(def (layered-function e) make-d-value-inspector-alternatives (component instance)
+  (:method ((component d-value-inspector) (instance prc::d-value))
+    (list (delay-alternative-component-with-initargs 'd-value-table-inspector :instance instance)
+          (delay-alternative-component-with-initargs 'd-value-pivot-table-component :instance instance)
+          (delay-alternative-reference-component 'd-value-inspector-reference instance))))
+
+(def function localized-dimension-name (dimension)
+  (string (prc::name-of dimension)))
+
+;;;;;;
+;;; D value table inspector
+
+(def component d-value-table-inspector (abstract-d-value-component
+                                        inspector-component
+                                        table-component
+                                        title-component-mixin)
+  ())
+
+(def method refresh-component ((self d-value-table-inspector))
+  (bind (((:slots instance columns rows) self)
+         (dimensions (prc::dimensions-of instance)))
+    (setf columns (cons (column "Value") (mapcar [column (localized-dimension-name !1)] dimensions)))
+    (setf rows (iter (for (coordinates value) :in-d-value instance)
+                     (collect (make-instance 'd-value-row-inspector
+                                             :value value
+                                             :coordinates coordinates
+                                             :instance instance))))))
+
+;;;;;;
+;;; D value row inspector
+
+(def component d-value-row-inspector (abstract-d-value-component
+                                      inspector-component
+                                      row-component)
+  ((value)
+   (coordinates)))
+
+(def method refresh-component ((self d-value-row-inspector))
+  (bind (((:slots value coordinates instance cells) self))
+    (setf cells (cons (make-viewer value)
+                      (mapcar 'make-coordinate-inspector (prc::dimensions-of instance) coordinates)))))
+
+(def function make-coordinate-inspector (dimension coordinate)
+  (if (typep dimension 'prc::ordering-dimension)
+      (make-coordinate-range-inspector coordinate)
+      (make-viewer (if (length= 1 coordinate)
+                       (first coordinate)
+                       coordinate)
+                   :default-component-type 'reference-component)))
+
+(def function make-coordinate-range-inspector (coordinate)
+  ;; TODO: KLUDGE: this is really much more complex than this
+  (bind ((begin (prc::coordinate-range-begin coordinate))
+         (end (prc::coordinate-range-end coordinate)))
+    (if (local-time:timestamp= begin end)
+        (localized-timestamp begin)
+        (local-time:with-decoded-timestamp (:day day-begin :month month-begin :year year-begin :timezone local-time:+utc-zone+) begin
+          (local-time:with-decoded-timestamp (:day day-end :month month-end :year year-end :timezone local-time:+utc-zone+) end
+            (if (and (= 1 day-begin)
+                     (= 1 month-begin)
+                     (= 1 day-end)
+                     (= 1 month-end)
+                     (= 1 (- year-end year-begin)))
+                (write-to-string year-begin)
+                (concatenate-string (localized-timestamp begin)
+                                    " - "
+                                    (localized-timestamp end))))))))
+
+;;;;;;
+;;; D value pivot table
+
+(def component d-value-pivot-table-component (abstract-d-value-component
+                                              pivot-table-component)
+  ())
+
+(def constructor d-value-pivot-table-component
+  (bind (((:slots instance row-axes column-axes) -self-))
+    (setf row-axes nil
+          column-axes (mapcar [make-dimension-pivot-table-axis instance !1] (prc::dimensions-of instance)))))
+
+(def method refresh-component :after ((self d-value-pivot-table-component))
+  (bind (((:slots instance cells row-axes column-axes column-leaf-count) self))
+    (setf cells (bind ((result (iter (repeat column-leaf-count)
+                                     (collect (empty)))))
+                  (flet ((map-product* (function &rest lists)
+                           (when lists
+                             (apply #'map-product function (car lists) (cdr lists)))))
+                    (apply #'map-product*
+                           (lambda (&rest row-path)
+                             (push (empty) result)
+                             (apply #'map-product*
+                                    (lambda (&rest column-path)
+                                      (push (make-d-value-pivot-table-cell row-path column-path instance) result))
+                                    (mapcar #'categories-of column-axes)))
+                           (mapcar #'categories-of row-axes)))
+                  (nreverse result)))))
+
+(def function make-dimension-pivot-table-axis (d-value dimension)
+  (make-instance 'dimension-pivot-table-axis-component
+                 :dimension dimension
+                 :categories (mapcar (lambda (coordinate)
+                                       (make-instance 'coordinate-pivot-table-category-component
+                                                      :coordinate coordinate
+                                                      :content (make-coordinate-inspector dimension coordinate)))
+                                     (prc::d-value-dimension-coordinate-list d-value dimension :mode :intersection))))
+
+(def function make-d-value-pivot-table-cell (row-path column-path d-value)
+  (bind ((path (append row-path column-path))
+         (coordinates (iter (for dimension :in (prc::dimensions-of d-value))
+                            (collect (coordinate-of (find dimension path :key [dimension-of (parent-component-of !1)])))))
+         (value (prc::value-at-coordinates d-value coordinates)))
+    (if (prc::single-d-value-p value)
+        (aif (prc::single-d-value value)
+             (make-viewer it)
+             (empty))
+        (if (prc::empty-d-value-p value)
+            (empty)
+            "d-value"))))
+
+;;;;;;
+;;; Dimension pivot table axis component
+
+(def component dimension-pivot-table-axis-component (pivot-table-axis-component)
+  ((dimension)))
+
+;;;;;;
+;;; Coordinate pivot table category component
+
+(def component coordinate-pivot-table-category-component (pivot-table-category-component)
+  ((coordinate)))
