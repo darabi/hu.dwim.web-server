@@ -337,9 +337,11 @@
   (make-instance 'class-selector :component-value (first classes) :possible-values classes))
 
 (def render class-selector ()
-  (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
-    ;; TODO: use dojo.connect and pass down event
-    (render-member-component -self- :on-change `js-inline(wui.io.action nil ,href #f #t))))
+  (if (edited-p -self-)
+      (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
+        ;; TODO: use dojo.connect and pass down event
+        (render-member-component -self- :on-change `js-inline(wui.io.action nil ,href #f #t)))
+      (call-next-method)))
 
 ;;;;;;
 ;;; Slot selector
