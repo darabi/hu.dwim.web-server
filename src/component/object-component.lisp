@@ -254,10 +254,14 @@
                        slot-group-2))))
 
 (def resources en
+  (class-name.standard-object "object")
+
   (standard-object-detail-component.primary-group "Primary properties")
   (standard-object-detail-component.secondary-group "Other properties"))
 
 (def resources hu
+  (class-name.standard-object "objektum")
+
   (standard-object-detail-component.primary-group "Elsődleges tulajdonságok")
   (standard-object-detail-component.secondary-group "Egyéb tulajdonságok"))
 
