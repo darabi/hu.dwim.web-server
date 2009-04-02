@@ -128,7 +128,9 @@
                      (make-continue-persistent-process-command component instance)))))
 
 (def layered-method make-standard-commands ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process))
-  (list (make-start-persistent-process-command component (delay (execute-create-instance component (the-class-of component))))))
+  (list (make-start-persistent-process-command component
+                                               (delay (execute-create-instance (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-component)
+                                                                               component (the-class-of component))))))
 
 (def layered-method make-standard-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
   (prc::with-revived-instance instance
