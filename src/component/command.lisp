@@ -130,7 +130,7 @@
   ((commands nil :type components)))
 
 (def (macro e) command-bar (&body commands)
-  `(make-instance 'command-bar-component :commands (list ,@commands)))
+  `(make-instance 'command-bar-component :commands (optional-list ,@commands)))
 
 (def render command-bar-component
   (bind (((:read-only-slots parent-component commands) -self-)
