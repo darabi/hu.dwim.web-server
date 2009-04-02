@@ -16,7 +16,9 @@
 
 (def method clone-component ((self alternator-component))
   (prog1-bind clone (call-next-method)
-    (setf (default-component-type-of clone) (class-name (class-of (content-of self))))))
+    (setf (default-component-type-of clone) (aif (content-of self)
+                                                 (class-name (class-of it))
+                                                 (default-component-type-of self)))))
 
 (def render alternator-component ()
   (bind (((:read-only-slots content command-bar) -self-))
