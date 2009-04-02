@@ -29,7 +29,13 @@
        ,(component-value-of where-clause))))
 
 (def method (setf component-value-of) (new-value (self select-expression-component))
-  (not-yet-implemented))
+  (bind (((:slots select-clause from-clause where-clause) self))
+    (setf (component-value-of select-clause) (second new-value)
+          (component-value-of from-clause) (find-class (second (second (third new-value))))
+          (component-value-of where-clause) (fourth new-value))))
+
+(def method make-expression-component ((expression (eql 'cl-perec::select)) &rest args)
+  (apply #'make-instance 'select-expression-component args))
 
 (def resources en
   (label.select-clause "select")
@@ -63,7 +69,7 @@
          ,(render-user-messages -self-)
          ,(render expression)
          ,(render command-bar)
-         ,(render result) >
+         ,(render result)>
     `js(wui.setup-widget "generic-filter" ,id)))
 
 (def function make-execute-filter-command (component)
