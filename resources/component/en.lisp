@@ -43,3 +43,11 @@
   (standard-object-detail-maker.class-selector-label "Class")
   )
 
+;;; File up/download
+(def resources en
+  (file-last-modification-timestamp (file)
+    `xml,"Updated: "
+    (if (probe-file file)
+        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
+        <span (:class "missing-file")
+              "File is missing!">)))

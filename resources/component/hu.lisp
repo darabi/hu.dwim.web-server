@@ -43,3 +43,12 @@
   (object-tree-table.column.type "Típus")
   (standard-object-detail-maker.class-selector-label "Típus")
   )
+
+;;; File up/download
+(def resources hu
+  (file-last-modification-timestamp (file)
+    `xml,"Frissítve: "
+    (if (probe-file file)
+        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
+        <span (:class "missing-file")
+              "Hiányzik a fájl!">)))

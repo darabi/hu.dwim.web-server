@@ -31,21 +31,6 @@
          ,(call-next-method)
          " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
 
-(def resources en
-  (file-last-modification-timestamp (file)
-    `xml,"Updated: "
-    (if (probe-file file)
-        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
-        <span (:class "missing-file")
-              "File is missing!">)))
-
-(def resources hu
-  (file-last-modification-timestamp (file)
-    `xml,"Frissítve: "
-    (if (probe-file file)
-        (localized-timestamp (local-time:universal-to-timestamp (file-write-date file)))
-        <span (:class "missing-file")
-              "Hiányzik a fájl!">)))
 
 ;;;;;;
 ;;; File upload
