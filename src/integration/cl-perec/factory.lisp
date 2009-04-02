@@ -174,7 +174,7 @@
     'ip-address-maker)
 
   (:method ((type cl-perec:set-type))
-    `(label-maker :component-value "TODO")))
+    `(standard-object-list-inspector :the-class ,(prc::element-type-of type))))
 
 (def method find-maker-type-for-compound-type* (first type)
   (find-maker-type-for-type (cl-perec:parse-type type)))
