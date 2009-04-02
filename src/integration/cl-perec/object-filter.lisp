@@ -103,7 +103,7 @@
                                         ponated-predicate)))))
               ((and (typep value-component 'standard-object-filter)
                     (not (typep (content-of value-component) 'standard-object-filter-reference)))
-               (with-new-query-variable (query-variable filter-query (class-name (the-class-of component)))
+               (with-new-query-variable (query-variable filter-query (class-name (the-class-of value-component)))
                  (prc::add-assert (query-of filter-query)
                                   `(eq ,query-variable
                                        (,(prc::reader-name-of slot)
