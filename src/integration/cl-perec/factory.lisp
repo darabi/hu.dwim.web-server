@@ -47,6 +47,9 @@
   (:method ((type cl-perec:member-type))
     (list 'member-inspector :possible-values (cl-perec:members-of type)))
 
+  (:method ((type cl-perec:form-type))
+    'expression-inspector)
+
   (:method ((type cl-perec:serialized-type))
     't-inspector)
 
@@ -101,6 +104,9 @@
 
   (:method ((type cl-perec:member-type))
     (list 'member-filter :possible-values (cl-perec:members-of type)))
+
+  (:method ((type cl-perec:form-type))
+    'expression-filter)
 
   (:method ((type cl-perec:serialized-type))
     't-filter)
@@ -157,6 +163,9 @@
 
   (:method ((type cl-perec:member-type))
     (list 'member-maker :possible-values (cl-perec:members-of type)))
+
+  (:method ((type cl-perec:form-type))
+    'expression-maker)
 
   (:method ((type cl-perec:serialized-type))
     't-maker)
