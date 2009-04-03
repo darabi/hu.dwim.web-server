@@ -26,7 +26,7 @@
     (send-response response)
     (values-list result)))
 
-(def (function o) query-brokers-for-response (initial-request initial-brokers)
+(def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise [make-no-handler-response]))
   (bind ((answering-broker nil)
          (results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
@@ -40,7 +40,7 @@
         (progn
           (incf (processed-request-count-of answering-broker))
           (values-list results))
-        (make-no-handler-response))))
+        (handle-otherwise otherwise))))
 
 (def (function o) iterate-brokers-for-response (visitor request initial-brokers brokers recursion-depth)
   (declare (type fixnum recursion-depth))
@@ -102,9 +102,9 @@
   (format *standard-output* "~S ~S" (path-of -self-) (priority-of -self-)))
 
 (defmethod matches-request? ((broker broker-with-path) request)
-  (matches-request-uri-path? (path-of broker) request))
+  (request-uri-matches-path? (path-of broker) request))
 
-(def (function o) matches-request-uri-path? (path request)
+(def (function o) request-uri-matches-path? (path request)
   (bind ((path (etypecase path
                  (string path)
                  (broker-with-path (path-of path))))
@@ -160,3 +160,40 @@
                  :path-prefix path-prefix
                  :response (make-redirect-response target-uri)))
 
+(def class* delegate-broker (broker)
+  ((children ()))
+  (:metaclass funcallable-standard-class)
+  (:documentation "A simple broker that delegates the handling of a request to one of its children. Base class for things like a virtual host dispatcher broker."))
+
+(def constructor delegate-broker
+  (set-funcallable-instance-function
+    -self- (lambda (request)
+             (delegate-broker-handler -self- request))))
+
+(def function delegate-broker-handler (broker request)
+  (debug-only (assert (and (boundp '*brokers*) (eq (first *brokers*) broker))))
+  (query-brokers-for-response request (children-of broker) :otherwise nil))
+
+(def class* filtered-delegate-broker (delegate-broker)
+  ((filter :type (function (request) *) :documentation "A function that is funcall'd with the request and it should return T for requests that are supposed to be further processed."))
+  (:metaclass funcallable-standard-class))
+
+(def constructor filtered-delegate-broker
+  (set-funcallable-instance-function
+    -self- (lambda (request)
+             (filtered-delegate-handler -self- request))))
+
+(def function filtered-delegate-handler (broker request)
+  (if (funcall (filter-of broker) request)
+      (delegate-broker-handler broker request)
+      nil))
+
+(def (function e) make-virtual-host-broker (host-name &rest child-brokers)
+  "(setf (brokers-of *my-server*) (list (make-virtual-host-broker \"localhost.localdomain\"
+                                                                  (make-functional-broker (make-request-echo-response)))
+                                        *my-application*))
+will echo the request when the http request url is \"localhost.localdomain\", otherwise go on for *my-application*."
+  (make-instance 'filtered-delegate-broker
+                 :filter (named-lambda virtual-host-filter (request)
+                           (string= host-name (host-of (uri-of request))))
+                 :children (copy-list child-brokers)))
