@@ -160,6 +160,21 @@
                  :path-prefix path-prefix
                  :response (make-redirect-response target-uri)))
 
+(def class* functional-broker (broker)
+  ((response-factory))
+  (:metaclass funcallable-standard-class))
+
+(def constructor functional-broker
+  (set-funcallable-instance-function
+    -self- (lambda (request)
+             (funcall (response-factory-of -self-) request))))
+
+(def (macro e) make-functional-broker (&body body)
+  `(make-instance 'functional-broker
+                  :response-factory (named-lambda functional-broker-response-factory (-request-)
+                                      (declare (ignorable -request-))
+                                      ,@body)))
+
 (def class* delegate-broker (broker)
   ((children ()))
   (:metaclass funcallable-standard-class)
