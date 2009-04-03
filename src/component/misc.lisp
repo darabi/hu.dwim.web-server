@@ -151,8 +151,7 @@
                    (when (force (visible-p component))
                      (if (or (dirty-p component)
                              (outdated-p component))
-                         (bind ((remote-identity-component
-                                 (find-ancestor-component-with-type component 'remote-identity-component-mixin)))
+                         (bind ((remote-identity-component (find-ancestor-component-with-type component 'remote-identity-component-mixin)))
                            (assert remote-identity-component nil "There is no ancestor component with remote identity for ~A" component)
                            (pushnew remote-identity-component covering-components)
                            (throw remote-identity-component nil))

@@ -437,13 +437,16 @@
 
 (def (function e) render-request (request)
   (with-html-document (:title "URL echo server")
-    <p ,(print-uri-to-string (uri-of request))>
+    <p "Raw request uri: \"" ,(raw-uri-of request) "\"">
+    <p "Parsed request uri: \"" ,(print-uri-to-string (uri-of request)) "\"">
+    <h3 "Headers">
     <hr>
     <table
       ,@(iter (for (name . value) :in (headers-of request))
               <tr
                 <td ,name>
                 <td ,value>>)>
+    <h3 "Cookies">
     <hr>
     <table
       <thead

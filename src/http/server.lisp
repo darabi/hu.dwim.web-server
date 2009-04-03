@@ -87,7 +87,7 @@
   (setf (shutdown-initiated-p server) #f)
   (restart-case
       (bind ((swank::*sldb-quit-restart* (find-restart 'abort)))
-        (with-lock-held-on-server (server)
+        (with-lock-held-on-server (server) ; the started workers are waiting until this lock is released
           (bind ((listen-entries (listen-entries-of server))
                  (mux (make-instance 'iolib:epoll-multiplexer)))
             (unwind-protect-case ()
