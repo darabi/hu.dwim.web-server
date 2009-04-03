@@ -4,20 +4,20 @@
 
 (in-package :hu.dwim.wui)
 
-(def class* file-serving-broker/cache-entry ()
+(def class* directory-serving-broker/cache-entry ()
   ((file-path)
    (file-write-date)
    (bytes-to-respond)
    (last-updated-at (get-monotonic-time))
    (last-used-at (get-monotonic-time))))
 
-(def function make-file-serving-broker/cache-entry (file-path &optional file-write-date bytes-to-respond)
-  (make-instance 'file-serving-broker/cache-entry
+(def function make-directory-serving-broker/cache-entry (file-path &optional file-write-date bytes-to-respond)
+  (make-instance 'directory-serving-broker/cache-entry
                  :file-path file-path
                  :file-write-date file-write-date
                  :bytes-to-respond bytes-to-respond))
 
-(def class* file-serving-broker (broker-with-path-prefix)
+(def class* directory-serving-broker (broker-with-path-prefix)
   ((root-directory)
    ;; TODO (files-only #f)
    (file-path->cache-entry (make-hash-table :test 'equal)))
@@ -25,10 +25,10 @@
 
 ;; TODO caching
 
-(def (function e) make-file-serving-broker (path-prefix root-directory &key priority)
-  (make-instance 'file-serving-broker :path-prefix path-prefix :root-directory root-directory :priority priority))
+(def (function e) make-directory-serving-broker (path-prefix root-directory &key priority)
+  (make-instance 'directory-serving-broker :path-prefix path-prefix :root-directory root-directory :priority priority))
 
-(def constructor file-serving-broker
+(def constructor directory-serving-broker
   (set-funcallable-instance-function
     -self-
     (lambda (request)
@@ -41,7 +41,7 @@
       (make-file-serving-response-for-query-path broker path-prefix relative-path root-directory))))
 
 (def generic make-file-serving-response-for-query-path (broker path-prefix relative-path root-directory)
-  (:method ((broker file-serving-broker) path-prefix relative-path root-directory)
+  (:method ((broker directory-serving-broker) path-prefix relative-path root-directory)
     (when (or (zerop (length relative-path))
               (alphanumericp (elt relative-path 0)))
       (bind ((pathname (merge-pathnames relative-path root-directory))
@@ -51,7 +51,7 @@
           (make-file-serving-response-for-directory-entry broker truename path-prefix relative-path root-directory))))))
 
 (def generic make-file-serving-response-for-directory-entry (broker truename path-prefix relative-path root-directory)
-  (:method ((broker file-serving-broker) truename path-prefix relative-path root-directory)
+  (:method ((broker directory-serving-broker) truename path-prefix relative-path root-directory)
     (cond
       ((cl-fad:directory-pathname-p truename)
        (if (or (ends-with #\/ relative-path)

@@ -164,7 +164,7 @@
       (funcall thunk))))
 
 (def (definer e) file-serving-entry-point (application path-prefix root-directory &key priority)
-  `(ensure-entry-point ,application (make-file-serving-broker ,path-prefix ,root-directory :priority ,priority)))
+  `(ensure-entry-point ,application (make-directory-serving-broker ,path-prefix ,root-directory :priority ,priority)))
 
 (def (definer e) js-file-serving-entry-point (application path-prefix root-directory &key priority)
-  `(ensure-entry-point ,application (make-js-file-serving-broker ,path-prefix ,root-directory :priority ,priority)))
+  `(ensure-entry-point ,application (make-js-directory-serving-broker ,path-prefix ,root-directory :priority ,priority)))
