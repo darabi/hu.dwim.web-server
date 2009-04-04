@@ -8,7 +8,8 @@
 ;;; MOP
 
 (def (class* e) component-class (computed-class)
-  ((computed-slots nil)))
+  ((computed-slots nil)
+   (component-slots nil)))
 
 (def class component-slot-definition (standard-slot-definition)
   ())
@@ -64,7 +65,8 @@
       (call-next-method)))
 
 (def method finalize-inheritance :after ((class component-class))
-  (setf (computed-slots-of class) (filter-if (of-type 'computed-effective-slot-definition) (class-slots class))))
+  (setf (computed-slots-of class) (filter-if (of-type 'computed-effective-slot-definition) (class-slots class)))
+  (setf (component-slots-of class) (filter-if (of-type 'component-effective-slot-definition) (class-slots class))))
 
 ;;;;;;
 ;;; Computed universe

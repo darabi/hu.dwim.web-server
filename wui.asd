@@ -278,14 +278,6 @@
 (defmethod perform ((op load-op) (system (eql (find-system :wui-and-cl-perec))))
   (pushnew :wui-and-cl-perec *features*))
 
-#+nil ; TODO asdf-system-connections is broken
-(defsystem-connection wui-and-cl-perec
-  :depends-on (:wui :cl-perec)
-  :requires (:wui :wui-core :cl-perec)
-  :components
-  ((:module "src"
-            :components ((:file "cl-perec-integration")))))
-
 (defsystem* wui-and-cl-typesetting
   :depends-on (:wui :cl-typesetting)
   :components
@@ -293,3 +285,11 @@
             :components
             ((:module "integration"
                       :components ((:file "cl-typesetting")))))))
+
+(defsystem* wui-and-cl-serializer
+  :depends-on (:wui :cl-serializer :cl-perec)
+  :components
+  ((:module "src"
+            :components
+            ((:module "integration"
+                      :components ((:file "cl-serializer")))))))
