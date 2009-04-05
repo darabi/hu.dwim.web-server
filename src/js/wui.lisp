@@ -562,7 +562,7 @@
 
 (setf wui.theme-setup-callbacks (create))
 
-(defun wui.call-theme-setup-callbacks (type id args)
+(defun wui.call-theme-setup-callbacks (type id &rest args &key &allow-other-keys)
   (bind ((callbacks (aref wui.theme-setup-callbacks type)))
     (when callbacks
       (dolist (callback callbacks)
@@ -575,8 +575,7 @@
       (setf (aref wui.theme-setup-callbacks type) callbacks))
     (.push callbacks fn)))
 
-(defun wui.setup-widget (type id args)
-  ;; TODO support &key args in js and use it here for args
+(defun wui.setup-widget (type id &rest args &key &allow-other-keys)
   (wui.call-theme-setup-callbacks type id args))
 
 
