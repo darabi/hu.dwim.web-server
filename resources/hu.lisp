@@ -28,11 +28,11 @@
          <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
             <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
             " email címen megteheti.">)
-      <p <a (:href `js-inline(history.go -1)) "Vissza">>>)
+      <p <a (:href "#" :onClick `js-inline(history.go -1)) "Vissza">>>)
 
   (render-access-denied-error-page (&key &allow-other-keys)
     <div
       <h1 "Hozzáférés megtagadva">
       <p "Nincs joga a kívánt oldal megtekintéséhez.">
-      <p <a (:href `js-inline(history.go -1)) "Vissza">>>))
+      <p <a (:href "#" :onClick `js-inline(history.go -1)) "Vissza">>>))
 

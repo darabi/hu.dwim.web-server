@@ -28,10 +28,10 @@
          <p "You may contact the administrators at the "
             <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
             " email address.">)
-      <p <a (:href `js-inline(history.go -1)) "Go back">>>)
+      <p <a (:href "#" :onClick `js-inline(history.go -1)) "Go back">>>)
 
   (render-access-denied-error-page (&key &allow-other-keys)
     <div
       <h1 "Access denied">
       <p "You have no permission to access the requested resource.">
-      <p <a (:href `js-inline(history.go -1)) "Go back">>>))
+      <p <a (:href "#" :onClick `js-inline(history.go -1)) "Go back">>>))

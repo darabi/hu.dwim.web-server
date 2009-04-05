@@ -343,9 +343,9 @@
     " "
     ,(bind ((action-href (action/href ()
                            (incf (counter-of -self-)))))
-       <a (:href "#" :onclick `js-inline(wui.io.action event ,action-href))
+       <a (:href "#" :onClick `js-inline(wui.io.action event ,action-href))
           "increment">
-       <a (:href "#" :onclick `js-inline(wui.io.action event ,action-href false))
+       <a (:href "#" :onClick `js-inline(wui.io.action event ,action-href false))
           "increment without ajax">)>)
 
 ;;;;;;
