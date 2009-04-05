@@ -4,12 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(macrolet ((x (&rest names)
-             `(progn
-                ,@(iter (for name :in names)
-                        (collect `(def (js-lisp-macro-alias e) ,name))))))
-  (x when unless))
-
 (macrolet ((forward (name)
              `(def js-macro ,(symbolicate "log." name) (&rest args)
                 (when (if (boundp '*application*)
