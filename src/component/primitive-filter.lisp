@@ -99,7 +99,7 @@
 (def render number-filter ()
   (ensure-client-state-sink -self-)
   (bind ((widget-id (generate-frame-unique-string "_stw")))
-    (render-number-component -self- :id widget-id)
+    (render-number-field-for-primitive-component -self- :id widget-id)
     `js(wui.field.setup-number-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
 ;;;;;;

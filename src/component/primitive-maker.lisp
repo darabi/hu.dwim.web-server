@@ -98,7 +98,7 @@
   ())
 
 (def render number-maker ()
-  (render-number-component -self-))
+  (render-number-field-for-primitive-component -self-))
 
 ;;;;;;
 ;;; Integer maker

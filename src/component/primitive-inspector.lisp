@@ -97,7 +97,7 @@
 (def render number-inspector ()
   (bind (((:read-only-slots edited) -self-))
     (if edited
-        (render-number-component -self-)
+        (render-number-field-for-primitive-component -self-)
         `xml,(print-component-value -self-))))
 
 ;;;;;;

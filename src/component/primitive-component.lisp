@@ -229,7 +229,7 @@
 (def component number-component (primitive-component)
   ())
 
-(def function render-number-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-up on-key-down)
+(def function render-number-field-for-primitive-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-up on-key-down)
   ;; TODO was print-component-value, but spaces are not accepted as a value of the <input>
   (bind ((component-value (component-value-and-bound-p component)))
     (render-number-field (if (null component-value)
