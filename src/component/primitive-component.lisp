@@ -230,12 +230,16 @@
   ())
 
 (def function render-number-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-up on-key-down)
-  (render-number-field (print-component-value component)
-                       (client-state-sink-of component)
-                       :id id
-                       :on-change on-change
-                       :on-key-up on-key-up
-                       :on-key-down on-key-down))
+  ;; TODO was print-component-value, but spaces are not accepted as a value of the <input>
+  (bind ((component-value (component-value-and-bound-p component)))
+    (render-number-field (if (null component-value)
+                             ""
+                             (princ-to-string component-value))
+                         (client-state-sink-of component)
+                         :id id
+                         :on-change on-change
+                         :on-key-up on-key-up
+                         :on-key-down on-key-down)))
 
 (def method print-component-value ((component number-component))
   (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
