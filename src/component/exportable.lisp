@@ -23,8 +23,8 @@
 (def layered-method make-standard-commands ((component exportable-component) (class standard-class) (prototype-or-instance standard-object))
   (append (optional-list (make-export-command :csv component class prototype-or-instance)
                          (make-export-command :pdf component class prototype-or-instance)
-                         #+nil ;; not yet implemented
-                         (make-export-command :odf component class prototype-or-instance))
+                         (make-export-command :ods component class prototype-or-instance)
+                         (make-export-command :odt component class prototype-or-instance))
           (call-next-method)))
 
 (def (layered-function e) make-export-command (format component class prototype-or-instance))
@@ -52,7 +52,7 @@
 
 (def layered-method make-export-command ((format (eql :csv)) (component component) (class standard-class) (prototype-or-instance standard-object))
   (command (icon export-csv)
-           (make-action
+           (make-component-action component
              (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format :utf-8)
                (execute-export-csv component)))
            :delayed-content #t
@@ -79,7 +79,7 @@
 
 (def layered-method make-export-command ((format (eql :pdf)) (component component) (class standard-class) (prototype-or-instance standard-object))
   (command (icon export-pdf)
-           (make-action
+           (make-component-action component
              (with-output-to-export-stream (*pdf-stream* :content-type +pdf-mime-type+ :external-format :iso-8859-1)
                (execute-export-pdf component)))
            :delayed-content #t
@@ -88,28 +88,55 @@
 (def (layered-function e) execute-export-pdf (component))
 
 ;;;;;;
-;;; ODF
+;;; ODT
 
-(def icon export-odf)
+(def icon export-odt)
 
 (def resources hu
-  (icon-label.export-odf "ODF")
-  (icon-tooltip.export-odf "A tartalom mentése ODF formátumban"))
+  (icon-label.export-odt "ODT")
+  (icon-tooltip.export-odt "A tartalom mentése ODT formátumban"))
 
 (def resources en
-  (icon-label.export-odf "ODF")
-  (icon-tooltip.export-odf "Export content in ODF format"))
+  (icon-label.export-odt "ODT")
+  (icon-tooltip.export-odt "Export content in ODT format"))
 
-(def special-variable *odf-stream*)
+(def special-variable *odt-stream*)
 
-(def layered-method make-export-command ((format (eql :odf)) (component component) (class standard-class) (prototype-or-instance standard-object))
-  (command (icon export-odf)
-           (make-action
-             (with-output-to-export-stream (*odf-stream* :content-type +odf-mime-type+ :external-format :utf-8)
-               (execute-export-odf component)))
+(def layered-method make-export-command ((format (eql :odt)) (component component) (class standard-class) (prototype-or-instance standard-object))
+  (command (icon export-odt)
+           (make-component-action component
+             (with-output-to-export-stream (*odt-stream* :content-type +odt-mime-type+ :external-format :utf-8)
+               (execute-export-odt component)))
            :delayed-content #t
            :path (export-file-name format component)))
 
-(def (layered-function e) execute-export-odf (component)
+(def (layered-function e) execute-export-odt (component)
   (:method ((component component))
-    (render-odf component)))
+    (render-odt component)))
+
+;;;;;;
+;;; ODS
+
+(def icon export-ods)
+
+(def resources hu
+  (icon-label.export-ods "ODS")
+  (icon-tooltip.export-ods "A tartalom mentése ODS formátumban"))
+
+(def resources en
+  (icon-label.export-ods "ODS")
+  (icon-tooltip.export-ods "Export content in ODS format"))
+
+(def special-variable *ods-stream*)
+
+(def layered-method make-export-command ((format (eql :ods)) (component component) (class standard-class) (prototype-or-instance standard-object))
+  (command (icon export-ods)
+           (make-component-action component
+             (with-output-to-export-stream (*ods-stream* :content-type +ods-mime-type+ :external-format :utf-8)
+               (execute-export-ods component)))
+           :delayed-content #t
+           :path (export-file-name format component)))
+
+(def (layered-function e) execute-export-ods (component)
+  (:method ((component component))
+    (render-ods component)))

@@ -50,7 +50,10 @@
 (def render-pdf :around component ()
   (render-component-in-environment -self- #'call-next-method))
 
-(def render-odf :around component ()
+(def render-odt :around component ()
+  (render-component-in-environment -self- #'call-next-method))
+
+(def render-ods :around component ()
   (render-component-in-environment -self- #'call-next-method))
 
 (def render string ()

@@ -68,7 +68,7 @@
   (typeset:table (:col-widths (normalized-column-widths (columns-of -self-)) :splittable-p #t)
     (typeset:row ()
       (foreach #'render-pdf (columns-of -self-)))
-    (foreach #'render-pdf (root-nodes-of -self-))))
+    (foreach #'render-pdf (rows-of -self-))))
 
 (def render-pdf column-component ()
   (typeset:cell ()

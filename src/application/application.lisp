@@ -545,7 +545,9 @@ Custom implementations should look something like this:
 
 (def (layered-function e) render-pdf (component))
 
-(def (layered-function e) render-odf (component))
+(def (layered-function e) render-odt (component))
+
+(def (layered-function e) render-ods (component))
 
 (def (definer e :available-flags "do") render (&body forms)
   (render-like-definer 'render forms -options-))
@@ -556,8 +558,11 @@ Custom implementations should look something like this:
 (def (definer e :available-flags "do") render-pdf (&body forms)
   (render-like-definer 'render-pdf forms -options-))
 
-(def (definer e :available-flags "do") render-odf (&body forms)
-  (render-like-definer 'render-odf forms -options-))
+(def (definer e :available-flags "do") render-odt (&body forms)
+  (render-like-definer 'render-odt forms -options-))
+
+(def (definer e :available-flags "do") render-ods (&body forms)
+  (render-like-definer 'render-ods forms -options-))
 
 (def function render-like-definer (name forms options)
   (bind ((layer (when (member (first forms) '(:in-layer :in))
