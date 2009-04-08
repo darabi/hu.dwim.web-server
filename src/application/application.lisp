@@ -651,11 +651,11 @@ Custom implementations should look something like this:
        (with-output-to-sequence (buffer-stream :external-format :utf-8
                                                :initial-buffer-size 256)
          (emit-into-xml-stream buffer-stream
-           (with-collapsed-js-scripts
-             (with-dojo-widget-collector
-               (call-in-rendering-environment *application* *session*
-                                              (lambda ()
-                                                (ajax-aware-render component)))))
+           `xml,@(with-collapsed-js-scripts
+                  (with-dojo-widget-collector
+                    (call-in-rendering-environment *application* *session*
+                                                   (lambda ()
+                                                     (ajax-aware-render component)))))
            +void+))
        :encoding :utf-8))))
 
