@@ -55,7 +55,7 @@
 
 (define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
-(def (special-variable e) *html-stream*)
+(def (special-variable e) *xml-stream*)
 (def (special-variable e) *js-stream*)
 
 (def (with-macro e) with-collapsed-js-scripts ()
@@ -71,9 +71,9 @@
      (ensure-list result)
      (unless (zerop (length script-body))
        (list (cl-quasi-quote::as-delayed-emitting
-	       (write-sequence #.(format nil "<script type=\"text/javascript\">// <![CDATA[~%") *html-stream*)
-	       (write-sequence script-body *html-stream*)
-	       (write-sequence #.(format nil "~%// ]]></script>") *html-stream*)))))))
+	       (write-sequence #.(format nil "<script type=\"text/javascript\">// <![CDATA[~%") *xml-stream*)
+	       (write-sequence script-body *xml-stream*)
+	       (write-sequence #.(format nil "~%// ]]></script>") *xml-stream*)))))))
 
 (def special-variable *request-content-length-limit* #.(* 5 1024 1024)
      "While uploading a file the size of the request may not go higher than this or WUI will signal an error.

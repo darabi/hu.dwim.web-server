@@ -42,7 +42,7 @@
 
 (def function make-str-transformation-pipeline ()
   (make-quasi-quoted-string-to-form-emitting-transformation-pipeline
-   '*html-stream*
+   '*xml-stream*
    :binary *transform-quasi-quote-to-binary*
    :encoding +encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*))
@@ -50,7 +50,7 @@
 (def function make-js-transformation-pipeline (&key embedded-in-xml inline-into-xml-attribute (inline-emitting *transform-quasi-quote-to-inline-emitting*))
   (make-quasi-quoted-js-to-form-emitting-transformation-pipeline
    (if embedded-in-xml
-       '*html-stream*
+       '*xml-stream*
        '*js-stream*)
    :binary *transform-quasi-quote-to-binary*
    :encoding +encoding+
@@ -69,7 +69,7 @@
 
 (def function make-xml-transformation-pipeline ()
   (make-quasi-quoted-xml-to-form-emitting-transformation-pipeline
-   '*html-stream*
+   '*xml-stream*
    :binary *transform-quasi-quote-to-binary*
    :encoding +encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*

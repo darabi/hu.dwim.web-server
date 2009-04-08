@@ -101,8 +101,8 @@
         (write (if capitalize-first-letter
                    (capitalize-first-letter article)
                    article)
-               :stream *html-stream*)
-        (write-char #\Space *html-stream*)))
+               :stream *xml-stream*)
+        (write-char #\Space *xml-stream*)))
     <span (:class ,(concatenate-string "class-name "
                                        (unless found?
                                          +missing-resource-css-class+)))

@@ -297,7 +297,7 @@
      `js(on-load
          (new dijit.Tooltip
               (create :connectId (array ,connect-id)
-                      :label ,(babel:octets-to-string (with-output-to-sequence (*html-stream* :external-format (external-format-of *response*))
+                      :label ,(babel:octets-to-string (with-output-to-sequence (*xml-stream* :external-format (external-format-of *response*))
                                                         (funcall tooltip))
                                                       :encoding (external-format-of *response*))
                       :position (array ,@position)))))))

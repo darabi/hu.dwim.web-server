@@ -492,18 +492,18 @@
 ;;; xhtml generation
 
 (def (macro e) with-html-stream (stream &body body)
-  `(bind ((*html-stream* ,stream))
+  `(bind ((*xml-stream* ,stream))
      ,@body))
 
 (def (macro e) emit-into-html-stream (stream &body body)
-  `(bind ((*html-stream* ,stream))
+  `(bind ((*xml-stream* ,stream))
      (emit (progn
              ,@body))))
 
 (def (macro e) emit-into-html-stream-buffer (&body body)
   (with-unique-names (buffer)
     `(with-output-to-sequence (,buffer :external-format +external-format+)
-       (bind ((*html-stream* ,buffer))
+       (bind ((*xml-stream* ,buffer))
          (emit (progn
                  ,@body))))))
 

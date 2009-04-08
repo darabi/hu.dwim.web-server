@@ -101,8 +101,8 @@
 
 (def method convert-to-primitive-response ((self directory-index-response))
   (bind ((title (concatenate-string "Directory index of \"" (relative-path-of self) "\" under \"" (path-prefix-of self) "\""))
-         (body (with-output-to-sequence (*html-stream* :external-format (external-format-of self)
-                                                       :initial-buffer-size 256)
+         (body (with-output-to-sequence (*xml-stream* :external-format (external-format-of self)
+                                                      :initial-buffer-size 256)
                  (with-html-document (:content-type +html-content-type+ :title title)
                    (render-directory-as-html (directory-of self) (path-prefix-of self) (relative-path-of self))))))
     (make-byte-vector-response* body

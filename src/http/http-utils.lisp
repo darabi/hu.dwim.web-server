@@ -39,7 +39,7 @@
 (def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +encoding+))
 (def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +encoding+))
 
-(def function emit-xml-prologue (&key (encoding +encoding+) (stream *html-stream*) version)
+(def function emit-xml-prologue (&key (encoding +encoding+) (stream *xml-stream*) version)
   (macrolet ((emit (string)
                `(write-string ,string stream)))
     (if (and (eq encoding :utf-8)
@@ -52,7 +52,7 @@
           (emit (string encoding))
           (emit (format nil "\"?>~%"))))))
 
-(def function emit-xhtml-prologue (encoding doctype &optional (stream *html-stream*))
+(def function emit-xhtml-prologue (encoding doctype &optional (stream *xml-stream*))
   (declare (ignore encoding))
   (macrolet ((emit (string)
                `(write-string ,(if (stringp string)
@@ -110,7 +110,7 @@
 ;; TODO
 (def (macro e) with-xhtml-document ((&key title content-type) &body body)
   `(progn
-     (format *html-stream* "<?xml version=\"1.0\" encoding=\"~A\"?>" (encoding-name-of *response*))
+     (format *xml-stream* "<?xml version=\"1.0\" encoding=\"~A\"?>" (encoding-name-of *response*))
      <html
        <head
          <meta (:content ,(or ,content-type
