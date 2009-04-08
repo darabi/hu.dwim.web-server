@@ -650,7 +650,7 @@ Custom implementations should look something like this:
       (octets-to-string
        (with-output-to-sequence (buffer-stream :external-format :utf-8
                                                :initial-buffer-size 256)
-         (emit-into-html-stream buffer-stream
+         (emit-into-xml-stream buffer-stream
            (with-collapsed-js-scripts
              (with-dojo-widget-collector
                (call-in-rendering-environment *application* *session*
@@ -727,7 +727,7 @@ Custom implementations should look something like this:
                    (app.debug "This is not a delayed content request, clearing the action and client-state-sink hashtables of ~A" *frame*)
                    (clrhash (action-id->action-of *frame*))
                    (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
-                 (emit-into-html-stream buffer-stream
+                 (emit-into-xml-stream buffer-stream
                    (bind ((start-time (get-monotonic-time)))
                      (multiple-value-prog1
                          (call-in-rendering-environment *application* *session*

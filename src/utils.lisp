@@ -491,25 +491,24 @@
 ;;;;;;;;;;;;;;;;;;;;
 ;;; xhtml generation
 
-(def (macro e) with-html-stream (stream &body body)
+(def (macro e) with-xml-stream (stream &body body)
   `(bind ((*xml-stream* ,stream))
      ,@body))
 
-(def (macro e) emit-into-html-stream (stream &body body)
+(def (macro e) emit-into-xml-stream (stream &body body)
   `(bind ((*xml-stream* ,stream))
      (emit (progn
              ,@body))))
 
-(def (macro e) emit-into-html-stream-buffer (&body body)
+(def (macro e) emit-into-xml-stream-buffer (&body body)
   (with-unique-names (buffer)
     `(with-output-to-sequence (,buffer :external-format +external-format+)
        (bind ((*xml-stream* ,buffer))
-         (emit (progn
-                 ,@body))))))
+         (emit (progn ,@body))))))
 
 (def (macro e) emit-http-response ((&optional headers-as-plist cookie-list) &body body)
   "Emit a full http response and also bind html stream, so you are ready to output directly into the network stream."
-  `(emit-into-html-stream (client-stream-of *request*)
+  `(emit-into-xml-stream (client-stream-of *request*)
      (send-http-headers (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
                                       (collect `(cons ,name ,value))))
                         (list ,@cookie-list))
@@ -517,7 +516,7 @@
 
 (def (macro e) emit-http-response* ((&optional headers cookies) &body body)
   "Just like EMIT-HTML-RESPONSE, but HEADERS and COOKIES are simply evaluated as expressions."
-  `(emit-into-html-stream (client-stream-of *request*)
+  `(emit-into-xml-stream (client-stream-of *request*)
      (send-http-headers ,headers ,cookies)
      ,@body))
 

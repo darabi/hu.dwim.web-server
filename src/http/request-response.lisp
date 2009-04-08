@@ -343,7 +343,7 @@
   `(make-functional-response ((+header/content-type+ +html-content-type+
                                ,@headers-as-plist)
                               (,@cookie-list))
-     (emit-into-html-stream (client-stream-of *request*)
+     (emit-into-xml-stream (client-stream-of *request*)
        ,@body)))
 
 (def (macro e) make-buffered-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
@@ -352,7 +352,7 @@
        (store-response ,response)
        ;; set a default content type header. do it early, so that it's already set when the body is rendered
        (setf (header-value ,response +header/content-type+) (content-type-for +html-mime-type+))
-       (bind ((buffer (emit-into-html-stream-buffer
+       (bind ((buffer (emit-into-xml-stream-buffer
                         ,@body)))
          (appendf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
                                                        (collect `(cons ,name ,value)))))
@@ -485,7 +485,7 @@
 (def method send-response ((self redirect-response))
   ;; can't use emit-http-response, because +header/content-location+ is not constant
   (call-next-method)
-  (emit-into-html-stream (client-stream-of *request*)
+  (emit-into-xml-stream (client-stream-of *request*)
     (with-html-document (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
 
