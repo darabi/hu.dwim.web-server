@@ -44,23 +44,26 @@
       (ensure-uptodate component)
       (funcall call-next-method))))
 
-(def render-csv :around component ()
+(def render-csv :around component
   (render-component-in-environment -self- #'call-next-method))
 
-(def render-pdf :around component ()
+(def render-pdf :around component
   (render-component-in-environment -self- #'call-next-method))
 
-(def render-odt :around component ()
+(def render-odt :around component
   (render-component-in-environment -self- #'call-next-method))
 
-(def render-ods :around component ()
+(def render-ods :around component
   (render-component-in-environment -self- #'call-next-method))
 
-(def render string ()
+(def render string
   `xml,-self-)
 
-(def render-csv string ()
+(def render-csv string
   (render-csv-value -self-))
+
+(def render-ods string
+  <text:p ,-self- >)
 
 (def (layered-function e) render-onclick-handler (component))
 

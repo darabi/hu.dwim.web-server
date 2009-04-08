@@ -23,16 +23,21 @@
          (*tree-level* -1))
     (call-next-method)))
 
-(def render tree-component ()
+(def render tree-component
   (bind (((:read-only-slots root-nodes id) -self-))
     <table (:id ,id :class "tree")
       <thead <tr ,(render-tree-columns -self-) >>
       <tbody ,(foreach #'render root-nodes) >>))
 
-(def render-csv tree-component ()
+(def render-csv tree-component
   (render-csv-line (columns-of -self-))
   (render-csv-line-separator)
   (foreach #'render-csv (root-nodes-of -self-)))
+
+(def render-ods tree-component
+  <table:table
+    <table:table-row ,(foreach #'render-ods (columns-of -self-))>
+    ,(foreach #'render-ods (root-nodes-of -self-))>)
 
 (def (layered-function e) render-tree-columns (tree-component)
   (:method ((self tree-component))
@@ -45,10 +50,7 @@
   ((child-nodes nil :type components)
    (cells nil :type components)))
 
-(def layered-method render-onclick-handler ((self node-component))
-  nil)
-
-(def render node-component ()
+(def render node-component
   (bind (((:read-only-slots child-nodes expanded id style) -self-)
          (tree-id (id-of *tree*))
          (onclick-handler? (render-onclick-handler -self-)))
@@ -59,10 +61,21 @@
     (when expanded
       (foreach #'render child-nodes))))
 
-(def render-csv node-component ()
+(def render-csv node-component
   (render-csv-line (cells-of -self-))
   (render-csv-line-separator)
   (foreach #'render-csv (child-nodes-of -self-)))
+
+(def render-ods node-component
+    <table:table-row ,(foreach (lambda (column cell)
+                                 (render-ods-tree-cell *tree* -self- column cell))
+                               (columns-of *tree*)
+                               (cells-of -self-))>
+    (awhen (child-nodes-of -self-)
+      <table:table-row-group ,(foreach #'render-ods (child-nodes-of -self-))>))
+
+(def layered-method render-onclick-handler ((self node-component))
+  nil)
 
 (def (layered-function e) tree-node-style-class (component)
   (:method ((self node-component))
@@ -126,6 +139,19 @@
   
   (:method ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
     (render cell)))
+
+(def (layered-function e) render-ods-tree-cell (tree node column cell)
+  (:method :before ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
+           (ensure-uptodate cell))
+
+  (:method ((tree tree-component) (node node-component) (column column-component) (cell component))
+    <table:table-cell ,(render-ods cell)>)
+
+  (:method ((tree tree-component) (node node-component) (column column-component) (cell string))
+    <table:table-cell ,(render-ods cell)>)
+
+  (:method ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
+    (render-ods cell)))
 
 ;;;;;;
 ;;; Entire node

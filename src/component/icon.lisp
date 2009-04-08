@@ -13,14 +13,17 @@
    (image-path nil :export :accessor)
    (tooltip nil :export :accessor)))
 
-(def render icon-component ()
+(def render icon-component
   (render-icon :icon -self-))
 
-(def render-csv icon-component ()
+(def render-csv icon-component
   (render-csv (force (label-of -self-))))
 
-(def render-pdf icon-component ()
+(def render-pdf icon-component
   (render-pdf (force (label-of -self-))))
+
+(def render-ods icon-component
+  (render-ods (force (label-of -self-))))
 
 (def layered-function render-icon-label (icon label)
   (:method (icon label)

@@ -28,8 +28,11 @@
    (component-value)
    (client-state-sink nil)))
 
-(def render-csv primitive-component ()
+(def render-csv primitive-component
   (render-csv-value (print-component-value -self-)))
+
+(def render-ods primitive-component
+  <text:p ,(print-component-value -self-) >)
 
 (def function ensure-client-state-sink (component)
   (setf (client-state-sink-of component)

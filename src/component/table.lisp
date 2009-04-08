@@ -18,7 +18,7 @@
   (bind ((*table* -self-))
     (call-next-method)))
 
-(def render table-component ()
+(def render table-component
   (bind (((:read-only-slots rows page-navigation-bar id) -self-))
     (setf (total-count-of page-navigation-bar) (length rows))
     <div <table (:id ,id :class "table")
@@ -36,10 +36,15 @@
               (render page-navigation-bar)
               +void+)>))
 
-(def render-csv table-component ()
+(def render-csv table-component
   (render-csv-line (columns-of -self-))
   (render-csv-line-separator)
   (foreach #'render-csv (rows-of -self-)))
+
+(def render-ods table-component
+  <table:table
+    <table:table-row ,(foreach #'render-ods (columns-of -self-))>
+    ,(foreach #'render-ods (rows-of -self-))>)
 
 (def (layered-function e) render-table-columns (table-component)
   (:method ((self table-component))
@@ -54,21 +59,38 @@
 (def (macro e) column (content &rest args)
   `(make-instance 'column-component :content ,content ,@args))
 
+(def render column-component
+  (bind ((id (generate-frame-unique-string)))
+    <th <div (:id ,id) ,(call-next-method)>>
+    `js(wui.setup-widget "column" ,id)))
+
+(def render-ods column-component
+  <table:table-cell ,(call-next-method)>)
+
 (def generic pdf-column-width (column)
   (:method ((column column-component))
     ;; TODO: KLUDGE:
     100))
-
-(def render column-component ()
-  (bind ((id (generate-frame-unique-string)))
-    <th <div (:id ,id) ,(call-next-method)>>
-    `js(wui.setup-widget "column" ,id)))
 
 ;;;;;;
 ;;; Row
 
 (def component row-component (remote-identity-component-mixin)
   ((cells nil :type components)))
+
+(def render row-component
+  (render-table-row *table* -self-))
+
+(def render-csv row-component
+  (render-csv-line (cells-of -self-))
+  (render-csv-line-separator))
+
+(def render-ods row-component
+  <table:table-row ,(bind ((table (parent-component-of -self-)))
+                          (foreach (lambda (cell column)
+                                     (render-ods-table-cell table -self- column cell))
+                                   (cells-of -self-)
+                                   (columns-of table)))>)
 
 (def function odd/even-class (component components)
   (if (zerop (mod (position component components) 2))
@@ -105,13 +127,6 @@
           (when (force (visible-p column))
             (render-table-cell table row column cell)))))
 
-(def render row-component ()
-  (render-table-row *table* -self-))
-
-(def render-csv row-component ()
-  (render-csv-line (cells-of -self-))
-  (render-csv-line-separator))
-
 ;;;;;;
 ;;; Entire row
 
@@ -143,6 +158,12 @@
 (def component cell-component (content-component)
   ())
 
+(def render cell-component
+  <td ,(call-next-method)>)
+
+(def render-ods cell-component
+  <table:table-cell ,(call-next-method)>)
+
 (def (layered-function e) render-table-cell (table row column cell)
   (:method :before ((table table-component) (row row-component) (column column-component) (cell cell-component))
     (ensure-uptodate cell))
@@ -156,5 +177,15 @@
   (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
     (render cell)))
 
-(def render cell-component ()
-  <td ,(call-next-method)>)
+(def (layered-function e) render-ods-table-cell (table row column cell)
+  (:method :before ((table table-component) (row row-component) (column column-component) (cell cell-component))
+    (ensure-uptodate cell))
+
+  (:method ((table table-component) (row row-component) (column column-component) (cell component))
+    <table:table-cell ,(render-ods cell)>)
+
+  (:method ((table table-component) (row row-component) (column column-component) (cell string))
+    <table:table-cell ,(render-ods cell)>)
+
+  (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
+    (render-ods cell)))

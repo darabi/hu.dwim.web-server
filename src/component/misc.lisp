@@ -10,14 +10,17 @@
 (def component content-component ()
   ((content nil :type component)))
 
-(def render content-component ()
+(def render content-component
   (render (content-of -self-)))
 
-(def render-csv content-component ()
+(def render-csv content-component
   (render-csv (content-of -self-)))
 
-(def render-pdf content-component ()
+(def render-pdf content-component
   (render-pdf (content-of -self-)))
+
+(def render-ods content-component
+  (render-ods (content-of -self-)))
 
 (def method refresh-component ((self content-component))
   (when-bind content (content-of self)
@@ -73,14 +76,17 @@
 (def (macro e) label (text)
   `(make-instance 'label-component :component-value ,text))
 
-(def render label-component ()
+(def render label-component
   <span ,(component-value-of -self-)>)
 
-(def render-csv label-component ()
+(def render-csv label-component
   (render-csv (component-value-of -self-)))
 
-(def render-pdf label-component ()
+(def render-pdf label-component
   (render-pdf (component-value-of -self-)))
+
+(def render-ods label-component
+  (render-ods (component-value-of -self-)))
 
 ;;;;;;
 ;;; Delay

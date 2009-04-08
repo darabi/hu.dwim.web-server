@@ -20,17 +20,20 @@
                                                  (class-name (class-of it))
                                                  (default-component-type-of self)))))
 
-(def render alternator-component ()
+(def render alternator-component
   (bind (((:read-only-slots content command-bar) -self-))
     (if (typep content '(or reference-component primitive-component))
         (render content)
         (render-vertical-list (list content command-bar)))))
 
-(def render-csv alternator-component ()
+(def render-csv alternator-component
   (render-csv (content-of -self-)))
 
-(def render-pdf alternator-component ()
+(def render-pdf alternator-component
   (render-pdf (content-of -self-)))
+
+(def render-ods alternator-component
+  (render-ods (content-of -self-)))
 
 (def function make-alternative-commands (component alternatives)
   (delete nil
