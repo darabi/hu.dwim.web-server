@@ -808,3 +808,18 @@ Custom implementations should look something like this:
   (with-lock-held-on-application (application)
     (iter (for (key session) :in-hashtable (session-id->session-of application))
           (mark-expired session))))
+
+(def (class* e) application-with-dojo-support (application)
+  ((dojo-skin-name nil)
+   (dojo-file-name nil)
+   (dojo-directory-name nil))
+  (:metaclass funcallable-standard-class))
+
+(def method call-in-application-environment :around ((application application-with-dojo-support) session thunk)
+  (bind ((*dojo-skin-name* (or (dojo-skin-name-of application)
+                               *dojo-skin-name*))
+         (*dojo-file-name* (or (dojo-file-name-of application)
+                               *dojo-file-name*))
+         (*dojo-directory-name* (or (dojo-directory-name-of application)
+                                    *dojo-directory-name*)))
+    (call-next-method)))
