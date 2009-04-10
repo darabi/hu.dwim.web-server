@@ -17,11 +17,6 @@ absolutize ()
 }
 
 LOCALE_LIST="en-us"
-WUI_HOME="`dirname $0`/.."
-DOJO_RELEASE_DIR="${WUI_HOME}/wwwroot/"
-DOJO_HOME="`dirname $0`/../../dojo"
-DOJO_RELEASE_NAME=`date +"%Y-%m-%dT%H-%M"`
-DOJO_PROFILE="${WUI_HOME}/etc/wui/profile.js"
 
 TEMP=`getopt -o h --long help,dojo:,dojo-release-name:,dojo-release-dir:,wui:,profile:,locales: -n "$0" -- "$@"`
 
@@ -38,8 +33,6 @@ while true ; do
         		        exit 0
         		        ;;
         	--wui) WUI_HOME=$2 ; shift 2
-                     DOJO_PROFILE="${WUI_HOME}/etc/wui/profile.js"
-                     DOJO_RELEASE_DIR="${WUI_HOME}/wwwroot/"
         	     ;;
         	--dojo) DOJO_HOME=$2 ; shift 2
         	      ;;
@@ -55,6 +48,26 @@ while true ; do
 		*) echo "Internal error at $1!" ; exit 1 ;;
 	esac
 done
+
+if [ -z "${DOJO_RELEASE_NAME}" ]; then
+  DOJO_RELEASE_NAME=`cd $DOJO_HOME; svn info | grep Revision: | awk '{print $2}'`
+fi
+
+if [ -z "${WUI_HOME}" ]; then
+  WUI_HOME="`dirname $0`/.."
+fi
+
+if [ -z "${DOJO_RELEASE_DIR}" ]; then
+  DOJO_RELEASE_DIR="${WUI_HOME}/wwwroot/"
+fi
+
+if [ -z "${DOJO_HOME}" ]; then
+  DOJO_HOME="`dirname $0`/../../dojo"
+fi
+
+if [ -z "${DOJO_PROFILE}" ]; then
+  DOJO_PROFILE="${WUI_HOME}/etc/wui/profile.js"
+fi
 
 #echo "Remaining arguments:"
 #for arg do echo '--> '"\`$arg'" ; done
