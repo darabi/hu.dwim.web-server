@@ -3,11 +3,16 @@
 ;;;;;;
 ;;; this is a simple example application with login and logout support
 
-(def (constant :test 'equalp) +wudemo-stylesheet-uris+ '("static/css/wudemo.css"
-                                                         "static/wui/css/wui.css"
-                                                         "static/wui/css/wui-default-skin.css"
-                                                         "static/dojo/dijit/themes/tundra/tundra.css"
-                                                         "static/dojo/dojo/resources/dojo.css"))
+(def special-variable *wudemo-stylesheet-uris* (append (flet ((entry (path)
+                                                                (list (concatenate-string "static/" path)
+                                                                      (assert-file-exists (system-relative-pathname :wui (concatenate-string "wwwroot/" path)))))
+                                                              (dojo-relative-path (path)
+                                                                (concatenate-string *dojo-directory-name* path)))
+                                                         (list (entry "wui/css/wudemo.css")
+                                                               (entry "wui/css/wui.css")
+                                                               (entry "wui/css/wui-default-skin.css")
+                                                               (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
+                                                               (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
 
 (def (constant :test 'equalp) +wudemo-script-uris+ '("wui/js/wui.js"))
 
@@ -22,7 +27,7 @@
 
 (def class* wudemo-session ()
   ((authenticated-subject nil)
-   (example-inline-edit-box-value "click to edit this...")))
+   (example-inline-edit-box-value "initial value of the example inline edit box")))
 
 (def function current-authenticated-subject ()
   (and *session*
@@ -99,9 +104,9 @@
 (def function make-wudemo-frame-component-with-content (menu-content)
   (bind ((menu (make-wudemo-menu-component)))
     (bind ((frame-component (frame (:title "wudemo"
-                                           :stylesheet-uris '#.+wudemo-stylesheet-uris+
-                                           :script-uris '#.+wudemo-script-uris+
-                                           :page-icon #.+wudemo-page-icon+)
+                                    :stylesheet-uris *wudemo-stylesheet-uris*
+                                    :script-uris '#.+wudemo-script-uris+
+                                    :page-icon #.+wudemo-page-icon+)
                               (vertical-list (:id "page")
                                 (when *session*
                                   (style (:id "header" :css-class "authenticated")
@@ -175,7 +180,9 @@
   `js(dojo.require #.+dijit/inline-edit-box+)
   (bind ((id (generate-frame-unique-string "inlineEditor")))
     <span
-      "This is stored in the session, click to edit: "
+      "This is an InlineEditBox widget whose value is stored in the session (remains after a \"Start over\")"
+      <br>
+      "Click value to edit:"
       ,(render-dojo-widget (id)
         <span (:id ,id
                :dojoType #.+dijit/inline-edit-box+
@@ -184,10 +191,10 @@
                                     (create
                                      :content (create :example-inline-edit-box-value (aref arguments 0))
                                      :url ,(action/href (:delayed-content #t)
-                                                        (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
-                                                          (setf (example-inline-edit-box-value-of *session*) value))
-                                                        ;; TODO this is, well, proof-of-concept quality for now...
-                                                        (make-do-nothing-response))
+                                             (with-request-params (((value "exampleInlineEditBoxValue") "this is the default value; it's a bug!"))
+                                               (setf (example-inline-edit-box-value-of *session*) value))
+                                             ;; TODO this is only proof-of-concept quality for now... it'll just close the http socket
+                                             (make-do-nothing-response))
                                      :load (lambda (response args)))))
           ,(example-inline-edit-box-value-of *session*)>)>))
 
@@ -341,12 +348,10 @@
     "A counter local to this component: "
     ,(counter-of -self-)
     " "
-    ,(bind ((action-href (action/href ()
-                           (incf (counter-of -self-)))))
-       <a (:href "#" :onClick `js-inline(wui.io.action event ,action-href))
-          "increment">
-       <a (:href "#" :onClick `js-inline(wui.io.action event ,action-href false))
-          "increment without ajax">)>)
+    ,(bind ((action (make-action
+                      (incf (counter-of -self-)))))
+       (render-command "increment" action)
+       (render-command "increment without ajax" action :ajax #f))>)
 
 ;;;;;;
 ;;; the entry points

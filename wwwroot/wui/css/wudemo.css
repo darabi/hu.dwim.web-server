@@ -1,0 +1,101 @@
+html
+{
+  overflow: hidden;
+}
+
+body
+{
+  margin: 0;
+  padding: 0;
+  font-family: 'Tahoma';
+  font-size: 12px;
+  color: black;
+  background-color: white;
+  overflow: hidden;
+  cursor: default;
+}
+
+li
+{
+  cursor: default;
+}
+
+table
+{
+  border-collapse: collapse;
+}
+
+td
+{
+  padding: 0px;
+}
+
+a
+{
+  text-decoration: none;
+}
+
+h1
+{
+  padding: 0px;
+  margin: 0px;
+}
+
+img
+{
+  border-width: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+div
+{
+  cursor: inherit;
+}
+
+p
+{
+  margin-top: 0px;
+}
+
+th
+{
+  white-space: nowrap;
+}
+
+.command
+{
+  margin-right: 1.5em;
+}
+
+#menu > div > div
+{
+  padding-left: 0.5em;
+}
+
+#menu > div > div > div
+{
+  padding-left: 1.5em;
+}
+
+#menu > div > div > div > div
+{
+  padding-left: 1.5em;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  padding-left: 24px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-right: 2px;
+  background-repeat: no-repeat;
+  background-position: left center;
+}
+
+.command
+{
+  color: #008;
+}
