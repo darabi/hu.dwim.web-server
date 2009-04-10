@@ -118,6 +118,8 @@
              :dojoType #.+dijit/filtering-select+
              :name ,name
              ,(maybe-make-xml-attribute "onChange" on-change))
+      ;; TODO the qq patch "xml: add optimizations that collapse xml tags even when a macro and list qq is also involved" breaks this
+      ;; add a qq test that triggers this
       ,(iter (for index :upfrom 0)
              (for possible-value :in-sequence possible-values)
              (for actual-value = (funcall key possible-value))

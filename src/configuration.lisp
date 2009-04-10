@@ -110,15 +110,17 @@
                                   (make-js-transformation-pipeline :embedded-in-xml t)))
    :dispatched-quasi-quote-name 'js)
   (enable-quasi-quoted-js-syntax
-   :transformation-pipeline (lambda ()
-                              ;; the js-inline qq syntax is only in inline-emitting mode when used lexically-below another qq reader.
-                              ;; this way it works as expected:
-                              ;; (some-function `js-inline(+ 2 40))
-                              ;; (defun some-function (on-click)
-                              ;;   <div (:on-click ,on-click)>)
-                              (if (= 1 *quasi-quote-lexical-depth*)
-                                  (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t :inline-emitting nil)
-                                  (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t)))
+   :transformation-pipeline (bind ((toplevel-pipeline (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t :inline-emitting nil))
+                                   (nested-pipeline (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t)))
+                              (lambda ()
+                                ;; the js-inline qq syntax is only in inline-emitting mode when used lexically-below another qq reader.
+                                ;; this way it works as expected:
+                                ;; (some-function `js-inline(+ 2 40))
+                                ;; (defun some-function (on-click)
+                                ;;   <div (:on-click ,on-click)>)
+                                (if (= 1 *quasi-quote-lexical-depth*)
+                                    toplevel-pipeline
+                                    nested-pipeline)))
    :dispatched-quasi-quote-name 'js-inline)
   (enable-quasi-quoted-xml-syntax
    :transformation-pipeline (make-xml-transformation-pipeline)))

@@ -10,8 +10,8 @@
 (def component chart ()
   ((configuration-provider)
    (data-provider nil)
-   (width)
-   (height)))
+   (width 600)
+   (height 400)))
 
 (def function render-chart (component kind)
   ;; TODO: move this to frame or something higher?
@@ -21,17 +21,22 @@
            (data-provider (data-provider-of component)))
       ;; TODO: generate variable name
       <div (:id ,id) ,#"chart.missing-flash-plugin">
-      `js(let ((variable (new SWFObject ,(concatenate 'string  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8")))
-           (.addParam variable "wmode" "transparent")
-           (.addVariable variable "path" ,path) 
-           (.addVariable variable "settings_file"
-                         (encodeURIComponent ,(action/href (:delayed-content #t)
-                                                (funcall (configuration-provider-of component)))))
+      `js(let ((chart (new SWFObject ,(concatenate 'string  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8")))
+           (chart.addParam "wmode" "transparent")
+           (chart.addVariable "path" ,path)
+           (chart.addVariable "settings_file"
+                              (encodeURIComponent ,(action/href (:delayed-content #t)
+                                                                (funcall (configuration-provider-of component)))))
+           ;; TODO this should work, fix qq
+           ;;,(when data-provider
+           ;;  `js(chart.addVariable "data_file"
+           ;;                        (encodeURIComponent ,(action/href (:delayed-content #t)
+           ;;                                                          (funcall (data-provider-of component))))))
            (unless ,(null data-provider)
-             (.addVariable variable "data_file"
-                           (encodeURIComponent ,(action/href (:delayed-content #t)
-                                                  (funcall (data-provider-of component))))))
-           (.write variable ,id)))))
+             (chart.addVariable "data_file"
+                                (encodeURIComponent ,(action/href (:delayed-content #t)
+                                                                  (funcall (data-provider-of component))))))
+           (chart.write ,id)))))
 
 ;; TODO add two variants instead of this: one that builds up the xml at creation time and serves the constant
 ;; and another one that delays and runs the xml building each time the request is served. 

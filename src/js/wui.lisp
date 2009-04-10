@@ -110,7 +110,7 @@
   (with-ucw-error-handler
       (with-ajax-answer data
         (let ((return-value-node (aref (data.get-elements-by-tag-name "return-value") 0))
-              (return-value-string return-value-node.first-child))
+              (return-value-string return-value-node.firstChild))
           (log.debug "Return value (as string) is " return-value-string ", as node " return-value-node)
           (return (eval return-value-string))))))
 
@@ -293,37 +293,37 @@
                                 (let ((value attribute.node-value))
                                   (setf (aref to attribute.node-name) value))))))
        (cond ((= node.tagName "script")
-              (setf result (document.create-element "script"))
+              (setf result (document.createElement "script"))
               (copy-attributes node result)
               (setf result.text node.text))
              ((= node.tagName "tr")
               ;; this is ugly here for a reason: ie sucks. seems like this is the only way to create a
               ;; tr node on the ie side that behaves as normal dom nodes (i.e. it can be added to the dom).
               ;; this was tested only on ie6.
-              (setf result (document.create-element "tr"))
+              (setf result (document.createElement "tr"))
               (copy-attributes node result)
-              (dolist (td node.child-nodes)
+              (dolist (td node.childNodes)
                 (if (= td.tagName "td")
                     (let ((body td.xml)
-                          (start (1+ (.index-of body ">")))
+                          (start (1+ (.indexOf body ">")))
                           (end (- body.length 5))
-                          (imported-td (document.create-element "td")))
+                          (imported-td (document.createElement "td")))
                       ;; chop off the opening and the closing tag, so that we get the innerHTML
                       (setf body (.substring body start end))
                       (setf imported-td.innerHTML body)
                       (copy-attributes td imported-td)
-                      (result.append-child imported-td))
-                    (result.append-child (wui.io.import-ajax-received-xhtml-node td)))))
+                      (result.appendChild imported-td))
+                    (result.appendChild (wui.io.import-ajax-received-xhtml-node td)))))
              (t
               ;; create a node and setf its innerXML property
               ;; this will parse the xhtml we received and convert it
               ;; to dom nodes that ie will not bark on.
-              (setf result (document.create-element "div"))
+              (setf result (document.createElement "div"))
               (log.debug "Assigning innerHTML")
               (setf result.innerHTML node.xml)
               (log.debug "innerHTML was assigned succesfully")
-              (assert (= 1 result.child-nodes.length))
-              (setf result (dojox.data.dom.first-element result))))
+              (assert (= 1 result.childNodes.length))
+              (setf result result.firstChild)))
        (log.debug "Succesfully imported answer node, returning")
        (return result))))
   (log.warn "Unknown browser in import-ajax-received-xhtml-node, this will probably cause some troubles later. Browser is " navigator.userAgent)

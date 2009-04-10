@@ -118,7 +118,10 @@
     ;; from http://turtle.dojotoolkit.org/~david/recss.html
     (menu-item ()
         (inline-component
-          <a (:href "#" :onClick `js-inline(wui.reload-css)) "Reload CSS">))
+          <a (:href "#"
+              :class "command"
+              :onClick `js-inline(wui.reload-css))
+             "Reload CSS">))
     #+sbcl
     (menu-item ()
         (replace-menu-target-command "Frame size breakdown"
