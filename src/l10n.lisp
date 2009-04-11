@@ -260,6 +260,9 @@
   (:method ((instance standard-object))
     (princ-to-string instance)))
 
+(def function funcall-resource-function (name &rest args)
+  (apply-resource-function name args))
+
 (def function apply-resource-function (name &optional args)
   (flet ((fallback-locale-for-functional-resources ()
            (acond
