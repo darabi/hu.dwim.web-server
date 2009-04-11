@@ -39,6 +39,9 @@
 (def (macro e) foreach (function first-list &rest more-lists)
   `(map nil ,function ,first-list ,@more-lists))
 
+(def macro to-boolean (form)
+  `(not (not ,form)))
+
 (def macro surround-body-when (test surround-with &body body)
   (cond
     ((eq test t)
@@ -357,23 +360,28 @@
 (def function localized-string-reader (stream c1 c2)
   (declare (ignore c2))
   (unread-char c1 stream)
-  (let ((key (read stream)))
+  (bind ((key (read stream))
+         (capitalize? (to-boolean (and (> (length key) 0)
+                                       (upper-case-p (elt key 0))))))
     (if (ends-with-subseq "<>" key)
-        `(bind (((:values str foundp) (lookup-resource ,(string-downcase (subseq key 0 (- (length key) 2))))))
-           ,(when (and (> (length key) 0)
-                       (upper-case-p (elt key 0)))
-              `(setf str (capitalize-first-letter str)))
-           (if foundp
-               `xml ,str
-               <span (:class #.+missing-resource-css-class+)
-                 ,str>))
-        `(bind (((:values str foundp) (lookup-resource ,(string-downcase key))))
-           (declare (ignorable foundp))
-           ,(when (and (> (length key) 0)
-                       (upper-case-p (elt key 0)))
-              `(when foundp
-                 (setf str (capitalize-first-letter str))))
-           str))))
+        `(%localized-string-reader/impl<> ,(string-downcase key) ,capitalize?)
+        `(%localized-string-reader/impl ,(string-downcase key) ,capitalize?))))
+
+(def function %localized-string-reader/impl<> (key capitalize?)
+  (bind (((:values str found?) (lookup-resource (subseq key 0 (- (length key) 2)))))
+    (when capitalize?
+      (setf str (capitalize-first-letter str)))
+    (if found?
+        `xml ,str
+        <span (:class #.+missing-resource-css-class+)
+              ,str>)))
+
+(def function %localized-string-reader/impl (key capitalize?)
+  (bind (((:values str found?) (lookup-resource key)))
+    (when (and capitalize?
+               found?)
+      (setf str (capitalize-first-letter str)))
+    str))
 
 (def function mailto-href (email-address)
   (concatenate 'string "mailto:" email-address))
