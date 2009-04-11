@@ -47,7 +47,7 @@
 ;;;;;;
 ;;; io
 
-(defun wui.io.action (event url (ajax true) (send-client-state true))
+(defun wui.io.action (url &key event (ajax true) (send-client-state true))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if ajax "t" "")))
@@ -86,7 +86,6 @@
               (setf (slot-value form 'action) decorated-url)
               (form.submit))
             (setf window.location.href decorated-url))))
-  ;; TODO: event should be mandatory (really? what about firing actions from custom js code bodies?)
   (when event
     (dojo.stop-event event)))
 

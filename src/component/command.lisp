@@ -80,10 +80,11 @@
              ((:values href send-client-state?) (href-for-command action action-arguments))
              (onclick-js (or js
                              (lambda (href)
-                               `js(wui.io.action event ,href
-                                                 ,(when (ajax-enabled? *application*)
-                                                    (force ajax))
-                                                 ,send-client-state?))))
+                               `js(wui.io.action ,href
+                                                 :event event
+                                                 :ajax ,(when (ajax-enabled? *application*)
+                                                          (force ajax))
+                                                 :send-client-state ,send-client-state?))))
              (name (when (running-in-test-mode-p *application*)
                      (if (typep content 'icon-component)
                          (symbol-name (name-of content))
@@ -105,9 +106,11 @@
          ((:values href send-client-state?) (href-for-command action action-arguments)))
     `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
                               (lambda (event)
-                                (wui.io.action event ,href ,(when (ajax-enabled? *application*)
-                                                              (force (ajax-p command)))
-                                               ,send-client-state?))))))
+                                (wui.io.action ,href
+                                               :event event
+                                               :ajax,(when (ajax-enabled? *application*)
+                                                      (force (ajax-p command)))
+                                               :send-client-state ,send-client-state?))))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))

@@ -92,13 +92,13 @@
                                                       "static/wui/icons/20x20/arrowhead-right.png")))>
           `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
                                     (lambda (event)
-                                      (wui.io.action event ,(action/href ()
-                                                              (setf expanded (not expanded))
-                                                              ;; NOTE: we make dirty the whole tree, because it is difficult to replace the rows corresponding to the tree node
-                                                              (mark-dirty tree))
-                                                     ,(when (ajax-enabled? *application*)
-                                                        (id-of tree))
-                                                     #t)))))
+                                      (wui.io.action ,(action/href ()
+                                                        (setf expanded (not expanded))
+                                                        ;; NOTE: we make dirty the whole tree, because it is difficult to replace the rows corresponding to the tree node
+                                                        (mark-dirty tree))
+                                                     :event event
+                                                     :ajax ,(when (ajax-enabled? *application*)
+                                                              (id-of tree)))))))
         <span (:class "non-expandable")>)))
 
 (def (function e) render-tree-node-expander-cell (node-component)

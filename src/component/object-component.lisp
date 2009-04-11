@@ -339,8 +339,7 @@
 (def render class-selector ()
   (if (edited-p -self-)
       (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
-        ;; TODO: use dojo.connect and pass down event
-        (render-member-component -self- :on-change `js-inline(wui.io.action nil ,href #f #t)))
+        (render-member-component -self- :on-change `js-inline(wui.io.action ,href :ajax #f)))
       (call-next-method)))
 
 ;;;;;;
