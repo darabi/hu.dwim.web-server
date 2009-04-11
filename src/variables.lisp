@@ -277,7 +277,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
 
 (def (constant e :test 'string=) +page-failed-to-load-id+ "_failed-to-load")
-(def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 5000)
+(def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 10000)
 
 (def (special-variable e) *dojo-skin-name* "tundra")
 (def (special-variable e) *dojo-file-name* "dojo.js")

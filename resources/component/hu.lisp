@@ -9,9 +9,9 @@
   (render-failed-to-load-page (&key &allow-other-keys)
     <div (:id ,+page-failed-to-load-id+)
      <h1 "Gyanúsan sokáig tart az oldal betöltése...">
-     <p "Sajnos egyes böngészők néha összezavarodnak az oldal betöltése közben. Próbálja meg "
-        <a (:href "#" :onclick "return _wui_handleFailedToLoad()") "újratölteni az oldalt">
-        ", és ha az többszöri próbálkozásra sem segít, akkor törölje a böngésző gyorsítótárát.">>))
+     <p "Sajnos egyes böngészők néha összezavarodnak az egyébként hibátlan oldal betöltése közben. Az "
+        <a (:href "#" :onclick "return _wui_handleFailedToLoad()") "oldal újratöltése">
+        " a legtöbb esetben megoldja a problémát.">>))
 
 ;;; Context sensitive help
 (def resources hu
