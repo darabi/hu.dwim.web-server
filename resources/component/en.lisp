@@ -40,6 +40,14 @@
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Type")
   (standard-object-detail-maker.class-selector-label "Class")
+
+  (delete-instance.dialog.title "Deleting an object")
+  (delete-instance.dialog.body (&key class instance &allow-other-keys)
+    (declare (ignore class))
+    <p "Are you sure you wan to delete the object "
+       ;; TODO replace with a reference renderer
+       ,(princ-to-string instance)
+       " ?">)
   )
 
 ;;; File up/download

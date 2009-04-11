@@ -66,6 +66,14 @@
            (make-action
              (bind ((instance (instance-of self)))
                (execute-delete-instance self (class-of instance) instance)))
+           :js (lambda (href)
+                 (render-dojo-dialog (dialog-id :title #"delete-instance.dialog.title")
+                   <div
+                    ,(bind ((instance (instance-of self)))
+                       (funcall-resource-function 'delete-instance.dialog.body :class (class-of instance) :instance instance))
+                    ,(render-dojo-dialog/buttons
+                      (#"Icon-label.cancel" `js-inline(.hide (dijit.byId ,dialog-id)))
+                      (#"Icon-label.delete" `js-inline(wui.io.action ,href :ajax #f)))>))
            :visible (delay (not (edited-p self)))))
 
 (def (layered-function e) execute-delete-instance (component class instance)

@@ -42,6 +42,13 @@
   (object-tree-table.column.commands "")
   (object-tree-table.column.type "Típus")
   (standard-object-detail-maker.class-selector-label "Típus")
+
+  (delete-instance.dialog.title "Objektum törlése")
+  (delete-instance.dialog.body (&key instance &allow-other-keys)
+    <p "Biztos benne, hogy le szeretné törölni a következő objektumot?"
+       <br>
+       ;; TODO replace with a reference renderer
+       ,(princ-to-string instance)>)
   )
 
 ;;; File up/download
