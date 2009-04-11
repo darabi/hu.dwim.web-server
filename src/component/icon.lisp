@@ -165,13 +165,21 @@
   (icon-label.save "Save")
   (icon-tooltip.save "Save changes and finish editing"))
 
+(def icon cancel-editing)
+(def resources hu
+  (icon-label.cancel-editing "Elvetés")
+  (icon-tooltip.cancel-editing "Változtatások elvetése és a szerkesztés befejezése"))
+(def resources en
+  (icon-label.cancel-editing "Cancel")
+  (icon-tooltip.cancel-editing "Cancel changes and finish editing"))
+
 (def icon cancel)
 (def resources hu
-  (icon-label.cancel "Elvetés")
-  (icon-tooltip.cancel "Változtatások elvetése és a szerkesztés befejezése"))
+  (icon-label.cancel "Mégse")
+  (icon-tooltip.cancel "Az aktuális művelet félbeszakítása az esetleges változtatások elmentése nélkül"))
 (def resources en
   (icon-label.cancel "Cancel")
-  (icon-tooltip.cancel "Cancel changes and finish editing"))
+  (icon-tooltip.cancel "Cancel the current operation without modifying anything"))
 
 (def icon store)
 (def resources hu

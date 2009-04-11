@@ -144,7 +144,7 @@
 (def (function e) make-cancel-editing-command (editable)
   "The CANCEL-EDITING command rolls back the changes present under an EDITABLE-COMPNENT and leaves editing"
   (assert (typep editable 'editable-component))
-  (command (icon cancel)
+  (command (icon cancel-editing)
            (make-component-action editable
              (cancel-editing editable))
            :visible (delay (edited-p editable))))
