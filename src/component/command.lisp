@@ -92,7 +92,9 @@
         ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
         ;; TODO: when rendering a span, tab navigation skips the commands
         <span (:id ,id :class "command" :name ,name) ,(render content)>
-        `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href))))
+        `js(on-load
+            (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
+            (wui.setup-widget "command" ,id))
         ;; TODO: use dojo.connect for keyboard events
         (when default
           (bind ((submit-id (generate-response-unique-string)))
@@ -209,7 +211,9 @@
                                 :dojoType #.+dijit/menu-item+
                                 :iconClass ,(icon-class (name-of (content-of command))))
                             ,(render-icon :icon (content-of command) :class nil)>
-                          (render-command-onclick-handler command command-id))))>)>)))
+                          (render-command-onclick-handler command command-id))))>)>
+      `js(on-load
+          (wui.setup-widget "menu" ,menu-id)))))
 
 (def render-csv popup-command-menu-component ()
   (render-csv-separated-elements #\Space (commands-of -self-)))
