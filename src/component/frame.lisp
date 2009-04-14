@@ -26,20 +26,13 @@
                          (encoding-name-of *response*))
                        +encoding+))
          (debug-client-side? (debug-client-side? -self-))
-         (no-javascript? (request-parameter-value *request* +no-javascript-error-parameter-name+)))
+         (javascript-supported? (not (request-parameter-value *request* +no-javascript-error-parameter-name+))))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
     <html (:xmlns     #.+xml-namespace-uri/xhtml+
            xmlns:dojo #.+xml-namespace-uri/dojo+)
       <head
         <meta (:http-equiv #.+header/content-type+
                :content ,(content-type-for +xhtml-mime-type+ encoding))>
-        ,(unless no-javascript?
-           <noscript <meta (:http-equiv #.+header/refresh+
-                            :content ,(concatenate-string "0; URL="
-                                                          (application-relative-path-for-no-javascript-support-error *application*)
-                                                          "?"
-                                                          +no-javascript-error-parameter-name+
-                                                          "=t"))>>)
         ,(bind (((icon-uri &optional file-name) (ensure-list (page-icon-of -self-))))
            (when icon-uri
              <link (:rel "icon"
@@ -81,8 +74,15 @@
                               "">))
                   (script-uris-of -self-))>
       <body (:class ,(dojo-skin-name-of -self-)
-             :style ,(unless no-javascript? "margin-left: -10000px;"))
-        ,(apply-resource-function 'render-failed-to-load-page)
+             :style ,(when javascript-supported? "margin-left: -10000px;"))
+        ,(when javascript-supported?
+           <noscript <meta (:http-equiv #.+header/refresh+
+                            :content ,(concatenate-string "0; URL="
+                                                          (application-relative-path-for-no-javascript-support-error *application*)
+                                                          "?"
+                                                          +no-javascript-error-parameter-name+
+                                                          "=t"))>>
+           (apply-resource-function 'render-failed-to-load-page))
         `js-xml(progn
                  ;; don't use any non-standard js stuff for the failed-to-load machinery, because if things go wrong then nothing is guaranteed to be loaded...
                  (defun _wui_handleFailedToLoad ()
@@ -105,9 +105,9 @@
                   (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
                   (setf wui.frame-index ,(or (awhen *frame* (frame-index-of it)) ""))))
         ;; NOTE: if javascript is turned on in the browser, then just reload without the marker parameter (this might be true after enabling it and pressing refresh)
-        ,(when no-javascript?
+        ,(unless javascript-supported?
            (bind ((href (print-uri-to-string (clone-request-uri :strip-query-parameters (list +no-javascript-error-parameter-name+)))))
-             `js(setf window.location.href ,href)))
+             `js-xml(setf window.location.href ,href)))
         <form (:method "post"
                :enctype #.+form-encoding/multipart-form-data+
                :action "")
