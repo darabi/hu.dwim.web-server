@@ -3,9 +3,11 @@
 ;;;;;;
 ;;; this is a simple example application with login and logout support
 
+(setf *dojo-directory-name* (find-latest-dojo-directory-name (project-relative-pathname "wwwroot/")))
+
 (def special-variable *wudemo-stylesheet-uris* (append (flet ((entry (path)
                                                                 (list (concatenate-string "static/" path)
-                                                                      (assert-file-exists (system-relative-pathname :wui (concatenate-string "wwwroot/" path)))))
+                                                                      (assert-file-exists (project-relative-pathname (concatenate-string "wwwroot/" path)))))
                                                               (dojo-relative-path (path)
                                                                 (concatenate-string *dojo-directory-name* path)))
                                                          (list (entry "wui/css/wudemo.css")
@@ -21,7 +23,8 @@
 (def constant +minimum-login-password-length+ 6)
 (def constant +minimum-login-identifier-length+ 3)
 
-(def class* wudemo-application (application-with-home-package)
+(def class* wudemo-application (application-with-home-package
+                                application-with-dojo-support)
   ()
   (:metaclass funcallable-standard-class))
 
