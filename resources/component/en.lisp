@@ -23,7 +23,7 @@
   (selectable-standard-object-tree-table-inspector.title (class)
     `xml,"Selecting an instance of " (render class))
   (standard-object-detail-filter.title (class)
-    `xml,"Searching for instances of" (render class))
+    `xml,"Searching for instances of " (render class))
   (standard-object-detail-filter.class-selector-label "Class")
   (standard-object-detail-filter.ordering-specifier-label "Ordering")
   (standard-object-list-table-inspector.title (class)
@@ -33,7 +33,7 @@
   (standard-object-detail-inspector.title (class)
     `xml,"Viewing an instance of " (render class))
   (standard-object-detail-maker.title (class)
-    `xml,"Creating an instance of" (render class))
+    `xml,"Creating an instance of " (render class))
 
   (object-list-table.column.commands "")
   (object-list-table.column.type "Type")

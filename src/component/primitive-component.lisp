@@ -433,7 +433,9 @@
 
 (def method parse-component-value ((component member-component) client-value)
   (bind (((:read-only-slots possible-values) component)
-         (index (parse-integer client-value)))
+         (index (ignore-errors (parse-integer client-value))))
+    (unless index
+      (error "Illegal client value ~S for the client-state-sink of the member-component ~A" client-value component))
     (assert (< index (length possible-values)))
     (elt possible-values index)))
 

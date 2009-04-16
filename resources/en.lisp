@@ -5,9 +5,6 @@
 (in-package :hu.dwim.wui)
 
 (def resources en
-  (action.cancel "cancel"))
-
-(def resources en
   (mime-type.application/msword "Microsoft Word Document")
   (mime-type.application/vnd.ms-excel "Microsoft Excel Document")
   (mime-type.application/pdf "PDF Document")

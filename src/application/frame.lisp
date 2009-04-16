@@ -160,7 +160,7 @@
     *frame* (make-client-state-sink (,value-variable-name) ,@body)))
 
 (def (macro e) make-client-state-sink ((value-variable-name) &body body)
-  `(make-client-state-sink-using-lambda (lambda (,value-variable-name)
+  `(make-client-state-sink-using-lambda (named-lambda client-state-sink-body (,value-variable-name)
                                           (block nil
                                             ,@body))))
 

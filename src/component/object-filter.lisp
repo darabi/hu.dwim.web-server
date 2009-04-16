@@ -110,7 +110,7 @@
 
 (def (layered-function e) make-standard-object-detail-filter-class (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
-    (localized-class-name class)))
+    (localized-class-name class :capitalize-first-letter #t)))
 
 (def (layered-function e) collect-standard-object-detail-filter-slots (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
