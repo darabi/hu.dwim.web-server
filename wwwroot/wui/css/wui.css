@@ -4,6 +4,31 @@ a:visited
   color: inherit;
 }
 
+td._hra
+{
+  text-align: right;
+}
+
+td._hca
+{
+  text-align: center;
+}
+
+td._vba
+{
+  vertical-align: bottom;
+}
+
+td._vta
+{
+  vertical-align: top;
+}
+
+td._nw
+{
+  white-space: nowrap;
+}
+
 .debug-component
 {
   padding: 1px;

@@ -75,8 +75,15 @@
     (call-next-method)))
 
 (def render-pdf cell-component ()
-  (typeset:cell ()
-    (call-next-method)))
+  (bind (((:read-only-slots horizontal-alignment vertical-alignment column-span row-span) -self-))
+    ;; TODO handle word-wrap slot
+    (typeset:cell (:v-align vertical-alignment
+                   :col-span column-span
+                   :row-span row-span)
+      (surround-body-when horizontal-alignment
+          (typeset:paragraph (:h-align horizontal-alignment)
+            (-body-))
+        (call-next-method)))))
 
 (def render-pdf row-component ()
   (typeset:row ()

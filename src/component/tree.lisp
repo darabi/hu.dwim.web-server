@@ -102,15 +102,15 @@
         <span (:class "non-expandable")>)))
 
 (def (function e) render-tree-node-expander-cell (node-component)
-  (bind (((:read-only-slots cells) node-component))
-    <td (:class "expander")
-        ,(render-tree-node-expander node-component)
-        ,(bind ((expander-cell (elt cells (expander-column-index-of *tree*))))
-           (if (stringp expander-cell)
-               (render expander-cell)
-               (progn
-                 (ensure-uptodate expander-cell)
-                 (render (content-of expander-cell)))))>))
+  (bind (((:read-only-slots cells) node-component)
+         (expander-cell (elt cells (expander-column-index-of *tree*))))
+    (render-cell-component (expander-cell :css-class "expander")
+      (render-tree-node-expander node-component)
+      (if (stringp expander-cell)
+          (render expander-cell)
+          (progn
+            (ensure-uptodate expander-cell)
+            (render (content-of expander-cell)))))))
 
 (def (layered-function e) render-tree-node-cells (node-component)
   (:method ((self node-component))

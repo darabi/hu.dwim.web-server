@@ -7,6 +7,14 @@
 ;;;;;;
 ;;; Table
 
+(def (constant e :test 'string=) +table-cell-horizontal-align-css-class/right+ "_hra")
+(def (constant e :test 'string=) +table-cell-horizontal-align-css-class/center+ "_hca")
+
+(def (constant e :test 'string=) +table-cell-vertical-align-css-class/top+ "_vta")
+(def (constant e :test 'string=) +table-cell-vertical-align-css-class/bottom+ "_vba")
+
+(def (constant e :test 'string=) +table-cell-nowrap-css-class+ "_nw")
+
 (def special-variable *table*)
 
 (def component table-component (remote-identity-component-mixin)
@@ -156,10 +164,38 @@
 ;;; Cell
 
 (def component cell-component (content-component)
-  ())
+  ((column-span nil)
+   (row-span nil)
+   (word-wrap :type boolean :accessor word-wrap?)
+   (horizontal-alignment nil :type (member nil :left :right :center))
+   (vertical-alignment nil :type (member nil :top :bottom :center))))
+
+(def with-macro* render-cell-component (cell &key css-class)
+  (setf css-class (ensure-list css-class))
+  (if (typep cell 'cell-component)
+      (bind (((:read-only-slots column-span row-span horizontal-alignment vertical-alignment) cell))
+        (ecase horizontal-alignment
+          (:right (push +table-cell-horizontal-align-css-class/right+ css-class))
+          (:center (push +table-cell-horizontal-align-css-class/center+ css-class))
+          ((:left nil) nil))
+        (ecase vertical-alignment
+          (:top (push +table-cell-vertical-align-css-class/top+ css-class))
+          (:bottom (push +table-cell-vertical-align-css-class/bottom+ css-class))
+          ((:center nil) nil))
+        (when (slot-boundp cell 'word-wrap)
+          (ecase (slot-value cell 'word-wrap)
+            ((#f) (push +table-cell-nowrap-css-class+ css-class))
+            ((#t) nil)))
+        <td (:class ,(join-strings css-class)
+             :colspan ,column-span
+             :rowspan ,row-span)
+            ,(-body-)>)
+      <td (:class ,(join-strings css-class))
+        ,(-body-)>))
 
 (def render cell-component
-  <td ,(call-next-method)>)
+  (render-cell-component (-self-)
+    (call-next-method)))
 
 (def render-ods cell-component
   <table:table-cell ,(call-next-method)>)

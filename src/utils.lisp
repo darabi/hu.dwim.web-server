@@ -39,6 +39,13 @@
 (def (macro e) foreach (function first-list &rest more-lists)
   `(map nil ,function ,first-list ,@more-lists))
 
+(def function join-strings (strings &key (separator #\Space))
+  (with-output-to-string (*standard-output*)
+    (iter (for el :in-sequence strings)
+          (unless (first-time-p)
+            (princ separator))
+          (write-string el))))
+
 (def macro to-boolean (form)
   `(not (not ,form)))
 
