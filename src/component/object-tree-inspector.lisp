@@ -152,7 +152,11 @@
                  :cell-factory (lambda (node-component)
                                  (bind ((slot (find-slot (class-of (instance-of node-component)) slot-name)))
                                    (if slot
-                                       (make-instance 'standard-object-slot-value-cell-component :instance (instance-of node-component) :slot slot)
+                                       (make-instance 'standard-object-slot-value-cell-component
+                                                      :instance (instance-of node-component)
+                                                      :slot slot
+                                                      :horizontal-alignment (when (subtypep (slot-definition-type slot) 'number)
+                                                                              :right))
                                        "")))))
 
 (def (layered-function e) collect-standard-object-tree-table-inspector-slots (component class instance)
