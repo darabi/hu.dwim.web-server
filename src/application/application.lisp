@@ -205,7 +205,7 @@
             (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
               (decorate-application-response application response)
               response)
-            (-body-)))))
+            (call-in-application-environment application nil #'-body-)))))
 
 (def (with-macro* eo) with-frame-logic (&key (requires-valid-frame #t) (ensure-frame #f))
   (assert (and *application* *session* (boundp '*frame*)) () "May not use WITH-FRAME-LOGIC without a proper session in the environment")
