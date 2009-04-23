@@ -13,5 +13,5 @@
 ^docs/html
 ^docs/pdf
 ^logs/
-^wwwroot/dojo/.*
+^wwwroot/dojo.*
 ^wwwroot/amCharts/examples
