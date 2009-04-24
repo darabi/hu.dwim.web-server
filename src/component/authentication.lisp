@@ -30,12 +30,14 @@
            :default #t))
 
 (def (function e) make-identifier-and-password-login-component (&key (commands (list (make-default-identifier-and-password-login-command)))
-                                                                     identifier password title)
+                                                                     identifier password title id)
   (bind ((result (make-instance 'identifier-and-password-login-component :identifier identifier :password password)))
     (when title
       (setf (title-of result) title))
     (when commands
       (setf (commands-of (command-bar-of result)) (ensure-list commands)))
+    (when id
+      (setf (id-of result) id))
     result))
 
 (def render identifier-and-password-login-component
