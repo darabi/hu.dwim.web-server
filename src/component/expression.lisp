@@ -114,12 +114,12 @@
 
 (def function make-edit-expression-command (component)
   (command (icon edit)
-           (make-action
+           (make-component-action component
              (join-editing component))))
 
 (def function make-accept-expression-command (component)
   (command (icon store)
-           (make-action
+           (make-component-action component
              (map-descendant-components component
                                         (lambda (descendant)
                                           (when (typep descendant 'expression-component)
@@ -137,7 +137,7 @@
 
 (def function make-add-expression-argument-command (component type)
   (command (icon add-expression-argument)
-           (make-action
+           (make-component-action component
              (setf (arguments-of component)
                    (append (arguments-of component)
                            (list (make-expression-component nil :the-type type :edited #t)))))))
@@ -152,7 +152,7 @@
 
 (def function make-remove-expression-argument-command (component)
   (command (icon remove-expression-argument)
-           (make-action
+           (make-component-action component
              (bind ((parent (parent-component-of component)))
                (if (typep parent 'expression-component)
                    (setf (arguments-of parent)

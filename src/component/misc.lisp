@@ -245,6 +245,9 @@
 (def component recursion-point-component ()
   ())
 
+(def (function e) find-ancestor-recursion-point-component (component)
+  (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-component))
+
 ;;;;;;
 ;;; Maker
 

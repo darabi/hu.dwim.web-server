@@ -162,7 +162,7 @@
 
 (def (function e) make-cancel-persistent-process-command (component)
   (command (icon cancel-process)
-           (make-action
+           (make-component-action component
              (rdbms::with-transaction
                (prc::revive-instance (process-of component))
                (dmm::cancel-persistent-process (process-of component))
@@ -172,7 +172,7 @@
 
 (def (function e) make-pause-persistent-process-command (component)
   (command (icon pause-process)
-           (make-action
+           (make-component-action component
              (rdbms::with-transaction
                (prc::revive-instance (process-of component))
                (dmm::pause-persistent-process (process-of component))

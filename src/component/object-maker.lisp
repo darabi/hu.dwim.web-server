@@ -62,9 +62,8 @@
 
 (def (function e) make-create-instance-command (component)
   (command (icon create)
-           (make-action
-             (execute-create-instance (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-component)
-                                      component (the-class-of component)))))
+           (make-component-action component
+             (execute-create-instance (find-ancestor-recursion-point-component component) component (the-class-of component)))))
 
 (def (layered-function e) execute-create-instance (ancestor component class)
   (:method :around ((ancestor recursion-point-component) (component standard-object-maker) (class standard-class))
