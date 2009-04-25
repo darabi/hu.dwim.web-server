@@ -187,6 +187,7 @@
                                (:file "alternator" :depends-on ("reference" "command" "editable" "misc" "primitive-component"))
                                (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
                                (:file "object-component" :depends-on ("command" "misc"))
+                               (:file "object-manager" :depends-on ("object-component" "tab-container"))
                                (:file "object-inspector" :depends-on ("place-component" "object-component" "alternator" "reference"))
                                (:file "object-maker" :depends-on ("primitive-component" "object-component" "alternator"))
                                (:file "object-list-inspector" :depends-on ("object-maker" "object-component" "alternator" "reference" "table"))
