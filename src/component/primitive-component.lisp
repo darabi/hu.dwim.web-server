@@ -461,9 +461,12 @@
 (def component html-component (string-component)
   ())
 
-(def function emit-html-component-value (component)
-  (write-sequence (babel:string-to-octets (print-component-value component) :encoding +encoding+) *xml-stream*)
+(def (function e) emit-html-string (string)
+  (write-sequence (babel:string-to-octets string :encoding +encoding+) *xml-stream*)
   (values))
+
+(def (function e) emit-html-component-value (component)
+  (emit-html-string (print-component-value component)))
 
 (def function render-html-component (component)
   (bind ((id (generate-frame-unique-string))
@@ -473,9 +476,11 @@
               :name ,(id-of (client-state-sink-of component))
               :value ,(print-component-value component)
               :type "hidden")>
-      <div (:id       ,id
+      <div (:id ,id
             :dojoType #.+dijit/editor+
-            :extraPlugins "['foreColor','hiliteColor',{name:'dijit._editor.plugins.FontChoice', command:'fontName', generic:true},'fontSize','createLink','insertImage']"
+            :extraPlugins "['dijit._editor.plugins.AlwaysShowToolbar','foreColor','hiliteColor',{name:'dijit._editor.plugins.FontChoice', command:'fontName', generic:true},'fontSize','createLink','insertImage']"
+            ;; TODO: according to the documentation the :height should be "", so that it will be adapted to content automatically
+            :height "75px" :minHeight "75px" :maxHeight "200px"
             :onChange `js-inline(setf (slot-value (dojo.byId ,field-id) 'value) (.getValue (dijit.byId ,id))))
         ,(emit-html-component-value component)>)))
 
