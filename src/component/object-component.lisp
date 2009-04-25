@@ -305,17 +305,19 @@
 ;;;;;;
 ;;; Standard object slot value component
 
-(def component standard-object-slot-value-component (abstract-standard-object-slot-value-component remote-identity-component-mixin)
+(def component standard-object-slot-value-component (abstract-standard-object-slot-value-component
+                                                     remote-identity-component-mixin
+                                                     user-message-collector-component-mixin)
   ((label nil :type component)
    (value nil :type component)))
 
 (def render standard-object-slot-value-component ()
-  (bind (((:read-only-slots label value id) -self-))
+  (bind (((:read-only-slots label value id messages) -self-))
+    (when messages
+      <tr <td (:colspan 2) ,(render-user-messages -self-)>>)
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
-        <td (:class "slot-value-label")
-            ,(render label)>
-        <td (:class "slot-value-value")
-            ,(render value)>>))
+        <td (:class "slot-value-label") ,(render label)>
+        <td (:class "slot-value-value") ,(render value)>>))
 
 (def render-csv standard-object-slot-value-component ()
   (render-csv (label-of -self-))
