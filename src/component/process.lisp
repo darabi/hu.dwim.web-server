@@ -19,13 +19,15 @@
 (def (macro e) standard-process (&body forms)
   `(make-instance 'standard-process-component :form '(progn ,@forms)))
 
+(def method refresh-component :after ((self standard-process-component))
+  (bind (((:slots form closure/cc) self))
+    (setf closure/cc (cl-delico::make-closure/cc (cl-walker:walk-form `(lambda () ,form))))))
+
 (def render standard-process-component ()
-  (bind (((:read-only-slots form closure/cc answer-continuation command-bar content) -self-))
+  (bind (((:read-only-slots closure/cc answer-continuation command-bar content) -self-))
     (unless content
       (setf answer-continuation
             (bind ((*standard-process-component* -self-))
-              (unless closure/cc
-                (setf closure/cc (cl-delico::make-closure/cc (cl-walker:walk-form `(lambda () ,form)))))
               (with-call/cc
                 (funcall closure/cc)))))
     (unless (and content answer-continuation)

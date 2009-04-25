@@ -10,7 +10,7 @@
 (def component persistent-process-component (standard-process-component)
   ((process)))
 
-(def method refresh-component ((self persistent-process-component))
+(def method refresh-component :after ((self persistent-process-component))
   (with-slots (process command-bar) self
     (setf command-bar (make-standard-commands self (class-of process) process))))
 
