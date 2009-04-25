@@ -287,3 +287,23 @@
     ;; this must be done at last after all primary method customization
     (prog1-bind clone (call-next-method)
       (setf (component-value-of clone) (component-value-of self)))))
+
+;;;;;;
+;;; Interaction
+
+(def special-variable *interaction*)
+
+(def class* interaction ()
+  ((aborted #f :type boolean)))
+
+(def (with-macro e) with-interaction (component)
+  (bind ((*interaction* (make-instance 'interaction)))
+    (unwind-protect (-body-)
+      (when (interaction-aborted-p)
+        (add-user-error component "Kérem javítsa a megjelölt hibákat és próbálja újra a műveletet")))))
+
+(def (function e) abort-interaction ()
+  (setf (aborted-p *interaction*) #t))
+
+(def (function e) interaction-aborted-p ()
+  (aborted-p *interaction*))
