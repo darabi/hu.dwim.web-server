@@ -22,6 +22,7 @@ dependencies ={
             "dijit._editor.plugins.FontChoice",
             "dijit._editor.plugins.TextColor",
             "dijit._editor.plugins.LinkDialog",
+            "dijit._editor.plugins.AlwaysShowToolbar",
             "dojox.widget.DynamicTooltip",
             "dojox.data.dom",
             "dojox.wire.Wire",
