@@ -221,8 +221,10 @@
   (:method ((component place-maker))
     (bind ((content-component (content-of component)))
       (unless (typep content-component 'unbound-component)
-        (list (first (slot-definition-initargs (slot-of (parent-component-of component))))
-              (place-component-value-of content-component)))))
+        (bind ((slot (slot-of (parent-component-of component)))
+               (value (place-component-value-of content-component))
+               (initarg (first (slot-definition-initargs slot))))
+          (list initarg value)))))
 
   (:method ((component primitive-component))
     (component-value-of component))

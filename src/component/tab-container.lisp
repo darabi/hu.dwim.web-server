@@ -16,7 +16,8 @@
 
 (def render tab-container-component ()
   (bind (((:read-only-slots content command-bar) -self-))
-    (render-vertical-list (list command-bar content))))
+    <div (:class "tab-container")
+         ,(render-vertical-list (list command-bar content))>))
 
 (def method refresh-component ((self tab-container-component))
   (with-slots (pages command-bar content) self

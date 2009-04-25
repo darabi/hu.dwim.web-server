@@ -137,7 +137,13 @@
   (revert-place-inspector-content place-inspector))
 
 (def method store-editing :after ((place-inspector place-inspector))
-  (setf (value-at-place (place-of place-inspector)) (place-component-value-of (content-of place-inspector))))
+  (bind ((place (place-of place-inspector))
+         (value (place-component-value-of (content-of place-inspector))))
+    (handler-bind ((type-error (lambda (error)
+                                 (add-user-error place-inspector "Nem megfelelő adat")
+                                 (abort-interaction)
+                                 (continue error))))
+      (setf (value-at-place place) value))))
 
 (def (function e) make-revert-place-command (place-inspector)
   (command (icon revert)

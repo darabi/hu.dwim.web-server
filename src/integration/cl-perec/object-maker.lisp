@@ -29,13 +29,28 @@
              (call-next-method)))
 
 (def layered-method execute-create-instance :around ((ancestor recursion-point-component) (component standard-object-maker) (class prc::persistent-class))
-  (rdbms::with-transaction
-    (call-next-method)))
+  (handler-bind ((prc::persistent-constraint-violation (lambda (error)
+                                                         (add-user-error component "Adatösszefüggés hiba")
+                                                         (abort-interaction)
+                                                         (continue error))))
+    (rdbms::with-transaction
+      (prog1 (call-next-method)
+        (when (interaction-aborted-p)
+          (cl-rdbms:mark-transaction-for-rollback-only))))))
 
 (def layered-method execute-create-instance ((ancestor recursion-point-component) (component standard-object-maker) (class prc::persistent-class))
-  (prog1-bind instance (call-next-method)
-    (rdbms:register-transaction-hook :after :commit
-      (add-user-message component "Az új ~A létrehozása sikerült" (list (localized-class-name (the-class-of component)))
-                        :category :information
-                        :permanent #t
-                        :content (make-viewer instance :default-component-type 'reference-component)))))
+  (prog1 (call-next-method)
+    (unless (interaction-aborted-p)
+      (rdbms:register-transaction-hook :after :commit
+        (add-user-information component "Az új objektum létrehozása sikerült")))))
+
+(def (method e) make-instance-using-initargs ((component standard-object-maker) (class prc::persistent-class) (prototype prc::persistent-object))
+  (handler-bind ((type-error (lambda (error)
+                               (add-user-error (find-descendant-component component
+                                                                          (lambda (descendant)
+                                                                            (and (typep descendant 'place-maker)
+                                                                                 (eq (prc::slot-of error) (slot-of (parent-component-of descendant))))))
+                                               "Nem megfelelő adat")
+                               (abort-interaction)
+                               (continue error))))
+    (call-next-method)))
