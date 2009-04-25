@@ -145,6 +145,7 @@
          value)
       ,(render-dojo-widget (menu-id)
         <div (:id ,menu-id
+              :class "wuiComboBox"
               :dojoType #.+dijit/menu+
               :leftClickToOpen "true"
               :style "display: none;"
