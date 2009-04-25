@@ -67,6 +67,10 @@
                                       component (the-class-of component)))))
 
 (def (layered-function e) execute-create-instance (ancestor component class)
+  (:method :around ((ancestor recursion-point-component) (component standard-object-maker) (class standard-class))
+    (with-interaction component
+      (call-next-method)))
+
   (:method ((ancestor recursion-point-component) (component standard-object-maker) (class standard-class))
     (place-component-value-of component)))
 

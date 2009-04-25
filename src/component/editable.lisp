@@ -34,13 +34,9 @@
 (def (function e) save-editing (editable &key (leave-editing #t))
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces
   (assert (typep editable 'editable-component))
-  (catch 'abort-save-editing
-    (store-editing editable)
-    (when leave-editing
-      (leave-editing editable))))
-
-(def (function e) abort-save-editing ()
-  (throw 'abort-save-editing #t))
+  (store-editing editable)
+  (when leave-editing
+    (leave-editing editable)))
 
 (def (function e) cancel-editing (editable)
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces
@@ -130,7 +126,8 @@
   (assert (typep editable 'editable-component))
   (command (icon edit)
            (make-component-action editable
-             (begin-editing editable))
+             (with-interaction editable
+               (begin-editing editable)))
            :visible (or visible (delay (not (edited-p editable))))))
 
 (def (function e) make-save-editing-command (editable)
@@ -138,7 +135,8 @@
   (assert (typep editable 'editable-component))
   (command (icon save)
            (make-component-action editable
-             (save-editing editable))
+             (with-interaction editable
+               (save-editing editable)))
            :visible (delay (edited-p editable))))
 
 (def (function e) make-cancel-editing-command (editable)
@@ -146,7 +144,8 @@
   (assert (typep editable 'editable-component))
   (command (icon cancel-editing)
            (make-component-action editable
-             (cancel-editing editable))
+             (with-interaction editable
+               (cancel-editing editable)))
            :visible (delay (edited-p editable))))
 
 (def (function e) make-store-editing-command (editable)
@@ -154,7 +153,8 @@
   (assert (typep editable 'editable-component))
   (command (icon store)
            (make-component-action editable
-             (save-editing editable :leave-editing #f))
+             (with-interaction editable
+               (save-editing editable :leave-editing #f)))
            :visible (delay (edited-p editable))))
 
 (def (function e) make-revert-editing-command (editable)
@@ -162,7 +162,8 @@
   (assert (typep editable 'editable-component))
   (command (icon revert)
            (make-component-action editable
-             (revert-editing editable))
+             (with-interaction editable
+               (revert-editing editable)))
            :visible (delay (edited-p editable))))
 
 (def (layered-function e) make-editing-commands (component class instance-or-prototype)
