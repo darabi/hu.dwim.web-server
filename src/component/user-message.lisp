@@ -94,6 +94,7 @@
          (id (generate-response-unique-string)))
     <div (:id ,id :class ,(concatenate-string (string-downcase category) " " css-class) :style ,style)
          ,(when permanent
+            ;; TODO use more specific icon/tooltip for this action
             (render (command (icon close :label nil)
                              (make-action
                                (deletef (messages-of (parent-component-of -self-)) -self-)))))

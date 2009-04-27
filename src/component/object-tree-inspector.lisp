@@ -108,14 +108,14 @@
                  :content (label #"object-tree-table.column.type")
                  :cell-factory (lambda (node-component)
                                  (bind ((class (class-of (instance-of node-component))))
-                                   (make-instance 'cell-component :content (make-class-presentation node-component class (class-prototype class)))))))
+                                   (make-class-presentation node-component class (class-prototype class))))))
 
 (def (function e) make-standard-object-tree-table-command-bar-column ()
   (make-instance 'column-component
                  :content (label #"object-tree-table.column.commands")
                  :visible (delay (not (layer-active-p 'passive-components-layer)))
                  :cell-factory (lambda (node-component)
-                                 (make-instance 'cell-component :content (command-bar-of node-component)))))
+                                 (command-bar-of node-component))))
 
 (def (layered-function e) make-standard-object-tree-table-inspector-columns (component)
   (:method ((self standard-object-tree-table-inspector))
