@@ -5,34 +5,39 @@
 (in-package :hu.dwim.wui)
 
 (eval-when (:compile-toplevel :load-toplevel)
-  (def (function eio) content-type-for (mime-type &optional (encoding (encoding-name-of *response*)))
+  (def (function eio) content-type-for (mime-type &optional encoding)
+    (unless encoding
+      (setf encoding (or (awhen (and *response*
+                                     (external-format-of *response*))
+                           (encoding-name-of it))
+                         +encoding+)))
     ;; this is a somewhat ugly optimization: return constants for the most often used combinations
-    (or (case encoding
-          (:utf-8    (case mime-type
-                       (+html-mime-type+  +utf-8-html-content-type+)
-                       (+xhtml-mime-type+ +utf-8-xhtml-content-type+)
-                       (+css-mime-type+   +utf-8-css-content-type+)
-                       (t (switch (mime-type :test #'string=)
-                            (+html-mime-type+  +utf-8-html-content-type+)
-                            (+xhtml-mime-type+ +utf-8-xhtml-content-type+)
-                            (+css-mime-type+   +utf-8-css-content-type+)))))
-          (:us-ascii (case mime-type
-                       (+html-mime-type+  +us-ascii-html-content-type+)
-                       (+xhtml-mime-type+ +us-ascii-xhtml-content-type+)
-                       (+css-mime-type+   +us-ascii-css-content-type+)
-                       (t (switch (mime-type :test #'string=)
-                            (+html-mime-type+  +us-ascii-html-content-type+)
-                            (+xhtml-mime-type+ +us-ascii-xhtml-content-type+)
-                            (+css-mime-type+   +us-ascii-css-content-type+)))))
-          (:iso8859-1 (case mime-type
-                        (+html-mime-type+  +iso-8859-1-html-content-type+)
-                        (+xhtml-mime-type+ +iso-8859-1-xhtml-content-type+)
-                        (+css-mime-type+   +iso-8859-1-css-content-type+)
-                        (t (switch (mime-type :test #'string=)
-                             (+html-mime-type+  +iso-8859-1-html-content-type+)
-                             (+xhtml-mime-type+ +iso-8859-1-xhtml-content-type+)
-                             (+css-mime-type+   +iso-8859-1-css-content-type+))))))
-        (concatenate 'string mime-type "; charset=" (string-downcase encoding)))))
+    (case encoding
+      (:utf-8    (case mime-type
+                   (+html-mime-type+  +utf-8-html-content-type+)
+                   (+xhtml-mime-type+ +utf-8-xhtml-content-type+)
+                   (+css-mime-type+   +utf-8-css-content-type+)
+                   (t (switch (mime-type :test #'string=)
+                        (+html-mime-type+  +utf-8-html-content-type+)
+                        (+xhtml-mime-type+ +utf-8-xhtml-content-type+)
+                        (+css-mime-type+   +utf-8-css-content-type+)))))
+      (:us-ascii (case mime-type
+                   (+html-mime-type+  +us-ascii-html-content-type+)
+                   (+xhtml-mime-type+ +us-ascii-xhtml-content-type+)
+                   (+css-mime-type+   +us-ascii-css-content-type+)
+                   (t (switch (mime-type :test #'string=)
+                        (+html-mime-type+  +us-ascii-html-content-type+)
+                        (+xhtml-mime-type+ +us-ascii-xhtml-content-type+)
+                        (+css-mime-type+   +us-ascii-css-content-type+)))))
+      (:iso8859-1 (case mime-type
+                    (+html-mime-type+  +iso-8859-1-html-content-type+)
+                    (+xhtml-mime-type+ +iso-8859-1-xhtml-content-type+)
+                    (+css-mime-type+   +iso-8859-1-css-content-type+)
+                    (t (switch (mime-type :test #'string=)
+                         (+html-mime-type+  +iso-8859-1-html-content-type+)
+                         (+xhtml-mime-type+ +iso-8859-1-xhtml-content-type+)
+                         (+css-mime-type+   +iso-8859-1-css-content-type+)))))
+      (t (concatenate 'string mime-type "; charset=" (string-downcase encoding))))))
 
 (def (constant e :test 'string=) +html-content-type+         (content-type-for +html-mime-type+         +encoding+))
 (def (constant e :test 'string=) +xhtml-content-type+        (content-type-for +xhtml-mime-type+        +encoding+))

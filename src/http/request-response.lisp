@@ -351,7 +351,7 @@
     `(bind ((,response (make-byte-vector-response* nil)))
        (store-response ,response)
        ;; set a default content type header. do it early, so that it's already set when the body is rendered
-       (setf (header-value ,response +header/content-type+) (content-type-for +html-mime-type+))
+       (setf (header-value ,response +header/content-type+) ,(content-type-for +html-mime-type+ +encoding+))
        (bind ((buffer (emit-into-xml-stream-buffer
                         ,@body)))
          (appendf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
