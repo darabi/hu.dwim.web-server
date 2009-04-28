@@ -77,9 +77,9 @@
 (def render-pdf cell-component ()
   (bind (((:read-only-slots horizontal-alignment vertical-alignment column-span row-span) -self-))
     ;; TODO handle word-wrap slot
-    (typeset:cell (:v-align vertical-alignment
-                   :col-span column-span
-                   :row-span row-span)
+    (typeset:cell (:v-align (or vertical-alignment :top)
+                   :col-span (or column-span 1)
+                   :row-span (or row-span 1))
       (surround-body-when horizontal-alignment
           (typeset:paragraph (:h-align horizontal-alignment)
             (-body-))
