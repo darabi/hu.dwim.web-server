@@ -219,7 +219,7 @@
 (def special-variable *temporary-file-random* (princ-to-string (isys:%sys-getpid)))
 (def special-variable *temporary-file-unique-number* 0)
 
-(defun filename-for-temporary-file (&optional (prefix "wui-"))
+(defun filename-for-temporary-file (&optional prefix)
   (concatenate 'string
                *directory-for-temporary-files*
                prefix
@@ -231,10 +231,10 @@
 (defun open-temporary-file (&rest args &key
                             (element-type '(unsigned-byte 8))
                             (direction :output)
-                            (name-prefix "wui-"))
+                            name-prefix)
   (remove-from-plistf args :name-prefix)
   (iter
-    (for file-name = (filename-for-temporary-file name-prefix))
+    (for file-name = (ensure-directories-exist (filename-for-temporary-file name-prefix)))
     (for file = (apply #'open
                        file-name
                        :if-exists nil

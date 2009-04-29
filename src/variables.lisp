@@ -85,7 +85,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (def special-variable *debug-client-side* (not *load-as-production-p*)
   "The default, system wide, value for the debug-client-side slots of frames.")
 
-(def (special-variable e) *directory-for-temporary-files* "/tmp/"
+(def (special-variable e) *directory-for-temporary-files* "/tmp/wui/"
   "Used for file uploads, too.")
 
 ;; *BROKERS* holds the "broker path" while processing the rules.

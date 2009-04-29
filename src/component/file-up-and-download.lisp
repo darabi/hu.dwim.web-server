@@ -35,12 +35,14 @@
 ;;;;;;
 ;;; File upload
 
-(def component file-upload-component (command-component)
-  ((content (icon upload) :type component)
-   (directory "/tmp/")
-   (file-name)))
+(def component file-upload-component (primitive-component)
+  ())
 
 (def render file-upload-component ()
-  (bind (((:read-only-slots icon) -self-))
-    <div ,(render icon)
-         <div <input (:type "file")>>>))
+  (ensure-client-state-sink -self-)
+  (render-file-upload-field :client-state-sink (client-state-sink-of -self-)))
+
+(def method parse-component-value ((component file-upload-component) client-value)
+  (etypecase client-value
+    (string (values nil #t)) ; empty file upload field is posted from the browser
+    (rfc2388-binary:mime-part client-value)))

@@ -130,6 +130,20 @@
   (values))
 
 ;;;;;;
+;;; File upload
+
+(def function render-file-upload-field (&key (id (generate-frame-unique-string "_u")) access-key tooltip tab-index
+                                             class style client-state-sink (name (awhen client-state-sink (id-of it))))
+  <input (:id ,id
+          :class ,class
+          :style ,style
+          :name ,name
+          :accesskey ,access-key
+          :type "file"
+          :title ,tooltip
+          :tabindex ,tab-index)>)
+
+;;;;;;
 ;;; Popup menu select field
 
 (def function render-popup-menu-select-field (value possible-values &key value-sink classes (test #'equal) (key #'identity))

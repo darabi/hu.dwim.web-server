@@ -156,10 +156,13 @@
            (filename (rfc2388-binary:get-header-attribute content-disposition-header "filename")))
       (http.dribble "Got a mime part. Disposition: ~S; Name: ~S; Filename: ~S" content-disposition name filename)
       (http.dribble "Mime Part:---~%~A---" (with-output-to-string (dump) (rfc2388-binary:print-mime-part mime-part dump)))
+      (when (and filename
+                 (equal filename ""))
+        (setf filename nil))
       (cond
         ((or (string-equal "file" content-disposition)
              (not (null filename)))
-         (bind (((:values file tmp-filename) (open-temporary-file :name-prefix "wui-upload-")))
+         (bind (((:values file tmp-filename) (open-temporary-file :name-prefix "upload-")))
            (setf (rfc2388-binary:content mime-part) file)
            (http.dribble "Sending mime part data to file ~S (~S)" tmp-filename (rfc2388-binary:content mime-part))
            (bind ((counter 0)
