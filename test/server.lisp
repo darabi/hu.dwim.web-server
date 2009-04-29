@@ -17,9 +17,11 @@
 (defun stop-test-server (&optional (server *test-server*))
   (finishes
     (is (not (null server)))
-    (is (not (null (socket-of server))))
+    (dolist (listen-entry (listen-entries-of server))
+      (is (not (null (socket-of listen-entry)))))
     (shutdown-server server)
-    (is (null (socket-of server)))
+    (dolist (listen-entry (listen-entries-of server))
+      (is (null (socket-of listen-entry))))
     (setf *running-test-servers* (delete server *running-test-servers*))
     (when (eq server *test-server*)
       (setf *test-server* nil))

@@ -5,6 +5,27 @@
 
 (def special-variable *test-application* (make-application :path-prefix "/test/"))
 
+(def function render-mime-part-details (mime-part)
+  <p "Mime part headers:">
+  <table
+    <thead <tr <th "Header">
+               <th "Value">>>
+    ,@(iter (for header :in (rfc2388-binary:headers mime-part))
+            (collect <tr
+                      <td ,(or (rfc2388-binary:header-name header) "")>
+                      <td ,(or (rfc2388-binary:header-value header) "")>>))>
+  <table
+    <thead <tr <th "Property">
+               <th "Value">>>
+    <tr <td "Content">
+        <td ,(princ-to-string (rfc2388-binary:content mime-part))>>
+    <tr <td "Content charset">
+        <td ,(rfc2388-binary:content-charset mime-part)>>
+    <tr <td "Content length">
+        <td ,(rfc2388-binary:content-length mime-part)>>
+    <tr <td "Content type">
+        <td ,(rfc2388-binary:content-type mime-part)>>>)
+
 (def entry-point (*test-application* :path "params") ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
   (make-functional-response ()
     (emit-simple-html-document-http-response (:title "foo")
@@ -15,7 +36,8 @@
                                            "params?theanswer=yes&number=42")))
           "try this">>
       <table
-        <thead <tr <td "Parameter name"> <td "Parameter value">>>
+        <thead <tr <td "Parameter name">
+                   <td "Parameter value">>>
         ,@(do-parameters (name value)
             <tr
               <td ,name>
@@ -23,15 +45,7 @@
                      (string value)
                      (list (princ-to-string value))
                      (rfc2388-binary:mime-part
-                      (bind ((mime-part value))
-                        <p "Mime part headers:">
-                        <table
-                        <thead <tr <td "Header"> <td "Value">>>
-                        ,@(iter (for header :in (rfc2388-binary:headers mime-part))
-                                (collect <tr
-                                           <td ,(or (rfc2388-binary:header-name header) "")
-                                           <td ,(or (rfc2388-binary:header-value header) "")>>>))>
-                        <p "Mime part content: " ,(princ-to-string (rfc2388-binary:content mime-part))>)))>>)>
+                      (render-mime-part-details value)))>>)>
       <hr>
       <form (:method "post")
         <input (:name "input1"             :value ,(or (parameter-value "input1") "1"))>

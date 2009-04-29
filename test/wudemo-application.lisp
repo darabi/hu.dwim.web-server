@@ -245,6 +245,17 @@
         (menu "Child"
           (menu-item () (replace-menu-target-command "Make a child" (make-maker 'child-test)))
           (menu-item () (replace-menu-target-command "Search children" (make-filter 'child-test)))))
+      (menu-item () (replace-menu-target-command "File upload test"
+                      (bind ((file-upload-component (make-instance 'file-upload-component)))
+                        (vertical-list ()
+                          file-upload-component
+                          (command (icon upload)
+                                   (make-action
+                                     ;;(break "file in action: ~A" (component-value-of file-upload-component))
+                                     ))
+                          (inline-component
+                            (when (slot-boundp file-upload-component 'component-value)
+                              (render-mime-part-details (component-value-of file-upload-component))))))))
       (menu-item () (replace-menu-target-command "Dojo InlineEditBox example"
                       (inline-component
                         (render-example-inline-edit-box))))
@@ -473,4 +484,5 @@
                                         (make-redirect-broker "" "/"))
                                   :host host
                                   :port port
-                                  :maximum-worker-count maximum-worker-count))
+                                  :maximum-worker-count maximum-worker-count
+                                  :request-content-length-limit (* 1024 1024 50)))
