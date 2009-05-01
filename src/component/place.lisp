@@ -26,6 +26,8 @@
 
 (def (generic e) (setf value-at-place) (new-value place))
 
+(def (generic e) remove-place (place))
+
 ;;;;;;
 ;;; Variable place
 
@@ -168,6 +170,15 @@
     (bind ((list (slot-value-using-class class instance slot)))
       (setf (nth (index-of self) list) new-value)
       (setf (slot-value-using-class class instance slot) list))))
+
+(def method remove-place ((self list-slot-value-place))
+  (bind ((instance (instance-of self))
+         (slot (slot-of self))
+         (class (class-of instance))
+         (index (index-of self))
+         (value (slot-value-using-class class instance slot)))
+    (setf (slot-value-using-class class instance slot)
+          (append (subseq value 0 index) (subseq value (1+ index))))))
 
 (def (function e) make-list-slot-value-place (instance slot index)
   (make-instance 'list-slot-value-place :instance instance :slot slot :index index))
