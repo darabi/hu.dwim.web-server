@@ -23,7 +23,8 @@
   (when (place-bound-p place)
     (bind ((value (value-at-place place)))
       (setf (component-value-of component)
-            (if (prc::d-value-p value)
+            (if (and (prc::d-value-p value)
+                     (prc::single-d-value-p value))
                 (prc::single-d-value value)
                 value)))))
 

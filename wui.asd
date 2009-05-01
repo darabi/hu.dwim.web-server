@@ -163,7 +163,7 @@
                                (:file "table" :depends-on ("component"))
                                (:file "tab-container" :depends-on ("icon"))
                                (:file "extended-table" :depends-on ("command"))
-                               (:file "pivot-table" :depends-on ("extended-table" "icon"))
+                               (:file "pivot-table" :depends-on ("object-inspector" "extended-table" "icon"))
                                (:file "tree" :depends-on ("table"))
                                (:file "chart" :depends-on ("component"))
                                (:file "column-chart" :depends-on ("chart"))

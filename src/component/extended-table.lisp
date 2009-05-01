@@ -14,10 +14,11 @@
    (column-headers nil :type components)
    (column-headers-depth :type integer)
    (column-leaf-count :type integer)
+   (header-cell nil :type component)
    (cells nil :type components)))
 
 (def method refresh-component ((self extended-table-component))
-  (with-slots (row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count cells) self
+  (bind (((:slots row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count) self))
     (flet ((setf-indices (headers)
              (iter (for index :from 0)
                    (for leaf :in (collect-leaves headers))
@@ -30,7 +31,7 @@
       (setf-indices column-headers))))
 
 (def render extended-table-component ()
-  (bind (((:read-only-slots row-headers row-headers-depth column-headers column-headers-depth column-leaf-count cells) -self-))
+  (bind (((:read-only-slots header-cell row-headers row-headers-depth column-headers column-headers-depth column-leaf-count cells) -self-))
     (labels ((cell-index (row-path column-path)
                (+ (* column-leaf-count (index-of (last-elt row-path)))
                   (index-of (last-elt column-path))))
@@ -52,7 +53,8 @@
                                   (setf (expanded-p header)
                                         (not (expanded-p header)))))))
              (render-top-left-header ()
-               <td (:class "header" :rowspan ,column-headers-depth :colspan ,row-headers-depth)>)
+               <td (:class "header" :rowspan ,column-headers-depth :colspan ,row-headers-depth)
+                   ,(when header-cell (render header-cell)) >)
              (render-column-headers ()
                (iter (for level-headers :initially column-headers :then (mappend #'children-of level-headers))
                      (while level-headers)
@@ -113,6 +115,11 @@
   `(make-instance 'table-header-component
                   :content ,content
                   :children (list ,@children)))
+
+(def render table-header-component
+  (bind ((id (generate-frame-unique-string)))
+    <div (:id ,id) ,(call-next-method)>
+    `js(wui.setup-widget "table-header" ,id)))
 
 (def function count-leaves (headers)
   (reduce #'+ (ensure-list headers)

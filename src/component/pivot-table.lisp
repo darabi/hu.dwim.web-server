@@ -7,108 +7,112 @@
 ;;;;;;
 ;;; Pivot table
 
-;; TODO: what about the css classes in render? axis, header, tooltip, etc. how do we put those in place?
-(def component pivot-table-component (extended-table-component)
-  ((row-axes nil :type components)
-   (column-axes nil :type components)
-   (cell-axes nil :type components) ;; TODO: implement
-   (cells nil :type components)))
+(def component pivot-table-component (content-component)
+  ((sheet-axes nil :type (polimorph-list pivot-table-axis-component))
+   (row-axes nil :type (polimorph-list pivot-table-axis-component))
+   (column-axes nil :type (polimorph-list pivot-table-axis-component))
+   (cell-axes nil :type (polimorph-list pivot-table-axis-component))))
 
 (def method refresh-component :before ((self pivot-table-component))
-  (with-slots (row-axes row-headers column-axes column-headers instances) self
-    (labels ((swap (axes p1 p2)
-               (bind ((tmp (elt axes p1)))
-                 (setf (elt axes p1) (elt axes p2))
-                 (setf (elt axes p2) tmp)
-                 axes))
-             (axes-headers (axes &optional path)
-               (unless (null axes)
-                 (mapcar (lambda (category)
-                           (make-instance 'table-header-component
-                                          :content (clone-component (content-of category))
-                                          :children (axes-headers (rest axes) (cons category path))
-                                          ;; TODO: instances is not a slot in the abstract pivot-table
-                                          #+nil :expanded #+nil
-                                          (find-if (lambda (instance)
-                                                     (every (lambda (c)
-                                                              (funcall (predicate-of c) instance))
-                                                            (cons category path)))
-                                                   instances)))
-                         (categories-of (first axes)))))
-             (axes-command-bars (axes primary-axes-slot-name secondary-axes-slot-name)
-               (bind ((row-axes? (eq primary-axes-slot-name 'row-axes)))
+  (bind (((:slots sheet-axes row-axes row-headers column-axes column-headers cell-axes header-cell instances content) self))
+    (labels ((make-content (axes sheet-path)
+               (if axes
+                   (bind ((axis (first axes))
+                          (categories (categories-of axis)))
+                     (if categories
+                         (make-instance 'tab-container-component
+                                        :pages (mapcar [make-instance 'tab-page-component
+                                                                      :header !1
+                                                                      :content (make-content (rest axes) (cons !1 sheet-path))]
+                                                       categories))
+                         (make-pivot-table-extended-table-component self sheet-path)))
+                   (make-pivot-table-extended-table-component self sheet-path))))
+      (setf content (make-content sheet-axes nil)))))
+
+(def generic make-pivot-table-extended-table-component (component sheet-path)
+  (:method ((self pivot-table-component) sheet-path)
+    (bind (((:slots row-axes column-axes) self))
+      (labels ((make-axes-headers (axes &optional path)
                  (unless (null axes)
-                   (list (make-instance 'table-header-component
-                                        :content (make-instance 'command-bar-component
-                                                                :commands (bind ((axis (first axes))
-                                                                                 (primary-axes (slot-value self primary-axes-slot-name))
-                                                                                 (secondary-axes (slot-value self secondary-axes-slot-name))
-                                                                                 (position (position axis primary-axes)))
-                                                                            (optional-list (command (if row-axes?
-                                                                                                        (icon rotate-clockwise :label nil)
-                                                                                                        (icon rotate-counter-clockwise :label nil))
-                                                                                                    (make-action
-                                                                                                      (setf (slot-value self primary-axes-slot-name) (remove axis primary-axes))
-                                                                                                      (setf (slot-value self secondary-axes-slot-name) (cons axis secondary-axes))
-                                                                                                      (refresh-component self)))
-                                                                                           (unless (zerop position)
-                                                                                             (command (if row-axes?
-                                                                                                          (icon move-left :label nil)
-                                                                                                          (icon move-up :label nil))
-                                                                                                      (make-action
-                                                                                                        ;; TODO: this impl is really stupid
-                                                                                                        (setf (slot-value self primary-axes-slot-name) (swap primary-axes position (1- position)))
-                                                                                                        (refresh-component self))))
-                                                                                           (unless (= position
-                                                                                                      (1- (length primary-axes)))
-                                                                                             (command (if row-axes?
-                                                                                                          (icon move-right :label nil)
-                                                                                                          (icon move-down :label nil))
-                                                                                                      (make-action
-                                                                                                        ;; TODO: this impl is really ugly
-                                                                                                        (setf (slot-value self primary-axes-slot-name) (swap primary-axes position (1+ position)))
-                                                                                                        (refresh-component self)))))))
-                                        :children (axes-command-bars (rest axes) primary-axes-slot-name secondary-axes-slot-name)))))))
-      (setf row-headers (append (axes-command-bars row-axes 'row-axes 'column-axes)
-                                (axes-headers row-axes)))
-      (setf column-headers (append (axes-command-bars column-axes 'column-axes 'row-axes)
-                                   (axes-headers column-axes))))))
+                   (mapcar (lambda (category)
+                             (make-instance 'table-header-component
+                                            :content (clone-component (content-of category))
+                                            :children (make-axes-headers (rest axes) (cons category path))
+                                            ;; TODO: instances is not a slot in the abstract pivot-table
+                                            #+nil :expanded #+nil
+                                            (find-if (lambda (instance)
+                                                       (every (lambda (c)
+                                                                (funcall (predicate-of c) instance))
+                                                              (cons category path)))
+                                                     instances)))
+                           (categories-of (first axes))))))
+        (make-instance 'extended-table-component
+                       :row-headers (make-axes-headers row-axes)
+                       :column-headers (make-axes-headers column-axes)
+                       :header-cell (make-viewer self :default-component-type 'reference-component))))))
 
-(def icon rotate-clockwise)
-(def resources hu
-  (icon-tooltip.rotate-clockwise "Elforgatás a másik tengelyre"))
-(def resources en
-  (icon-tooltip.rotate-clockwise "Rotate to other axis"))
+(def method make-reference-label ((reference reference-component) (class component-class) (component pivot-table-component))
+  (localized-class-name class :capitalize-first-letter #t))
 
-(def icon rotate-counter-clockwise)
-(def resources hu
-  (icon-tooltip.rotate-counter-clockwise "Elforgatás a másik tengelyre"))
-(def resources en
-  (icon-tooltip.rotate-counter-clockwise "Rotate to other axis"))
+(def layered-method collect-standard-object-detail-inspector-slots ((component standard-object-detail-inspector) (class component-class) (instance pivot-table-component))
+  (filter-slots '(sheet-axes row-axes column-axes cell-axes) (call-next-method)))
 
-(def icon move-up)
-(def resources hu
-  (icon-tooltip.move-up "Mozgatás felfelé"))
-(def resources en
-  (icon-tooltip.move-up "Move up"))
+(def layered-method make-standard-commands ((component standard-object-inspector) (class component-class) (prototype-or-instance pivot-table-component))
+  nil)
 
-(def icon move-down)
+(def icon move-to-sheet-axes)
 (def resources hu
-  (icon-tooltip.move-down "Mozgatás lefelé"))
+  (icon-label.move-to-sheet-axes "Lap tengely")
+  (icon-tooltip.move-to-sheet-axes "Mozgatás a lap tengelyek közé"))
 (def resources en
-  (icon-tooltip.move-down "Move down"))
+  (icon-label.move-to-sheet-axes "Sheet axis")
+  (icon-tooltip.move-to-sheet-axes "Move to sheet axes"))
 
-(def icon move-left)
+(def icon move-to-row-axes)
 (def resources hu
-  (icon-tooltip.move-left "Mozgatás balra"))
+  (icon-label.move-to-row-axes "Sor tengely")
+  (icon-tooltip.move-to-row-axes "Mozgatás a sor tengelyek közé"))
 (def resources en
-  (icon-tooltip.move-left "Move left"))
+  (icon-label.move-to-row-axes "Row axis")
+  (icon-tooltip.move-to-row-axes "Move to row axes"))
 
-(def icon move-right)
+(def icon move-to-column-axes)
 (def resources hu
-  (icon-tooltip.move-right "Mozgatás jobbra"))
+  (icon-label.move-to-column-axes "Oszlop tengely")
+  (icon-tooltip.move-to-column-axes "Mozgatás a oszlop tengelyek közé"))
 (def resources en
-  (icon-tooltip.move-right "Move right"))
+  (icon-label.move-to-column-axes "Column axis")
+  (icon-tooltip.move-to-column-axes "Move to column axes"))
+
+(def icon move-to-cell-axes)
+(def resources hu
+  (icon-label.move-to-cell-axes "Mező tengely")
+  (icon-tooltip.move-to-cell-axes "Mozgatás a mező tengelyek közé"))
+(def resources en
+  (icon-label.move-to-cell-axes "Cell axis")
+  (icon-tooltip.move-to-cell-axes "Move to cell axes"))
+
+(def function make-move-to-sheet-axes-command (component)
+  (make-move-to-axes-command component 'move-to-sheet-axes 'sheet-axes))
+
+(def function make-move-to-row-axes-command (component)
+  (make-move-to-axes-command component 'move-to-row-axes 'row-axes))
+
+(def function make-move-to-column-axes-command (component)
+  (make-move-to-axes-command component 'move-to-column-axes 'column-axes))
+
+(def function make-move-to-cell-axes-command (component)
+  (make-move-to-axes-command component 'move-to-cell-axes 'cell-axes))
+
+(def function make-move-to-axes-command (component icon slot-name)
+  (bind ((axis (instance-of component))
+         (pivot-table (parent-component-of axis)))
+    (unless (find axis (slot-value (parent-component-of axis) slot-name))
+      (command (find-icon icon)
+               (make-action
+                 (remove-place (make-component-place axis))
+                 (appendf (slot-value pivot-table slot-name) (list axis))
+                 (mark-outdated pivot-table))))))
 
 ;;;;;;
 ;;; Pivot table axis component
@@ -116,8 +120,41 @@
 (def component pivot-table-axis-component ()
   ((categories nil :type component)))
 
+(def render pivot-table-axis-component
+  <span ,(foreach #'render (categories-of -self-))>)
+
+(def generic localized-pivot-table-axis (component))
+
+(def method make-reference-label ((reference reference-component) (class component-class) (component pivot-table-axis-component))
+  (localized-pivot-table-axis component))
+
+(def layered-method make-standard-commands ((component standard-object-list-inspector) (class component-class) (prototype-or-instance pivot-table-axis-component))
+  nil)
+
+(def layered-method make-standard-commands ((component standard-object-row-inspector) (class component-class) (prototype-or-instance pivot-table-axis-component))
+  (optional-list (make-move-backward-command component)
+                 (make-move-forward-command component)
+                 (make-move-to-sheet-axes-command component)
+                 (make-move-to-row-axes-command component)
+                 (make-move-to-column-axes-command component)
+                 (make-move-to-cell-axes-command component)))
+
+(def layered-method collect-standard-object-list-table-inspector-slots ((component standard-object-list-table-inspector) (class component-class) (instance pivot-table-axis-component))
+  nil)
+
 ;;;;;
 ;;; Pivot table category component
 
 (def component pivot-table-category-component (content-component)
   ())
+
+;;;;;;
+;;; Localization
+
+(def resources hu
+  (class-name.pivot-table-axis-component "pivot tábla tengely")
+
+  (slot-name.sheet-axes "lap tengelyek")
+  (slot-name.row-axes "sor tengelyek")
+  (slot-name.column-axes "oszlop tengelyek")
+  (slot-name.cell-axes "mező tengelyek"))

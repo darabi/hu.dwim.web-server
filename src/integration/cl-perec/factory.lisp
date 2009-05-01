@@ -62,6 +62,9 @@
 (def method find-inspector-type-for-compound-type* (first type)
   (find-inspector-type-for-type (cl-perec:parse-type type)))
 
+(def method find-inspector-type-for-prototype ((prototype prc::d-value))
+  'd-value-inspector)
+
 ;;;;;;
 ;;; Filter
 

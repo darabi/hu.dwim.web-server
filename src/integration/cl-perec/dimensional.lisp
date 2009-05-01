@@ -135,13 +135,18 @@
   ())
 
 (def method make-reference-label ((reference d-value-inspector-reference) class (instance prc::d-value))
-  (concatenate-string (write-to-string (length (prc::c-values-of instance))) " values"))
+  (if (prc::single-d-value-p instance)
+      (make-reference-label reference class (prc::single-d-value instance))
+      (concatenate-string (write-to-string (length (prc::c-values-of instance))) " values")))
 
 ;;;;;
 ;;; Abstract d value component
 
 (def component abstract-d-value-component (abstract-standard-object-component)
   ())
+
+(def layered-method render-title ((self abstract-d-value-component))
+  `xml,"Dimenzionális érték")
 
 ;;;;;;
 ;;; D value inspector
@@ -193,7 +198,9 @@
           (delay-alternative-reference-component 'd-value-inspector-reference instance))))
 
 (def function localized-dimension-name (dimension)
-  (string (prc::name-of dimension)))
+  (bind ((name (string-downcase (prc::name-of dimension))))
+    (lookup-first-matching-resource
+      ("dimension-name" name))))
 
 ;;;;;;
 ;;; D value table inspector
@@ -258,30 +265,38 @@
 ;;; D value pivot table
 
 (def component d-value-pivot-table-component (abstract-d-value-component
-                                              pivot-table-component)
+                                              pivot-table-component
+                                              title-component-mixin)
   ())
 
 (def constructor d-value-pivot-table-component
   (bind (((:slots instance row-axes column-axes) -self-))
-    (setf row-axes nil
-          column-axes (mapcar [make-dimension-pivot-table-axis instance !1] (prc::dimensions-of instance)))))
+    (unless (or row-axes
+                column-axes)
+      (setf row-axes nil
+            column-axes (mapcar [make-dimension-pivot-table-axis instance !1] (prc::dimensions-of instance))))))
 
-(def method refresh-component :after ((self d-value-pivot-table-component))
-  (bind (((:slots instance cells row-axes column-axes column-leaf-count) self))
-    (setf cells (bind ((result (iter (repeat column-leaf-count)
-                                     (collect (empty)))))
-                  (flet ((map-product* (function &rest lists)
-                           (when lists
-                             (apply #'map-product function (car lists) (cdr lists)))))
-                    (apply #'map-product*
-                           (lambda (&rest row-path)
-                             (push (empty) result)
-                             (apply #'map-product*
-                                    (lambda (&rest column-path)
-                                      (push (make-d-value-pivot-table-cell row-path column-path instance) result))
-                                    (mapcar #'categories-of column-axes)))
-                           (mapcar #'categories-of row-axes)))
-                  (nreverse result)))))
+(def render d-value-pivot-table-component
+  <div (:class "d-value-pivot-table")
+       ,(render-title -self-)
+       ,(call-next-method)>)
+
+(def method make-pivot-table-extended-table-component ((self d-value-pivot-table-component) sheet-path)
+  (bind (((:slots instance row-axes column-axes) self))
+    (prog1-bind extended-table (call-next-method)
+      (setf (cells-of extended-table)
+            (bind ((result nil))
+              (flet ((map-product* (function &rest lists)
+                       (when lists
+                         (apply #'map-product function (car lists) (cdr lists)))))
+                (apply #'map-product*
+                       (lambda (&rest row-path)
+                         (apply #'map-product*
+                                (lambda (&rest column-path)
+                                  (push (make-d-value-pivot-table-cell sheet-path row-path column-path instance) result))
+                                (mapcar #'categories-of column-axes)))
+                       (mapcar #'categories-of row-axes)))
+              (nreverse result))))))
 
 (def function make-dimension-pivot-table-axis (d-value dimension)
   (make-instance 'dimension-pivot-table-axis-component
@@ -292,8 +307,8 @@
                                                       :content (make-coordinate-inspector dimension coordinate)))
                                      (prc::d-value-dimension-coordinate-list d-value dimension :mode :intersection))))
 
-(def function make-d-value-pivot-table-cell (row-path column-path d-value)
-  (bind ((path (append row-path column-path))
+(def function make-d-value-pivot-table-cell (sheet-path row-path column-path d-value)
+  (bind ((path (append sheet-path row-path column-path))
          (coordinates (iter (for dimension :in (prc::dimensions-of d-value))
                             (collect (coordinate-of (find dimension path :key [dimension-of (parent-component-of !1)])))))
          (value (prc::value-at-coordinates d-value coordinates)))
@@ -309,10 +324,31 @@
 ;;; Dimension pivot table axis component
 
 (def component dimension-pivot-table-axis-component (pivot-table-axis-component)
-  ((dimension)))
+  ((dimension :type prc::dimension)))
+
+(def method localized-pivot-table-axis ((self dimension-pivot-table-axis-component))
+  (localized-dimension-name (dimension-of self)))
+
+(def layered-method collect-standard-object-list-table-inspector-slots ((component standard-object-list-table-inspector) (class component-class) (instance dimension-pivot-table-axis-component))
+  (list* (find-slot 'dimension-pivot-table-axis-component 'dimension) (call-next-method)))
+
+(def method make-reference-label ((reference reference-component) (class standard-class) (instance prc::dimension))
+  (localized-dimension-name instance))
 
 ;;;;;;
 ;;; Coordinate pivot table category component
 
 (def component coordinate-pivot-table-category-component (pivot-table-category-component)
   ((coordinate)))
+
+;;;;;;
+;;; Localization
+
+(def resources hu
+  (dimension-name.time "idő")
+  (dimension-name.validity "hatályosság")
+
+  (class-name.dimension "dimenzió")
+  (class-name.dimension-pivot-table-axis-component "Dimenzió alapú pivot tábla tengely")
+
+  (slot-name.dimension "dimenzió"))
