@@ -301,3 +301,43 @@
   (if-bind select-command (find-command-bar-command (command-bar-of self) 'select)
     (render-command-onclick-handler select-command (id-of self))
     (call-next-method)))
+
+(def icon move-backward)
+(def resources hu
+  (icon-label.move-backward "Mozgatás hátra")
+  (icon-tooltip.move-backward "Objektum mozgatása hátra a listában"))
+(def resources en
+  (icon-label.move-backward "Move backward")
+  (icon-tooltip.move-backward "Move object backward in the list"))
+
+(def icon move-forward)
+(def resources hu
+  (icon-label.move-forward "Mozgatás előre")
+  (icon-tooltip.move-forward "Objektum mozgatása előre a listában"))
+(def resources en
+  (icon-label.move-forward "Move forward")
+  (icon-tooltip.move-forward "Move object forward in the list"))
+
+(def function make-move-backward-command (component)
+  (bind ((place (place-of (find-ancestor-component-with-type component 'place-inspector)))
+         (instances (value-at-place place))
+         (instance (instance-of component))
+         (position (position instance instances)))
+    (unless (= position 0)
+      (command (icon move-backward)
+               (make-action
+                 (unless (= position 0)
+                   (setf (elt instances position) (elt instances (1- position))
+                         (elt instances (1- position)) instance)))))))
+
+(def function make-move-forward-command (component)
+  (bind ((place (place-of (find-ancestor-component-with-type component 'place-inspector)))
+         (instances (value-at-place place))
+         (instance (instance-of component))
+         (position (position instance instances)))
+    (unless (= position (1- (length instances)))
+      (command (icon move-forward)
+               (make-action
+                 (unless (= position (1- (length instances)))
+                   (setf (elt instances position) (elt instances (1+ position))
+                         (elt instances (1+ position)) instance)))))))
