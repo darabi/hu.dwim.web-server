@@ -14,6 +14,11 @@
    (content nil :type component)
    (command-bar nil :type component)))
 
+(def method refresh-component ((self alternator-component))
+  (bind (((:slots alternatives content command-bar) self))
+    (setf command-bar (make-alternator-command-bar self alternatives nil)
+          content (find-default-alternative-component alternatives))))
+
 (def method clone-component ((self alternator-component))
   (prog1-bind clone (call-next-method)
     (setf (default-component-type-of clone) (aif (content-of self)
