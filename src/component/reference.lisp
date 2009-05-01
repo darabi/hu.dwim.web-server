@@ -41,7 +41,7 @@
 
 (def (generic e) make-reference-label (component class target)
   (:method ((component reference-component) class target)
-    (princ-to-string (target-of component))))
+    (princ-to-string target)))
 
 (def (layered-function e) make-expand-reference-command (reference class target expansion)
   (:method ((reference reference-component) class target expansion)
@@ -90,9 +90,6 @@
 
 (def layered-method make-expand-reference-command :before ((reference standard-object-inspector-reference) (class standard-class) (target standard-object) expansion)
   (reuse-standard-object-inspector-reference reference))
-
-(def method make-reference-label ((reference standard-object-inspector-reference) (class standard-class) (instance standard-object))
-  (princ-to-string instance))
 
 (def function reuse-standard-object-inspector-reference (self)
   (bind ((instance (target-of self)))
