@@ -24,7 +24,12 @@
   #t)
 
 (def function component-slot? (args)
-  (member (getf args :type) '(component components)))
+  (bind ((type (getf args :type t)))
+    (or (subtypep type 'component)
+        (and (listp type)
+             (member (first type) '(list polimorph-list))
+             (subtypep (second type) 'component))
+        (member type '(component components)))))
 
 (def method direct-slot-definition-class ((class component-class) &rest args)
   (if (component-slot? args)

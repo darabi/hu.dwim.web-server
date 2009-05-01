@@ -67,6 +67,10 @@
 
 (def (layered-function e) render-onclick-handler (component))
 
+(def (type e) polimorph-list (element-type)
+  (declare (ignore element-type))
+  'list)
+
 (def (type e) components ()
   'sequence)
 

@@ -139,7 +139,6 @@
 (def layered-method render-title ((self standard-object-detail-inspector))
   (standard-object-detail-inspector.title (slot-value self 'class)))
 
-
 ;;;;;;
 ;;; Standard object slot value group inspector
 

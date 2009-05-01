@@ -31,11 +31,14 @@
   (:method ((type null))
     (error "NIL is not a valid type here"))
 
-  (:method ((type symbol))
-    (find-inspector-type-for-type (find-type-by-name type)))
-
   (:method ((type (eql 'boolean)))
     'boolean-inspector)
+
+  (:method ((type (eql 'components)))
+    `(standard-object-list-inspector :the-class ,(find-class 'component)))
+
+  (:method ((type symbol))
+    (find-inspector-type-for-type (find-type-by-name type)))
 
   (:method ((class (eql (find-class t))))
     't-inspector)
@@ -70,6 +73,12 @@
           (find-inspector-type-for-type t))))
 
   (:method ((first (eql 'list)) (type cons))
+    (bind ((main-type (second type)))
+      (if (subtypep main-type 'standard-object)
+          `(standard-object-list-inspector :the-class ,(find-type-by-name main-type))
+          'list-component)))
+
+  (:method ((first (eql 'polimorph-list)) (type cons))
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
           `(standard-object-list-inspector :the-class ,(find-type-by-name main-type))
@@ -162,11 +171,14 @@
   (:method ((type null))
     (error "NIL is not a valid type here"))
 
-  (:method ((type symbol))
-    (find-filter-type-for-type (find-type-by-name type)))
-
   (:method ((type (eql 'boolean)))
     'boolean-filter)
+
+  (:method ((type (eql 'components)))
+    't-filter)
+
+  (:method ((type symbol))
+    (find-filter-type-for-type (find-type-by-name type)))
 
   (:method ((class built-in-class))
     (find-filter-type-for-prototype
@@ -195,7 +207,10 @@
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
           (find-filter-type-for-type (first main-type))
-          (find-filter-type-for-type t)))))
+          (find-filter-type-for-type t))))
+
+  (:method ((first (eql 'polimorph-list)) (type cons))
+    't-filter))
 
 (def (generic e) find-filter-type-for-prototype (prototype)
   (:method ((prototype t))
@@ -245,11 +260,14 @@
   (:method ((type null))
     (error "NIL is not a valid type here"))
 
-  (:method ((type symbol))
-    (find-maker-type-for-type (find-type-by-name type)))
-
   (:method ((type (eql 'boolean)))
     'boolean-maker)
+
+  (:method ((type (eql 'components)))
+    't-maker)
+
+  (:method ((type symbol))
+    (find-maker-type-for-type (find-type-by-name type)))
 
   (:method ((class built-in-class))
     (find-maker-type-for-prototype
@@ -275,7 +293,10 @@
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
           (find-maker-type-for-type (first main-type))
-          (find-maker-type-for-type t)))))
+          (find-maker-type-for-type t))))
+
+  (:method ((first (eql 'polimorph-list)) (type cons))
+    't-maker))
 
 (def (generic e) find-maker-type-for-prototype (prototype)
   (:method ((prototype t))
@@ -332,6 +353,9 @@
 
   (:method ((type (eql 'boolean)))
     'place-inspector)
+
+  (:method ((type (eql 'components)))
+    'standard-object-place-inspector)
   
   (:method ((type symbol))
     (find-place-inspector-type-for-type (find-type-by-name type)))
@@ -353,7 +377,10 @@
     (bind ((main-type (find-main-type-in-or-type type)))
       (if (= 1 (length main-type))
           (find-place-inspector-type-for-type (first main-type))
-          (find-place-inspector-type-for-type t)))))
+          (find-place-inspector-type-for-type t))))
+
+  (:method ((first (eql 'polimorph-list)) (type cons))
+    (find-place-inspector-type-for-type (second type))))
 
 (def (generic e) find-place-inspector-type-for-prototype (prototype)
   (:method ((prototype structure-object))
