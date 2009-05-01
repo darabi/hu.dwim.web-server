@@ -30,7 +30,7 @@
       (setf content (first pages)))))
 
 (def function make-switch-to-tab-page-command (tab-container tab-page)
-  (make-replace-command (delay (content-of tab-container)) tab-page :content (icon-of tab-page)))
+  (make-replace-command (delay (content-of tab-container)) tab-page :content (header-of tab-page)))
 
 (def icon swith-to-page)
 (def resources hu
@@ -44,7 +44,7 @@
 ;;; Tab page
 
 (def component tab-page-component (content-component)
-  ((icon nil :type component)))
+  ((header nil :type component)))
 
-(def (macro e) tab-page (icon &body forms)
-  `(make-instance 'tab-page-component :icon ,icon :content (progn ,@forms)))
+(def (macro e) tab-page (header &body forms)
+  `(make-instance 'tab-page-component :header ,header :content (progn ,@forms)))
