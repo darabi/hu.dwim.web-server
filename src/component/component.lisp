@@ -106,6 +106,11 @@
     (refresh-component component))
   component)
 
+(def macro ensure-instance (place type &rest args &key &allow-other-keys)
+  `(aif ,place
+        (reinitialize-instance it ,@args)
+        (setf ,place (make-instance ,type ,@args))))
+
 ;;;;;;
 ;;; Debug
 
