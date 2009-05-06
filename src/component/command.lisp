@@ -295,6 +295,9 @@
   (:method :after ((self component))
     (setf (outdated-p self) #f)))
 
+(def (definer e :available-flags "do") refresh (&body forms)
+  (render-like-definer 'refresh-component (cons :after forms) -options-))
+
 (def (layered-function e) make-refresh-command (component class prototype-or-instance)
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
     (command (icon refresh)
