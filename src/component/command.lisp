@@ -222,6 +222,12 @@
   (render-csv-separated-elements #\Space (commands-of -self-)))
 
 ;;;;;;
+;;; Commands component mixin
+
+(def component commands-component-mixin ()
+  ((commands :type component)))
+
+;;;;;;
 ;;; Navigation bar component
 
 (def component page-navigation-bar-component (command-bar-component)
