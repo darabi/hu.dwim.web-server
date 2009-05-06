@@ -160,10 +160,13 @@
   (:method ((component component) commands)
     (sort commands #'<
           :key (lambda (command)
-                 (or (position (name-of (content-of command))
-                               '(answer back focus-out open-in-new-frame focus-in collapse collapse-all expand-all refresh edit save cancel store revert new delete)
-                               :test #'eq)
-                     most-positive-fixnum)))))
+                 ;; TODO: can't we make it faster/better (or a generic methodor something?)
+                 (bind ((content (content-of command)))
+                   (or (when (typep content 'icon-component)
+                         (position (name-of (content-of command))
+                                   '(answer back focus-out open-in-new-frame focus-in collapse collapse-all expand-all refresh edit save cancel store revert new delete)
+                                   :test #'eq))
+                       most-positive-fixnum))))))
 
 (def (function e) push-command (command component)
   "Push a new COMMAND into the COMMAND-BAR of COMPONENT"
