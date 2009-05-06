@@ -31,6 +31,9 @@
         (render content)
         (render-vertical-list (list content command-bar)))))
 
+(def render-string alternator-component
+  (render-string (content-of -self-)))
+
 (def render-csv alternator-component
   (render-csv (content-of -self-)))
 

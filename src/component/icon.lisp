@@ -16,6 +16,9 @@
 (def render icon-component
   (render-icon :icon -self-))
 
+(def render-string icon-component
+  (write (force (label-of -self-))))
+
 (def render-csv icon-component
   (render-csv (force (label-of -self-))))
 

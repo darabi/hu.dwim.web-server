@@ -13,6 +13,9 @@
 (def render content-component
   (render (content-of -self-)))
 
+(def render-string content-component
+  (render-string (content-of -self-)))
+
 (def render-csv content-component
   (render-csv (content-of -self-)))
 

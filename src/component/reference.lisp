@@ -30,6 +30,9 @@
   ;; TODO this is not too nice this way
   <span ,(force (label-of (content-of (expand-command-of -self-))))>)
 
+(def render-string reference-component
+  (render-string (expand-command-of -self-)))
+
 (def render-csv reference-component
   (render-csv (expand-command-of -self-)))
 

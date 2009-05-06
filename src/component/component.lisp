@@ -44,6 +44,9 @@
       (ensure-uptodate component)
       (funcall call-next-method))))
 
+(def render-string :around component
+  (render-component-in-environment -self- #'call-next-method))
+
 (def render-csv :around component
   (render-component-in-environment -self- #'call-next-method))
 
@@ -58,6 +61,9 @@
 
 (def render string
   `xml,-self-)
+
+(def render-string string
+  (write -self-))
 
 (def render-csv string
   (render-csv-value -self-))

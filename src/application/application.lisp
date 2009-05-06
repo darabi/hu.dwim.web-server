@@ -541,6 +541,8 @@ Custom implementations should look something like this:
 
 (def (layered-function e) render (component))
 
+(def (layered-function e) render-string (component))
+
 (def (layered-function e) render-csv (component))
 
 (def (layered-function e) render-pdf (component))
@@ -551,6 +553,9 @@ Custom implementations should look something like this:
 
 (def (definer e :available-flags "do") render (&body forms)
   (render-like-definer 'render forms -options-))
+
+(def (definer e :available-flags "do") render-string (&body forms)
+  (render-like-definer 'render-string forms -options-))
 
 (def (definer e :available-flags "do") render-csv (&body forms)
   (render-like-definer 'render-csv forms -options-))
