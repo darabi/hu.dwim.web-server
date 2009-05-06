@@ -7,11 +7,10 @@
 ;;;;;;
 ;;; Alternator component
 
-(def component alternator-component ()
+(def component alternator-component (content-component)
   ((default-component-type nil)
    (alternatives-factory nil :type function)
    (alternatives nil)
-   (content nil :type component)
    (command-bar nil :type component)))
 
 (def method refresh-component ((self alternator-component))
@@ -30,18 +29,6 @@
     (if (typep content '(or reference-component primitive-component))
         (render content)
         (render-vertical-list (list content command-bar)))))
-
-(def render-string alternator-component
-  (render-string (content-of -self-)))
-
-(def render-csv alternator-component
-  (render-csv (content-of -self-)))
-
-(def render-pdf alternator-component
-  (render-pdf (content-of -self-)))
-
-(def render-ods alternator-component
-  (render-ods (content-of -self-)))
 
 (def function make-alternative-commands (component alternatives)
   (delete nil
