@@ -18,7 +18,7 @@
     (labels ((make-content (axes sheet-path)
                (if axes
                    (bind ((axis (first axes))
-                          (categories (categories-of axis)))
+                          (categories (categories-of (ensure-uptodate axis))))
                      (if categories
                          (make-instance 'tab-container-component
                                         :pages (mapcar [make-instance 'tab-page-component
@@ -34,18 +34,20 @@
     (bind (((:slots row-axes column-axes) self))
       (labels ((make-axes-headers (axes &optional path)
                  (unless (null axes)
-                   (mapcar (lambda (category)
-                             (make-instance 'table-header-component
-                                            :content (clone-component (content-of category))
-                                            :children (make-axes-headers (rest axes) (cons category path))
-                                            ;; TODO: instances is not a slot in the abstract pivot-table
-                                            #+nil :expanded #+nil
-                                            (find-if (lambda (instance)
-                                                       (every (lambda (c)
-                                                                (funcall (predicate-of c) instance))
-                                                              (cons category path)))
-                                                     instances)))
-                           (categories-of (first axes))))))
+                   (bind ((axis (first axes)))
+                     (ensure-uptodate axis)
+                     (mapcar (lambda (category)
+                               (make-instance 'table-header-component
+                                              :content (clone-component (content-of category))
+                                              :children (make-axes-headers (rest axes) (cons category path))
+                                              ;; TODO: instances is not a slot in the abstract pivot-table
+                                              #+nil :expanded #+nil
+                                              (find-if (lambda (instance)
+                                                         (every (lambda (c)
+                                                                  (funcall (predicate-of c) instance))
+                                                                (cons category path)))
+                                                       instances)))
+                             (categories-of axis))))))
         (make-instance 'extended-table-component
                        :row-headers (make-axes-headers row-axes)
                        :column-headers (make-axes-headers column-axes)
