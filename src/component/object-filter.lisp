@@ -27,11 +27,11 @@
   `(make-instance 'standard-object-filter :the-class ,the-class))
 
 (def method refresh-component ((self standard-object-filter))
-  (with-slots (result the-class default-component-type alternatives content command-bar) self
+  (with-slots (result the-class default-alternative-type alternatives content command-bar) self
     (if the-class
         (setf alternatives (funcall (alternatives-factory-of self) self the-class (class-prototype the-class))
-              content (if default-component-type
-                          (find-alternative-component alternatives default-component-type)
+              content (if default-alternative-type
+                          (find-alternative-component alternatives default-alternative-type)
                           (find-default-alternative-component alternatives)))
         (setf alternatives nil
               content nil))
@@ -187,7 +187,7 @@
   ())
 
 (def method make-place-component-content ((self standard-object-place-filter))
-  (make-inspector (the-type-of self) :default-component-type 'reference-component))
+  (make-inspector (the-type-of self) :default-alternative-type 'reference-component))
 
 (def method make-place-component-command-bar ((self standard-object-place-filter))
   (make-instance 'command-bar-component :commands (list (make-set-place-to-nil-command self)

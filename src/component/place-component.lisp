@@ -121,7 +121,7 @@
   (:method ((component place-inspector) class instance slot)
     (bind ((place (place-of component)))
       (prog1-bind content
-          (make-inspector (place-type place) :default-component-type 'reference-component)
+          (make-inspector (place-type place) :default-alternative-type 'reference-component)
         (update-component-value-from-place place content)))))
 
 (def method map-editable-child-components ((self place-inspector) function)

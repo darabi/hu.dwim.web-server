@@ -51,7 +51,7 @@
         (make-instance 'extended-table-component
                        :row-headers (make-axes-headers row-axes)
                        :column-headers (make-axes-headers column-axes)
-                       :header-cell (make-viewer self :default-component-type 'reference-component))))))
+                       :header-cell (make-viewer self :default-alternative-type 'reference-component))))))
 
 (def method make-reference-label ((reference reference-component) (class component-class) (component pivot-table-component))
   (localized-class-name class :capitalize-first-letter #t))

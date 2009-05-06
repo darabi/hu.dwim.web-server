@@ -12,7 +12,7 @@
   (:documentation "Component for an instance of STANDARD-CLASS in various alternative views"))
 
 (def method refresh-component ((self standard-class-component))
-  (with-slots (the-class default-component-type alternatives content command-bar) self
+  (with-slots (the-class default-alternative-type alternatives content command-bar) self
     (if the-class
         (progn
           (if alternatives
@@ -21,8 +21,8 @@
                                        (delay-alternative-reference-component 'standard-class-reference the-class))))
           (if content
               (setf (component-value-of content) the-class)
-              (setf content (if default-component-type
-                                (find-alternative-component alternatives default-component-type)
+              (setf content (if default-alternative-type
+                                (find-alternative-component alternatives default-alternative-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-alternator-command-bar self alternatives
                                                          (make-standard-commands self (class-of the-class) the-class))))
@@ -46,7 +46,7 @@
         (progn
           (if metaclass
               (setf (component-value-of metaclass) (class-of the-class))
-              (setf metaclass (make-viewer (class-of the-class) :default-component-type 'reference-component)))
+              (setf metaclass (make-viewer (class-of the-class) :default-alternative-type 'reference-component)))
           (if direct-subclasses
               (setf (component-value-of direct-subclasses) (class-direct-subclasses the-class))
               (setf direct-subclasses (make-instance 'reference-list-component :targets (class-direct-subclasses the-class))) )

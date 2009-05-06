@@ -25,7 +25,7 @@
   `(make-instance 'standard-object-inspector :instance ,instance))
 
 (def method refresh-component ((self standard-object-inspector))
-  (with-slots (instance default-component-type alternatives content command-bar) self
+  (with-slots (instance default-alternative-type alternatives content command-bar) self
     (if instance
         (progn
           (if (and alternatives
@@ -35,8 +35,8 @@
           (if (and content
                    (not (typep content 'null-component)))
               (setf (component-value-of content) instance)
-              (setf content (if default-component-type
-                                (find-alternative-component alternatives default-component-type)
+              (setf content (if default-alternative-type
+                                (find-alternative-component alternatives default-alternative-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-alternator-command-bar self alternatives
                                                          (make-standard-commands self (class-of instance) instance))))

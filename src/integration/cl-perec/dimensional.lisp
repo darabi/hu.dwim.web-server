@@ -164,15 +164,15 @@
   (:documentation "Inspector for a D-VALUE instance in various alternative views."))
 
 (def method refresh-component ((self d-value-inspector))
-  (bind (((:slots instance default-component-type alternatives content command-bar) self)
+  (bind (((:slots instance default-alternative-type alternatives content command-bar) self)
          (class (find-class 'prc::d-value)))
     (if alternatives
         (setf (component-value-for-alternatives self) instance)
         (setf alternatives (funcall (alternatives-factory-of self) self instance)))
     (if content
         (setf (component-value-of content) instance)
-        (setf content (if default-component-type
-                          (find-alternative-component alternatives default-component-type)
+        (setf content (if default-alternative-type
+                          (find-alternative-component alternatives default-alternative-type)
                           (find-default-alternative-component alternatives))))
     (setf command-bar (make-alternator-command-bar self alternatives
                                                    (make-standard-commands self class (class-prototype class))))))
@@ -244,7 +244,7 @@
       (make-viewer (if (length= 1 coordinate)
                        (first coordinate)
                        coordinate)
-                   :default-component-type 'reference-component)))
+                   :default-alternative-type 'reference-component)))
 
 (def function make-coordinate-range-inspector (coordinate)
   ;; TODO: KLUDGE: this is really much more complex than this
@@ -357,7 +357,7 @@
             (empty)
             ;; TODO: is this remove-dimensions call dangerous?
             (make-viewer (prc::remove-dimensions value (set-difference dimensions cell-dimensions))
-                         :default-component-type (cell-component-type-of component))))))
+                         :default-alternative-type (cell-component-type-of component))))))
 
 ;;;;;;
 ;;; Dimension pivot table axis component

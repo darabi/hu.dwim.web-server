@@ -26,14 +26,14 @@
   `(make-instance 'standard-object-list-inspector :instances ,instances ,@args))
 
 (def method refresh-component ((self standard-object-list-inspector))
-  (with-slots (instances the-class default-component-type alternatives content command-bar) self
+  (with-slots (instances the-class default-alternative-type alternatives content command-bar) self
     (if alternatives
         (setf (component-value-for-alternatives self) instances)
         (setf alternatives (funcall (alternatives-factory-of self) self the-class (class-prototype the-class) instances)))
     (if content
         (setf (component-value-of content) instances)
-        (setf content (if default-component-type
-                          (find-alternative-component alternatives default-component-type)
+        (setf content (if default-alternative-type
+                          (find-alternative-component alternatives default-alternative-type)
                           (find-default-alternative-component alternatives))))
     (setf command-bar (make-alternator-command-bar self alternatives
                                                    (make-standard-commands self the-class (class-prototype the-class))))))
@@ -100,7 +100,7 @@
 
 (def (generic e) make-standard-object-list-component (component class instance)
   (:method ((component standard-object-list-list-inspector) (class standard-class) (instance standard-object))
-    (make-viewer instance :default-component-type 'reference-component)))
+    (make-viewer instance :default-alternative-type 'reference-component)))
 
 ;;;;;;
 ;;; Standard object table inspector
@@ -240,7 +240,7 @@
     (make-replace-and-push-back-command component
                                         (delay (setf replacement-component
                                                      (make-instance '(editable-component entire-row-component)
-                                                                    :content (make-viewer instance :default-component-type 'detail-component))))
+                                                                    :content (make-viewer instance :default-alternative-type 'detail-component))))
                                         (list :content (icon expand) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
                                         (list :content (icon collapse) :ajax (delay (id-of replacement-component))))))
 

@@ -23,7 +23,7 @@
   `(make-instance 'standard-object-maker :the-class ,the-class))
 
 (def method refresh-component ((self standard-object-maker))
-  (with-slots (the-class default-component-type alternatives content command-bar) self
+  (with-slots (the-class default-alternative-type alternatives content command-bar) self
     (if the-class
         (progn
           (if alternatives
@@ -31,8 +31,8 @@
               (setf alternatives (funcall (alternatives-factory-of self) self the-class (class-prototype the-class))))
           (if content
               (setf (component-value-of content) the-class)
-              (setf content (if default-component-type
-                                (find-alternative-component alternatives default-component-type)
+              (setf content (if default-alternative-type
+                                (find-alternative-component alternatives default-alternative-type)
                                 (find-default-alternative-component alternatives))))
           (setf command-bar (make-alternator-command-bar self alternatives
                                                          (make-standard-commands self the-class (class-prototype the-class)))))
