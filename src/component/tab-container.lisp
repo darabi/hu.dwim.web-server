@@ -14,17 +14,17 @@
 (def (macro e) tab-container (&body pages)
   `(make-instance 'tab-container-component :pages (remove-if #'null (list ,@pages))))
 
-(def render tab-container-component ()
+(def render-xhtml tab-container-component
   (bind (((:read-only-slots content command-bar) -self-))
     <div (:class "tab-container")
          ,(render-vertical-list (list command-bar content))>))
 
-(def method refresh-component ((self tab-container-component))
-  (with-slots (pages command-bar content) self
+(def refresh tab-container-component
+  (bind (((:slots pages command-bar content) -self-))
     (setf command-bar
           (make-instance 'command-bar-component
                          :commands (mapcar (lambda (page)
-                                             (make-switch-to-tab-page-command self page))
+                                             (make-switch-to-tab-page-command -self- page))
                                            pages)))
     (unless content
       (setf content (first pages)))))

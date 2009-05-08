@@ -25,7 +25,7 @@
                                              (make-accept-expression-command -self-)
                                              (make-remove-expression-argument-command -self-))))
 
-(def render expression-component
+(def render-xhtml expression-component
   (bind (((:read-only-slots input the-type arguments command-bar) -self-))
     <div <span ,(render input) " : " ,(symbol-name the-type) ,(when command-bar (render command-bar)) >
          ;; TODO: use :class

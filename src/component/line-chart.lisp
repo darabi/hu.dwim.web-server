@@ -10,5 +10,5 @@
 (def component line-chart (chart)
   ())
 
-(def render line-chart ()
+(def render-xhtml line-chart
   (render-chart -self- "amline" ))

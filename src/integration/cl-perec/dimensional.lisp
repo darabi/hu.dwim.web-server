@@ -55,7 +55,7 @@
                   :content (progn ,@forms)
                   :selector (validity-selector :validity ,validity)))
 
-(def render validity-provider ()
+(def render-xhtml validity-provider ()
   <div ,(render (selector-of -self-))
        ,(call-next-method) >)
 
@@ -97,7 +97,7 @@
    (coordinates)))
 
 (def constructor coordinates-dependent-component-mixin ()
-  (with-slots (dimensions coordinates) -self-
+  (bind (((:slots dimensions coordinates) -self-))
     (setf dimensions (mapcar 'prc:lookup-dimension dimensions)
           coordinates (prc:make-empty-coordinates dimensions))))
 
@@ -111,7 +111,7 @@
              (coordinates-of self)
              "<unbound>")))
 
-(def render :before coordinates-dependent-component-mixin ()
+(def render-xhtml :before coordinates-dependent-component-mixin ()
   (setf (coordinates-of -self-)
         (iter (for dimension :in (dimensions-of -self-))
               (for old-coordinate :in (coordinates-of -self-))
@@ -154,51 +154,19 @@
 (def component d-value-inspector (abstract-d-value-component
                                   inspector-component
                                   alternator-component
-                                  user-message-collector-component-mixin
-                                  remote-identity-component-mixin
                                   initargs-component-mixin
                                   layer-context-capturing-component-mixin
                                   recursion-point-component)
   ()
-  (:default-initargs :alternatives-factory #'make-d-value-inspector-alternatives)
   (:documentation "Inspector for a D-VALUE instance in various alternative views."))
 
-(def method refresh-component ((self d-value-inspector))
-  (bind (((:slots instance default-alternative-type alternatives content command-bar) self)
-         (class (find-class 'prc::d-value)))
-    (if alternatives
-        (setf (component-value-for-alternatives self) instance)
-        (setf alternatives (funcall (alternatives-factory-of self) self instance)))
-    (if content
-        (setf (component-value-of content) instance)
-        (setf content (if default-alternative-type
-                          (find-alternative-component alternatives default-alternative-type)
-                          (find-default-alternative-component alternatives))))
-    (setf command-bar (make-alternator-command-bar self alternatives
-                                                   (make-standard-commands self class (class-prototype class))))))
-
-;; TODO: factor this out all over the place
-(def render d-value-inspector ()
-  (bind (((:read-only-slots id content) -self-))
-    (flet ((body ()
-             (render-user-messages -self-)
-             (call-next-method)))
-      (if (typep content 'reference-component)
-          <span (:id ,id :class "d-value-inspector")
-            ,(body)>
-          (progn
-            <div (:id ,id :class "d-value-inspector")
-              ,(body)>
-            `js(wui.setup-widget "d-value-inspector" ,id))))))
-
-(def (layered-function e) make-d-value-inspector-alternatives (component instance)
-  (:method ((component d-value-inspector) (instance prc::d-value))
-    (list (delay-alternative-component-with-initargs 'd-value-table-inspector :instance instance)
-          (delay-alternative-component-with-initargs 'd-value-pivot-table-component :instance instance)
-          (delay-alternative-component-with-initargs 'd-value-column-chart-component :instance instance)
-          (delay-alternative-component-with-initargs 'd-value-pie-chart-component :instance instance)
-          (delay-alternative-component-with-initargs 'd-value-line-chart-component :instance instance)
-          (delay-alternative-reference-component 'd-value-inspector-reference instance))))
+(def layered-method make-alternatives ((component d-value-inspector) (class standard-class) (prototype prc::d-value) (instance prc::d-value))
+  (list (delay-alternative-component-with-initargs 'd-value-table-inspector :instance instance)
+        (delay-alternative-component-with-initargs 'd-value-pivot-table-component :instance instance)
+        (delay-alternative-component-with-initargs 'd-value-column-chart-component :instance instance)
+        (delay-alternative-component-with-initargs 'd-value-pie-chart-component :instance instance)
+        (delay-alternative-component-with-initargs 'd-value-line-chart-component :instance instance)
+        (delay-alternative-reference-component 'd-value-inspector-reference instance)))
 
 (def function localized-dimension-name (dimension)
   (bind ((name (string-downcase (prc::name-of dimension))))
@@ -214,8 +182,8 @@
                                         title-component-mixin)
   ())
 
-(def method refresh-component ((self d-value-table-inspector))
-  (bind (((:slots instance columns rows) self)
+(def refresh d-value-table-inspector
+  (bind (((:slots instance columns rows) -self-)
          (dimensions (prc::dimensions-of instance)))
     (setf columns (cons (column "Value") (mapcar [column (localized-dimension-name !1)] dimensions)))
     (setf rows (iter (for (coordinates value) :in-d-value instance)
@@ -233,8 +201,8 @@
   ((value)
    (coordinates)))
 
-(def method refresh-component ((self d-value-row-inspector))
-  (bind (((:slots value coordinates instance cells) self))
+(def refresh d-value-row-inspector
+  (bind (((:slots value coordinates instance cells) -self-))
     (setf cells (cons (make-viewer value)
                       (mapcar 'make-coordinate-inspector (prc::dimensions-of instance) coordinates)))))
 
@@ -244,7 +212,7 @@
       (make-viewer (if (length= 1 coordinate)
                        (first coordinate)
                        coordinate)
-                   :default-alternative-type 'reference-component)))
+                   :initial-alternative-type 'reference-component)))
 
 (def function make-coordinate-range-inspector (coordinate)
   ;; TODO: KLUDGE: this is really much more complex than this
@@ -315,10 +283,8 @@
   (bind (((:read-only-slots sheet-axes row-axes column-axes cell-axes) pivot-table))
     (some [find dimension !1 :key #'dimension-of] (list sheet-axes row-axes column-axes cell-axes))))
 
-(def render d-value-pivot-table-component
-  <div (:class "d-value-pivot-table")
-       ,(render-title -self-)
-       ,(call-next-method)>)
+(def render-xhtml d-value-pivot-table-component
+  <div (:class "d-value-pivot-table") ,(call-next-method)>)
 
 (def method make-pivot-table-extended-table-component ((self d-value-pivot-table-component) sheet-path)
   (bind (((:slots instance row-axes column-axes) self))
@@ -357,7 +323,7 @@
             (empty)
             ;; TODO: is this remove-dimensions call dangerous?
             (make-viewer (prc::remove-dimensions value (set-difference dimensions cell-dimensions))
-                         :default-alternative-type (cell-component-type-of component))))))
+                         :initial-alternative-type (cell-component-type-of component))))))
 
 ;;;;;;
 ;;; Dimension pivot table axis component
@@ -366,8 +332,8 @@
                                                      pivot-table-axis-component)
   ((dimension :type prc::dimension)))
 
-(def method refresh-component ((self pivot-table-dimension-axis-component))
-  (bind (((:slots dimension categories instance) self))
+(def refresh pivot-table-dimension-axis-component
+  (bind (((:slots dimension categories instance) -self-))
     (setf categories
           (mapcar (lambda (coordinate)
                     (make-instance 'coordinate-pivot-table-category-component
@@ -404,7 +370,7 @@
     (iter (for (coordinates value) :in-d-value instance)
           (when value
             (collect (with-output-to-string (*standard-output*)
-                       (map nil [render-string (make-coordinate-inspector !1 !2)] dimensions coordinates))
+                       (map nil [render-text (make-coordinate-inspector !1 !2)] dimensions coordinates))
               :into names)
             (collect value :into values))
           (finally
@@ -416,9 +382,10 @@
 (def component d-value-pie-chart-component (abstract-d-value-chart-component)
   ())
 
-(def method refresh-component ((self d-value-pie-chart-component))
-  (bind (((:values names values) (collect-d-value-names-and-values self)))
-    (setf (content-of self) (make-pie-chart :names names :values values))))
+(def refresh d-value-pie-chart-component
+  (bind (((:slots content) -self-)
+         ((:values names values) (collect-d-value-names-and-values -self-)))
+    (setf content (make-pie-chart :names names :values values))))
 
 ;;;;;;
 ;;; D value column chart component
@@ -426,9 +393,10 @@
 (def component d-value-column-chart-component (abstract-d-value-chart-component)
   ())
 
-(def method refresh-component ((self d-value-column-chart-component))
-  (bind (((:values names values) (collect-d-value-names-and-values self)))
-    (setf (content-of self) (make-column-chart :names names :values values))))
+(def refresh d-value-column-chart-component
+  (bind (((:slots content) -self-)
+         ((:values names values) (collect-d-value-names-and-values -self-)))
+    (setf content (make-column-chart :names names :values values))))
 
 ;;;;;;
 ;;; D value line chart component

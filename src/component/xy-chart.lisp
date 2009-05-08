@@ -10,5 +10,5 @@
 (def component xy-chart (chart)
   ())
 
-(def render xy-chart ()
+(def render-xhtml xy-chart
   (render-chart -self- "amxy"))

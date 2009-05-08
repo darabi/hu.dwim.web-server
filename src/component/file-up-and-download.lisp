@@ -19,11 +19,11 @@
   (when label?
     (setf (content-of -self-) (icon download :label label))))
 
-(def method refresh-component ((self file-download-component))
-  (with-slots (file-name action url-prefix) self
+(def refresh file-download-component
+  (bind (((:slots file-name action url-prefix) -self-))
     (setf action (make-uri :path (concatenate-string url-prefix (namestring file-name))))))
 
-(def render file-download-component ()
+(def render-xhtml file-download-component
   (bind ((absolute-file-name (merge-pathnames (file-name-of -self-) (directory-of -self-))))
     (unless (probe-file absolute-file-name)
       (setf (enabled-p -self-) #f))
@@ -38,7 +38,7 @@
 (def component file-upload-component (primitive-component)
   ())
 
-(def render file-upload-component ()
+(def render-xhtml file-upload-component
   (ensure-client-state-sink -self-)
   (render-file-upload-field :client-state-sink (client-state-sink-of -self-)))
 

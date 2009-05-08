@@ -7,40 +7,16 @@
 ;;;;;;
 ;;; Customization points
 
-(def (layered-function e) make-standard-commands (component class prototype-or-instance)
-  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
-    (make-move-commands component class prototype-or-instance))
+(def (layered-function e) make-move-commands (component class prototype value)
+  (:method ((component component) (class standard-class) (prototype standard-object) value)
+    (optional-list (make-open-in-new-frame-command component class prototype value)
+                   (make-focus-command component class prototype value))))
 
-  (:method ((component inspector-component) (class standard-class) (prototype-or-instance standard-object))
-    (append (optional-list (make-refresh-command component class prototype-or-instance)) (call-next-method))))
-
-(def (layered-function e) make-move-commands (component class prototype-or-instance)
-  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
-    (optional-list (make-open-in-new-frame-command component class prototype-or-instance)
-                   (make-focus-command component class prototype-or-instance))))
-
-(def (layered-function e) make-expand-command (component class prototype-or-instance))
+(def (layered-function e) make-expand-command (component class prototype value))
 
 (def (layered-function e) make-class-presentation (component class prototype-or-instance)
   (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
     (localized-class-name class)))
-
-(def (layered-function e) make-commands-presentation (component commands)
-  (:method ((component component) (commands list))
-    (make-instance 'command-bar-component :commands commands)))
-
-(def (layered-function e) render-title (component)
-  (:method :around ((component title-component-mixin))
-    (bind ((id (generate-response-unique-string)))
-      <span (:id ,id :class "title")
-            ,(if (slot-boundp component 'title)
-                 (when-bind title (force (title-of component))
-                   `xml,title)
-                 (call-next-method))>
-      `js(wui.setup-widget "title" ,id)))
-
-  (:method ((component title-component-mixin))
-    (values)))
 
 ;;;;;;
 ;;; Abstract standard class component
@@ -55,9 +31,8 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-class-component))
   (setf (the-class-of component) new-value))
 
-(def method clone-component ((self abstract-standard-class-component))
-  (prog1-bind clone (call-next-method)
-    (setf (the-class-of clone) (the-class-of self))))
+(def method component-dispatch-class ((self abstract-standard-class-component))
+  (the-class-of self))
 
 ;;;;;;
 ;;; Abstract standard slot definition component
@@ -73,9 +48,8 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-component))
   (setf (slot-of component) new-value))
 
-(def method clone-component ((self abstract-standard-slot-definition-component))
+(def layered-method clone-component ((self abstract-standard-slot-definition-component))
   (prog1-bind clone (call-next-method)
-    (setf (the-class-of clone) (the-class-of self))
     (setf (slot-of clone) (slot-of self))))
 
 ;;;;;;
@@ -92,6 +66,10 @@
 (def method (setf component-value-of) (new-value (component abstract-standard-slot-definition-group-component))
   (setf (slots-of component) new-value))
 
+(def layered-method clone-component ((self abstract-standard-slot-definition-group-component))
+  (prog1-bind clone (call-next-method)
+    (setf (slots-of clone) (slots-of self))))
+
 ;;;;;;
 ;;; Abstract standard object component
 
@@ -104,6 +82,9 @@
 
 (def method (setf component-value-of) (new-value (component abstract-standard-object-component))
   (setf (instance-of component) new-value))
+
+(def method component-dispatch-class ((self abstract-standard-object-component))
+  (class-of (instance-of self)))
 
 (def (generic e) reuse-standard-object-instance (class instance)
   (:method ((class built-in-class) (instance null))
@@ -157,7 +138,7 @@
   (when instance?
     (setf (instances-of -self-) (list instance))))
 
-(def method clone-component ((self abstract-standard-object-tree-component))
+(def layered-method clone-component ((self abstract-standard-object-tree-component))
   (prog1-bind clone (call-next-method)
     (setf (parent-provider-of clone) (parent-provider-of self))
     (setf (children-provider-of clone) (children-provider-of self))))
@@ -214,8 +195,8 @@
           (remhash (hash-key-for instance) selected-instance-set))
       (invalidate-computed-slot component 'selected-instance-set))))
 
-(def (layered-function e) make-select-instance-command (component class instance)
-  (:method ((component component) (class standard-class) (instance standard-object))
+(def (layered-function e) make-select-instance-command (component class prototype instance)
+  (:method ((component component) (class standard-class) (prototype standard-object) (instance standard-object))
     (command (icon select)
              (make-component-action component
                (execute-select-instance component (class-of instance) instance)))))
@@ -234,15 +215,14 @@
 ;;; Standard object detail component
 
 (def component standard-object-detail-component (detail-component remote-identity-component-mixin)
-  ((class nil :accessor nil :type component)
-   (slot-value-groups nil :type components)))
+  ((slot-value-groups nil :type components)))
 
 (def (layered-function e) collect-standard-object-detail-slot-groups (component class prototype slots)
   (:method ((component standard-object-detail-component) (class standard-class) (prototype standard-object) (slots list))
     (list (cons #"standard-object-detail-component.primary-group" slots))))
 
-(def render-csv standard-object-detail-component ()
-  (foreach #'render-csv (slot-value-groups-of -self-)))
+(def render standard-object-detail-component
+  (foreach #'render (slot-value-groups-of -self-)))
 
 (def function find-slot-value-group-component (slot-group slot-value-groups)
   (find slot-group slot-value-groups :key #'slots-of
@@ -276,7 +256,7 @@
   (:method ((self standard-object-slot-value-group-component))
     2))
 
-(def render standard-object-slot-value-group-component ()
+(def render-xhtml standard-object-slot-value-group-component
   (bind (((:read-only-slots name slot-values id) -self-))
     (if slot-values
         (progn
@@ -288,8 +268,8 @@
           <tbody ,(foreach #'render slot-values) >)
         <span (:id ,id) ,#"there-are-none">)))
 
-(def render-csv standard-object-slot-value-group-component ()
-  (foreach #'render-csv (slot-values-of -self-)))
+(def render standard-object-slot-value-group-component
+  (foreach #'render (slot-values-of -self-)))
 
 (def function find-slot-value-component (slot slot-values)
   (find (slot-definition-name slot) slot-values
@@ -311,7 +291,7 @@
   ((label nil :type component)
    (value nil :type component)))
 
-(def render standard-object-slot-value-component ()
+(def render-xhtml standard-object-slot-value-component
   (bind (((:read-only-slots label value id messages) -self-))
     (when messages
       <tr <td (:colspan 2) ,(render-user-messages -self-)>>)
@@ -319,10 +299,10 @@
         <td (:class "slot-value-label") ,(render label)>
         <td (:class "slot-value-value") ,(render value)>>))
 
-(def render-csv standard-object-slot-value-component ()
-  (render-csv (label-of -self-))
+(def render-csv standard-object-slot-value-component
+  (render (label-of -self-))
   (render-csv-value-separator)
-  (render-csv (value-of -self-))
+  (render (value-of -self-))
   (render-csv-line-separator))
 
 ;;;;;;
@@ -338,7 +318,7 @@
 (def function make-class-selector (classes)
   (make-instance 'class-selector :component-value (first classes) :possible-values classes))
 
-(def render class-selector ()
+(def render-xhtml class-selector
   (if (edited-p -self-)
       (bind ((href (register-action/href (make-action (mark-outdated (parent-component-of -self-))))))
         (render-member-component -self- :on-change `js-inline(wui.io.action ,href :ajax #f)))

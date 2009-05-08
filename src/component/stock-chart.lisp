@@ -10,7 +10,7 @@
 (def component stock-chart (chart)
   ())
 
-(def render stock-chart ()
+(def render-xhtml stock-chart
   (render-chart -self- "amstock"))
 
 (def (function e) make-stock-chart (&key title file-name)

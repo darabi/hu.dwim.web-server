@@ -8,6 +8,6 @@
   ())
 
 ;; TODO: shouldn't we put these customization on the dwim application layer?
-(def layered-method make-export-command :around (format component (class standard-class) (prototype-or-instance standard-object))
+(def layered-method make-export-command :around (format component (class standard-class) (prototype standard-object) (instance standard-object))
   (when (dmm::authorize-operation 'export-instance-operation :-entity- class :format format)
     (call-next-method)))

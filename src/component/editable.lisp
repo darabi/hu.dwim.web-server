@@ -113,10 +113,10 @@
   (:method :around ((component component))
     (call-in-component-environment component #'call-next-method)))
 
-(def method refresh-component :after ((self editable-component))
-  (if (edited-p self)
-      (join-editing self)
-      (leave-editing self)))
+(def refresh editable-component
+  (if (edited-p -self-)
+      (join-editing -self-)
+      (leave-editing -self-)))
 
 ;;;;;;
 ;;; Commands
@@ -166,8 +166,8 @@
                (revert-editing editable)))
            :visible (delay (edited-p editable))))
 
-(def (layered-function e) make-editing-commands (component class instance-or-prototype)
-  (:method ((component component) (class standard-class) (instance-or-prototype standard-object))
+(def (layered-function e) make-editing-commands (component class prototype instance)
+  (:method ((component component) (class standard-class) (prototype standard-object) (instance standard-object))
     (if (inherited-initarg component :store-mode)
         (list (make-store-editing-command component)
               (make-revert-editing-command component))
@@ -175,11 +175,12 @@
               (make-save-editing-command component)
               (make-cancel-editing-command component)))))
 
-(def layered-method make-standard-commands ((component editable-component) (class standard-class) (instance-or-prototype standard-object))
-  (append (make-editing-commands component class instance-or-prototype) (call-next-method)))
+(def layered-method make-context-menu-commands ((component editable-component) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (make-editing-commands component class prototype instance) (call-next-method)))
 
-(def layered-method make-refresh-command ((component editable-component) (class standard-class) (prototype-or-instance standard-object))
+(def layered-method make-refresh-command ((component editable-component) (class standard-class) (prototype standard-object) (instance standard-object))
   (command (icon refresh)
            (make-component-action component
              (refresh-component component))
-           :visible (delay (not (edited-p component)))))
+           :visible (delay (not (edited-p component)))
+           :ajax (ajax-id component)))

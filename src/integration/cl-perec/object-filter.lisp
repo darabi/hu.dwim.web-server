@@ -9,7 +9,7 @@
 
 (def layered-method make-standard-object-detail-filter-class ((component standard-object-detail-filter) (class prc::persistent-class) (prototype prc::persistent-object))
   (if (dmm::developer-p (dmm::current-effective-subject))
-      (make-viewer class :default-alternative-type 'reference-component)
+      (make-viewer class :initial-alternative-type 'reference-component)
       (call-next-method)))
 
 (def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class dmm::entity) (prototype prc::persistent-object))

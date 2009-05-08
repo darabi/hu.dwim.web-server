@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component definer
+;;; Definers
 
 (def (definer e :available-flags "eas") component (name supers slots &rest options)
   `(def (class* ,@-options-) ,name ,supers
@@ -14,55 +14,57 @@
      (:metaclass component-class)
      ,@options))
 
+(def (definer e :available-flags "do") refresh (&body forms)
+  `(def method refresh-component :after ((-self- ,(pop forms))) ,@forms))
+
 ;;;;;;
 ;;; Component
 
 (def component component ()
-  ((parent-component nil :export :accessor)
+  ((parent-component
+    nil
+    :export :accessor)
    ;; TODO: use only one slot for these flags (beware of boolean like slots which might have delayed computations inside)
-   (visible #t :type boolean :documentation "True means the component must be visible on the client side, while false means the opposite.")
+   (visible
+    #t
+    :type boolean
+    :export :accessor
+    :documentation "True means the component must be visible on the client side, while false means the opposite.")
    ;; TODO expanded flag in the base component class?!
-   (expanded #t :type boolean :documentation "True mans the component should display itself with full detail, while false means it should be minimized.")
-   (dirty #t :type boolean :documentation "True means the component must be sent to the client to refresh its content.")
-   (outdated #t :type boolean :documentation "True means the component must be refreshed before render.")))
+   (expanded
+    #t
+    :type boolean
+    :documentation "True means the component should display itself with full detail, while false means it should be minimized.")
+   (dirty
+    #t
+    :type boolean
+    :documentation "True means the component must be sent to the client to refresh its content.")
+   (outdated
+    #t
+    :type boolean
+    :documentation "True means the component must be refreshed before render.")))
 
-(def render :around component ()
+(def render-xhtml :around component
   (with-component-environment -self-
     (if (force (visible-p -self-))
         (prog1
             (render-with-debug-component-hierarchy -self- #'call-next-method)
-          (setf (dirty-p -self-) #f))
-        +void+)))
+          (setf (dirty-p -self-) #f)))))
 
-(def render :before component ()
+(def render :before component
   ;; we put it in a :before so that more specialized :before's can happend before it
   (ensure-uptodate -self-))
 
-(def function render-component-in-environment (component call-next-method)
-  (with-component-environment component 
-    (when (force (visible-p component))
-      (ensure-uptodate component)
-      (funcall call-next-method))))
+(def render :around component
+  (with-component-environment -self- 
+    (when (force (visible-p -self-))
+      (ensure-uptodate -self-)
+      (call-next-method))))
 
-(def render-string :around component
-  (render-component-in-environment -self- #'call-next-method))
-
-(def render-csv :around component
-  (render-component-in-environment -self- #'call-next-method))
-
-(def render-pdf :around component
-  (render-component-in-environment -self- #'call-next-method))
-
-(def render-odt :around component
-  (render-component-in-environment -self- #'call-next-method))
-
-(def render-ods :around component
-  (render-component-in-environment -self- #'call-next-method))
-
-(def render string
+(def render-xhtml string
   `xml,-self-)
 
-(def render-string string
+(def render-text string
   (write -self-))
 
 (def render-csv string
@@ -70,6 +72,17 @@
 
 (def render-ods string
   <text:p ,-self- >)
+
+(def (generic e) component-dispatch-class (component))
+
+(def (generic e) component-css-class (component)
+  (:method ((component component))
+    (bind ((class (class-of component)))
+      (some (lambda (class)
+              (bind ((name (symbol-name (class-name class))))
+                (when (eql 0 (search "STANDARD-" name))
+                  (string-downcase name))))
+            (class-precedence-list class)))))
 
 (def (layered-function e) render-onclick-handler (component))
 
@@ -98,6 +111,13 @@
 (def (function e) mark-top-content-outdated (component)
   (mark-outdated (find-top-component-content component)))
 
+(def (generic e) refresh-component (component)
+  (:method ((self component))
+    (values))
+
+  (:method :after ((self component))
+    (setf (outdated-p self) #f)))
+
 (def function ensure-uptodate (component)
   (when (or (outdated-p component)
             (some (lambda (slot)
@@ -110,6 +130,19 @@
   `(aif ,place
         (reinitialize-instance it ,@args)
         (setf ,place (make-instance ,type ,@args))))
+
+(def (function e) render-with-border (class thunk)
+  <table (:class ,class :style "clear: both;")
+    <thead <tr <td (:class "border-left")>
+               <td (:class "border-center")>
+               <td (:class "border-right")>>>
+    <tbody <tr <td (:class "border-left")>
+               <td (:class "border-center")
+                   ,(funcall thunk)>
+               <td (:class "border-right")>>>
+    <tfoot <tr <td (:class "border-left")>
+               <td (:class "border-center")>
+               <td (:class "border-right")>>>>)
 
 ;;;;;;
 ;;; Debug
@@ -291,7 +324,7 @@
          (while parent)
          (collect parent))))
 
-(def (generic e) clone-component (component)
+(def (layered-function e) clone-component (component)
   (:method ((self string))
     self)
 

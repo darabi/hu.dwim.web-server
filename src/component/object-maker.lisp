@@ -10,60 +10,30 @@
 (def component standard-object-maker (abstract-standard-class-component
                                       maker-component
                                       alternator-component
-                                      user-message-collector-component-mixin
-                                      remote-identity-component-mixin
                                       initargs-component-mixin
                                       layer-context-capturing-component-mixin
                                       recursion-point-component)
   ()
-  (:default-initargs :alternatives-factory #'make-standard-object-maker-alternatives)
   (:documentation "Maker for an instance of STANDARD-OBJECT in various alternative views."))
 
 (def (macro e) standard-object-maker (the-class)
   `(make-instance 'standard-object-maker :the-class ,the-class))
 
-(def method refresh-component ((self standard-object-maker))
-  (with-slots (the-class default-alternative-type alternatives content command-bar) self
-    (if the-class
-        (progn
-          (if alternatives
-              (setf (component-value-for-alternatives self) the-class)
-              (setf alternatives (funcall (alternatives-factory-of self) self the-class (class-prototype the-class))))
-          (if content
-              (setf (component-value-of content) the-class)
-              (setf content (if default-alternative-type
-                                (find-alternative-component alternatives default-alternative-type)
-                                (find-default-alternative-component alternatives))))
-          (setf command-bar (make-alternator-command-bar self alternatives
-                                                         (make-standard-commands self the-class (class-prototype the-class)))))
-        (setf alternatives nil
-              content nil))))
+(def layered-method render-title ((self standard-object-maker))
+  <span ,(call-next-method) ,(standard-object-maker.title (localized-class-name (the-class-of self)))>)
 
-(def render standard-object-maker ()
-  (bind (((:read-only-slots id content) -self-))
-    (flet ((body ()
-             (render-user-messages -self-)
-             (call-next-method)))
-      (if (typep content 'reference-component)
-          <span (:id ,id :class "standard-object-maker")
-            ,(body)>
-          (progn
-            <div (:id ,id :class "standard-object-maker")
-              ,(body)>
-            `js(wui.setup-widget "standard-object-maker" ,id))))))
+(def layered-method make-alternatives ((component standard-object-maker) (class standard-class) (prototype standard-object) value)
+  (list (delay-alternative-component-with-initargs 'standard-object-detail-maker :the-class class)
+        (delay-alternative-reference-component 'standard-object-maker-reference class)))
 
-(def (layered-function e) make-standard-object-maker-alternatives (component class prototype)
+(def layered-method make-context-menu-commands ((component standard-object-maker) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (list (make-create-instance-command component class prototype)) (call-next-method)))
+
+(def (layered-function e) make-create-instance-command (component class prototype)
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
-    (list (delay-alternative-component-with-initargs 'standard-object-detail-maker :the-class class)
-          (delay-alternative-reference-component 'standard-object-maker-reference class))))
-
-(def layered-method make-standard-commands ((component standard-object-maker) (class standard-class) (prototype standard-object))
-  (append (list (make-create-instance-command component)) (call-next-method)))
-
-(def (function e) make-create-instance-command (component)
-  (command (icon create)
-           (make-component-action component
-             (execute-create-instance (find-ancestor-recursion-point-component component) component (the-class-of component)))))
+    (command (icon create)
+             (make-component-action component
+               (execute-create-instance (find-ancestor-recursion-point-component component) component (the-class-of component))))))
 
 (def (layered-function e) execute-create-instance (ancestor component class)
   (:method :around ((ancestor recursion-point-component) (component standard-object-maker) (class standard-class))
@@ -94,33 +64,33 @@
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (list* class (subclasses class))))
 
-(def method refresh-component ((self standard-object-detail-maker))
-  (with-slots (class class-selector the-class slot-value-groups) self
-    (bind ((selectable-classes (collect-standard-object-detail-maker-classes self the-class (class-prototype the-class))))
-      (if (length= selectable-classes 1)
-          (setf class-selector nil)
-          (if class-selector
-              (setf (possible-values-of class-selector) selectable-classes)
-              (setf class-selector (make-class-selector selectable-classes))))
-      (bind ((selected-class (if class-selector
-                                 (component-value-of class-selector)
-                                 (first selectable-classes))))
-        (setf class (make-standard-object-detail-maker-class self the-class (class-prototype the-class))
-              slot-value-groups (bind ((prototype (class-prototype selected-class))
-                                       (slots (collect-standard-object-detail-maker-slots self selected-class prototype))
-                                       (slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
-                                  (iter (for (name . slot-group) :in slot-groups)
-                                        (when slot-group
-                                          (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
-                                          (if slot-value-group
-                                              (setf (component-value-of slot-value-group) slot-group
-                                                    (the-class-of slot-value-group) selected-class
-                                                    (name-of slot-value-group) name)
-                                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-maker
-                                                                                    :the-class selected-class
-                                                                                    :slots slot-group
-                                                                                    :name name)))
-                                          (collect slot-value-group)))))))))
+(def refresh standard-object-detail-maker
+  (bind (((:slots class class-selector the-class slot-value-groups) -self-)
+         (selectable-classes (collect-standard-object-detail-maker-classes -self- the-class (class-prototype the-class))))
+    (if (length= selectable-classes 1)
+        (setf class-selector nil)
+        (if class-selector
+            (setf (possible-values-of class-selector) selectable-classes)
+            (setf class-selector (make-class-selector selectable-classes))))
+    (bind ((selected-class (if class-selector
+                               (component-value-of class-selector)
+                               (first selectable-classes))))
+      (setf class (make-standard-object-detail-maker-class -self- the-class (class-prototype the-class))
+            slot-value-groups (bind ((prototype (class-prototype selected-class))
+                                     (slots (collect-standard-object-detail-maker-slots -self- selected-class prototype))
+                                     (slot-groups (collect-standard-object-detail-slot-groups -self- selected-class prototype slots)))
+                                (iter (for (name . slot-group) :in slot-groups)
+                                      (when slot-group
+                                        (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
+                                        (if slot-value-group
+                                            (setf (component-value-of slot-value-group) slot-group
+                                                  (the-class-of slot-value-group) selected-class
+                                                  (name-of slot-value-group) name)
+                                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-maker
+                                                                                  :the-class selected-class
+                                                                                  :slots slot-group
+                                                                                  :name name)))
+                                        (collect slot-value-group))))))))
 
 (def (layered-function e) make-standard-object-detail-maker-class (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
@@ -130,19 +100,14 @@
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (class-slots class)))
 
-(def render standard-object-detail-maker ()
+(def render-xhtml standard-object-detail-maker
   (bind (((:read-only-slots class-selector slot-value-groups id) -self-))
     <div (:id ,id)
-         ,(render-title -self-)
          <table (:class "slot-table")
            ,(when class-selector
                   <tbody <tr <td ,#"standard-object-detail-maker.class-selector-label">
                              <td ,(render class-selector)>>>)
            ,(foreach #'render slot-value-groups)>>))
-
-(def layered-method render-title ((self standard-object-detail-maker))
-  (standard-object-detail-maker.title (slot-value self 'class)))
-
 
 ;;;;;;
 ;;; Standard object slot value group maker
@@ -151,14 +116,14 @@
   ()
   (:documentation "Maker for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs."))
 
-(def method refresh-component ((self standard-object-slot-value-group-maker))
-  (with-slots (the-class slots slot-values) self
+(def refresh standard-object-slot-value-group-maker
+  (bind (((:slots the-class slots slot-values) -self-))
     (setf slot-values
           (iter (for slot :in slots)
                 (for slot-value-component = (find-slot-value-component slot slot-values))
                 (if slot-value-component
                     (setf (slot-of slot-value-component) slot)
-                    (setf slot-value-component (make-standard-object-slot-value-maker self the-class (class-prototype the-class) slot)))
+                    (setf slot-value-component (make-standard-object-slot-value-maker -self- the-class (class-prototype the-class) slot)))
                 (collect slot-value-component)))))
 
 (def (generic e) make-standard-object-slot-value-maker (component class instance slot)
@@ -172,8 +137,8 @@
   ()
   (:documentation "Maker for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
-(def method refresh-component ((self standard-object-slot-value-maker)) ()
-  (with-slots (slot label value) self
+(def refresh standard-object-slot-value-maker ()
+  (bind (((:slots slot label value) -self-))
     (setf label (localized-slot-name slot)
           value (make-place-maker (slot-type slot) :name (slot-definition-name slot) :initform (slot-definition-initform slot)))))
 

@@ -51,10 +51,10 @@
   (iter (for element :in elements)
         (unless (first-iteration-p)
           (render-csv-value-separator))
-        (render-csv element)))
+        (render element)))
 
 (def function render-csv-separated-elements (separator elements)
   (iter (for element :in elements)
         (unless (first-iteration-p)
           (write-char separator *csv-stream*))
-        (render-csv element)))
+        (render element)))

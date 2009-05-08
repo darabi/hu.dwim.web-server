@@ -13,51 +13,25 @@
                                                editable-component
                                                exportable-component
                                                alternator-component
-                                               user-message-collector-component-mixin
-                                               remote-identity-component-mixin
                                                initargs-component-mixin
                                                layer-context-capturing-component-mixin
                                                recursion-point-component)
   ()
-  (:default-initargs :alternatives-factory #'make-standard-object-list-inspector-alternatives :the-class (find-class 'standard-object))
+  (:default-initargs :the-class (find-class 'standard-object))
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
 
 (def (macro e) standard-object-list-inspector (instances &rest args)
   `(make-instance 'standard-object-list-inspector :instances ,instances ,@args))
 
-(def method refresh-component ((self standard-object-list-inspector))
-  (with-slots (instances the-class default-alternative-type alternatives content command-bar) self
-    (if alternatives
-        (setf (component-value-for-alternatives self) instances)
-        (setf alternatives (funcall (alternatives-factory-of self) self the-class (class-prototype the-class) instances)))
-    (if content
-        (setf (component-value-of content) instances)
-        (setf content (if default-alternative-type
-                          (find-alternative-component alternatives default-alternative-type)
-                          (find-default-alternative-component alternatives))))
-    (setf command-bar (make-alternator-command-bar self alternatives
-                                                   (make-standard-commands self the-class (class-prototype the-class))))))
+(def layered-method render-title ((self standard-object-list-inspector))
+  <span ,(call-next-method) ,(standard-object-list-inspector.title (localized-class-name (the-class-of self)))>)
 
-(def render standard-object-list-inspector ()
-  (bind (((:read-only-slots id content) -self-))
-    (flet ((body ()
-             (render-user-messages -self-)
-             (call-next-method)))
-      (if (typep content 'reference-component)
-          <span (:id ,id :class "standard-object-list-inspector")
-            ,(body)>
-          (progn
-            <div (:id ,id :class "standard-object-list-inspector")
-              ,(body)>
-            `js(wui.setup-widget "standard-object-list-inspector" ,id))))))
+(def layered-method make-alternatives ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
+  (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
+        (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
+        (delay-alternative-reference-component 'standard-object-list-inspector-reference instances)))
 
-(def (layered-function e) make-standard-object-list-inspector-alternatives (component class prototype instances)
-  (:method ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
-    (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
-          (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
-          (delay-alternative-reference-component 'standard-object-list-inspector-reference instances))))
-
-(def layered-method make-standard-commands ((component standard-object-list-inspector) (class standard-class) (instance standard-object))
+(def layered-method make-context-menu-commands ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   (append (optional-list (make-begin-editing-new-instance-command component class instance)) (call-next-method)))
 
 (def (layered-function e) make-begin-editing-new-instance-command (component class instance)
@@ -88,19 +62,19 @@
     #'make-standard-object-list-component
     :type (or symbol function))))
 
-(def method refresh-component ((self standard-object-list-list-inspector))
-  (with-slots (instances the-class components) self
+(def refresh standard-object-list-list-inspector
+  (bind (((:slots instances the-class components) -self-))
     (setf components
           (iter (for instance :in instances)
                 (for component = (find instance components :key #'component-value-of))
                 (if component
                     (setf (component-value-of component) instance)
-                    (setf component (funcall (component-factory-of self) self (class-of instance) instance)))
+                    (setf component (funcall (component-factory-of -self-) -self- (class-of instance) instance)))
                 (collect component)))))
 
 (def (generic e) make-standard-object-list-component (component class instance)
   (:method ((component standard-object-list-list-inspector) (class standard-class) (instance standard-object))
-    (make-viewer instance :default-alternative-type 'reference-component)))
+    (make-viewer instance :initial-alternative-type 'reference-component)))
 
 ;;;;;;
 ;;; Standard object table inspector
@@ -109,27 +83,20 @@
                                                      abstract-standard-class-component
                                                      inspector-component
                                                      table-component
-                                                     editable-component
-                                                     title-component-mixin)
-  ((class nil :accessor nil :type component))
+                                                     editable-component)
+  ()
   (:default-initargs :the-class (find-class 'standard-object)))
 
-(def method refresh-component ((self standard-object-list-table-inspector))
-  (with-slots (instances the-class class columns rows page-navigation-bar) self
-    (if the-class
-          (if class
-              (when (typep the-class 'abstract-standard-class-component)
-                (setf (the-class-of class) the-class))
-              (setf class (make-class-presentation self the-class (class-prototype the-class))))
-          (setf class nil))
-    (awhen (inherited-initarg self :page-size)
+(def refresh standard-object-list-table-inspector
+  (bind (((:slots instances the-class columns rows page-navigation-bar) -self-))
+    (awhen (inherited-initarg -self- :page-size)
       (setf (page-size-of page-navigation-bar) it))
-    (setf columns (make-standard-object-list-table-inspector-columns self))
+    (setf columns (make-standard-object-list-table-inspector-columns -self-))
     (setf rows (iter (for instance :in instances)
                      (for row = (find instance rows :key #'component-value-of))
                      (if row
                          (setf (component-value-of row) instance)
-                         (setf row (make-standard-object-list-table-row self the-class instance)))
+                         (setf row (make-standard-object-list-table-row -self- the-class instance)))
                      (collect row)))))
 
 (def (layered-function e) make-standard-object-list-table-row (component class instance)
@@ -138,18 +105,16 @@
 
 (def (function e) make-standard-object-list-table-type-column ()
   (make-instance 'column-component
-                 :content (label #"object-list-table.column.type")
+                 :content #"object-list-table.column.type"
                  :cell-factory (lambda (row-component)
-                                 (make-instance 'cell-component
-                                                :content (bind ((class (class-of (instance-of row-component))))
-                                                           (make-class-presentation row-component class (class-prototype class)))))))
+                                 (bind ((class (class-of (instance-of row-component))))
+                                   (make-class-presentation row-component class (class-prototype class))))))
 
 (def (function e) make-standard-object-list-table-command-bar-column ()
   (make-instance 'column-component
-                 :content (label #"object-list-table.column.commands")
+                 :content #"object-list-table.column.commands"
                  :visible (delay (not (layer-active-p 'passive-components-layer)))
-                 :cell-factory (lambda (row-component)
-                                 (make-instance 'cell-component :content (command-bar-of row-component)))))
+                 :cell-factory #'context-menu-of))
 
 (def (layered-function e) make-standard-object-list-table-inspector-columns (component)
   (:method ((self standard-object-list-table-inspector))
@@ -161,39 +126,33 @@
 
 (def (layered-function e) make-standard-object-list-table-inspector-slot-columns (component)
   (:method ((self standard-object-list-table-inspector))
-    (with-slots (instances the-class command-bar columns rows) self
-      (bind ((slot-name->slot-map (list)))
-        ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
-        (flet ((register-slot (slot)
-                 (bind ((slot-name (slot-definition-name slot)))
-                   (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
-                     (push (cons slot-name slot) slot-name->slot-map)))))
-          (when the-class
-            (mapc #'register-slot (collect-standard-object-list-table-inspector-slots self the-class (class-prototype the-class))))
-          (dolist (instance instances)
-            (mapc #'register-slot (collect-standard-object-list-table-inspector-slots self (class-of instance) instance))))
-        (mapcar (lambda (slot-name->slot)
-                  (make-instance 'column-component
-                                 :content (label (localized-slot-name (cdr slot-name->slot)))
-                                 :cell-factory (lambda (row-component)
-                                                 (bind ((slot (find-slot (class-of (instance-of row-component)) (car slot-name->slot))))
-                                                   (if slot
-                                                       (make-instance 'standard-object-slot-value-cell-component :instance (instance-of row-component) :slot slot)
-                                                       "")))))
-                (nreverse slot-name->slot-map))))))
+    (bind (((:slots instances the-class command-bar columns rows) self)
+           (slot-name->slot-map nil))
+      ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
+      (flet ((register-slot (slot)
+               (bind ((slot-name (slot-definition-name slot)))
+                 (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
+                   (push (cons slot-name slot) slot-name->slot-map)))))
+        (when the-class
+          (mapc #'register-slot (collect-standard-object-list-table-inspector-slots self the-class (class-prototype the-class))))
+        (dolist (instance instances)
+          (mapc #'register-slot (collect-standard-object-list-table-inspector-slots self (class-of instance) instance))))
+      (mapcar (lambda (slot-name->slot)
+                (make-instance 'column-component
+                               :content (localized-slot-name (cdr slot-name->slot))
+                               :cell-factory (lambda (row-component)
+                                               (bind ((slot (find-slot (class-of (instance-of row-component)) (car slot-name->slot))))
+                                                 (if slot
+                                                     (make-instance 'standard-object-slot-value-cell-component :instance (instance-of row-component) :slot slot)
+                                                     "")))))
+              (nreverse slot-name->slot-map)))))
 
 (def (layered-function e) collect-standard-object-list-table-inspector-slots (component class instance)
   (:method ((component standard-object-list-table-inspector) (class standard-class) (instance standard-object))
     (class-slots class)))
 
-(def render standard-object-list-table-inspector ()
-  <div (:id ,(id-of -self-))
-       ,(render-title -self-)
-       ,(call-next-method)>)
-
-(def layered-method render-title ((self standard-object-list-table-inspector))
-  (standard-object-list-table-inspector.title (slot-value self 'class)))
-
+(def render-xhtml standard-object-list-table-inspector
+  <div (:id ,(id-of -self-)) ,(call-next-method)>)
 
 ;;;;;;
 ;;; Standard object row inspector
@@ -202,22 +161,22 @@
                                               inspector-component
                                               editable-component
                                               row-component
-                                              user-message-collector-component-mixin)
-  ((command-bar nil :type component)))
+                                              user-message-collector-component-mixin
+                                              commands-component-mixin)
+  ())
 
 (def layered-method render-onclick-handler ((self standard-object-row-inspector))
-  (when-bind expand-command (find-command-bar-command (command-bar-of self) 'expand)
+  (when-bind expand-command (find-command self 'expand)
     (render-command-onclick-handler expand-command (id-of self))))
 
-(def method refresh-component ((self standard-object-row-inspector))
-  (with-slots (instance command-bar cells) self
-    (if instance
-        (setf command-bar (make-commands-presentation self (make-standard-commands self (class-of instance) instance))
-              cells (mapcar (lambda (column)
-                              (funcall (cell-factory-of column) self))
-                            (columns-of (find-ancestor-component-with-type self 'standard-object-list-table-inspector))))
-        (setf command-bar nil
-              cells nil))))
+(def refresh standard-object-row-inspector
+  (bind (((:slots instance command-bar cells) -self-))
+    (setf cells
+          (if instance
+              (mapcar (lambda (column)
+                        (funcall (cell-factory-of column) -self-))
+                      (columns-of *table*))
+              nil))))
 
 (def layered-method render-table-row ((table standard-object-list-table-inspector) (row standard-object-row-inspector))
   (when (messages-of row)
@@ -226,21 +185,21 @@
                          (render-user-messages row))))
   (call-next-method))
 
-(def layered-method make-commands-presentation ((component standard-object-row-inspector) (commands list))
-  (make-instance 'popup-command-menu-component :commands commands))
+(def layered-method make-context-menu-commands ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (optional-list (make-expand-command component class prototype instance)) (call-next-method)))
 
-(def layered-method make-standard-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
-  (append (optional-list (make-expand-command component class instance)) (call-next-method)))
-
-(def layered-method make-move-commands ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
+(def layered-method make-command-bar-commands ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   nil)
 
-(def layered-method make-expand-command ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
+(def layered-method make-move-commands ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
+  nil)
+
+(def layered-method make-expand-command ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   (bind ((replacement-component nil))
     (make-replace-and-push-back-command component
                                         (delay (setf replacement-component
                                                      (make-instance '(editable-component entire-row-component)
-                                                                    :content (make-viewer instance :default-alternative-type 'detail-component))))
+                                                                    :content (make-viewer instance :initial-alternative-type 'detail-component))))
                                         (list :content (icon expand) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
                                         (list :content (icon collapse) :ajax (delay (id-of replacement-component))))))
 
@@ -252,8 +211,8 @@
                                                           editable-component)
   ())
 
-(def method refresh-component ((component standard-object-slot-value-cell-component))
-  (with-slots (instance slot content) component
+(def refresh standard-object-slot-value-cell-component
+  (bind (((:slots instance slot content) -self-))
     (if slot
         (setf content (make-instance 'place-inspector :place (make-slot-value-place instance slot)))
         (setf content nil))))
@@ -268,7 +227,7 @@
   (awhen (content-of self)
     (selected-instance-of it)))
 
-(def layered-method make-standard-object-list-inspector-alternatives ((component selectable-standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
+(def layered-method make-alternatives ((component selectable-standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
   (list (delay-alternative-component-with-initargs 'selectable-standard-object-list-table-inspector :the-class class :instances instances)
         (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
         (delay-alternative-reference-component 'standard-object-list-inspector-reference instances)))
@@ -294,11 +253,11 @@
                       (when (selected-instance-p table (instance-of row))
                         " selected")))
 
-(def layered-method make-standard-commands ((component selectable-standard-object-row-inspector) (class standard-class) (instance standard-object))
-  (append (call-next-method) (optional-list (make-select-instance-command component class instance))))
+(def layered-method make-context-menu-commands ((component selectable-standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (call-next-method) (optional-list (make-select-instance-command component class prototype instance))))
 
 (def layered-method render-onclick-handler ((self selectable-standard-object-row-inspector))
-  (if-bind select-command (find-command-bar-command (command-bar-of self) 'select)
+  (if-bind select-command (find-command self 'select)
     (render-command-onclick-handler select-command (id-of self))
     (call-next-method)))
 

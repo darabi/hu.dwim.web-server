@@ -14,19 +14,10 @@
    (tooltip nil :export :accessor)))
 
 (def render icon-component
+  (render (force (label-of -self-))))
+
+(def render-xhtml icon-component
   (render-icon :icon -self-))
-
-(def render-string icon-component
-  (write (force (label-of -self-))))
-
-(def render-csv icon-component
-  (render-csv (force (label-of -self-))))
-
-(def render-pdf icon-component
-  (render-pdf (force (label-of -self-))))
-
-(def render-ods icon-component
-  (render-ods (force (label-of -self-))))
 
 (def layered-function render-icon-label (icon label)
   (:method (icon label)

@@ -536,49 +536,51 @@ Custom implementations should look something like this:
     (call-next-method)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; app specific responses
+;;;;;;
+;;; Application specific responses
 
 (def (layered-function e) render (component))
 
-(def (layered-function e) render-string (component))
+(def layer format-independent () ())
 
-(def (layered-function e) render-csv (component))
+(def definer render-layer (name)
+  (bind ((layer-name (format-symbol *package* "~A-FORMAT" name))
+         (render-definer-name (format-symbol *package* "RENDER-~A" name)))
+    `(progn
+       (def (layer e) ,layer-name (format-independent) ())
+       (def (function e) ,render-definer-name (component)
+         (with-active-layers (,layer-name)
+           (render component)))
+       (def (definer e :available-flags "do") ,render-definer-name (&body forms)
+         (render-like-definer ',layer-name forms -options-)))))
 
-(def (layered-function e) render-pdf (component))
-
-(def (layered-function e) render-odt (component))
-
-(def (layered-function e) render-ods (component))
-
-(def (definer e :available-flags "do") render (&body forms)
-  (render-like-definer 'render forms -options-))
-
-(def (definer e :available-flags "do") render-string (&body forms)
-  (render-like-definer 'render-string forms -options-))
-
-(def (definer e :available-flags "do") render-csv (&body forms)
-  (render-like-definer 'render-csv forms -options-))
-
-(def (definer e :available-flags "do") render-pdf (&body forms)
-  (render-like-definer 'render-pdf forms -options-))
-
-(def (definer e :available-flags "do") render-odt (&body forms)
-  (render-like-definer 'render-odt forms -options-))
-
-(def (definer e :available-flags "do") render-ods (&body forms)
-  (render-like-definer 'render-ods forms -options-))
-
-(def function render-like-definer (name forms options)
-  (bind ((layer (when (member (first forms) '(:in-layer :in))
-                  (pop forms)
-                  (pop forms)))
+(def function render-like-definer (layer forms options)
+  (bind ((layer (if (member (first forms) '(:in-layer :in))
+                    (progn
+                      (pop forms)
+                      (pop forms))
+                    layer))
          (qualifier (when (or (keywordp (first forms))
                               (member (first forms) '(and or progn append nconc)))
                       (pop forms)))
          (type (pop forms)))
-    `(def (layered-method ,@options) ,name ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
+    `(def (layered-method ,@options) render ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
           ,@forms)))
+
+(def (definer e :available-flags "do") render (&body forms)
+  (render-like-definer nil forms -options-))
+
+(def render-layer text)
+
+(def render-layer xhtml)
+
+(def render-layer csv)
+
+(def render-layer pdf)
+
+(def render-layer odt)
+
+(def render-layer ods)
 
 (def (generic e) call-in-component-environment (component thunk)
   (:method (component thunk)
@@ -635,14 +637,14 @@ Custom implementations should look something like this:
                              (with-restored-component-environment (parent-component-of dirty-component)
                                (bind ((*inside-user-code* #t))
                                  (setf *rendering-phase-reached* #t)
-                                 (render dirty-component))))
+                                 (render-xhtml dirty-component))))
                            dirty-components)>))
          <result "success">>)
       (bind ((*inside-user-code* #t))
         (setf *rendering-phase-reached* #t)
-        (render component))))
+        (render-xhtml component))))
 
-(def (with-macro e) with-render-to-string-context ()
+(def (with-macro e) with-render-to-xhtml-string-context ()
   (bind ((*request* (make-instance 'request :uri (parse-uri "")))
          (*response* (make-instance 'response))
          (*application* (make-instance 'application :path-prefix ""))
@@ -660,16 +662,16 @@ Custom implementations should look something like this:
            +void+))
        :encoding +encoding+))))
 
-(def (function e) render-to-string (component &key ajax-aware)
+(def (function e) render-to-xhtml-string (component &key ajax-aware)
   (bind ((*ajax-aware-request* ajax-aware))
-    (with-render-to-string-context
+    (with-render-to-xhtml-string-context
       (call-in-rendering-environment *application* *session* (lambda ()
                                                                (ajax-aware-render component))))))
 
 (def class* locked-session-response-mixin (response)
   ())
 
-;;;;;
+;;;;;;
 ;;; Component rendering response
 
 (def special-variable *debug-component-hierarchy* #f)
@@ -747,8 +749,8 @@ Custom implementations should look something like this:
                                 :cookies (cookies-of self))))
 
 
-;;;;;;;;;
-;;; utils
+;;;;;;
+;;; Utils
 
 #+nil ; not used, maybe waiting to be deleted?
 (def (function e) make-redirect-response-with-frame-index-decorated (&optional (frame *frame*))

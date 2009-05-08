@@ -19,7 +19,7 @@
    (parse-dojo-widgets-on-load #f :type boolean :accessor parse-dojo-widgets-on-load?)
    (debug-client-side *debug-client-side* :type boolean :accessor debug-client-side? :export :accessor)))
 
-(def render frame-component ()
+(def render-xhtml frame-component
   (bind ((application *application*)
          (path-prefix (path-prefix-of application))
          (encoding (or (when *response*

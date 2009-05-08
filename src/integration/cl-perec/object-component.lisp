@@ -12,7 +12,7 @@
 (def method hash-key-for ((instance prc::persistent-object))
   (prc::oid-of instance))
 
-(def layered-method make-expand-command :around ((component inspector-component) (class prc::persistent-class) (instance prc::persistent-object))
+(def layered-method make-expand-command :around ((component inspector-component) (class prc::persistent-class) (prototype prc::persistent-object) (instance prc::persistent-object))
   (when (dmm::authorize-operation 'expand-instance-operation :-entity- class)
     (call-next-method)))
 

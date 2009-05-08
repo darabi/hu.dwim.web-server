@@ -24,12 +24,13 @@
   (:method ((self place-component))
     nil))
 
-(def method refresh-component ((self place-component))
-  (setf (content-of self) (make-place-component-content self)
-        (command-bar-of self) (make-place-component-command-bar self)))
+(def refresh place-component
+  (bind (((:slots content command-bar) -self-))
+    (setf content (make-place-component-content -self-)
+          command-bar (make-place-component-command-bar -self-))))
 
-(def render place-component ()
-  (with-slots (content command-bar) -self-
+(def render-xhtml place-component
+  (bind (((:slots content command-bar) -self-))
     (if command-bar
         (render-vertical-list (list command-bar content))
         (call-next-method))))
@@ -45,9 +46,8 @@
 (def (function e) make-set-place-to-unbound-command (place-component)
   (command (icon set-to-unbound)
            (make-action
-             (when-bind command-bar (find-command-bar (content-of place-component))
-               (when-bind command (find-command-bar-command command-bar 'back)
-                 (execute-command command)))
+             (when-bind command (find-command (content-of place-component) 'back)
+               (execute-command command))
              (setf (content-of place-component) (make-instance 'unbound-component)))
            :visible (delay (not (typep (content-of place-component) 'unbound-component)))))
 
@@ -61,8 +61,8 @@
   ;; TODO: KLUDGE: FIXME: make this a special slot (this way it is not thread safe)
   ((place-component :type component)))
 
-(def layered-method make-standard-commands :in-layer set-place-to-find-instance-layer :around
-     ((component standard-object-row-inspector) (class standard-class) (instance standard-object))
+(def layered-method make-context-menu-commands :in-layer set-place-to-find-instance-layer :around
+     ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
      ;; TODO: check for being the row of the result component of the filter in the place component
   (bind ((place-component
           (parent-component-of (find-ancestor-component-with-type component 'standard-object-filter))
@@ -70,7 +70,7 @@
           (place-component-of (current-layer))))
     (list* (command (icon select)
                     (make-action
-                      (execute-command-bar-command (command-bar-of (find-ancestor-component-with-type component 'standard-object-filter)) 'back)
+                      (execute-command (find-command (find-ancestor-component-with-type component 'standard-object-filter) 'back))
                       (setf (content-of place-component) (make-viewer (instance-of component)))))
            (call-next-method))))
 
@@ -87,8 +87,8 @@
 (def component place-inspector (place-component inspector-component editable-component)
   ((place nil :type place)))
 
-(def render place-inspector ()
-  (with-slots (edited content command-bar) -self-
+(def render-xhtml place-inspector
+  (bind (((:slots edited content command-bar) -self-))
     (if (and edited
              command-bar)
         (render-vertical-list (list command-bar content))
@@ -98,7 +98,7 @@
   (place-type (place-of self)))
 
 (def method make-place-component-content ((self place-inspector))
-  (with-slots (place edited content command-bar) self
+  (bind (((:slots place edited content command-bar) self))
     (if content
         (progn
           (unless (edited-p content)
@@ -121,7 +121,7 @@
   (:method ((component place-inspector) class instance slot)
     (bind ((place (place-of component)))
       (prog1-bind content
-          (make-inspector (place-type place) :default-alternative-type 'reference-component)
+          (make-inspector (place-type place) :initial-alternative-type 'reference-component)
         (update-component-value-from-place place content)))))
 
 (def method map-editable-child-components ((self place-inspector) function)
@@ -272,7 +272,7 @@
                                 :checked-class "icon use-in-filter"
                                 :unchecked-class "icon ignore-in-filter")>))
 
-(def render place-filter ()
+(def render-xhtml place-filter
   (render-filter-predicate -self-)
   (render-use-in-filter-marker -self-)
   <td ,(call-next-method)>)

@@ -45,7 +45,7 @@
                   :range-begin (make-instance 'timestamp-component :component-value ,range-begin)
                   :range-end (make-instance 'timestamp-component :component-value ,range-end)))
 
-(def render timestamp-range-component ()
+(def render-xhtml timestamp-range-component
   (bind (((:read-only-slots single range range-begin range-end) -self-))
     (if single
         (render range)

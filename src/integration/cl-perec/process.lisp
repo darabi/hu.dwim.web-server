@@ -10,17 +10,13 @@
 (def component persistent-process-component (standard-process-component)
   ((process)))
 
-(def method refresh-component :after ((self persistent-process-component))
-  (with-slots (process command-bar) self
-    (setf command-bar (make-standard-commands self (class-of process) process))))
-
-(def layered-method make-standard-commands ((component persistent-process-component) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
+(def layered-method make-context-menu-commands ((component persistent-process-component) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (append (call-next-method)
           (optional-list (make-cancel-persistent-process-command component)
                          (make-pause-persistent-process-command component))))
 
-(def render persistent-process-component ()
-  (with-slots (process command-bar answer-continuation content) -self-
+(def render-xhtml persistent-process-component ()
+  (bind (((:slots process command-bar answer-continuation content)) -self-)
     (prc::revive-instance process)
     (when (typep content 'empty-component)
       (add-user-information -self- (process.message.report-process-state process)))
@@ -116,25 +112,25 @@
   (icon-label.pause-process "Pause")
   (icon-tooltip.pause-process "Pause the process"))
 
-(def layered-method make-standard-commands ((component standard-object-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
+(def layered-method make-context-menu-commands ((component standard-object-inspector) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   ;; TODO: move prc::with-revived-instance?
   (prc::with-revived-instance instance
     (optional-list #+nil
                    (make-new-instance-command component)
-                   (make-delete-instance-command component)
+                   (make-delete-instance-command component class instance)
                    (when (dmm::persistent-process-initializing-p instance)
                      (make-start-persistent-process-command component instance))
                    (when (dmm::persistent-process-in-progress-p instance)
                      (make-continue-persistent-process-command component instance)))))
 
-(def layered-method make-standard-commands ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process))
+(def layered-method make-context-menu-commands ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (list (make-start-persistent-process-command component
                                                (delay (execute-create-instance (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-component)
                                                                                component (the-class-of component))))))
 
-(def layered-method make-standard-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (instance dmm::standard-persistent-process))
+(def layered-method make-context-menu-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (prc::with-revived-instance instance
-    (optional-list (make-expand-command component class instance)
+    (optional-list (make-expand-command component class prototype instance)
                    (when (dmm::persistent-process-initializing-p instance)
                      (make-start-persistent-process-command component instance))
                    (when (dmm::persistent-process-in-progress-p instance)

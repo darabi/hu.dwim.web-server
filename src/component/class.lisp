@@ -11,23 +11,9 @@
   ()
   (:documentation "Component for an instance of STANDARD-CLASS in various alternative views"))
 
-(def method refresh-component ((self standard-class-component))
-  (with-slots (the-class default-alternative-type alternatives content command-bar) self
-    (if the-class
-        (progn
-          (if alternatives
-              (setf (component-value-for-alternatives self) the-class)
-              (setf alternatives (list (delay-alternative-component-with-initargs 'standard-class-detail-component :the-class the-class)
-                                       (delay-alternative-reference-component 'standard-class-reference the-class))))
-          (if content
-              (setf (component-value-of content) the-class)
-              (setf content (if default-alternative-type
-                                (find-alternative-component alternatives default-alternative-type)
-                                (find-default-alternative-component alternatives))))
-          (setf command-bar (make-alternator-command-bar self alternatives
-                                                         (make-standard-commands self (class-of the-class) the-class))))
-        (setf alternatives nil
-              content nil))))
+(def layered-method make-alternatives ((component standard-class-component) (class standard-class) (prototype standard-object) (instance standard-object))
+  (list (delay-alternative-component-with-initargs 'standard-class-detail-component :the-class class)
+        (delay-alternative-reference-component 'standard-class-reference class)))
 
 ;;;;;;
 ;;; Standard class detail
@@ -40,13 +26,13 @@
    (effective-slots nil :type component))
   (:documentation "Component for an instance of STANDARD-CLASS in detail"))
 
-(def method refresh-component ((component standard-class-detail-component))
-  (with-slots (the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) component
+(def refresh standard-class-detail-component
+  (bind (((:slots the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-))
     (if the-class
         (progn
           (if metaclass
               (setf (component-value-of metaclass) (class-of the-class))
-              (setf metaclass (make-viewer (class-of the-class) :default-alternative-type 'reference-component)))
+              (setf metaclass (make-viewer (class-of the-class) :initial-alternative-type 'reference-component)))
           (if direct-subclasses
               (setf (component-value-of direct-subclasses) (class-direct-subclasses the-class))
               (setf direct-subclasses (make-instance 'reference-list-component :targets (class-direct-subclasses the-class))) )
@@ -65,7 +51,7 @@
               direct-slots nil
               effective-slots nil))))
 
-(def render standard-class-detail-component ()
+(def render-xhtml standard-class-detail-component
   (bind (((:read-only-slots the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-)
          (class-name (qualified-symbol-name (class-name the-class))))
     <div <span "The class " <i ,class-name> " is an instance of " ,(render metaclass)>
@@ -84,14 +70,14 @@
 (def component standard-slot-definition-table-component (abstract-standard-slot-definition-group-component table-component)
   ((columns
     (list
-     (column (label #"Column.name"))
-     (column (label #"Column.type"))
-     (column (label #"Column.readers"))
-     (column (label #"Column.writers")))))
+     (column #"Column.name")
+     (column #"Column.type")
+     (column #"Column.readers")
+     (column #"Column.writers"))))
   (:documentation "Component for a list of STANDARD-SLOT-DEFINITIONs instances as a table"))
 
-(def method refresh-component ((component standard-slot-definition-table-component))
-  (with-slots (slots columns rows) component
+(def refresh standard-slot-definition-table-component
+  (bind (((:slots slots columns rows) -self-))
     (setf rows
           (iter (for slot :in slots)
                 (for row = (find slot rows :key #'component-value-of))
@@ -110,16 +96,14 @@
    (writers nil :type component))
   (:documentation "Component for a STANDARD-SLOT-DEFINITION as a table row"))
 
-(def method refresh-component ((component standard-slot-definition-row-component))
-  (with-slots (slot label type readers writers cells) component
+(def refresh standard-slot-definition-row-component
+  (bind (((:slots slot label type readers writers cells) -self-))
     (if slot
         (setf label (qualified-symbol-name (slot-definition-name slot))
               type (string-downcase (princ-to-string (slot-type slot)))
               readers (string-downcase (princ-to-string (slot-definition-readers slot)))
               writers (string-downcase (princ-to-string (slot-definition-writers slot)))
-              cells (mapcar (lambda (content)
-                              (make-instance 'cell-component :content content))
-                            (list label type readers writers)))
+              cells (list label type readers writers))
         (setf label nil
               type nil
               readers nil

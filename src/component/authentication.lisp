@@ -40,7 +40,7 @@
       (setf (id-of result) id))
     result))
 
-(def render identifier-and-password-login-component
+(def render-xhtml identifier-and-password-login-component
   (bind (((:read-only-slots identifier password) -self-)
          (focused-field-id (if identifier
                                "password-field"
@@ -71,16 +71,12 @@
 (def (generic e) make-logout-command (application)
   (:method ((application application))
     (command (icon logout)
-             (make-logout-action application)
+             (make-action
+               (execute-logout application *session*)
+               (make-redirect-response-for-current-application))
              :send-client-state #f)))
 
-(def (generic e) make-logout-action (application)
-  (:method ((application application))
-    (make-action
-      (execute-logout-action application *session*)
-      (make-redirect-response-for-current-application))))
-
-(def (generic e) execute-logout-action (application session)
+(def (generic e) execute-logout (application session)
   (:method (application session)
     ;; nop by default
     )
@@ -100,7 +96,7 @@
    (comment nil))
   (:documentation "Useful to render one-click logins in test mode"))
 
-(def render fake-identifier-and-password-login-component
+(def render-xhtml fake-identifier-and-password-login-component
   (bind (((:read-only-slots identifier password comment) -self-)
          (uri (clone-request-uri)))
     (setf (uri-query-parameter-value uri "identifier") identifier)

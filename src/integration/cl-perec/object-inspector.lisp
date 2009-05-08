@@ -7,10 +7,10 @@
 ;;;;;;
 ;;; Customizations
 
-(def layered-method make-standard-commands ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
+(def layered-method make-context-menu-commands ((component standard-object-inspector) (class prc::persistent-class) (prototype prc::persistent-object) (instance prc::persistent-object))
   (append (call-next-method)
           (optional-list (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)
-                           (make-delete-instance-command component)))))
+                           (make-delete-instance-command component class instance)))))
 
 (def layered-method collect-standard-object-detail-inspector-slots ((component standard-object-detail-inspector) (class prc::persistent-class) (instance prc::persistent-object))
   (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
@@ -22,7 +22,7 @@
 
 (def layered-method make-class-presentation ((component component) (class prc::persistent-class) (prototype prc::persistent-object))
   (if (dmm::developer-p (dmm::current-effective-subject))
-      (make-viewer class :default-alternative-type 'reference-component)
+      (make-viewer class :initial-alternative-type 'reference-component)
       (call-next-method)))
 
 (def layered-method execute-delete-instance ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))

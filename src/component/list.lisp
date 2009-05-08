@@ -35,12 +35,12 @@
 (def (function e) render-horizontal-list (components &key id css-class style)
   (render-list :horizontal components :id id :css-class css-class :style style))
 
-(def render list-component ()
+(def render-xhtml list-component
   (bind (((:read-only-slots orientation components id css-class style) -self-))
     (render-list orientation components :id id :css-class css-class :style style)))
 
-(def method refresh-component ((self list-component))
-  (foreach #'mark-outdated (components-of self)))
+(def refresh list-component
+  (foreach #'mark-outdated (components-of -self-)))
 
 ;;;;;;
 ;;; Horizontal list

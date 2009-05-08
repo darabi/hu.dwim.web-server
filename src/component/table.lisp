@@ -26,7 +26,7 @@
   (bind ((*table* -self-))
     (call-next-method)))
 
-(def render table-component
+(def render-xhtml table-component
   (bind (((:read-only-slots rows page-navigation-bar id) -self-))
     (setf (total-count-of page-navigation-bar) (length rows))
     <div <table (:id ,id :class "table")
@@ -40,19 +40,18 @@
                                                   (page-size-of page-navigation-bar))))))
                    (iter (for row :in-sequence visible-rows)
                          (render row)))>>
-         ,(if (< (page-size-of page-navigation-bar) (total-count-of page-navigation-bar))
-              (render page-navigation-bar)
-              +void+)>))
+         ,(when (< (page-size-of page-navigation-bar) (total-count-of page-navigation-bar))
+            (render page-navigation-bar))>))
 
 (def render-csv table-component
   (render-csv-line (columns-of -self-))
   (render-csv-line-separator)
-  (foreach #'render-csv (rows-of -self-)))
+  (foreach #'render (rows-of -self-)))
 
 (def render-ods table-component
   <table:table
-    <table:table-row ,(foreach #'render-ods (columns-of -self-))>
-    ,(foreach #'render-ods (rows-of -self-))>)
+    <table:table-row ,(foreach #'render (columns-of -self-))>
+    ,(foreach #'render (rows-of -self-))>)
 
 (def (layered-function e) render-table-columns (table-component)
   (:method ((self table-component))
@@ -67,7 +66,7 @@
 (def (macro e) column (content &rest args)
   `(make-instance 'column-component :content ,content ,@args))
 
-(def render column-component
+(def render-xhtml column-component
   (bind ((id (generate-frame-unique-string)))
     <th <div (:id ,id) ,(call-next-method)>>
     `js(wui.setup-widget "column" ,id)))
@@ -86,7 +85,7 @@
 (def component row-component (remote-identity-component-mixin)
   ((cells nil :type components)))
 
-(def render row-component
+(def render-xhtml row-component
   (render-table-row *table* -self-))
 
 (def render-csv row-component
@@ -111,9 +110,8 @@
 (def (layered-function e) render-table-row (table row)
   (:method :around ((table table-component) (row row-component))
     (ensure-uptodate row)
-    (if (force (visible-p row))
-        (call-next-method)
-        +void+))
+    (when (force (visible-p row))
+      (call-next-method)))
 
   (:method ((table table-component) (row row-component))
     (bind (((:read-only-slots id) row)
@@ -157,7 +155,7 @@
         <td (:colspan ,(length (columns-of table)))
             ,(funcall body-thunk)>>))
 
-(def render entire-row-component ()
+(def render-xhtml entire-row-component
   (render-entire-row *table* -self- #'call-next-method))
 
 ;;;;;;
@@ -193,7 +191,7 @@
       <td (:class ,(join-strings css-class))
         ,(-body-)>))
 
-(def render cell-component
+(def render-xhtml cell-component
   (render-cell-component (-self-)
     (call-next-method)))
 
@@ -218,10 +216,10 @@
     (ensure-uptodate cell))
 
   (:method ((table table-component) (row row-component) (column column-component) (cell component))
-    <table:table-cell ,(render-ods cell)>)
+    <table:table-cell ,(render cell)>)
 
   (:method ((table table-component) (row row-component) (column column-component) (cell string))
-    <table:table-cell ,(render-ods cell)>)
+    <table:table-cell ,(render cell)>)
 
   (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
-    (render-ods cell)))
+    (render cell)))

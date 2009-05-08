@@ -17,30 +17,17 @@
 (def method (setf component-value-of) (new-value (self reference-component))
   (setf (target-of self) new-value))
 
-(def method refresh-component ((self reference-component))
-  (with-slots (target expand-command) self
+(def refresh reference-component
+  (bind (((:slots target expand-command) -self-))
     (when (typep expand-command 'command-component)
-      (setf (label-of (content-of expand-command)) (make-reference-label self (class-of target) target)))))
+      (setf (label-of (content-of expand-command)) (make-reference-label -self- (class-of target) target)))))
 
-(def render reference-component ()
+(def render-xhtml reference-component
   <span (:id ,(id-of -self-) :class "reference")
     ,(render (expand-command-of -self-))>)
 
-(def render :in passive-components-layer reference-component
-  ;; TODO this is not too nice this way
-  <span ,(force (label-of (content-of (expand-command-of -self-))))>)
-
-(def render-string reference-component
-  (render-string (expand-command-of -self-)))
-
-(def render-csv reference-component
-  (render-csv (expand-command-of -self-)))
-
-(def render-pdf reference-component
-  (render-pdf (expand-command-of -self-)))
-
-(def render-ods reference-component
-  (render-ods (expand-command-of -self-)))
+(def render reference-component
+  (render (expand-command-of -self-)))
 
 (def (generic e) make-reference-label (component class target)
   (:method ((component reference-component) class target)
@@ -58,13 +45,13 @@
    (references :type components)))
 
 (def constructor reference-list-component ()
-  (with-slots (targets references) -self-
+  (bind (((:slots targets references) -self-))
     (setf references
           (mapcar (lambda (target)
-                    (make-viewer target :default-alternative-type 'reference-component))
+                    (make-viewer target :initial-alternative-type 'reference-component))
                   targets))))
 
-(def render reference-list-component ()
+(def render-xhtml reference-list-component
   <div ,(foreach #'render (references-of -self-))>)
 
 ;;;;;;
@@ -101,7 +88,7 @@
 (def method refresh-component :before ((self standard-object-inspector-reference))
   (reuse-standard-object-inspector-reference self))
 
-(def render :before standard-object-inspector-reference
+(def render-xhtml :before standard-object-inspector-reference
   (reuse-standard-object-inspector-reference -self-))
 
 ;;;;;;
@@ -131,7 +118,7 @@
 (def method refresh-component :before ((self standard-object-list-inspector-reference))
   (reuse-standard-object-list-inspector-reference self))
 
-(def render :before standard-object-list-inspector-reference
+(def render-xhtml :before standard-object-list-inspector-reference
   (reuse-standard-object-list-inspector-reference -self-))
 
 ;;;;;;

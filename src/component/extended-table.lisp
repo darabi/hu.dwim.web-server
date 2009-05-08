@@ -17,8 +17,8 @@
    (header-cell nil :type component)
    (cells nil :type components)))
 
-(def method refresh-component ((self extended-table-component))
-  (bind (((:slots row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count) self))
+(def refresh extended-table-component
+  (bind (((:slots row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count) -self-))
     (flet ((setf-indices (headers)
              (iter (for index :from 0)
                    (for leaf :in (collect-leaves headers))
@@ -30,7 +30,7 @@
       (setf column-leaf-count (count-leaves column-headers))
       (setf-indices column-headers))))
 
-(def render extended-table-component ()
+(def render-xhtml extended-table-component
   (bind (((:read-only-slots header-cell row-headers row-headers-depth column-headers column-headers-depth column-leaf-count cells) -self-))
     (labels ((cell-index (row-path column-path)
                (+ (* column-leaf-count (index-of (last-elt row-path)))
@@ -116,7 +116,7 @@
                   :content ,content
                   :children (list ,@children)))
 
-(def render table-header-component
+(def render-xhtml table-header-component
   (bind ((id (generate-frame-unique-string)))
     <div (:id ,id) ,(call-next-method)>
     `js(wui.setup-widget "table-header" ,id)))

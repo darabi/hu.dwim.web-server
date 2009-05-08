@@ -7,6 +7,6 @@
 ;;;;;;
 ;;; Customization
 
-(def layered-method make-editing-commands ((component editable-component) (class prc::persistent-class) (instance-or-prototype prc::persistent-object))
+(def layered-method make-editing-commands ((component editable-component) (class prc::persistent-class) (prototype prc::persistent-object) (instance prc::persistent-object))
   (when (dmm::authorize-operation 'dmm::write-entity-operation :-entity- class)
     (call-next-method)))

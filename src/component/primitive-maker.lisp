@@ -15,7 +15,7 @@
   (setf (use-initform-p -self-)
         (slot-boundp -self- 'initform)))
 
-(def render :before primitive-maker
+(def render-xhtml :before primitive-maker
   (ensure-client-state-sink -self-))
 
 (def function render-initform (component)
@@ -28,7 +28,7 @@
 (def component t-maker (t-component primitive-maker)
   ())
 
-(def render t-maker ()
+(def render-xhtml t-maker
   (render-t-component -self-))
 
 ;;;;;;
@@ -37,7 +37,7 @@
 (def component boolean-maker (boolean-component primitive-maker)
   ())
 
-(def render boolean-maker ()
+(def render-xhtml boolean-maker
   (bind (((:read-only-slots the-type) -self-)
          (has-initform? (slot-boundp -self- 'initform))
          (initform (when has-initform?
@@ -76,7 +76,7 @@
 (def component string-maker (string-component primitive-maker)
   ((component-value nil)))
 
-(def render string-maker ()
+(def render-xhtml string-maker
   (render-string-component -self-))
 
 ;;;;;;
@@ -97,7 +97,7 @@
 (def component number-maker (number-component primitive-maker)
   ())
 
-(def render number-maker ()
+(def render-xhtml number-maker
   (render-number-field-for-primitive-component -self-))
 
 ;;;;;;
@@ -118,7 +118,7 @@
 (def component date-maker (date-component primitive-maker)
   ())
 
-(def render date-maker ()
+(def render-xhtml date-maker
   (render-date-component -self-))
 
 ;;;;;;
@@ -127,7 +127,7 @@
 (def component time-maker (time-component primitive-maker)
   ())
 
-(def render time-maker ()
+(def render-xhtml time-maker
   (render-time-component -self-))
 
 ;;;;;;
@@ -136,7 +136,7 @@
 (def component timestamp-maker (timestamp-component primitive-maker)
   ())
 
-(def render timestamp-maker ()
+(def render-xhtml timestamp-maker
   (render-timestamp-component -self-))
 
 ;;;;;;
@@ -145,7 +145,7 @@
 (def component member-maker (member-component primitive-maker)
   ())
 
-(def render member-maker ()
+(def render-xhtml member-maker
   (render-member-component -self-))
 
 ;;;;;;
@@ -154,7 +154,7 @@
 (def component html-maker (html-component primitive-maker)
   ())
 
-(def render html-maker ()
+(def render-xhtml html-maker
   (render-html-component -self-))
 
 ;;;;;;

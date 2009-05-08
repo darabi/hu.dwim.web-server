@@ -11,7 +11,7 @@
   ((the-class)))
 
 (def constructor standard-object-filter-menu-item-component ()
-  (with-slots (the-class command) -self-
+  (bind (((:slots the-class command) -self-))
     (setf command (replace-menu-target-command (icon filter)
                     (make-filter the-class)))))
 
@@ -30,7 +30,7 @@
   ((the-class)))
 
 (def constructor standard-object-maker-menu-item-component ()
-  (with-slots (the-class command) -self-
+  (bind (((:slots the-class command) -self-))
     (setf command (replace-menu-target-command (icon new)
                     (make-maker the-class)))))
 
@@ -49,7 +49,7 @@
   ((the-class)))
 
 (def constructor persistent-process-starter-menu-item-component ()
-  (with-slots (the-class command) -self-
+  (bind (((:slots the-class command) -self-))
     (setf command (replace-menu-target-command (icon new)
                     (make-maker the-class)))))
 

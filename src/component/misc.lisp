@@ -13,20 +13,8 @@
 (def render content-component
   (render (content-of -self-)))
 
-(def render-string content-component
-  (render-string (content-of -self-)))
-
-(def render-csv content-component
-  (render-csv (content-of -self-)))
-
-(def render-pdf content-component
-  (render-pdf (content-of -self-)))
-
-(def render-ods content-component
-  (render-ods (content-of -self-)))
-
-(def method refresh-component ((self content-component))
-  (when-bind content (content-of self)
+(def refresh content-component
+  (when-bind content (content-of -self-)
     (mark-outdated content)))
 
 (def method component-value-of ((self content-component))
@@ -46,9 +34,9 @@
 
 (def component top-component (remote-identity-component-mixin content-component recursion-point-component)
   ()
-  (:documentation "The top command will replace the content of a top-component with the component which the action refers to."))
+  (:documentation "The focus command will replace the content of the top-component with the component which the action refers to."))
 
-(def render top-component ()
+(def render-xhtml top-component
   <div (:id ,(id-of -self-)) ,(call-next-method)>)
 
 (def (macro e) top (&body content)
@@ -63,8 +51,8 @@
 
 (def load-time-constant +empty-component-instance+ (make-instance 'empty-component))
 
-(def render empty-component ()
-  +void+)
+(def render-xhtml empty-component
+  (values))
 
 (def (macro e) empty ()
   '+empty-component-instance+)
@@ -72,24 +60,15 @@
 ;;;;;;;
 ;;; Label
 
-(def component label-component ()
+(def component label-component (style-component-mixin)
   ;; TODO rename the component-value slot
-  ((component-value)))
+  ((component-value :type string)))
 
 (def (macro e) label (text)
   `(make-instance 'label-component :component-value ,text))
 
 (def render label-component
-  <span ,(component-value-of -self-)>)
-
-(def render-csv label-component
-  (render-csv (component-value-of -self-)))
-
-(def render-pdf label-component
-  (render-pdf (component-value-of -self-)))
-
-(def render-ods label-component
-  (render-ods (component-value-of -self-)))
+  (render (component-value-of -self-)))
 
 ;;;;;;
 ;;; Delay
@@ -100,7 +79,7 @@
 (def (macro e) inline-component (&body forms)
   `(make-instance 'inline-component :thunk (lambda () ,@forms)))
 
-(def render inline-component ()
+(def render-xhtml inline-component
   (funcall (thunk-of -self-)))
 
 ;;;;;;
@@ -110,7 +89,7 @@
   ((thunk)
    (body)))
 
-(def render wrapper-component ()
+(def render-xhtml wrapper-component
   (bind (((:read-only-slots thunk body) -self-))
     (funcall thunk (lambda () (render body)))))
 
@@ -130,7 +109,10 @@
   ((layer-context (current-layer-context))))
 
 (def component-environment layer-context-capturing-component-mixin
-  (funcall-with-layer-context (layer-context-of -self-) #'call-next-method))
+  (call-next-method)
+  ;; TODO: revive layer capturing
+  ;; FIXME: it overrides the rendering backend layer now
+  #+nil(funcall-with-layer-context (layer-context-of -self-) #'call-next-method))
 
 ;;;;;;
 ;;; Remote identity mixin
@@ -138,7 +120,7 @@
 (def component remote-identity-component-mixin ()
   ((id nil)))
 
-(def render :before remote-identity-component-mixin
+(def render-xhtml :before remote-identity-component-mixin
   (when (not (id-of -self-))
     (setf (id-of -self-) (generate-response-unique-string "c"))))
 
@@ -167,18 +149,21 @@
                           covering-components))
                covering-components)))
 
-;;;;;;;;;
-;;; Style
+;;;;;;
+;;; Style component mixin
 
 (def component style-component-mixin ()
   ((id nil)
    (css-class nil)
    (style nil)))
 
-(def render style-component-mixin ()
+(def render-xhtml style-component-mixin
   (bind (((:read-only-slots id css-class style) -self-))
     <div (:id ,id :class ,css-class :style ,style)
          ,(call-next-method) >))
+
+;;;;;;
+;;; Style component
 
 (def component style-component (style-component-mixin content-component)
   ())
@@ -214,7 +199,7 @@
 (def component container-component ()
   ((contents :type components)))
 
-(def render container-component ()
+(def render-xhtml container-component
   (mapc #'render (contents-of -self-))
   nil)
 
@@ -236,11 +221,18 @@
 (def component title-component-mixin ()
   ((title :type component)))
 
-(def method refresh-component :before ((self title-component-mixin))
-  (unless (slot-boundp self 'title)
-    (bind (((:values title provided?) (inherited-initarg self :title)))
-      (when provided?
-        (setf (title-of self) title)))))
+(def (layered-function e) render-title (component)
+  (:method :around ((component title-component-mixin))
+    (bind ((id (generate-response-unique-string)))
+      <span (:id ,id :class "title")
+            ,(if (slot-boundp component 'title)
+                 (when-bind title (force (title-of component))
+                   `xml,title)
+                 (call-next-method))>
+      `js(wui.setup-widget "title" ,id)))
+
+  (:method ((component title-component-mixin))
+    (values)))
 
 ;;;;;;
 ;;; Recursion point
@@ -256,21 +248,21 @@
 
 (def component maker-component ()
   ()
-  (:documentation "Base class for all maker components."))
+  (:documentation "Abstract base class for all maker components."))
 
 ;;;;;;
 ;;; Inspector
 
 (def component inspector-component ()
   ()
-  (:documentation "Base class for all inspector components."))
+  (:documentation "Abstract base class for all inspector components."))
 
 ;;;;;;
 ;;; Filter
 
 (def component filter-component ()
   ()
-  (:documentation "Base class for all filter components."))
+  (:documentation "Abstract base class for all filter components."))
 
 ;;;;;;
 ;;; Detail
@@ -278,7 +270,6 @@
 (def component detail-component ()
   ()
   (:documentation "Abstract base class for components which show their component value in detail."))
-
 
 ;;;;;;
 ;;; tooltip
@@ -313,7 +304,6 @@
                                                       :encoding (external-format-of *response*))
                       :position (array ,@position)))))))
 
-
 ;;;;;;
 ;;; Context sensitive help
 
@@ -324,7 +314,7 @@
 
 (def icon help :tooltip nil)
 
-(def render context-sensitive-help ()
+(def render-xhtml context-sensitive-help
   (when *frame*
     (bind ((href (register-action/href (make-action (execute-context-sensitive-help)) :delayed-content #t)))
       <div (:id ,(id-of -self-)
@@ -360,16 +350,14 @@
   (:method ((self context-sensitive-help))
     #"help.help-about-context-sensitive-help-button"))
 
-
 ;;;;;;
 ;;; Help popup
 
 (def component context-sensitive-help-popup (content-component)
   ())
 
-(def render context-sensitive-help-popup ()
+(def render-xhtml context-sensitive-help-popup
   <div (:class "context-sensitive-help-popup") ,(call-next-method)>)
-
 
 ;;;;;;
 ;;; Center tag wrapper
@@ -377,6 +365,5 @@
 (def component center-tag-wrapper-mixin ()
   ())
 
-(def render :around center-tag-wrapper-mixin
-  <center
-    ,(call-next-method)>)
+(def render-xhtml :around center-tag-wrapper-mixin
+  <center ,(call-next-method)>)

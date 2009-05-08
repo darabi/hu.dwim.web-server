@@ -4,28 +4,33 @@
 
 (in-package :hu.dwim.wui)
 
-(def class* delayed-processing ()
+;;;;;;
+;;; Computation, delay and force
+
+(def class* computation ()
   ()
   (:metaclass funcallable-standard-class))
 
 (def (macro e) delay (&body forms)
-  (with-unique-names (delayed-processing)
+  (with-unique-names (computation)
     (if (and (length= 1 forms)
              (not (consp (first forms)))
              (constantp (first forms)))
         (first forms)
-        `(bind ((,delayed-processing (make-instance 'delayed-processing)))
-           (set-funcallable-instance-function ,delayed-processing (named-lambda delay-body ()
-                                                                    ,@forms))
-           ,delayed-processing))))
+        `(bind ((,computation (make-instance 'computation)))
+           (set-funcallable-instance-function ,computation (named-lambda delay-body () ,@forms))
+           ,computation))))
 
 (def (function e) force (value)
-  (if (typep value 'delayed-processing)
+  (if (typep value 'computation)
       (funcall value)
       value))
 
-(def (function e) delayed-processing? (thing)
-  (typep thing 'delayed-processing))
+(def (function e) computation? (thing)
+  (typep thing 'computation))
+
+;;;;;;
+;;; 
 
 (def (function io) maybe-make-xml-attribute (name value)
   (when value
@@ -96,6 +101,9 @@
 
 (def function optional-list (&rest elements)
   (remove nil elements))
+
+(def function optional-list* (&rest elements)
+  (remove nil (apply #'list* elements)))
 
 (def function the-only-element (elements)
   (assert (length= 1 elements))

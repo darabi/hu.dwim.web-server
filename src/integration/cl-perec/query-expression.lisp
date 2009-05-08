@@ -16,7 +16,7 @@
                                            :key #'localized-class-name)) :type component)
    (where-clause (make-instance 'expression-component :the-type 'boolean) :type component)))
 
-(def render select-expression-component
+(def render-xhtml select-expression-component
   (bind (((:read-only-slots select-clause from-clause where-clause) -self-))
     <div <div ,#"label.select-clause" ,(render select-clause)>
          <div ,#"label.from-clause" ,(render from-clause)>
@@ -62,7 +62,7 @@
   (setf (command-bar-of -self-) (command-bar (make-execute-filter-command -self-))
         (title-of -self-) "Generic filter"))
 
-(def render generic-filter
+(def render-xhtml generic-filter
   (bind (((:read-only-slots expression command-bar result id) -self-))
     <div (:id ,id :class "generic-filter")
          ,(render-title -self-)

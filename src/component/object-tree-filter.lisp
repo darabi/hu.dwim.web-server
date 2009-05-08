@@ -36,7 +36,7 @@
                      (funcall (unfiltered-children-provider-of -self-) instance)))))
 
 (def method refresh-component :before ((self filtered-standard-object-tree-inspector))
-  (with-slots (filtered-instances unfiltered-children-provider visible-instances children-provider parent-provider) self
+  (bind (((:slots filtered-instances unfiltered-children-provider visible-instances children-provider parent-provider) self))
     (flet ((collect-visible-instance (instance)
              (setf (gethash (hash-key-for instance) visible-instances) #t)))
       (iter (for (key value) :in-hashtable filtered-instances)
@@ -44,7 +44,7 @@
             (map-tree value unfiltered-children-provider #'collect-visible-instance)
             (map-parent-chain value parent-provider #'collect-visible-instance)))))
 
-(def layered-method make-standard-object-tree-inspector-alternatives ((component filtered-standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
+(def layered-method make-alternatives ((component filtered-standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
   (list* (delay-alternative-component-with-initargs 'filtered-standard-object-tree-table-inspector
                                                     :instances instances
                                                     :the-class class

@@ -10,31 +10,31 @@
 (def component standard-object-list-pivot-table-component (abstract-standard-object-list-component pivot-table-component)
   ())
 
-(def method refresh-component :after ((self standard-object-list-pivot-table-component))
-     (bind (((:read-only-slots row-axes column-axes column-leaf-count) self)
-            ((:slots instances) self))
-       (setf (cells-of self)
-             (bind ((result (iter (repeat column-leaf-count)
-                                  (collect (empty)))))
-               (flet ((map-product* (function &rest lists)
-                        (when lists
-                          (apply #'map-product function (car lists) (cdr lists)))))
-                 (apply #'map-product*
-                        (lambda (&rest row-path)
-                          (push (empty) result)
-                          (apply #'map-product*
-                                 (lambda (&rest column-path)
-                                   (push (make-standard-object-list-pivot-table-cell
-                                          row-path
-                                          column-path
-                                          (filter-if (lambda (instance)
-                                                       (and (matches-axis-path instance row-path)
-                                                            (matches-axis-path instance column-path)))
-                                                     (instances-of self)))
-                                         result))
-                                 (mapcar #'categories-of column-axes)))
-                        (mapcar #'categories-of row-axes)))
-               (nreverse result)))))
+(def refresh standard-object-list-pivot-table-component
+  (bind (((:read-only-slots row-axes column-axes column-leaf-count) -self-)
+         ((:slots instances cells) -self-))
+    (setf cells
+          (bind ((result (iter (repeat column-leaf-count)
+                               (collect (empty)))))
+            (flet ((map-product* (function &rest lists)
+                     (when lists
+                       (apply #'map-product function (car lists) (cdr lists)))))
+              (apply #'map-product*
+                     (lambda (&rest row-path)
+                       (push (empty) result)
+                       (apply #'map-product*
+                              (lambda (&rest column-path)
+                                (push (make-standard-object-list-pivot-table-cell
+                                       row-path
+                                       column-path
+                                       (filter-if (lambda (instance)
+                                                    (and (matches-axis-path instance row-path)
+                                                         (matches-axis-path instance column-path)))
+                                                  instances))
+                                      result))
+                              (mapcar #'categories-of column-axes)))
+                     (mapcar #'categories-of row-axes)))
+            (nreverse result)))))
 
 (def function matches-axis-path (instance path)
   (every (lambda (category)
@@ -53,14 +53,10 @@
                    (slot-name (slot-definition-name (first aggregated-slots))))
               (assert (length= 1 aggregated-slots))
               ;; TODO: make it a command which expands to the standard object list table (maybe aggregator list?)
-              (label (funcall (aggregator-of aggregator-category) instances
-                              (lambda (instance)
-                                (slot-value instance slot-name)))))
-            (make-instance 'standard-object-list-inspector
-                           :instances instances
-                           :alternatives-factory (lambda (component class prototype instances)
-                                                   (list* (delay-alternative-component-with-initargs 'standard-object-list-aggregator :instances instances :the-class class)
-                                                          (make-standard-object-list-inspector-alternatives component class prototype instances))))))
+              (funcall (aggregator-of aggregator-category) instances
+                       (lambda (instance)
+                         (slot-value instance slot-name))))
+            (make-instance 'standard-object-list-inspector :instances instances)))
       (empty)))
 
 ;;;;;;

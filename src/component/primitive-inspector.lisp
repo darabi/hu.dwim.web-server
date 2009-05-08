@@ -10,7 +10,7 @@
 (def component primitive-inspector (primitive-component inspector-component editable-component)
   ())
 
-(def render :before primitive-inspector
+(def render-xhtml :before primitive-inspector
   (when (edited-p -self-)
     (ensure-client-state-sink -self-)))
 
@@ -20,7 +20,7 @@
 (def component t-inspector (t-component primitive-inspector)
   ())
 
-(def render t-inspector ()
+(def render-xhtml t-inspector
   (if (edited-p -self-)
       (render-t-component -self-)
       `xml,(print-component-value -self-)))
@@ -31,7 +31,7 @@
 (def component boolean-inspector (boolean-component primitive-inspector)
   ())
 
-(def render boolean-inspector ()
+(def render-xhtml boolean-inspector
   (bind (((:read-only-slots the-type edited client-state-sink) -self-)
          (has-component-value? (slot-boundp -self- 'component-value))
          (component-value (when has-component-value?
@@ -65,7 +65,7 @@
 (def component string-inspector (string-component primitive-inspector)
   ())
 
-(def render string-inspector ()
+(def render-xhtml string-inspector
   (bind (((:read-only-slots edited) -self-))
     (if edited
         (render-string-component -self-)
@@ -94,7 +94,7 @@
 (def component number-inspector (number-component primitive-inspector)
   ())
 
-(def render number-inspector ()
+(def render-xhtml number-inspector
   (bind (((:read-only-slots edited) -self-))
     (if edited
         (render-number-field-for-primitive-component -self-)
@@ -118,7 +118,7 @@
 (def component date-inspector (date-component primitive-inspector)
   ())
 
-(def render date-inspector ()
+(def render-xhtml date-inspector
   (if (edited-p -self-)
       (render-date-component -self-)
       `xml,(print-component-value -self-)))
@@ -129,7 +129,7 @@
 (def component time-inspector (time-component primitive-inspector)
   ())
 
-(def render time-inspector ()
+(def render-xhtml time-inspector
   (if (edited-p -self-)
       (render-time-component -self-)
       `xml,(print-component-value -self-)))
@@ -140,7 +140,7 @@
 (def component timestamp-inspector (timestamp-component primitive-inspector)
   ())
 
-(def render timestamp-inspector ()
+(def render-xhtml timestamp-inspector
   (if (edited-p -self-)
       (render-timestamp-component -self-)
       `xml,(print-component-value -self-)))
@@ -151,7 +151,7 @@
 (def component member-inspector (member-component primitive-inspector)
   ())
 
-(def render member-inspector ()
+(def render-xhtml member-inspector
   (if (edited-p -self-)
       (render-member-component -self-)
       (bind ((icon (find-member-component-value-icon -self-)))
@@ -165,7 +165,7 @@
 (def component html-inspector (html-component primitive-inspector)
   ())
 
-(def render html-inspector ()
+(def render-xhtml html-inspector
   (if (edited-p -self-)
       (render-html-component -self-)
       (emit-html-component-value -self-)))
@@ -186,7 +186,7 @@
            ((simple-array (unsigned-byte 8) (4))  (make-instance 'iolib:ipv4-address :name value))
            ((simple-array (unsigned-byte 16) (8)) (make-instance 'iolib:ipv6-address :name value)))))))
 
-(def render ip-address-inspector ()
+(def render-xhtml ip-address-inspector
   (if (edited-p -self-)
       (call-next-method)
       <span (:class "ip-address")
@@ -202,19 +202,19 @@
    (file-name)
    (url-prefix "static/")))
 
-(def method refresh-component ((self file-inspector))
-  (bind (((:slots upload-command download-command directory file-name url-prefix) self)
-         ((:values class instance slot) (extract-primitive-component-place self)))
+(def refresh file-inspector
+  (bind (((:slots upload-command download-command directory file-name url-prefix) -self-)
+         ((:values class instance slot) (extract-primitive-component-place -self-)))
     (setf upload-command (command (icon upload)
                                   (make-action
-                                    (execute-upload-file self))))
+                                    (execute-upload-file -self-))))
     (setf download-command (command (icon download)
                                     (make-action
-                                      (execute-download-file self))
+                                      (execute-download-file -self-))
                                     :delayed-content #t
-                                    :path (download-file-name self class instance slot)))))
+                                    :path (download-file-name -self- class instance slot)))))
 
-(def render file-inspector ()
+(def render-xhtml file-inspector
   (if (edited-p -self-)
       (render (upload-command-of -self-))
       (render (download-command-of -self-))))

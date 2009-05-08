@@ -16,7 +16,7 @@
 (def component user-message-collector-component (user-message-collector-component-mixin)
   ())
 
-(def render user-message-collector-component ()
+(def render-xhtml user-message-collector-component
   (render-user-messages -self-))
 
 (def component user-message-collector-wrapper-component (user-message-collector-component)
@@ -28,17 +28,16 @@
                              (first components)
                              `(make-instance 'vertical-list-component :body (remove nil (list ,@components))))))
 
-(def render user-message-collector-wrapper-component ()
+(def render-xhtml user-message-collector-wrapper-component
   (render-user-messages -self-)
   (render (body-of -self-)))
 
 (def (function e) render-user-messages (user-message-collector)
   (bind ((messages (messages-of user-message-collector)))
     (flet ((render-message-category (category)
-             (aif (filter category messages :key #'category-of)
-                  <div (:class ,(concatenate-string "user-messages " (string-downcase category) "s"))
-                       ,(render-vertical-list it)>
-                  +void+)))
+             (awhen (filter category messages :key #'category-of)
+               <div (:class ,(concatenate-string "user-messages " (string-downcase category) "s"))
+                    ,(render-vertical-list it)>)))
       (multiple-value-prog1
           (when messages
             <div ,(render-message-category :information)
@@ -89,7 +88,7 @@
    (message nil :type string)
    (permanent #f :type boolean)))
 
-(def render user-message-component ()
+(def render-xhtml user-message-component
   (bind (((:read-only-slots category message permanent content css-class style) -self-)
          (id (generate-response-unique-string)))
     <div (:id ,id :class ,(concatenate-string (string-downcase category) " " css-class) :style ,style)

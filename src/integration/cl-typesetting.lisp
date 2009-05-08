@@ -37,38 +37,38 @@
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
           (typeset:put-string " "))
-        (render-pdf command)))
+        (render command)))
 
 (def render-pdf popup-command-menu-component ()
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
           (typeset:put-string " "))
-        (render-pdf command)))
+        (render command)))
 
 (def render-pdf primitive-component ()
   (typeset:put-string (print-component-value -self-)))
 
 (def render-pdf standard-object-detail-component ()
   (typeset:table (:col-widths '(200 200) :splittable-p #t)
-    (foreach #'render-pdf (slot-value-groups-of -self-))))
+    (foreach #'render (slot-value-groups-of -self-))))
 
 (def render-pdf standard-object-slot-value-group-component ()
   (foreach (lambda (slot-value)
              (typeset:row ()
-               (render-pdf slot-value)))
+               (render slot-value)))
            (slot-values-of -self-)))
 
 (def render-pdf standard-object-slot-value-component ()
   (typeset:cell ()
-    (render-pdf (label-of -self-)))
+    (render (label-of -self-)))
   (typeset:cell ()
-    (render-pdf (value-of -self-))))
+    (render (value-of -self-))))
 
 (def render-pdf table-component ()
   (typeset:table (:col-widths (normalized-column-widths (columns-of -self-)) :splittable-p #t)
     (typeset:row ()
-      (foreach #'render-pdf (columns-of -self-)))
-    (foreach #'render-pdf (rows-of -self-))))
+      (foreach #'render (columns-of -self-)))
+    (foreach #'render (rows-of -self-))))
 
 (def render-pdf column-component ()
   (typeset:cell ()
@@ -99,21 +99,21 @@
 
   (:method ((table table-component) (row row-component) (column column-component) (cell component))
     (typeset:cell ()
-      (render-pdf cell)))
+      (render cell)))
 
   (:method ((table table-component) (row row-component) (column column-component) (cell string))
     (typeset:cell ()
-      (render-pdf cell)))
+      (render cell)))
   
   (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
-    (render-pdf cell)))
+    (render cell)))
 
 (def render-pdf tree-component ()
   (bind ((columns (columns-of -self-)))
     (typeset:table (:col-widths (normalized-column-widths columns) :splittable-p #t)
       (typeset:row ()
-        (foreach #'render-pdf columns))
-      (foreach #'render-pdf (root-nodes-of -self-)))))
+        (foreach #'render columns))
+      (foreach #'render (root-nodes-of -self-)))))
 
 (def render-pdf node-component ()
   (typeset:row ()
@@ -121,7 +121,7 @@
                (render-pdf-tree-cell *tree* -self- column cell))
              (columns-of *tree*)
              (cells-of -self-)))
-  (foreach #'render-pdf (child-nodes-of -self-)))
+  (foreach #'render (child-nodes-of -self-)))
 
 (def (layered-function e) render-pdf-tree-cell (tree node column cell)
   (:method :before ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
@@ -129,14 +129,14 @@
 
   (:method ((tree tree-component) (node node-component) (column column-component) (cell component))
     (typeset:cell ()
-      (render-pdf cell)))
+      (render cell)))
 
   (:method ((tree tree-component) (node node-component) (column column-component) (cell string))
     (typeset:cell ()
-      (render-pdf cell)))
+      (render cell)))
   
   (:method ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
-    (render-pdf cell)))
+    (render cell)))
 
 ;;;;;;
 ;;; Utilities

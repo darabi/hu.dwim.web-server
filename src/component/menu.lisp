@@ -37,12 +37,10 @@
 (def function render-menu-items (menu-items)
   (mapcar #'render menu-items))
 
-(def render menu-component ()
+(def render-xhtml menu-component
   (bind (((:read-only-slots icon menu-items id css-class style) -self-))
     <div (:id ,id :class ,css-class :style ,style)
-         ,(if icon
-              (render icon)
-              +void+)
+         ,(when icon (render icon))
          ,(foreach #'render menu-items)>))
 
 (def icon menu) ;; TODO: icon
@@ -67,7 +65,7 @@
 (def (macro e) menu-item ((&key id css-class style) command &body menu-items)
   `(make-menu-item-component ,command (list ,@menu-items) :id ,id :css-class ,css-class :style ,style))
 
-(def render menu-item-component ()
+(def render-xhtml menu-item-component
   (bind (((:read-only-slots command menu-items id css-class style) -self-))
     <div (:id ,id :class ,css-class :style ,style)
          ,(render command)

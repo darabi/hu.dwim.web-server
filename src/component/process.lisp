@@ -10,20 +10,21 @@
 ;; TODO: try to kill this variable, if possible?!
 (def (special-variable e) *standard-process-component*)
 
-(def component standard-process-component (content-component user-message-collector-component-mixin)
+(def component standard-process-component (content-component
+                                           user-message-collector-component-mixin
+                                           commands-component-mixin)
   ((form)
    (closure/cc nil)
-   (answer-continuation nil)
-   (command-bar (make-instance 'command-bar-component) :type component)))
+   (answer-continuation nil)))
 
 (def (macro e) standard-process (&body forms)
   `(make-instance 'standard-process-component :form '(progn ,@forms)))
 
-(def method refresh-component :after ((self standard-process-component))
-  (bind (((:slots form closure/cc) self))
+(def refresh standard-process-component
+  (bind (((:slots form closure/cc) -self-))
     (setf closure/cc (cl-delico::make-closure/cc (cl-walker:walk-form `(lambda () ,form))))))
 
-(def render standard-process-component ()
+(def render-xhtml standard-process-component
   (bind (((:read-only-slots closure/cc answer-continuation command-bar content) -self-))
     (unless content
       (setf answer-continuation
@@ -32,10 +33,9 @@
                 (funcall closure/cc)))))
     (unless (and content answer-continuation)
       (setf content "Process finished"))
-    <div
-     ,(render-user-messages -self-)
-     ,(render content)
-     ,(render command-bar) >))
+    <div ,(render-user-messages -self-)
+         ,(render content)
+         ,(render command-bar)>))
 
 (def (macro e) make-standard-process-component (&rest args &key form &allow-other-keys)
   (remove-from-plistf args :form)
@@ -78,7 +78,7 @@
    (value nil)))
 
 (def constructor answer-command-component ()
-  (with-slots (icon action value) -self-
+  (bind (((:slots icon action value) -self-))
     (unless action
       (setf action (make-action (answer-component -self- value))))))
 

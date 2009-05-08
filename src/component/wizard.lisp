@@ -12,13 +12,13 @@
    (page-navigation-bar nil :type component)))
 
 (def constructor wizard-component ()
-  (with-slots (content pages page-navigation-bar) -self-
+  (bind (((:slots content pages page-navigation-bar) -self-))
     (setf page-navigation-bar (make-instance 'wizard-navigation-bar-component
                                              :position 0
                                              :total-count (length pages)
                                              :page-size 1))))
 
-(def render wizard-component ()
+(def render-xhtml wizard-component
   (bind (((:read-only-slots pages page-navigation-bar) -self-))
     (render-vertical-list (list (elt pages (position-of page-navigation-bar)) page-navigation-bar))))
 
@@ -34,11 +34,11 @@
    (cancel-command :type component)))
 
 (def constructor wizard-navigation-bar-component ()
-  (with-slots (finish-command cancel-command) -self-
+  (bind (((:slots finish-command cancel-command) -self-))
     (setf finish-command (make-finish-wizard-command -self-)
           cancel-command (make-cancel-wizard-command -self-))))
 
-(def render wizard-navigation-bar-component ()
+(def render-xhtml wizard-navigation-bar-component
   (bind (((:read-only-slots first-command previous-command next-command last-command finish-command cancel-command) -self-))
     (render-horizontal-list (list first-command previous-command next-command last-command finish-command cancel-command))))
 

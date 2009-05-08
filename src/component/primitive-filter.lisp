@@ -19,7 +19,7 @@
 (def component t-filter (t-component primitive-filter)
   ())
 
-(def render t-filter ()
+(def render-xhtml t-filter
   (ensure-client-state-sink -self-)
   (render-t-component -self-))
 
@@ -29,7 +29,7 @@
 (def component boolean-filter (boolean-component primitive-filter)
   ())
 
-(def render boolean-filter ()
+(def render-xhtml boolean-filter
   (ensure-client-state-sink -self-)
   (bind ((use-in-filter? (use-in-filter-p -self-))
          (use-in-filter-id (use-in-filter-id-of -self-))
@@ -69,7 +69,7 @@
 (def method collect-possible-filter-predicates ((self string-filter))
   '(= ~ < ≤ > ≥))
 
-(def render string-filter ()
+(def render-xhtml string-filter
   (ensure-client-state-sink -self-)
   (bind ((widget-id (generate-frame-unique-string "_stw")))
     (render-string-component -self- :id widget-id)
@@ -96,7 +96,7 @@
 (def method collect-possible-filter-predicates ((self number-filter))
   '(= < ≤ > ≥))
 
-(def render number-filter ()
+(def render-xhtml number-filter
   (ensure-client-state-sink -self-)
   (bind ((widget-id (generate-frame-unique-string "_stw")))
     (render-number-field-for-primitive-component -self- :id widget-id)
@@ -120,7 +120,7 @@
 (def component date-filter (date-component primitive-filter)
   ())
 
-(def render date-filter ()
+(def render-xhtml date-filter
   (ensure-client-state-sink -self-)
   (render-date-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
@@ -133,7 +133,7 @@
 (def component time-filter (time-component primitive-filter)
   ())
 
-(def render time-filter ()
+(def render-xhtml time-filter
   (ensure-client-state-sink -self-)
   (render-time-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
@@ -146,7 +146,7 @@
 (def component timestamp-filter (timestamp-component primitive-filter)
   ())
 
-(def render timestamp-filter ()
+(def render-xhtml timestamp-filter
   (ensure-client-state-sink -self-)
   (render-timestamp-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
@@ -162,7 +162,7 @@
 (def method collect-possible-filter-predicates ((self member-filter))
   '(=))
 
-(def render member-filter ()
+(def render-xhtml member-filter
   (ensure-client-state-sink -self-)
   (render-member-component -self- :on-change (make-update-use-in-filter-js -self-)))
 

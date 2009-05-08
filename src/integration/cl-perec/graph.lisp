@@ -16,7 +16,7 @@
 (def component graph-component ()
   ((graph)))
 
-(def render graph-component ()
+(def render-xhtml graph-component ()
   (bind ((graph (graph-of -self-))
          (inset-string (princ-to-string *graph-inset*)))
     (dmm::layout-graph graph)

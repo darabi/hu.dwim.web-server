@@ -99,7 +99,7 @@
 (def (function io) render-unbound-component ()
   `xml,#"value.unbound")
 
-(def render unbound-component ()
+(def render-xhtml unbound-component
   (render-unbound-component))
 
 (def resources en
@@ -120,7 +120,7 @@
 (def (function io) render-null-component ()
   `xml,#"value.nil")
 
-(def render null-component ()
+(def render-xhtml null-component
   (render-null-component))
 
 (def resources en
@@ -260,7 +260,7 @@
 (def component integer-component (number-component)
   ())
 
-(def render-csv integer-component ()
+(def render-csv integer-component
   (bind (((:values component-value has-component-value?) (component-value-and-bound-p -self-)))
     (when (and has-component-value?
             (not (null component-value)))
@@ -490,7 +490,7 @@
 (def component ip-address-component (primitive-component)
   ())
 
-(def render ip-address-component ()
+(def render-xhtml ip-address-component
   `xml,(print-component-value -self-))
 
 (def method print-component-value ((component ip-address-component))

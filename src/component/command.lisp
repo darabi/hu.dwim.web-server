@@ -57,7 +57,7 @@
                           :js ,js
                           :action-arguments ,action-arguments))))))
 
-(def render command-component ()
+(def render-xhtml command-component
   (bind (((:read-only-slots content action enabled default ajax js action-arguments) -self-))
     (render-command content action :enabled enabled :default default :ajax ajax :js js :action-arguments action-arguments)))
 
@@ -137,13 +137,13 @@
 (def (macro e) command-bar (&body commands)
   `(make-instance 'command-bar-component :commands (optional-list ,@commands)))
 
-(def render command-bar-component
+(def render-xhtml command-bar-component
   (bind (((:read-only-slots parent-component commands) -self-)
          (sorted-commands (sort-commands parent-component commands)))
     (setf (commands-of -self-) sorted-commands)
     (render-horizontal-list sorted-commands :css-class "command-bar")))
 
-(def render-csv command-bar-component ()
+(def render-csv command-bar-component
   (render-csv-separated-elements #\Space (commands-of -self-)))
 
 (def render :in passive-components-layer command-bar-component
@@ -181,30 +181,33 @@
   "Pop the COMMAND from the container COMMAND-BAR"
   (removef (commands-of (parent-component-of command)) command))
 
-(def (function e) find-command-bar-command (command-bar name)
-  (find name (commands-of command-bar)
-        :key (lambda (command)
-               (name-of (content-of command)))))
-
-(def (function e) execute-command-bar-command (command-bar name)
-  (execute-command (find-command-bar-command command-bar name)))
-
 ;;;;;
 ;;; Popup command menu
 
-(def component popup-command-menu-component (style-component-mixin remote-identity-component-mixin)
-  ((commands nil :type components)))
+(def component popup-command-menu-component (content-component
+                                             style-component-mixin
+                                             remote-identity-component-mixin)
+  ((target nil)
+   (commands nil :type components)))
 
-(def render popup-command-menu-component ()
-  (bind (((:read-only-slots commands id css-class style) -self-)
+(def icon show-context-menu :label nil)
+(def resources hu
+  (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése"))
+(def resources en
+  (icon-tooltip.show-context-menu "Show context menu"))
+
+(def render-xhtml popup-command-menu-component
+  (bind (((:read-only-slots target commands id css-class style) -self-)
          (menu-id (generate-frame-unique-string)))
     (when commands
-      <div (:id ,id :class ,css-class :style ,style)
-          <img (:src "static/wui/icons/20x20/green-star.png")>
+      <span (:id ,id :class ,css-class :style ,style)
+          ,(call-next-method)
           ,(render-dojo-widget (menu-id)
              <div (:id ,menu-id
                    :dojoType #.+dijit/menu+
-                   :targetNodeIds ,id
+                   :targetNodeIds ,(if target
+                                       (id-of target)
+                                       id)
                    :style "display: none;")
                ,(iter (for command :in commands)
                       (for command-id = (generate-frame-unique-string))
@@ -218,14 +221,64 @@
       `js(on-load
           (wui.setup-widget "menu" ,menu-id)))))
 
-(def render-csv popup-command-menu-component ()
+(def render-csv popup-command-menu-component
   (render-csv-separated-elements #\Space (commands-of -self-)))
 
 ;;;;;;
 ;;; Commands component mixin
 
 (def component commands-component-mixin ()
-  ((commands :type component)))
+  ((context-menu :type component)
+   (command-bar :type component)))
+
+(def refresh commands-component-mixin
+  (bind (((:slots context-menu command-bar) -self-)
+         (class (component-dispatch-class -self-)))
+    (setf context-menu (make-context-menu -self- class (class-prototype class) (component-value-of -self-))
+          command-bar (make-command-bar -self- class (class-prototype class) (component-value-of -self-)))))
+
+(def layered-function make-context-menu (component class prototype value)
+  (:method ((component commands-component-mixin) class prototype value)
+    (make-instance 'popup-command-menu-component
+                   :target component
+                   :content (icon show-context-menu)
+                   :commands (make-context-menu-commands component class prototype value))))
+
+(def layered-function make-command-bar (component class prototype value)
+  (:method ((component commands-component-mixin) class prototype value)
+    (make-instance 'command-bar-component :commands (make-command-bar-commands component class prototype value))))
+
+(def (layered-function e) make-context-menu-commands (component class prototype value)
+  (:method ((component component) class prototype value)
+    nil)
+
+  (:method ((component component) (class standard-class) (prototype standard-object) value)
+    (append (call-next-method) (make-move-commands component class prototype value)))
+
+  (:method ((component inspector-component) (class standard-class) (prototype standard-object) value)
+    (optional-list* (make-refresh-command component class prototype value) (call-next-method)))
+
+  (:method ((component inspector-component) (class built-in-class) (prototype null) value)
+    nil))
+
+(def (layered-function e) make-command-bar-commands (component class prototype value)
+  (:method ((component component) class prototype value)
+    nil)
+
+  (:method ((component inspector-component) (class standard-class) (prototype standard-object) value)
+    (optional-list* (make-refresh-command component class prototype value) (call-next-method)))
+
+  (:method ((component inspector-component) (class built-in-class) (prototype null) value)
+    nil))
+
+(def layered-method render-title ((self commands-component-mixin))
+  <span ,(render (context-menu-of self)) ,(call-next-method)>)
+
+(def (function e) find-command (component name)
+  (bind (((:slots context-menu command-bar) component)
+         (key [name-of (content-of !1)]))
+    (or (find name (commands-of command-bar) :key key)
+        (find name (commands-of context-menu) :key key))))
 
 ;;;;;;
 ;;; Navigation bar component
@@ -242,32 +295,32 @@
    (page-size-selector :type component)))
 
 (def constructor page-navigation-bar-component ()
-  (with-slots (position page-size total-count first-command previous-command next-command last-command jumper page-size-selector) -self-
-    (bind ((ajax (delay (id-of (parent-component-of -self-)))))
-      (setf first-command (command (icon first)
-                                   (make-action
-                                     (setf (component-value-of jumper) (setf position 0)))
-                                   :enabled (delay (> position 0))
-                                   :ajax ajax)
-            previous-command (command (icon previous)
-                                      (make-action
-                                        (setf (component-value-of jumper) (decf position (min position page-size))))
-                                      :enabled (delay (> position 0))
-                                      :ajax ajax)
-            next-command (command (icon next)
-                                  (make-action
-                                    (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size)))))
-                                  :enabled (delay (< position (- total-count page-size)))
-                                  :ajax ajax)
-            last-command (command (icon last)
-                                  (make-action
-                                    (setf (component-value-of jumper) (setf position (- total-count page-size))))
-                                  :enabled (delay (< position (- total-count page-size)))
-                                  :ajax ajax)
-            jumper (make-instance 'integer-inspector :edited #t :component-value position)
-            page-size-selector (make-instance 'page-size-selector :component-value page-size)))))
+  (bind (((:slots position page-size total-count first-command previous-command next-command last-command jumper page-size-selector) -self-)
+         (ajax (delay (id-of (parent-component-of -self-)))))
+    (setf first-command (command (icon first)
+                                 (make-action
+                                   (setf (component-value-of jumper) (setf position 0)))
+                                 :enabled (delay (> position 0))
+                                 :ajax ajax)
+          previous-command (command (icon previous)
+                                    (make-action
+                                      (setf (component-value-of jumper) (decf position (min position page-size))))
+                                    :enabled (delay (> position 0))
+                                    :ajax ajax)
+          next-command (command (icon next)
+                                (make-action
+                                  (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size)))))
+                                :enabled (delay (< position (- total-count page-size)))
+                                :ajax ajax)
+          last-command (command (icon last)
+                                (make-action
+                                  (setf (component-value-of jumper) (setf position (- total-count page-size))))
+                                :enabled (delay (< position (- total-count page-size)))
+                                :ajax ajax)
+          jumper (make-instance 'integer-inspector :edited #t :component-value position)
+          page-size-selector (make-instance 'page-size-selector :component-value page-size))))
 
-(def render page-navigation-bar-component ()
+(def render-xhtml page-navigation-bar-component
   (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-size) -self-))
     ;; FIXME: the select field rendered for page-count does not work by some fucking dojo reason
     (render-horizontal-list (list first-command previous-command jumper #+nil page-size-selector next-command last-command))))
@@ -282,8 +335,8 @@
    :possible-values '(10 20 50 100)
    :client-name-generator [concatenate-string (integer-to-string !2) #"page-size-selector.rows/page"]))
 
-(def method refresh-component ((self page-size-selector))
-  (setf (page-size-of (parent-component-of self)) (component-value-of self)))
+(def refresh page-size-selector
+  (setf (page-size-of (parent-component-of -self-)) (component-value-of -self-)))
 
 (def resources en
   (page-size-selector.rows/page " rows/page"))
@@ -294,21 +347,17 @@
 ;;;;;;
 ;;; Generic commands
 
-(def (generic e) refresh-component (component)
-  (:method ((self component))
-    (values))
+(def function ajax-id (component)
+  (if (typep component 'remote-identity-component-mixin)
+      (delay (id-of component))
+      #t))
 
-  (:method :after ((self component))
-    (setf (outdated-p self) #f)))
-
-(def (definer e :available-flags "do") refresh (&body forms)
-  (render-like-definer 'refresh-component (cons :after forms) -options-))
-
-(def (layered-function e) make-refresh-command (component class prototype-or-instance)
-  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+(def (layered-function e) make-refresh-command (component class prototype value)
+  (:method ((component component) (class standard-class) (prototype standard-object) value)
     (command (icon refresh)
              (make-component-action component
-               (refresh-component component)))))
+               (refresh-component component))
+             :ajax (ajax-id component))))
 
 (def (function e) make-replace-command (original-component replacement-component &rest replace-command-args)
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT"
@@ -365,10 +414,10 @@
 (def (function e) top-component-p (component)
   (eq component (find-top-component-content component)))
 
-(def (layered-function e) make-focus-command (component classs prototype-or-instance)
+(def (layered-function e) make-focus-command (component classs prototype value)
   (:documentation "The FOCUS command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT")
 
-  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+  (:method ((component component) (class standard-class) (prototype standard-object) value)
     (bind ((original-component (delay (find-top-component-content component))))
       (make-replace-and-push-back-command original-component component
                                           (list :content (icon focus-in) :visible (delay (not (top-component-p component))))
@@ -376,18 +425,20 @@
 
 (def (generic e) make-frame-component-with-content (application content))
 
-(def (layered-function e) make-open-in-new-frame-command (component class prototype-or-instance)
-  (:method ((component component) (class standard-class) (prototype-or-instance standard-object))
+(def (layered-function e) make-open-in-new-frame-command (component class prototype value)
+  (:method ((component component) (class standard-class) (prototype standard-object) value)
     (command (icon open-in-new-frame)
-             (make-action
-               (bind ((clone (clone-component component))
-                      (*frame* (make-new-frame *application* *session*)))
-                 (setf (component-value-of clone) (component-value-of component))
-                 (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*)
-                                                                              *frame* +frame-id-length+))
-                 (register-frame *application* *session* *frame*)
-                 (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
-                 (make-redirect-response-with-frame-id-decorated *frame*)))
-             :js (lambda (href)
-                   `js(window.open ,href))
+             (make-action (execute-open-in-new-frame component))
+             :js (lambda (href) `js(window.open ,href))
              :delayed-content #t)))
+
+(def (layered-function e) execute-open-in-new-frame (component)
+  (:method ((component component))
+    (bind ((clone (clone-component component))
+           (*frame* (make-new-frame *application* *session*)))
+      (setf (component-value-of clone) (component-value-of component))
+      (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*)
+                                                                   *frame* +frame-id-length+))
+      (register-frame *application* *session* *frame*)
+      (setf (root-component-of *frame*) (make-frame-component-with-content *application* clone))
+      (make-redirect-response-with-frame-id-decorated *frame*))))

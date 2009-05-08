@@ -11,7 +11,7 @@
   ((last-dynamic-usage 0)
    (last-descriptors nil)))
 
-(def render frame-size-breakdown-component ()
+(def render-xhtml frame-size-breakdown-component
   (sb-ext:gc :full t)
   ;; TODO: room
   (bind ((last-dynamic-usage (last-dynamic-usage-of -self-))

@@ -10,5 +10,5 @@
 (def component radar-chart (chart)
   ())
 
-(def render radar-chart ()
+(def render-xhtml radar-chart
   (render-chart -self- "amradar"))

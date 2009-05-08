@@ -18,7 +18,7 @@
   (bind (((component-type &rest additional-args)
           (ensure-list (find-inspector-type-for-type type))))
     (unless (subtypep component-type 'alternator-component)
-      (remove-from-plistf args :default-alternative-type))
+      (remove-from-plistf args :initial-alternative-type))
     (apply #'make-instance component-type
            (append args additional-args
                    (when (subtypep component-type 'primitive-component)
@@ -159,7 +159,7 @@
   (bind (((component-type &rest additional-args)
           (ensure-list (find-filter-type-for-type type))))
     (unless (subtypep component-type 'alternator-component)
-      (remove-from-plistf args :default-alternative-type))
+      (remove-from-plistf args :initial-alternative-type))
     (prog1-bind component (apply #'make-instance component-type
                                  (append args additional-args
                                          (when (subtypep component-type 'primitive-component)
@@ -247,7 +247,7 @@
   (bind (((component-type &rest additional-args)
           (ensure-list (find-maker-type-for-type type))))
     (unless (subtypep component-type 'alternator-component)
-      (remove-from-plistf args :default-alternative-type))
+      (remove-from-plistf args :initial-alternative-type))
     (prog1-bind component
         (apply #'make-instance component-type
                (append args additional-args

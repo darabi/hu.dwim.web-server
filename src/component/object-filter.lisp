@@ -10,65 +10,34 @@
 (def component standard-object-filter (abstract-standard-class-component
                                        filter-component
                                        alternator-component
-                                       user-message-collector-component-mixin
-                                       remote-identity-component-mixin
                                        initargs-component-mixin
                                        layer-context-capturing-component-mixin)
-  ((result
-    (make-instance 'empty-component)
-    :type component)
-   (result-component-factory
-    #'make-standard-object-filter-result-inspector
-    :type function))
-  (:default-initargs :alternatives-factory #'make-standard-object-filter-alternatives)
+  ((result (empty) :type component)
+   (result-component-factory #'make-standard-object-filter-result-inspector :type function))
   (:documentation "Filter for instances of STANDARD-OBJECT in various alternative views."))
 
 (def (macro e) standard-object-filter (the-class)
   `(make-instance 'standard-object-filter :the-class ,the-class))
 
-(def method refresh-component ((self standard-object-filter))
-  (with-slots (result the-class default-alternative-type alternatives content command-bar) self
-    (if the-class
-        (setf alternatives (funcall (alternatives-factory-of self) self the-class (class-prototype the-class))
-              content (if default-alternative-type
-                          (find-alternative-component alternatives default-alternative-type)
-                          (find-default-alternative-component alternatives)))
-        (setf alternatives nil
-              content nil))
-    (setf command-bar (make-alternator-command-bar self alternatives
-                                                   (make-standard-commands self the-class (class-prototype the-class))))))
+(def layered-method render-title ((self standard-object-filter))
+  <span ,(call-next-method) ,(standard-object-filter.title (localized-class-name (the-class-of self)))>)
 
-(def (layered-function e) make-standard-object-filter-alternatives (component class prototype)
-  (:method ((component standard-object-filter) (class standard-class) (prototype standard-object))
-    (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
-          (delay-alternative-reference-component 'standard-object-filter-reference class))))
+(def layered-method make-alternatives ((component standard-object-filter) (class standard-class) (prototype standard-object) value)
+  (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
+        (delay-alternative-reference-component 'standard-object-filter-reference class)))
 
-(def layered-method make-standard-commands ((component standard-object-filter) (class standard-class) (prototype standard-object))
-  (append (list (make-filter-instances-command component (delay (result-of component)))) (call-next-method)))
+(def layered-method make-context-menu-commands ((component standard-object-filter) (class standard-class) (prototype standard-object) (instance standard-object))
+  (optional-list* (make-filter-instances-command component (delay (result-of component))) (call-next-method)))
 
-(def render standard-object-filter ()
-  (bind (((:read-only-slots result content command-bar id) -self-))
-    (flet ((body ()
-             (render-user-messages -self-)
-             (render content)
-             (unless (typep content '(or reference-component primitive-component))
-               (render command-bar)
-               (render result))))
-      (if (typep content 'reference-component)
-          <span (:id ,id :class "standard-object-filter")
-            ,(body)>
-          (progn
-            <div (:id ,id :class "standard-object-filter")
-               ,(body)>
-            `js(wui.setup-widget "standard-object-filter" ,id))))))
+(def layered-method make-command-bar-commands ((component standard-object-filter) (class standard-class) (prototype standard-object) (instance standard-object))
+  (optional-list* (make-filter-instances-command component (delay (result-of component))) (call-next-method)))
 
 ;;;;;;
 ;;; Standard object detail filter
 
 (def component standard-object-detail-filter (standard-object-detail-component
                                               abstract-standard-class-component
-                                              filter-component
-                                              title-component-mixin)
+                                              filter-component)
   ((class-selector nil :type component)
    (ordering-specifier nil :type component)))
 
@@ -79,34 +48,34 @@
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
     (list* class (subclasses class))))
 
-(def method refresh-component ((self standard-object-detail-filter))
-  (with-slots (class class-selector ordering-specifier the-class slot-value-groups command-bar) self
-    (bind ((selectable-classes (collect-standard-object-detail-filter-classes self the-class (class-prototype the-class))))
-      (if (length= selectable-classes 1)
-          (setf class-selector nil)
-          (if class-selector
-              (setf (possible-values-of class-selector) selectable-classes)
-              (setf class-selector (make-class-selector selectable-classes))))
-      (bind ((selected-class (if class-selector
-                                 (component-value-of class-selector)
-                                 (first selectable-classes)))
-             (prototype (class-prototype selected-class))
-             (slots (collect-standard-object-detail-filter-slots self selected-class prototype)))
-        (setf ordering-specifier (when slots (make-slot-selector slots))
-              class (make-standard-object-detail-filter-class self the-class (class-prototype the-class))
-              slot-value-groups (bind ((slot-groups (collect-standard-object-detail-slot-groups self selected-class prototype slots)))
-                                  (iter (for (name . slot-group) :in slot-groups)
-                                        (when slot-group
-                                          (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
-                                          (if slot-value-group
-                                              (setf (component-value-of slot-value-group) slot-group
-                                                    (the-class-of slot-value-group) selected-class
-                                                    (name-of slot-value-group) name)
-                                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-filter
-                                                                                    :slots slot-group
-                                                                                    :the-class selected-class
-                                                                                    :name name)))
-                                          (collect slot-value-group)))))))))
+(def refresh standard-object-detail-filter
+  (bind (((:slots class class-selector ordering-specifier the-class slot-value-groups command-bar) -self-)
+         (selectable-classes (collect-standard-object-detail-filter-classes -self- the-class (class-prototype the-class))))
+    (if (length= selectable-classes 1)
+        (setf class-selector nil)
+        (if class-selector
+            (setf (possible-values-of class-selector) selectable-classes)
+            (setf class-selector (make-class-selector selectable-classes))))
+    (bind ((selected-class (if class-selector
+                               (component-value-of class-selector)
+                               (first selectable-classes)))
+           (prototype (class-prototype selected-class))
+           (slots (collect-standard-object-detail-filter-slots -self- selected-class prototype)))
+      (setf ordering-specifier (when slots (make-slot-selector slots))
+            class (make-standard-object-detail-filter-class -self- the-class (class-prototype the-class))
+            slot-value-groups (bind ((slot-groups (collect-standard-object-detail-slot-groups -self- selected-class prototype slots)))
+                                (iter (for (name . slot-group) :in slot-groups)
+                                      (when slot-group
+                                        (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
+                                        (if slot-value-group
+                                            (setf (component-value-of slot-value-group) slot-group
+                                                  (the-class-of slot-value-group) selected-class
+                                                  (name-of slot-value-group) name)
+                                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-filter
+                                                                                  :slots slot-group
+                                                                                  :the-class selected-class
+                                                                                  :name name)))
+                                        (collect slot-value-group))))))))
 
 (def (layered-function e) make-standard-object-detail-filter-class (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
@@ -116,10 +85,9 @@
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
     (class-slots class)))
 
-(def render standard-object-detail-filter ()
+(def render-xhtml standard-object-detail-filter
   (bind (((:read-only-slots class-selector ordering-specifier slot-value-groups id) -self-))
     <div (:id ,id)
-         ,(render-title -self-)
          <table (:class "slot-table")
            ,(when (or class-selector ordering-specifier)
                   <tbody ,(when class-selector
@@ -132,18 +100,14 @@
                                     <td ,(render ordering-specifier)>>) >)
            ,(foreach #'render slot-value-groups)>>))
 
-(def layered-method render-title ((self standard-object-detail-filter))
-  (standard-object-detail-filter.title (slot-value self 'class)))
-
-
 ;;;;;;
 ;;; Standard object slot value group filter
 
 (def component standard-object-slot-value-group-filter (standard-object-slot-value-group-component filter-component)
   ())
 
-(def method refresh-component ((self standard-object-slot-value-group-filter))
-  (with-slots (the-class slots slot-values) self
+(def refresh standard-object-slot-value-group-filter
+  (bind (((:slots the-class slots slot-values) -self-))
     (setf slot-values
           (iter (for slot :in slots)
                 (for slot-value = (find-slot-value-component slot slot-values))
@@ -162,17 +126,17 @@
   ()
   (:documentation "Filter for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
-(def method refresh-component ((self standard-object-slot-value-filter))
-  (with-slots (slot label value) self
-    (bind ((type (slot-type slot))
-           (name (slot-definition-name slot)))
-      (setf label (localized-slot-name slot))
-      (unless (and value
-                   (type= (the-type-of value) type)
-                   (eq (name-of value) name))
-        (setf value (make-place-filter type :name name))))))
+(def refresh standard-object-slot-value-filter
+  (bind (((:slots slot label value) -self-)
+         (type (slot-type slot))
+         (name (slot-definition-name slot)))
+    (setf label (localized-slot-name slot))
+    (unless (and value
+                 (type= (the-type-of value) type)
+                 (eq (name-of value) name))
+      (setf value (make-place-filter type :name name)))))
 
-(def render standard-object-slot-value-filter ()
+(def render-xhtml standard-object-slot-value-filter
   (bind (((:read-only-slots label value id) -self-))
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label")
@@ -187,7 +151,7 @@
   ())
 
 (def method make-place-component-content ((self standard-object-place-filter))
-  (make-inspector (the-type-of self) :default-alternative-type 'reference-component))
+  (make-inspector (the-type-of self) :initial-alternative-type 'reference-component))
 
 (def method make-place-component-command-bar ((self standard-object-place-filter))
   (make-instance 'command-bar-component :commands (list (make-set-place-to-nil-command self)

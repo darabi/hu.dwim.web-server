@@ -10,17 +10,17 @@
 (def component standard-object-list-aggregator (abstract-standard-object-list-component abstract-standard-class-component)
   ((slot-values nil :type components)))
 
-(def method refresh-component ((self standard-object-list-aggregator))
-  (with-slots (slot-values instances the-class) self
+(def refresh standard-object-list-aggregator
+  (bind (((:slots slot-values instances the-class) -self-))
     (setf slot-values
-          (iter (for slot :in (collect-standard-object-list-aggregator-slots self the-class))
+          (iter (for slot :in (collect-standard-object-list-aggregator-slots -self- the-class))
                 (for slot-value = (find-slot-value-component slot slot-values))
                 (if slot-value
                     (setf (component-value-of slot-value) instances)
                     (setf slot-value (make-instance 'standard-object-list-slot-value-aggregator :instances instances :slot slot)))
                 (collect slot-value)))))
 
-(def render standard-object-list-aggregator ()
+(def render-xhtml standard-object-list-aggregator
   (bind (((:read-only-slots slot-values instances) -self-))
     <div "Darab: " ,(length instances)
          <table
@@ -49,8 +49,8 @@
    (average)
    (sum)))
 
-(def method refresh-component ((self standard-object-list-slot-value-aggregator))
-  (bind (((:read-only-slots instances slot) self))
+(def refresh standard-object-list-slot-value-aggregator
+  (bind (((:read-only-slots instances slot) -self-))
     (iter (with slot-name = (slot-definition-name slot))
           (for instance :in instances)
           (for value = (slot-value instance slot-name))
@@ -58,12 +58,12 @@
           (maximize value :into maximum)
           (sum value :into sum)
           (finally
-           (setf (minimum-of self) minimum)
-           (setf (maximum-of self) maximum)
-           (setf (sum-of self) sum)
-           (setf (average-of self) (/ sum (length instances)))))))
+           (setf (minimum-of -self-) minimum)
+           (setf (maximum-of -self-) maximum)
+           (setf (sum-of -self-) sum)
+           (setf (average-of -self-) (/ sum (length instances)))))))
 
-(def render standard-object-list-slot-value-aggregator ()
+(def render-xhtml standard-object-list-slot-value-aggregator
   (bind (((:read-only-slots minimum maximum average sum slot) -self-))
     (list <td ,(localized-slot-name slot)>
           <td ,minimum>
