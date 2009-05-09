@@ -43,7 +43,9 @@
   (let ((*features* *features*))
     (unless *load-as-production-p*
       (pushnew :debug *features*))
-    (call-next-method)))
+    (handler-bind
+        (#+sbcl (sb-ext:compiler-note #'muffle-warning))
+      (call-next-method))))
 
 (defclass wui-system (system-with-readtable)
   ((test-system :initform :wui.core.test :initarg :test-system :accessor test-system-of)))
