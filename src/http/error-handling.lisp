@@ -106,7 +106,7 @@
     ((or (not *response*)
          (not (headers-are-sent-p *response*)))
      (server.info "Sending an internal server error page for request ~S" (raw-uri-of *request*))
-     (emit-simple-html-document-http-response (:status +http-internal-server-error+ :title #"error.internal-server-error")
+     (emit-simple-html-document-http-response (:status +http-internal-server-error+ :title #"error.internal-server-error.title")
        (bind ((args (list :admin-email-address (and (boundp '*server*)
                                                     (admin-email-address-of *server*)))))
          (apply-resource-function 'render-internal-error-page args)))

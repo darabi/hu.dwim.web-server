@@ -15,13 +15,13 @@
       <p <a (:href ,new-frame-href) "Reset my view of the application">>>)
   (render-application-internal-error-page (back-command &key admin-email-address &allow-other-keys)
     <div
-      <h1 "Internal server error">
       <p "An internal server error has occured, we are sorry for the inconvenience.">
+      <p "The developers will be notified about this error and they will hopefully fix it soon.">
       ,(when admin-email-address
          <p "You may contact the administrators at this email address: "
              <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>>)
       <p ,(render back-command)>>)
 
-  (error.internal-server-error "Internal server error")
+  (error.internal-server-error.title "Internal server error")
   )
 

@@ -23,6 +23,18 @@
 ;;;;;;
 ;;; internal server error for applications
 
+;; TODO use a foo-bar-common-titled-usermessage-component instead and delme
+(def component internal-error-message-component (title-component-mixin
+                                                 user-message-collector-component-mixin)
+  ()
+  (:default-initargs :title #"error.internal-server-error.title"))
+
+(def render internal-error-message-component
+  <div (:id "internal-error")
+    ,(render-title -self-)
+    ,(render-user-messages -self-)
+    `js(wui.setup-widget "internal-error" "internal-error")>)
+
 (defmethod handle-toplevel-condition ((error serious-condition) (application application))
   (when (and (not *inside-user-code*)
              *session*)
@@ -44,15 +56,16 @@
                  (make-component-rendering-response
                   (make-frame-component-with-content
                    application
-                   (inline-component
-                     (bind ((args (list (make-instance 'command-component
-                                                       :content (icon back)
-                                                       :action (if rendering-phase-reached
-                                                                   (make-uri-for-new-frame)
-                                                                   (make-uri-for-current-frame)))
-                                        :admin-email-address (admin-email-address-of application))))
-                       (apply-resource-function 'render-application-internal-error-page args)))))))
+                   (aprog1
+                       (make-instance 'internal-error-message-component)
+                     (add-user-error it (inline-component
+                                            (apply-resource-function 'render-application-internal-error-page
+                                                                     (list (make-instance 'command-component
+                                                                                          :content (icon back)
+                                                                                          :action (if rendering-phase-reached
+                                                                                                      (make-uri-for-new-frame)
+                                                                                                      (make-uri-for-current-frame)))
+                                                                           :admin-email-address (admin-email-address-of application))))))))))
               (server.info "Internal server error for request ~S to application ~A and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri application)))
         (abort-server-request error))
       (call-next-method)))
-
