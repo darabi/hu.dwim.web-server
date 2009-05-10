@@ -184,7 +184,9 @@
   (setf (cookies-of -self-) (list)))
 
 (defmethod encoding-name-of ((self response))
-  (encoding-name-of (external-format-of self)))
+  (aif (external-format-of self)
+       (encoding-name-of it)
+       (error "No external format for response ~A" self)))
 
 (def (function io) write-crlf (&optional (stream *standard-output*))
   (write-byte +carriage-return+ stream)

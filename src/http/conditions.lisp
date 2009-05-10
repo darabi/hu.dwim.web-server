@@ -41,7 +41,7 @@ TODO delme?
          :content-length-limit content-length-limit))
 
 (def condition* broker-recursion-limit-reached (request-processing-error)
-  ((brokers :documentation "The stack of brokers we crossed while the limit was reached"))
+  ((brokers :documentation "The stack of brokers we visited while reaching the limit"))
   (:report
    (lambda (error stream)
      (format stream "Broker recursion limit reached while calling brokers. Broker path: ~A~%" (brokers-of error)))))

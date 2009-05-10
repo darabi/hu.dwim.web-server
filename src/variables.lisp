@@ -144,6 +144,16 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +header/server+              "Server"
    ))
 
+(macrolet ((x (&body entries)
+	     `(progn
+                ,@(iter (for (name value) :on entries :by #'cddr)
+                        (collect `(def (constant :test #'string=) ,name (coerce ,value 'simple-base-string)))
+                        (collect `(export ',name))))))
+  (x
+   +content-encoding/deflate+   "deflate"
+   +content-encoding/gzip+      "gzip"
+   ))
+
 (macrolet ((x (&rest pairs)
 	     `(progn
                 ,@(iter (for (name value) :on pairs :by #'cddr)
@@ -155,18 +165,21 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +utf-8-css-content-type+             "text/css; charset=utf-8"
    +utf-8-xml-content-type+             "text/xml; charset=utf-8"
    +utf-8-plain-text-content-type+      "text/plain; charset=utf-8"
+   +utf-8-javascript-content-type+      "text/javascript; charset=utf-8"
 
    +us-ascii-html-content-type+         "text/html; charset=us-ascii"
    +us-ascii-xhtml-content-type+        "application/xhtml+xml; charset=us-ascii"
    +us-ascii-css-content-type+          "text/css; charset=us-ascii"
    +us-ascii-xml-content-type+          "text/xml; charset=us-ascii"
    +us-ascii-plain-text-content-type+   "text/plain; charset=us-ascii"
+   +us-ascii-javascript-content-type+   "text/javascript; charset=us-ascii"
 
    +iso-8859-1-html-content-type+       "text/html; charset=iso-8859-1"
    +iso-8859-1-xhtml-content-type+      "application/xhtml+xml; charset=iso-8859-1"
    +iso-8859-1-css-content-type+        "text/css; charset=iso-8859-1"
    +iso-8859-1-xml-content-type+        "text/xml; charset=iso-8859-1"
    +iso-8859-1-plain-text-content-type+ "text/plain; charset=iso-8859-1"
+   +iso-8859-1-javascript-content-type+ "text/javascript; charset=iso-8859-1"
 
    +html-mime-type+       "text/html"
    +xhtml-mime-type+      "application/xhtml+xml"

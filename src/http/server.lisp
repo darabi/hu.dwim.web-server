@@ -326,10 +326,11 @@
                   (call-with-server-error-handler #'serve-one-request
                                                   stream-socket
                                                   #'handle-request-error)
-                  (server.dribble "Worker ~A finished processing a request, closing the socket now" worker))
+                  (server.dribble "Worker ~A finished processing a request, will close the socket now" worker))
               (:always
                (block nil
                  (call-with-server-error-handler (lambda ()
+                                                   (server.dribble "Closing the socket")
                                                    (close stream-socket))
                                                  stream-socket
                                                  (lambda (error)

@@ -147,6 +147,14 @@
 (deftype simple-ub8-vector (&optional (length '*))
   `(simple-array (unsigned-byte 8) (,length)))
 
+(def (function i) coerce-to-simple-ub8-vector (vector &optional (length (length vector)))
+  (if (and (typep vector 'simple-ub8-vector)
+           (= length (length vector)))
+      vector
+      (aprog1
+          (make-array length :element-type '(unsigned-byte 8))
+        (replace it vector :end2 length))))
+
 (def (function io) handle-otherwise (otherwise)
   (cond
     ((eq otherwise :error)
