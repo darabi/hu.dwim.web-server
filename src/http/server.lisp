@@ -397,6 +397,7 @@
       `(defun ,name ,args
          ,@(awhen documentation (list it))
          ,@declarations
+         (setf ,headers (copy-alist ,headers))
          (bind ((,last-modified-at ,%last-modified-at)
                 (,seconds-until-expires ,%seconds-until-expires)
                 (,content-length ,%content-length)
@@ -436,31 +437,61 @@
                          (integer-to-string ,content-length)))
                  ,@body)))))))
 
-(def content-serving-function serve-sequence (sequence &key
-                                                       (last-modified-at (local-time:now))
-                                                       (content-type +octet-stream-mime-type+)
-                                                       headers
-                                                       cookies
-                                                       content-disposition
-                                                       (stream (client-stream-of *request*))
-                                                       (encoding (encoding-name-of (iolib:external-format-of stream)))
-                                                       (seconds-until-expires #.(* 60 60)))
+(def content-serving-function serve-sequence (body &key
+                                                   (last-modified-at (local-time:now))
+                                                   content-type
+                                                   content-encoding
+                                                   headers
+                                                   cookies
+                                                   content-disposition
+                                                   (stream (client-stream-of *request*))
+                                                   (encoding (encoding-name-of (iolib:external-format-of stream)))
+                                                   seconds-until-expires)
     (:last-modified-at last-modified-at
      :seconds-until-expires seconds-until-expires
      :headers headers
      :cookies cookies
      :stream stream)
   "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
+  (assert (or (null content-encoding)
+              (string= content-encoding +content-encoding/deflate+)))
+  (check-type body (or list (vector (unsigned-byte 8) *) string))
+  (server.debug "SERVE-SEQUENCE: body type: ~A, length: ~A, content-encoding: ~A" (type-of body) (length body) content-encoding)
   (with-thread-name " / SERVE-SEQUENCE"
-    (bind ((bytes (if (stringp sequence)
-                      (string-to-octets sequence :encoding encoding)
-                      sequence)))
-      (setf (header-alist-value headers +header/content-type+) content-type)
-      (setf (header-alist-value headers +header/content-length+) (integer-to-string (length bytes)))
+    (bind ((length 0)
+           (body (iter (for piece :in (ensure-list body))
+                       (when (stringp piece)
+                         (setf piece (string-to-octets piece :encoding encoding)))
+                       (incf length (length piece))
+                       (collect piece))))
+      (awhen content-type
+        (setf (header-alist-value headers +header/content-type+) it))
       (awhen content-disposition
         (setf (header-alist-value headers +header/content-disposition+) it))
-      (send-http-headers headers cookies :stream stream)
-      (write-sequence bytes stream))))
+      (if content-encoding
+          (switch (content-encoding :test #'equal)
+            (+content-encoding/deflate+
+             (setf (header-alist-value headers +header/content-encoding+) +content-encoding/deflate+)
+             (bind ((bytes (if (and (length= 1 body)
+                                    (typep (first body) 'simple-ub8-vector))
+                               (first body)
+                               (aprog1
+                                   (make-array length :element-type '(unsigned-byte 8))
+                                 (iter (for piece :in body)
+                                       (for previous-piece :previous piece)
+                                       (for start :first 0 :then (+ start (length previous-piece)))
+                                       (replace it piece :start1 start))))))
+               (bind ((compressed-bytes (hu.dwim.wui.zlib:allocate-compress-buffer bytes))
+                      (compressed-bytes-length (hu.dwim.wui.zlib:compress bytes compressed-bytes)))
+                 (server.debug "SERVE-SEQUENCE: compressed response, original-size ~A, compressed-size ~A, ratio: ~,3F" length compressed-bytes-length (/ compressed-bytes-length length))
+                 (setf (header-alist-value headers +header/content-length+) (integer-to-string compressed-bytes-length))
+                 (send-http-headers headers cookies :stream stream)
+                 (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length)))))
+          (progn
+            (setf (header-alist-value headers +header/content-length+) (integer-to-string length))
+            (send-http-headers headers cookies :stream stream)
+            (dolist (piece body)
+              (write-sequence piece stream)))))))
 
 (def content-serving-function serve-stream (input-stream &key
                                                          (last-modified-at (local-time:now))

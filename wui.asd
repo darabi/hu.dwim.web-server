@@ -70,7 +70,8 @@
   :test-system :wui-test
   :components
   ((:module "src"
-    :components ((:file "packages")
+    :components ((:file "zlib" :pathname "util/zlib.lisp")
+                 (:file "packages" :depends-on ("zlib"))
                  (:file "duplicates" :depends-on ("packages"))
                  (:file "configuration" :depends-on ("packages"))
                  (:file "variables" :depends-on ("packages" "duplicates" "configuration"))
@@ -102,6 +103,7 @@
                :net-telent-date ;; TODO get rid of this
                :cl-fad
                :bordeaux-threads
+               :cffi
                :iolib
                :local-time
                :babel

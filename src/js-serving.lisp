@@ -24,11 +24,15 @@
       (when truename
         (make-file-serving-response-for-directory-entry broker truename path-prefix relative-path root-directory)))))
 
-(defun js-directory-serving-broker/make-cache-key (truename)
-  (namestring truename))
+(defun js-directory-serving-broker/make-cache-key (truename &optional content-encoding)
+  (if content-encoding
+      (list (namestring truename) content-encoding)
+      (namestring truename)))
 
 (def method make-file-serving-response-for-directory-entry ((broker js-directory-serving-broker) truename path-prefix relative-path root-directory)
-  (bind ((key (js-directory-serving-broker/make-cache-key truename))
+  (bind ((compress? (and (not *disable-response-compression*)
+                         (accpets-encoding? +content-encoding/deflate+)))
+         (key (js-directory-serving-broker/make-cache-key truename (when compress? :deflate)))
          (cache (file-path->cache-entry-of broker))
          (cache-entry (gethash key cache))
          (file-write-date (file-write-date truename))
@@ -42,42 +46,24 @@
         (unless (cl-fad:directory-pathname-p truename)
           (files.debug "Compiling and updating cache entry for ~A, in ~A" truename broker)
           (setf bytes-to-serve (compile-js-file-to-byte-vector broker truename :encoding :utf-8))
+          (when compress?
+            (bind ((compressed-bytes (hu.dwim.wui.zlib:allocate-compress-buffer bytes-to-serve))
+                   (compressed-bytes-length (hu.dwim.wui.zlib:compress bytes-to-serve compressed-bytes)))
+              (files.debug "Compressed response for cache entry ~A, original-size ~A, compressed-size ~A, ratio: ~,3F" truename (length bytes-to-serve) compressed-bytes-length (/ compressed-bytes-length (length bytes-to-serve)))
+              (setf bytes-to-serve (coerce-to-simple-ub8-vector compressed-bytes compressed-bytes-length))
+              (assert (= (length bytes-to-serve) compressed-bytes-length))))
           (unless cache-entry
             (setf cache-entry (make-directory-serving-broker/cache-entry truename))
             (setf (gethash key cache) cache-entry))
           (setf (file-write-date-of cache-entry) file-write-date)
           (setf (bytes-to-respond-of cache-entry) bytes-to-serve)))
-    ;; TODO this will probably look much different in the lights of multiplexing, but works ok for now
-    (make-functional-response*
-     (lambda ()
-       (serve-js bytes-to-serve
-                 :last-modified-at (local-time:universal-to-timestamp file-write-date)
-                 :seconds-until-expires (* 60 60)))
-     :raw #t)))
-
-(def content-serving-function serve-js (sequence &key
-                                                 (last-modified-at (local-time:now))
-                                                 headers
-                                                 cookies
-                                                 content-disposition
-                                                 (stream (client-stream-of *request*))
-                                                 (encoding (encoding-name-of (iolib:external-format-of stream)))
-                                                 (content-type (content-type-for +javascript-mime-type+ encoding))
-                                                 (seconds-until-expires #.(* 60 60)))
-    (:last-modified-at last-modified-at
-     :seconds-until-expires seconds-until-expires
-     :headers headers
-     :cookies cookies
-     :stream stream)
-  (bind ((bytes (if (stringp sequence)
-                    (string-to-octets sequence :encoding encoding)
-                    sequence)))
-    (setf (header-alist-value headers +header/content-type+) content-type)
-    (setf (header-alist-value headers +header/content-length+) (integer-to-string (length bytes)))
-    (awhen content-disposition
-      (setf (header-alist-value headers +header/content-disposition+) it))
-    (send-http-headers headers cookies :stream stream)
-    (write-sequence bytes stream)))
+    (aprog1
+        (make-byte-vector-response* bytes-to-serve
+                                    :last-modified-at (local-time:universal-to-timestamp file-write-date)
+                                    :seconds-until-expires (* 60 60)
+                                    :content-type (content-type-for +javascript-mime-type+ :utf-8))
+      (when compress?
+        (setf (header-value it +header/content-encoding+) +content-encoding/deflate+)))))
 
 (def generic compile-js-file-to-byte-vector (broker filename &key encoding)
   (:method ((broker js-directory-serving-broker) filename &key (encoding +encoding+))
@@ -89,6 +75,6 @@
         (with-local-readtable
           (setup-readtable)
           (enable-js-sharpquote-syntax)
-          (with-output-to-sequence (*js-stream*)
-            (bind ((forms (read-from-string body-as-string)))
-              (eval forms))))))))
+          (coerce-to-simple-ub8-vector (with-output-to-sequence (*js-stream*)
+                                         (bind ((forms (read-from-string body-as-string)))
+                                           (eval forms)))))))))

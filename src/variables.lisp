@@ -19,6 +19,9 @@
 (def (special-variable e) *request-remote-host*)
 (def special-variable *request-id*)
 
+(def (special-variable e) *disable-response-compression* (not (awhen (find-package :hu.dwim.wui.zlib)
+                                                                (find-symbol "COMPRESS" it))))
+
 (def (special-variable e) *server*)
 (def (special-variable e) *application*)
 (def (special-variable e) *session*)

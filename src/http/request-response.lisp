@@ -367,14 +367,22 @@
 ;;; byte-vector-response
 
 (def (class* e) byte-vector-response (primitive-response)
-  ((body :type (or list vector))))
+  ((last-modified-at nil)
+   (body :type (or list vector))))
 
-(def (function e) make-byte-vector-response* (bytes &key headers cookies)
-  (make-instance 'byte-vector-response
-                 :body bytes
-                 :headers headers
-                 :cookies cookies
-                 :external-format nil))
+(def (function e) make-byte-vector-response* (bytes &key headers cookies last-modified-at seconds-until-expires content-type)
+  (bind ((result (make-instance 'byte-vector-response
+                                :body bytes
+                                :headers headers
+                                :cookies cookies
+                                :last-modified-at last-modified-at
+                                :external-format nil)))
+    (when seconds-until-expires
+      (setf (header-value result +header/expires+) (local-time:to-http-timestring
+                                                    (local-time:adjust-timestamp (local-time:now) (offset :sec seconds-until-expires)))))
+    (when content-type
+      (setf (header-value result +header/content-type+) content-type))
+    result))
 
 (def (macro e) make-byte-vector-response ((&optional headers-as-plist cookie-list) &body body)
   (with-unique-names (response)
@@ -390,17 +398,14 @@
        ,response)))
 
 (defmethod send-response ((response byte-vector-response))
-  (bind ((body (ensure-list (body-of response)))
-         (client-stream (client-stream-of *request*))
-         (length 0))
-    (dolist (piece body)
-      (incf length (length piece)))
-    ;; TODO use serve-sequence here? so that it adds expires, handles if-modified-since
-    (setf (header-value response +header/content-length+) (integer-to-string length))
-    ;; send the headers
-    (call-next-method)
-    (dolist (piece body)
-      (write-sequence piece client-stream))))
+  (serve-sequence (body-of response)
+                  :content-encoding (when (and (not *disable-response-compression*)
+                                               (not (header-value response +header/content-encoding+))
+                                               (accpets-encoding? +content-encoding/deflate+))
+                                      +content-encoding/deflate+)
+                  :headers (headers-of response)
+                  :cookies (cookies-of response)
+                  :last-modified-at (last-modified-at-of response)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
