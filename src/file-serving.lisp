@@ -52,6 +52,7 @@
 
 (def generic make-file-serving-response-for-directory-entry (broker truename path-prefix relative-path root-directory)
   (:method ((broker directory-serving-broker) truename path-prefix relative-path root-directory)
+    (files.debug "Making file serving response for ~A, path-prefix ~S, relative-path ~S, root-directory ~S" truename path-prefix relative-path root-directory)
     (cond
       ((cl-fad:directory-pathname-p truename)
        (if (or (ends-with #\/ relative-path)
@@ -59,8 +60,47 @@
            (make-directory-index-response path-prefix relative-path root-directory truename)
            (bind ((uri (clone-request-uri)))
              (make-redirect-response (append-path-to-uri uri "/")))))
+      ((and (not *disable-response-compression*)
+            (accpets-encoding? +content-encoding/deflate+)
+            (compress-file-before-serving? truename))
+       (bind ((compressed-file (merge-pathnames relative-path (merge-pathnames ".wui-cache/" root-directory))))
+         (ensure-directories-exist compressed-file)
+         (if (and (cl-fad:file-exists-p compressed-file)
+                  ;; TODO use iolib for file-write-date?
+                  (<= (file-write-date truename)
+                      (file-write-date compressed-file)))
+             (aprog1
+                 (make-file-serving-response compressed-file)
+               (files.debug "Serving file from the compressed file cache: ~A" compressed-file)
+               (setf (header-value it +header/content-encoding+) +content-encoding/deflate+))
+             (progn
+               (with-open-file (input truename :direction :input :element-type '(unsigned-byte 8))
+                 (with-open-file (output compressed-file :direction :output :element-type '(unsigned-byte 8) :if-exists :supersede)
+                   (hu.dwim.wui.zlib:deflate
+                       (lambda (buffer start size)
+                         (read-sequence buffer input :start start :end size))
+                       (lambda (buffer start size)
+                         (write-sequence buffer output :start start :end size)))
+                   (finish-output output)
+                   (bind ((input-length (file-length input))
+                          (output-length (file-length output)))
+                     (assert output-length)
+                     (files.debug "Updated compressed file cache for ~S, cache entry ~S. Old size ~A, new size ~A, ratio ~,3F" truename compressed-file input-length output-length (/ output-length input-length)))))
+               (aprog1
+                   (make-file-serving-response compressed-file)
+                 (setf (header-value it +header/content-encoding+) +content-encoding/deflate+))))))
       (t
        (make-file-serving-response truename)))))
+
+(def special-variable *file-compression-extension-blacklist*
+    (aprog1
+        (make-hash-table :test #'equal)
+      (dolist (el '("png" "jpg" "jpeg" "gif"))
+        (setf (gethash el it) t))))
+
+(def function compress-file-before-serving? (file)
+  (check-type file pathname)
+  (not (gethash (pathname-type file) *file-compression-extension-blacklist*)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
