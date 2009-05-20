@@ -67,7 +67,7 @@
   ((component-value nil)))
 
 (def method collect-possible-filter-predicates ((self string-filter))
-  '(= ~ < ≤ > ≥))
+  '(~ = < ≤ > ≥))
 
 (def render-xhtml string-filter
   (ensure-client-state-sink -self-)
