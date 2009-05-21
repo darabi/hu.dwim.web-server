@@ -49,7 +49,7 @@
    (session-id->session (make-hash-table :test 'equal) :export :accessor)
    (admin-email-address nil)
    (lock)
-   (running-in-test-mode #f :type boolean :export :accessor)
+   (running-in-test-mode? #f :type boolean :export :accessor)
    (compile-time-debug-client-side :type boolean :accessor compile-time-debug-client-side? :export :accessor)
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:metaclass funcallable-standard-class))
@@ -57,7 +57,7 @@
 (def method compile-time-debug-client-side? :around ((self application))
   (if (slot-boundp self 'compile-time-debug-client-side)
       (call-next-method)
-      (or (running-in-test-mode-p self)
+      (or (running-in-test-mode? self)
           (not *load-as-production-p*))))
 
 (def (function e) human-readable-broker-path (server application)

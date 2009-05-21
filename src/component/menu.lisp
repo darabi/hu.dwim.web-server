@@ -8,7 +8,7 @@
 ;;; Abstract menu item
 
 (def component abstract-menu-item-component ()
-  ((menu-items nil :type components)))
+  ((menu-items nil :type components :export :accessor)))
 
 ;;;;;;
 ;;; Menu
@@ -103,10 +103,10 @@
                  :send-client-state #f))
     (menu-item ()
         (command "Toggle test mode"
-                 (make-action (notf (running-in-test-mode-p *application*)))))
+                 (make-action (notf (running-in-test-mode? *application*)))))
     (menu-item ()
         (command "Toggle profiling"
-                 (make-action (notf (profile-request-processing-p *server*)))))
+                 (make-action (notf (profile-request-processing? *server*)))))
     (menu-item ()
         (command "Toggle hierarchy"
                  (make-action (toggle-debug-component-hierarchy *frame*))))

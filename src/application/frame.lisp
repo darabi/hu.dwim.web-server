@@ -20,7 +20,7 @@
   (error 'frame-not-found-error :frame frame))
 
 (def function generate-frame-index (&optional previous)
-  (if (and (running-in-test-mode-p *application*)
+  (if (and (running-in-test-mode? *application*)
            (or (not previous)
                (integerp previous)))
       (if previous

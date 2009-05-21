@@ -85,7 +85,7 @@
                                                  :ajax ,(when (ajax-enabled? *application*)
                                                           (force ajax))
                                                  :send-client-state ,send-client-state?))))
-             (name (when (running-in-test-mode-p *application*)
+             (name (when (running-in-test-mode? *application*)
                      (if (typep content 'icon-component)
                          (symbol-name (name-of content))
                          (princ-to-string content)))))

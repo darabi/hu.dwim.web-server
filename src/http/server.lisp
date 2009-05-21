@@ -36,7 +36,7 @@
    (occupied-worker-count 0)
    (started-at nil)
    (timer nil)
-   (profile-request-processing #f :type boolean :export :accessor)))
+   (profile-request-processing? #f :type boolean :export :accessor)))
 
 (def constructor (server (listen-entries nil listen-entries-p) host port ssl-certificate)
   (when (and (or host port ssl-certificate)
@@ -367,7 +367,7 @@
          (raw-uri (raw-uri-of request)))
     (http.info "Handling request ~S from ~S for ~S, method ~S" *request-id* *request-remote-host* raw-uri (http-method-of request))
     (multiple-value-prog1
-        (if (profile-request-processing-p server)
+        (if (profile-request-processing? server)
             (call-with-profiling #'call-next-method)
             (call-next-method))
       (bind ((seconds (- (get-monotonic-time) start-time))
