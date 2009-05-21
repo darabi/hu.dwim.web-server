@@ -40,9 +40,10 @@
     ;; don't change by default
     (title-of self)))
 
-(def layered-method render-title ((self title-mixin))
-  (awhen (title-of self)
-    (render it)))
+(def (layered-function e) render-title (component)
+  (:method ((self title-mixin))
+    (awhen (title-of self)
+      (render it))))
 
 ;;;;;;
 ;;; Title context menu mixin
