@@ -73,9 +73,13 @@
                                   (char= char #\.)))
                          (vector-push-extend char score)
                          (case char
-                           (#\, (emit-entry))
-                           ((nil) (emit-entry))
-                           (t (fail))))))
+                           (#\,
+                            (emit-entry))
+                           ((nil)
+                            (emit-entry)
+                            (emit-result))
+                           (t
+                            (fail))))))
              (emit-entry ()
                ;; (break "emitting ~S" (cons key score))
                (push (cons key
