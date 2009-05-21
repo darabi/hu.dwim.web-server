@@ -557,26 +557,33 @@
   (wui.field._setup-filter-field widget-id use-in-filter-id))
 
 ;;;;;;
-;;; compound
+;;; generic function
 
-(setf wui.theme-setup-callbacks (create))
+(defun wui.create-generic-function (name)
+  (bind ((generic-function (create)))
+    (setf generic-function.name name)
+    (return generic-function)))
 
-(defun wui.call-theme-setup-callbacks (type id &rest args &key &allow-other-keys)
-  (bind ((callbacks (aref wui.theme-setup-callbacks type)))
-    (when callbacks
-      (dolist (callback callbacks)
-        (callback id args)))))
+(defun wui.register-generic-function-method (generic-function dispatch-type fn)
+  (setf (slot-value generic-function dispatch-type) fn))
 
-(defun wui.register-theme-setup-callback (type fn)
-  (bind ((callbacks (aref wui.theme-setup-callbacks type)))
-    (unless callbacks
-      (setf callbacks (array))
-      (setf (aref wui.theme-setup-callbacks type) callbacks))
-    (.push callbacks fn)))
+(defun wui.apply-generic-function (generic-function dispatch-type &rest args &key &allow-other-keys)
+  (bind ((class-precedence-list (slot-value wui.component-class-precedence-lists dispatch-type)))
+    (dolist (class class-precedence-list)
+      (bind ((fn (slot-value generic-function class)))
+        (when fn
+          (return (fn args)))))))
 
-(defun wui.setup-widget (type id &rest args &key &allow-other-keys)
-  (wui.call-theme-setup-callbacks type id args))
+;;;;;;
+;;; setup component
 
+(setf wui.setup-component-generic-function (wui.create-generic-function))
+
+(defun wui.register-component-setup (type fn)
+  (wui.register-generic-function-method wui.setup-component-generic-function type fn))
+
+(defun wui.setup-component (type id &rest args &key &allow-other-keys)
+  (wui.apply-generic-function wui.setup-component-generic-function type id args))
 
 ;;;;;;
 ;;; i18n

@@ -11,7 +11,7 @@
 
 (def special-variable *tree-level*)
 
-(def component tree-component (remote-identity-component-mixin)
+(def component tree-component (remote-identity-mixin)
   ((columns nil :type components)
    ;; TODO expander-column-index should be marked by a special column type, or something similar. this way it's very fragile...
    (expander-column-index 0 :type integer)
@@ -46,7 +46,7 @@
 ;;;;;;
 ;;; Node
 
-(def component node-component (remote-identity-component-mixin style-component-mixin)
+(def component node-component (remote-identity-mixin style-mixin)
   ((child-nodes nil :type components)
    (cells nil :type components)))
 
@@ -156,7 +156,7 @@
 ;;;;;;
 ;;; Entire node
 
-(def component entire-node-component (remote-identity-component-mixin content-component)
+(def component entire-node-component (remote-identity-mixin content-mixin)
   ())
 
 (def function render-entire-node (tree node body-thunk)

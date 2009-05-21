@@ -354,7 +354,7 @@
 ;;;;;;
 ;;; ajax counter example (only a proof-of-concept)
 
-(def component counter-component (remote-identity-component-mixin)
+(def component counter-component (remote-identity-mixin)
   ((counter 0)))
 
 (def render counter-component

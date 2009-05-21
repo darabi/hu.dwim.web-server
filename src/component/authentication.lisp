@@ -13,13 +13,17 @@
 (def (constant e :test 'string=) +user-action-query-parameter-name+ "user-action")
 (def (constant e :test 'string=) +continue-url-query-parameter-name+ "continue-url")
 
-(def (component ea) identifier-and-password-login-component (title-component-mixin
-                                                             user-message-collector-component-mixin
-                                                             remote-identity-component-mixin)
+(def component login-component ()
+  ())
+
+(def (component ea) identifier-and-password-login-component (login-component
+                                                             title-mixin
+                                                             user-messages-mixin
+                                                             remote-setup-mixin)
   ((identifier nil)
    (password nil)
    (command-bar (make-instance 'command-bar-component) :type component))
-  (:default-initargs :title #"login.title"))
+  (:default-initargs :title (title #"login.title")))
 
 (def function make-default-identifier-and-password-login-command ()
   (command (icon login)
@@ -46,8 +50,7 @@
                                "password-field"
                                "identifier-field"))
          (id (id-of -self-)))
-    <div (:id ,id
-          :class "identifier-and-password-login-component")
+    <div (:id ,id :class "identifier-and-password-login-component")
      ,(render-title -self-)
      ,(render-user-messages -self-)
      <table
@@ -65,8 +68,7 @@
        <tr <td (:colspan 2)
              ,(render (command-bar-of -self-))>>>
      `js(on-load
-         (.focus ($ ,focused-field-id))
-         (wui.setup-widget "login-component" ,id))>))
+         (.focus ($ ,focused-field-id)))>))
 
 (def (generic e) make-logout-command (application)
   (:method ((application application))

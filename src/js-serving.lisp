@@ -24,7 +24,7 @@
       (when truename
         (make-file-serving-response-for-directory-entry broker truename path-prefix relative-path root-directory)))))
 
-(defun js-directory-serving-broker/make-cache-key (truename &optional content-encoding)
+(def function js-directory-serving-broker/make-cache-key (truename &optional content-encoding)
   (if content-encoding
       (list (namestring truename) content-encoding)
       (namestring truename)))
@@ -78,3 +78,15 @@
           (coerce-to-simple-ub8-vector (with-output-to-sequence (*js-stream*)
                                          (bind ((forms (read-from-string body-as-string)))
                                            (eval forms)))))))))
+
+;; FIXME: this generates a quite big list which is redundant like hell
+;;        but it is cached and compressed, so we don't care about it right now
+(def function serve-js-component-class-hierarchy ()
+  (bind ((component-class (find-class 'component)))
+    `js (setf wui.component-class-precedence-lists (create))
+    (dolist (subclass (subclasses component-class))
+      (bind ((subclass-name (class-name-as-string subclass))
+             (class-precedence-list (class-precedence-list subclass))
+             (index (position component-class class-precedence-list))
+             (class-name-precedence-list (mapcar #'class-name-as-string (subseq class-precedence-list 0 (1+ index)))))
+        `js(setf (slot-value wui.component-class-precedence-lists ,subclass-name) (array ,@class-name-precedence-list))))))

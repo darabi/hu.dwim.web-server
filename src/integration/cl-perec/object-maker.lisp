@@ -7,11 +7,6 @@
 ;;;;;;
 ;;; Customizations
 
-(def layered-method make-standard-object-detail-maker-class ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
-  (if (dmm::developer-p (dmm::current-effective-subject))
-      (make-viewer class :initial-alternative-type 'reference-component)
-      (call-next-method)))
-
 (def layered-method collect-standard-object-detail-maker-slots ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
   (bind ((excluded-slot-name
           (awhen (find-ancestor-component-with-type component 'standard-object-slot-value-component)
@@ -28,7 +23,7 @@
                (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot))
              (call-next-method)))
 
-(def layered-method execute-create-instance :around ((ancestor recursion-point-component) (component standard-object-maker) (class prc::persistent-class))
+(def layered-method execute-create-instance ((ancestor recursion-point-mixin) (component standard-object-maker) (class prc::persistent-class))
   (handler-bind ((prc::persistent-constraint-violation (lambda (error)
                                                          (add-user-error component "Adatösszefüggés hiba")
                                                          (abort-interaction)
@@ -38,7 +33,7 @@
         (when (interaction-aborted-p)
           (cl-rdbms:mark-transaction-for-rollback-only))))))
 
-(def layered-method execute-create-instance ((ancestor recursion-point-component) (component standard-object-maker) (class prc::persistent-class))
+(def layered-method execute-create-instance ((ancestor recursion-point-mixin) (component standard-object-maker) (class prc::persistent-class))
   (prog1 (call-next-method)
     (unless (interaction-aborted-p)
       (rdbms:register-transaction-hook :after :commit

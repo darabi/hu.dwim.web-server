@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Time provider
 
-(def component time-provider (content-component)
+(def component time-provider (content-mixin)
   ((time :type prc::timestamp)))
 
 (def component-environment time-provider
@@ -47,7 +47,7 @@
 ;;;;;;
 ;;; Validity provider
 
-(def component validity-provider (content-component)
+(def component validity-provider (content-mixin)
   ((selector :type component)))
 
 (def (macro e) validity-provider ((&key validity) &body forms)
@@ -68,7 +68,7 @@
 ;;;;;;
 ;;; Coordinates provider
 
-(def component coordinates-provider (content-component)
+(def component coordinates-provider (content-mixin)
   ((dimensions)
    (coordinates)))
 
@@ -90,18 +90,18 @@
         (call-next-method)))))
 
 ;;;;;;
-;;; Coordinates dependent component mixin
+;;; Coordinates dependent mixin
 
-(def component coordinates-dependent-component-mixin ()
+(def component coordinates-dependent-mixin ()
   ((dimensions)
    (coordinates)))
 
-(def constructor coordinates-dependent-component-mixin ()
+(def constructor coordinates-dependent-mixin ()
   (bind (((:slots dimensions coordinates) -self-))
     (setf dimensions (mapcar 'prc:lookup-dimension dimensions)
           coordinates (prc:make-empty-coordinates dimensions))))
 
-(def (function e) print-object/coordinates-dependent-component-mixin (self)
+(def (function e) print-object/coordinates-dependent-mixin (self)
   (princ "dimensions: ")
   (princ (if (slot-boundp self 'dimensions)
              (dimensions-of self)
@@ -111,7 +111,7 @@
              (coordinates-of self)
              "<unbound>")))
 
-(def render-xhtml :before coordinates-dependent-component-mixin ()
+(def render-xhtml :before coordinates-dependent-mixin ()
   (setf (coordinates-of -self-)
         (iter (for dimension :in (dimensions-of -self-))
               (for old-coordinate :in (coordinates-of -self-))
@@ -145,8 +145,8 @@
 (def component abstract-d-value-component (abstract-standard-object-component)
   ())
 
-(def layered-method render-title ((self abstract-d-value-component))
-  `xml,"Dimenzionális érték")
+(def layered-method make-title ((self abstract-d-value-component))
+  (title "Dimenzionális érték"))
 
 ;;;;;;
 ;;; D value inspector
@@ -154,17 +154,17 @@
 (def component d-value-inspector (abstract-d-value-component
                                   inspector-component
                                   alternator-component
-                                  initargs-component-mixin
-                                  layer-context-capturing-component-mixin
-                                  recursion-point-component)
+                                  initargs-mixin
+                                  layer-context-capturing-mixin
+                                  recursion-point-mixin)
   ()
   (:documentation "Inspector for a D-VALUE instance in various alternative views."))
 
 (def layered-method make-alternatives ((component d-value-inspector) (class standard-class) (prototype prc::d-value) (instance prc::d-value))
   (list (delay-alternative-component-with-initargs 'd-value-table-inspector :instance instance)
         (delay-alternative-component-with-initargs 'd-value-pivot-table-component :instance instance)
-        (delay-alternative-component-with-initargs 'd-value-column-chart-component :instance instance)
         (delay-alternative-component-with-initargs 'd-value-pie-chart-component :instance instance)
+        (delay-alternative-component-with-initargs 'd-value-column-chart-component :instance instance)
         (delay-alternative-component-with-initargs 'd-value-line-chart-component :instance instance)
         (delay-alternative-reference-component 'd-value-inspector-reference instance)))
 
@@ -178,8 +178,7 @@
 
 (def component d-value-table-inspector (abstract-d-value-component
                                         inspector-component
-                                        table-component
-                                        title-component-mixin)
+                                        table-component)
   ())
 
 (def refresh d-value-table-inspector
@@ -204,15 +203,16 @@
 (def refresh d-value-row-inspector
   (bind (((:slots value coordinates instance cells) -self-))
     (setf cells (cons (make-viewer value)
-                      (mapcar 'make-coordinate-inspector (prc::dimensions-of instance) coordinates)))))
+                      (mapcar [make-coordinate-inspector -self- !1 !2] (prc::dimensions-of instance) coordinates)))))
 
-(def function make-coordinate-inspector (dimension coordinate)
-  (if (typep dimension 'prc::ordering-dimension)
-      (make-coordinate-range-inspector coordinate)
-      (make-viewer (if (length= 1 coordinate)
-                       (first coordinate)
-                       coordinate)
-                   :initial-alternative-type 'reference-component)))
+(def layered-function make-coordinate-inspector (component dimension coordinate)
+  (:method ((component component) (dimension prc::dimension) coordinate)
+    (if (typep dimension 'prc::ordering-dimension)
+        (make-coordinate-range-inspector coordinate)
+        (make-viewer (if (length= 1 coordinate)
+                         (first coordinate)
+                         coordinate)
+                     :initial-alternative-type 'reference-component))))
 
 (def function make-coordinate-range-inspector (coordinate)
   ;; TODO: KLUDGE: this is really much more complex than this
@@ -254,15 +254,14 @@
 ;;; D value pivot table
 
 (def component d-value-pivot-table-component (abstract-d-value-component
-                                              pivot-table-component
-                                              title-component-mixin)
+                                              pivot-table-component)
   ((cell-component-type 'abstract-d-value-chart-component :type (member abstract-d-value-chart-component d-value-pie-chart-component d-value-column-chart-component d-value-inspector))))
 
 (def method refresh-component :before ((self d-value-pivot-table-component))
   (bind (((:read-only-slots instance) self))
     (iter (for (axes-slot-name . dimension-names) :in (collect-pivot-table-dimension-axes-groups self (class-of instance) instance))
           (dolist (dimension-name dimension-names)
-            (bind ((dimension (prc::find-dimension dimension-name)))
+            (bind ((dimension (prc::lookup-dimension dimension-name)))
               (aif (find-pivot-table-dimension-axis self dimension)
                    (setf (component-value-of it) instance)
                    (appendf (slot-value self axes-slot-name)
@@ -286,7 +285,7 @@
 (def render-xhtml d-value-pivot-table-component
   <div (:class "d-value-pivot-table") ,(call-next-method)>)
 
-(def method make-pivot-table-extended-table-component ((self d-value-pivot-table-component) sheet-path)
+(def method make-pivot-sheet-table-component ((self d-value-pivot-table-component) sheet-path)
   (bind (((:slots instance row-axes column-axes) self))
     (prog1-bind extended-table (call-next-method)
       (setf (cells-of extended-table)
@@ -339,7 +338,7 @@
                     (make-instance 'coordinate-pivot-table-category-component
                                    :dimension dimension
                                    :coordinate coordinate
-                                   :content (make-coordinate-inspector dimension coordinate)))
+                                   :content (make-coordinate-inspector -self- dimension coordinate)))
                   (prc::d-value-dimension-coordinate-list instance dimension :mode :intersection)))))
 
 (def method localized-pivot-table-axis ((self pivot-table-dimension-axis-component))
@@ -361,7 +360,7 @@
 ;;;;;;
 ;;; Abstract d value chart component
 
-(def component abstract-d-value-chart-component (abstract-d-value-component content-component)
+(def component abstract-d-value-chart-component (abstract-d-value-component content-mixin)
   ())
 
 (def function collect-d-value-names-and-values (component)
@@ -370,7 +369,7 @@
     (iter (for (coordinates value) :in-d-value instance)
           (when value
             (collect (with-output-to-string (*standard-output*)
-                       (map nil [render-text (make-coordinate-inspector !1 !2)] dimensions coordinates))
+                       (map nil [render-text (make-coordinate-inspector component !1 !2)] dimensions coordinates))
               :into names)
             (collect value :into values))
           (finally
@@ -403,7 +402,6 @@
 
 (def component d-value-line-chart-component (abstract-d-value-chart-component)
   ())
-
 
 ;;;;;;
 ;;; Localization

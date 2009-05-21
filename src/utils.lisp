@@ -30,7 +30,13 @@
   (typep thing 'computation))
 
 ;;;;;;
-;;; 
+;;; Utils
+
+(def function instance-class-name-as-string (instance)
+  (class-name-as-string (class-of instance)))
+
+(def function class-name-as-string (class)
+  (string-downcase (symbol-name (class-name class))))
 
 (def (function io) maybe-make-xml-attribute (name value)
   (when value

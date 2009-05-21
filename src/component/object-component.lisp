@@ -214,7 +214,7 @@
 ;;;;;
 ;;; Standard object detail component
 
-(def component standard-object-detail-component (detail-component remote-identity-component-mixin)
+(def component standard-object-detail-component (detail-component remote-identity-mixin)
   ((slot-value-groups nil :type components)))
 
 (def (layered-function e) collect-standard-object-detail-slot-groups (component class prototype slots)
@@ -248,7 +248,7 @@
 ;;;;;;
 ;;; Standard object slot value group component
 
-(def component standard-object-slot-value-group-component (abstract-standard-slot-definition-group-component remote-identity-component-mixin)
+(def component standard-object-slot-value-group-component (abstract-standard-slot-definition-group-component remote-identity-mixin)
   ((name nil :type component)
    (slot-values nil :type components)))
 
@@ -261,11 +261,10 @@
     (if slot-values
         (progn
           (when name
-            (bind ((id (generate-frame-unique-string)))
-              <thead <tr <th (:class "slot-value-group" :colspan ,(standard-object-slot-value-group-column-count -self-))
-                             <div (:id ,id) ,(render name)>>>>
-              `js(wui.setup-widget "slot-group" ,id)))
-          <tbody ,(foreach #'render slot-values) >)
+            <thead <tr <th (:class "slot-value-group" :colspan ,(standard-object-slot-value-group-column-count -self-))
+                           <div (:id ,id) ,(render name)>>>>
+            (render-remote-setup -self-))
+          <tbody ,(foreach #'render slot-values)>)
         <span (:id ,id) ,#"there-are-none">)))
 
 (def render standard-object-slot-value-group-component
@@ -286,8 +285,8 @@
 ;;; Standard object slot value component
 
 (def component standard-object-slot-value-component (abstract-standard-object-slot-value-component
-                                                     remote-identity-component-mixin
-                                                     user-message-collector-component-mixin)
+                                                     remote-identity-mixin
+                                                     user-messages-mixin)
   ((label nil :type component)
    (value nil :type component)))
 

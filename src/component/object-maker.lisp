@@ -10,17 +10,17 @@
 (def component standard-object-maker (abstract-standard-class-component
                                       maker-component
                                       alternator-component
-                                      initargs-component-mixin
-                                      layer-context-capturing-component-mixin
-                                      recursion-point-component)
+                                      initargs-mixin
+                                      layer-context-capturing-mixin
+                                      recursion-point-mixin)
   ()
   (:documentation "Maker for an instance of STANDARD-OBJECT in various alternative views."))
 
 (def (macro e) standard-object-maker (the-class)
   `(make-instance 'standard-object-maker :the-class ,the-class))
 
-(def layered-method render-title ((self standard-object-maker))
-  <span ,(call-next-method) ,(standard-object-maker.title (localized-class-name (the-class-of self)))>)
+(def layered-method make-title ((self standard-object-maker))
+  (title (standard-object-maker.title (localized-class-name (the-class-of self)))))
 
 (def layered-method make-alternatives ((component standard-object-maker) (class standard-class) (prototype standard-object) value)
   (list (delay-alternative-component-with-initargs 'standard-object-detail-maker :the-class class)
@@ -33,14 +33,14 @@
   (:method ((component standard-object-maker) (class standard-class) (prototype standard-object))
     (command (icon create)
              (make-component-action component
-               (execute-create-instance (find-ancestor-recursion-point-component component) component (the-class-of component))))))
+               (execute-create-instance (find-ancestor-recursion-point component) component (the-class-of component))))))
 
 (def (layered-function e) execute-create-instance (ancestor component class)
-  (:method :around ((ancestor recursion-point-component) (component standard-object-maker) (class standard-class))
+  (:method :around ((ancestor recursion-point-mixin) (component standard-object-maker) (class standard-class))
     (with-interaction component
       (call-next-method)))
 
-  (:method ((ancestor recursion-point-component) (component standard-object-maker) (class standard-class))
+  (:method ((ancestor recursion-point-mixin) (component standard-object-maker) (class standard-class))
     (place-component-value-of component)))
 
 (def method place-component-value-of ((self standard-object-maker))
@@ -52,8 +52,7 @@
 
 (def component standard-object-detail-maker (standard-object-detail-component
                                              abstract-standard-class-component
-                                             maker-component
-                                             title-component-mixin)
+                                             maker-component)
   ((class-selector nil :type component))
   (:documentation "Maker for an instance of STANDARD-OBJECT in detail."))
 
@@ -65,7 +64,7 @@
     (list* class (subclasses class))))
 
 (def refresh standard-object-detail-maker
-  (bind (((:slots class class-selector the-class slot-value-groups) -self-)
+  (bind (((:slots class-selector the-class slot-value-groups) -self-)
          (selectable-classes (collect-standard-object-detail-maker-classes -self- the-class (class-prototype the-class))))
     (if (length= selectable-classes 1)
         (setf class-selector nil)
@@ -75,8 +74,7 @@
     (bind ((selected-class (if class-selector
                                (component-value-of class-selector)
                                (first selectable-classes))))
-      (setf class (make-standard-object-detail-maker-class -self- the-class (class-prototype the-class))
-            slot-value-groups (bind ((prototype (class-prototype selected-class))
+      (setf slot-value-groups (bind ((prototype (class-prototype selected-class))
                                      (slots (collect-standard-object-detail-maker-slots -self- selected-class prototype))
                                      (slot-groups (collect-standard-object-detail-slot-groups -self- selected-class prototype slots)))
                                 (iter (for (name . slot-group) :in slot-groups)
@@ -91,10 +89,6 @@
                                                                                   :slots slot-group
                                                                                   :name name)))
                                         (collect slot-value-group))))))))
-
-(def (layered-function e) make-standard-object-detail-maker-class (component class prototype)
-  (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
-    (localized-class-name class)))
 
 (def (layered-function e) collect-standard-object-detail-maker-slots (component class prototype)
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
@@ -184,10 +178,10 @@
     (collect-make-instance-initargs (value-of component)))
 
   (:method ((component place-maker))
-    (bind ((content-component (content-of component)))
-      (unless (typep content-component 'unbound-component)
+    (bind ((content (content-of component)))
+      (unless (typep content 'unbound-component)
         (bind ((slot (slot-of (parent-component-of component)))
-               (value (place-component-value-of content-component))
+               (value (place-component-value-of content))
                (initarg (first (slot-definition-initargs slot))))
           (list initarg value)))))
 

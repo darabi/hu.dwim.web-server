@@ -39,7 +39,7 @@
           (typeset:put-string " "))
         (render command)))
 
-(def render-pdf popup-command-menu-component ()
+(def render-pdf popup-menu-component ()
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
           (typeset:put-string " "))
@@ -89,24 +89,18 @@
   (typeset:row ()
     (bind ((table (parent-component-of -self-)))
       (foreach (lambda (cell column)
-                 (render-pdf-table-cell table -self- column cell))
+                 (render-table-cell table -self- column cell))
                (cells-of -self-)
                (columns-of table)))))
 
-(def (layered-function e) render-pdf-table-cell (table row column cell)
-  (:method :before ((table table-component) (row row-component) (column column-component) (cell cell-component))
-    (ensure-uptodate cell))
-
-  (:method ((table table-component) (row row-component) (column column-component) (cell component))
+(def layered-methods render-table-cell
+  (:method :in pdf-format ((table table-component) (row row-component) (column column-component) (cell component))
     (typeset:cell ()
       (render cell)))
 
-  (:method ((table table-component) (row row-component) (column column-component) (cell string))
+  (:method :in pdf-format ((table table-component) (row row-component) (column column-component) (cell string))
     (typeset:cell ()
-      (render cell)))
-  
-  (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
-    (render cell)))
+      (render cell))))
 
 (def render-pdf tree-component ()
   (bind ((columns (columns-of -self-)))
@@ -162,6 +156,11 @@
 
 (def (function e) render-pdf-dots (count)
   (typeset:put-string (make-array count :initial-element #\. :element-type 'character)))
+
+(def generic pdf-column-width (column)
+  (:method ((column column-component))
+    ;; TODO: KLUDGE: eh?!
+    100))
 
 (def function normalized-column-widths (columns)
   (bind ((column-widths (mapcar 'pdf-column-width columns))

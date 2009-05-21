@@ -12,17 +12,17 @@
                                           editable-component
                                           exportable-component
                                           alternator-component
-                                          initargs-component-mixin
-                                          layer-context-capturing-component-mixin
-                                          recursion-point-component)
+                                          initargs-mixin
+                                          layer-context-capturing-mixin
+                                          recursion-point-mixin)
   ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT in various alternative views."))
 
 (def (macro e) standard-object-inspector (instance)
   `(make-instance 'standard-object-inspector :instance ,instance))
 
-(def layered-method render-title ((self standard-object-inspector))
-  <span ,(call-next-method) ,(standard-object-inspector.title (localized-class-name (component-dispatch-class self)))>)
+(def layered-method make-title ((self standard-object-inspector))
+  (title (standard-object-inspector.title (localized-class-name (component-dispatch-class self)))))
 
 (def layered-methods make-alternatives
   (:method ((component standard-object-inspector) (class standard-class) (prototype standard-object) (instance standard-object))

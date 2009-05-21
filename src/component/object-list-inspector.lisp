@@ -13,9 +13,9 @@
                                                editable-component
                                                exportable-component
                                                alternator-component
-                                               initargs-component-mixin
-                                               layer-context-capturing-component-mixin
-                                               recursion-point-component)
+                                               initargs-mixin
+                                               layer-context-capturing-mixin
+                                               recursion-point-mixin)
   ()
   (:default-initargs :the-class (find-class 'standard-object))
   (:documentation "Inspector for a list of STANDARD-OBJECT instances in various alternative views."))
@@ -23,8 +23,8 @@
 (def (macro e) standard-object-list-inspector (instances &rest args)
   `(make-instance 'standard-object-list-inspector :instances ,instances ,@args))
 
-(def layered-method render-title ((self standard-object-list-inspector))
-  <span ,(call-next-method) ,(standard-object-list-inspector.title (localized-class-name (the-class-of self)))>)
+(def layered-method make-title ((self standard-object-list-inspector))
+  (title (standard-object-list-inspector.title (localized-class-name (the-class-of self)))))
 
 (def layered-method make-alternatives ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instances list))
   (list (delay-alternative-component-with-initargs 'standard-object-list-table-inspector :the-class class :instances instances)
@@ -161,8 +161,8 @@
                                               inspector-component
                                               editable-component
                                               row-component
-                                              user-message-collector-component-mixin
-                                              commands-component-mixin)
+                                              user-messages-mixin
+                                              commands-mixin)
   ())
 
 (def layered-method render-onclick-handler ((self standard-object-row-inspector))

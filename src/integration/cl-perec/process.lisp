@@ -125,7 +125,7 @@
 
 (def layered-method make-context-menu-commands ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (list (make-start-persistent-process-command component
-                                               (delay (execute-create-instance (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-component)
+                                               (delay (execute-create-instance (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-mixin)
                                                                                component (the-class-of component))))))
 
 (def layered-method make-context-menu-commands ((component standard-object-row-inspector) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))

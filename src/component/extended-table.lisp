@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Extended table
 
-(def component extended-table-component (remote-identity-component-mixin)
+(def component extended-table-component (remote-identity-mixin)
   ((row-headers nil :type components)
    (row-headers-depth :type integer)
    (row-leaf-count :type integer)
@@ -65,10 +65,9 @@
                                                                           (lambda (parent)
                                                                             (not (expanded-p parent)))))))
                                        <td (:class "header" :colspan ,(count-leaves header))
-                                           ,(if expanded
-                                                (render-expanded-command header))
-                                           ,(if expanded
-                                                (render header)) >))
+                                           ,(when expanded
+                                              (render-expanded-command header)
+                                              (render header))>))
                                level-headers)>))
              (render-row-header (row-path)
                (iter (for (header . rest) :on row-path)
@@ -107,7 +106,7 @@
 ;;;;;;
 ;;; Column header
 
-(def component table-header-component (content-component)
+(def component table-header-component (content-mixin remote-setup-mixin)
   ((children nil :type components)
    (index nil :type integer)))
 
@@ -117,9 +116,7 @@
                   :children (list ,@children)))
 
 (def render-xhtml table-header-component
-  (bind ((id (generate-frame-unique-string)))
-    <div (:id ,id) ,(call-next-method)>
-    `js(wui.setup-widget "table-header" ,id)))
+  <div (:id ,(id-of -self-)) ,(call-next-method)>)
 
 (def function count-leaves (headers)
   (reduce #'+ (ensure-list headers)

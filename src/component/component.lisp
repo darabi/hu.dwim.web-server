@@ -73,16 +73,9 @@
 (def render-ods string
   <text:p ,-self- >)
 
-(def (generic e) component-dispatch-class (component))
-
-(def (generic e) component-css-class (component)
+(def (generic e) component-dispatch-class (component)
   (:method ((component component))
-    (bind ((class (class-of component)))
-      (some (lambda (class)
-              (bind ((name (symbol-name (class-name class))))
-                (when (eql 0 (search "STANDARD-" name))
-                  (string-downcase name))))
-            (class-precedence-list class)))))
+    nil))
 
 (def (layered-function e) render-onclick-handler (component))
 
@@ -153,11 +146,10 @@
       (if (and *debug-component-hierarchy*
                ;; TODO: the <table><tr><td> has various constraints, so rows are not displayed in debug mode
                (not (typep self '(or frame-component row-component node-component))))
-          (bind ((class-name (string-downcase (symbol-name (class-name (class-of self)))))
-                 (*debug-component-hierarchy* (not (typep self 'command-component))))
+          (bind ((*debug-component-hierarchy* (not (typep self 'command-component))))
             <div (:class "debug-component")
               <div (:class "debug-component-name")
-                ,class-name
+                ,(instance-class-name-as-string self)
                 <span
                   <a (:href ,(register-action/href (make-copy-to-repl-action self))) "REPL">
                   " "

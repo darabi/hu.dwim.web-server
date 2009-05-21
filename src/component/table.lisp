@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Table
+;;; Constants
 
 (def (constant e :test 'string=) +table-cell-horizontal-align-css-class/right+ "_hra")
 (def (constant e :test 'string=) +table-cell-horizontal-align-css-class/center+ "_hca")
@@ -15,9 +15,12 @@
 
 (def (constant e :test 'string=) +table-cell-nowrap-css-class+ "_nw")
 
+;;;;;;
+;;; Table component
+
 (def special-variable *table*)
 
-(def component table-component (remote-identity-component-mixin)
+(def component table-component (remote-identity-mixin)
   ((columns nil :type components)
    (rows nil :type components)
    (page-navigation-bar (make-instance 'page-navigation-bar-component) :type component)))
@@ -30,16 +33,14 @@
   (bind (((:read-only-slots rows page-navigation-bar id) -self-))
     (setf (total-count-of page-navigation-bar) (length rows))
     <div <table (:id ,id :class "table")
-           <thead
-            <tr ,(render-table-columns -self-)>>
-           <tbody
-            ,(bind ((visible-rows (subseq rows
-                                          (position-of page-navigation-bar)
-                                          (min (length rows)
-                                               (+ (position-of page-navigation-bar)
-                                                  (page-size-of page-navigation-bar))))))
-                   (iter (for row :in-sequence visible-rows)
-                         (render row)))>>
+           <thead <tr ,(render-table-columns -self-)>>
+           <tbody ,(bind ((visible-rows (subseq rows
+                                                (position-of page-navigation-bar)
+                                                (min (length rows)
+                                                     (+ (position-of page-navigation-bar)
+                                                        (page-size-of page-navigation-bar))))))
+                         (iter (for row :in-sequence visible-rows)
+                               (render row)))>>
          ,(when (< (page-size-of page-navigation-bar) (total-count-of page-navigation-bar))
             (render page-navigation-bar))>))
 
@@ -58,31 +59,24 @@
     (foreach #'render (columns-of self))))
 
 ;;;;;;
-;;; Column
+;;; Column component
 
-(def component column-component (content-component)
+(def component column-component (content-mixin remote-setup-mixin)
   ((cell-factory nil :type (or null function))))
 
 (def (macro e) column (content &rest args)
   `(make-instance 'column-component :content ,content ,@args))
 
 (def render-xhtml column-component
-  (bind ((id (generate-frame-unique-string)))
-    <th <div (:id ,id) ,(call-next-method)>>
-    `js(wui.setup-widget "column" ,id)))
+  <th <div (:id ,(id-of -self-)) ,(call-next-method)>>)
 
 (def render-ods column-component
   <table:table-cell ,(call-next-method)>)
 
-(def generic pdf-column-width (column)
-  (:method ((column column-component))
-    ;; TODO: KLUDGE:
-    100))
-
 ;;;;;;
-;;; Row
+;;; Row component
 
-(def component row-component (remote-identity-component-mixin)
+(def component row-component (remote-identity-mixin)
   ((cells nil :type components)))
 
 (def render-xhtml row-component
@@ -95,7 +89,7 @@
 (def render-ods row-component
   <table:table-row ,(bind ((table (parent-component-of -self-)))
                           (foreach (lambda (cell column)
-                                     (render-ods-table-cell table -self- column cell))
+                                     (render-table-cell table -self- column cell))
                                    (cells-of -self-)
                                    (columns-of table)))>)
 
@@ -113,7 +107,7 @@
     (when (force (visible-p row))
       (call-next-method)))
 
-  (:method ((table table-component) (row row-component))
+  (:method :in xhtml-format ((table table-component) (row row-component))
     (bind (((:read-only-slots id) row)
            (table-id (id-of table))
            (onclick-handler? (render-onclick-handler row)))
@@ -134,9 +128,9 @@
             (render-table-cell table row column cell)))))
 
 ;;;;;;
-;;; Entire row
+;;; Entire row component
 
-(def component entire-row-component (remote-identity-component-mixin content-component)
+(def component entire-row-component (remote-identity-mixin content-mixin)
   ())
 
 (def layered-method render-table-row ((table table-component) (row entire-row-component))
@@ -159,9 +153,9 @@
   (render-entire-row *table* -self- #'call-next-method))
 
 ;;;;;;
-;;; Cell
+;;; Cell component
 
-(def component cell-component (content-component)
+(def component cell-component (content-mixin)
   ((column-span nil)
    (row-span nil)
    (word-wrap :type boolean :accessor word-wrap?)
@@ -202,24 +196,17 @@
   (:method :before ((table table-component) (row row-component) (column column-component) (cell cell-component))
     (ensure-uptodate cell))
 
-  (:method ((table table-component) (row row-component) (column column-component) (cell component))
+  (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
+    (render cell))
+
+  (:method :in xhtml-format ((table table-component) (row row-component) (column column-component) (cell component))
     <td ,(render cell)>)
 
-  (:method ((table table-component) (row row-component) (column column-component) (cell string))
+  (:method :in xhtml-format ((table table-component) (row row-component) (column column-component) (cell string))
     <td ,(render cell)>)
 
-  (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
-    (render cell)))
-
-(def (layered-function e) render-ods-table-cell (table row column cell)
-  (:method :before ((table table-component) (row row-component) (column column-component) (cell cell-component))
-    (ensure-uptodate cell))
-
-  (:method ((table table-component) (row row-component) (column column-component) (cell component))
+  (:method :in ods-format ((table table-component) (row row-component) (column column-component) (cell component))
     <table:table-cell ,(render cell)>)
 
-  (:method ((table table-component) (row row-component) (column column-component) (cell string))
-    <table:table-cell ,(render cell)>)
-
-  (:method ((table table-component) (row row-component) (column column-component) (cell cell-component))
-    (render cell)))
+  (:method :in ods-format ((table table-component) (row row-component) (column column-component) (cell string))
+    <table:table-cell ,(render cell)>))

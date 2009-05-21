@@ -7,7 +7,7 @@
 ;;;;;;;;
 ;;; List
 
-(def component list-component (style-component)
+(def component list-component (style-mixin)
   ((orientation :vertical :type (member :vertical :horizontal))
    (components nil :type components)))
 
@@ -67,25 +67,3 @@
 
 (def (macro e) vertical-list ((&rest args &key &allow-other-keys) &body components)
   `(make-instance 'vertical-list-component ,@args :components (remove nil (list ,@components))))
-
-
-;;;;;;
-;;; Centered versions
-
-(def component centered-horizontal-list-component (center-tag-wrapper-mixin horizontal-list-component)
-  ())
-
-(def (function e) make-centered-horizontal-list-component (&rest components)
-  (make-instance 'centered-horizontal-list-component :components components))
-
-(def (macro e) centered-horizontal-list ((&rest args &key &allow-other-keys) &body components)
-  `(make-instance 'centered-horizontal-list-component ,@args :components (remove nil (list ,@components))))
-
-(def component centered-vertical-list-component (center-tag-wrapper-mixin vertical-list-component)
-  ())
-
-(def (function e) make-centered-vertical-list-component (&rest components)
-  (make-instance 'centered-vertical-list-component :components components))
-
-(def (macro e) centered-vertical-list ((&rest args &key &allow-other-keys) &body components)
-  `(make-instance 'centered-vertical-list-component ,@args :components (remove nil (list ,@components))))

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Tab container component
 
-(def component tab-container-component (content-component)
+(def component tab-container-component (content-mixin)
   ((pages nil) ;; NOTE: this should not be a component slot, because components are switched from here to the content
    (command-bar nil :type component)))
 
@@ -30,7 +30,10 @@
       (setf content (first pages)))))
 
 (def function make-switch-to-tab-page-command (tab-container tab-page)
-  (make-replace-command (delay (content-of tab-container)) tab-page :content (header-of tab-page)))
+  (make-replace-command (delay (content-of tab-container))
+                        tab-page
+                        :content (header-of tab-page)
+                        :ajax (ajax-id tab-container)))
 
 (def icon swith-to-page)
 (def resources hu
@@ -43,7 +46,7 @@
 ;;;;;;
 ;;; Tab page
 
-(def component tab-page-component (content-component)
+(def component tab-page-component (content-mixin)
   ((header nil :type component)))
 
 (def (macro e) tab-page (header &body forms)

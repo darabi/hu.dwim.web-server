@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Place component
 
-(def component place-component (content-component)
+(def component place-component (content-mixin)
   ((command-bar nil :type component)))
 
 (def generic place-component-value-of (component)

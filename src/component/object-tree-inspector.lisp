@@ -12,8 +12,8 @@
                                                alternator-component
                                                editable-component
                                                exportable-component
-                                               initargs-component-mixin
-                                               recursion-point-component)
+                                               initargs-mixin
+                                               recursion-point-mixin)
   ()
   (:default-initargs :the-class (find-class 'standard-object))
   (:documentation "Component for a tree of STANDARD-OBJECTs in various alternative views."))
@@ -21,8 +21,8 @@
 (def (macro e) standard-object-tree-inspector (root children-provider parent-provider &rest args)
   `(make-instance 'standard-object-tree-inspector :instance ,root :children-provider ,children-provider :parent-provider ,parent-provider ,@args))
 
-(def layered-method render-title ((self standard-object-tree-inspector))
-  <span ,(call-next-method) ,(standard-object-tree-inspector.title (localized-class-name (the-class-of self)))>)
+(def layered-method make-title ((self standard-object-tree-inspector))
+  (title (standard-object-tree-inspector.title (localized-class-name (the-class-of self)))))
 
 (def layered-method make-alternatives ((component standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
   (list (delay-alternative-component-with-initargs 'standard-object-tree-table-inspector
@@ -49,9 +49,7 @@
                                                      inspector-component
                                                      tree-component
                                                      editable-component
-                                                     detail-component
-                                                     title-component-mixin
-                                                     user-message-collector-component-mixin)
+                                                     detail-component)
   ()
   (:default-initargs :expander-column-index 1))
 
@@ -134,8 +132,8 @@
                                                     inspector-component
                                                     node-component
                                                     editable-component
-                                                    user-message-collector-component-mixin
-                                                    commands-component-mixin)
+                                                    user-messages-mixin
+                                                    commands-mixin)
   ())
 
 (def refresh standard-object-tree-node-inspector
@@ -322,8 +320,8 @@
   (awhen (content-of self)
     (selected-instance-of it)))
 
-(def layered-method render-title ((self selectable-standard-object-tree-inspector))
-  <span ,(call-next-method) ,(selectable-standard-object-tree-inspector.title (localized-class-name (the-class-of self)))>)
+(def layered-method make-title ((self selectable-standard-object-tree-inspector))
+  (title (selectable-standard-object-tree-inspector.title (localized-class-name (the-class-of self)))))
 
 (def layered-method make-alternatives ((component selectable-standard-object-tree-inspector) (class standard-class) (prototype standard-object) (instances list))
   (list* (delay-alternative-component-with-initargs 'selectable-standard-object-tree-table-inspector

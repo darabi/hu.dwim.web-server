@@ -13,15 +13,12 @@
          " feature of your browser. To achieve the same effect, you can use the navigation actions provided by the application.">
       <p <a (:href ,refresh-href) "Bring me back to the application">>
       <p <a (:href ,new-frame-href) "Reset my view of the application">>>)
-  (render-application-internal-error-page (back-command &key admin-email-address &allow-other-keys)
+  (render-application-internal-error-page (&key admin-email-address &allow-other-keys)
     <div
-      <p "An internal server error has occured, we are sorry for the inconvenience.">
       <p "The developers will be notified about this error and they will hopefully fix it soon.">
       ,(when admin-email-address
          <p "You may contact the administrators at this email address: "
-             <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>>)
-      <p ,(render back-command)>>)
-
+             <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>>)>)
   (error.internal-server-error.title "Internal server error")
+  (error.internal-server-error.message "An internal server error has occured, we are sorry for the inconvenience.")
   )
-

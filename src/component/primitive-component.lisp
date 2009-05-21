@@ -22,10 +22,9 @@
 ;;;;;;
 ;;; Primitive component
 
-(def component primitive-component ()
-  ((name nil)
+(def component primitive-component (value-mixin)
+  ((name nil :type (or null symbol))
    (the-type nil)
-   (component-value)
    (client-state-sink nil)))
 
 (def render-csv primitive-component

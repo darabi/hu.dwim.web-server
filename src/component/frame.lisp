@@ -7,7 +7,9 @@
 ;;;;;;
 ;;; Frame
 
-(def component frame-component (top-component layer-context-capturing-component-mixin)
+(def component frame-component (top-mixin
+                                content-mixin
+                                layer-context-capturing-mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
    (script-uris nil)

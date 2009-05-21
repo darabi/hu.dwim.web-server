@@ -319,8 +319,12 @@ table.frame-size-breakdown > tbody > tr > td.delta
 .icon {
   width: 20px;
   height: 20px;
+  line-height: 20px;
+  padding-left: 24px;
   padding-top: 3px;
-  padding-left: 20px;
+  padding-bottom: 3px;
+  background-repeat: no-repeat;
+  background-position: left center;
 }
 
 .login-icon {

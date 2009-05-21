@@ -13,7 +13,7 @@
 ;;;;;;
 ;;; Menu
 
-(def component menu-component (abstract-menu-item-component style-component-mixin)
+(def component menu-component (abstract-menu-item-component style-mixin)
   ((target-place nil :type place :export :accessor)
    (icon nil :type component)))
 
@@ -48,7 +48,7 @@
 ;;;;;;
 ;;; Menu item
 
-(def component menu-item-component (abstract-menu-item-component style-component-mixin)
+(def component menu-item-component (abstract-menu-item-component style-mixin)
   ((command nil :type component)))
 
 (def (function e) make-menu-item-component (command menu-items &key id css-class style)

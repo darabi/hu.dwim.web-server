@@ -10,17 +10,22 @@
 (def component standard-object-filter (abstract-standard-class-component
                                        filter-component
                                        alternator-component
-                                       initargs-component-mixin
-                                       layer-context-capturing-component-mixin)
+                                       initargs-mixin
+                                       layer-context-capturing-mixin)
   ((result (empty) :type component)
    (result-component-factory #'make-standard-object-filter-result-inspector :type function))
   (:documentation "Filter for instances of STANDARD-OBJECT in various alternative views."))
 
+;; TODO: is this really what we want?
+(def render standard-object-filter
+  <div ,(call-next-method)
+       ,(render (result-of -self-))>)
+
 (def (macro e) standard-object-filter (the-class)
   `(make-instance 'standard-object-filter :the-class ,the-class))
 
-(def layered-method render-title ((self standard-object-filter))
-  <span ,(call-next-method) ,(standard-object-filter.title (localized-class-name (the-class-of self)))>)
+(def layered-method make-title ((self standard-object-filter))
+  (title (standard-object-filter.title (localized-class-name (the-class-of self)))))
 
 (def layered-method make-alternatives ((component standard-object-filter) (class standard-class) (prototype standard-object) value)
   (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
@@ -49,7 +54,7 @@
     (list* class (subclasses class))))
 
 (def refresh standard-object-detail-filter
-  (bind (((:slots class class-selector ordering-specifier the-class slot-value-groups command-bar) -self-)
+  (bind (((:slots class-selector ordering-specifier the-class slot-value-groups command-bar) -self-)
          (selectable-classes (collect-standard-object-detail-filter-classes -self- the-class (class-prototype the-class))))
     (if (length= selectable-classes 1)
         (setf class-selector nil)
@@ -62,7 +67,6 @@
            (prototype (class-prototype selected-class))
            (slots (collect-standard-object-detail-filter-slots -self- selected-class prototype)))
       (setf ordering-specifier (when slots (make-slot-selector slots))
-            class (make-standard-object-detail-filter-class -self- the-class (class-prototype the-class))
             slot-value-groups (bind ((slot-groups (collect-standard-object-detail-slot-groups -self- selected-class prototype slots)))
                                 (iter (for (name . slot-group) :in slot-groups)
                                       (when slot-group
@@ -76,10 +80,6 @@
                                                                                   :the-class selected-class
                                                                                   :name name)))
                                         (collect slot-value-group))))))))
-
-(def (layered-function e) make-standard-object-detail-filter-class (component class prototype)
-  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
-    (localized-class-name class :capitalize-first-letter #t)))
 
 (def (layered-function e) collect-standard-object-detail-filter-slots (component class prototype)
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))

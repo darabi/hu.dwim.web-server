@@ -23,19 +23,19 @@
 ;;;;;;
 ;;; internal server error for applications
 
-;; TODO use a foo-bar-common-titled-usermessage-component instead and delme
-(def component internal-error-message-component (title-component-mixin
-                                                 user-message-collector-component-mixin)
-  ()
-  (:default-initargs :title #"error.internal-server-error.title"))
+(def component internal-error-message-component (content-component)
+  ((rendering-phase-reached :type boolean))
+  (:default-initargs :title #"error.internal-server-error.title" :id "internal-error"))
 
-(def render internal-error-message-component
-  <div (:id "internal-error")
-    ,(render-title -self-)
-    ,(render-user-messages -self-)
-    `js(wui.setup-widget "internal-error" "internal-error")>)
+(def layered-method make-command-bar-commands ((self internal-error-message-component) class prototype value)
+  (list* (make-instance 'command-component
+                        :content (icon back)
+                        :action (if (rendering-phase-reached-p self)
+                                    (make-uri-for-new-frame)
+                                    (make-uri-for-current-frame)))
+         (call-next-method)))
 
-(defmethod handle-toplevel-condition ((error serious-condition) (application application))
+(def method handle-toplevel-condition ((error serious-condition) (application application))
   (when (and (not *inside-user-code*)
              *session*)
     ;; oops, this error comes from inside WUI or at least not from an action or from render. let's try to invalidate the session if there's any...
@@ -57,15 +57,12 @@
                   (make-frame-component-with-content
                    application
                    (aprog1
-                       (make-instance 'internal-error-message-component)
-                     (add-user-error it (inline-component
-                                            (apply-resource-function 'render-application-internal-error-page
-                                                                     (list (make-instance 'command-component
-                                                                                          :content (icon back)
-                                                                                          :action (if rendering-phase-reached
-                                                                                                      (make-uri-for-new-frame)
-                                                                                                      (make-uri-for-current-frame)))
-                                                                           :admin-email-address (admin-email-address-of application))))))))))
+                       (make-instance 'internal-error-message-component
+                                      :rendering-phase-reached rendering-phase-reached
+                                      :content (inline-component
+                                                 (apply-resource-function 'render-application-internal-error-page
+                                                                          (list :admin-email-address (admin-email-address-of application)))))
+                     (add-user-error it #"error.internal-server-error.message"))))))
               (server.info "Internal server error for request ~S to application ~A and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri application)))
         (abort-server-request error))
       (call-next-method)))

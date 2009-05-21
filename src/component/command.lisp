@@ -13,7 +13,7 @@
 ;;;;;;
 ;;; Command component
 
-(def component command-component (content-component)
+(def component command-component (content-mixin)
   ((enabled #t :type boolean)
    ;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
@@ -94,7 +94,7 @@
         <span (:id ,id :class "command" :name ,name) ,(render content)>
         `js(on-load
             (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
-            (wui.setup-widget "command" ,id))
+            (wui.setup-component "command-component" ,id))
         ;; TODO: use dojo.connect for keyboard events
         (when default
           (bind ((submit-id (generate-response-unique-string)))
@@ -184,9 +184,7 @@
 ;;;;;
 ;;; Popup command menu
 
-(def component popup-command-menu-component (content-component
-                                             style-component-mixin
-                                             remote-identity-component-mixin)
+(def component popup-menu-component (content-mixin style-mixin remote-identity-mixin)
   ((target nil)
    (commands nil :type components)))
 
@@ -196,9 +194,9 @@
 (def resources en
   (icon-tooltip.show-context-menu "Show context menu"))
 
-(def render-xhtml popup-command-menu-component
+(def render-xhtml popup-menu-component
   (bind (((:read-only-slots target commands id css-class style) -self-)
-         (menu-id (generate-frame-unique-string)))
+         (menu-id (generate-response-unique-string)))
     (when commands
       <span (:id ,id :class ,css-class :style ,style)
           ,(call-next-method)
@@ -219,34 +217,29 @@
                             ,(render-icon :icon (content-of command) :class nil)>
                           (render-command-onclick-handler command command-id))))>)>
       `js(on-load
-          (wui.setup-widget "menu" ,menu-id)))))
+          (wui.setup-component "popup-menu-component" ,menu-id)))))
 
-(def render-csv popup-command-menu-component
+(def render-csv popup-menu-component
   (render-csv-separated-elements #\Space (commands-of -self-)))
 
 ;;;;;;
-;;; Commands component mixin
+;;; Context menu mixin
 
-(def component commands-component-mixin ()
-  ((context-menu :type component)
-   (command-bar :type component)))
+(def component context-menu-mixin ()
+  ((context-menu :type component))
+  (:documentation "A component with a context menu"))
 
-(def refresh commands-component-mixin
-  (bind (((:slots context-menu command-bar) -self-)
-         (class (component-dispatch-class -self-)))
-    (setf context-menu (make-context-menu -self- class (class-prototype class) (component-value-of -self-))
-          command-bar (make-command-bar -self- class (class-prototype class) (component-value-of -self-)))))
+(def refresh context-menu-mixin
+  (bind ((class (component-dispatch-class -self-))
+         (prototype (when class (class-prototype class))))
+    (setf (context-menu-of -self-) (make-context-menu -self- class prototype (component-value-of -self-)))))
 
-(def layered-function make-context-menu (component class prototype value)
-  (:method ((component commands-component-mixin) class prototype value)
-    (make-instance 'popup-command-menu-component
+(def (layered-function e) make-context-menu (component class prototype value)
+  (:method ((component context-menu-mixin) class prototype value)
+    (make-instance 'popup-menu-component
                    :target component
                    :content (icon show-context-menu)
                    :commands (make-context-menu-commands component class prototype value))))
-
-(def layered-function make-command-bar (component class prototype value)
-  (:method ((component commands-component-mixin) class prototype value)
-    (make-instance 'command-bar-component :commands (make-command-bar-commands component class prototype value))))
 
 (def (layered-function e) make-context-menu-commands (component class prototype value)
   (:method ((component component) class prototype value)
@@ -261,6 +254,22 @@
   (:method ((component inspector-component) (class built-in-class) (prototype null) value)
     nil))
 
+;;;;;;
+;;; Command bar mixin
+
+(def component command-bar-mixin ()
+  ((command-bar :type component))
+  (:documentation "A component with a command bar"))
+
+(def refresh command-bar-mixin
+  (bind ((class (component-dispatch-class -self-))
+         (prototype (when class (class-prototype class))))
+    (setf (command-bar-of -self-) (make-command-bar -self- class prototype (component-value-of -self-)))))
+
+(def (layered-function e) make-command-bar (component class prototype value)
+  (:method ((component command-bar-mixin) class prototype value)
+    (make-instance 'command-bar-component :commands (make-command-bar-commands component class prototype value))))
+
 (def (layered-function e) make-command-bar-commands (component class prototype value)
   (:method ((component component) class prototype value)
     nil)
@@ -271,14 +280,18 @@
   (:method ((component inspector-component) (class built-in-class) (prototype null) value)
     nil))
 
-(def layered-method render-title ((self commands-component-mixin))
-  <span ,(render (context-menu-of self)) ,(call-next-method)>)
+;;;;;;
+;;; Commands mixin
 
-(def (function e) find-command (component name)
-  (bind (((:slots context-menu command-bar) component)
-         (key [name-of (content-of !1)]))
-    (or (find name (commands-of command-bar) :key key)
-        (find name (commands-of context-menu) :key key))))
+(def component commands-mixin (context-menu-mixin command-bar-mixin)
+  ())
+
+(def (layered-function e) find-command (component name)
+  (:method ((self commands-mixin) name)
+    (bind (((:slots context-menu command-bar) self)
+           (key [name-of (content-of !1)]))
+      (or (find name (commands-of command-bar) :key key)
+          (find name (commands-of context-menu) :key key)))))
 
 ;;;;;;
 ;;; Navigation bar component
@@ -348,7 +361,7 @@
 ;;; Generic commands
 
 (def function ajax-id (component)
-  (if (typep component 'remote-identity-component-mixin)
+  (if (typep component 'remote-identity-mixin)
       (delay (id-of component))
       #t))
 
@@ -406,13 +419,6 @@
                                                                   (eq (force replacement-component) (component-at-place original-place)))))))))
         (push-command back-command replacement-component)
         (setf (component-at-place original-place) replacement-component)))))
-
-(def (function e) find-top-component-content (component)
-  (awhen (find-ancestor-component-with-type component 'top-component)
-    (content-of it)))
-
-(def (function e) top-component-p (component)
-  (eq component (find-top-component-content component)))
 
 (def (layered-function e) make-focus-command (component classs prototype value)
   (:documentation "The FOCUS command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT")

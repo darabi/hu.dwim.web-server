@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Reference
 
-(def component reference-component (remote-identity-component-mixin)
+(def component reference-component (remote-identity-mixin)
   ((target)
    (expand-command :type component)))
 

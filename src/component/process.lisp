@@ -10,9 +10,9 @@
 ;; TODO: try to kill this variable, if possible?!
 (def (special-variable e) *standard-process-component*)
 
-(def component standard-process-component (content-component
-                                           user-message-collector-component-mixin
-                                           commands-component-mixin)
+(def component standard-process-component (content-mixin
+                                           user-messages-mixin
+                                           commands-mixin)
   ((form)
    (closure/cc nil)
    (answer-continuation nil)))

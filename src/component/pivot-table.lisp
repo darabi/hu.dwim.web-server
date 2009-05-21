@@ -5,9 +5,21 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Pivot table extended table
+
+(def component pivot-sheet-table-component (extended-table-component)
+  ())
+
+(def function pivot-sheet-table-cell? (component)
+  (typep (parent-component-of component) 'pivot-sheet-table-component))
+
+;;;;;;
 ;;; Pivot table
 
-(def component pivot-table-component (content-component)
+(def layer pivot-table-layer ()
+  ())
+
+(def component pivot-table-component (content-mixin)
   ((sheet-axes nil :type (polimorph-list pivot-table-axis-component))
    (row-axes nil :type (polimorph-list pivot-table-axis-component))
    (column-axes nil :type (polimorph-list pivot-table-axis-component))
@@ -15,21 +27,22 @@
 
 (def method refresh-component :before ((self pivot-table-component))
   (bind (((:slots sheet-axes row-axes row-headers column-axes column-headers cell-axes header-cell instances content) self))
-    (labels ((make-content (axes sheet-path)
-               (if axes
-                   (bind ((axis (first axes))
-                          (categories (categories-of (ensure-uptodate axis))))
-                     (if categories
-                         (make-instance 'tab-container-component
-                                        :pages (mapcar [make-instance 'tab-page-component
-                                                                      :header !1
-                                                                      :content (make-content (rest axes) (cons !1 sheet-path))]
-                                                       categories))
-                         (make-pivot-table-extended-table-component self sheet-path)))
-                   (make-pivot-table-extended-table-component self sheet-path))))
-      (setf content (make-content sheet-axes nil)))))
+    (with-active-layers (pivot-table-layer)
+      (labels ((make-content (axes sheet-path)
+                 (if axes
+                     (bind ((axis (first axes))
+                            (categories (categories-of (ensure-uptodate axis))))
+                       (if categories
+                           (make-instance 'tab-container-component
+                                          :pages (mapcar [make-instance 'tab-page-component
+                                                                        :header !1
+                                                                        :content (make-content (rest axes) (cons !1 sheet-path))]
+                                                         categories))
+                           (make-pivot-sheet-table-component self sheet-path)))
+                     (make-pivot-sheet-table-component self sheet-path))))
+        (setf content (make-content sheet-axes nil))))))
 
-(def generic make-pivot-table-extended-table-component (component sheet-path)
+(def generic make-pivot-sheet-table-component (component sheet-path)
   (:method ((self pivot-table-component) sheet-path)
     (bind (((:slots row-axes column-axes) self))
       (labels ((make-axes-headers (axes &optional path)
@@ -48,10 +61,14 @@
                                                                 (cons category path)))
                                                        instances)))
                              (categories-of axis))))))
-        (make-instance 'extended-table-component
+        (make-instance 'pivot-sheet-table-component
                        :row-headers (make-axes-headers row-axes)
                        :column-headers (make-axes-headers column-axes)
                        :header-cell (make-viewer self :initial-alternative-type 'reference-component))))))
+
+(def layered-method make-title :in pivot-table-layer :around ((self component))
+  (unless (pivot-sheet-table-cell? self)
+    (call-next-method)))
 
 (def method make-reference-label ((reference reference-component) (class component-class) (component pivot-table-component))
   (localized-class-name class :capitalize-first-letter #t))
@@ -61,6 +78,10 @@
 
 (def layered-method make-context-menu-commands ((component standard-object-inspector) (class component-class) (prototype pivot-table-component) (instance pivot-table-component))
   nil)
+
+(def layered-method make-command-bar-commands :in pivot-table-layer :around ((self component) class prototype value)
+  (unless (pivot-sheet-table-cell? self)
+    (call-next-method)))
 
 (def icon move-to-sheet-axes)
 (def resources hu
@@ -147,7 +168,7 @@
 ;;;;;
 ;;; Pivot table category component
 
-(def component pivot-table-category-component (content-component)
+(def component pivot-table-category-component (content-mixin)
   ())
 
 ;;;;;;

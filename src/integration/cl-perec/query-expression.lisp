@@ -51,9 +51,9 @@
 ;;; Generic filter
 
 (def component generic-filter (filter-component
-                               title-component-mixin
-                               user-message-collector-component-mixin
-                               remote-identity-component-mixin)
+                               title-mixin
+                               user-messages-mixin
+                               remote-identity-mixin)
   ((expression (make-instance 'select-expression-component) :type component)
    (command-bar :type component)
    (result (make-instance 'empty-component) :type component)))
@@ -70,7 +70,7 @@
          ,(render expression)
          ,(render command-bar)
          ,(render result)>
-    `js(wui.setup-widget "generic-filter" ,id)))
+    `js(wui.setup-component "generic-filter" ,id)))
 
 (def function make-execute-filter-command (component)
   (make-replace-and-push-back-command (delay (result-of component))
