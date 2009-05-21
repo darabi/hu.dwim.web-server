@@ -26,8 +26,8 @@
 (def (special-variable e) *default-frame-timeout* *default-session-timeout*
   "The default for the same slot in applications.")
 
-(def (special-variable e) *default-ajax-enabled* #f
-  "The default for the same slot in applications")
+(def (special-variable e) *default-ajax-enabled* #t
+  "The default for the same slot in applications.")
 
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
