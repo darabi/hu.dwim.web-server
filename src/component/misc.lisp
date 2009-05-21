@@ -207,7 +207,7 @@
 ;; OPTIMIZATION: this could collect the essential data in a special variable and at the end of rendering emit a literal js array with all the tooltips
 (def (function e) render-tooltip (connect-id tooltip &key position)
   ":position might be '(\"below\" \"right\")"
-  (check-type tooltip (or string action function))
+  (check-type tooltip (or string uri action function))
   (check-type connect-id string)
   (etypecase tooltip
     (string

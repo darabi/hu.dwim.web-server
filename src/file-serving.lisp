@@ -61,7 +61,7 @@
            (bind ((uri (clone-request-uri)))
              (make-redirect-response (append-path-to-uri uri "/")))))
       ((and (not *disable-response-compression*)
-            (accpets-encoding? +content-encoding/deflate+)
+            (accepts-encoding? +content-encoding/deflate+)
             (compress-file-before-serving? truename))
        (bind ((compressed-file (merge-pathnames relative-path (merge-pathnames ".wui-cache/" root-directory))))
          (ensure-directories-exist compressed-file)

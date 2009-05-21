@@ -401,7 +401,7 @@
   (serve-sequence (body-of response)
                   :content-encoding (when (and (not *disable-response-compression*)
                                                (not (header-value response +header/content-encoding+))
-                                               (accpets-encoding? +content-encoding/deflate+))
+                                               (accepts-encoding? +content-encoding/deflate+))
                                       +content-encoding/deflate+)
                   :headers (headers-of response)
                   :cookies (cookies-of response)

@@ -27,7 +27,7 @@
             (setf (car entry) (convert-to-canonical-locale-name (car entry)))))
     result))
 
-(def (function d) parse-accept-header-value (header-value)
+(def (function o) parse-accept-header-value (header-value)
   (check-type header-value string)
   (http.dribble "Parsing Accept header ~S" header-value)
   (bind ((*print-pretty* #f)
@@ -90,7 +90,7 @@
                  (sort entries #'> :key #'cdr))))
       (parse-key))))
 
-(def function accpets-encoding? (encoding-name)
+(def function accepts-encoding? (encoding-name)
   (bind ((accept-encodings (awhen (header-value *request* +header/accept-encoding+)
                              (parse-accept-header-value it))))
     (assoc encoding-name accept-encodings :test #'string=)))
