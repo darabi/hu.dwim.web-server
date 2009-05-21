@@ -58,10 +58,13 @@
              (result (list)))
         (do-cookies (candidate request)
           (when (and (string= cookie-name (rfc2109:cookie-name candidate))
-                     (or (null accepted-domains)
-                         (some (lambda (domain)
-                                 (ends-with-subseq domain (rfc2109:cookie-domain candidate)))
-                               accepted-domains)))
+                     (bind ((candidate-domain (rfc2109:cookie-domain candidate)))
+                       ;; normally request cookies should not have a domain parameter, but...
+                       (or (null accepted-domains)
+                           (null candidate-domain)
+                           (some (lambda (accepted-domain)
+                                   (ends-with-subseq accepted-domain candidate-domain))
+                                 accepted-domains))))
             (push candidate result)))
         (nreverse result))
       (handle-otherwise otherwise)))
@@ -73,6 +76,9 @@
 (def (function e) request-cookie-value (request cookie &key domain otherwise)
   "Return the uri-unescaped cookie value from REQUEST or OTHERWISE if not found."
   (aif (find-request-cookies request cookie :accepted-domains (ensure-list domain))
+       ;; we take the first because cookies are in such an order that the one with the most specific path is at the head of the list
+       ;; (this ordering does NOT apply to domains, and ff sends them in random order if the only difference is the domain! baaaaah... see comments at: http://www.nczonline.net/blog/2009/05/05/http-cookies-explained/ because of this the session id cookie of foo.com and dev.foo.com cannot be separated using a shared web server process)
+       ;; normally we want the most specific one to be returned, otherwise use the more generic FIND-REQUEST-COOKIES call
        (unescape-as-uri (rfc2109:cookie-value (first it)))
        (handle-otherwise otherwise)))
 
