@@ -209,7 +209,13 @@
                       (prin1 initarg)
                       (write-char #\Space)
                       (pprint-newline :fill)
-                      (prin1 value))))))))
+                      (if (and (stringp value)
+                               (> (length value) *print-length*))
+                          (progn
+                            (prin1 (subseq value 0 *print-length*))
+                            (bind ((*print-circle* #f))
+                              (princ "...>")))
+                          (princ value)))))))))
   self)
 
 ;;;;;;
