@@ -298,7 +298,7 @@
                                                                  (eq initform :unbound)
                                                                  (typep initform type))
                                                          (list
-                                                          (label (format nil "type: ~A, initform: ~A " type initform))
+                                                          (label () (format nil "type: ~A, initform: ~A " type initform))
                                                           (apply #'make-maker type (unless (eq initform :unbound)
                                                                                      (list :initform initform))))))
                                                      types (append initforms values))))))
@@ -324,7 +324,7 @@
                                (make-primitive-menu-item-content
                                 (map-product (lambda (type)
                                                (list
-                                                (label (format nil "type: ~A " type))
+                                                (label () (format nil "type: ~A " type))
                                                 (make-place-filter type)))
                                              types)))))))
     (menu "Primitive"

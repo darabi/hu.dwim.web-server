@@ -87,12 +87,11 @@
     (start-test-server-with-brokers (make-file-serving-broker "/wui/" (project-relative-pathname ""))
                                     :maximum-worker-count maximum-worker-count)))
 
-(def (function o) functional-response-broker (request)
-  (make-functional-response ()
-    (emit-simple-html-document-http-response (:title "foo")
-      <p "bar">)))
-
-(defun start-functional-response-server (&key (maximum-worker-count 16) (log-level +dribble+))
+(defun start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
   (with-logger-level wui log-level
-    (start-test-server-with-brokers 'functional-response-broker
+    (start-test-server-with-brokers (make-functional-broker
+                                      (with-request-params (name)
+                                        (make-functional-html-response ()
+                                          (with-html-document (:title "foo")
+                                            <h1 ,name>))))
                                     :maximum-worker-count maximum-worker-count)))

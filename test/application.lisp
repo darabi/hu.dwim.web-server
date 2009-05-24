@@ -5,6 +5,12 @@
 
 (def special-variable *test-application* (make-application :path-prefix "/test/"))
 
+(def entry-point (*test-application* :path "performance" :with-session-logic nil)
+    (name)
+  (make-functional-html-response ()
+    (with-html-document ()
+      <h1 ,name>)))
+
 (def function render-mime-part-details (mime-part)
   <p "Mime part headers:">
   <table
