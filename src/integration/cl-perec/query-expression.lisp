@@ -70,7 +70,7 @@
          ,(render expression)
          ,(render command-bar)
          ,(render result)>
-    `js(wui.setup-component "generic-filter" ,id)))
+    `js(wui.setup-component ,id "generic-filter")))
 
 (def function make-execute-filter-command (component)
   (make-replace-and-push-back-command (delay (result-of component))

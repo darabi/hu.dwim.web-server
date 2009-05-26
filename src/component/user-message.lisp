@@ -88,4 +88,4 @@
          ,(render message)
          ,(when content
             (call-next-method))>
-    `js(wui.setup-component "user-message-component" ,id (create :css-class ,(concatenate-string (string-downcase category) "-message")))))
+    `js(wui.setup-component ,id "user-message-component" (create :css-class ,(concatenate-string (string-downcase category) "-message")))))

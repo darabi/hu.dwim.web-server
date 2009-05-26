@@ -18,7 +18,7 @@
 
 (def (layered-function e) render-remote-setup (component)
   (:method :in xhtml-format ((component remote-identity-mixin))
-    `js(on-load (wui.setup-component ,(instance-class-name-as-string component) ,(id-of component)))))
+    `js(on-load (wui.setup-component ,(id-of component) ,(instance-class-name-as-string component)))))
 
 (def function collect-covering-remote-identity-components-for-dirty-descendant-components (component)
   ;; KLUDGE: find top-component and go down from there to avoid

@@ -94,7 +94,7 @@
         <span (:id ,id :class "command" :name ,name) ,(render content)>
         `js(on-load
             (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
-            (wui.setup-component "command-component" ,id))
+            (wui.setup-component ,id "command-component"))
         ;; TODO: use dojo.connect for keyboard events
         (when default
           (bind ((submit-id (generate-response-unique-string)))
@@ -217,7 +217,7 @@
                             ,(render-icon :icon (content-of command) :class nil)>
                           (render-command-onclick-handler command command-id))))>)>
       `js(on-load
-          (wui.setup-component "popup-menu-component" ,menu-id)))))
+          (wui.setup-component ,menu-id "popup-menu-component")))))
 
 (def render-csv popup-menu-component
   (render-csv-separated-elements #\Space (commands-of -self-)))
