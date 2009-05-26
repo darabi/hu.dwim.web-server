@@ -49,7 +49,8 @@
 ;;; Title context menu mixin
 
 (def component title-context-menu-mixin (title-mixin context-menu-mixin)
-  ())
+  ()
+  (:documentation "A component with a context menu displayed along its title component."))
 
 (def layered-method render-title-icon ((self title-context-menu-mixin))
   (render (context-menu-of self)))

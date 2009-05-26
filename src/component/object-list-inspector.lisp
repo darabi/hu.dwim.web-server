@@ -31,7 +31,7 @@
         (delay-alternative-component-with-initargs 'standard-object-list-list-inspector :the-class class :instances instances)
         (delay-alternative-reference-component 'standard-object-list-inspector-reference instances)))
 
-(def layered-method make-context-menu-commands ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
+(def layered-method make-context-menu-items ((component standard-object-list-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   (append (optional-list (make-begin-editing-new-instance-command component class instance)) (call-next-method)))
 
 (def (layered-function e) make-begin-editing-new-instance-command (component class instance)
@@ -185,7 +185,7 @@
                          (render-user-messages row))))
   (call-next-method))
 
-(def layered-method make-context-menu-commands ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
+(def layered-method make-context-menu-items ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   (append (optional-list (make-expand-command component class prototype instance)) (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
@@ -253,7 +253,7 @@
                       (when (selected-instance-p table (instance-of row))
                         " selected")))
 
-(def layered-method make-context-menu-commands ((component selectable-standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
+(def layered-method make-context-menu-items ((component selectable-standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   (append (call-next-method) (optional-list (make-select-instance-command component class prototype instance))))
 
 (def layered-method render-onclick-handler ((self selectable-standard-object-row-inspector))

@@ -175,7 +175,7 @@
   (when-bind expand-command (find-command self 'expand)
     (render-command-onclick-handler expand-command (id-of self))))
 
-(def layered-method make-context-menu-commands ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object) (prototype standard-object))
+(def layered-method make-context-menu-items ((component standard-object-tree-node-inspector) (class standard-class) (instance standard-object) (prototype standard-object))
   (append (optional-list (make-expand-command component class prototype instance)) (call-next-method)))
 
 (def layered-method make-move-commands ((component standard-object-tree-node-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
@@ -367,7 +367,7 @@
                       (when (selected-component-p self)
                         " selected")))
 
-(def layered-method make-context-menu-commands ((component selectable-standard-object-tree-node-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
+(def layered-method make-context-menu-items ((component selectable-standard-object-tree-node-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   (optional-list* (make-select-instance-command component class prototype instance) (call-next-method)))
 
 (def layered-method render-onclick-handler ((self selectable-standard-object-tree-node-inspector))

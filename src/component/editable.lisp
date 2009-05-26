@@ -175,8 +175,10 @@
               (make-save-editing-command component)
               (make-cancel-editing-command component)))))
 
-(def layered-method make-context-menu-commands ((component editable-component) (class standard-class) (prototype standard-object) (instance standard-object))
-  (append (make-editing-commands component class prototype instance) (call-next-method)))
+(def layered-method make-context-menu-items ((component editable-component) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (list (make-menu-item (icon menu :label "Szerkesztés")
+                                (make-editing-commands component class prototype instance)))
+          (call-next-method)))
 
 (def layered-method make-refresh-command ((component editable-component) (class standard-class) (prototype standard-object) (instance standard-object))
   (command (icon refresh)

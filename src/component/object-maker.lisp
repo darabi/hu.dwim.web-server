@@ -26,7 +26,7 @@
   (list (delay-alternative-component-with-initargs 'standard-object-detail-maker :the-class class)
         (delay-alternative-reference-component 'standard-object-maker-reference class)))
 
-(def layered-method make-context-menu-commands ((component standard-object-maker) (class standard-class) (prototype standard-object) (instance standard-object))
+(def layered-method make-context-menu-items ((component standard-object-maker) (class standard-class) (prototype standard-object) (instance standard-object))
   (append (list (make-create-instance-command component class prototype)) (call-next-method)))
 
 (def (layered-function e) make-create-instance-command (component class prototype)

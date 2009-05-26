@@ -61,7 +61,7 @@
   ;; TODO: KLUDGE: FIXME: make this a special slot (this way it is not thread safe)
   ((place-component :type component)))
 
-(def layered-method make-context-menu-commands :in-layer set-place-to-find-instance-layer :around
+(def layered-method make-context-menu-items :in-layer set-place-to-find-instance-layer :around
      ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
      ;; TODO: check for being the row of the result component of the filter in the place component
   (bind ((place-component

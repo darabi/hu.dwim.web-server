@@ -31,7 +31,7 @@
   (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
         (delay-alternative-reference-component 'standard-object-filter-reference class)))
 
-(def layered-method make-context-menu-commands ((component standard-object-filter) (class standard-class) (prototype standard-object) (instance standard-object))
+(def layered-method make-context-menu-items ((component standard-object-filter) (class standard-class) (prototype standard-object) (instance standard-object))
   (optional-list* (make-filter-instances-command component (delay (result-of component))) (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component standard-object-filter) (class standard-class) (prototype standard-object) (instance standard-object))

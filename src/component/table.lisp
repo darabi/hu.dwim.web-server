@@ -7,6 +7,7 @@
 ;;;;;;
 ;;; Constants
 
+;; TODO: what about other constants such as left, middle? find better names and values
 (def (constant e :test 'string=) +table-cell-horizontal-align-css-class/right+ "_hra")
 (def (constant e :test 'string=) +table-cell-horizontal-align-css-class/center+ "_hca")
 

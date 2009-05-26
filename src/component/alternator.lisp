@@ -32,8 +32,10 @@
                                                    (class-name (class-of it))
                                                    (default-alternative-type-of self)))))
 
-(def layered-method make-context-menu-commands ((component alternator-mixin) class prototype value)
-  (append (call-next-method) (make-alternative-commands component class prototype value)))
+(def layered-method make-context-menu-items ((component alternator-mixin) class prototype value)
+  (append (call-next-method)
+          (list (make-menu-item (icon menu :label "Nézet")
+                                (make-alternative-commands component class prototype value)))))
 
 (def layered-method make-command-bar-commands ((component alternator-mixin) class prototype value)
   (optional-list* (make-replace-with-alternative-command component (find-reference-alternative-component component :force #f)) (call-next-method)))

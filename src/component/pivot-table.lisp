@@ -76,7 +76,7 @@
 (def layered-method collect-standard-object-detail-inspector-slots ((component standard-object-detail-inspector) (class component-class) (instance pivot-table-component))
   (filter-slots '(sheet-axes row-axes column-axes cell-axes) (call-next-method)))
 
-(def layered-method make-context-menu-commands ((component standard-object-inspector) (class component-class) (prototype pivot-table-component) (instance pivot-table-component))
+(def layered-method make-context-menu-items ((component standard-object-inspector) (class component-class) (prototype pivot-table-component) (instance pivot-table-component))
   nil)
 
 (def layered-method make-command-bar-commands :in pivot-table-layer :around ((self component) class prototype value)
@@ -151,10 +151,10 @@
 (def method make-reference-label ((reference reference-component) (class component-class) (component pivot-table-axis-component))
   (localized-pivot-table-axis component))
 
-(def layered-method make-context-menu-commands ((component standard-object-list-inspector) (class component-class) (prototype pivot-table-axis-component) (instance pivot-table-axis-component))
+(def layered-method make-context-menu-items ((component standard-object-list-inspector) (class component-class) (prototype pivot-table-axis-component) (instance pivot-table-axis-component))
   nil)
 
-(def layered-method make-context-menu-commands ((component standard-object-row-inspector) (class component-class) (prototype pivot-table-axis-component) (instance pivot-table-axis-component))
+(def layered-method make-context-menu-items ((component standard-object-row-inspector) (class component-class) (prototype pivot-table-axis-component) (instance pivot-table-axis-component))
   (optional-list (make-move-backward-command component)
                  (make-move-forward-command component)
                  (make-move-to-sheet-axes-command component)

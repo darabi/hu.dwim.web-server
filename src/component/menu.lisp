@@ -5,77 +5,208 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;
-;;; Abstract menu item
+;;; Menu items mixin
 
-(def component abstract-menu-item-component ()
-  ((menu-items nil :type components :export :accessor)))
+(def component menu-items-mixin ()
+  ((menu-items nil :type components :export :accessor))
+  (:documentation "A component with a set of menu items."))
 
 ;;;;;;
-;;; Menu
+;;; Menu mixin
 
-(def component menu-component (abstract-menu-item-component style-mixin)
-  ((target-place nil :type place :export :accessor)
-   (icon nil :type component)))
+(def (component ea) menu-mixin (menu-items-mixin content-mixin remote-identity-mixin style-mixin)
+  ()
+  (:default-initargs :content (empty))
+  (:documentation "A top level component in a menu hierarchy."))
 
-(def function flatten-menu-items (menu-items)
-  (iter (for menu-item :in menu-items)
-        (if (listp menu-item)
-            (appending menu-item)
-            (collect menu-item))))
+(def icon menu :tooltip nil)
 
-(def (function e) make-menu-component (label menu-items)
-  (bind ((menu-items (flatten-menu-items menu-items)))
+;;;;;;
+;;; Main menu component
+
+(def (component ea) main-menu-component (menu-mixin)
+  ((target-place nil :type place))
+  (:documentation "A menu component that is always shown."))
+
+(def (function e) make-main-menu (menu-items &key id css-class style)
+  (make-instance 'main-menu-component
+                 :menu-items (flatten menu-items)
+                 :id id
+                 :css-class css-class
+                 :style style))
+
+(def (macro e) menu (&body menu-items)
+  `(make-main-menu (list ,@menu-items)))
+
+(def render-xhtml main-menu-component
+  (bind (((:read-only-slots menu-items id css-class style) -self-))
+    (render-dojo-widget (id)
+      <div (:id ,id
+            :class ,css-class
+            :style ,style
+            :dojoType #.+dijit/menu+)
+        ,(call-next-method)
+        ,(foreach #'render menu-items)>)))
+
+;;;;;
+;;; Popup menu component
+
+(def component popup-menu-component (menu-mixin)
+  ()
+  (:documentation "A menu component that is shown upon explicit user action."))
+
+(def (function e) make-popup-menu (menu-items &key id css-class style)
+  (make-instance 'popup-menu-component
+                 :menu-items (flatten menu-items)
+                 :id id
+                 :css-class css-class
+                 :style style))
+
+(def (macro e) popup-menu (&body menu-items)
+  `(make-popup-menu (list ,@menu-items)))
+
+(def function render-popup-menu (component &key target-node-id)
+  (bind (((:read-only-slots menu-items id css-class style) component))
     (when menu-items
-      (make-instance 'menu-component
-                     :icon (when label
-                             (icon menu :label label :tooltip nil))
-                     :menu-items menu-items))))
+      <span (:class ,css-class :style ,style)
+        ,(render (content-of component))
+        ,(render-dojo-widget (id)
+          <div (:id ,id
+                :dojoType #.+dijit/menu+
+                :targetNodeIds ,target-node-id
+                :style "display: none;")
+            ,(foreach #'render menu-items)>
+          (render-remote-setup component))>)))
 
-(def (macro e) menu (label &body menu-items)
-  `(make-menu-component ,label (list ,@menu-items)))
+(def render-xhtml popup-menu-component
+  (render-popup-menu -self-))
 
-(def function render-menu-items (menu-items)
-  (mapcar #'render menu-items))
+(def render-csv popup-menu-component
+  (render-csv-separated-elements #\Space (commands-of -self-)))
 
-(def render-xhtml menu-component
-  (bind (((:read-only-slots icon menu-items id css-class style) -self-))
-    <div (:id ,id :class ,css-class :style ,style)
-         ,(when icon (render icon))
-         ,(foreach #'render menu-items)>))
+;;;;;
+;;; Context menu component
 
-(def icon menu) ;; TODO: icon
+(def component context-menu-component (popup-menu-component)
+  ((target))
+  (:documentation "A popup menu component that is attached to another component as a context menu."))
+
+(def (macro e) context-menu (target menu-items)
+  `(make-instance 'context-menu-component
+                  :target ,target
+                  :content (icon show-context-menu)
+                  :menu-items (list ,@menu-items)))
+
+(def render-xhtml context-menu-component
+  (render-popup-menu -self- :target-node-id (id-of (target-of -self-))))
+
+(def icon show-context-menu :label nil)
+(def resources hu
+  (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése"))
+(def resources en
+  (icon-tooltip.show-context-menu "Show context menu"))
 
 ;;;;;;
-;;; Menu item
+;;; Context menu mixin
 
-(def component menu-item-component (abstract-menu-item-component style-mixin)
-  ((command nil :type component)))
+(def component context-menu-mixin ()
+  ((context-menu :type component))
+  (:documentation "A component with a context menu attached to it."))
 
-(def (function e) make-menu-item-component (command menu-items &key id css-class style)
-  (bind ((menu-items (flatten-menu-items menu-items)))
+(def refresh context-menu-mixin
+  (bind ((class (component-dispatch-class -self-))
+         (prototype (when class (class-prototype class))))
+    (setf (context-menu-of -self-) (make-context-menu -self- class prototype (component-value-of -self-)))))
+
+(def (layered-function e) make-context-menu (component class prototype value)
+  (:method ((component context-menu-mixin) class prototype value)
+    (labels ((make-menu-items (elements)
+               (iter (for element :in elements)
+                     (collect (etypecase element
+                                (cons (make-menu-item (icon menu) (make-menu-items element)))
+                                (command-component (make-menu-item element nil))
+                                (menu-item-component
+                                 (setf (menu-items-of element) (make-menu-items (menu-items-of element)))
+                                 element))))))
+      (make-instance 'context-menu-component
+                     :target component
+                     :content (icon show-context-menu)
+                     :menu-items (make-menu-items (make-context-menu-items component class prototype value))))))
+
+(def (layered-function e) make-context-menu-items (component class prototype value)
+  (:method ((component component) class prototype value)
+    nil)
+
+  (:method ((component component) (class standard-class) (prototype standard-object) value)
+    (append (call-next-method)
+            (list (make-menu-item (icon menu :label "Mozgatás")
+                                  (make-move-commands component class prototype value)))))
+
+  (:method ((component inspector-component) (class standard-class) (prototype standard-object) value)
+    (optional-list* (make-refresh-command component class prototype value) (call-next-method)))
+
+  (:method ((component inspector-component) (class built-in-class) (prototype null) value)
+    nil))
+
+;;;;;;
+;;; Menu item component
+
+(def component menu-item-component (menu-items-mixin content-mixin remote-identity-mixin style-mixin)
+  ()
+  (:documentation "An intermediate component in a menu hierarchy."))
+
+(def (function e) make-menu-item (content menu-items &key id css-class style)
+  (bind ((menu-items (flatten menu-items)))
     (when (or menu-items
-              command)
+              content)
       (make-instance 'menu-item-component
-                     :command command
+                     :content content
                      :menu-items menu-items
                      :id id
                      :css-class css-class
                      :style style))))
 
-(def (macro e) menu-item ((&key id css-class style) command &body menu-items)
-  `(make-menu-item-component ,command (list ,@menu-items) :id ,id :css-class ,css-class :style ,style))
+(def (macro e) menu-item ((&key id css-class style) content &body menu-items)
+  `(make-menu-item ,content (list ,@menu-items) :id ,id :css-class ,css-class :style ,style))
 
 (def render-xhtml menu-item-component
-  (bind (((:read-only-slots command menu-items id css-class style) -self-))
-    <div (:id ,id :class ,css-class :style ,style)
-         ,(render command)
-         ,(foreach #'render menu-items)>))
+  (bind (((:read-only-slots menu-items id css-class style) -self-))
+    (if menu-items
+        (bind ((popup-id (generate-response-unique-string)))
+          (render-dojo-widget (popup-id)
+            <div (:id ,popup-id
+                  :class ,css-class
+                  :style ,style
+                  :dojoType #.+dijit/popup-menu-item+)
+              ,(call-next-method)
+              ,(render-dojo-widget (id)
+                 <div (:id ,id
+                       :dojoType #.+dijit/menu+
+                       :style "display: none;")
+                   ,(foreach #'render menu-items)>
+                 (render-remote-setup -self-))>))
+        (render-dojo-widget (id)
+          <div (:id ,id :dojoType #.+dijit/menu-item+)
+            ,(call-next-method)>
+          #+nil
+          (render-command-onclick-handler command id)))))
 
 ;;;;;;
-;;; Replace menu target command
+;;; Separator menu item component
+
+(def component separator-menu-item-component (menu-item-component)
+  ()
+  (:documentation "A menu item separator, a leaf in the menu hierarchy."))
+
+(def render-xhtml separator-menu-item-component
+  <div (:dojoType #.+dijit/menu-separator+)>)
+
+;;;;;;
+;;; Replace menu target command component
 
 (def component replace-menu-target-command-component (command-component)
-  ((component)))
+  ((component))
+  (:documentation "A special command that will replace the main menu target place with its component."))
 
 (def constructor replace-menu-target-command-component ()
   (setf (action-of -self-)
@@ -83,7 +214,7 @@
           (bind ((menu-component
                   (find-ancestor-component -self-
                                            (lambda (ancestor)
-                                             (and (typep ancestor 'menu-component)
+                                             (and (typep ancestor 'main-menu-component)
                                                   (target-place-of ancestor)))))
                  (component (force (component-of -self-))))
             (setf (component-of -self-) component

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Customizations
 
-(def layered-method make-context-menu-commands ((component standard-object-inspector) (class prc::persistent-class) (prototype prc::persistent-object) (instance prc::persistent-object))
+(def layered-method make-context-menu-items ((component standard-object-inspector) (class prc::persistent-class) (prototype prc::persistent-object) (instance prc::persistent-object))
   (append (call-next-method)
           (optional-list (when (dmm::authorize-operation 'dmm::delete-entity-operation :-entity- class)
                            (make-delete-instance-command component class instance)))))

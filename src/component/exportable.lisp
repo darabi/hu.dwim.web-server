@@ -10,12 +10,17 @@
 (def component exportable-component ()
   ())
 
-(def layered-method make-context-menu-commands ((component exportable-component) (class standard-class) (prototype standard-object) (instance standard-object))
-  (append (optional-list (make-export-command :csv component class prototype instance)
-                         (make-export-command :pdf component class prototype instance)
-                         (make-export-command :ods component class prototype instance)
-                         (make-export-command :odt component class prototype instance))
-          (call-next-method)))
+(def layered-method make-context-menu-items ((component exportable-component) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (call-next-method)
+          (list (make-menu-item (icon menu :label "Mentés")
+                                (make-export-commands component class prototype instance)))))
+
+(def (layered-function e) make-export-commands (component class prototype value)
+  (:method (component class prototype value)
+    (optional-list (make-export-command :csv component class prototype value)
+                   (make-export-command :pdf component class prototype value)
+                   (make-export-command :ods component class prototype value)
+                   (make-export-command :odt component class prototype value))))
 
 (def (layered-function e) make-export-command (format component class prototype value))
 

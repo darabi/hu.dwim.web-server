@@ -25,6 +25,7 @@
    +dijit/editor+                "dijit.Editor"
    +dijit/menu+                  "dijit.Menu"
    +dijit/menu-item+             "dijit.MenuItem"
+   +dijit/menu-separator+        "dijit.MenuSeparator"
    +dijit/popup-menu-item+       "dijit.PopupMenuItem"
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))

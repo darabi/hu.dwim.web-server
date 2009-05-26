@@ -181,79 +181,6 @@
   "Pop the COMMAND from the container COMMAND-BAR"
   (removef (commands-of (parent-component-of command)) command))
 
-;;;;;
-;;; Popup command menu
-
-(def component popup-menu-component (content-mixin style-mixin remote-identity-mixin)
-  ((target nil)
-   (commands nil :type components)))
-
-(def icon show-context-menu :label nil)
-(def resources hu
-  (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése"))
-(def resources en
-  (icon-tooltip.show-context-menu "Show context menu"))
-
-(def render-xhtml popup-menu-component
-  (bind (((:read-only-slots target commands id css-class style) -self-)
-         (menu-id (generate-response-unique-string)))
-    (when commands
-      <span (:id ,id :class ,css-class :style ,style)
-          ,(call-next-method)
-          ,(render-dojo-widget (menu-id)
-             <div (:id ,menu-id
-                   :dojoType #.+dijit/menu+
-                   :targetNodeIds ,(if target
-                                       (id-of target)
-                                       id)
-                   :style "display: none;")
-               ,(iter (for command :in commands)
-                      (for command-id = (generate-frame-unique-string))
-                      (when (force (visible-p command))
-                        (render-dojo-widget (command-id)
-                          <div (:id ,command-id
-                                :dojoType #.+dijit/menu-item+
-                                :iconClass ,(icon-class (name-of (content-of command))))
-                            ,(render-icon :icon (content-of command) :class nil)>
-                          (render-command-onclick-handler command command-id))))>)>
-      `js(on-load
-          (wui.setup-component ,menu-id "popup-menu-component")))))
-
-(def render-csv popup-menu-component
-  (render-csv-separated-elements #\Space (commands-of -self-)))
-
-;;;;;;
-;;; Context menu mixin
-
-(def component context-menu-mixin ()
-  ((context-menu :type component))
-  (:documentation "A component with a context menu"))
-
-(def refresh context-menu-mixin
-  (bind ((class (component-dispatch-class -self-))
-         (prototype (when class (class-prototype class))))
-    (setf (context-menu-of -self-) (make-context-menu -self- class prototype (component-value-of -self-)))))
-
-(def (layered-function e) make-context-menu (component class prototype value)
-  (:method ((component context-menu-mixin) class prototype value)
-    (make-instance 'popup-menu-component
-                   :target component
-                   :content (icon show-context-menu)
-                   :commands (make-context-menu-commands component class prototype value))))
-
-(def (layered-function e) make-context-menu-commands (component class prototype value)
-  (:method ((component component) class prototype value)
-    nil)
-
-  (:method ((component component) (class standard-class) (prototype standard-object) value)
-    (append (call-next-method) (make-move-commands component class prototype value)))
-
-  (:method ((component inspector-component) (class standard-class) (prototype standard-object) value)
-    (optional-list* (make-refresh-command component class prototype value) (call-next-method)))
-
-  (:method ((component inspector-component) (class built-in-class) (prototype null) value)
-    nil))
-
 ;;;;;;
 ;;; Command bar mixin
 
@@ -288,10 +215,9 @@
 
 (def (layered-function e) find-command (component name)
   (:method ((self commands-mixin) name)
-    (bind (((:slots context-menu command-bar) self)
-           (key [name-of (content-of !1)]))
-      (or (find name (commands-of command-bar) :key key)
-          (find name (commands-of context-menu) :key key)))))
+    (find-descendant-component self (lambda (descendant)
+                                      (and (typep descendant 'command-component)
+                                           (eq name (name-of (content-of descendant))))))))
 
 ;;;;;;
 ;;; Navigation bar component

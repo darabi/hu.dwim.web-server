@@ -166,7 +166,7 @@
                               `(make-application-relative-uri ,path)
                               path)
                          :send-client-state #f)))
-    (menu nil
+    (menu
       (menu-item () (command* #"menu.front-page"              ""))
       (menu-item () (command* #"menu.help"                    "help/"))
       (menu-item () (command* #"menu.login"                   #.+login-entry-point-path+))
@@ -203,7 +203,7 @@
 
 (def function make-authenticated-menu-component ()
   (bind ((authenticated-subject (current-authenticated-subject)))
-    (menu nil
+    (menu
       (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
         (bind ((debug-menu (make-debug-menu)))
           (appendf (menu-items-of debug-menu)
@@ -212,8 +212,8 @@
                          (menu-item () (replace-menu-target-command "Example error while rendering"
                                          (inline-component (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
           debug-menu))
-      (menu "Charts"
-        (menu "Charts from files"
+      (menu-item () "Charts"
+        (menu-item () "Charts from files"
           (macrolet ((make-chart-menu (name type settings-file data-file)
                        `(replace-menu-target-command ,name
                           (make-chart-from-files ',type
@@ -238,11 +238,11 @@
                                            "amxy/time_plot/amxy_settings.xml"
                                            "amxy/time_plot/amxy_data.xml")))))
       (make-primitive-component-menu)
-      (menu "Metagui"
-        (menu "Parent"
+      (menu-item () "Metagui"
+        (menu-item () "Parent"
           (menu-item () (replace-menu-target-command "Make a parent" (make-maker 'parent-test)))
           (menu-item () (replace-menu-target-command "Search parents" (make-filter 'parent-test))))
-        (menu "Child"
+        (menu-item () "Child"
           (menu-item () (replace-menu-target-command "Make a child" (make-maker 'child-test)))
           (menu-item () (replace-menu-target-command "Search children" (make-filter 'child-test)))))
       (menu-item () (replace-menu-target-command "File upload test"
@@ -274,7 +274,7 @@
                                      (values)))))))
       (menu-item () (replace-menu-target-command "Ajax counter"
                       (make-instance 'counter-component)))
-      (menu "Others"
+      (menu-item () "Others"
         (menu-item () (replace-menu-target-command #"menu.help" (make-help-component)))
         (menu-item () (replace-menu-target-command #"menu.about" (make-about-component)))))))
 
@@ -289,7 +289,7 @@
                                                      component)>)
                                      components)>>))
            (make-primitive-menu-item (name types values initforms)
-             (menu (string-capitalize (string-downcase (symbol-name name)))
+             (menu-item () (string-capitalize (string-downcase (symbol-name name)))
                (menu-item () (replace-menu-target-command "Maker"
                                (make-primitive-menu-item-content
                                 (remove nil
@@ -327,7 +327,7 @@
                                                 (label () (format nil "type: ~A " type))
                                                 (make-place-filter type)))
                                              types)))))))
-    (menu "Primitive"
+    (menu-item () "Primitive"
       (make-primitive-menu-item 't '(t) '(:unbound nil #t 42 "alma" 'korte (anything)) nil)
       (make-primitive-menu-item 'boolean '(boolean #+wui-and-cl-perec (or prc::unbound boolean)) '(#f #t) '(:unbound (monday?)))
       (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '(:unbound (user-name)))
