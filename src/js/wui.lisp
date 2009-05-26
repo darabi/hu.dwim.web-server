@@ -567,12 +567,12 @@
 (defun wui.register-generic-function-method (generic-function dispatch-type fn)
   (setf (slot-value generic-function dispatch-type) fn))
 
-(defun wui.apply-generic-function (generic-function dispatch-type &rest args &key &allow-other-keys)
+(defun wui.apply-generic-function (generic-function dispatch-type args)
   (bind ((class-precedence-list (slot-value wui.component-class-precedence-lists dispatch-type)))
     (dolist (class class-precedence-list)
       (bind ((fn (slot-value generic-function class)))
         (when fn
-          (return (fn args)))))))
+          (return (fn.apply undefined args)))))))
 
 ;;;;;;
 ;;; setup component
@@ -582,8 +582,8 @@
 (defun wui.register-component-setup (type fn)
   (wui.register-generic-function-method wui.setup-component-generic-function type fn))
 
-(defun wui.setup-component (type id &rest args &key &allow-other-keys)
-  (wui.apply-generic-function wui.setup-component-generic-function type id args))
+(defun wui.setup-component (id type &rest args &key &allow-other-keys)
+  (wui.apply-generic-function wui.setup-component-generic-function type (array id args)))
 
 ;;;;;;
 ;;; i18n
