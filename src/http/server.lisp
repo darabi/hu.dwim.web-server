@@ -103,7 +103,7 @@
                            (bind ((socket (iolib:make-socket :connect :passive
                                                              :local-host host
                                                              :local-port port
-                                                             :external-format +external-format+
+                                                             :external-format +default-external-format+
                                                              :reuse-address #t))
                                   (fd (iolib:fd-of socket)))
                              (unwind-protect-case ()

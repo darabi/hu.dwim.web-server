@@ -66,7 +66,7 @@
         (setf (header-value it +header/content-encoding+) +content-encoding/deflate+)))))
 
 (def generic compile-js-file-to-byte-vector (broker filename &key encoding)
-  (:method ((broker js-directory-serving-broker) filename &key (encoding +encoding+))
+  (:method ((broker js-directory-serving-broker) filename &key (encoding +default-encoding+))
     (bind ((body-as-string (read-file-into-string filename :external-format encoding)))
       (setf body-as-string (concatenate-string "`js(progn "
                                                body-as-string

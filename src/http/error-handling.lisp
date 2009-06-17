@@ -67,12 +67,8 @@
           ((serious-condition #'level-1-error-handler))
         (funcall thunk)))))
 
-(def function maybe-invoke-slime-debugger (condition &key (context (or (and (boundp '*session*)
-                                                                            *session*)
-                                                                       (and (boundp '*application*)
-                                                                            *application*)
-                                                                       (and (boundp '*brokers*)
-                                                                            (first *brokers*))))
+(def function maybe-invoke-slime-debugger (condition &key (context (and (boundp '*brokers*)
+                                                                        (first *brokers*)))
                                                      (with-continue-restart #t))
   (when (debug-on-error context condition)
     (typecase condition
@@ -94,8 +90,8 @@
             (body)))
       (server.debug "No Swank connection, not debugging error: ~A" condition)))
 
-(def method handle-toplevel-condition :before ((error serious-condition) broker)
-  (maybe-invoke-slime-debugger error :context broker))
+(def method handle-toplevel-condition :before ((condition serious-condition) broker)
+  (maybe-invoke-slime-debugger condition :context broker))
 
 (def method handle-toplevel-condition ((error serious-condition) broker)
   (log-error-with-backtrace error)

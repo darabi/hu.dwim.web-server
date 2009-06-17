@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Directory serving broker cache entry
+
 (def class* directory-serving-broker/cache-entry ()
   ((file-path)
    (file-write-date)
@@ -16,6 +19,9 @@
                  :file-path file-path
                  :file-write-date file-write-date
                  :bytes-to-respond bytes-to-respond))
+
+;;;;;;
+;;; Directory serving broker
 
 (def class* directory-serving-broker (broker-with-path-prefix)
   ((root-directory)
@@ -102,9 +108,8 @@
   (check-type file pathname)
   (not (gethash (pathname-type file) *file-compression-extension-blacklist*)))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; file serving response
+;;;;;;
+;;; File serving response
 
 (def class* file-serving-response (response)
   ((file-name)))
@@ -121,9 +126,8 @@
 (def method convert-to-primitive-response ((response file-serving-response))
   response)
 
-
-;;;;;;;;;;;;;;;;;;;
-;;; directory index
+;;;;;;
+;;; Directory index
 
 (def class* directory-index-response (response)
   ((path-prefix)
@@ -179,7 +183,7 @@
                         (file-length file-stream)))
                     >>))>)
 
-;;;;;;;;;;;;;;;;;;;
+;;;;;;
 ;;; MIME stuff for serving static files
 
 (def special-variable *mime-type->extensions* nil)

@@ -27,7 +27,7 @@
          (path-prefix (path-prefix-of application))
          (encoding (or (when *response*
                          (encoding-name-of *response*))
-                       +encoding+))
+                       +default-encoding+))
          (debug-client-side? (debug-client-side? -self-))
          (javascript-supported? (not (request-parameter-value *request* +no-javascript-error-parameter-name+))))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)

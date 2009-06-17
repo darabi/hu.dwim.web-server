@@ -55,13 +55,13 @@
     (setf (id-of *session*) "1234567890")
     (with-lock-held-on-session (*session*)
       (octets-to-string
-       (with-output-to-sequence (buffer-stream :external-format +encoding+ :initial-buffer-size 256)
+       (with-output-to-sequence (buffer-stream :external-format +default-encoding+ :initial-buffer-size 256)
          (emit-into-xml-stream buffer-stream
            `xml,@(with-collapsed-js-scripts
                   (with-dojo-widget-collector
                     (-body-)))
            +void+))
-       :encoding +encoding+))))
+       :encoding +default-encoding+))))
 
 (def (function e) render-to-xhtml-string (component &key (ajax-aware #f))
   (bind ((*ajax-aware-request* ajax-aware))

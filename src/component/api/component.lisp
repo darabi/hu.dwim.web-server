@@ -15,6 +15,14 @@
      ,@options))
 
 ;;;;;;
+;;; Localization
+
+(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resource/component/"
+  :log-discriminator "WUI")
+
+(register-locale-loaded-listener 'wui-resource-loader/component)
+
+;;;;;;
 ;;; Component
 
 (def (type e) component* ()

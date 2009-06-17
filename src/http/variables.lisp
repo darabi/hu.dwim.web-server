@@ -5,98 +5,40 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Some DOS related limits
+;;; Specials available while processing a HTTP request
 
-(def constant +maximum-http-request-header-line-count+ 128)
-(def constant +maximum-http-request-header-line-length+ (* 4 1024))
+(def (special-variable e :documentation "The HTTP REQUEST currently being processed.")
+  *request*)
 
+(def (special-variable e :documentation "The HTTP RESPONSE for the HTTP REQUEST currently being processed.")
+  *response*)
 
-;;;;;;
-;;; Specials available while processing a request
+(def (special-variable e :documentation "The remote host which sent the currently processed HTTP REQUEST.")
+  *request-remote-host*)
 
-(def (special-variable e) *request*)
-(def (special-variable e) *response*)
-(def (special-variable e) *request-remote-host*)
-(def special-variable *request-id*)
+(def (special-variable :documentation "A unique identifier assigned to each incoming request to help debugging.")
+  *request-id*)
 
 (def (special-variable e) *disable-response-compression* (not (awhen (find-package :hu.dwim.wui.zlib)
-                                                                (find-symbol "COMPRESS" it))))
+                                                                (find-symbol "COMPRESS" it)))
+  "TRUE means that HTTP response will not be compressed, FALSE otherwise.")
 
-(def (special-variable e) *server*)
-(def (special-variable e) *application*)
-(def (special-variable e) *session*)
-(def (special-variable e) *frame*)
-(def (special-variable e) *action*)
+(def (special-variable e :documentation "The SERVER associated with the currently processed HTTP REQUEST.")
+  *server*)
 
-(def (special-variable :documentation "This variable is bound in application contexts and set to T when the render protocol is invoked. Needed for the error handling code to decide what to do...")
-  *rendering-phase-reached*)
-
-(def (special-variable :documentation "This variable is bound in application contexts and set to T when the request processing reached the point of querying the entry points. Needed for the error handling code to decide what to do...")
-  *inside-user-code*)
-
-(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
-  *delayed-content-request*)
-
-(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the remote JS stack and awaits a structured XML answer.")
-  *ajax-aware-request*)
-
-(def constant +action-id-length+   8)
-(def constant +frame-id-length+    8)
-(def constant +frame-index-length+ 4)
-(def constant +session-id-length+  40)
-
-(def (constant :test 'string=) +action-id-parameter-name+       "_a")
-(def (constant :test 'string=) +frame-id-parameter-name+        "_f")
-(def (constant :test 'string=) +frame-index-parameter-name+     "_x")
-(def (constant :test 'string=) +ajax-aware-parameter-name+      "_j")
-(def (constant :test 'string=) +delayed-content-parameter-name+ "_d")
-
-(def (constant :test 'equal) +frame-query-parameter-names+ (list +frame-id-parameter-name+
-                                                                 +frame-index-parameter-name+
-                                                                 +action-id-parameter-name+))
-
-(def (constant :test 'string=) +session-cookie-name+ "sid")
-
-(def symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
-
-(def (special-variable e) *xml-stream*)
-(def (special-variable e) *js-stream*)
-
-(def (with-macro e) with-collapsed-js-scripts ()
-  (bind ((result nil)
-	 (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
-									      '(unsigned-byte 8)
-									      'character)
-							    :external-format (if *response*
-										 (external-format-of *response*)
-										 +encoding+))
-                        (setf result (-body-)))))
-    (append
-     (ensure-list result)
-     (unless (zerop (length script-body))
-       (list (cl-quasi-quote::as-delayed-emitting
-	       (write-sequence #.(format nil "<script type=\"text/javascript\">// <![CDATA[~%") *xml-stream*)
-	       (write-sequence script-body *xml-stream*)
-	       (write-sequence #.(format nil "~%// ]]></script>") *xml-stream*)))))))
-
-(def special-variable *request-content-length-limit* #.(* 5 1024 1024)
+(def (special-variable e) *request-content-length-limit* #.(* 5 1024 1024)
   "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
 See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 
-(def special-variable *debug-on-error* (not *load-as-production-p*)
-  "The default, system wide, value for debug-on-error. Applications may override this.")
+(def (special-variable :documentation "Holds the broker path while processing the rules. Whenever a rule provides a new set of rules, it is pushed at the head of the *BROKERS* list.")
+  *brokers*)
 
-(def special-variable *debug-client-side* (not *load-as-production-p*)
-  "The default, system wide, value for the debug-client-side slots of frames.")
+;;;;;;
+;;; Some DOS related limits
 
-(def (special-variable e) *directory-for-temporary-files* "/tmp/wui/"
-  "Used for file uploads, too.")
+(def constant +maximum-http-request-header-line-count+ 128)
 
-;; *BROKERS* holds the "broker path" while processing the rules.
-;; whenever a rule provides a new set of rules, it is pushed at the head of the *BROKERS* list.
-(def special-variable *brokers*)
-
-(def constant +epoch-start+ (encode-universal-time 0 0 0 1 1 1970 0))
+(def constant +maximum-http-request-header-line-length+ (* 4 1024))
 
 ;;;;;;
 ;;; l10n
@@ -215,6 +157,8 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
   (list (cons +header/expires+ "Wed, 01 Mar 2000 00:00:00 GMT")
         (cons +header/cache-control+ "no-cache no-store must-revalidate")))
 
+(def symbol-macro +default-external-format+ (load-time-value (ensure-external-format +default-encoding+)))
+
 (def (constant e :test 'string=) +xml-namespace-uri/xhtml+ "http://www.w3.org/1999/xhtml")
 (def (constant e :test 'string=) +xml-namespace-uri/dojo+  "http://www.dojotoolkit.org/2004/dojoml")
 
@@ -281,28 +225,3 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
     +http-service-unavailable+             503 "Service Unavailable"
     +http-gateway-time-out+                504 "Gateway Time-out"
     +http-version-not-supported+           505 "Version not supported"))
-
-;;;;;;
-;;; Stuff needed for applications and components
-
-(def (constant e :test 'string=) +scroll-x-parameter-name+ "_sx")
-(def (constant e :test 'string=) +scroll-y-parameter-name+ "_sy")
-(def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
-
-(def (constant e :test 'string=) +page-failed-to-load-id+ "_failed-to-load")
-(def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 10000)
-
-(def (special-variable e) *dojo-skin-name* "tundra")
-(def (special-variable e) *dojo-file-name* "dojo.js")
-(def (special-variable e) *dojo-directory-name* "dojo/")
-
-(def (constant e :test (constantly #t)) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
-(def (constant e :test (constantly #t)) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
-(def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
-(def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
-
-;;;;;
-;;; Initialized to "en" in l10n.lisp
-
-(def special-variable *fallback-locale-for-functional-resources* nil
-  "This is used as a fallback locale if a functional resource can not be found and there's no *application* that would provide a default locale. It's not possible to use the usual name fallback strategy for functional resources, so make sure that the default locale has a 100% coverage for them, otherwise it may effect the behavior of the application in certain situations.")

@@ -139,17 +139,6 @@
            (iter (for element :in-vector result)
                  (collect (nreverse element)))))))
 
-(def class* debug-context-mixin ()
-  ((debug-on-error :type boolean :accessor nil)))
-
-(def (generic e) debug-on-error (context error)
-  (:method (context error)
-    *debug-on-error*)
-  (:method ((context debug-context-mixin) error)
-    (if (slot-boundp context 'debug-on-error)
-        (slot-value context 'debug-on-error)
-        (call-next-method))))
-
 (deftype simple-ub8-vector (&optional (length '*))
   `(simple-array (unsigned-byte 8) (,length)))
 
@@ -208,75 +197,6 @@
          (type (pop forms)))
     `(def (layered-method ,@options) ,name ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
           ,@forms)))
-
-;;;;;;
-;;; Tree
-
-(def (function o) find-ancestor (node parent-function map-function)
-  (ensure-functionf parent-function map-function)
-  (iter (for current-node :initially node :then (funcall parent-function current-node))
-        (while current-node)
-        (when (funcall map-function current-node)
-          (return current-node))))
-
-(def (function o) find-root (node parent-function)
-  (ensure-functionf parent-function)
-  (iter (for current-node :initially node :then (funcall parent-function current-node))
-        (for previous-node :previous current-node)
-        (while current-node)
-        (finally (return previous-node))))
-
-(def (function o) map-parent-chain (node parent-function map-function)
-  (ensure-functionf parent-function map-function)
-  (iter (for current-node :initially node :then (funcall parent-function current-node))
-        (while current-node)
-        (funcall map-function current-node)))
-
-(def (function o) map-tree (node children-function map-function)
-  (ensure-functionf children-function map-function)
-  (map-tree* node children-function
-             (lambda (node parent level)
-               (declare (ignore parent level))
-               (funcall map-function node))))
-
-(def (function o) map-tree* (node children-function map-function &optional (level 0) parent)
-  (declare (type fixnum level))
-  (ensure-functionf children-function map-function)
-  (cons (funcall map-function node parent level)
-        (map 'list (lambda (child)
-                     (map-tree* child children-function map-function (1+ level) node))
-             (funcall children-function node))))
-
-;;;;;;
-;;; Temporary file
-
-(def special-variable *temporary-file-random* (princ-to-string (isys:%sys-getpid)))
-(def special-variable *temporary-file-unique-number* 0)
-
-(def function filename-for-temporary-file (&optional prefix)
-  (concatenate 'string
-               *directory-for-temporary-files*
-               prefix
-               *temporary-file-random*
-               "-"
-               ;; TODO atomic-incf
-               (integer-to-string (incf *temporary-file-unique-number*))))
-
-(def function open-temporary-file (&rest args &key
-                                         (element-type '(unsigned-byte 8))
-                                         (direction :output)
-                                         name-prefix)
-  (remove-from-plistf args :name-prefix)
-  (iter
-    (for file-name = (ensure-directories-exist (filename-for-temporary-file name-prefix)))
-    (for file = (apply #'open
-                       file-name
-                       :if-exists nil
-                       :direction direction
-                       :element-type element-type
-                       args))
-    (until file)
-    (finally (return (values file file-name)))))
 
 (declaim (ftype (function () double-float) get-monotonic-time))
 (def (function eio) get-monotonic-time ()
@@ -396,39 +316,11 @@
   #+sbcl (eq (sb-thread::mutex-value lock) (current-thread))
   #-sbcl #t)
 
-(def (constant e :test 'string=) +missing-resource-css-class+ (coerce "missing-resource" 'simple-base-string))
-
-(def function localized-string-reader (stream c1 c2)
-  (declare (ignore c2))
-  (unread-char c1 stream)
-  (bind ((key (read stream))
-         (capitalize? (to-boolean (and (> (length key) 0)
-                                       (upper-case-p (elt key 0))))))
-    (if (ends-with-subseq "<>" key)
-        `(%localized-string-reader/impl<> ,(string-downcase key) ,capitalize?)
-        `(%localized-string-reader/impl ,(string-downcase key) ,capitalize?))))
-
-(def function %localized-string-reader/impl<> (key capitalize?)
-  (bind (((:values str found?) (lookup-resource (subseq key 0 (- (length key) 2)))))
-    (when capitalize?
-      (setf str (capitalize-first-letter str)))
-    (if found?
-        `xml ,str
-        <span (:class #.+missing-resource-css-class+)
-              ,str>)))
-
-(def function %localized-string-reader/impl (key capitalize?)
-  (bind (((:values str found?) (lookup-resource key)))
-    (when (and capitalize?
-               found?)
-      (setf str (capitalize-first-letter str)))
-    str))
-
 (def function mailto-href (email-address)
   (concatenate 'string "mailto:" email-address))
 
-;;;;;;;;;;;;;;;;
-;;; string utils
+;;;;;;
+;;; String utils
 
 (def (function o) concatenate-string (&rest args)
   (declare (dynamic-extent args))
@@ -479,6 +371,9 @@
   (bind ((key (new-random-hash-table-key hash-table key-length :prefix prefix)))
     (setf (gethash key hash-table) value)
     (values key value)))
+
+;;;;;;
+;;; Integer to string
 
 (def constant +number-of-integer-strings-to-cache+ 128)
 
@@ -537,8 +432,11 @@
 
 (declaim (notinline integer-to-string))
 
-;;;;;;;;;;;;;;;;;;;;
-;;; xhtml generation
+;;;;;;
+;;; XHTML emitting
+
+(def (special-variable e :documentation "The stream for quasi quoted XML output. It is written as a side effect when evaluating quasi quoted XML forms.")
+  *xml-stream*)
 
 (def (macro e) with-xml-stream (stream &body body)
   `(bind ((*xml-stream* ,stream))
@@ -551,7 +449,7 @@
 
 (def (macro e) emit-into-xml-stream-buffer (&body body)
   (with-unique-names (buffer)
-    `(with-output-to-sequence (,buffer :external-format +external-format+)
+    `(with-output-to-sequence (,buffer :external-format +default-external-format+)
        (bind ((*xml-stream* ,buffer))
          (emit (progn ,@body))))))
 
@@ -573,11 +471,104 @@
   `(emit-http-response* ((append
                           ,@(when headers (list headers))
                           ,@(when status `((list (cons +header/status+ ,status))))
-                          '((#.+header/content-type+ . #.+utf-8-html-content-type+)))
+                          '((+header/content-type+ . +utf-8-html-content-type+)))
                          ,cookies)
      (with-html-document (:content-type +html-content-type+ :title ,title)
        ,@body)))
 
+;;;;;;
+;;; JavaScript emitting
+
+;;;;;;
+;;; Debug on error
+
+(def special-variable *debug-on-error* (not *load-as-production-p*)
+  "The default, system wide, value for debug-on-error.")
+
+(def class* debug-context-mixin ()
+  ((debug-on-error :type boolean :accessor nil)))
+
+(def (generic e) debug-on-error (context error)
+  (:method (context error)
+    *debug-on-error*)
+
+  (:method ((context debug-context-mixin) error)
+    (if (slot-boundp context 'debug-on-error)
+        (slot-value context 'debug-on-error)
+        (call-next-method))))
+
+;;;;;;
+;;; Tree
+
+(def (function o) find-ancestor (node parent-function map-function)
+  (ensure-functionf parent-function map-function)
+  (iter (for current-node :initially node :then (funcall parent-function current-node))
+        (while current-node)
+        (when (funcall map-function current-node)
+          (return current-node))))
+
+(def (function o) find-root (node parent-function)
+  (ensure-functionf parent-function)
+  (iter (for current-node :initially node :then (funcall parent-function current-node))
+        (for previous-node :previous current-node)
+        (while current-node)
+        (finally (return previous-node))))
+
+(def (function o) map-parent-chain (node parent-function map-function)
+  (ensure-functionf parent-function map-function)
+  (iter (for current-node :initially node :then (funcall parent-function current-node))
+        (while current-node)
+        (funcall map-function current-node)))
+
+(def (function o) map-tree (node children-function map-function)
+  (ensure-functionf children-function map-function)
+  (map-tree* node children-function
+             (lambda (node parent level)
+               (declare (ignore parent level))
+               (funcall map-function node))))
+
+(def (function o) map-tree* (node children-function map-function &optional (level 0) parent)
+  (declare (type fixnum level))
+  (ensure-functionf children-function map-function)
+  (cons (funcall map-function node parent level)
+        (map 'list (lambda (child)
+                     (map-tree* child children-function map-function (1+ level) node))
+             (funcall children-function node))))
+
+;;;;;;
+;;; Temporary file
+
+(def special-variable *temporary-file-random* (princ-to-string (isys:%sys-getpid)))
+
+(def special-variable *temporary-file-unique-number* 0)
+
+(def (special-variable e) *directory-for-temporary-files* "/tmp/wui/"
+  "Used for file uploads, too.")
+
+(def function filename-for-temporary-file (&optional prefix)
+  (concatenate 'string
+               *directory-for-temporary-files*
+               prefix
+               *temporary-file-random*
+               "-"
+               ;; TODO atomic-incf
+               (integer-to-string (incf *temporary-file-unique-number*))))
+
+(def function open-temporary-file (&rest args &key
+                                         (element-type '(unsigned-byte 8))
+                                         (direction :output)
+                                         name-prefix)
+  (remove-from-plistf args :name-prefix)
+  (iter
+    (for file-name = (ensure-directories-exist (filename-for-temporary-file name-prefix)))
+    (for file = (apply #'open
+                       file-name
+                       :if-exists nil
+                       :direction direction
+                       :element-type element-type
+                       args))
+    (until file)
+    (finally (return (values file file-name)))))
 
 ;;;;;;
 ;;; Dynamic classes

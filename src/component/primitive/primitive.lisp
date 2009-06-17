@@ -449,7 +449,7 @@
   ())
 
 (def (function e) emit-html-string (string)
-  (write-sequence (babel:string-to-octets string :encoding +encoding+) *xml-stream*)
+  (write-sequence (babel:string-to-octets string :encoding +default-encoding+) *xml-stream*)
   (values))
 
 (def (function e) emit-html-component-value (component)

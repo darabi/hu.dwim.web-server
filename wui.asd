@@ -61,41 +61,46 @@
      :setup-readtable-function ,setup-readtable-function
      ,@body))
 
-(defsystem* :wui-server
+(defsystem* :wui-http-server
   :description "Basic HTTP server to build user interfaces for the world wide web."
   :long-description "Provides error handling, compression, static file serving, quasi quoted JavaScript and quasi quoted XML serving."
   :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-	   "Levente Mészáros <levente.meszaros@gmail.com>"
-	   "Tamás Borbély <tomi.borbely@gmail.com>")
+           "Levente Mészáros <levente.meszaros@gmail.com>"
+           "Tamás Borbély <tomi.borbely@gmail.com>")
   :maintainer ("Attila Lendvai <attila.lendvai@gmail.com>"
                "Levente Mészáros <levente.meszaros@gmail.com>"
-	       "Tamás Borbély <tomi.borbely@gmail.com>")
+               "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
   :test-system :wui-test
   :components
   ((:module "src"
-    :components ((:file "zlib" :pathname "util/zlib.lisp")
-                 (:file "packages" :depends-on ("zlib"))
-                 (:file "duplicates" :depends-on ("packages"))
-                 (:file "configuration" :depends-on ("packages"))
-                 (:file "variables" :depends-on ("packages" "duplicates" "configuration"))
-                 (:file "utils" :depends-on ("packages" "duplicates" "variables" "configuration"))
-                 (:file "js-utils" :depends-on ("utils"))
-                 (:file "file-serving" :depends-on ("utils" "http"))
-                 (:file "js-serving" :depends-on ("utils" "js-utils" "file-serving"))
-                 (:file "loggers" :depends-on ("packages" "configuration" "variables" "utils"))
-                 (:module "http"
-                  :serial t
-                  :components ((:file "uri")
-                               (:file "http-utils")
-                               (:file "conditions")
-                               (:file "accept-headers")
-                               (:file "request-response")
-                               (:file "error-handling")
-                               (:file "request-parsing")
-                               (:file "server")
-                               (:file "brokers"))
-                  :depends-on ("packages" "loggers" "utils")))))
+            :components ((:file "package")
+                         (:file "duplicates" :depends-on ("package"))
+                         (:file "configuration" :depends-on ("package"))
+                         (:file "logging" :depends-on ("package"))
+                         (:module "util"
+                                  :components ((:file "zlib")
+                                               (:file "timer")
+                                               (:file "utils")
+                                               (:file "l10n" :depends-on ("utils")))
+                                  :depends-on ("configuration" "duplicates"))
+                         (:module "http"
+                                  :components ((:file "variables")
+                                               (:file "uri")
+                                               (:file "accept-headers")
+                                               (:file "utils" :depends-on ("variables"))
+                                               (:file "conditions" :depends-on ("variables"))
+                                               (:file "error-handling" :depends-on ("variables"))
+                                               (:file "request-response" :depends-on ("variables"))
+                                               (:file "request-parsing" :depends-on ("request-response"))
+                                               (:file "server" :depends-on ("request-response"))
+                                               (:file "brokers" :depends-on ("server")))
+                                  :depends-on ("logging" "util"))
+                         (:module "server"
+                                  :components ((:file "file-serving")
+                                               (:file "js-utils")
+                                               (:file "js-serving" :depends-on ("js-utils" "file-serving")))
+                                  :depends-on ("http")))))
   :depends-on (:metabang-bind
                :iterate
                :cl-def
@@ -135,22 +140,15 @@
   :test-system :wui-test
   :components
   ((:module "src"
-    :serial t
-    :components ((:file "l10n")
-                 (:file "dojo")
-                 (:module "util"
-                  :components ((:file "timer")
-                               #+sbcl(:file "object-size")))
-                 (:module "application"
-                  :serial t
-                  :depends-on ("dojo")
-                  :components ((:file "api")
-                               (:file "session")
-                               (:file "frame")
-                               (:file "application")
-                               (:file "entry-point")
-                               (:file "action"))))))
-  :depends-on (:wui-server
+    :components ((:module "application"
+                  :components ((:file "dojo")
+                               (:file "variables")
+                               (:file "session" :depends-on ("variables"))
+                               (:file "frame" :depends-on ("variables"))
+                               (:file "application" :depends-on ("variables" "dojo"))
+                               (:file "entry-point" :depends-on ("variables"))
+                               (:file "action" :depends-on ("variables")))))))
+  :depends-on (:wui-http-server
                ))
 
 (defsystem* :wui-component-server
@@ -166,10 +164,15 @@
   :test-system :wui-test
   :components
   ((:module "src"
-    :serial t
-    :components ((:module "component"
+    :components ((:module "util"
+                  :components ((:file "csv")
+                               (:file "place")
+                               #+sbcl(:file "object-size")))
+                 (:module "component"
                   :components ((:module "api"
-                                :components ())
+                                :components ((:file "api")
+                                             (:file "mop")
+                                             (:file "component" :depends-on ("mop"))))
                                (:module "book"
                                 :components ())
                                (:module "chart"
@@ -190,6 +193,7 @@
                                 :components ())
                                (:module "widget"
                                 :components ()))
+                  :depends-on ("util")
                   #+nil
                   ((:file "error-handlers")
                    (:file "api")
@@ -277,8 +281,7 @@
                    (:file "object-tree-inspector" :depends-on ("object-component" "alternator" "reference" "tree"))
                    (:file "process" :depends-on ("command" "object-maker" "object-list-inspector" "object-tree-inspector"))
                    (:file "object-filter" :depends-on ("place-component" "object-component" "object-inspector" "primitive-filter"))
-                   (:file "object-tree-filter" :depends-on ("object-filter")))
-                  :depends-on ("application" "dojo")))))
+                   (:file "object-tree-filter" :depends-on ("object-filter")))))))
   :depends-on (:wui-application-server
                ))
 
@@ -314,12 +317,11 @@
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
   :components
   ((:module "test"
-    :serial t
     :components ((:file "package")
                  (:file "environment" :depends-on ("package"))
-                 (:file "server")
-                 (:file "application")
-                 (:file "wudemo-application"))))
+                 (:file "server" :depends-on ("package"))
+                 (:file "application" :depends-on ("package"))
+                 (:file "demo" :depends-on ("package")))))
   :depends-on (:wui :stefil :drakma))
 
 (defmethod perform ((op test-op) (system wui-system))
@@ -344,8 +346,8 @@
 
 (defsystem* wui-and-cl-perec
   :depends-on (:wui
-               :cl-perec
                :cl-l10n
+               :cl-perec
                :dwim-meta-model
                )
   :components

@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Listener definer
+
 (def (definer e) resource-loading-locale-loaded-listener (name asdf-system base-directory &key log-discriminator (setup-readtable-function ''setup-readtable))
   (setf log-discriminator (or log-discriminator ""))
   (with-standard-definer-options name
@@ -22,16 +25,39 @@
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader)
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/application :wui "resource/application/"
-  :log-discriminator "WUI")
-(register-locale-loaded-listener 'wui-resource-loader/application)
+;;;;;;
+;;; Localized string reader
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resource/component/"
-  :log-discriminator "WUI")
-(register-locale-loaded-listener 'wui-resource-loader/component)
+(def (constant e :test 'string=) +missing-resource-css-class+ (coerce "missing-resource" 'simple-base-string))
+
+(def function localized-string-reader (stream c1 c2)
+  (declare (ignore c2))
+  (unread-char c1 stream)
+  (bind ((key (read stream))
+         (capitalize? (to-boolean (and (> (length key) 0)
+                                       (upper-case-p (elt key 0))))))
+    (if (ends-with-subseq "<>" key)
+        `(%localized-string-reader/impl<> ,(string-downcase key) ,capitalize?)
+        `(%localized-string-reader/impl ,(string-downcase key) ,capitalize?))))
+
+(def function %localized-string-reader/impl<> (key capitalize?)
+  (bind (((:values str found?) (lookup-resource (subseq key 0 (- (length key) 2)))))
+    (when capitalize?
+      (setf str (capitalize-first-letter str)))
+    (if found?
+        `xml,str
+        <span (:class #.+missing-resource-css-class+)
+          ,str>)))
+
+(def function %localized-string-reader/impl (key capitalize?)
+  (bind (((:values str found?) (lookup-resource key)))
+    (when (and capitalize?
+               found?)
+      (setf str (capitalize-first-letter str)))
+    str))
 
 ;;;;;;
-;;; localization primitives
+;;; Localization primitives
 
 (def (function e) localized-mime-type-description (mime-type)
   (lookup-first-matching-resource
@@ -206,9 +232,9 @@
                                                 (setf day-of-week-already-encoded? t)
                                                 (setf day-of-week-should-be-encoded? nil)
                                                 (case day-distance
-                                                  (0  #"today")
-                                                  (-1 #"yesterday")
-                                                  (1  #"tomorrow")))
+                                                  (0  (lookup-resource "today"))
+                                                  (-1 (lookup-resource "yesterday"))
+                                                  (1  (lookup-resource "tomorrow"))))
                                                (t
                                                 ;; if we are within the current week
                                                 ;; then print only the name of the day.
@@ -241,8 +267,9 @@
                                         (current-locale))))))))
 
 ;;;;;;
-;;; utilities
+;;; Utilities
 
+;; TODO
 #+nil
 (def (function e) render-client-timezone-offset-probe ()
   "Renders an input field with a callback that will set the CLIENT-TIMEZONE slot of the session when the form is submitted."
@@ -269,19 +296,15 @@
 (def function funcall-resource-function (name &rest args)
   (apply-resource-function name args))
 
-(def function apply-resource-function (name &optional args)
-  (flet ((fallback-locale-for-functional-resources ()
-           (acond
-             ((and (boundp '*application*)
-                   *application*)
-              (default-locale-of it))
-             (*fallback-locale-for-functional-resources*
-              (locale it))
-             (t (error "Could not identify a fallback locale for functional resources.")))))
-    (lookup-resource name :arguments args
-                     :otherwise (lambda ()
-                                  (with-locale (fallback-locale-for-functional-resources)
-                                    (lookup-resource name :arguments args
-                                                     :otherwise [error "Functional resource ~S is missing even for the fallback locale ~A" name (current-locale)]))))))
+;;;;;
+;;; Initialized to "en" in l10n.lisp
 
-(setf *fallback-locale-for-functional-resources* "en")
+(def special-variable *fallback-locale-for-functional-resources* "en"
+  "This is used as a fallback locale if a functional resource can not be found and there's no *application* that would provide a default locale. It's not possible to use the usual name fallback strategy for functional resources, so make sure that the default locale has a 100% coverage for them, otherwise it may effect the behavior of the application in certain situations.")
+
+(def function apply-resource-function (name &optional args)
+  (lookup-resource name :arguments args
+                   :otherwise (lambda ()
+                                (with-locale (locale *fallback-locale-for-functional-resources*)
+                                  (lookup-resource name :arguments args
+                                                   :otherwise [error "Functional resource ~S is missing even for the fallback locale ~A" name (current-locale)])))))

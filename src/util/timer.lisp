@@ -1,7 +1,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; a simple scheduler of tasks to be run
+;;; A simple task scheduler
 
 (def class* timer ()
   ((entries nil)
@@ -125,9 +125,10 @@
                                   (wui.error "Error while running timer entry ~A: ~A" entry level-1-error)))))
         (with-simple-restart (skip-timer-entry "Skip calling timer entry ~A" entry)
           (funcall it)))))
+  
   (:method :after ((entry single-shot-timer-entry))
     (timer.debug "Invalidating single shot timer entry ~A" entry)
     (setf (thunk-of entry) nil))
+
   (:method :after ((self periodic-timer-entry))
     (setf (scheduled-at-of self) (local-time:adjust-timestamp (local-time:now) (offset :sec (interval-of self))))))
-

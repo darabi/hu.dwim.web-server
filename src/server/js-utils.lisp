@@ -4,17 +4,29 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Debug client side
+
+(def special-variable *debug-client-side* (not *load-as-production-p*)
+  "The default, system wide, value for the debug-client-side slots of frames.")
+
+(def generic compile-time-debug-client-side? (application))
+
+;;;;;;
+;;; Logging
+
 (macrolet ((forward (name)
              `(def js-macro ,(symbolicate "log." name) (&rest args)
-                (when (if (boundp '*application*)
-                          (compile-time-debug-client-side? *application*)
-                          *debug-client-side*)
+                (when *debug-client-side*
                  (list* ',(symbolicate "window.console." name) args)))))
   (forward |debug|)
   (forward |info|)
   (forward |warn|)
   (forward |error|)
   (forward |critical|))
+
+;;;;;;
+;;; Lift some definitions to JavaScript
 
 (def (js-macro e) |in-package| (package)
   (declare (ignore package))
@@ -161,9 +173,7 @@
 (def (js-macro e) |assert| (expression &rest args-to-throw)
   (unless args-to-throw
     (setf args-to-throw (list (concatenate 'string "Assertion failed: " (princ-to-string expression)))))
-  (bind ((enter-debugger? (if (boundp '*application*)
-                              (compile-time-debug-client-side? *application*)
-                              (not *load-as-production-p*))))
+  (bind ((enter-debugger? *debug-client-side*))
    {with-preserved-readtable-case
        `(unless ,EXPRESSION
           ,@(WHEN ENTER-DEBUGGER?

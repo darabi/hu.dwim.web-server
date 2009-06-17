@@ -34,7 +34,7 @@
       options
       (remove-from-plist options :inline :optimize)))
 
-(def constant +encoding+ :utf-8)
+(def constant +default-encoding+ :utf-8)
 
 (def special-variable *transform-quasi-quote-to-inline-emitting* t)
 (def special-variable *transform-quasi-quote-to-binary* t)
@@ -44,7 +44,7 @@
   (make-quasi-quoted-string-to-form-emitting-transformation-pipeline
    '*xml-stream*
    :binary *transform-quasi-quote-to-binary*
-   :encoding +encoding+
+   :encoding +default-encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*))
 
 (def function make-js-transformation-pipeline (&key embedded-in-xml inline-into-xml-attribute (inline-emitting *transform-quasi-quote-to-inline-emitting*)
@@ -54,7 +54,7 @@
        '*xml-stream*
        '*js-stream*)
    :binary *transform-quasi-quote-to-binary*
-   :encoding +encoding+
+   :encoding +default-encoding+
    :with-inline-emitting inline-emitting
    :indentation-width *quasi-quote-indentation-width*
    :escape-as-xml (and embedded-in-xml inline-into-xml-attribute)
@@ -74,11 +74,11 @@
   (make-quasi-quoted-xml-to-form-emitting-transformation-pipeline
    '*xml-stream*
    :binary *transform-quasi-quote-to-binary*
-   :encoding +encoding+
+   :encoding +default-encoding+
    :with-inline-emitting *transform-quasi-quote-to-inline-emitting*
    :indentation-width *quasi-quote-indentation-width*
    ;; :emit-short-xml-element-form nil ; browsers simply suck, but for now let's just not disable it alltogether and use "" explicitly where it's supposed to be avoided
-   :encoding +encoding+))
+   :encoding +default-encoding+))
 
 (define-syntax js-sharpquote ()
   (set-dispatch-macro-character
@@ -162,7 +162,7 @@
                       `(babel:octets-to-string
                         (with-output-to-sequence (*xml-stream*)
                           ,@body)
-                        :encoding +encoding+)
+                        :encoding +default-encoding+)
                       `(with-output-to-string (*xml-stream*)
                          ,@body))))
     (once-only (content)
@@ -174,7 +174,7 @@
                         :transformation-pipeline ',(if *transform-quasi-quote-to-binary*
                                                        (list
                                                         (make-instance 'quasi-quoted-string-to-quasi-quoted-binary
-                                                                       :encoding +encoding+)
+                                                                       :encoding +default-encoding+)
                                                         (make-instance 'quasi-quoted-binary-to-binary-emitting-form
                                                                        :stream-variable-name '*xml-stream*
                                                                        :with-inline-emitting *transform-quasi-quote-to-inline-emitting*))

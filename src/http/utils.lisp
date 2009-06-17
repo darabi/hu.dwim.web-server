@@ -10,7 +10,7 @@
       (setf encoding (or (awhen (and *response*
                                      (external-format-of *response*))
                            (encoding-name-of it))
-                         +encoding+)))
+                         +default-encoding+)))
     ;; this is a somewhat ugly optimization: return constants for the most often used combinations
     (or (case encoding
           (:utf-8    (case mime-type
@@ -45,12 +45,12 @@
                              (+javascript-mime-type+ +iso-8859-1-javascript-content-type+))))))
         (concatenate 'string mime-type "; charset=" (string-downcase encoding)))))
 
-(def (constant e :test 'string=) +html-content-type+         (content-type-for +html-mime-type+         +encoding+))
-(def (constant e :test 'string=) +xhtml-content-type+        (content-type-for +xhtml-mime-type+        +encoding+))
-(def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +encoding+))
-(def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +encoding+))
+(def (constant e :test 'string=) +html-content-type+         (content-type-for +html-mime-type+         +default-encoding+))
+(def (constant e :test 'string=) +xhtml-content-type+        (content-type-for +xhtml-mime-type+        +default-encoding+))
+(def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +default-encoding+))
+(def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +default-encoding+))
 
-(def function emit-xml-prologue (&key (encoding +encoding+) (stream *xml-stream*) version)
+(def function emit-xml-prologue (&key (encoding +default-encoding+) (stream *xml-stream*) version)
   (macrolet ((emit (string)
                `(write-string ,string stream)))
     (if (and (eq encoding :utf-8)
@@ -77,6 +77,26 @@
           (emit doctype)
           (emit #.(format nil ">~%"))))))
 
+(def (special-variable e :documentation "The stream for quasi quoted JavaScript output. It is written as a side effect when evaluating quasi quoted JavaScript forms.")
+  *js-stream*)
+
+(def (with-macro e) with-collapsed-js-scripts ()
+  (bind ((result nil)
+	 (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
+									      '(unsigned-byte 8)
+									      'character)
+							    :external-format (if *response*
+										 (external-format-of *response*)
+										 +default-encoding+))
+                        (setf result (-body-)))))
+    (append
+     (ensure-list result)
+     (unless (zerop (length script-body))
+       (list (cl-quasi-quote::as-delayed-emitting
+	       (write-sequence #.(format nil "<script type=\"text/javascript\">// <![CDATA[~%") *xml-stream*)
+	       (write-sequence script-body *xml-stream*)
+	       (write-sequence #.(format nil "~%// ]]></script>") *xml-stream*)))))))
+
 (def (with-macro* e) with-html-document (&key title
                                               content-type
                                               encoding
@@ -90,7 +110,7 @@
                        (awhen (and response
                                    (external-format-of response))
                          (encoding-name-of it))
-                       +encoding+))
+                       +default-encoding+))
          (content-type (or content-type
                            (when response
                              (header-value response +header/content-type+)))))

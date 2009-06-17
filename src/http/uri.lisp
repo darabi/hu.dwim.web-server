@@ -43,6 +43,14 @@
       (setf (query-parameters-of result) (copy-alist (query-parameters-of uri))))
     result))
 
+(def special-variable *clone-request-uri/default-strip-query-parameters* nil)
+
+(def (function e) clone-request-uri (&key (strip-query-parameters *clone-request-uri/default-strip-query-parameters*))
+  (prog1-bind uri
+      (clone-uri (uri-of *request*))
+    (dolist (parameter-name strip-query-parameters)
+      (delete-query-parameter uri parameter-name))))
+
 (def method query-parameters-of :before ((self uri))
   (unless (slot-boundp self 'query-parameters)
     (setf (query-parameters-of self) (awhen (query-of self)

@@ -29,6 +29,11 @@
 (def (special-variable e) *default-ajax-enabled* #t
   "The default for the same slot in applications.")
 
+(def resource-loading-locale-loaded-listener wui-resource-loader/application :wui "resource/application/"
+  :log-discriminator "WUI")
+
+(register-locale-loaded-listener 'wui-resource-loader/application)
+
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
 
@@ -379,6 +384,8 @@
   (assert (not (boundp '*rendering-phase-reached*)))
   (assert (not (boundp '*inside-user-code*)))
   (bind ((*application* application)
+         (*debug-client-side* (compile-time-debug-client-side? application))
+         (*fallback-locale-for-functional-resources* (default-locale-of application))
          (*brokers* (cons application *brokers*))
          ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can freely setf it
          (*session* nil)

@@ -1,7 +1,7 @@
+1. WUI
+------
 
-WUI
-
-An all-lisp web server, based on iolib..
+An all-lisp web server, based on iolib.
 
 (asdf:operate 'asdf:test-op :wui)
 
@@ -11,8 +11,8 @@ http://localhost.localdomain:8080/
 
 (setf hu.dwim.wui::*debug-on-error* t)
 
-
-DOJO
+2. DOJO
+-------
 
 You need to build dojo for WUI to work:
 

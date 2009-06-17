@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Dojo support
+
 (def special-variable *dojo-widget-ids*)
 
 (macrolet ((x (&body entries)
