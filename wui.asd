@@ -4,6 +4,9 @@
 
 (in-package :cl-user)
 
+;;;;;;
+;;; System definitions
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (flet ((try (system)
            (unless (asdf:find-system system nil)
@@ -61,6 +64,9 @@
      :setup-readtable-function ,setup-readtable-function
      ,@body))
 
+;;;;;;
+;;; WUI server systems 
+
 (defsystem* :wui-http-server
   :description "Basic HTTP server to build user interfaces for the world wide web."
   :long-description "Provides error handling, compression, static file serving, quasi quoted JavaScript and quasi quoted XML serving."
@@ -71,7 +77,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
                "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-test
+  :test-system :wui-http-test
   :components
   ((:module "src"
             :components ((:file "package")
@@ -93,7 +99,7 @@
                                                (:file "error-handling" :depends-on ("variables"))
                                                (:file "request-response" :depends-on ("variables"))
                                                (:file "request-parsing" :depends-on ("request-response"))
-                                               (:file "server" :depends-on ("request-response"))
+                                               (:file "server" :depends-on ("request-parsing"))
                                                (:file "brokers" :depends-on ("server")))
                                   :depends-on ("logging" "util"))
                          (:module "server"
@@ -137,7 +143,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-test
+  :test-system :wui-application-test
   :components
   ((:module "src"
     :components ((:module "application"
@@ -161,7 +167,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-test
+  :test-system :wui-component-test
   :components
   ((:module "src"
     :components ((:module "util"
@@ -311,18 +317,34 @@
     (call-next-method)))
 
 ;;;;;;
-;;; Test system
+;;; Test systems
 
-(defsystem* :wui-test
+(defsystem* :wui-http-test
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "package")
                  (:file "environment" :depends-on ("package"))
-                 (:file "server" :depends-on ("package"))
-                 (:file "application" :depends-on ("package"))
-                 (:file "demo" :depends-on ("package")))))
-  :depends-on (:wui :stefil :drakma))
+                 (:file "server" :depends-on ("package")))))
+  :depends-on (:wui-http-server :stefil :drakma))
+
+(defsystem* :wui-application-test
+  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
+  :components
+  ((:module "test"
+    :components ((:file "application"))))
+  :depends-on (:wui-application-server :wui-http-test))
+
+(defsystem* :wui-component-test
+  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
+  :components
+  ((:module "test"
+    :components ((:file "demo" :depends-on ("package")))))
+  :depends-on (:wui-component-server :wui-application-test))
+
+(defsystem* :wui-component-test
+  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
+  :depends-on (:wui :wui-component-test))
 
 (defmethod perform ((op test-op) (system wui-system))
   (format *debug-io* "~%*** Testing ~A using the ~A test system~%~%" system (test-system-of system))
@@ -342,7 +364,7 @@
   nil)
 
 ;;;;;;
-;;; Integration with other systems
+;;; WUI integration with other systems
 
 (defsystem* wui-and-cl-perec
   :depends-on (:wui

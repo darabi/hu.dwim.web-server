@@ -91,15 +91,6 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def (function e) clone-request-uri (&key strip-query-parameters)
-  (prog1-bind uri
-      (clone-uri (uri-of *request*))
-    (delete-query-parameter uri
-                            +ajax-aware-parameter-name+
-                            +delayed-content-parameter-name+)
-    (dolist (parameter-name strip-query-parameters)
-      (delete-query-parameter uri parameter-name))))
-
 ;; TODO this is broken
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
   (bind ((walked-body (cl-walker:walk-form `(progn ,@body) nil (cl-walker:make-walk-environment env)))

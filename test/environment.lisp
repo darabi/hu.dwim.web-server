@@ -20,7 +20,7 @@
       (run-child-tests))))
 
 (def definer test (name args &body body)
-  `(def stefil:test ,name ,args
+  `(def stefil::test ,name ,args
     ;; rebind these, so that we can setf it freely in the tests...
     (bind ((*test-application* *test-application*)
            (*test-server* *test-server*))
@@ -71,7 +71,7 @@
   (:method ((path wui::uri) &rest args)
     (apply 'web (print-uri-to-string path) args)))
 
-(def function uri (&optional (path "") &rest query-params)
+(def function uri (&optional (path ""))
   (let ((concatenated-path (apply #'concatenate-string (ensure-list path))))
     (make-uri
      :scheme "http"
@@ -82,11 +82,4 @@
                         (if (and (not (zerop (length concatenated-path)))
                                  (char= (elt concatenated-path 0) #\/))
                             (subseq concatenated-path 1)
-                            concatenated-path))
-     :query-parameters
-     (iter (for (name value) :on query-params :by #'cddr)
-           (collect (cons name value))))))
-
-
-
-
+                            concatenated-path)))))

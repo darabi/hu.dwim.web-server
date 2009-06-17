@@ -1,7 +1,7 @@
 (in-package :wui-test)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; test application for basic app features
+;;;;;;
+;;; Test application for basic app features
 
 (def special-variable *test-application* (make-application :path-prefix "/test/"))
 
@@ -66,16 +66,16 @@
       (render-request *request*))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; echo application to echo back the request
+;;;;;;
+;;; Echo application to echo back the request
 
 (def special-variable *echo-application* (make-application :path-prefix "/echo/"))
 
 (def entry-point (*echo-application* :path-prefix "") ()
   (make-request-echo-response))
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;;; session application
+;;;;;;
+;;; Session application
 
 (def special-variable *session-application* (make-application :path-prefix "/session/"))
 

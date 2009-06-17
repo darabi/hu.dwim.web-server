@@ -84,7 +84,7 @@
 
 (def function start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
-    (start-test-server-with-brokers (make-file-serving-broker "/wui/" (project-relative-pathname ""))
+    (start-test-server-with-brokers (make-directory-serving-broker "/wui/" (project-relative-pathname ""))
                                     :maximum-worker-count maximum-worker-count)))
 
 (def function start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
@@ -93,5 +93,5 @@
                                       (with-request-params (name)
                                         (make-functional-html-response ()
                                           (with-html-document (:title "foo")
-                                            <h1 ,name>))))
+                                            <h3 ,(or name "The name query parameter is not specified!")>))))
                                     :maximum-worker-count maximum-worker-count)))

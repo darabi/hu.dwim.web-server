@@ -433,7 +433,7 @@
 (declaim (notinline integer-to-string))
 
 ;;;;;;
-;;; XHTML emitting
+;;; XML emitting
 
 (def (special-variable e :documentation "The stream for quasi quoted XML output. It is written as a side effect when evaluating quasi quoted XML forms.")
   *xml-stream*)
@@ -453,31 +453,27 @@
        (bind ((*xml-stream* ,buffer))
          (emit (progn ,@body))))))
 
-(def (macro e) emit-http-response ((&optional headers-as-plist cookie-list) &body body)
-  "Emit a full http response and also bind html stream, so you are ready to output directly into the network stream."
-  `(emit-into-xml-stream (client-stream-of *request*)
-     (send-http-headers (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
-                                      (collect `(cons ,name ,value))))
-                        (list ,@cookie-list))
-     ,@body))
-
-(def (macro e) emit-http-response* ((&optional headers cookies) &body body)
-  "Just like EMIT-HTML-RESPONSE, but HEADERS and COOKIES are simply evaluated as expressions."
-  `(emit-into-xml-stream (client-stream-of *request*)
-     (send-http-headers ,headers ,cookies)
-     ,@body))
-
-(def (macro e) emit-simple-html-document-http-response ((&key title status headers cookies) &body body)
-  `(emit-http-response* ((append
-                          ,@(when headers (list headers))
-                          ,@(when status `((list (cons +header/status+ ,status))))
-                          '((+header/content-type+ . +utf-8-html-content-type+)))
-                         ,cookies)
-     (with-html-document (:content-type +html-content-type+ :title ,title)
-       ,@body)))
-
 ;;;;;;
 ;;; JavaScript emitting
+
+(def (special-variable e :documentation "The stream for quasi quoted JavaScript output. It is written as a side effect when evaluating quasi quoted JavaScript forms.")
+  *js-stream*)
+
+(def (macro e) with-js-stream (stream &body body)
+  `(bind ((*js-stream* ,stream))
+     ,@body))
+
+(def (macro e) emit-into-js-stream (stream &body body)
+  `(bind ((*js-stream* ,stream))
+     (emit (progn
+             ,@body))))
+
+(def (macro e) emit-into-js-stream-buffer (&body body)
+  (with-unique-names (buffer)
+    `(with-output-to-sequence (,buffer :external-format +default-external-format+)
+       (bind ((*js-stream* ,buffer))
+         (emit (progn ,@body))))))
+
 
 ;;;;;;
 ;;; Debug on error
