@@ -71,7 +71,7 @@
     ((is-timed-out? session) (values #f :timed-out))
     (t (values #t))))
 
-(def with-macro* with-lock-held-on-session (session)
+(def (with-macro* e) with-lock-held-on-session (session)
   (multiple-value-prog1
       (progn
         (threads.dribble "Entering with-lock-held-on-session for ~S in thread ~S" session (current-thread))

@@ -40,11 +40,11 @@
     (start-test-server-and-wait server)))
 
 (def function start-test-server-with-brokers (brokers &rest args &key
-                                       (server-type 'broker-based-server)
-                                       (host *test-host*)
-                                       (port *test-port*)
-                                       (maximum-worker-count 16) ; lower to 0 to start in the REPL thread
-                                       &allow-other-keys)
+                                                      (server-type 'broker-based-server)
+                                                      (host *test-host*)
+                                                      (port *test-port*)
+                                                      (maximum-worker-count 16) ; lower to 0 to start in the REPL thread
+                                                      &allow-other-keys)
   (when *test-server*
     (cerror "Start anyway" "*TEST-SERVER* is not NIL which means that there's a test server still running. You can use STOP-TEST-SERVER to shut it down. See also *RUNNING-TEST-SERVERS*."))
   (remove-from-plistf args :server-type)

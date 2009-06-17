@@ -437,7 +437,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; request echo response
 
-(def class* request-echo-response (response)
+(def class* request-echo-response (primitive-response)
   ()
   (:documentation "Render back the request details as a simple html page, mostly for debugging purposes."))
 

@@ -5,11 +5,11 @@
 
 (def special-variable *test-application* (make-application :path-prefix "/test/"))
 
-(def entry-point (*test-application* :path "performance" :with-session-logic nil)
+(def entry-point (*test-application* :path "performance" :with-session-logic #f)
     (name)
   (make-functional-html-response ()
     (with-html-document ()
-      <h1 ,name>)))
+      <h3 ,(or name "The name query parameter is not specified!")>)))
 
 (def function render-mime-part-details (mime-part)
   <p "Mime part headers:">
@@ -32,8 +32,9 @@
     <tr <td "Content type">
         <td ,(rfc2388-binary:content-type mime-part)>>>)
 
-(def entry-point (*test-application* :path "params") ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
-  (make-functional-response ()
+(def entry-point (*test-application* :path "params" :with-session-logic #f)
+    ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
+  (make-raw-functional-response ()
     (emit-simple-html-document-http-response (:title "foo")
       <p "Parameters:"
         <a (:href ,(concatenate-string (path-prefix-of *test-application*)
@@ -71,7 +72,7 @@
 
 (def special-variable *echo-application* (make-application :path-prefix "/echo/"))
 
-(def entry-point (*echo-application* :path-prefix "") ()
+(def entry-point (*echo-application* :path-prefix "" :with-session-logic #f) ()
   (make-request-echo-response))
 
 ;;;;;;
@@ -79,12 +80,18 @@
 
 (def special-variable *session-application* (make-application :path-prefix "/session/"))
 
-(def entry-point (*session-application* :path "") ()
+(def entry-point (*session-application* :path "" :requires-valid-session #f :ensure-session #f :requires-valid-frame #f :ensure-frame #t) ()
   (if *session*
       (progn
         (assert (and (boundp '*frame*)
                      *frame*))
-        (make-root-component-rendering-response *frame*))
+        (make-raw-functional-response ()
+          (emit-simple-html-document-http-response ()
+            <p "We have a session now... "
+               <span ,(or (root-component-of *frame*)
+                          (setf (root-component-of *frame*) "Hello world from a session!"))>
+               <a (:href ,(concatenate-string (path-prefix-of *application*) "delete/"))
+                  "delete session">>)))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-raw-functional-response ()
           (emit-simple-html-document-http-response ()
@@ -92,27 +99,8 @@
                <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
                   "create new session">>)))))
 
-(def entry-point (*session-application* :path "new/" :with-session-logic #f) ()
-  (bind ((new-session (make-new-session *application*))
-         (old-session nil))
-    (with-session-logic ()
-      ;; this voodoo is not necessary here for building a simple redirect response,
-      ;; but it's here for demonstrational purposes.
-      (setf old-session *session*)
-      (setf *session* new-session)
-      (values))
-    ;; we may only lock the app again after our session's lock
-    ;; has been released to avoid deadlocks by strictly following the
-    ;; app -> session locking order...
-    (with-lock-held-on-application (*application*)
-      (when old-session
-        (delete-session *application* old-session))
-      (register-session *application* new-session))
-    (with-lock-held-on-session (new-session)
-      (bind ((new-frame (make-new-frame *application* new-session)))
-        (setf *frame* new-frame)
-        (register-frame *application* new-session new-frame)
-        (make-redirect-response-for-current-application)))))
+(def entry-point (*session-application* :path "new/" :requires-valid-session #f :ensure-session #t :requires-valid-frame #f) ()
+  (make-redirect-response-for-current-application))
 
 (def entry-point (*session-application* :path "delete/" :with-session-logic #f) ()
   (bind ((old-session nil))
