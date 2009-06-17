@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -11,7 +11,7 @@
 (define-condition uri-parse-error (simple-parse-error)
   ())
 
-(defun uri-parse-error (message &rest args)
+(def function uri-parse-error (message &rest args)
   (error 'uri-parse-error
          :format-control message
          :format-arguments args))
@@ -43,7 +43,7 @@
       (setf (query-parameters-of result) (copy-alist (query-parameters-of uri))))
     result))
 
-(defmethod query-parameters-of :before ((self uri))
+(def method query-parameters-of :before ((self uri))
   (unless (slot-boundp self 'query-parameters)
     (setf (query-parameters-of self) (awhen (query-of self)
                                        (parse-query-parameters it)))))
@@ -69,7 +69,7 @@
     (setf (uri-query-parameter-value to name)
           (uri-query-parameter-value from name))))
 
-(defun add-query-parameter-to-uri (uri name value)
+(def function add-query-parameter-to-uri (uri name value)
   (nconcf (query-parameters-of uri) (list (cons name value)))
   uri)
 
@@ -209,7 +209,7 @@
        :do (setf (aref result (char-code ok-char)) t))
     (coerce result '(simple-array boolean (256)))))
 
-(defun escape-as-uri (string)
+(def function escape-as-uri (string)
   "Escapes all non alphanumeric characters in STRING following the URI convention. Returns a fresh string."
   (bind ((*print-pretty* #f)
          (*print-circle* #f))

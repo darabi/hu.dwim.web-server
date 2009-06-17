@@ -1,18 +1,18 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
 (in-package :hu.dwim.wui)
 
-;;;;;
-;;; some DOS related limits
+;;;;;;
+;;; Some DOS related limits
 
 (def constant +maximum-http-request-header-line-count+ 128)
 (def constant +maximum-http-request-header-line-length+ (* 4 1024))
 
 
-;;;;;
-;;; specials available while processing a request
+;;;;;;
+;;; Specials available while processing a request
 
 (def (special-variable e) *request*)
 (def (special-variable e) *response*)
@@ -29,15 +29,16 @@
 (def (special-variable e) *action*)
 
 (def (special-variable :documentation "This variable is bound in application contexts and set to T when the render protocol is invoked. Needed for the error handling code to decide what to do...")
-    *rendering-phase-reached*)
+  *rendering-phase-reached*)
 
 (def (special-variable :documentation "This variable is bound in application contexts and set to T when the request processing reached the point of querying the entry points. Needed for the error handling code to decide what to do...")
-    *inside-user-code*)
+  *inside-user-code*)
 
 (def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
-    *delayed-content-request*)
+  *delayed-content-request*)
+
 (def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the remote JS stack and awaits a structured XML answer.")
-    *ajax-aware-request*)
+  *ajax-aware-request*)
 
 (def constant +action-id-length+   8)
 (def constant +frame-id-length+    8)
@@ -56,7 +57,7 @@
 
 (def (constant :test 'string=) +session-cookie-name+ "sid")
 
-(define-symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
+(def symbol-macro +external-format+ (load-time-value (ensure-external-format +encoding+)))
 
 (def (special-variable e) *xml-stream*)
 (def (special-variable e) *js-stream*)
@@ -79,7 +80,7 @@
 	       (write-sequence #.(format nil "~%// ]]></script>") *xml-stream*)))))))
 
 (def special-variable *request-content-length-limit* #.(* 5 1024 1024)
-     "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
+  "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
 See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 
 (def special-variable *debug-on-error* (not *load-as-production-p*)
@@ -97,9 +98,8 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 
 (def constant +epoch-start+ (encode-universal-time 0 0 0 1 1 1970 0))
 
-;;;
+;;;;;;
 ;;; l10n
-;;;
 
 (def constant +accept-language-cache-purge-size+ 1000
   "The maximum size of the cache of Accept-Language header over which the hashtable is cleared.")
@@ -208,10 +208,8 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
   (or (eq a b)
       (string= a b)))
 
-
-;;;
+;;;;;;
 ;;; HTTP
-;;;
 
 (def (constant :test 'equal) +disallow-response-caching-header-values+
   (list (cons +header/expires+ "Wed, 01 Mar 2000 00:00:00 GMT")
@@ -284,9 +282,8 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
     +http-gateway-time-out+                504 "Gateway Time-out"
     +http-version-not-supported+           505 "Version not supported"))
 
-;;;
+;;;;;;
 ;;; Stuff needed for applications and components
-;;;
 
 (def (constant e :test 'string=) +scroll-x-parameter-name+ "_sx")
 (def (constant e :test 'string=) +scroll-y-parameter-name+ "_sy")
@@ -304,6 +301,8 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (def (constant e :test (constantly #t)) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
 (def (constant e :test (constantly #t)) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
 
-;; initialized to "en" in l10n.lisp
+;;;;;
+;;; Initialized to "en" in l10n.lisp
+
 (def special-variable *fallback-locale-for-functional-resources* nil
   "This is used as a fallback locale if a functional resource can not be found and there's no *application* that would provide a default locale. It's not possible to use the usual name fallback strategy for functional resources, so make sure that the default locale has a 100% coverage for them, otherwise it may effect the behavior of the application in certain situations.")

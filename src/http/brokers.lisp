@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -73,11 +73,11 @@
 ;;;;;;;;;;;
 ;;; brokers
 
-(defgeneric matches-request? (broker request)
+(def generic matches-request? (broker request)
   (:method (broker request)
     #f))
 
-(defgeneric produce-response (broker request))
+(def generic produce-response (broker request))
 
 (def class* broker (closer-mop:funcallable-standard-object request-counter-mixin)
   ((priority 0))
@@ -101,7 +101,7 @@
 (def print-object broker-with-path
   (format *standard-output* "~S ~S" (path-of -self-) (priority-of -self-)))
 
-(defmethod matches-request? ((broker broker-with-path) request)
+(def method matches-request? ((broker broker-with-path) request)
   (request-uri-matches-path? (path-of broker) request))
 
 (def (function o) request-uri-matches-path? (path request)
@@ -124,7 +124,7 @@
     (broker-with-path-prefix (path-prefix-of broker))
     (t nil)))
 
-(defmethod matches-request? ((broker broker-with-path-prefix) request)
+(def method matches-request? ((broker broker-with-path-prefix) request)
   (request-uri-matches-path-prefix? (path-of broker) request))
 
 (def (function o) request-uri-matches-path-prefix? (path-prefix request)
@@ -139,7 +139,7 @@
   ((response))
   (:metaclass funcallable-standard-class))
 
-(defmethod produce-response ((broker constant-response-broker) request)
+(def method produce-response ((broker constant-response-broker) request)
   (response-of broker))
 
 (def class* constant-response-broker-at-path (constant-response-broker broker-with-path)

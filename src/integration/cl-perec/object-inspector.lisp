@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -20,7 +20,7 @@
                (dmm::authorize-operation 'dmm::read-entity-property-operation :-entity- class :-property- slot))
              (call-next-method)))
 
-(def layered-method make-class-presentation ((component component) (class prc::persistent-class) (prototype prc::persistent-object))
+(def layered-method make-standard-class-presentation ((component component) (class prc::persistent-class) (prototype prc::persistent-object))
   (if (dmm::developer-p (dmm::current-effective-subject))
       (make-viewer class :initial-alternative-type 'reference-component)
       (call-next-method)))

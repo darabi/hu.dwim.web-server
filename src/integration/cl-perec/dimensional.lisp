@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Time provider
 
-(def component time-provider (content-mixin)
+(def (component ea) time-provider (component-environment/abstract content/mixin)
   ((time :type prc::timestamp)))
 
 (def component-environment time-provider
@@ -16,7 +16,7 @@
 ;;;;;;
 ;;; Time selector
 
-(def component time-selector (timestamp-inspector)
+(def (component ea) time-selector (timestamp-inspector)
   ()
   (:default-initargs :edited #t))
 
@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; Validity selector
 
-(def component validity-selector (member-inspector)
+(def (component ea) validity-selector (member-inspector)
   ()
   (:default-initargs :edited #t :possible-values '(2007 2008 2009) :client-name-generator [integer-to-string !2]))
 
@@ -47,7 +47,7 @@
 ;;;;;;
 ;;; Validity provider
 
-(def component validity-provider (content-mixin)
+(def (component ea) validity-provider (component-environment/abstract content/mixin)
   ((selector :type component)))
 
 (def (macro e) validity-provider ((&key validity) &body forms)
@@ -56,7 +56,7 @@
                   :selector (validity-selector :validity ,validity)))
 
 (def render-xhtml validity-provider ()
-  <div ,(render (selector-of -self-))
+  <div ,(render-component (selector-of -self-))
        ,(call-next-method) >)
 
 (def component-environment validity-provider
@@ -68,7 +68,7 @@
 ;;;;;;
 ;;; Coordinates provider
 
-(def component coordinates-provider (content-mixin)
+(def (component ea) coordinates-provider (component-environment/abstract content/mixin)
   ((dimensions)
    (coordinates)))
 
@@ -92,7 +92,7 @@
 ;;;;;;
 ;;; Coordinates dependent mixin
 
-(def component coordinates-dependent-mixin ()
+(def (component ea) coordinates-dependent-mixin ()
   ((dimensions)
    (coordinates)))
 
@@ -117,7 +117,7 @@
               (for old-coordinate :in (coordinates-of -self-))
               (for new-coordinate = (prc:coordinate dimension))
               (unless (prc:coordinate-equal dimension (ensure-list old-coordinate) (ensure-list new-coordinate))
-                (mark-outdated -self-))
+                (mark-to-be-refreshed -self-))
               (collect new-coordinate))))
 
 (def (function e) coordinates-bound-according-to-dimension-type-p (component)
@@ -131,7 +131,7 @@
 ;;;;;;
 ;;; D value inspector reference
 
-(def component d-value-inspector-reference (reference-component)
+(def (component ea) d-value-inspector-reference (reference-component)
   ())
 
 (def method make-reference-label ((reference d-value-inspector-reference) class (instance prc::d-value))
@@ -142,7 +142,7 @@
 ;;;;;
 ;;; Abstract d value component
 
-(def component abstract-d-value-component (abstract-standard-object-component)
+(def (component ea) abstract-d-value-component (standard-object/mixin)
   ())
 
 (def layered-method make-title ((self abstract-d-value-component))
@@ -151,12 +151,11 @@
 ;;;;;;
 ;;; D value inspector
 
-(def component d-value-inspector (abstract-d-value-component
-                                  inspector-component
-                                  alternator-component
-                                  initargs-mixin
-                                  layer-context-capturing-mixin
-                                  recursion-point-mixin)
+(def (component ea) d-value-inspector (abstract-d-value-component
+                                  inspector/abstract
+                                  alternator/basic
+                                  initargs/mixin
+                                  layer-context-capturing-mixin)
   ()
   (:documentation "Inspector for a D-VALUE instance in various alternative views."))
 
@@ -176,8 +175,8 @@
 ;;;;;;
 ;;; D value table inspector
 
-(def component d-value-table-inspector (abstract-d-value-component
-                                        inspector-component
+(def (component ea) d-value-table-inspector (abstract-d-value-component
+                                        inspector/abstract
                                         table-component)
   ())
 
@@ -194,8 +193,8 @@
 ;;;;;;
 ;;; D value row inspector
 
-(def component d-value-row-inspector (abstract-d-value-component
-                                      inspector-component
+(def (component ea) d-value-row-inspector (abstract-d-value-component
+                                      inspector/abstract
                                       row-component)
   ((value)
    (coordinates)))
@@ -253,11 +252,11 @@
 ;;;;;;
 ;;; D value pivot table
 
-(def component d-value-pivot-table-component (abstract-d-value-component
+(def (component ea) d-value-pivot-table-component (abstract-d-value-component
                                               pivot-table-component)
   ((cell-component-type 'abstract-d-value-chart-component :type (member abstract-d-value-chart-component d-value-pie-chart-component d-value-column-chart-component d-value-inspector))))
 
-(def method refresh-component :before ((self d-value-pivot-table-component))
+(def layered-method refresh-component :before ((self d-value-pivot-table-component))
   (bind (((:read-only-slots instance) self))
     (iter (for (axes-slot-name . dimension-names) :in (collect-pivot-table-dimension-axes-groups self (class-of instance) instance))
           (dolist (dimension-name dimension-names)
@@ -327,7 +326,7 @@
 ;;;;;;
 ;;; Dimension pivot table axis component
 
-(def component pivot-table-dimension-axis-component (abstract-d-value-component
+(def (component ea) pivot-table-dimension-axis-component (abstract-d-value-component
                                                      pivot-table-axis-component)
   ((dimension :type prc::dimension)))
 
@@ -353,14 +352,14 @@
 ;;;;;;
 ;;; Coordinate pivot table category component
 
-(def component coordinate-pivot-table-category-component (pivot-table-category-component)
+(def (component ea) coordinate-pivot-table-category-component (pivot-table-category-component)
   ((dimension :type prc::dimension)
    (coordinate :type t)))
 
 ;;;;;;
 ;;; Abstract d value chart component
 
-(def component abstract-d-value-chart-component (abstract-d-value-component content-mixin)
+(def (component ea) abstract-d-value-chart-component (abstract-d-value-component content/mixin)
   ())
 
 (def function collect-d-value-names-and-values (component)
@@ -368,7 +367,7 @@
          (dimensions (prc::dimensions-of instance)))
     (iter (for (coordinates value) :in-d-value instance)
           (when value
-            (collect (with-output-to-string (*standard-output*)
+            (collect (with-output-to-string (*text-stream*)
                        (map nil [render-text (make-coordinate-inspector component !1 !2)] dimensions coordinates))
               :into names)
             (collect value :into values))
@@ -378,7 +377,7 @@
 ;;;;;;
 ;;; D value pie chart component
 
-(def component d-value-pie-chart-component (abstract-d-value-chart-component)
+(def (component ea) d-value-pie-chart-component (abstract-d-value-chart-component)
   ())
 
 (def refresh d-value-pie-chart-component
@@ -389,7 +388,7 @@
 ;;;;;;
 ;;; D value column chart component
 
-(def component d-value-column-chart-component (abstract-d-value-chart-component)
+(def (component ea) d-value-column-chart-component (abstract-d-value-chart-component)
   ())
 
 (def refresh d-value-column-chart-component
@@ -400,7 +399,7 @@
 ;;;;;;
 ;;; D value line chart component
 
-(def component d-value-line-chart-component (abstract-d-value-chart-component)
+(def (component ea) d-value-line-chart-component (abstract-d-value-chart-component)
   ())
 
 ;;;;;;

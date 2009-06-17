@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Select expression component
 
-(def component select-expression-component (abstract-expression-component)
+(def (component ea) select-expression-component (abstract-expression-component)
   ((select-clause (make-instance 'expression-component :the-type 'list) :type component)
    (from-clause (make-class-selector (sort (filter-if (lambda (class)
                                                         (dmm::authorize-operation 'dmm::filter-entity-operation :-entity- class))
@@ -18,9 +18,9 @@
 
 (def render-xhtml select-expression-component
   (bind (((:read-only-slots select-clause from-clause where-clause) -self-))
-    <div <div ,#"label.select-clause" ,(render select-clause)>
-         <div ,#"label.from-clause" ,(render from-clause)>
-         <div ,#"label.where-clause" ,(render where-clause)>>))
+    <div <div ,#"label.select-clause" ,(render-component select-clause)>
+         <div ,#"label.from-clause" ,(render-component from-clause)>
+         <div ,#"label.where-clause" ,(render-component where-clause)>>))
 
 (def method component-value-of ((self select-expression-component))
   (bind (((:slots select-clause from-clause where-clause) self))
@@ -50,10 +50,7 @@
 ;;;;;;
 ;;; Generic filter
 
-(def component generic-filter (filter-component
-                               title-mixin
-                               user-messages-mixin
-                               remote-identity-mixin)
+(def (component ea) generic-filter (filter/abstract title-mixin user-messages/mixin id/mixin)
   ((expression (make-instance 'select-expression-component) :type component)
    (command-bar :type component)
    (result (make-instance 'empty-component) :type component)))
@@ -67,9 +64,9 @@
     <div (:id ,id :class "generic-filter")
          ,(render-title -self-)
          ,(render-user-messages -self-)
-         ,(render expression)
-         ,(render command-bar)
-         ,(render result)>
+         ,(render-component expression)
+         ,(render-component command-bar)
+         ,(render-component result)>
     (render-remote-setup -self-)))
 
 (def function make-execute-filter-command (component)

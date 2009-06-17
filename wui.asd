@@ -1,8 +1,8 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
-(cl:in-package :cl-user)
+(in-package :cl-user)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (flet ((try (system)
@@ -17,16 +17,15 @@
     (try :alexandria)))
 
 (defpackage :hu.dwim.wui.system
-  (:export
-   #:*load-as-production-p*
-   #:project-relative-pathname
-   )
-  (:use
-   :common-lisp
-   :asdf
-   :cl-syntax-sugar
-   :alexandria
-   ))
+  (:export #:*load-as-production-p*
+           #:project-relative-pathname
+           )
+
+  (:use :common-lisp
+        :asdf
+        :cl-syntax-sugar
+        :alexandria
+        ))
 
 (in-package :hu.dwim.wui.system)
 
@@ -62,10 +61,15 @@
      :setup-readtable-function ,setup-readtable-function
      ,@body))
 
-(defsystem* :wui-core
-  :description "Core features of WUI"
-  :long-description "Contains the base features essential for a useful Read Eval Render Loop (RERL)."
-  :author "Attila Lendva <attila.lendvai@gmail.com>"
+(defsystem* :wui-server
+  :description "Basic HTTP server to build user interfaces for the world wide web."
+  :long-description "Provides error handling, compression, static file serving, quasi quoted JavaScript and quasi quoted XML serving."
+  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
+	   "Levente Mészáros <levente.meszaros@gmail.com>"
+	   "Tamás Borbély <tomi.borbely@gmail.com>")
+  :maintainer ("Attila Lendvai <attila.lendvai@gmail.com>"
+               "Levente Mészáros <levente.meszaros@gmail.com>"
+	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
   :test-system :wui-test
   :components
@@ -92,35 +96,41 @@
                                (:file "server")
                                (:file "brokers"))
                   :depends-on ("packages" "loggers" "utils")))))
-  :depends-on (:iterate
-               :metabang-bind
+  :depends-on (:metabang-bind
+               :iterate
                :cl-def
                :defclass-star
                :computed-class
                :alexandria
+               :anaphora
                :rfc2109
                :rfc2388-binary
                :net-telent-date ;; TODO get rid of this
-               :cl-fad
                :bordeaux-threads
                :cffi
                :iolib
                :local-time
                :babel
                :babel-streams
+               :parse-number
+               :cl-fad
                :cl-yalog
                :cl-syntax-sugar
                :cl-l10n
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
                :cl-delico
-               :parse-number
                ))
 
-(defsystem* :wui
-  :description "WUI with all its extensions"
-  :long-description "WUI and all its featues loaded"
-  :author "Attila Lendva <attila.lendvai@gmail.com>"
+(defsystem* :wui-application-server
+  :description "Extension to the basic HTTP server to become an HTTP application server for the world wide web."
+  :long-description "Provides application, session, frame, action and entry point abstractions."
+  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
+	   "Levente Mészáros <levente.meszaros@gmail.com>"
+	   "Tamás Borbély <tomi.borbely@gmail.com>")
+  :maintainer ("Attila Lendvai <attila.lendvai@gmail.com>"
+               "Levente Mészáros <levente.meszaros@gmail.com>"
+	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
   :test-system :wui-test
   :components
@@ -131,85 +141,158 @@
                  (:module "util"
                   :components ((:file "timer")
                                #+sbcl(:file "object-size")))
-                 (:module "integration"
-                  :components ((:file "contextl")))
                  (:module "application"
                   :serial t
                   :depends-on ("dojo")
-                  :components ((:file "utils")
+                  :components ((:file "api")
                                (:file "session")
                                (:file "frame")
                                (:file "application")
                                (:file "entry-point")
-                               (:file "action")))
-                 (:module "component"
-                  :components ((:file "error-handlers"
-                                      ;; this file depends on components, but it should be in the src/application/ directory, therefore this woodoo
-                                      :pathname "../application/error-handlers.lisp"
-                                      :depends-on ("command" "icon" "misc"))
-                               (:file "mop" )
-                               #+sbcl(:file "sbcl-ctor-kludge")
-                               (:file "component" :depends-on ("mop" "sbcl-ctor-kludge"))
-                               (:file "factory" :depends-on ("component"))
-                               (:file "place" :depends-on ("component"))
-                               (:file "icon" :depends-on ("component"))
-                               (:file "misc" :depends-on ("component" "icon"))
-                               (:file "style" :depends-on ("component"))
-                               (:file "remote" :depends-on ("component"))
-                               (:file "content" :depends-on ("component"))
-                               (:file "title" :depends-on ("component"))
-                               (:file "help" :depends-on ("misc"))
-                               (:file "csv")
-                               (:file "command" :depends-on ("icon" "place" "misc" "csv"))
-                               (:file "exportable" :depends-on ("command" "object-component" "csv"))
-                               (:file "authentication" :depends-on ("command"))
-                               (:file "frame" :depends-on ("component"))
-                               (:file "server-info" :depends-on ("component" "command"))
-                               #+sbcl(:file "frame-size-breakdown" :depends-on ("component"))
-                               (:file "file-up-and-download" :depends-on ("component"))
-                               (:file "timestamp-range" :depends-on ("component"))
-                               (:file "list" :depends-on ("component" "misc"))
-                               (:file "table" :depends-on ("component"))
-                               (:file "tab-container" :depends-on ("icon"))
-                               (:file "extended-table" :depends-on ("command"))
-                               (:file "pivot-table" :depends-on ("object-inspector" "extended-table" "menu" "icon"))
-                               (:file "tree" :depends-on ("table"))
-                               (:file "chart" :depends-on ("component"))
-                               (:file "column-chart" :depends-on ("chart"))
-                               (:file "line-chart" :depends-on ("chart"))
-                               (:file "pie-chart" :depends-on ("chart"))
-                               (:file "radar-chart" :depends-on ("chart"))
-                               (:file "stock-chart" :depends-on ("chart"))
-                               (:file "xy-chart" :depends-on ("chart"))
-                               (:file "menu" :depends-on ("command" "misc"))
-                               (:file "reference" :depends-on ("command"))
-                               (:file "editable" :depends-on ("command" "object-component"))
-                               (:file "field")
-                               (:file "expression" :depends-on ("icon"))
-                               (:file "primitive-component" :depends-on ("misc" "field" "place" "command" "object-component"))
-                               (:file "primitive-maker" :depends-on ("primitive-component"))
-                               (:file "primitive-inspector" :depends-on ("primitive-component"))
-                               (:file "primitive-filter" :depends-on ("primitive-component"))
-                               (:file "place-component" :depends-on ("place" "editable" "factory" "object-list-inspector" "object-component" "primitive-filter"))
-                               (:file "user-message" :depends-on ("component" "icon" "command"))
-                               (:file "wizard" :depends-on ("component"))
-                               (:file "alternator" :depends-on ("reference" "command" "editable" "misc" "primitive-component"))
-                               (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
-                               (:file "object-component" :depends-on ("command" "title" "misc" "menu"))
-                               (:file "object-manager" :depends-on ("object-component" "tab-container"))
-                               (:file "object-inspector" :depends-on ("place-component" "object-component" "alternator" "reference"))
-                               (:file "object-maker" :depends-on ("primitive-component" "object-component" "alternator"))
-                               (:file "object-list-inspector" :depends-on ("object-maker" "object-component" "alternator" "reference" "table"))
-                               (:file "object-pivot-table" :depends-on ("pivot-table" "object-list-inspector"))
-                               (:file "object-list-aggregator" :depends-on ("object-component"))
-                               (:file "object-tree-inspector" :depends-on ("object-component" "alternator" "reference" "tree"))
-                               (:file "process" :depends-on ("command" "object-maker" "object-list-inspector" "object-tree-inspector"))
-                               (:file "object-filter" :depends-on ("place-component" "object-component" "object-inspector" "primitive-filter"))
-                               (:file "object-tree-filter" :depends-on ("object-filter")))
+                               (:file "action"))))))
+  :depends-on (:wui-server
+               ))
+
+(defsystem* :wui-component-server
+  :description "Extension to the HTTP application server to become an HTTP component based user interface server for the world wide web."
+  :long-description "Provides various components, layouts, widgets, charts, books, model documentation components, meta components. Components have server and client side state and behavior."
+  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
+	   "Levente Mészáros <levente.meszaros@gmail.com>"
+	   "Tamás Borbély <tomi.borbely@gmail.com>")
+  :maintainer ("Attila Lendvai <attila.lendvai@gmail.com>"
+               "Levente Mészáros <levente.meszaros@gmail.com>"
+	       "Tamás Borbély <tomi.borbely@gmail.com>")
+  :licence "BSD (sans advertising clause)"
+  :test-system :wui-test
+  :components
+  ((:module "src"
+    :serial t
+    :components ((:module "component"
+                  :components ((:module "api"
+                                :components ())
+                               (:module "book"
+                                :components ())
+                               (:module "chart"
+                                :components ())
+                               (:module "layout"
+                                :components ())
+                               (:module "mixin"
+                                :components ())
+                               (:module "model"
+                                :components ())
+                               (:module "object"
+                                :components ())
+                               (:module "place"
+                                :components ())
+                               (:module "primitive"
+                                :components ())
+                               (:module "util"
+                                :components ())
+                               (:module "widget"
+                                :components ()))
+                  #+nil
+                  ((:file "error-handlers")
+                   (:file "api")
+                   (:file "mop")
+                   #+sbcl(:file "sbcl-ctor-kludge" :depends-on ("mop"))
+                   (:file "component" :depends-on ("api" "mop"))
+                   (:file "tooltip" :depends-on ("component"))
+                   (:file "icon" :depends-on ("tooltip"))
+                   (:file "menu" :depends-on ("icon"))
+                   (:file "debug" :depends-on ("menu"))
+                   (:file "response" :depends-on ("component"))
+                   (:file "place" :depends-on ("component"))
+                   (:file "parent" :depends-on ("component"))
+                   (:file "renderable" :depends-on ("component"))
+                   (:file "id" :depends-on ("component"))
+                   (:file "command" :depends-on ("component" "response"))
+                   (:file "refreshable" :depends-on ("command" "computed"))
+                   (:file "closable" :depends-on ("command"))
+                   (:file "user-message" :depends-on ("closable"))
+                   (:file "computed" :depends-on ("component"))
+                   (:file "debug" :depends-on ("menu"))
+                   (:file "cloneable" :depends-on ("command"))
+                   (:file "visible" :depends-on ("command"))
+                   (:file "expandible" :depends-on ("command"))
+                   (:file "enabled" :depends-on ("component"))
+                   (:file "value" :depends-on ("component"))
+                   (:file "style" :depends-on ("component"))
+                   (:file "content" :depends-on ("component"))
+                   (:file "command" :depends-on ("component"))
+                   (:file "id" :depends-on ("component"))
+                   (:file "remote" :depends-on ("id"))
+                   (:file "style" :depends-on ("remote"))
+                   (:file "place" :depends-on ("component"))
+                   (:file "list" :depends-on ("component"))
+                   (:file "menu" :depends-on ("component"))
+                   (:file "title" :depends-on ("component"))
+                   (:file "panel" :depends-on ("component"))
+                   (:file "image" :depends-on ("component"))
+                   (:file "factory" :depends-on ("component"))
+                   (:file "place" :depends-on ("component"))
+                   (:file "remote" :depends-on ("component"))
+                   (:file "title" :depends-on ("component"))
+                   (:file "help" :depends-on ("misc"))
+                   (:file "command" :depends-on ("icon" "place" "misc"))
+                   (:file "exportable" :depends-on ("command" "object-component"))
+                   (:file "authentication" :depends-on ("command"))
+                   (:file "frame" :depends-on ("debug"))
+                   #+sbcl(:file "frame-size-breakdown" :depends-on ("component"))
+                   (:file "file-up-and-download" :depends-on ("component"))
+                   (:file "timestamp-range" :depends-on ("component"))
+                   (:file "list" :depends-on ("component" "misc"))
+                   (:file "table" :depends-on ("component"))
+                   (:file "tab-container" :depends-on ("icon"))
+                   (:file "extended-table" :depends-on ("command"))
+                   (:file "pivot-table" :depends-on ("object-inspector" "extended-table" "menu" "icon"))
+                   (:file "tree" :depends-on ("table"))
+                   (:file "chart" :depends-on ("component"))
+                   (:file "column-chart" :depends-on ("chart"))
+                   (:file "line-chart" :depends-on ("chart"))
+                   (:file "pie-chart" :depends-on ("chart"))
+                   (:file "radar-chart" :depends-on ("chart"))
+                   (:file "stock-chart" :depends-on ("chart"))
+                   (:file "xy-chart" :depends-on ("chart"))
+                   (:file "menu" :depends-on ("command" "misc"))
+                   (:file "reference" :depends-on ("command"))
+                   (:file "editable" :depends-on ("command" "object-component"))
+                   (:file "field")
+                   (:file "expression" :depends-on ("icon"))
+                   (:file "primitive-component" :depends-on ("misc" "field" "place" "command" "object-component"))
+                   (:file "primitive-maker" :depends-on ("primitive-component"))
+                   (:file "primitive-inspector" :depends-on ("primitive-component"))
+                   (:file "primitive-filter" :depends-on ("primitive-component"))
+                   (:file "place-component" :depends-on ("place" "editable" "factory" "object-list-inspector" "object-component" "primitive-filter"))
+                   (:file "user-message" :depends-on ("component" "icon" "command"))
+                   (:file "wizard" :depends-on ("component"))
+                   (:file "alternator" :depends-on ("reference" "command" "editable" "misc" "primitive-component"))
+                   (:file "class" :depends-on ("object-component" "alternator" "reference" "table"))
+                   (:file "object-component" :depends-on ("command" "title" "misc" "menu"))
+                   (:file "object-manager" :depends-on ("object-component" "tab-container"))
+                   (:file "object-inspector" :depends-on ("place-component" "object-component" "alternator" "reference"))
+                   (:file "object-maker" :depends-on ("primitive-component" "object-component" "alternator"))
+                   (:file "object-list-inspector" :depends-on ("object-maker" "object-component" "alternator" "reference" "table"))
+                   (:file "object-pivot-table" :depends-on ("pivot-table" "object-list-inspector"))
+                   (:file "object-list-aggregator" :depends-on ("object-component"))
+                   (:file "object-tree-inspector" :depends-on ("object-component" "alternator" "reference" "tree"))
+                   (:file "process" :depends-on ("command" "object-maker" "object-list-inspector" "object-tree-inspector"))
+                   (:file "object-filter" :depends-on ("place-component" "object-component" "object-inspector" "primitive-filter"))
+                   (:file "object-tree-filter" :depends-on ("object-filter")))
                   :depends-on ("application" "dojo")))))
-  :depends-on (:wui-core
-               :trivial-garbage
-               :contextl
+  :depends-on (:wui-application-server
+               ))
+
+(defsystem* :wui
+  :description "WUI with all its extensions."
+  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
+	   "Levente Mészáros <levente.meszaros@gmail.com>"
+	   "Tamás Borbély <tomi.borbely@gmail.com>")
+  :maintainer ("Attila Lendvai <attila.lendvai@gmail.com>"
+               "Levente Mészáros <levente.meszaros@gmail.com>"
+	       "Tamás Borbély <tomi.borbely@gmail.com>")
+  :licence "BSD (sans advertising clause)"
+  :test-system :wui-test
+  :depends-on (:wui-component-server
                ))
 
 #+nil
@@ -224,13 +307,16 @@
       (list nil nil)
     (call-next-method)))
 
+;;;;;;
+;;; Test system
+
 (defsystem* :wui-test
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
   :components
   ((:module "test"
     :serial t
     :components ((:file "package")
-                 (:file "test-environment" :depends-on ("package"))
+                 (:file "environment" :depends-on ("package"))
                  (:file "server")
                  (:file "application")
                  (:file "wudemo-application"))))

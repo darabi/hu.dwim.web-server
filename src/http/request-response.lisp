@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -6,9 +6,9 @@
 
 (def (generic e) header-value (message header-name))
 (def (generic e) (setf header-value) (value message header-name))
-(defgeneric send-response (response))
-(defgeneric send-headers (response))
-(defgeneric close-request (request))
+(def generic send-response (response))
+(def generic send-headers (response))
+(def generic close-request (request))
 
 (def class* http-message ()
   ((headers nil)
@@ -33,10 +33,10 @@
                       ,new-value))
               `(header-alist-value ,alist ,header-name)))))
 
-(defmethod header-value ((message http-message) header-name)
+(def method header-value ((message http-message) header-name)
   (header-alist-value (headers-of message) header-name))
 
-(defmethod (setf header-value) (value (message http-message) header-name)
+(def method (setf header-value) (value (message http-message) header-name)
   (setf (header-alist-value (headers-of message) header-name) value))
 
 
@@ -47,10 +47,10 @@
   `(dolist (,cookie (cookies-of ,message))
      ,@forms))
 
-(defun find-cookies (cookie &key accepted-domains otherwise)
+(def function find-cookies (cookie &key accepted-domains otherwise)
   (find-request-cookies *request* cookie :accepted-domains accepted-domains :otherwise otherwise))
 
-(defun find-request-cookies (request cookie &key accepted-domains otherwise)
+(def function find-request-cookies (request cookie &key accepted-domains otherwise)
   (setf accepted-domains (ensure-list accepted-domains))
   (or (bind ((cookie-name (cond ((stringp cookie) cookie)
                                 ((rfc2109:cookie-p cookie) (rfc2109:cookie-name cookie))
@@ -88,7 +88,7 @@
   (push cookie (cookies-of response)))
 
 #+nil ;; TODO
-(defmethod remote-address :around ((message http-message))
+(def method remote-address :around ((message http-message))
   (declare (optimize speed))
   (let ((physical-remote-address (call-next-method)))
     (if (and physical-remote-address
@@ -129,7 +129,7 @@
    (uri)
    (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")))
 
-(defmethod cookies-of :around ((request request))
+(def method cookies-of :around ((request request))
   (if (slot-boundp request 'cookies)
       (call-next-method)
       (setf (cookies-of request)
@@ -165,7 +165,7 @@
       (push (funcall visitor name value) result))
     (nreverse result)))
 
-(defmethod close-request ((request request))
+(def method close-request ((request request))
   (map-request-parameters (lambda (name value)
                             (declare (ignore name))
                             (when (typep value 'rfc2388-binary:mime-part)
@@ -189,7 +189,7 @@
   (setf (header-value -self- +header/status+) +http-ok+)
   (setf (cookies-of -self-) (list)))
 
-(defmethod encoding-name-of ((self response))
+(def method encoding-name-of ((self response))
   (aif (external-format-of self)
        (encoding-name-of it)
        (error "No external format for response ~A" self)))
@@ -247,7 +247,7 @@
       (write-crlf stream)
       status)))
 
-(defmethod send-headers ((response primitive-response))
+(def method send-headers ((response primitive-response))
   (http.debug "Sending headers of ~A" response)
   (send-http-headers (headers-of response) (cookies-of response)))
 
@@ -265,10 +265,10 @@
           (setf (iolib:external-format-of client-stream) original-external-format))
         (call-next-method))))
 
-(defmethod send-response ((response response))
+(def method send-response ((response response))
   (send-response (convert-to-primitive-response response)))
 
-(defmethod send-response ((response primitive-response))
+(def method send-response ((response primitive-response))
   (assert (not (headers-are-sent-p response)) () "The headers of ~A have already been sent, this is a program error." response)
   (setf (headers-are-sent-p response) #t)
   (send-headers response))
@@ -286,7 +286,7 @@
         (setf (html-stream-of self)
               (make-in-memory-output-stream :external-format (external-format-of self))))))
 
-(defmethod send-response ((response response-with-html-stream))
+(def method send-response ((response response-with-html-stream))
   (bind ((content nil))
     (awhen (slot-value response 'html-stream)
       (http.dribble "Converting html stream of ~A" response)
@@ -308,7 +308,7 @@
   ((thunk :type (or symbol function)))
   (:documentation "A primitive-response that sends the headers and then calling its thunk. Keep in mind that it will not do any buffering, so it uses up a worker thread while sending the response through the network."))
 
-(defmethod send-response ((response functional-response))
+(def method send-response ((response functional-response))
   (call-next-method)
   (funcall (thunk-of response)))
 
@@ -316,7 +316,7 @@
   ()
   (:documentation "A response that does nothing else than calling its thunk."))
 
-(defmethod send-response ((response raw-functional-response))
+(def method send-response ((response raw-functional-response))
   (funcall (thunk-of response)))
 
 (def (function e) make-functional-response* (thunk &key headers cookies (raw #f))
@@ -403,7 +403,7 @@
                ,@body))
        ,response)))
 
-(defmethod send-response ((response byte-vector-response))
+(def method send-response ((response byte-vector-response))
   (serve-sequence (body-of response)
                   :content-encoding (when (and (not *disable-response-compression*)
                                                (not (header-value response +header/content-encoding+))
@@ -425,7 +425,7 @@
       (make-instance 'no-handler-response)
     (setf (header-value it +header/status+) +http-not-found+)))
 
-(defmethod send-response ((self no-handler-response))
+(def method send-response ((self no-handler-response))
   (emit-simple-html-document-http-response (:title "Page not found"
                                             :headers (headers-of self)
                                             :cookies (cookies-of self))
@@ -444,7 +444,7 @@
 (def (function e) make-request-echo-response ()
   (make-instance 'request-echo-response))
 
-(defmethod send-response ((self request-echo-response))
+(def method send-response ((self request-echo-response))
   (emit-http-response ((+header/content-type+ +html-content-type+))
     (render-request *request*)))
 

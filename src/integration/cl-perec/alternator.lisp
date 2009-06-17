@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -7,7 +7,7 @@
 (def dmm:operation replace-with-alternative-operation (dmm::standard-operation)
   ())
 
-(def method make-replace-with-alternative-command :around ((component alternator-component) alternative)
+(def method make-replace-with-alternative-command :around ((component alternator/basic) alternative)
   (when (or (subtypep (the-class-of alternative) 'reference-component)
             (dmm::authorize-operation 'replace-with-alternative-operation))
     (call-next-method)))

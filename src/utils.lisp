@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -196,6 +196,18 @@
 (def (function e) substitute-illegal-characters-in-file-name (name &key (replacement "_"))
   (cl-ppcre:regex-replace-all "/" name replacement))
 
+(def function single-argument-layered-method-definer (name default-layer forms options)
+  (bind ((layer (if (member (first forms) '(:in-layer :in))
+                    (progn
+                      (pop forms)
+                      (pop forms))
+                    default-layer))
+         (qualifier (when (or (keywordp (first forms))
+                              (member (first forms) '(and or progn append nconc)))
+                      (pop forms)))
+         (type (pop forms)))
+    `(def (layered-method ,@options) ,name ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
+          ,@forms)))
 
 ;;;;;;
 ;;; Tree
@@ -241,7 +253,7 @@
 (def special-variable *temporary-file-random* (princ-to-string (isys:%sys-getpid)))
 (def special-variable *temporary-file-unique-number* 0)
 
-(defun filename-for-temporary-file (&optional prefix)
+(def function filename-for-temporary-file (&optional prefix)
   (concatenate 'string
                *directory-for-temporary-files*
                prefix
@@ -250,10 +262,10 @@
                ;; TODO atomic-incf
                (integer-to-string (incf *temporary-file-unique-number*))))
 
-(defun open-temporary-file (&rest args &key
-                            (element-type '(unsigned-byte 8))
-                            (direction :output)
-                            name-prefix)
+(def function open-temporary-file (&rest args &key
+                                         (element-type '(unsigned-byte 8))
+                                         (direction :output)
+                                         name-prefix)
   (remove-from-plistf args :name-prefix)
   (iter
     (for file-name = (ensure-directories-exist (filename-for-temporary-file name-prefix)))
@@ -286,14 +298,14 @@
 (def (function i) string-to-utf-8-octets (string)
   (babel:string-to-octets string :encoding :utf-8))
 
-(defgeneric encoding-name-of (thing)
+(def generic encoding-name-of (thing)
   (:method ((self external-format))
     (encoding-name-of (external-format-encoding self)))
 
   (:method ((self babel-encodings:character-encoding))
     (babel-encodings:enc-name self)))
 
-(defmacro with-thread-name (name &body body)
+(def macro with-thread-name (name &body body)
   (declare (ignorable name))
   #*((:sbcl
       (with-unique-names (thread previous-name)
@@ -376,7 +388,7 @@
               (finally (in outer (collect (make-displaced-array line start)))))
         (while nil)))
 
-(defmacro eval-always (&body body)
+(def macro eval-always (&body body)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@body))
 
@@ -602,6 +614,11 @@
       (setf class (ensure-dynamic-class class-names))
       (setf (find-dynamic-class class-names) class))
     (apply #'make-instance class args)))
+
+(def macro ensure-instance (place type &rest args &key &allow-other-keys)
+  `(aif ,place
+        (reinitialize-instance it ,@args)
+        (setf ,place (make-instance ,type ,@args))))
 
 ;;;;;
 ;;; Hash set

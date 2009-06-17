@@ -3,7 +3,7 @@
 (defpackage :hu.dwim.wui.zlib
   (:documentation "A CFFI based zlib")
 
-  (:use :common-lisp)
+  (:use :common-lisp :cl-def)
 
   (:export
    #:compress
@@ -15,37 +15,36 @@
 
 (in-package :hu.dwim.wui.zlib)
 
-(defconstant +default-buffer-size+ 4096)
+(def constant +default-buffer-size+ 4096)
 
-(defconstant +z-no-flush+   0)
-(defconstant +z-sync-flush+ 2)
-(defconstant +z-full-flush+ 3)
-(defconstant +z-finish+     4)
+(def constant +z-no-flush+   0)
+(def constant +z-sync-flush+ 2)
+(def constant +z-full-flush+ 3)
+(def constant +z-finish+     4)
 
-(defconstant +z-ok+            0)
-(defconstant +z-stream-end+    1)
-(defconstant +z-need-dict+     2)
-(defconstant +z-errno+         -1)
-(defconstant +z-stream-error+  -2)
-(defconstant +z-data-error+    -3)
-(defconstant +z-mem-error+     -4)
-(defconstant +z-buf-error+     -5)
-(defconstant +z-version-error+ -6)
+(def constant +z-ok+            0)
+(def constant +z-stream-end+    1)
+(def constant +z-need-dict+     2)
+(def constant +z-errno+         -1)
+(def constant +z-stream-error+  -2)
+(def constant +z-data-error+    -3)
+(def constant +z-mem-error+     -4)
+(def constant +z-buf-error+     -5)
+(def constant +z-version-error+ -6)
 
-(defconstant +z-no-compression+      0)
-(defconstant +z-best-speed+          1)
-(defconstant +z-best-compression+    9)
-(defconstant +z-default-compression+ -1)
+(def constant +z-no-compression+      0)
+(def constant +z-best-speed+          1)
+(def constant +z-best-compression+    9)
+(def constant +z-default-compression+ -1)
 
-(defconstant +z-deflated+ 8)
+(def constant +z-deflated+ 8)
 
-(defconstant +z-filtered+         1)
-(defconstant +z-huffman-only+     2)
-(defconstant +z-default-strategy+ 0)
+(def constant +z-filtered+         1)
+(def constant +z-huffman-only+     2)
+(def constant +z-default-strategy+ 0)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-
-  (defvar *zlib-search-paths*
+  (def special-variable *zlib-search-paths*
     `(,(directory-namestring (or *load-truename* (truename "./")))
        #+lispworks
        ,(directory-namestring (lw:lisp-image-name))
@@ -60,7 +59,7 @@
     (:windows "libz.dll")
     (t (:default "libz")))
 
-  (defvar *zlib-foreign-library*
+  (def special-variable *zlib-foreign-library*
     (let ((cffi:*foreign-library-directories* *zlib-search-paths*))
       (cffi:load-foreign-library 'zlib))))
 
@@ -138,13 +137,13 @@
 ;;;
 ;;; Lisp part
 ;;;
-(defun allocate-compress-buffer (source &key (source-start 0) (source-end (length source)))
+(def function allocate-compress-buffer (source &key (source-start 0) (source-end (length source)))
   (cffi:make-shareable-byte-vector (ceiling (* (+ (- source-end source-start) 12) 1.01))))
 
-(defun zlib-error (code)
+(def function zlib-error (code)
   (error "zlib error, code ~D" code))
 
-(defmacro zlib-call (expression &body body)
+(def macro zlib-call (expression &body body)
   (let ((result (gensym "RESULT")))
     `(let ((,result ,expression))
        (if (minusp ,result)
@@ -153,7 +152,7 @@
              ,@body
              ,result)))))
 
-(defun compress (source destination &key
+(def function compress (source destination &key
                  (source-start 0)
                  (source-end (length source))
                  (destination-start 0)
@@ -175,7 +174,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
         (let ((destination-end (+ destination-start (cffi:mem-ref compressed-length :long))))
           destination-end)))))
 
-(defun uncompress (source destination &key
+(def function uncompress (source destination &key
                    (source-start 0)
                    (source-end (length source))
                    (destination-start 0))
@@ -193,7 +192,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
         (let ((destination-end (+ destination-start (cffi:mem-ref uncompressed-length :long))))
           destination-end)))))
 
-(defun make-deflate-z-stream (&key (level +z-default-compression+) (method +z-deflated+)
+(def function make-deflate-z-stream (&key (level +z-default-compression+) (method +z-deflated+)
                       (window-bits 15) (memory-level 8) (strategy +z-default-strategy+))
   (let ((stream (cffi:foreign-alloc 'z-stream))
         (ok nil))
@@ -211,12 +210,12 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
       (unless ok
         (cffi:foreign-free stream)))))
 
-(defun free-deflate-z-stream (stream)
+(def function free-deflate-z-stream (stream)
   (zlib-call (%deflate-end stream))
   (cffi:foreign-free stream)
   (values))
 
-(defun deflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (level +z-default-compression+)
+(def function deflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (level +z-default-compression+)
                 (method +z-deflated+) (window-bits 15) (memory-level 8) (strategy +z-default-strategy+))
   (%inflate-or-deflate
    :deflate
@@ -228,7 +227,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
    output-fn
    :buffer-size buffer-size))
 
-(defun make-inflate-z-stream (&key (window-bits 15))
+(def function make-inflate-z-stream (&key (window-bits 15))
   (let ((stream (cffi:foreign-alloc 'z-stream))
         (ok nil))
     (unwind-protect
@@ -245,12 +244,12 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
       (unless ok
         (cffi:foreign-free stream)))))
 
-(defun free-inflate-z-stream (stream)
+(def function free-inflate-z-stream (stream)
   (zlib-call (%inflate-end stream))
   (cffi:foreign-free stream)
   (values))
 
-(defun inflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (window-bits 15))
+(def function inflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (window-bits 15))
   (%inflate-or-deflate
    :inflate
    (lambda ()
@@ -260,7 +259,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
    output-fn
    :buffer-size buffer-size))
 
-(defun %inflate-or-deflate (operation make-stream-fn free-stream-fn input-fn output-fn &key
+(def function %inflate-or-deflate (operation make-stream-fn free-stream-fn input-fn output-fn &key
                             (buffer-size +default-buffer-size+))
   (check-type operation (member :deflate :inflate))
   (assert (> buffer-size 256))

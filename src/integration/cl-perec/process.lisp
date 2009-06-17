@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Persistent processs
 
-(def component persistent-process-component (standard-process-component)
+(def (component ea) persistent-process-component (standard-process-component)
   ((process)))
 
 (def layered-method make-context-menu-items ((component persistent-process-component) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
@@ -21,8 +21,8 @@
     (when (typep content 'empty-component)
       (add-user-information -self- (process.message.report-process-state process)))
     <div ,(render-user-messages -self-)
-         ,(render content)
-         ,(render command-bar) >))
+         ,(render-component content)
+         ,(render-component command-bar) >))
 
 (def function roll-persistent-process (component thunk)
   (setf (content-of component) nil)
@@ -125,8 +125,7 @@
 
 (def layered-method make-context-menu-items ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (list (make-start-persistent-process-command component
-                                               (delay (execute-create-instance (find-ancestor-component-with-type (parent-component-of component) 'recursion-point-mixin)
-                                                                               component (the-class-of component))))))
+                                               (delay (execute-create-instance component (the-class-of component))))))
 
 (def layered-method make-context-menu-items ((component standard-object-row-inspector) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (prc::with-revived-instance instance

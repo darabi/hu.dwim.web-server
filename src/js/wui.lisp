@@ -91,10 +91,10 @@
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)
-  (ucw.io.bind (create :sync true
+  (wui.io.bind (create :sync true
                        :url url
-                       :session-id ucw.session-id
-                       :frame-id ucw.frame-id
+                       :session-id wui.session-id
+                       :frame-id wui.frame-id
                        :load (lambda (type data event)
                                (log.debug "About to eval received script in eval-js-at-url")
                                (eval data))
@@ -104,14 +104,14 @@
 
 #+nil ;; TODO
 (defun wui.io.default-js-to-lisp-rpc-handler (type data event)
-  (ucw.io.process-ajax-answer type data event)
+  (wui.io.process-ajax-answer type data event)
   ;; TODO this with-stuff deserves a cleanup. it's only here to skip the body in case of an error...
-  (with-ucw-error-handler
-      (with-ajax-answer data
-        (let ((return-value-node (aref (data.get-elements-by-tag-name "return-value") 0))
-              (return-value-string return-value-node.firstChild))
-          (log.debug "Return value (as string) is " return-value-string ", as node " return-value-node)
-          (return (eval return-value-string))))))
+  (with-wui-error-handler
+    (with-ajax-answer data
+      (let ((return-value-node (aref (data.get-elements-by-tag-name "return-value") 0))
+            (return-value-string return-value-node.firstChild))
+        (log.debug "Return value (as string) is " return-value-string ", as node " return-value-node)
+        (return (eval return-value-string))))))
 
 (defun wui.io.postprocess-inserted-node (original-node imported-node)
   (log.debug "Parsing dojo widgets under " imported-node.id)

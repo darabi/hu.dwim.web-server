@@ -2,44 +2,44 @@
 
 (defpackage #:hu.dwim.wui-test
   (:nicknames :wui-test)
-  (:use
-   :common-lisp
-   :stefil
-   :alexandria
-   :metabang-bind
-   :cl-def
-   :cl-yalog
-   :cl-l10n
-   :hu.dwim.wui
-   :hu.dwim.wui.system
-   :iterate
-   :closer-mop
-   :iolib
-   :babel
-   :babel-streams
-   :cl-syntax-sugar
-   :cl-quasi-quote
-   :cl-quasi-quote-js
-   :cl-quasi-quote-xml
-   )
+
+  (:use :common-lisp
+        :stefil
+        :alexandria
+        :metabang-bind
+        :cl-def
+        :cl-yalog
+        :cl-l10n
+        :hu.dwim.wui
+        :hu.dwim.wui.system
+        :iterate
+        :closer-mop
+        :iolib
+        :babel
+        :babel-streams
+        :cl-syntax-sugar
+        :cl-quasi-quote
+        :cl-quasi-quote-js
+        :cl-quasi-quote-xml
+        )
+
   (:shadowing-import-from :cl-syntax-sugar
-   #:define-syntax
-   )
-  (:shadow
-   #:parent
-   #:test
-   #:uri
-   #:deftest
-   )
-  (:export
-   #:test
-   ))
+                          #:define-syntax
+                          )
+
+  (:shadow #:parent
+           #:test
+           #:uri
+           #:test
+           )
+  (:export #:test
+           ))
 
 (in-package :wui-test)
 
 (rename-package :hu.dwim.wui :hu.dwim.wui '(:wui))
 
-(defun setup-readtable ()
+(def function setup-readtable ()
   (hu.dwim.wui::setup-readtable))
 
 (register-readtable-for-swank

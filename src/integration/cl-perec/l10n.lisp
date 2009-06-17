@@ -1,10 +1,10 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
 (in-package :hu.dwim.wui)
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/cl-perec :wui "resources/integration/cl-perec/"
+(def resource-loading-locale-loaded-listener wui-resource-loader/cl-perec :wui "resource/integration/cl-perec/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader/cl-perec)
 

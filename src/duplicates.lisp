@@ -1,10 +1,10 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
 (in-package :hu.dwim.wui)
 
-(defmacro if-bind (var test &body then/else)
+(def macro if-bind (var test &body then/else)
   (assert (first then/else)
           (then/else)
           "IF-BIND missing THEN clause.")
@@ -13,24 +13,15 @@
     `(let ((,var ,test))
        (if ,var ,then ,else))))
 
-(defmacro aif (test then &optional else)
-  `(if-bind it ,test ,then ,else))
-
-(defmacro when-bind (var test &body body)
+(def macro when-bind (var test &body body)
   `(if-bind ,var ,test (progn ,@body)))
 
-(defmacro awhen (test &body body)
-  `(when-bind it ,test ,@body))
-
-(defmacro prog1-bind (var ret &body body)
+(def macro prog1-bind (var ret &body body)
   `(let ((,var ,ret))
     ,@body
     ,var))
 
-(defmacro aprog1 (ret &body body)
-  `(prog1-bind it ,ret ,@body))
-
-(defmacro cond-bind (var &body clauses)
+(def macro cond-bind (var &body clauses)
   "Just like COND but VAR will be bound to the result of the
   condition in the clause when executing the body of the clause."
   (if clauses
@@ -44,18 +35,14 @@
 (def function system-relative-pathname (system path)
   (merge-pathnames path (asdf:component-pathname (asdf:find-system system))))
 
-(defmacro acond (&rest clauses)
-  "Just like cond-bind except the var is automatically IT."
-  `(cond-bind it ,@clauses))
-
-(defmacro rebind (bindings &body body)
+(def macro rebind (bindings &body body)
   `(let ,(loop
             :for symbol-name :in bindings
             :collect (list symbol-name symbol-name))
      ,@body))
 
 ;; from arnesi
-(defmacro dolist* ((iterator list &optional return-value) &body body)
+(def macro dolist* ((iterator list &optional return-value) &body body)
   "Like DOLIST but destructuring-binds the elements of LIST.
 
 If ITERATOR is a symbol then dolist* is just like dolist EXCEPT
@@ -74,7 +61,7 @@ that it creates a fresh binding."
     (setf datum (concatenate-string "Not yet implemented: " datum)))
   (apply #'cerror "Ignore and continue" datum args))
 
-(defun map-subclasses (class fn &key proper?)
+(def function map-subclasses (class fn &key proper?)
   "Applies fn to each subclass of class. If proper? is true, then
 the class itself is not included in the mapping. Proper? defaults to nil."
   (let ((mapped (make-hash-table :test #'eq)))
@@ -92,7 +79,7 @@ the class itself is not included in the mapping. Proper? defaults to nil."
                (symbol (find-class class))
                (class class)) t))))
 
-(defun subclasses (class &key (proper? t))
+(def function subclasses (class &key (proper? t))
   "Returns all of the subclasses of the class including the class itself."
   (let ((result nil))
     (map-subclasses class (lambda (class)
@@ -100,7 +87,7 @@ the class itself is not included in the mapping. Proper? defaults to nil."
                     :proper? proper?)
     (nreverse result)))
 
-(defun sbcl-with-symbol (package name)
+(def function sbcl-with-symbol (package name)
   #+sbcl (if (and (find-package (string package))
                   (find-symbol (string name) (string package)))
              '(:and)

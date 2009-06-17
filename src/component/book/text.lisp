@@ -1,0 +1,25 @@
+;;; Copyright (c) 2003-2009 by the authors.
+;;;
+;;; See LICENCE and AUTHORS for details.
+
+(in-package :hu.dwim.wui)
+
+;;;;;;
+;;; Paragraph basic
+
+(def component paragraph/basic (style/abstract content/mixin)
+  ())
+
+(def render-xhtml paragraph/basic
+  (with-render-style/abstract (-self- :element-name "p")
+    (call-next-method)))
+
+;;;;;;
+;;; Emphasize basic
+
+(def component emphasize/basic (style/abstract content/mixin)
+  ())
+
+(def render-xhtml emphasize/basic
+  (with-render-style/abstract (-self- :element-name "span")
+    (call-next-method)))

@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -29,6 +29,14 @@
    +dijit/popup-menu-item+       "dijit.PopupMenuItem"
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
+
+(def function find-latest-dojo-directory-name (wwwroot-directory)
+  (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
+                                           (mapcar [last-elt (pathname-directory !1)]
+                                                   (cl-fad:list-directory wwwroot-directory)))
+                                #'string>=))))
+    (assert dojo-dir () "Seems like there's not any dojo directory in ~S. Hint: see wui/etc/build-dojo.sh" wwwroot-directory)
+    (concatenate-string dojo-dir "/")))
 
 (def with-macro with-dojo-widget-collector ()
   (bind ((*dojo-widget-ids* nil))

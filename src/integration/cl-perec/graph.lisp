@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -13,7 +13,7 @@
 
 (def special-variable *vertex-inset* 5)
 
-(def component graph-component ()
+(def (component ea) graph-component ()
   ((graph)))
 
 (def render-xhtml graph-component ()

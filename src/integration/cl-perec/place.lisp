@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -13,8 +13,8 @@
         (prc::canonical-type-of slot)
         specified-type)))
 
-(def method slot-value-place-editable-p ((place slot-value-place) (class dmm::entity) (instance prc::persistent-object) (slot dmm::effective-property))
+(def method slot-value-place-editable? ((place slot-value-place) (class dmm::entity) (instance prc::persistent-object) (slot dmm::effective-property))
   (dmm::editable-p slot))
 
-(def method slot-value-place-editable-p ((place slot-value-place) (class computed-class) (instance computed-object) (slot computed-effective-slot-definition))
+(def method slot-value-place-editable? ((place slot-value-place) (class computed-class) (instance computed-object) (slot computed-effective-slot-definition))
   #f)

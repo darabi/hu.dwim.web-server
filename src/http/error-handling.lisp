@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -17,7 +17,7 @@
              (and error-fd
                   (eql error-fd (iolib:fd-of client-stream)))))))
 
-(defun call-with-server-error-handler (thunk client-stream error-handler)
+(def function call-with-server-error-handler (thunk client-stream error-handler)
   (bind ((level-1-error nil))
     (labels ((level-1-error-handler (error)
                ;; first level of error handling, call around participants, give them a chance to render an error page, etc
@@ -94,10 +94,10 @@
             (body)))
       (server.debug "No Swank connection, not debugging error: ~A" condition)))
 
-(defmethod handle-toplevel-condition :before ((error serious-condition) broker)
+(def method handle-toplevel-condition :before ((error serious-condition) broker)
   (maybe-invoke-slime-debugger error :context broker))
 
-(defmethod handle-toplevel-condition ((error serious-condition) broker)
+(def method handle-toplevel-condition ((error serious-condition) broker)
   (log-error-with-backtrace error)
   (cond
     ((null *request*)
@@ -116,7 +116,7 @@
      (abort-server-request "HANDLE-TOPLEVEL-CONDITION bailed out without any response because the HTTP headers are already sent")))
   (error "This HANDLE-TOPLEVEL-CONDITION method should never return"))
 
-(defmethod handle-toplevel-condition ((error access-denied-error) broker)
+(def method handle-toplevel-condition ((error access-denied-error) broker)
   (bind ((request-uri (if *request*
                           (raw-uri-of *request*)
                           "<unavailable>")))
@@ -138,7 +138,7 @@
    (local-variables)
    (source-location)))
 
-(defun make-stack-frame (description &optional source-location local-variables)
+(def function make-stack-frame (description &optional source-location local-variables)
   (make-instance 'stack-frame
                  :description description
                  :source-location source-location
@@ -278,7 +278,7 @@
               (nreversef backtrace)
               backtrace)))
 
-   (t (defun collect-backtrace (&key (start 4) (count 500) &allow-other-keys)
+   (t (def function collect-backtrace (&key (start 4) (count 500) &allow-other-keys)
         (bind ((swank::*buffer-package* *package*))
           (swank-backend:call-with-debugging-environment
            (lambda ()

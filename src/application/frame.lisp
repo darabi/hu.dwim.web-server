@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -48,9 +48,6 @@
   (write-string ", actions: ")
   (princ (hash-table-count (action-id->action-of -self-))))
 
-(def function toggle-debug-component-hierarchy (frame)
-  (setf (debug-component-hierarchy-p frame) (not (debug-component-hierarchy-p frame))))
-
 (def (function ei) generate-response-unique-string (&optional prefix context)
   (unless prefix
     (setf prefix "_u"))
@@ -85,9 +82,10 @@
 (def (macro e) with-response-unique-strings ((&rest names) &body body)
   (%expand-with-frame-unique-strings 'generate-response-unique-string names body))
 
+#+nil ;; TODO this should be a generic if needed at all
 (def function invalidate-frame (frame)
   (setf (is-frame-valid? frame) #f)
-  (setf (root-component-of frame) nil)
+  (setf (root-component-of frame) nil) ; TODO push down to subclass
   (clrhash (action-id->action-of frame))
   (clrhash (client-state-sink-id->client-state-sink-of frame))
   frame)
@@ -98,7 +96,7 @@
     ((is-timed-out? frame) (values #f :timed-out))
     (t (values #t nil))))
 
-(def (function o) find-frame-from-request (session)
+(def (function o) find-frame-for-request (session)
   (bind ((frame-id (parameter-value +frame-id-parameter-name+))
          (frame nil)
          (frame-instance nil)
@@ -141,9 +139,6 @@
   (setf (next-frame-index-of frame) (frame-index-of frame))
   (setf (frame-index-of frame) original-frame-index)
   (values))
-
-(def (function e) reset-frame-root-component ()
-  (setf (root-component-of *frame*) nil))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;

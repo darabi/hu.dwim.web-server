@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -33,13 +33,13 @@
   (:method append ((component component))
     '(visible expanded dirty outdated))
 
-  (:method append ((component abstract-standard-class-component))
+  (:method append ((component standard-class/mixin))
     '(the-class))
   
-  (:method append ((component abstract-standard-slot-definition-component))
+  (:method append ((component standard-slot-definition/mixin))
     '(the-class slot))
   
-  (:method append ((component abstract-standard-object-component))
+  (:method append ((component standard-object/mixin))
     '(instance))
 
   (:method append ((component reference-component))

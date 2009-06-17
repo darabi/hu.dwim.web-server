@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -12,21 +12,21 @@
          (l10n.debug "Loading ~A resources for locale ~S" ,log-discriminator locale-name)
          (bind ((file (merge-pathnames (concatenate-string locale-name ".lisp") (system-relative-pathname ,asdf-system ,base-directory))))
            (when (probe-file file)
-             (bind ((*readtable* (copy-readtable *readtable*)))
+             (bind ((*readtable* (copy-readtable nil)))
                (awhen ,setup-readtable-function
                  (funcall it))
                (cl-l10n::load-resource-file :wui file)
                (l10n.info "Loaded ~A resources for locale ~S from ~A" ,log-discriminator locale-name file))))))))
 
-(def resource-loading-locale-loaded-listener wui-resource-loader :wui "resources/"
+(def resource-loading-locale-loaded-listener wui-resource-loader :wui "resource/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader)
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/application :wui "resources/application/"
+(def resource-loading-locale-loaded-listener wui-resource-loader/application :wui "resource/application/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader/application)
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resources/component/"
+(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resource/component/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader/component)
 
@@ -123,12 +123,18 @@
                     (list "boolean")))
       ,str>))
 
+(def function member-value-name (value)
+  (typecase value
+    (symbol (symbol-name value))
+    (class (class-name value))
+    (t (write-to-string value))))
+
 (def function localized-enumeration-member (member-value &key class slot capitalize-first-letter)
   ;; TODO fails with 'person 'sex: '(OR NULL SEX-TYPE)
   (unless class
     (setf class (when slot
                   (owner-class-of-effective-slot-definition slot))))
-  (bind ((member-name (member-component-value-name member-value))
+  (bind ((member-value-name (member-value-name member-value))
          (slot-definition-type (when slot
                                  (slot-definition-type slot)))
          (class-name (when class
@@ -139,14 +145,14 @@
           (lookup-first-matching-resource
             (when (and class-name
                        slot-name)
-              class-name slot-name member-name)
+              class-name slot-name member-value-name)
             (when slot-name
-              slot-name member-name)
+              slot-name member-value-name)
             (when (and slot-definition-type
                        ;; TODO strip off (or null ...) from the type
                        (symbolp slot-definition-type))
-              slot-definition-type member-name)
-            ("member-type-value" member-name))))
+              slot-definition-type member-value-name)
+            ("member-type-value" member-value-name))))
     (when (and (not found?)
                (typep member-value 'class))
       (setf (values str found?) (localized-class-name member-value)))
@@ -171,11 +177,11 @@
   )
 
 #+nil ;; TODO port this old localized-timestamp that supports relative mode
-(defun localized-timestamp (local-time &key
-                           (relative-mode nil)
-                           (display-day-of-week nil display-day-of-week-provided?))
+(def function localized-timestamp (local-time &key
+                                              (relative-mode nil)
+                                              (display-day-of-week nil display-day-of-week-provided?))
   "DWIMish timestamp printer. RELATIVE-MODE requests printing human friendly dates based on (NOW)."
-  (setf local-time (local-time:adjust-local-time local-time (set :timezone ucw:*client-timezone*)))
+  (setf local-time (local-time:adjust-local-time local-time (set :timezone *client-timezone*)))
   (bind ((*print-pretty* nil)
          (*print-circle* nil)
          (cl-l10n::*time-zone* nil)
@@ -247,14 +253,14 @@
                     (bind ((offset (parse-integer value :junk-allowed #t)))
                       (if offset
                           (bind ((local-time (parse-rfc3339-timestring value)))
-                            (ucw.l10n.debug "Setting client timezone from ~A" local-time)
+                            (l10n.debug "Setting client timezone from ~A" local-time)
                             (setf (client-timezone-of (context.session *context*)) (timezone-of local-time)))
                           (progn
                             (app.warn "Unable to parse the client timezone offset: ~S" value)
                             (setf (client-timezone-of (context.session *context*)) +utc-zone+)))))) >
-    (ucw:script `(on-load
-                   (setf (slot-value ($ ,id) 'value)
-                         (dojo.date.to-rfc-3339 (new *date)))))))
+    `js(on-load
+        (setf (slot-value ($ ,id) 'value)
+              (dojo.date.to-rfc-3339 (new *date))))))
 
 (def (generic e) localized-instance-reference-string (instance)
   (:method ((instance standard-object))

@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -112,7 +112,7 @@
 (def (function e) make-file-serving-response (file-name)
   (make-instance 'file-serving-response :file-name file-name))
 
-(defmethod send-response ((self file-serving-response))
+(def method send-response ((self file-serving-response))
   (server.info "Sending file serving response from ~S" (file-name-of self))
   (serve-file (file-name-of self)
               :headers (headers-of self)

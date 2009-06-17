@@ -2,9 +2,9 @@
 
 (in-suite test/action)
 
-(defparameter +test-ajax-action-entry-point+ "test-ajax-action.ucw")
+(def special-variable +test-ajax-action-entry-point+ "test-ajax-action")
 
-(deftest test/action/define-test-ajax-actions-component (&key (default-backtrack nil))
+(def test test/action/define-test-ajax-actions-component (&key (default-backtrack nil))
   (with-fixture ensure-test-application
     (finishes
       (test/action/define-test-actions-component)
@@ -27,7 +27,7 @@
                          (is (not (action-make-new-frame-p action)))
                          action)))))))))
 
-(defixture ensure-test-application-with-ajax-action-dispatcher
+(def fixture ensure-test-application-with-ajax-action-dispatcher
   (:setup
    (ensure-test-application-with-action-dispatcher :setup)
    (unless (find-if (rcurry #'typep 'ajax-action-dispatcher)
@@ -40,7 +40,7 @@
                     (application.dispatchers *test-application*)))
    (ensure-test-application-with-action-dispatcher :teardown)))
 
-(defmacro def-ajax-action-test (name args &body body)
+(def definer ajax-action-test (name args &body body)
   `(def-action-test ,name ,args
     (labels ((read-state (&rest args)
                (apply 'read-action-test-state
@@ -67,7 +67,7 @@
                           #'component-slot #'same-session-p #'same-frame-p))
       ,@body)))
 
-(def-ajax-action-test test/action/remote-ajax-action (&key (default-backtrack nil))
+(def ajax-action-test test/action/remote-ajax-action (&key (default-backtrack nil))
   (with-fixture ensure-test-application-with-ajax-action-dispatcher
     (test/action/define-test-ajax-actions-component :default-backtrack default-backtrack)
     (let ((session-id-to-delete))

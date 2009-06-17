@@ -1,10 +1,10 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
 (in-package :hu.dwim.wui)
 
-(def method reuse-standard-object-instance ((class prc::persistent-class) (instance prc::persistent-object))
+(def layered-method reuse-standard-object-instance ((class prc::persistent-class) (instance prc::persistent-object))
   (if (prc::persistent-p instance)
       (prc::load-instance instance)
       (call-next-method)))
@@ -12,7 +12,7 @@
 (def method hash-key-for ((instance prc::persistent-object))
   (prc::oid-of instance))
 
-(def layered-method make-expand-command :around ((component inspector-component) (class prc::persistent-class) (prototype prc::persistent-object) (instance prc::persistent-object))
+(def layered-method make-expand-command :around ((component inspector/abstract) (class prc::persistent-class) (prototype prc::persistent-object) (instance prc::persistent-object))
   (when (dmm::authorize-operation 'expand-instance-operation :-entity- class)
     (call-next-method)))
 

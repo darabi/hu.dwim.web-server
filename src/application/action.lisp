@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -23,25 +23,10 @@
   (bind ((*action* action))
     (call-next-method)))
 
-(def class* component-action (action)
-  ((component))
-  (:metaclass funcallable-standard-class))
-
-(def method call-action :around (application session frame (action component-action))
-  (with-restored-component-environment (component-of action)
-    (call-next-method)))
-
 (def (macro e) make-action (&body body)
   (with-unique-names (action)
     `(bind ((,action (make-instance 'action)))
        (set-funcallable-instance-function ,action (named-lambda action-body ()
-                                                    ,@body))
-       ,action)))
-
-(def (macro e) make-component-action (component &body body)
-  (with-unique-names (action)
-    `(bind ((,action (make-instance 'component-action :component ,component)))
-       (set-funcallable-instance-function ,action (named-lambda component-action-body ()
                                                     ,@body))
        ,action)))
 

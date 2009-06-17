@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -9,7 +9,7 @@
 
 (def layered-method collect-standard-object-detail-maker-slots ((component standard-object-detail-maker) (class prc::persistent-class) (prototype prc::persistent-object))
   (bind ((excluded-slot-name
-          (awhen (find-ancestor-component-with-type component 'standard-object-slot-value-component)
+          (awhen (find-ancestor-component-with-type component 'standard-object-slot-value/inspector)
             (bind ((slot (slot-of it)))
               (when (typep slot 'prc::persistent-association-end-effective-slot-definition)
                 (slot-definition-name (prc::other-association-end-of slot)))))))
@@ -23,7 +23,8 @@
                (dmm::authorize-operation 'dmm::create-entity-property-operation :-entity- class :-property- slot))
              (call-next-method)))
 
-(def layered-method execute-create-instance ((ancestor recursion-point-mixin) (component standard-object-maker) (class prc::persistent-class))
+;; TODO: FIXME: this is the same signature?
+(def layered-method execute-create-instance ((component standard-object-maker) (class prc::persistent-class))
   (handler-bind ((prc::persistent-constraint-violation (lambda (error)
                                                          (add-user-error component "Adatösszefüggés hiba")
                                                          (abort-interaction)
@@ -33,7 +34,8 @@
         (when (interaction-aborted-p)
           (cl-rdbms:mark-transaction-for-rollback-only))))))
 
-(def layered-method execute-create-instance ((ancestor recursion-point-mixin) (component standard-object-maker) (class prc::persistent-class))
+;; TODO: FIXME: this is the same signature?
+(def layered-method execute-create-instance ((component standard-object-maker) (class prc::persistent-class))
   (prog1 (call-next-method)
     (unless (interaction-aborted-p)
       (rdbms:register-transaction-hook :after :commit

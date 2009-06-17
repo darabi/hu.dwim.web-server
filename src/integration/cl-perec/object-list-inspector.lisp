@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -22,7 +22,7 @@
 
 (def layered-method execute-create-instance ((ancestor standard-object-list-inspector) (component standard-object-maker) (class prc::persistent-class))
   (prog1-bind instance (call-next-method)
-    (bind ((slot-value (find-ancestor-component-with-type ancestor 'abstract-standard-object-slot-value-component)))
+    (bind ((slot-value (find-ancestor-component-with-type ancestor 'standard-object-slot/mixin)))
       (when slot-value
         (bind ((slot (slot-of slot-value))
                (other-slot (prc::other-association-end-of slot)))

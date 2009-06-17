@@ -1,7 +1,7 @@
 (in-package :wui-test)
 
 ;;;;;;
-;;; this is a simple example application with login and logout support
+;;; This is a simple example application with login and logout support
 
 (setf *dojo-directory-name* (find-latest-dojo-directory-name (project-relative-pathname "wwwroot/")))
 
@@ -113,28 +113,28 @@
                               (vertical-list (:id "page")
                                 (when *session*
                                   (style (:id "header" :css-class "authenticated")
-                                    (inline-component <span ,(current-authenticated-subject)
-                                                            " "
-                                                            ,(when (running-in-test-mode-p *wudemo-application*)
-                                                                   "(test mode)")
-                                                            " "
-                                                            ,(when (profile-request-processing-p *server*)
-                                                                   "(profiling)")
-                                                            " "
-                                                            ,(when (debug-client-side? (root-component-of *frame*))
-                                                                   "(debugging client side)")>
-                                                      <span ,(render
-                                                              (command (icon logout)
-                                                                       (make-action
-                                                                         (mark-session-invalid *session*)
-                                                                         (make-redirect-response-for-current-application))))>)))
+                                    (inline-render <span ,(current-authenticated-subject)
+                                                         " "
+                                                         ,(when (running-in-test-mode-p *wudemo-application*)
+                                                                "(test mode)")
+                                                         " "
+                                                         ,(when (profile-request-processing-p *server*)
+                                                                "(profiling)")
+                                                         " "
+                                                         ,(when (debug-client-side? (root-component-of *frame*))
+                                                                "(debugging client side)")>
+                                                   <span ,(render
+                                                           (command (icon logout)
+                                                                    (make-action
+                                                                      (mark-session-invalid *session*)
+                                                                      (make-redirect-response-for-current-application))))>)))
                                 (horizontal-list ()
                                   (style (:id "menu") menu)
                                   (top menu-content))))))
       (setf (target-place-of menu) (make-component-place menu-content))
       (values frame-component menu-content))))
 
-(def method make-frame-component-with-content ((application wudemo-application) content)
+(def layered-method make-frame-component-with-content ((application wudemo-application) content)
   (make-wudemo-frame-component-with-content content))
 
 (def function make-wudemo-menu-component ()
@@ -146,7 +146,7 @@
   (if (is-authenticated?)
       (empty)
       (if (parameter-value "example-error")
-          (inline-component
+          (inline-render
             (error "This is an example error that happens while rendering the response"))
           (bind ((path (path-of (uri-of *request*))))
             (assert (starts-with-subseq (path-prefix-of *application*) path))
@@ -154,10 +154,10 @@
             (switch (path :test #'string=)
               (+login-entry-point-path+ (vertical-list ()
                                           (make-identifier-and-password-login-component)
-                                          (inline-component <div "FYI, the password is \"secret\"...">)))
+                                          (inline-render <div "FYI, the password is \"secret\"...">)))
               ("help/" (make-help-component))
               ("about/" (make-about-component))
-              (t (inline-component <span "wudemo start page">)))))))
+              (t (inline-render <span "wudemo start page">)))))))
 
 (def function make-unauthenticated-menu-component ()
   (macrolet ((command* (title path)
@@ -175,7 +175,7 @@
                                                                 (setf (uri-query-parameter-value uri "example-error") "t")
                                                                 uri))))))
 
-;; TODO the onChange part hould be this simple, but it needs qq work.
+;; TODO the onChange part should be this simple, but it needs qq work.
 ;; ,(js-to-lisp-rpc
 ;;   (setf (example-inline-edit-box-value-of *session*) (aref |arguments| 0)))
 
@@ -210,7 +210,7 @@
                    (list (menu-item () (command "Example error in action body"
                                          (make-action (error "This is an example error which is signaled when running the action body"))))
                          (menu-item () (replace-menu-target-command "Example error while rendering"
-                                         (inline-component (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
+                                         (inline-render (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
           debug-menu))
       (menu-item () "Charts"
         (menu-item () "Charts from files"
@@ -253,17 +253,17 @@
                                    (make-action
                                      ;;(break "file in action: ~A" (component-value-of file-upload-component))
                                      ))
-                          (inline-component
+                          (inline-render
                             (when (slot-boundp file-upload-component 'component-value)
                               (render-mime-part-details (component-value-of file-upload-component))))))))
       (menu-item () (replace-menu-target-command "Dojo InlineEditBox example"
-                      (inline-component
+                      (inline-render
                         (render-example-inline-edit-box))))
       (menu-item () (replace-menu-target-command "checkbox"
                       (bind ((value1 #t)
                              (value2 #f))
                         (vertical-list ()
-                          (inline-component
+                          (inline-render
                             (render-checkbox-field value1 :value-sink (lambda (value)
                                                                         (setf value1 value)))
                             (render-checkbox-field value2 :value-sink (lambda (value)
@@ -280,12 +280,12 @@
 
 (def function make-primitive-component-menu ()
   (labels ((make-primitive-menu-item-content (components)
-             (inline-component
-               <div ,(render (command (icon wui::refresh)
-                                      (make-action)))
+             (inline-render
+               <div ,(render-component (command (icon wui::refresh)
+                                                (make-action)))
                     <table ,(foreach (lambda (component)
                                        <tr ,(foreach (lambda (cell)
-                                                       <td ,(render cell)>)
+                                                       <td ,(render-component cell)>)
                                                      component)>)
                                      components)>>))
            (make-primitive-menu-item (name types values initforms)
@@ -313,7 +313,7 @@
                                                                                   (unless (eq value :unbound)
                                                                                     (list :component-value value)))))
                                                            (list
-                                                            (inline-component
+                                                            (inline-render
                                                               (bind ((value (if (slot-boundp inspector 'component-value)
                                                                                 (component-value-of inspector)
                                                                                 :unbound)))
@@ -346,10 +346,10 @@
       (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text))))))
 
 (def function make-help-component ()
-  (inline-component <div "This is the help page">))
+  (inline-render <div "This is the help page">))
 
 (def function make-about-component ()
-  (inline-component <div "This is the about page">))
+  (inline-render <div "This is the about page">))
 
 ;;;;;;
 ;;; ajax counter example (only a proof-of-concept)
@@ -389,7 +389,7 @@
   (if *session*
       (progn
         (setf (root-component-of *frame*) (make-viewer *session*))
-        (if (find-frame-from-request *session*)
+        (if (find-frame-for-request *session*)
             (make-root-component-rendering-response *frame*)
             (make-redirect-response-for-current-application "session-info")))
       (make-functional-html-response ()

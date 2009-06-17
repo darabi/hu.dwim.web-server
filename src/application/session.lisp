@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -80,7 +80,7 @@
           (-body-)))
     (threads.dribble "Leaving with-lock-held-on-session for ~S in thread ~S" session (current-thread))))
 
-(defmethod (setf id-of) :before (id (session session))
+(def method (setf id-of) :before (id (session session))
   (awhen (id-of session)
     (error "The session ~S already has an id: ~A." session it))
   (assert (null (lock-of session)))

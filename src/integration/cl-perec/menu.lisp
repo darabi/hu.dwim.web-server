@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object filter menu item
 
-(def component standard-object-filter-menu-item-component (menu-item-component)
+(def (component ea) standard-object-filter-menu-item-component (menu-item-component)
   ((the-class)))
 
 (def constructor standard-object-filter-menu-item-component ()
@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; Standard object maker menu item
 
-(def component standard-object-maker-menu-item-component (menu-item-component)
+(def (component ea) standard-object-maker-menu-item-component (menu-item-component)
   ((the-class)))
 
 (def constructor standard-object-maker-menu-item-component ()
@@ -45,7 +45,7 @@
 ;;;;;;
 ;;; Persistent process starter menu item
 
-(def component persistent-process-starter-menu-item-component (menu-item-component)
+(def (component ea) persistent-process-starter-menu-item-component (menu-item-component)
   ((the-class)))
 
 (def constructor persistent-process-starter-menu-item-component ()

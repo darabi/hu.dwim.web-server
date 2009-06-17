@@ -1,8 +1,8 @@
 (in-package :wui-test)
 
-(defvar *running-test-servers* (list))
+(def special-variable *running-test-servers* (list))
 
-(defun start-test-server (server &key maximum-worker-count)
+(def function start-test-server (server &key maximum-worker-count)
   (when maximum-worker-count
     (setf (maximum-worker-count-of server) maximum-worker-count))
   (finishes
@@ -14,7 +14,7 @@
       (pushnew server *running-test-servers*)
       (setf *test-server* server))))
 
-(defun stop-test-server (&optional (server *test-server*))
+(def function stop-test-server (&optional (server *test-server*))
   (finishes
     (is (not (null server)))
     (dolist (listen-entry (listen-entries-of server))
@@ -27,19 +27,19 @@
       (setf *test-server* nil))
     (values)))
 
-(defixture ensure-test-server
+(def fixture ensure-test-server
   (:setup
    (start-test-server (make-instance 'server :host *test-host* :port *test-port*)))
   (:teardown
    (stop-test-server)))
 
-(defun start-test-server-with-handler (handler &rest args &key (server-type 'server) &allow-other-keys)
+(def function start-test-server-with-handler (handler &rest args &key (server-type 'server) &allow-other-keys)
   (remove-from-plistf args :server-type)
   (bind ((server (apply #'make-instance server-type :host *test-host* :port *test-port* args)))
     (setf (handler-of server) handler)
     (start-test-server-and-wait server)))
 
-(defun start-test-server-with-brokers (brokers &rest args &key
+(def function start-test-server-with-brokers (brokers &rest args &key
                                        (server-type 'broker-based-server)
                                        (host *test-host*)
                                        (port *test-port*)
@@ -69,25 +69,25 @@
             port
             host)))
 
-(defun start-test-server-and-wait (server)
+(def function start-test-server-and-wait (server)
   (unwind-protect
        (progn
          (start-test-server server)
          (break (test-server-info-string server)))
     (stop-test-server server)))
 
-(defun start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
+(def function start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
     (start-test-server-with-handler (lambda ()
                                       (send-response (make-request-echo-response)))
                                     :maximum-worker-count maximum-worker-count)))
 
-(defun start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
+(def function start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
     (start-test-server-with-brokers (make-file-serving-broker "/wui/" (project-relative-pathname ""))
                                     :maximum-worker-count maximum-worker-count)))
 
-(defun start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
+(def function start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
   (with-logger-level wui log-level
     (start-test-server-with-brokers (make-functional-broker
                                       (with-request-params (name)

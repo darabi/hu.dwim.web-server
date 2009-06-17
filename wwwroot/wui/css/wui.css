@@ -29,7 +29,7 @@ td._nw
   white-space: nowrap;
 }
 
-.debug-component
+.debug-component-hierarchy
 {
   padding: 1px;
   border-color: lightgray;
@@ -37,7 +37,7 @@ td._nw
   border-style: solid;
 }
 
-.debug-component-name
+.debug-component-hierarchy .class-name
 {
   font-size: 10px;
   color: purple;

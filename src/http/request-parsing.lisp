@@ -1,12 +1,12 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
 (in-package :hu.dwim.wui)
 
-(defgeneric read-request (server stream))
+(def generic read-request (server stream))
 
-(defmethod read-request :around (server stream)
+(def method read-request :around (server stream)
   (with-thread-name " / READ-REQUEST"
     (call-next-method)))
 

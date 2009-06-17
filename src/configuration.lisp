@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -29,7 +29,7 @@
          ,@body)
        (values)))
 
-(defun transform-function-definer-options (options)
+(def function transform-function-definer-options (options)
   (if *load-as-production-p*
       options
       (remove-from-plist options :inline :optimize)))
@@ -96,7 +96,7 @@
   (set-dispatch-macro-character #\# #\" (lambda (stream c1 c2)
                                           (localized-string-reader stream c1 c2))))
 
-(defun setup-readtable ()
+(def function setup-readtable ()
   (enable-quasi-quoted-list-to-list-emitting-form-syntax)
   (enable-sharp-boolean-syntax)
   (enable-feature-cond-syntax)
@@ -137,7 +137,7 @@
                                 ;; the js-inline qq syntax is only in inline-emitting mode when used lexically-below another qq reader.
                                 ;; this way it works as expected:
                                 ;; (some-function `js-inline(+ 2 40))
-                                ;; (defun some-function (on-click)
+                                ;; (def function some-function (on-click)
                                 ;;   <div (:on-click ,on-click)>)
                                 (if (= 1 *quasi-quote-lexical-depth*)
                                     toplevel-pipeline

@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -212,7 +212,7 @@
   (bind ((application *application*)
          (session *session*)
          ((:values frame frame-id-parameter-received? invalidity-reason frame-instance) (when session
-                                                                                          (find-frame-from-request session))))
+                                                                                          (find-frame-for-request session))))
     (setf *frame* frame)
     (app.dribble "WITH-FRAME-LOGIC looked up frame ~A from session ~A" frame session)
     (if frame
@@ -224,7 +224,7 @@
            (handle-request-to-invalid-frame application session frame-instance invalidity-reason))
           ((and ensure-frame
                 *session*)
-           ;; set up a new frame and fall through to the entry points to set up a root-component to their favour
+           ;; set up a new frame and fall through to the entry points to set up to their favour
            (setf frame (make-new-frame application session))
            (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
                                                                       frame +frame-id-length+))
@@ -429,7 +429,7 @@
   (:documentation "Returns a list of the session mixin classes.
 
 Custom implementations should look something like this:
-\(defmethod session-class list \(\(app your-application))
+\(def method session-class list \(\(app your-application))
   'your-session-mixin)")
   (:method-combination list))
 
@@ -539,172 +539,6 @@ Custom implementations should look something like this:
 ;;;;;;
 ;;; Application specific responses
 
-(def (layered-function e) render (component))
-
-(def layer format-independent () ())
-
-(def definer render-layer (name)
-  (bind ((layer-name (format-symbol *package* "~A-FORMAT" name))
-         (render-definer-name (format-symbol *package* "RENDER-~A" name)))
-    `(progn
-       (def (layer e) ,layer-name (format-independent) ())
-       (def (function e) ,render-definer-name (component)
-         (with-active-layers (,layer-name)
-           (render component)))
-       (def (definer e :available-flags "do") ,render-definer-name (&body forms)
-         (render-like-definer ',layer-name forms -options-)))))
-
-(def function render-like-definer (layer forms options)
-  (bind ((layer (if (member (first forms) '(:in-layer :in))
-                    (progn
-                      (pop forms)
-                      (pop forms))
-                    layer))
-         (qualifier (when (or (keywordp (first forms))
-                              (member (first forms) '(and or progn append nconc)))
-                      (pop forms)))
-         (type (pop forms)))
-    `(def (layered-method ,@options) render ,@(when layer `(:in ,layer)) ,@(when qualifier (list qualifier)) ((-self- ,type))
-          ,@forms)))
-
-(def (definer e :available-flags "do") render (&body forms)
-  (render-like-definer nil forms -options-))
-
-(def render-layer text)
-
-(def render-layer xhtml)
-
-(def render-layer csv)
-
-(def render-layer pdf)
-
-(def render-layer odt)
-
-(def render-layer ods)
-
-(def (generic e) call-in-component-environment (component thunk)
-  (:method (component thunk)
-    (funcall thunk)))
-
-(def macro with-component-environment (component &body forms)
-  `(call-in-component-environment ,component (named-lambda with-component-environment-body ()
-                                               ,@forms)))
-
-(def (definer e) component-environment (&body forms)
-  (bind ((qualifier (when (or (keywordp (first forms))
-                              (member (first forms) '(and or progn append nconc)))
-                      (pop forms)))
-         (type (pop forms))
-         (unused (gensym)))
-    `(def method call-in-component-environment ,@(when qualifier (list qualifier)) ((-self- ,type) ,unused)
-        ,@forms)))
-
-;; TODO: move?
-(def function collect-path-to-root-component (component)
-  (iter (for ancestor-component :initially component :then (parent-component-of ancestor-component))
-        (while ancestor-component)
-        (collect ancestor-component)))
-
-(def function call-with-restored-component-environment (component thunk)
-  (bind ((path (nreverse (collect-path-to-root-component component))))
-    (labels ((%call-with-restored-component-environment (remaining-path)
-               (if remaining-path
-                   (with-component-environment (car remaining-path)
-                     (%call-with-restored-component-environment (cdr remaining-path)))
-                   (funcall thunk))))
-      (%call-with-restored-component-environment path))))
-
-(def (macro e) with-restored-component-environment (component &body forms)
-  `(call-with-restored-component-environment ,component (named-lambda with-restored-component-environment-body () ,@forms)))
-
-(def (generic e) call-in-rendering-environment (application session thunk)
-  (:method (application session thunk)
-    (funcall thunk)))
-
-(def function ajax-aware-render (component)
-  (app.debug "Inside AJAX-AWARE-RENDER; is this an ajax-aware-request? ~A" *ajax-aware-request*)
-  (if (and *ajax-aware-request*
-           (ajax-enabled? *application*))
-      (bind ((dirty-components (collect-covering-remote-identity-components-for-dirty-descendant-components component)))
-        (setf (header-value *response* +header/content-type+) +xml-mime-type+)
-        ;; FF does not like proper xml prologue, probably the other browsers even more so...
-        ;; (emit-xml-prologue)
-        <ajax-response
-         ,@(with-collapsed-js-scripts
-             (with-dojo-widget-collector
-               <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
-                 ,(foreach (lambda (dirty-component)
-                             (with-restored-component-environment (parent-component-of dirty-component)
-                               (bind ((*inside-user-code* #t))
-                                 (setf *rendering-phase-reached* #t)
-                                 (render-xhtml dirty-component))))
-                           dirty-components)>))
-         <result "success">>)
-      (bind ((*inside-user-code* #t))
-        (setf *rendering-phase-reached* #t)
-        (render-xhtml component))))
-
-(def (with-macro e) with-render-to-xhtml-string-context ()
-  (bind ((*request* (make-instance 'request :uri (parse-uri "")))
-         (*response* (make-instance 'response))
-         (*application* (make-instance 'application :path-prefix ""))
-         (*session* (make-instance 'session))
-         (*frame* (make-instance 'frame :session *session*))
-         (*rendering-phase-reached* #f))
-    (setf (id-of *session*) "1234567890")
-    (with-lock-held-on-session (*session*)
-      (octets-to-string
-       (with-output-to-sequence (buffer-stream :external-format +encoding+ :initial-buffer-size 256)
-         (emit-into-xml-stream buffer-stream
-           `xml,@(with-collapsed-js-scripts
-                  (with-dojo-widget-collector
-                    (-body-)))
-           +void+))
-       :encoding +encoding+))))
-
-(def (function e) render-to-xhtml-string (component &key ajax-aware)
-  (bind ((*ajax-aware-request* ajax-aware))
-    (with-render-to-xhtml-string-context
-      (call-in-rendering-environment *application* *session* (lambda ()
-                                                               (ajax-aware-render component))))))
-
-(def class* locked-session-response-mixin (response)
-  ())
-
-;;;;;;
-;;; Component rendering response
-
-(def special-variable *debug-component-hierarchy* #f)
-
-(def class* component-rendering-response (locked-session-response-mixin)
-  ((unique-counter 0)
-   (application)
-   (session)
-   (frame)
-   (component)))
-
-;; TODO switch default content-type to +xhtml-mime-type+ (search for other uses, too)
-;; seems like with xhtml there are random problems, like some dojo x.innerHTML throws...
-(def (function e) make-component-rendering-response (component &key (application *application*) (session *session*) (frame *frame*)
-                                                               (encoding +encoding+) (content-type (content-type-for +html-mime-type+ encoding)))
-  (aprog1
-      (make-instance 'component-rendering-response
-                     :component component
-                     :application application
-                     :session session
-                     :frame frame)
-    (setf (header-value it +header/content-type+) content-type)))
-
-(def (function e) make-root-component-rendering-response (frame &key (encoding +encoding+) (content-type (content-type-for +html-mime-type+ encoding)))
-  (bind ((session (session-of frame))
-         (application (application-of session)))
-    (make-component-rendering-response (root-component-of frame)
-                                       :application application
-                                       :session session
-                                       :frame frame
-                                       :encoding encoding
-                                       :content-type content-type)))
-
 (def function ajax-aware-request? (&optional (request *request*))
   (bind ((value (request-parameter-value request +ajax-aware-parameter-name+)))
     (and value
@@ -720,34 +554,8 @@ Custom implementations should look something like this:
            (cons (some [not (string= !1 "")] value))
            (string (not (string= value "")))))))
 
-(def method convert-to-primitive-response ((self component-rendering-response))
-  (disallow-response-caching self)
-  (bind ((*frame* (frame-of self))
-         (*session* (session-of self))
-         (*application* (application-of self))
-         (*debug-component-hierarchy* (if *frame* (debug-component-hierarchy-p *frame*) *debug-component-hierarchy*))
-         (*ajax-aware-request* (ajax-aware-request?))
-         (*delayed-content-request* (or *ajax-aware-request*
-                                        (delayed-content-request?)))
-         (body (with-output-to-sequence (buffer-stream :external-format (external-format-of self)
-                                                       :initial-buffer-size 256)
-                 (when (and *frame*
-                            (not *delayed-content-request*))
-                   (app.debug "This is not a delayed content request, clearing the action and client-state-sink hashtables of ~A" *frame*)
-                   (clrhash (action-id->action-of *frame*))
-                   (clrhash (client-state-sink-id->client-state-sink-of *frame*)))
-                 (emit-into-xml-stream buffer-stream
-                   (bind ((start-time (get-monotonic-time)))
-                     (multiple-value-prog1
-                         (call-in-rendering-environment *application* *session*
-                                                        (lambda ()
-                                                          (ajax-aware-render (component-of self))))
-                       (app.info "Rendering done in ~,3f secs" (- (get-monotonic-time) start-time))))))))
-    (app.debug "CONVERT-TO-PRIMITIVE-RESPONSE is returning a byte-vector-response of ~A bytes in the body" (length body))
-    (make-byte-vector-response* body
-                                :headers (headers-of self)
-                                :cookies (cookies-of self))))
-
+(def class* locked-session-response-mixin (response)
+  ())
 
 ;;;;;;
 ;;; Utils

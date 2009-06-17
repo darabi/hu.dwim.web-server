@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -8,10 +8,10 @@
   ((handler :type function))
   (:metaclass funcallable-standard-class))
 
-(defmethod produce-response ((entry-point entry-point) request)
+(def method produce-response ((entry-point entry-point) request)
   (funcall (handler-of entry-point) request))
 
-(defgeneric entry-point-equals-for-redefinition (a b)
+(def generic entry-point-equals-for-redefinition (a b)
   (:method (a b)
     #f)
 

@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -81,7 +81,7 @@
 (def (generic e) startup-server (server &key &allow-other-keys))
 (def (generic e) shutdown-server (server &key &allow-other-keys))
 
-(defmethod startup-server ((server server) &key (initial-worker-count 2) &allow-other-keys)
+(def method startup-server ((server server) &key (initial-worker-count 2) &allow-other-keys)
   (server.debug "STARTUP-SERVER of ~A" server)
   (assert (listen-entries-of server))
   (setf (shutdown-initiated-p server) #f)
@@ -157,7 +157,7 @@
                 (format stream "Give up starting server ~A" server))
       (values))))
 
-(defmethod shutdown-server ((server server) &key force &allow-other-keys)
+(def method shutdown-server ((server server) &key force &allow-other-keys)
   (setf (shutdown-initiated-p server) #t)
   (macrolet ((kill-thread-and-catch-error (thread)
                (once-only (thread)
@@ -207,7 +207,7 @@
 (def class* worker ()
   ((thread)))
 
-(defun make-worker (server)
+(def function make-worker (server)
   (with-lock-held-on-server (server)
     (let ((worker (make-instance 'worker)))
       (setf (thread-of worker)
@@ -218,15 +218,15 @@
       (server.info "Spawned new worker thread ~A" worker)
       worker)))
 
-(defun register-worker (worker server)
+(def function register-worker (worker server)
   (with-lock-held-on-server (server)
     (vector-push-extend worker (workers-of server))))
 
-(defun unregister-worker (worker server)
+(def function unregister-worker (worker server)
   (with-lock-held-on-server (server)
     (deletef (workers-of server) worker)))
 
-(defun worker-loop (server &optional (threaded? #f) worker)
+(def function worker-loop (server &optional (threaded? #f) worker)
   (assert (or (not threaded?) worker))
   (with-lock-held-on-server (server)
     ;; wait until the startup procedure finished
@@ -357,7 +357,7 @@
     (iolib:socket-connection-reset-error (incf (client-connection-reset-count-of *server*))))
   (invoke-restart (find-restart 'abort-server-request)))
 
-(defmethod read-request ((server server) stream)
+(def method read-request ((server server) stream)
   (let ((*request-content-length-limit* (request-content-length-limit-of server)))
     (read-http-request stream)))
 
@@ -394,7 +394,7 @@
          (%seconds-until-expires seconds-until-expires)
          (%content-length content-length))
     (with-unique-names (if-modified-since if-modified-since-value seconds-until-expires last-modified-at content-length)
-      `(defun ,name ,args
+      `(def function ,name ,args
          ,@(awhen documentation (list it))
          ,@declarations
          (setf ,headers (copy-alist ,headers))

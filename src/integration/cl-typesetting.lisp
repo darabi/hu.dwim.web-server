@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -33,42 +33,42 @@
 (def render-pdf string ()
   (typeset:put-string -self-))
 
-(def render-pdf command-bar-component ()
+(def render-pdf command-bar/basic ()
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
           (typeset:put-string " "))
-        (render command)))
+        (render-component command)))
 
-(def render-pdf popup-menu-component ()
+(def render-pdf popup-menu/basic ()
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
           (typeset:put-string " "))
-        (render command)))
+        (render-component command)))
 
 (def render-pdf primitive-component ()
   (typeset:put-string (print-component-value -self-)))
 
 (def render-pdf standard-object-detail-component ()
   (typeset:table (:col-widths '(200 200) :splittable-p #t)
-    (foreach #'render (slot-value-groups-of -self-))))
+    (foreach #'render-component (slot-value-groups-of -self-))))
 
 (def render-pdf standard-object-slot-value-group-component ()
   (foreach (lambda (slot-value)
              (typeset:row ()
-               (render slot-value)))
+               (render-component slot-value)))
            (slot-values-of -self-)))
 
-(def render-pdf standard-object-slot-value-component ()
+(def render-pdf standard-object-slot-value/inspector ()
   (typeset:cell ()
-    (render (label-of -self-)))
+    (render-component (label-of -self-)))
   (typeset:cell ()
-    (render (value-of -self-))))
+    (render-component (value-of -self-))))
 
 (def render-pdf table-component ()
   (typeset:table (:col-widths (normalized-column-widths (columns-of -self-)) :splittable-p #t)
     (typeset:row ()
-      (foreach #'render (columns-of -self-)))
-    (foreach #'render (rows-of -self-))))
+      (foreach #'render-component (columns-of -self-)))
+    (foreach #'render-component (rows-of -self-))))
 
 (def render-pdf column-component ()
   (typeset:cell ()
@@ -89,48 +89,48 @@
   (typeset:row ()
     (bind ((table (parent-component-of -self-)))
       (foreach (lambda (cell column)
-                 (render-table-cell table -self- column cell))
+                 (render-cells table -self- column cell))
                (cells-of -self-)
                (columns-of table)))))
 
-(def layered-methods render-table-cell
-  (:method :in pdf-format ((table table-component) (row row-component) (column column-component) (cell component))
+(def layered-methods render-cells
+  (:method :in pdf-layer ((table table/mixin) (row row/basic) (column column-component) (cell component))
     (typeset:cell ()
-      (render cell)))
+      (render-component cell)))
 
-  (:method :in pdf-format ((table table-component) (row row-component) (column column-component) (cell string))
+  (:method :in pdf-layer ((table table/mixin) (row row/basic) (column column-component) (cell string))
     (typeset:cell ()
-      (render cell))))
+      (render-component cell))))
 
-(def render-pdf tree-component ()
+(def render-pdf tree/basic ()
   (bind ((columns (columns-of -self-)))
     (typeset:table (:col-widths (normalized-column-widths columns) :splittable-p #t)
       (typeset:row ()
-        (foreach #'render columns))
-      (foreach #'render (root-nodes-of -self-)))))
+        (foreach #'render-component columns))
+      (foreach #'render-component (root-nodes-of -self-)))))
 
-(def render-pdf node-component ()
+(def render-pdf node/basic ()
   (typeset:row ()
     (foreach (lambda (column cell)
                (render-pdf-tree-cell *tree* -self- column cell))
              (columns-of *tree*)
              (cells-of -self-)))
-  (foreach #'render (child-nodes-of -self-)))
+  (foreach #'render-component (child-nodes-of -self-)))
 
 (def (layered-function e) render-pdf-tree-cell (tree node column cell)
-  (:method :before ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
-    (ensure-uptodate cell))
+  (:method :before ((tree tree/basic) (node node/basic) (column column-component) (cell cell-component))
+    (ensure-refreshed cell))
 
-  (:method ((tree tree-component) (node node-component) (column column-component) (cell component))
+  (:method ((tree tree/basic) (node node/basic) (column column-component) (cell component))
     (typeset:cell ()
-      (render cell)))
+      (render-component cell)))
 
-  (:method ((tree tree-component) (node node-component) (column column-component) (cell string))
+  (:method ((tree tree/basic) (node node/basic) (column column-component) (cell string))
     (typeset:cell ()
-      (render cell)))
+      (render-component cell)))
   
-  (:method ((tree tree-component) (node node-component) (column column-component) (cell cell-component))
-    (render cell)))
+  (:method ((tree tree/basic) (node node/basic) (column column-component) (cell cell-component))
+    (render-component cell)))
 
 ;;;;;;
 ;;; Utilities

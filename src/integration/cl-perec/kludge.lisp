@@ -1,4 +1,4 @@
-;;; Copyright (c) 2003-2008 by the authors.
+;;; Copyright (c) 2003-2009 by the authors.
 ;;;
 ;;; See LICENCE and AUTHORS for details.
 
@@ -20,7 +20,7 @@
 
 ;; KLUDGE: TODO: redefined for now
 (def function update-component-value-from-place (place component)
-  (when (place-bound-p place)
+  (when (place-bound? place)
     (bind ((value (value-at-place place)))
       (setf (component-value-of component)
             (if (and (prc::d-value-p value)
@@ -35,7 +35,7 @@
     ;; TODO: factor this out into a preferences accessor function
     (when (and (dmm::has-authenticated-session)
                (parent-component-of icon)
-               (typep (parent-component-of (parent-component-of icon)) 'command-bar-component))
+               (typep (parent-component-of (parent-component-of icon)) 'command-bar/basic))
       (bind ((effective-subject (dmm::current-effective-subject))
              (subject-preferences (when effective-subject
                                     (dmm::subject-preferences-of effective-subject))))
@@ -49,7 +49,7 @@
 
 ;; KLUDGE: TODO: redefined for now
 (def (function e) save-editing (editable &key (leave-editing #t))
-  (assert (typep editable 'editable-component))
+  (assert (typep editable 'editable/mixin))
   ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
   (handler-bind ((prc::persistent-constraint-violation (lambda (error)
                                                          (add-user-error editable "Adatösszefüggés hiba")
@@ -68,10 +68,10 @@
 ;; KLUDGE: TODO: redefined for now
 (def method make-place-component-command-bar ((self standard-object-place-maker))
   (bind ((type (the-type-of self)))
-    (make-instance 'command-bar-component :commands (optional-list (when (prc::null-subtype-p type)
-                                                                     (make-set-place-to-nil-command self))
-                                                                   (when (or (initform-of self)
-                                                                             (prc::unbound-subtype-p type))
-                                                                     (make-set-place-to-unbound-command self))
-                                                                   (make-set-place-to-find-instance-command self)
-                                                                   (make-set-place-to-new-instance-command self)))))
+    (make-instance 'command-bar/basic :commands (optional-list (when (prc::null-subtype-p type)
+                                                                 (make-set-place-to-nil-command self))
+                                                               (when (or (initform-of self)
+                                                                         (prc::unbound-subtype-p type))
+                                                                 (make-set-place-to-unbound-command self))
+                                                               (make-set-place-to-find-instance-command self)
+                                                               (make-set-place-to-new-instance-command self)))))
