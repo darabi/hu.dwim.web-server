@@ -5,7 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Index basic 
+;;; Word index basic 
 
-(def (component e) index/basic ()
+(def (component e) word-index/basic ()
   ())
+
+(def (macro e) word-index ()
+  `(make-instance 'word-index/basic))
+
+(def render-xhtml word-index/basic
+  (not-yet-implemented))

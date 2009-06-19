@@ -5,13 +5,19 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Generic function
+;;; Generic function inspector
 
 (def (component e) generic-function/inspector ()
   ())
 
+(def render-xhtml generic-function/inspector
+  (not-yet-implemented))
+
 ;;;;;;
-;;; Generic method
+;;; Generic method inspector
 
 (def (component e) generic-method/inspector ()
   ())
+
+(def render-xhtml generic-method/inspector
+  (not-yet-implemented))

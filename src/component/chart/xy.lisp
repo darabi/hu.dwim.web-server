@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Xy chart
+;;; XY chart
 
-(def (component e) xy-chart (chart)
+(def (component e) xy/chart (chart/abstract)
   ())
 
-(def render-xhtml xy-chart
+(def render-xhtml xy/chart
   (render-chart -self- "amxy"))

@@ -5,7 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Source file viewer
+;;; Flow chart
 
-(def (component e) source-file/viewer ()
+(def (component e) flow/chart (chart/abstract)
   ())
+
+(def render-xhtml flow/chart
+  (not-yet-implemented))

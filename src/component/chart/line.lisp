@@ -7,8 +7,8 @@
 ;;;;;;
 ;;; Line chart
 
-(def (component e) line-chart (chart)
+(def (component e) line/chart (chart/abstract)
   ())
 
-(def render-xhtml line-chart
-  (render-chart -self- "amline" ))
+(def render-xhtml line/chart
+  (render-chart -self- "amline"))

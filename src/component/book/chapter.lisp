@@ -10,6 +10,10 @@
 (def (component e) chapter/basic (content/basic title/mixin)
   ())
 
+(def (macro e) chapter/basic ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'chapter/basic ,@args :contents (list ,@contents)))
+
 (def render-xhtml chapter/basic
-  <div ,(render-title -self-)
-       ,(call-next-method)>)
+  <div (:class "chapter")
+    ,(render-title -self-)
+    ,(call-next-method)>)

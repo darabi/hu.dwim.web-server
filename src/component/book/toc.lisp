@@ -9,3 +9,9 @@
 
 (def (component e) table-of-contents/basic ()
   ())
+
+(def (macro e) table-of-contents ()
+  `(make-instance 'word-index/basic))
+
+(def render-xhtml table-of-contents/basic
+  (not-yet-implemented))

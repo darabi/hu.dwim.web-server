@@ -9,3 +9,6 @@
 
 (def (component e) package/inspector ()
   ())
+
+(def render-xhtml package/inspector
+  (not-yet-implemented))

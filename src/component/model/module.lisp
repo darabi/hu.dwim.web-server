@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; System inspector
+;;; Module inspector
 
-(def (component e) system/inspector ()
+(def (component e) module/inspector ()
   ())
 
-(def render-xhtml system/inspector
+(def render-xhtml module/inspector
   (not-yet-implemented))

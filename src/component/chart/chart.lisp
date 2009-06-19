@@ -5,13 +5,20 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Chart
+;;; Chart abstract
 
-(def (component e) chart ()
-  ((configuration-provider)
-   (data-provider nil)
-   (width 600)
-   (height 400)))
+(def (component e) chart/abstract ()
+  ((configuration-provider
+    :type (or symbol function))
+   (data-provider
+    nil
+    :type (or symbol function))
+   (width
+    600
+    :type number)
+   (height
+    400
+    :type number)))
 
 (def function render-chart (component kind)
   ;; TODO: move this to frame or something higher?

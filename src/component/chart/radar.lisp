@@ -7,8 +7,8 @@
 ;;;;;;
 ;;; Radar chart
 
-(def (component e) radar-chart (chart)
+(def (component e) radar/chart (chart/abstract)
   ())
 
-(def render-xhtml radar-chart
+(def render-xhtml radar/chart
   (render-chart -self- "amradar"))

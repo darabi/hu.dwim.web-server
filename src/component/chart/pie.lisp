@@ -7,10 +7,10 @@
 ;;;;;;
 ;;; Pie chart
 
-(def (component e) pie-chart (chart)
+(def (component e) pie/chart (chart/abstract)
   ())
 
-(def render-xhtml pie-chart
+(def render-xhtml pie/chart
   (render-chart -self- "ampie"))
 
 (def (function e) make-pie-chart (&key title names values width height colors

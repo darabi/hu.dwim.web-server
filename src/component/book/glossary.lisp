@@ -9,3 +9,9 @@
 
 (def (component e) glossary/basic ()
   ())
+
+(def (macro e) glossary (&rest args &key &allow-other-keys)
+  `(make-instance 'glossary/basic ,@args))
+
+(def render-xhtml glossary/basic
+  (not-yet-implemented))

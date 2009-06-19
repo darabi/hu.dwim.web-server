@@ -9,3 +9,6 @@
 
 (def (component e) variable/inspector ()
   ())
+
+(def render-xhtml variable/inspector
+  (not-yet-implemented))

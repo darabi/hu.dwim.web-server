@@ -7,10 +7,10 @@
 ;;;;;;
 ;;; Column chart
 
-(def (component e) column-chart (chart)
+(def (component e) column/chart (chart/abstract)
   ())
 
-(def render-xhtml column-chart
+(def render-xhtml column/chart
   (render-chart -self- "amcolumn"))
 
 (def (function e) make-column-chart (&key height width names values)

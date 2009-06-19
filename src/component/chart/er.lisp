@@ -5,12 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Diagram basic
+;;; Entity relationship chart
 
-(def (component e) diagram/basic ()
+(def (component e) entity-relationship/chart (chart/abstract)
   ())
 
-;;;;;;
-;;; Icon
-
-(def (icon e) diagram)
+(def render-xhtml entity-relationship/chart
+  (not-yet-implemented))

@@ -103,37 +103,3 @@
                           :tooltip ,(if tooltip-p
                                         tooltip
                                         `(delay (lookup-resource ,(concatenate-string "icon-tooltip." name-as-string))))))))
-
-;;;;;;
-;;; Default icons
-;;; TODO: move the icons where they are actually used
-
-(def (icon e) new)
-
-(def (icon e) create)
-
-(def (icon e) delete)
-
-(def (icon e) close)
-
-(def (icon e) back)
-
-(def (icon e) expand)
-
-(def (icon e) collapse)
-
-(def (icon e) filter)
-
-(def (icon e) find)
-
-(def (icon e) set-to-nil)
-
-(def (icon e) set-to-unbound)
-
-(def (icon e) select)
-
-(def (icon e) view)
-
-(def (icon e) finish)
-
-(def (icon e) cancel)

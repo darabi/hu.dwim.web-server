@@ -80,33 +80,33 @@
   :test-system :wui-http-test
   :components
   ((:module "src"
-            :components ((:file "package")
-                         (:file "duplicates" :depends-on ("package"))
-                         (:file "configuration" :depends-on ("package"))
-                         (:file "logging" :depends-on ("package"))
-                         (:module "util"
-                                  :components ((:file "zlib")
-                                               (:file "timer")
-                                               (:file "utils")
-                                               (:file "l10n" :depends-on ("utils")))
-                                  :depends-on ("configuration" "duplicates"))
-                         (:module "http"
-                                  :components ((:file "variables")
-                                               (:file "uri")
-                                               (:file "accept-headers")
-                                               (:file "utils" :depends-on ("variables"))
-                                               (:file "conditions" :depends-on ("variables"))
-                                               (:file "error-handling" :depends-on ("variables"))
-                                               (:file "request-response" :depends-on ("variables"))
-                                               (:file "request-parsing" :depends-on ("request-response"))
-                                               (:file "server" :depends-on ("request-parsing"))
-                                               (:file "brokers" :depends-on ("server")))
-                                  :depends-on ("logging" "util"))
-                         (:module "server"
-                                  :components ((:file "file-serving")
-                                               (:file "js-utils")
-                                               (:file "js-serving" :depends-on ("js-utils" "file-serving")))
-                                  :depends-on ("http")))))
+    :components ((:file "package")
+                 (:file "duplicates" :depends-on ("package"))
+                 (:file "configuration" :depends-on ("package"))
+                 (:file "logging" :depends-on ("package"))
+                 (:module "util"
+                  :components ((:file "zlib")
+                               (:file "timer")
+                               (:file "utils")
+                               (:file "l10n" :depends-on ("utils")))
+                  :depends-on ("configuration" "duplicates"))
+                 (:module "http"
+                  :components ((:file "variables")
+                               (:file "uri")
+                               (:file "accept-headers")
+                               (:file "utils" :depends-on ("variables"))
+                               (:file "conditions" :depends-on ("variables"))
+                               (:file "error-handling" :depends-on ("variables"))
+                               (:file "request-response" :depends-on ("variables"))
+                               (:file "request-parsing" :depends-on ("request-response"))
+                               (:file "server" :depends-on ("request-parsing"))
+                               (:file "brokers" :depends-on ("server")))
+                  :depends-on ("logging" "util"))
+                 (:module "server"
+                  :components ((:file "file-serving")
+                               (:file "js-utils")
+                               (:file "js-serving" :depends-on ("js-utils" "file-serving")))
+                  :depends-on ("http")))))
   :depends-on (:metabang-bind
                :iterate
                :cl-def
@@ -131,8 +131,7 @@
                :cl-l10n
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
-               :cl-delico
-               ))
+               :cl-delico))
 
 (defsystem* :wui-application-server
   :description "Extension to the basic HTTP server to become an HTTP application server for the world wide web."
@@ -155,8 +154,7 @@
                                (:file "application" :depends-on ("variables" "dojo"))
                                (:file "entry-point" :depends-on ("variables"))
                                (:file "action" :depends-on ("variables")))))))
-  :depends-on (:wui-http-server
-               ))
+  :depends-on (:wui-http-server))
 
 (defsystem* :wui-component-server
   :description "Extension to the HTTP application server to become an HTTP component based user interface server for the world wide web."
@@ -187,7 +185,8 @@
                                              (:file "interaction" :depends-on ("component"))
                                              (:file "response" :depends-on ("component"))
                                              (:file "debug" :depends-on ("component"))
-                                             #+nil(:file "factory" :depends-on ("component"))))
+                                             #+nil
+                                             (:file "factory" :depends-on ("component"))))
                                (:module "mixin"
                                 :components ((:file "cloneable")
                                              (:file "closable")
@@ -220,6 +219,8 @@
                                (:module "widget"
                                 :components ((:file "inline")
                                              #+nil
+                                             (:file "icon")
+                                             #+nil
                                              ((:file "alternator")
                                               (:file "authentication")
                                               (:file "border")
@@ -237,7 +238,6 @@
                                               (:file "graph")
                                               (:file "header")
                                               (:file "help")
-                                              (:file "icon")
                                               (:file "internal-error")
                                               (:file "image")
                                               (:file "menu")
@@ -258,38 +258,36 @@
                                               (:file "wizard")))
                                 :depends-on ("layout"))
                                (:module "book"
-                                :components (#+nil
-                                             ((:file "chapter")
-                                              (:file "glossary")
-                                              (:file "index")
-                                              (:file "text")
-                                              (:file "toc")
-                                              ))
+                                :components ((:file "chapter")
+                                             (:file "glossary")
+                                             (:file "index")
+                                             (:file "text")
+                                             (:file "toc"))
                                 :depends-on ("widget"))
                                (:module "chart"
-                                :components (#+nil
-                                             ((:file "chart")
-                                              (:file "column")
-                                              (:file "er")
-                                              (:file "flow")
-                                              (:file "line")
-                                              (:file "pie")
-                                              (:file "radar")
-                                              (:file "stock")
-                                              (:file "xy")))
+                                :components ((:file "chart")
+                                             (:file "column" :depends-on ("chart"))
+                                             (:file "er" :depends-on ("chart"))
+                                             (:file "flow" :depends-on ("chart"))
+                                             (:file "line" :depends-on ("chart"))
+                                             (:file "pie" :depends-on ("chart"))
+                                             (:file "radar" :depends-on ("chart"))
+                                             (:file "stock" :depends-on ("chart"))
+                                             (:file "xy" :depends-on ("chart")))
                                 :depends-on ("widget"))
                                (:module "model"
                                 :components (#+nil
-                                             ((:file "class")
-                                              (:file "function")
-                                              (:file "generic-function")
-                                              (:file "package")
-                                              (:file "slot")
-                                              (:file "file")
-                                              (:file "module")
-                                              (:file "system")
-                                              (:file "type")
-                                              (:file "variable")))
+                                             (:file "class")
+                                             #+nil
+                                             (:file "slot")
+                                             (:file "function")
+                                             (:file "generic-function")
+                                             (:file "package")
+                                             (:file "file")
+                                             (:file "module")
+                                             (:file "system")
+                                             (:file "type")
+                                             (:file "variable"))
                                 :depends-on ("widget"))
                                (:module "primitive"
                                 :components (#+nil
@@ -321,8 +319,7 @@
                                 :depends-on ("primitive" "place")))
                   :depends-on ("util")))))
   :depends-on (:contextl
-               :wui-application-server
-               ))
+               :wui-application-server))
 
 (defsystem* :wui
   :description "WUI with all its extensions."
@@ -334,8 +331,7 @@
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
   :test-system :wui-test
-  :depends-on (:wui-component-server
-               ))
+  :depends-on (:wui-component-server))
 
 #+nil
 (defmethod perform :around ((o t) (system wui-system))
@@ -403,8 +399,7 @@
   :depends-on (:wui
                :cl-l10n
                :cl-perec
-               :dwim-meta-model
-               )
+               :dwim-meta-model)
   :components
   ((:module "src/integration/cl-perec"
     :components ((:file "kludge")
@@ -435,14 +430,12 @@
   :depends-on (:wui :cl-typesetting)
   :components
   ((:module "src"
-            :components
-            ((:module "integration"
-                      :components ((:file "cl-typesetting")))))))
+    :components ((:module "integration"
+                  :components ((:file "cl-typesetting")))))))
 
 (defsystem* wui-and-cl-serializer
   :depends-on (:wui :cl-serializer :cl-perec)
   :components
   ((:module "src"
-            :components
-            ((:module "integration"
-                      :components ((:file "cl-serializer")))))))
+    :components ((:module "integration"
+                  :components ((:file "cl-serializer")))))))
