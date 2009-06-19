@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Renderable mixin
 
-(def (component ea) renderable/mixin ()
+(def (component e) renderable/mixin ()
   ((to-be-rendered
     #t
     :type boolean

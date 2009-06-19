@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; File download
 
-(def (component ea) file-download-component (command/basic)
+(def (component e) file-download-component (command/basic)
   ((directory "/tmp/")
    (file-name)
    (url-prefix "static/"))
@@ -19,14 +19,14 @@
   (when label?
     (setf (content-of -self-) (icon download :label label))))
 
-(def refresh file-download-component
+(def refresh-component file-download-component
   (bind (((:slots file-name action url-prefix) -self-))
     (setf action (make-uri :path (concatenate-string url-prefix (namestring file-name))))))
 
 (def render-xhtml file-download-component
   (bind ((absolute-file-name (merge-pathnames (file-name-of -self-) (directory-of -self-))))
     (unless (probe-file absolute-file-name)
-      (setf (enabled? -self-) #f))
+      (setf (enabled-component? -self-) #f))
     <div (:class "file-download")
          ,(call-next-method)
          " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
@@ -34,7 +34,7 @@
 ;;;;;;
 ;;; File upload
 
-(def (component ea) file-upload-component (primitive-component)
+(def (component e) file-upload-component (primitive-component)
   ())
 
 (def render-xhtml file-upload-component
@@ -49,23 +49,6 @@
 ;;;;;;
 ;;; Icon
 
-(def icon download)
+(def (icon e) download)
 
-(def icon upload)
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (icon-label.download "Letöltés")
-  (icon-tooltip.download "Fájl letöltése")
-
-  (icon-label.upload "Feltöltés")
-  (icon-tooltip.upload "Fájl feltöltése"))
-
-(def resources en
-  (icon-label.download "Download")
-  (icon-tooltip.download "Download file")
-
-  (icon-label.upload "Upload")
-  (icon-tooltip.upload "Upload file"))
+(def (icon e) upload)

@@ -542,6 +542,29 @@ Custom implementations should look something like this:
   (let ((*package* (home-package-of application)))
     (call-next-method)))
 
+;;;;;;
+;;; Handle conditions in AJAX requests
+
+(def function maybe-invoke-slime-debugger/application (condition &key (context (or (and (boundp '*session*)
+                                                                                        *session*)
+                                                                                   (and (boundp '*application*)
+                                                                                        *application*)
+                                                                                   (and (boundp '*brokers*)
+                                                                                        (first *brokers*))))
+                                                                 (with-continue-restart #t))
+  (maybe-invoke-slime-debugger condition :context context :with-continue-restart with-continue-restart))
+
+(def method handle-toplevel-condition :around (condition (application application))
+  (if (and (boundp '*ajax-aware-request*)
+           *ajax-aware-request*)
+      (progn
+        (maybe-invoke-slime-debugger/application condition)
+        (emit-http-response ((+header/status+       +http-not-acceptable+
+                              +header/content-type+ +xml-mime-type+))
+          <ajax-response
+           <error-message ,#"error-message-for-ajax-requests">
+           <result "failure">>))
+      (call-next-method)))
 
 ;;;;;;
 ;;; Application specific responses

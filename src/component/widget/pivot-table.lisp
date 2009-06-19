@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Pivot table extended table
 
-(def (component ea) pivot-sheet-table-component (extended-table-component)
+(def (component e) pivot-sheet-table-component (extended-table-component)
   ())
 
 (def function pivot-sheet-table-cell? (component)
@@ -19,7 +19,7 @@
 (def layer pivot-table-layer ()
   ())
 
-(def (component ea) pivot-table-component (content/mixin)
+(def (component e) pivot-table-component (content/mixin)
   ((sheet-axes nil :type (components pivot-table-axis-component))
    (row-axes nil :type (components pivot-table-axis-component))
    (column-axes nil :type (components pivot-table-axis-component))
@@ -83,38 +83,6 @@
   (unless (pivot-sheet-table-cell? self)
     (call-next-method)))
 
-(def icon move-to-sheet-axes)
-(def resources hu
-  (icon-label.move-to-sheet-axes "Lap tengely")
-  (icon-tooltip.move-to-sheet-axes "Mozgatás a lap tengelyek közé"))
-(def resources en
-  (icon-label.move-to-sheet-axes "Sheet axis")
-  (icon-tooltip.move-to-sheet-axes "Move to sheet axes"))
-
-(def icon move-to-row-axes)
-(def resources hu
-  (icon-label.move-to-row-axes "Sor tengely")
-  (icon-tooltip.move-to-row-axes "Mozgatás a sor tengelyek közé"))
-(def resources en
-  (icon-label.move-to-row-axes "Row axis")
-  (icon-tooltip.move-to-row-axes "Move to row axes"))
-
-(def icon move-to-column-axes)
-(def resources hu
-  (icon-label.move-to-column-axes "Oszlop tengely")
-  (icon-tooltip.move-to-column-axes "Mozgatás a oszlop tengelyek közé"))
-(def resources en
-  (icon-label.move-to-column-axes "Column axis")
-  (icon-tooltip.move-to-column-axes "Move to column axes"))
-
-(def icon move-to-cell-axes)
-(def resources hu
-  (icon-label.move-to-cell-axes "Mező tengely")
-  (icon-tooltip.move-to-cell-axes "Mozgatás a mező tengelyek közé"))
-(def resources en
-  (icon-label.move-to-cell-axes "Cell axis")
-  (icon-tooltip.move-to-cell-axes "Move to cell axes"))
-
 (def function make-move-to-sheet-axes-command (component)
   (make-move-to-axes-command component 'move-to-sheet-axes 'sheet-axes))
 
@@ -136,12 +104,23 @@
         (make-action
           (remove-place (make-component-place axis))
           (appendf (slot-value pivot-table slot-name) (list axis))
-          (mark-to-be-refreshed pivot-table))))))
+          (mark-component-to-be-refreshed pivot-table))))))
+
+;;;;;;
+;;; Icon
+
+(def (icon e) move-to-sheet-axes)
+
+(def (icon e) move-to-row-axes)
+
+(def (icon e) move-to-column-axes)
+
+(def (icon e) move-to-cell-axes)
 
 ;;;;;;
 ;;; Pivot table axis component
 
-(def (component ea) pivot-table-axis-component ()
+(def (component e) pivot-table-axis-component ()
   ((categories nil :type component)))
 
 (def render-xhtml pivot-table-axis-component
@@ -169,16 +148,5 @@
 ;;;;;
 ;;; Pivot table category component
 
-(def (component ea) pivot-table-category-component (content/mixin)
+(def (component e) pivot-table-category-component (content/mixin)
   ())
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (class-name.pivot-table-axis-component "pivot tábla tengely")
-
-  (slot-name.sheet-axes "lap tengelyek")
-  (slot-name.row-axes "sor tengelyek")
-  (slot-name.column-axes "oszlop tengelyek")
-  (slot-name.cell-axes "mező tengelyek"))

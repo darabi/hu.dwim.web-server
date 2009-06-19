@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object manager
 
-(def (component ea) standard-object-manager (standard-class/mixin tab-container-component)
+(def (component e) standard-object-manager (standard-class/mixin tab-container-component)
   ())
 
 (def (macro e) standard-object-manager (class &body pages)

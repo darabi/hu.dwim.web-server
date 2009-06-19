@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object filter
 
-(def (component ea) standard-object-filter (standard-class/mixin
+(def (component e) standard-object-filter (standard-class/mixin
                                           filter/abstract
                                           alternator/basic
                                           initargs/mixin
@@ -17,7 +17,7 @@
   (:documentation "Filter for instances of STANDARD-OBJECT in various alternative views."))
 
 ;; TODO: is this really what we want?
-(def render standard-object-filter
+(def render-component standard-object-filter
   <div ,(call-next-method)
        ,(render-component (result-of -self-))>)
 
@@ -40,7 +40,7 @@
 ;;;;;;
 ;;; Standard object detail filter
 
-(def (component ea) standard-object-detail-filter (standard-object-detail-component
+(def (component e) standard-object-detail-filter (standard-object-detail-component
                                                  standard-class/mixin
                                                  filter/abstract)
   ((class-selector nil :type component)
@@ -53,7 +53,7 @@
   (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
     (list* class (subclasses class))))
 
-(def refresh standard-object-detail-filter
+(def refresh-component standard-object-detail-filter
   (bind (((:slots class-selector ordering-specifier the-class slot-value-groups command-bar) -self-)
          (selectable-classes (collect-standard-object-detail-filter-classes -self- the-class (class-prototype the-class))))
     (if (length= selectable-classes 1)
@@ -103,10 +103,10 @@
 ;;;;;;
 ;;; Standard object slot value group filter
 
-(def (component ea) standard-object-slot-value-group-filter (standard-object-slot-value-group-component filter/abstract)
+(def (component e) standard-object-slot-value-group-filter (standard-object-slot-value-group-component filter/abstract)
   ())
 
-(def refresh standard-object-slot-value-group-filter
+(def refresh-component standard-object-slot-value-group-filter
   (bind (((:slots the-class slots slot-values) -self-))
     (setf slot-values
           (iter (for slot :in slots)
@@ -122,11 +122,11 @@
 ;;;;;;
 ;;; Standard object slot value filter
 
-(def (component ea) standard-object-slot-value-filter (standard-object-slot-value/inspector filter/abstract)
+(def (component e) standard-object-slot-value-filter (standard-object-slot-value/inspector filter/abstract)
   ()
   (:documentation "Filter for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
-(def refresh standard-object-slot-value-filter
+(def refresh-component standard-object-slot-value-filter
   (bind (((:slots slot label value) -self-)
          (type (slot-type slot))
          (name (slot-definition-name slot)))
@@ -147,7 +147,7 @@
 ;;;;;;
 ;;; Standard object place filter
 
-(def (component ea) standard-object-place-filter (place-filter)
+(def (component e) standard-object-place-filter (place-filter)
   ())
 
 (def method make-place-component-content ((self standard-object-place-filter))
@@ -220,9 +220,3 @@
          :dynamic
          t)
         instances))))
-
-(def resources hu
-  (no-matches-were-found "Nincs a keresésnek megfelelő objektum"))
-
-(def resources en
-  (no-matches-were-found "No matching objects were found"))

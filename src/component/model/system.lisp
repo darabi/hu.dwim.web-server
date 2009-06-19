@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; System inspector
 
-(def component system/inspector ()
+(def (component e) system/inspector ()
   ())

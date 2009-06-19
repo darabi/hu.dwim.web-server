@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Expandible mixin
 
-(def (component ea) expandible/mixin ()
+(def (component e) expandible/mixin ()
   ((expanded
     #t
     :type boolean
@@ -30,7 +30,7 @@
 ;;;;;;
 ;;; Expandible abstract
 
-(def (component ea) expandible/abstract ()
+(def (component e) expandible/abstract ()
   ((collapsed-content :type component*)
    (expanded-content :type component*))
   (:documentation "A component with two different contents, the expanded and the collapsed variants."))
@@ -41,10 +41,10 @@
 ;;;;;;
 ;;; Expandible abstract
 
-(def (component ea) expandible/basic (expandible/abstract expandible/mixin)
+(def (component e) expandible/basic (expandible/abstract expandible/mixin)
   ())
 
-(def render expandible/basic
+(def render-component expandible/basic
   <span ,(render-expandible-handle -self-)
     ,(if (expanded? -self-)
          (render-component (expanded-content-of -self-))
@@ -53,9 +53,9 @@
 ;;;;;;
 ;;; Expandible full
 
-(def (component ea) expandible/full (expandible/basic content/basic component/full)
+(def (component e) expandible/full (expandible/basic content/basic component/full)
   ())
 
-(def render expandible/full
+(def render-component expandible/full
   (with-render-style/abstract (-self-)
     (call-next-method)))

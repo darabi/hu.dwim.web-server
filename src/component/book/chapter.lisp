@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Chapter basic
 
-(def component chapter/basic (content/basic title/mixin)
+(def (component e) chapter/basic (content/basic title/mixin)
   ())
 
 (def render-xhtml chapter/basic

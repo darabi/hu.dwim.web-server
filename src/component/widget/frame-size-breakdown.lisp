@@ -5,13 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Frame size component
+;;; Frame size breakdown
 
-(def (component ea) frame-size-breakdown-component ()
+(def (component e) frame-size-breakdown ()
   ((last-dynamic-usage 0)
    (last-descriptors nil)))
 
-(def render-xhtml frame-size-breakdown-component
+(def render-xhtml frame-size-breakdown
   (sb-ext:gc :full t)
   ;; TODO: room
   (bind ((last-dynamic-usage (last-dynamic-usage-of -self-))

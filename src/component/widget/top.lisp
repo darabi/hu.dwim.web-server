@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Top abstract
 
-(def (component ea) top/abstract (content/mixin)
+(def (component e) top/abstract (content/mixin)
   ()
   (:documentation "A component that is related to the FOCUS command."))
 
@@ -24,9 +24,9 @@
 (def (function e) top-component-content? (component)
   (eq component (find-top-component-content component)))
 
-(def icon focus-in)
+(def (icon e) focus-in)
 
-(def icon focus-out)
+(def (icon e) focus-out)
 
 (def (layered-function e) make-focus-command (component classs prototype value)
   (:documentation "The FOCUS command replaces the top level COMPONENT usually found under the FRAME with the given REPLACEMENT-COMPONENT")
@@ -40,7 +40,7 @@
 ;;;;;;
 ;;; Top basic
 
-(def (component ea) top/basic (top/abstract style/abstract user-messages/mixin)
+(def (component e) top/basic (top/abstract style/abstract user-messages/mixin)
   ())
 
 (def (macro e) top (() &body content)
@@ -50,20 +50,3 @@
   (with-render-style/abstract (-self-)
     (render-user-messages -self-)
     (call-next-method)))
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (icon-label.focus-in "Fókuszálás")
-  (icon-tooltip.focus-in "Fókuszálás az objektumra")
-
-  (icon-label.focus-out "Vissza")
-  (icon-tooltip.focus-out "Fókuszálás megszüntetése"))
-
-(def resources en
-  (icon-label.focus-in "Focus")
-  (icon-tooltip.focus-in "Focus on the object")
-
-  (icon-label.focus-out "Back")
-  (icon-tooltip.focus-out "Undo focus"))

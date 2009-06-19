@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Editable mixin
 
-(def (component ea) editable/mixin ()
+(def (component e) editable/mixin ()
   ((edited #f :type boolean :documentation "TRUE indicates the component is currently being edited, FALSE otherwise."))
   (:documentation "
 A component that supports the editing protocols.
@@ -29,7 +29,7 @@ STORE-EDITING and REVERT-EDITING can be used instead of SAVE-EDITING
 and CANCEL-EDITING to continuously leave the component in edit mode.
 "))
 
-(def refresh editable/mixin
+(def refresh-component editable/mixin
   (if (edited? -self-)
       (join-editing -self-)
       (leave-editing -self-)))
@@ -182,47 +182,12 @@ and CANCEL-EDITING to continuously leave the component in edit mode.
 ;;;;;;
 ;;; Icon
 
-(def icon begin-editing)
+(def (icon e) begin-editing)
 
-(def icon save-editing)
+(def (icon e) save-editing)
 
-(def icon cancel-editing)
+(def (icon e) cancel-editing)
 
-(def icon store-editing)
+(def (icon e) store-editing)
 
-(def icon revert-editing)
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (icon-label.begin-editing "Szerkesztés")
-  (icon-tooltip.begin-editing "Szerkesztés elkezdése")
-
-  (icon-label.save-editing "Mentés")
-  (icon-tooltip.save-editing "Változtatások mentése és a szerkesztés befejezése")
-
-  (icon-label.cancel-editing "Elvetés")
-  (icon-tooltip.cancel-editing "Változtatások elvetése és a szerkesztés befejezése")
-
-  (icon-label.store-editing "Mentés")
-  (icon-tooltip.store-editing "Változtatások mentése")
-
-  (icon-label.revert-editing "Elvetés")
-  (icon-tooltip.revert-editing "Változtatások elvetése"))
-
-(def resources en
-  (icon-label.begin-editing "Edit")
-  (icon-tooltip.begin-editing "Start editing")
-
-  (icon-label.save-editing "Save")
-  (icon-tooltip.save-editing "Save changes and finish editing")
-
-  (icon-label.cancel-editing "Cancel")
-  (icon-tooltip.cancel-editing "Cancel changes and finish editing")
-
-  (icon-label.store-editing "Store")
-  (icon-tooltip.store-editing "Store changes")
-
-  (icon-label.revert-editing "Revert")
-  (icon-tooltip.revert-editing "Revert changes"))
+(def (icon e) revert-editing)

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Reference
 
-(def (component ea) reference-component (id/mixin)
+(def (component e) reference-component (id/mixin)
   ((target)
    (expand-command :type component)))
 
@@ -17,7 +17,7 @@
 (def method (setf component-value-of) (new-value (self reference-component))
   (setf (target-of self) new-value))
 
-(def refresh reference-component
+(def refresh-component reference-component
   (bind (((:slots target expand-command) -self-))
     (when (typep expand-command 'command/basic)
       (setf (label-of (content-of expand-command)) (make-reference-label -self- (class-of target) target)))))
@@ -26,7 +26,7 @@
   <span (:id ,(id-of -self-) :class "reference")
     ,(render-component (expand-command-of -self-))>)
 
-(def render reference-component
+(def render-component reference-component
   (render-component (expand-command-of -self-)))
 
 (def (generic e) make-reference-label (component class target)
@@ -40,7 +40,7 @@
 ;;;;;;
 ;;; Reference list
 
-(def (component ea) reference-list-component ()
+(def (component e) reference-list-component ()
   ((targets)
    (references :type components)))
 
@@ -57,7 +57,7 @@
 ;;;;;;
 ;;; Standard slot reference
 
-(def (component ea) standard-slot-definition-reference (reference-component)
+(def (component e) standard-slot-definition-reference (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-slot-definition-reference) (class standard-class) (slot standard-slot-definition))
@@ -66,7 +66,7 @@
 ;;;;;;
 ;;; Standard class reference
 
-(def (component ea) standard-class-reference (reference-component)
+(def (component e) standard-class-reference (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-class-reference) (metaclass standard-class) (class standard-class))
@@ -75,7 +75,7 @@
 ;;;;;;
 ;;; Standard object reference
 
-(def (component ea) standard-object-inspector-reference (reference-component)
+(def (component e) standard-object-inspector-reference (reference-component)
   ())
 
 (def layered-method make-expand-reference-command :before ((reference standard-object-inspector-reference) (class standard-class) (target standard-object) expansion)
@@ -94,7 +94,7 @@
 ;;;;;;
 ;;; Standard object list reference
 
-(def (component ea) standard-object-list-inspector-reference (reference-component)
+(def (component e) standard-object-list-inspector-reference (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-object-list-inspector-reference) class (list list))
@@ -124,7 +124,7 @@
 ;;;;;;
 ;;; Standard object tree reference
 
-(def (component ea) standard-object-tree-inspector-reference (reference-component)
+(def (component e) standard-object-tree-inspector-reference (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-object-tree-inspector-reference) (class standard-class) (instance standard-object))
@@ -133,7 +133,7 @@
 ;;;;;;
 ;;; Standard object filter reference
 
-(def (component ea) standard-object-filter-reference (reference-component)
+(def (component e) standard-object-filter-reference (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-object-filter-reference) (metaclass standard-class) (class standard-class))
@@ -142,7 +142,7 @@
 ;;;;;;
 ;;; Standard object maker reference
 
-(def (component ea) standard-object-maker-reference (reference-component)
+(def (component e) standard-object-maker-reference (reference-component)
   ())
 
 (def method make-reference-label ((reference standard-object-maker-reference) (metaclass standard-class) (class standard-class))

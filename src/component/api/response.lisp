@@ -5,22 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component environment
-
-(def (macro e) with-component-environment (component &body forms)
-  `(call-in-component-environment ,component (named-lambda with-component-environment-body ()
-                                               ,@forms)))
-
-(def (with-macro e) with-restored-component-environment (component)
-  (bind ((path (nreverse (collect-path-to-root-component component))))
-    (labels ((%call-with-restored-component-environment (remaining-path)
-               (if remaining-path
-                   (with-component-environment (car remaining-path)
-                     (%call-with-restored-component-environment (cdr remaining-path)))
-                   (-body-))))
-      (%call-with-restored-component-environment path))))
-
-;;;;;;
 ;;; Component action
 
 (def (class* e) component-action (action)
@@ -106,10 +90,10 @@
   (if (and *ajax-aware-request*
            (ajax-enabled? *application*))
       (bind ((dirty-components
-              ;; KLUDGE: finding top-mixin and going down from there
-              (bind ((top-mixin (find-descendant-component-with-type component 'top-mixin)))
-                (assert top-mixin nil "There is no TOP-MIXIN above ~A, AJAX cannot be used in this situation at the moment" top-mixin)
-                (collect-covering-id-components-for-descendant-components top-mixin #'to-be-rendered?))))
+              ;; KLUDGE: finding top/mixin and going down from there
+              (bind ((top (find-descendant-component-with-type component 'top/mixin)))
+                (assert top nil "There is no TOP/MIXIN above ~A, AJAX cannot be used in this situation at the moment" top)
+                (collect-covering-id-components-for-descendant-components top #'to-be-rendered-component?))))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         ;; FF does not like proper xml prologue, probably the other browsers even more so...
         ;; (emit-xml-prologue)
@@ -128,5 +112,25 @@
         (setf *rendering-phase-reached* #t)
         (render-xhtml component))))
 
-(def layered-method call-in-rendering-environment (application session thunk)
+(def function collect-covering-id-components-for-descendant-components (component predicate)
+  (bind ((covering-components nil))
+    (labels ((traverse (component)
+               (catch component
+                 (with-component-environment component
+                   (when (visible-component? component)
+                     (if (funcall predicate component)
+                         (bind ((ancestor (find-ancestor-component-with-type component 'id/mixin)))
+                           (assert ancestor nil "There is no ancestor component with id for ~A" component)
+                           (pushnew ancestor covering-components)
+                           (throw ancestor nil))
+                         (map-child-components component #'traverse)))))))
+      (traverse component))
+    (remove-if (lambda (component-to-be-removed)
+                 (find-if (lambda (covering-component)
+                            (and (not (eq component-to-be-removed covering-component))
+                                 (find-ancestor-component component-to-be-removed [eq !1 covering-component])))
+                          covering-components))
+               covering-components)))
+
+(def method call-in-rendering-environment (application session thunk)
   (funcall thunk))

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Primitive filter
 
-(def (component ea) primitive/filter (primitive/abstract filter/abstract)
+(def (component e) primitive/filter (primitive/abstract filter/abstract)
   ())
 
 (def function make-update-use-in-filter-js (component)
@@ -16,7 +16,7 @@
 ;;;;;;
 ;;; T filter
 
-(def (component ea) t/filter (t/abstract primitive/filter)
+(def (component e) t/filter (t/abstract primitive/filter)
   ())
 
 (def render-xhtml t/filter
@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; Boolean filter
 
-(def (component ea) boolean/filter (boolean/abstract primitive/filter)
+(def (component e) boolean/filter (boolean/abstract primitive/filter)
   ())
 
 (def render-xhtml boolean/filter
@@ -63,7 +63,7 @@
 ;;;;;;
 ;;; String filter
 
-(def (component ea) string/filter (string/abstract primitive/filter)
+(def (component e) string/filter (string/abstract primitive/filter)
   ((component-value nil)))
 
 (def method collect-possible-filter-predicates ((self string/filter))
@@ -78,19 +78,19 @@
 ;;;;;;
 ;;; Password filter
 
-(def (component ea) password/filter (password/abstract string/filter)
+(def (component e) password/filter (password/abstract string/filter)
   ())
 
 ;;;;;;
 ;;; Symbol filter
 
-(def (component ea) symbol/filter (symbol/abstract string/filter)
+(def (component e) symbol/filter (symbol/abstract string/filter)
   ())
 
 ;;;;;;
 ;;; Number filter
 
-(def (component ea) number/filter (number/abstract primitive/filter)
+(def (component e) number/filter (number/abstract primitive/filter)
   ())
 
 (def method collect-possible-filter-predicates ((self number/filter))
@@ -105,19 +105,19 @@
 ;;;;;;
 ;;; Integer filter
 
-(def (component ea) integer/filter (integer/abstract number/filter)
+(def (component e) integer/filter (integer/abstract number/filter)
   ())
 
 ;;;;;;
 ;;; Float filter
 
-(def (component ea) float/filter (float/abstract number/filter)
+(def (component e) float/filter (float/abstract number/filter)
   ())
 
 ;;;;;;
 ;;; Date filter
 
-(def (component ea) date/filter (date/abstract primitive/filter)
+(def (component e) date/filter (date/abstract primitive/filter)
   ())
 
 (def render-xhtml date/filter
@@ -130,7 +130,7 @@
 ;;;;;;
 ;;; Time filter
 
-(def (component ea) time/filter (time/abstract primitive/filter)
+(def (component e) time/filter (time/abstract primitive/filter)
   ())
 
 (def render-xhtml time/filter
@@ -143,7 +143,7 @@
 ;;;;;;
 ;;; Timestamp filter
 
-(def (component ea) timestamp/filter (timestamp/abstract primitive/filter)
+(def (component e) timestamp/filter (timestamp/abstract primitive/filter)
   ())
 
 (def render-xhtml timestamp/filter
@@ -156,7 +156,7 @@
 ;;;;;;
 ;;; Member filter
 
-(def (component ea) member/filter (member/abstract primitive/filter)
+(def (component e) member/filter (member/abstract primitive/filter)
   ())
 
 (def method collect-possible-filter-predicates ((self member/filter))
@@ -169,11 +169,11 @@
 ;;;;;;
 ;;; HTML filter
 
-(def (component ea) html/filter (html/abstract string/filter)
+(def (component e) html/filter (html/abstract string/filter)
   ())
 
 ;;;;;;
 ;;; IP address filter
 
-(def (component ea) ip-address/filter (ip-address/abstract primitive/filter)
+(def (component e) ip-address/filter (ip-address/abstract primitive/filter)
   ())

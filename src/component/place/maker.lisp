@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Place maker
 
-(def (component ea) place-maker (place-component maker/abstract)
+(def (component e) place-maker (place-component maker/abstract)
   ((name nil)
    (the-type nil)
    (initform)))

@@ -7,13 +7,13 @@
 ;;;;;;
 ;;; Abstract expression component
 
-(def (component ea) abstract-expression-component (editable/mixin)
+(def (component e) abstract-expression-component (editable/mixin)
   ((the-type t)))
 
 ;;;;;;
 ;;; Expression component
 
-(def (component ea) expression-component (abstract-expression-component)
+(def (component e) expression-component (abstract-expression-component)
   ((input (make-instance 'string/inspector) :type component)
    (kind :type (member :atom :application))
    (expression :type function)
@@ -128,13 +128,7 @@
                                      (accept-expression descendant)))
                                  :include-self #t))))
 
-(def icon add-expression-argument)
-(def resources hu
-  (icon-label.add-expression-argument "Hozzáadás")
-  (icon-tooltip.add-expression-argument "Új paraméter hozzáadása"))
-(def resources en
-  (icon-label.add-expression-argument "Add")
-  (icon-tooltip.add-expression-argument "Add new argument"))
+(def (icon e) add-expression-argument)
 
 (def function make-add-expression-argument-command (component type)
   (command ()
@@ -144,13 +138,7 @@
             (append (arguments-of component)
                     (list (make-expression-component nil :the-type type :edited #t)))))))
 
-(def icon remove-expression-argument)
-(def resources hu
-  (icon-label.remove-expression-argument "Törlés")
-  (icon-tooltip.remove-expression-argument "Paraméter törlése"))
-(def resources en
-  (icon-label.remove-expression-argument "Remove")
-  (icon-tooltip.remove-expression-argument "Remove argument"))
+(def (icon e) remove-expression-argument)
 
 (def function make-remove-expression-argument-command (component)
   (command ()
@@ -166,17 +154,17 @@
 ;;;;;;
 ;;; Expression maker
 
-(def (component ea) expression-maker (expression-component)
+(def (component e) expression-maker (expression-component)
   ())
 
 ;;;;;;
 ;;; Expression inspector
 
-(def (component ea) expression/inspector (expression-component)
+(def (component e) expression/inspector (expression-component)
   ())
 
 ;;;;;;
 ;;; Expression filter
 
-(def (component ea) expression-filter (expression-component)
+(def (component e) expression-filter (expression-component)
   ())

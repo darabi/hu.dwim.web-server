@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Image abstract
 
-(def (component ea) image/abstract ()
+(def (component e) image/abstract ()
   ((path :type string)))
 
 (def (macro e) image ((&rest args &key &allow-other-keys) &body path)
@@ -16,10 +16,10 @@
 ;;;;;;
 ;;; Image basic
 
-(def (component ea) image/basic (image/abstract)
+(def (component e) image/basic (image/abstract)
   ())
 
-(def render image/basic
+(def render-component image/basic
   (render-image -self-))
 
 (def (layered-function e) render-image (component)
@@ -29,7 +29,7 @@
 ;;;;;;
 ;;; Image full
 
-(def (component ea) image/full (image/basic style/abstract tooltip/mixin)
+(def (component e) image/full (image/basic style/abstract tooltip/mixin)
   ())
 
 (def layered-method render-image ((self image/full))
@@ -38,7 +38,7 @@
 ;;;;;;
 ;;; Image mixin
 
-(def (component ea) image/mixin ()
+(def (component e) image/mixin ()
   ((image :type component))
   (:documentation "A component with an image."))
 

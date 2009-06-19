@@ -13,7 +13,7 @@
 ;;;;;;
 ;;; Command basic
 
-(def (component ea) command/basic (content/mixin enabled/mixin)
+(def (component e) command/basic (content/mixin enabled/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available
@@ -78,7 +78,7 @@
   (bind (((:read-only-slots content action enabled default ajax js action-arguments) -self-))
     (render-command content action :enabled enabled :default default :ajax ajax :js js :action-arguments action-arguments)))
 
-(def render :in passive-components-layer command/basic
+(def render-component :in passive-components-layer command/basic
   (render-component (content-of -self-)))
 
 (def function href-for-command (action action-arguments)
@@ -137,9 +137,9 @@
              (setf executable? #f)))
       (unless (available? command)
         (report-error #"execute-command.command-unavailable"))
-      (unless (enabled? command)
+      (unless (enabled-component? command)
         (report-error #"execute-command.command-disabled"))
-      (unless (visible? command)
+      (unless (visible-component? command)
         (report-error #"execute-command.command-invisible"))
       (when executable?
         (funcall (action-of command))))))
@@ -147,7 +147,7 @@
 ;;;;;;
 ;;; Commands mixin
 
-(def (component ea) commands/mixin (context-menu/mixin menu-bar/mixin command-bar/mixin)
+(def (component e) commands/mixin (context-menu/mixin menu-bar/mixin command-bar/mixin)
   ())
 
 (def (layered-function e) find-command (component name)

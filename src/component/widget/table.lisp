@@ -22,7 +22,7 @@
 
 (def special-variable *table*)
 
-(def (component ea) table/abstract ()
+(def (component e) table/abstract ()
   ())
 
 (def component-environment table/abstract
@@ -35,7 +35,7 @@
 ;;;;;;
 ;;; Row based table basic
 
-(def (component ea) row-based-table/basic (table/abstract rows/mixin)
+(def (component e) row-based-table/basic (table/abstract rows/mixin)
   ())
 
 (def render-xhtml row-based-table/basic
@@ -52,13 +52,13 @@
 ;;; Row based table basic
 
 ;; TODO:
-(def (component ea) column-based-table/basic (table/abstract columns/mixin)
+(def (component e) column-based-table/basic (table/abstract columns/mixin)
   ())
 
 ;;;;;;
 ;;; Row based table header
 
-(def (component ea) row-based-table/header (row-based-table/basic row-headers/mixin column-headers/mixin)
+(def (component e) row-based-table/header (row-based-table/basic row-headers/mixin column-headers/mixin)
   ())
 
 (def render-xhtml row-based-table/header
@@ -79,7 +79,7 @@
 ;;;;;;
 ;;; Row based table full
 
-(def (component ea) row-based-table/full (row-based-table/header style/abstract page-navigation-bar/mixin)
+(def (component e) row-based-table/full (row-based-table/header style/abstract page-navigation-bar/mixin)
   ())
 
 (def render-xhtml row-based-table/full

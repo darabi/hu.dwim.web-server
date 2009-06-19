@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Mouse abstract
 
-(def (component ea) mouse/abstract ()
+(def (component e) mouse/abstract ()
   ())
 
 (def (layered-function e) render-onclick-handler (component button)

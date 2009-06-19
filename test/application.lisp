@@ -66,7 +66,6 @@
       <p "The parsed request: ">
       (render-request *request*))))
 
-
 ;;;;;;
 ;;; Echo application to echo back the request
 

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Chart
 
-(def (component ea) chart ()
+(def (component e) chart ()
   ((configuration-provider)
    (data-provider nil)
    (width 600)
@@ -45,13 +45,6 @@
      (emit-http-response (("Content-Type" +xml-mime-type+))
        (emit-xml-prologue)
        ,@forms)))
-
-(def resources hu
-  (chart.missing-flash-plugin "A Flash Plugin nem elérhető"))
-
-(def resources en
-  (chart.missing-flash-plugin "Flash Plugin is not available"))
-
 
 (def function make-chart-from-files (type &key settings-file data-file)
   (make-instance type

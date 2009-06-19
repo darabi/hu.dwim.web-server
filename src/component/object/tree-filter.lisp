@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; standard object tree filter
 
-(def (component ea) standard-object-tree-filter (standard-object-filter)
+(def (component e) standard-object-tree-filter (standard-object-filter)
   ((parent-provider :type (or symbol function))
    (children-provider :type (or symbol function))))
 
@@ -22,7 +22,7 @@
 ;;;;;;
 ;;; Filtered standard object tree inspector
 
-(def (component ea) filtered-standard-object-tree-inspector (standard-object-tree-inspector)
+(def (component e) filtered-standard-object-tree-inspector (standard-object-tree-inspector)
   ((filtered-instances :type list)
    (highlight-filtered-instances #t :type boolean)
    (unfiltered-children-provider :type (or symbol function))
@@ -55,7 +55,7 @@
 ;;;;;;
 ;;; Filtered standard object tree table inspector
 
-(def (component ea) filtered-standard-object-tree-table-inspector (standard-object-tree-table-inspector)
+(def (component e) filtered-standard-object-tree-table-inspector (standard-object-tree-table-inspector)
   ())
 
 #+nil ; TODO this is not always desirable by default, e.g. in felmérési-alany-tree-table-inspector

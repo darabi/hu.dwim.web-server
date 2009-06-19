@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Remote setup mixin
 
-(def (component ea) remote-setup/mixin (frame-unique-id/mixin)
+(def (component e) remote-setup/mixin (frame-unique-id/mixin)
   ()
   (:documentation "A component that will be unconditionally set up on the remote side using its id to look it up."))
 

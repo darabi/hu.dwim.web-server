@@ -7,11 +7,11 @@
 ;;;;;;
 ;;; Command bar mixin
 
-(def (component ea) command-bar/mixin ()
+(def (component e) command-bar/mixin ()
   ((command-bar :type component))
   (:documentation "A component with a command bar."))
 
-(def refresh command-bar/mixin
+(def refresh-component command-bar/mixin
   (bind ((class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
          (value (component-value-of -self-)))
@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; Command bar basic
 
-(def (component ea) command-bar/basic ()
+(def (component e) command-bar/basic ()
   ((commands :type components)))
 
 (def (macro e) command-bar (&body commands)
@@ -41,7 +41,7 @@
 (def render-csv command-bar/basic
   (write-csv-separated-elements #\Space (commands-of -self-)))
 
-(def render :in passive-components-layer command-bar/basic
+(def render-component :in passive-components-layer command-bar/basic
   (values))
 
 (def generic find-command-bar (component)

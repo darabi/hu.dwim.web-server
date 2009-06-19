@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object maker
 
-(def (component ea) standard-object-maker (standard-class/mixin
+(def (component e) standard-object-maker (standard-class/mixin
                                          maker/abstract
                                          alternator/basic
                                          initargs/mixin
@@ -50,7 +50,7 @@
 ;;;;;;
 ;;; Standard object detail maker
 
-(def (component ea) standard-object-detail-maker (standard-object-detail-component
+(def (component e) standard-object-detail-maker (standard-object-detail-component
                                                 standard-class/mixin
                                                 maker/abstract)
   ((class-selector nil :type component))
@@ -63,7 +63,7 @@
   (:method ((component standard-object-detail-maker) (class standard-class) (prototype standard-object))
     (list* class (subclasses class))))
 
-(def refresh standard-object-detail-maker
+(def refresh-component standard-object-detail-maker
   (bind (((:slots class-selector the-class slot-value-groups) -self-)
          (selectable-classes (collect-standard-object-detail-maker-classes -self- the-class (class-prototype the-class))))
     (if (length= selectable-classes 1)
@@ -106,11 +106,11 @@
 ;;;;;;
 ;;; Standard object slot value group maker
 
-(def (component ea) standard-object-slot-value-group-maker (standard-object-slot-value-group-component maker/abstract)
+(def (component e) standard-object-slot-value-group-maker (standard-object-slot-value-group-component maker/abstract)
   ()
   (:documentation "Maker for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITIONs."))
 
-(def refresh standard-object-slot-value-group-maker
+(def refresh-component standard-object-slot-value-group-maker
   (bind (((:slots the-class slots slot-values) -self-))
     (setf slot-values
           (iter (for slot :in slots)
@@ -127,11 +127,11 @@
 ;;;;;
 ;;; Standard object slot value maker
 
-(def (component ea) standard-object-slot-value-maker (standard-object-slot-value/inspector maker/abstract)
+(def (component e) standard-object-slot-value-maker (standard-object-slot-value/inspector maker/abstract)
   ()
   (:documentation "Maker for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
-(def refresh standard-object-slot-value-maker ()
+(def refresh-component standard-object-slot-value-maker ()
   (bind (((:slots slot label value) -self-))
     (setf label (localized-slot-name slot)
           value (make-place-maker (slot-type slot) :name (slot-definition-name slot) :initform (slot-definition-initform slot)))))
@@ -139,7 +139,7 @@
 ;;;;;;
 ;;; Standard object place maker
 
-(def (component ea) standard-object-place-maker (place-maker)
+(def (component e) standard-object-place-maker (place-maker)
   ()
   (:documentation "Maker for a place of an instance of STANDARD-OBJECT and unit types."))
 

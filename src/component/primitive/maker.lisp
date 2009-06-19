@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Primitive maker
 
-(def (component ea) primitive/maker (primitive/abstract maker/abstract)
+(def (component e) primitive/maker (primitive/abstract maker/abstract)
   ((initform)
    (use-initform :type boolean)))
 
@@ -25,7 +25,7 @@
 ;;;;;;
 ;;; T maker
 
-(def (component ea) t/maker (t/abstract primitive/maker)
+(def (component e) t/maker (t/abstract primitive/maker)
   ())
 
 (def render-xhtml t/maker
@@ -34,7 +34,7 @@
 ;;;;;;
 ;;; Boolean maker
 
-(def (component ea) boolean/maker (boolean/abstract primitive/maker)
+(def (component e) boolean/maker (boolean/abstract primitive/maker)
   ())
 
 (def render-xhtml boolean/maker
@@ -73,7 +73,7 @@
 ;;;;;;
 ;;; String maker
 
-(def (component ea) string/maker (string/abstract primitive/maker)
+(def (component e) string/maker (string/abstract primitive/maker)
   ((component-value nil)))
 
 (def render-xhtml string/maker
@@ -82,19 +82,19 @@
 ;;;;;;
 ;;; Password maker
 
-(def (component ea) password/maker (password/abstract string/maker)
+(def (component e) password/maker (password/abstract string/maker)
   ())
 
 ;;;;;;
 ;;; Symbol maker
 
-(def (component ea) symbol/maker (symbol/abstract string/maker)
+(def (component e) symbol/maker (symbol/abstract string/maker)
   ())
 
 ;;;;;;
 ;;; Number maker
 
-(def (component ea) number/maker (number/abstract primitive/maker)
+(def (component e) number/maker (number/abstract primitive/maker)
   ())
 
 (def render-xhtml number/maker
@@ -103,19 +103,19 @@
 ;;;;;;
 ;;; Integer maker
 
-(def (component ea) integer/maker (integer/abstract number/maker)
+(def (component e) integer/maker (integer/abstract number/maker)
   ())
 
 ;;;;;;
 ;;; Float maker
 
-(def (component ea) float/maker (float/abstract number/maker)
+(def (component e) float/maker (float/abstract number/maker)
   ())
 
 ;;;;;;
 ;;; Date maker
 
-(def (component ea) date/maker (date/abstract primitive/maker)
+(def (component e) date/maker (date/abstract primitive/maker)
   ())
 
 (def render-xhtml date/maker
@@ -124,7 +124,7 @@
 ;;;;;;
 ;;; Time maker
 
-(def (component ea) time/maker (time/abstract primitive/maker)
+(def (component e) time/maker (time/abstract primitive/maker)
   ())
 
 (def render-xhtml time/maker
@@ -133,7 +133,7 @@
 ;;;;;;
 ;;; Timestamp maker
 
-(def (component ea) timestamp/maker (timestamp/abstract primitive/maker)
+(def (component e) timestamp/maker (timestamp/abstract primitive/maker)
   ())
 
 (def render-xhtml timestamp/maker
@@ -142,7 +142,7 @@
 ;;;;;;
 ;;; Member maker
 
-(def (component ea) member/maker (member/abstract primitive/maker)
+(def (component e) member/maker (member/abstract primitive/maker)
   ())
 
 (def render-xhtml member/maker
@@ -151,7 +151,7 @@
 ;;;;;;
 ;;; HTML inspector
 
-(def (component ea) html/maker (html/abstract primitive/maker)
+(def (component e) html/maker (html/abstract primitive/maker)
   ())
 
 (def render-xhtml html/maker
@@ -160,5 +160,5 @@
 ;;;;;;
 ;;; IP address maker
 
-(def (component ea) ip-address/maker (ip-address/abstract primitive/maker)
+(def (component e) ip-address/maker (ip-address/abstract primitive/maker)
   ())

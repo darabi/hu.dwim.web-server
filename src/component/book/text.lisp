@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Paragraph basic
 
-(def component paragraph/basic (style/abstract content/mixin)
+(def (component e) paragraph/basic (style/abstract content/mixin)
   ())
 
 (def render-xhtml paragraph/basic
@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; Emphasize basic
 
-(def component emphasize/basic (style/abstract content/mixin)
+(def (component e) emphasize/basic (style/abstract content/mixin)
   ())
 
 (def render-xhtml emphasize/basic

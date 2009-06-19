@@ -20,7 +20,7 @@
 ;;;;;;
 ;;; Login basic
 
-(def (component ea) login/basic ()
+(def (component e) login/basic ()
   ())
 
 ;;;;;;
@@ -28,7 +28,7 @@
 
 ;; TODO: this is kind separate from all the other components which is bad because it does not combine well with other features
 ;;       needs refactoring, less direct manipulation and more generalism through inheritance 
-(def (component ea) identifier-and-password-login/basic (login/basic
+(def (component e) identifier-and-password-login/basic (login/basic
                                                          title/mixin
                                                          user-messages/mixin
                                                          remote-setup/mixin)
@@ -105,7 +105,7 @@
 ;;;;;;
 ;;; Fake identifier and password login component
 
-(def (component ea) fake-identifier-and-password-login/basic ()
+(def (component e) fake-identifier-and-password-login/basic ()
   ((identifier nil)
    (password nil)
    (comment nil))
@@ -126,35 +126,6 @@
 ;;;;;;
 ;;; Icon
 
-(def icon login)
+(def (icon e) login)
 
-(def icon logout)
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (login.title "Belépés")
-  (login.identifier "Azonosító")
-  (login.password "Jelszó")
-  (login.message.authentication-failed "Azonosítás sikertelen")
-  (login.message.session-timed-out "Lejárt a biztonsági idő, kérem lépjen be újra")
-
-  (icon-label.login "Belépés")
-  (icon-tooltip.login "Azonosítás és jogosultságok kérése")
-
-  (icon-label.logout "Kilépés")
-  (icon-tooltip.logout "A munka befejezése és a jogosultságok feladása"))
-
-(def resources en
-  (login.title "Login")
-  (login.identifier "Identifier")
-  (login.password "Password")
-  (login.message.authentication-failed "Authentication failed")
-  (login.message.session-timed-out "Your session has timed out, please log in again")
-
-  (icon-label.login "Login")
-  (icon-tooltip.login "Gain privileges by authentication")
-
-  (icon-label.logout "Logout")
-  (icon-tooltip.logout "Leave the current session and remove all privileges previously gained by authentication"))
+(def (icon e) logout)

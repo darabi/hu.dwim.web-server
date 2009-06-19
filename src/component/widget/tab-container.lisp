@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Tab container component
 
-(def (component ea) tab-container-component (content/mixin)
+(def (component e) tab-container-component (content/mixin)
   ((pages nil) ;; NOTE: this should not be a component slot, because components are switched from here to the content
    (command-bar nil :type component)))
 
@@ -19,7 +19,7 @@
     <div (:class "tab-container")
          ,(render-vertical-list (list command-bar content))>))
 
-(def refresh tab-container-component
+(def refresh-component tab-container-component
   (bind (((:slots pages command-bar content) -self-))
     (setf command-bar
           (make-instance 'command-bar/basic
@@ -35,18 +35,12 @@
                         :content (header-of tab-page)
                         :ajax (ajax-id tab-container)))
 
-(def icon swith-to-page)
-(def resources hu
-  (icon-label.swith-to-page "Lap")
-  (icon-tooltip.swith-to-page "A lap előrehozása"))
-(def resources en
-  (icon-label.swith-to-page "Page")
-  (icon-tooltip.swith-to-page "Switch to page"))
+(def (icon e) swith-to-page)
 
 ;;;;;;
 ;;; Tab page
 
-(def (component ea) tab-page-component (content/mixin)
+(def (component e) tab-page-component (content/mixin)
   ((header nil :type component)))
 
 (def (macro e) tab-page (header &body forms)

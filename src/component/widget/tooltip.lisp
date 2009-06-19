@@ -5,31 +5,20 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tooltip abstract
+;;; Tooltip mixin
 
-(def (component ea) tooltip/abstract ()
-  ())
+(def (component e) tooltip/mixin ()
+  ((tooltip :type component*))
+  (:documentation "A COMPONENT with a tooltip."))
 
 ;;;;;;
 ;;; Tooltip basic
 
-(def (component ea) tooltip/basic (content/mixin)
+(def (component e) tooltip/basic (content/mixin)
   ())
 
-(def render tooltip/basic
+(def render-component tooltip/basic
   (render-tooltip -self-))
-
-;;;;;;
-;;; Tooltip full
-
-(def (component ea) tooltip/full (tooltip/basic style/mixin remote-setup/mixin)
-  ())
-
-;;;;;;
-;;; Tooltip mixin
-
-(def (component ea) tooltip/mixin ()
-  ((tooltip :type component)))
 
 ;; OPTIMIZATION: this could collect the essential data in a special variable and at the end of rendering emit a literal js array with all the tooltips
 (def (function e) render-tooltip (connect-id tooltip &key position)
@@ -60,3 +49,9 @@
                                                         (funcall tooltip))
                                                       :encoding (external-format-of *response*))
                       :position (array ,@position)))))))
+
+;;;;;;
+;;; Tooltip full
+
+(def (component e) tooltip/full (tooltip/basic style/mixin remote-setup/mixin)
+  ())

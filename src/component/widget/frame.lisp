@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Frame
 
-(def (component ea) frame/basic (top/abstract layer-context-capturing/mixin)
+(def (component e) frame/basic (top/abstract layer-context-capturing/mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
    (script-uris nil)

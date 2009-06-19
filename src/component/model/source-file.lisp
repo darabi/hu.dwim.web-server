@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Source file viewer
 
-(def component source-file/viewer ()
+(def (component e) source-file/viewer ()
   ())

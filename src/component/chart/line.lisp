@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Line chart
 
-(def (component ea) line-chart (chart)
+(def (component e) line-chart (chart)
   ())
 
 (def render-xhtml line-chart

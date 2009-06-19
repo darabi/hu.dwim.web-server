@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Splitter basic
 
-(def (component ea) splitter/basic ()
+(def (component e) splitter/basic ()
   ())

@@ -7,27 +7,27 @@
 ;;;;;;
 ;;; Style class mixin
 
-(def (component ea) style-class/mixin ()
+(def (component e) style-class/mixin ()
   ((style-class nil))
   (:documentation "Generic style classification support, rendered as the class attribute in XHTML."))
 
 ;;;;;;
 ;;; Custom style mixin
 
-(def (component ea) custom-style/mixin ()
+(def (component e) custom-style/mixin ()
   ((custom-style nil))
   (:documentation "Custom per component style support, rendered as the style attribute in XHTML."))
 
 ;;;;;;
 ;;; Style mixin
 
-(def (component ea) style/mixin (style-class/mixin custom-style/mixin)
+(def (component e) style/mixin (style-class/mixin custom-style/mixin)
   ())
 
 ;;;;;;
 ;;; Style abstract
 
-(def (component ea) style/abstract (style/mixin remote-setup/mixin)
+(def (component e) style/abstract (style/mixin remote-setup/mixin)
   ()
   (:documentation "A component with style and remote setup."))
 

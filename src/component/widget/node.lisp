@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Node abstract
 
-(def (component ea) node/abstract ()
+(def (component e) node/abstract ()
   ())
 
 (def method supports-debug-component-hierarchy? ((self node/abstract))
@@ -16,7 +16,7 @@
 ;;;;;;
 ;;; Node basic
 
-(def (component ea) node/basic (style/abstract cells/mixin)
+(def (component e) node/basic (style/abstract cells/mixin)
   ((child-nodes nil :type components)))
 
 (def render-xhtml node/basic
@@ -86,7 +86,7 @@
           (for index :from 0)
           (for cell :in (cells-of self))
           (for column :in (columns-of *tree*))
-          (when (visible? column)
+          (when (visible-component? column)
             (if (= index expander-column-index)
                 (render-tree-node-expander-cell self)
                 (render-cells *tree* self column cell))))))
@@ -98,7 +98,7 @@
 ;;;;;;
 ;;; Entire node
 
-(def (component ea) entire-node/basic (id/mixin content/mixin)
+(def (component e) entire-node/basic (id/mixin content/mixin)
   ())
 
 (def function render-entire-node (tree node body-thunk)

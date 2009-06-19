@@ -11,7 +11,7 @@
   "Specifies whether COMPONENTs are rendered with debug information or not. TRUE means each component will have some special COMMANDs to inspect, copy to the REPL, etc.")
 
 (def (generic e) supports-debug-component-hierarchy? (component)
-  (:documentation "TRUE means that COMPONENT supports rendering with debug information, FALSE otherwise. Some rendering backends, namely XHTML does not support wrapping TR and TD elements with arbitrary DIV elements within a TABLE."))
+  (:documentation "TRUE means that COMPONENT supports rendering with debug information, FALSE otherwise. This is used by some rendering backends, namely XHTML does not support wrapping TR and TD elements with arbitrary DIV elements within a TABLE."))
 
 ;;;;;;
 ;;; Print component
@@ -21,6 +21,31 @@
 
 (def (generic e) print-component (component &optional stream)
   (:documentation "Prints a string representation of COMPONENT into STREAM, this is the default behaviour for the PRINT-OBJECT method of COMPONENT."))
+
+;;;;;;
+;;; Component environment
+
+(def (generic e) call-in-rendering-environment (application session thunk)
+  (:documentation "Call THUNK within the rendering environment of APPLICATION and SESSION."))
+
+(def (generic e) call-in-component-environment (component thunk)
+  (:documentation "Sets up dynamic COMPONENT-ENVIRONMENT and calls THUNK."))
+
+(def (definer e) component-environment (&body forms)
+  "Defines the COMPONENT-ENVIRONMENT for a specific COMPONENT class."
+  (bind ((qualifier (when (or (keywordp (first forms))
+                              (member (first forms) '(and or progn append nconc)))
+                      (pop forms)))
+         (type (pop forms))
+         (unused (gensym)))
+    `(def method call-in-component-environment ,@(when qualifier (list qualifier)) ((-self- ,type) ,unused)
+       ,@forms)))
+
+;;;;;;
+;;; Component computed slot
+
+(def (generic e) call-compute-as (component thunk)
+  (:documentation "Called whenever a COMPUTED-SLOT-DEFINITION's value is updated in a COMPONENT, so that customization can happen."))
 
 ;;;;;;
 ;;; Component place
@@ -123,6 +148,8 @@
          ,documentation
          (single-argument-layered-method-definer 'render-component ',layer-name forms -options-)))))
 
+(def (special-variable e) *text-stream* "The output stream for rendering components in text format.")
+
 (def (render-component-layer e) text "Rendering into pure text.")
 
 (def (render-component-layer e) xhtml "Rendering into XHTML and JavaScript.")
@@ -134,25 +161,6 @@
 (def (render-component-layer e) ods "Rendering into Open Office Spreadsheet.")
 
 (def (render-component-layer e) odt "Rendering into Open Office Document.")
-
-;;;;;;
-;;; Component environment
-
-(def (layered-function e) call-in-rendering-environment (application session thunk)
-  (:documentation "Call THUNK within the rendering environment of APPLICATION and SESSION."))
-
-(def (layered-function e) call-in-component-environment (component thunk)
-  (:documentation "Sets up dynamic COMPONENT-ENVIRONMENT and calls THUNK."))
-
-(def (definer e) component-environment (&body forms)
-  "Defines the COMPONENT-ENVIRONMENT for a specific COMPONENT class."
-  (bind ((qualifier (when (or (keywordp (first forms))
-                              (member (first forms) '(and or progn append nconc)))
-                      (pop forms)))
-         (type (pop forms))
-         (unused (gensym)))
-    `(def method call-in-component-environment ,@(when qualifier (list qualifier)) ((-self- ,type) ,unused)
-       ,@forms)))
 
 ;;;;;;
 ;;; Parent component
@@ -189,16 +197,16 @@
 ;;; Show/hide component
 
 (def (generic e) visible-component? (component)
-  (:documentation "TRUE means COMPONENT is currently visible, FALSE means hidden. If a COMPONENT is hidden then it is not rendered at all."))
+  (:documentation "TRUE means COMPONENT is currently VISIBLE, FALSE means HIDDEN. If a COMPONENT is HIDDEN then it is not rendered at all."))
 
 (def (generic e) hide-component (component)
-  (:documentation "Hides a visible COMPONENT."))
+  (:documentation "Hides a VISIBLE COMPONENT."))
 
 (def (generic e) show-component (component)
-  (:documentation "Shows a hidden COMPONENT."))
+  (:documentation "Shows a HIDDEN COMPONENT."))
 
 (def (generic e) show-component-recursively (component)
-  (:documentation "Shows a hidden COMPONENT and all its hidden descendants."))
+  (:documentation "Shows a HIDDEN COMPONENT and all its HIDDEN descendants."))
 
 ;;;;;;
 ;;; Enable/disable component
@@ -237,16 +245,16 @@
 ;;; Clone component
 
 (def (generic e) clone-component (component)
-  (:documentation "Returns a new instance cloned from COMPONENT with most of its state copied over."))
+  (:documentation "Returns a new CLONE of COMPONENT having the state of COMPONENT copied over."))
 
 ;;;;;;
 ;;; Serialize/deserialize component
 
 (def (generic e) serialize-component (component)
-  (:documentation "Writes a COMPONENT into a vector of bytes to be read later by DESERIALIZE-COMPONENT."))
+  (:documentation "Writes a COMPONENT into a byte vector to be read later by DESERIALIZE-COMPONENT."))
 
 (def (generic e) deserialize-component (bytes)
-  (:documentation "Reads a COMPONENT from a vector of bytes previously written by SERIALIZE-COMPONENT."))
+  (:documentation "Reads a COMPONENT from a byte vector previously written by SERIALIZE-COMPONENT."))
 
 ;;;;;;
 ;;; Component value
@@ -285,9 +293,8 @@
   (:documentation "Returns a STANDARD-OBJECT instance for COMPONENT, factory methods use it as a dispatch argument to support customization."))
 
 ;;;;;;
-;;; Editing component
+;;; Component editing
 
-;; TODO: -component?
 (def (generic e) begin-editing (component)
   (:documentation "Starts EDITING under COMPONENT."))
 
@@ -304,15 +311,14 @@
   (:documentation "Modifies COMPONENT to leave EDITING."))
 
 (def (generic e) store-editing (component)
-  (:documentation "Stores changes under COMPONENT."))
+  (:documentation "Stores changes under COMPONENT without leaving EDITING.."))
 
 (def (generic e) revert-editing (component)
-  (:documentation "Reverts changes under COMPONENT."))
+  (:documentation "Reverts changes under COMPONENT without leaving EDITING.."))
 
 ;;;;;;
 ;;; Component factories
 
-;; TODO: -component?
 (def (layered-function e) make-title (component class prototype value)
   (:documentation "Creates a TITLE for COMPONENT."))
 
@@ -351,7 +357,7 @@
 
 ;; TODO: why some -component?
 (def (layered-function e) make-refresh-component-command (component class prototype value)
-  (:documentation "Creates a REFRESH-COMPONENT COMMAND that calls EXECUTE-REFRESH-COMPONENT when executed."))
+  (:documentation "Creates a REFRESH-COMPONENT COMMAND that calls REFRESH-COMPONENT when executed."))
 
 (def (layered-function e) make-close-component-command (component class prototype value)
   (:documentation "Create a CLOSE-COMPONENT COMMAND that permanently closes COMPONENT."))
@@ -369,6 +375,9 @@
   (:documentation "TODO"))
 
 (def (layered-function e) make-show-component-recursively-command (component class prototype value)
+  (:documentation "TODO"))
+
+(def (layered-function e) make-toggle-visiblity-command (component class prototype value)
   (:documentation "TODO"))
 
 (def (layered-function e) make-swith-to-alternative-commands (component class prototype value)
@@ -428,7 +437,7 @@
 (def (layered-function e) make-filter-instances-command (filter result)
   (:documentation "TODO"))
 
-(def (layered-function e) make-begin-editing-new-instance-command (component class instance)
+(def (layered-function e) make-begin-editing-new-instance-command (component class prototype)
   (:documentation "TODO"))
 
 (def (layered-function e) make-create-instance-command (component class prototype)
@@ -437,16 +446,11 @@
 ;;;;;;
 ;;; Execute commands
 
-;; TODO: kill these! ugyi?
-
-(def (layered-function e) execute-refresh-component (component class prototype value)
+(def (layered-function e) close-component (component class prototype value)
   (:documentation "TODO"))
 
-(def (layered-function e) execute-close-component (component class prototype value)
-  (:documentation "TODO"))
-
-(def (layered-function e) execute-open-in-new-frame (component class prototype value)
+(def (layered-function e) open-in-new-frame (component class prototype value)
   (:documentation "Opens a new FRAME with the result of CLONE-COMPONENT called on COMPONENT."))
 
-(def (layered-function e) execute-swith-to-alternative (component class prototype value)
+(def (layered-function e) swith-to-alternative (component class prototype value)
   (:documentation "TODO"))

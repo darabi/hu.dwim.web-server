@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object inspector
 
-(def (component ea) standard-object/inspector (standard-object/mixin
+(def (component e) standard-object/inspector (standard-object/mixin
                                                inspector/abstract
                                                editable/mixin
                                                exportable/abstract
@@ -59,14 +59,14 @@
 ;;;;;;
 ;;; Standard object detail inspector
 
-(def (component ea) standard-object-detail-inspector (standard-object/mixin
+(def (component e) standard-object-detail-inspector (standard-object/mixin
                                                     standard-object-detail-component
                                                     inspector/abstract
                                                     editable/mixin)
   ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT in detail."))
 
-(def refresh standard-object-detail-inspector
+(def refresh-component standard-object-detail-inspector
   (bind (((:slots instance slot-value-groups) -self-)
          (the-class (when instance (class-of instance))))
     ;; TODO: factor this out into a base class throughout this directory
@@ -102,14 +102,14 @@
 ;;;;;;
 ;;; Standard object slot value group inspector
 
-(def (component ea) standard-object-slot-value-group-inspector (standard-object-slot-value-group-component
+(def (component e) standard-object-slot-value-group-inspector (standard-object-slot-value-group-component
                                                               standard-object/mixin
                                                               inspector/abstract
                                                               editable/mixin)
   ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITION instances."))
 
-(def refresh standard-object-slot-value-group-inspector
+(def refresh-component standard-object-slot-value-group-inspector
   (bind (((:slots instance slots slot-values) -self-))
     (if instance
         (setf slot-values
@@ -129,14 +129,14 @@
 ;;;;;;
 ;;; Standard object slot value inspector
 
-(def (component ea) standard-object-slot-value-inspector (standard-object-slot-value/inspector
+(def (component e) standard-object-slot-value-inspector (standard-object-slot-value/inspector
                                                         standard-object/mixin
                                                         inspector/abstract
                                                         editable/mixin)
   ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
 
-(def refresh standard-object-slot-value-inspector
+(def refresh-component standard-object-slot-value-inspector
   (bind (((:slots instance slot label value) -self-))
     (if slot
         (if (typep label 'component)
@@ -152,7 +152,7 @@
 ;;;;;;
 ;;; Standard object place inspector
 
-(def (component ea) standard-object-place-inspector (place-inspector)
+(def (component e) standard-object-place-inspector (place-inspector)
   ()
   (:documentation "Inspector for a place of an instance of STANDARD-OBJECT and unit types."))
 

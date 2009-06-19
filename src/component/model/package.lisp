@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Package inspector
 
-(def component package/inspector ()
+(def (component e) package/inspector ()
   ())

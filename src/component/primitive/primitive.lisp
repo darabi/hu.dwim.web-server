@@ -16,7 +16,7 @@
 ;;;;;;
 ;;; Primitive component
 
-(def (component ea) primitive/abstract (component-value/mixin)
+(def (component e) primitive/abstract (component-value/mixin)
   ((name nil :type (or null symbol))
    (the-type nil)
    (client-state-sink nil)))
@@ -72,18 +72,10 @@
        (when (typep parent-component 'standard-slot-definition/mixin)
          (values (the-class-of parent-component) nil (slot-of parent-component)))))))
 
-(def resources hu
-  (value.default "alapértelmezett")
-  (value.defaults-to "alapértelmezett érték: "))
-
-(def resources en
-  (value.default "default")
-  (value.defaults-to "defaults to :"))
-
 ;;;;;;
 ;;; Unbound component
 
-(def (component ea) unbound/abstract (primitive/abstract)
+(def (component e) unbound/abstract (primitive/abstract)
   ())
 
 (def method print-component-value ((self unbound/abstract))
@@ -95,16 +87,10 @@
 (def render-xhtml unbound/abstract
   (render-unbound-component))
 
-(def resources hu
-  (value.unbound "alapértelmezett"))
-
-(def resources en
-  (value.unbound "default"))
-
 ;;;;;;
 ;;; Null component
 
-(def (component ea) null/abstract (primitive/abstract)
+(def (component e) null/abstract (primitive/abstract)
   ())
 
 (def method print-component-value ((self null/abstract))
@@ -116,16 +102,10 @@
 (def render-xhtml null/abstract
   (render-null-component))
 
-(def resources hu
-  (value.nil "nincs"))
-
-(def resources en
-  (value.nil "none"))
-
 ;;;;;;
 ;;; T component
 
-(def (component ea) t/abstract (primitive/abstract)
+(def (component e) t/abstract (primitive/abstract)
   ())
 
 (def function render-t-component (component)
@@ -147,7 +127,7 @@
 ;;;;;;
 ;;; Boolean component
 
-(def (component ea) boolean/abstract (primitive/abstract)
+(def (component e) boolean/abstract (primitive/abstract)
   ())
 
 (def method parse-component-value ((component boolean/abstract) client-value)
@@ -155,18 +135,10 @@
       (values nil #t)
       (string-to-lisp-boolean client-value)))
 
-(def resources hu
-  (boolean.true "igaz")
-  (boolean.false "hamis"))
-
-(def resources en
-  (boolean.true "true")
-  (boolean.false "false"))
-
 ;;;;;;
 ;;; String component
 
-(def (component ea) string/abstract (primitive/abstract)
+(def (component e) string/abstract (primitive/abstract)
   ())
 
 (def generic string-field-type (component)
@@ -197,7 +169,7 @@
 ;;;;;;
 ;;; Password component
 
-(def (component ea) password/abstract (string/abstract)
+(def (component e) password/abstract (string/abstract)
   ())
 
 (def method string-field-type ((self password/abstract))
@@ -206,7 +178,7 @@
 ;;;;;;
 ;;; Symbol component
 
-(def (component ea) symbol/abstract (string/abstract)
+(def (component e) symbol/abstract (string/abstract)
   ())
 
 (def method print-component-value ((component symbol/abstract))
@@ -219,7 +191,7 @@
 ;;;;;;
 ;;; Number component
 
-(def (component ea) number/abstract (primitive/abstract)
+(def (component e) number/abstract (primitive/abstract)
   ())
 
 (def function render-number-field-for-primitive-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-up on-key-down)
@@ -250,7 +222,7 @@
 ;;;;;;
 ;;; Integer component
 
-(def (component ea) integer/abstract (number/abstract)
+(def (component e) integer/abstract (number/abstract)
   ())
 
 (def render-csv integer/abstract
@@ -269,7 +241,7 @@
 ;;;;;;
 ;;; Float component
 
-(def (component ea) float/abstract (number/abstract)
+(def (component e) float/abstract (number/abstract)
   ())
 
 (def method parse-component-value ((component float/abstract) client-value)
@@ -280,7 +252,7 @@
 ;;;;;;
 ;;; Date component
 
-(def (component ea) date/abstract (primitive/abstract)
+(def (component e) date/abstract (primitive/abstract)
   ())
 
 (def function render-date-component (component &key (id (generate-frame-unique-string "_dtw")) on-change (printer #'print-component-value))
@@ -317,7 +289,7 @@
 ;;;;;;
 ;;; Time component
 
-(def (component ea) time/abstract (primitive/abstract)
+(def (component e) time/abstract (primitive/abstract)
   ())
 
 (def function render-time-component (component &key (id (generate-frame-unique-string "_tmw")) on-change (printer #'print-component-value))
@@ -350,7 +322,7 @@
 ;;;;;;
 ;;; Timestamp component
 
-(def (component ea) timestamp/abstract (primitive/abstract)
+(def (component e) timestamp/abstract (primitive/abstract)
   ())
 
 (def function render-timestamp-component (component &key on-change)
@@ -387,7 +359,7 @@
 ;;;;;;
 ;;; Member component
 
-(def (component ea) member/abstract (primitive/abstract)
+(def (component e) member/abstract (primitive/abstract)
   ((possible-values)
    (comparator #'equal)
    (key #'identity)
@@ -435,17 +407,10 @@
                          :client-name-generator [funcall client-name-generator component !1]
                          :on-change on-change)))
 
-(def resources hu
-  (member-type-value.nil ""))
-
-(def resources en
-  (member-type-value.nil ""))
-
-
 ;;;;;;
 ;;; HTML component
 
-(def (component ea) html/abstract (string/abstract)
+(def (component e) html/abstract (string/abstract)
   ())
 
 (def (function e) emit-html-string (string)
@@ -474,7 +439,7 @@
 ;;;;;;
 ;;; IP address component
 
-(def (component ea) ip-address/abstract (primitive/abstract)
+(def (component e) ip-address/abstract (primitive/abstract)
   ())
 
 (def render-xhtml ip-address/abstract
@@ -493,7 +458,7 @@
 ;;;;;;
 ;;; File component
 
-(def (component ea) file/abstract (primitive/abstract)
+(def (component e) file/abstract (primitive/abstract)
   ())
 
 (def (layered-function e) download-file-name (component class instance slot)

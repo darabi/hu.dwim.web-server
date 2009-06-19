@@ -11,7 +11,7 @@
 
 (def special-variable *tree-level*)
 
-(def (component ea) tree/abstract ()
+(def (component e) tree/abstract ()
   ())
 
 (def component-environment tree/basic
@@ -25,7 +25,7 @@
 ;;;;;;
 ;;; Tree basic
 
-(def (component ea) tree/basic (tree/abstract style/abstract)
+(def (component e) tree/basic (tree/abstract style/abstract)
   ((columns nil :type components)
    ;; TODO expander-column-index should be marked by a special column type, or something similar. this way it's very fragile...
    (expander-column-index 0 :type integer)

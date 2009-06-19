@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Place component
 
-(def (component ea) place-component (content/mixin)
+(def (component e) place-component (content/mixin)
   ((command-bar nil :type component)))
 
 (def generic place-component-value-of (component)
@@ -24,7 +24,7 @@
   (:method ((self place-component))
     nil))
 
-(def refresh place-component
+(def refresh-component place-component
   (bind (((:slots content command-bar) -self-))
     (setf content (make-place-component-content -self-)
           command-bar (make-place-component-command-bar -self-))))

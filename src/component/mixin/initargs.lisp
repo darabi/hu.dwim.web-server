@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Initargs mixin
 
-(def (component ea) initargs/mixin ()
+(def (component e) initargs/mixin ()
   ((initargs :type list))
   (:documentation "A component that captures the initargs as they were originally provided when the component was last time reinitialized."))
 

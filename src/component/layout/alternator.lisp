@@ -7,13 +7,13 @@
 ;;;;;;
 ;;; Alternator mixin
 
-(def (component ea) alternator/mixin (content/mixin)
+(def (component e) alternator/mixin (content/mixin)
   ((initial-alternative-type 'detail-component :type symbol)
    (default-alternative-type 'detail-component :type symbol)
    (alternatives-factory #'make-alternatives :type function)
    (alternatives nil :type list)))
 
-(def refresh alternator/mixin
+(def refresh-component alternator/mixin
   (bind (((:slots alternatives content) -self-)
          (value (component-value-of -self-))
          (class (component-dispatch-class -self-)))
@@ -25,7 +25,7 @@
       (when-bind component (component-of alternative)
         (setf (component-value-of component) value)))))
 
-(def layered-method clone-component ((self alternator/mixin))
+(def method clone-component ((self alternator/mixin))
   (prog1-bind clone (call-next-method)
     (setf (initial-alternative-type-of clone) (initial-alternative-type-of self)
           (default-alternative-type-of clone) (aif (content-of self)
@@ -74,7 +74,7 @@
 ;;;;;;
 ;;; Alternator component
 
-(def (component ea) alternator/basic (visible/mixin expandible/mixin title/mixin context-menu/mixin commands/mixin alternator/mixin id/mixin user-messages/mixin)
+(def (component e) alternator/basic (visibility/mixin expandible/mixin title/mixin context-menu/mixin commands/mixin alternator/mixin id/mixin user-messages/mixin)
   ())
 
 (def render-xhtml alternator/basic

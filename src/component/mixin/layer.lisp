@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Layer context capturing mixin
 
-(def (component ea) layer-context-capturing/mixin ()
+(def (component e) layer-context-capturing/mixin ()
   ((layer-context (current-layer-context))))
 
 (def component-environment layer-context-capturing/mixin

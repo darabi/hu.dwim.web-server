@@ -7,24 +7,24 @@
 ;;;;;
 ;;; Menu items mixin
 
-(def (component ea) menu-items/mixin ()
+(def (component e) menu-items/mixin ()
   ((menu-items nil :type components))
   (:documentation "A component with a set of menu items."))
 
 ;;;;;;
 ;;; Menu abstract
 
-(def (component ea) menu/abstract (menu-items/mixin content/mixin id/mixin style/mixin)
+(def (component e) menu/abstract (menu-items/mixin content/mixin id/mixin style/mixin)
   ()
   (:default-initargs :content (empty))
   (:documentation "A top level component in a menu hierarchy."))
 
-(def icon menu :tooltip nil)
+(def (icon e) menu :tooltip nil)
 
 ;;;;;;
 ;;; Menu bar basic
 
-(def (component ea) menu-bar/basic (menu/abstract)
+(def (component e) menu-bar/basic (menu/abstract)
   ((target-place nil :type place))
   (:documentation "A menu component that is always shown."))
 
@@ -51,7 +51,7 @@
 ;;;;;
 ;;; Popup menu basic
 
-(def (component ea) popup-menu/basic (menu/abstract)
+(def (component e) popup-menu/basic (menu/abstract)
   ()
   (:documentation "A menu component that is shown upon explicit user action."))
 
@@ -87,7 +87,7 @@
 ;;;;;
 ;;; Context menu basic
 
-(def (component ea) context-menu/basic (popup-menu/basic)
+(def (component e) context-menu/basic (popup-menu/basic)
   ((target))
   (:documentation "A popup menu component that is attached to another component as a context menu."))
 
@@ -100,20 +100,16 @@
 (def render-xhtml context-menu/basic
   (render-popup-menu -self- :target-node-id (id-of (target-of -self-))))
 
-(def icon show-context-menu :label nil)
-(def resources hu
-  (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése"))
-(def resources en
-  (icon-tooltip.show-context-menu "Show context menu"))
+(def (icon e) show-context-menu :label nil)
 
 ;;;;;;
 ;;; Context menu mixin
 
-(def (component ea) context-menu/mixin ()
+(def (component e) context-menu/mixin ()
   ((context-menu :type component))
   (:documentation "A component with a context menu attached to it."))
 
-(def refresh context-menu/mixin
+(def refresh-component context-menu/mixin
   (bind ((class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
          (value (component-value-of -self-)))
@@ -139,7 +135,7 @@
 ;;;;;;
 ;;; Menu item basic
 
-(def (component ea) menu-item/basic (menu-items/mixin content/mixin id/mixin style/mixin)
+(def (component e) menu-item/basic (menu-items/mixin content/mixin id/mixin style/mixin)
   ()
   (:documentation "An intermediate or leaf component in a menu hierarchy."))
 
@@ -182,7 +178,7 @@
 ;;;;;;
 ;;; Separator menu item basic
 
-(def (component ea) separator-menu-item/basic (menu-item/basic)
+(def (component e) separator-menu-item/basic (menu-item/basic)
   ()
   (:documentation "A menu item separator, a leaf in the menu hierarchy."))
 
@@ -192,7 +188,7 @@
 ;;;;;;
 ;;; Replace menu target command component
 
-(def (component ea) replace-menu-target-command-component (command/basic)
+(def (component e) replace-menu-target-command-component (command/basic)
   ((component))
   (:documentation "A special command that will replace the main menu target place with its component."))
 

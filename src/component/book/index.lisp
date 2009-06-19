@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Index basic 
 
-(def component index/basic ()
+(def (component e) index/basic ()
   ())

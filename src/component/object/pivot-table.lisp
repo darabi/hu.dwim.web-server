@@ -7,10 +7,10 @@
 ;;;;;;
 ;;; Standard object list pivot table
 
-(def (component ea) standard-object-list-pivot-table-component (standard-object-list/mixin pivot-table-component)
+(def (component e) standard-object-list-pivot-table-component (standard-object-list/mixin pivot-table-component)
   ())
 
-(def refresh standard-object-list-pivot-table-component
+(def refresh-component standard-object-list-pivot-table-component
   (bind (((:read-only-slots row-axes column-axes column-leaf-count) -self-)
          ((:slots instances cells) -self-))
     (setf cells
@@ -62,7 +62,7 @@
 ;;;;;;
 ;;; Standard object list pivot table category
 
-(def (component ea) standard-object-list-pivot-table-category-component (pivot-table-category-component)
+(def (component e) standard-object-list-pivot-table-category-component (pivot-table-category-component)
   ((predicate :type function)))
 
 (def (function e) make-any-instance-standard-object-list-pivot-table-category ()
@@ -73,7 +73,7 @@
 ;;;;;;
 ;;; Standard object list pivot table aggregator category
 
-(def (component ea) standard-object-list-pivot-table-aggregator-category-component (standard-object-list-pivot-table-category-component)
+(def (component e) standard-object-list-pivot-table-aggregator-category-component (standard-object-list-pivot-table-category-component)
   ((aggregator :type function)))
 
 (def (function e) make-aggregator-pivot-table-axis ()

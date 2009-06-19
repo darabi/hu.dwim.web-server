@@ -81,36 +81,12 @@
 ;;; Command
 
 (def icon start-process)
-(def resources hu
-  (icon-label.start-process "Elindítás")
-  (icon-tooltip.start-process "A folyamat elindítása"))
-(def resources en
-  (icon-label.start-process "Start")
-  (icon-tooltip.start-process "Start the process"))
 
 (def icon continue-process)
-(def resources hu
-  (icon-label.continue-process "Folytatás")
-  (icon-tooltip.continue-process "A folyamat folytatása"))
-(def resources en
-  (icon-label.continue-process "Continue")
-  (icon-tooltip.continue-process "Continue the process"))
 
 (def icon cancel-process)
-(def resources hu
-  (icon-label.cancel-process "Elvetés")
-  (icon-tooltip.cancel-process "A folyamat elvetése"))
-(def resources en
-  (icon-label.cancel-process "Cancel")
-  (icon-tooltip.cancel-process "Cancel the process"))
 
 (def icon pause-process)
-(def resources hu
-  (icon-label.pause-process "Felfüggesztés")
-  (icon-tooltip.pause-process "A folyamat felüggesztése"))
-(def resources en
-  (icon-label.pause-process "Pause")
-  (icon-tooltip.pause-process "Pause the process"))
 
 (def layered-method make-context-menu-items ((component standard-object-inspector) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   ;; TODO: move prc::with-revived-instance?

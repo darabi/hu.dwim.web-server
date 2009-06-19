@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Border mixin
 
-(def (component ea) border/mixin ()
+(def (component e) border/mixin ()
   ((border :type component))
   (:documentation "A component with a border."))
 

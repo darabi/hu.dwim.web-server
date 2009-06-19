@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Exportable component
 
-(def (component ea) exportable/abstract ()
+(def (component e) exportable/abstract ()
   ())
 
 (def layered-method make-context-menu-items ((component exportable/abstract) (class standard-class) (prototype standard-object) (instance standard-object))
@@ -40,15 +40,26 @@
                                                                   (list (cons +header/content-disposition+ "attachment")))))))
 
 ;;;;;;
+;;; Text format
+
+(def (icon e) export-text)
+
+(def layered-method make-export-command ((format (eql :text)) (component component) (class standard-class) (prototype standard-object) (instance standard-object))
+  (command (:delayed-content #t
+            :path (export-file-name format component))
+    (icon export-text)
+    (make-component-action component
+      (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
+        (execute-export-text component)))))
+
+(def (layered-function e) execute-export-text (component)
+  (:method ((component component))
+    (render-text component)))
+
+;;;;;;
 ;;; CSV format
 
-(def icon export-csv)
-(def resources hu
-  (icon-label.export-csv "CSV")
-  (icon-tooltip.export-csv "A tartalom mentése CSV formátumban"))
-(def resources en
-  (icon-label.export-csv "CSV")
-  (icon-tooltip.export-csv "Export content in CSV format"))
+(def (icon e) export-csv)
 
 (def layered-method make-export-command ((format (eql :csv)) (component component) (class standard-class) (prototype standard-object) (instance standard-object))
   (command (:delayed-content #t
@@ -60,18 +71,12 @@
 
 (def (layered-function e) execute-export-csv (component)
   (:method ((component component))
-    (write-csv component)))
+    (render-csv component)))
 
 ;;;;;;
 ;;; PDF format
 
-(def icon export-pdf)
-(def resources hu
-  (icon-label.export-pdf "PDF")
-  (icon-tooltip.export-pdf "A tartalom mentése PDF formátumban"))
-(def resources en
-  (icon-label.export-pdf "PDF")
-  (icon-tooltip.export-pdf "Export content in PDF format"))
+(def (icon e) export-pdf)
 
 (def special-variable *pdf-stream*)
 
@@ -88,13 +93,7 @@
 ;;;;;;
 ;;; ODT format
 
-(def icon export-odt)
-(def resources hu
-  (icon-label.export-odt "ODT")
-  (icon-tooltip.export-odt "A tartalom mentése ODT formátumban"))
-(def resources en
-  (icon-label.export-odt "ODT")
-  (icon-tooltip.export-odt "Export content in ODT format"))
+(def (icon e) export-odt)
 
 (def layered-method make-export-command ((format (eql :odt)) (component component) (class standard-class) (prototype standard-object) (instance standard-object))
   (command (:delayed-content #t
@@ -111,13 +110,7 @@
 ;;;;;;
 ;;; ODS format
 
-(def icon export-ods)
-(def resources hu
-  (icon-label.export-ods "ODS")
-  (icon-tooltip.export-ods "A tartalom mentése ODS formátumban"))
-(def resources en
-  (icon-label.export-ods "ODS")
-  (icon-tooltip.export-ods "Export content in ODS format"))
+(def (icon e) export-ods)
 
 (def layered-method make-export-command ((format (eql :ods)) (component component) (class standard-class) (prototype standard-object) (instance standard-object))
   (command (:delayed-content #t

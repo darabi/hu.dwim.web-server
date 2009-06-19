@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Definer
+;;; Component definer
 
 (def (definer e :available-flags "eas") component (name supers slots &rest options)
   `(def (class* ,@-options-) ,name ,supers
@@ -15,7 +15,7 @@
      ,@options))
 
 ;;;;;;
-;;; Localization
+;;; Component localization
 
 (def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resource/component/"
   :log-discriminator "WUI")
@@ -23,7 +23,7 @@
 (register-locale-loaded-listener 'wui-resource-loader/component)
 
 ;;;;;;
-;;; Component
+;;; Component base class
 
 (def (type e) component* ()
   "The generic component type, including supported primitive component types."
@@ -66,24 +66,51 @@ Components are created by either using the component specific factory macros, ma
 such as make-instance, make-maker, make-viewer, make-editor, make-inspector, make-filter, make-finder and make-selector.
 "))
 
-(def layered-method call-in-component-environment ((self component) thunk)
+;;;;;;
+;;; Component environment
+
+(def (macro e) with-component-environment (component &body forms)
+  `(call-in-component-environment ,component (named-lambda with-component-environment-body ()
+                                               ,@forms)))
+
+(def (with-macro e) with-restored-component-environment (component)
+  (bind ((path (nreverse (collect-path-to-root-component component))))
+    (labels ((%call-with-restored-component-environment (remaining-path)
+               (if remaining-path
+                   (with-component-environment (car remaining-path)
+                     (%call-with-restored-component-environment (cdr remaining-path)))
+                   (-body-))))
+      (%call-with-restored-component-environment path))))
+
+;;;;;;
+;;; Component place
+
+(def method component-at-place ((place place))
+  (prog1-bind value
+      (value-at-place place)
+    (assert (typep value '(or null component)))))
+
+(def method (setf component-at-place) ((replacement-component component) (place place))
+  (when-bind replacement-place (make-component-place replacement-component)
+    (setf (value-at-place replacement-place) nil))
+  (when-bind original-component (value-at-place place)
+    (setf (parent-component-of original-component) nil))
+  (setf (value-at-place place) replacement-component))
+
+;;;;;;
+;;; Component computed slot
+
+(def method call-compute-as ((self component) thunk)
   (funcall thunk))
 
-(def method component-dispatch-class ((self component))
-  nil)
+;;;;;;
+;;; Parent component
 
-(def method component-dispatch-prototype ((self component))
-  (awhen (component-dispatch-class component)
-    (class-prototype it)))
+(def method parent-component-of ((self component))
+  (operation-not-supported))
 
-(def method supports-debug-component-hierarchy? ((self component))
-  #t)
-
-(def method visible? ((self component))
-  #t)
-
-(def layered-method clone-component ((self component))
-  (make-instance (class-of self)))
+(def method (setf parent-component-of) (new-value (self component))
+  (operation-not-supported))
 
 (def method child-component-slot? ((self component) (slot standard-effective-slot-definition))
   #f)
@@ -91,99 +118,155 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 (def method child-component-slot? ((self component) (slot component-effective-slot-definition))
   #t)
 
+;;;;;;
+;;; Parent child relationship
+
+(def (function e) find-ancestor-component (component predicate)
+  (find-ancestor component #'parent-component-of predicate))
+
+(def (function e) find-ancestor-component-with-type (component type)
+  (find-ancestor-component component [typep !1 type]))
+
+(def (function e) map-ancestor-components (component visitor &key (include-self #f))
+  (ensure-functionf visitor)
+  (labels ((traverse (current)
+             (awhen (parent-component-of current)
+               (funcall visitor it)
+               (traverse it))))
+    (when include-self
+      (funcall visitor component))
+    (traverse component)))
+
+(def (function e) collect-path-to-root-component (component)
+  (iter (for ancestor-component :initially component :then (parent-component-of ancestor-component))
+        (while ancestor-component)
+        (collect ancestor-component)))
+
+(def (function e) collect-ancestor-components (component &key (include-self #f))
+  (nconc (when include-self
+           (list component))
+         (iter (for parent :first component :then (parent-component-of parent))
+               (while parent)
+               (collect parent))))
+
+(def (function e) find-descendant-component (component predicate)
+  (map-descendant-components component (lambda (child)
+                                         (when (funcall predicate child)
+                                           (return-from find-descendant-component child)))))
+
+(def (function e) find-descendant-component-with-type (component type)
+  (find-descendant-component component [typep !1 type]))
+
+(def (function e) map-child-components (component visitor)
+  (ensure-functionf visitor)
+  (iter (with class = (class-of component))
+        (for slot :in (class-slots class))
+        (when (and (child-component-slot? component slot)
+                   (slot-boundp-using-class class component slot))
+          (bind ((value (slot-value-using-class class component slot)))
+            (typecase value
+              (component
+               (funcall visitor value))
+              (list
+               (dolist (element value)
+                 (when (typep element 'component)
+                   (funcall visitor element))))
+              (hash-table
+               (iter (for (key element) :in-hashtable value)
+                     (when (typep element 'component)
+                       (funcall visitor element)))))))))
+
+(def (function e) map-descendant-components (component visitor &key (include-self #f))
+  (ensure-functionf visitor)
+  (labels ((traverse (parent-component)
+             (map-child-components parent-component
+                                   (lambda (child-component)
+                                     (funcall visitor child-component)
+                                     (traverse child-component)))))
+    (when include-self
+      (funcall visitor component))
+    (traverse component)))
+
+;;;;;;
+;;; Component environment
+
+(def method call-in-component-environment ((self component) thunk)
+  (funcall thunk))
+
+;;;;;;
+;;; Component dispatch class/prototype
+
+(def method component-dispatch-class ((self component))
+  nil)
+
+(def method component-dispatch-prototype ((self component))
+  (awhen (component-dispatch-class self)
+    (class-prototype it)))
+
+;;;;;;
+;;; Render component
+
+(def render-component component
+  (operation-not-supported))
+
+(def method to-be-rendered-component? (component)
+  #t)
+
+(def method mark-component-to-be-rendered (component)
+  (operation-not-supported))
+
+(def method mark-component-rendered (component)
+  (operation-not-supported))
+
+;;;;;;
+;;; Refresh component
+
+(def layered-method refresh-component ((self component))
+  (values))
+
+(def method to-be-refreshed-component? ((self component))
+  #f)
+
+(def method mark-component-to-be-refreshed ((self component))
+  (operation-not-supported))
+
+(def method mark-component-refreshed ((self component))
+  (operation-not-supported))
+
+;;;;;;
+;;; Show/hide component
+
+(def method visible-component? ((self component))
+  #t)
+
+(def method hide-component ((self component))
+  (operation-not-supported))
+
+(def method show-component ((self component))
+  (values))
+
+;;;;;;
+;;; Clone component
+
+(def method clone-component ((self component))
+  (make-instance (class-of self)))
+
+;;;;;;
+;;; Export CSV
+
 (def method write-csv-element ((self component))
   (render-component self))
 
 ;;;;;;
-;;; Number
-
-(def (special-variable e) *text-stream* "The output stream for rendering components in text format.")
-
-(def render-xhtml number
-  `xml,-self-)
-
-(def render-text number
-  (write -self- :stream *text-stream*))
-
-(def render-csv number
-  (write-csv-value (princ-to-string -self-)))
-
-(def render-ods number
-  <text:p ,-self->)
-
-(def render-odt number
-  <text:p ,-self->)
-
-(def layered-method refresh-component ((self number))
-  (values))
-
-(def method component-dispatch-class ((self number))
-  (find-class 'number))
-
-(def method component-dispatch-prototype ((self number))
-  (class-prototype (find-class 'number)))
-
-(def method mark-to-be-refreshed ((self number))
-  (values))
-
-(def method mark-refreshed ((self number))
-  (values))
-
-(def method visible? ((self number))
-  #t)
-
-(def layered-method clone-component ((self number))
-  self)
-
-;;;;;;
-;;; String
-
-(def render-xhtml string
-  `xml,-self-)
-
-(def render-text string
-  (write -self- :stream *text-stream*))
-
-(def render-csv string
-  (write-csv-value -self-))
-
-(def render-ods string
-  <text:p ,-self->)
-
-(def render-odt string
-  <text:p ,-self->)
-
-(def layered-method refresh-component ((self string))
-  (values))
-
-(def method component-dispatch-class ((self string))
-  (find-class 'string))
-
-(def method component-dispatch-prototype ((self string))
-  (class-prototype (find-class 'string)))
-
-(def method mark-to-be-refreshed ((self string))
-  (values))
-
-(def method mark-refreshed ((self string))
-  (values))
-
-(def method visible? ((self string))
-  #t)
-
-(def layered-method clone-component ((self string))
-  (copy-seq self))
-
-;;;;;;
 ;;; Component basic
 
-(def (component ea) component/basic (renderable/mixin refreshable/mixin parent/mixin visible/mixin)
+(def (component e) component/basic (renderable/mixin refreshable/mixin parent/mixin visibility/mixin)
   ())
 
 ;;;;;;
 ;;; Component full
 
-(def (component ea) component/full (component/basic style/abstract enabled/mixin)
+(def (component e) component/full (component/basic style/abstract enabled/mixin)
   ())
 
 ;;;;;;

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; User message mixin
 
-(def (component ea) user-messages/mixin ()
+(def (component e) user-messages/mixin ()
   ((messages nil :type components))
   (:documentation "A component with a list of user messages."))
 
@@ -15,7 +15,7 @@
 ;;; User message component
 
 ;; TODO: do we use/need this?
-(def (component ea) user-messages/basic (user-messages/mixin)
+(def (component e) user-messages/basic (user-messages/mixin)
   ())
 
 (def render-xhtml user-messages/basic
@@ -66,7 +66,7 @@
 ;;;;;;
 ;;; User message component
 
-(def (component ea) user-message/basic (closable/mixin content/mixin style/mixin)
+(def (component e) user-message/basic (closable/mixin content/mixin style/mixin)
   ((category :information :type (member :information :warning :error))
    (message nil :type string)
    (permanent #f :type boolean)))
@@ -84,5 +84,5 @@
             (call-next-method))>
     `js(wui.setup-component ,id "user-message/basic" (create :css-class ,(concatenate-string (string-downcase category) "-message")))))
 
-(def layered-method execute-close-component ((component user-message/basic) class prototype value)
+(def layered-method close-component ((component user-message/basic) class prototype value)
   (deletef (messages-of (parent-component-of component)) component))

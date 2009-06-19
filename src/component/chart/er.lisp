@@ -7,21 +7,10 @@
 ;;;;;;
 ;;; Diagram basic
 
-(def component diagram/basic ()
+(def (component e) diagram/basic ()
   ())
 
 ;;;;;;
 ;;; Icon
 
-(def icon diagram)
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (icon-label.diagram "Ábra")
-  (icon-tooltip.diagram "Ábra megjelenítése"))
-
-(def resources en
-  (icon-label.diagram "Diagram")
-  (icon-tooltip.diagram "Show diagram"))
+(def (icon e) diagram)

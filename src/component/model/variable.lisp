@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Variable
 
-(def component variable/inspector ()
+(def (component e) variable/inspector ()
   ())

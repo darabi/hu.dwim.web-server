@@ -31,6 +31,7 @@
         :trivial-garbage
         :babel
         :babel-streams
+        :contextl
         )
 
   (:shadow #:class-prototype

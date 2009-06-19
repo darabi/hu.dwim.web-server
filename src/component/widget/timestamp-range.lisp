@@ -8,7 +8,7 @@
 ;;; Timestamp range
 
 ;; TODO: implement
-(def (component ea) timestamp-range-component (editable/mixin)
+(def (component e) timestamp-range-component (editable/mixin)
   ((lower-bound
     nil
     :type (or null local-time:timestamp))

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Resizable mixin
 
-(def (component ea) resizable/mixin ()
+(def (component e) resizable/mixin ()
   ((width
     :type number)
    (height

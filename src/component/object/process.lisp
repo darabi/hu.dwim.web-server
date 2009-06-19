@@ -10,7 +10,7 @@
 ;; TODO: try to kill this variable, if possible?!
 (def (special-variable e) *standard-process-component*)
 
-(def (component ea) standard-process-component (content/mixin
+(def (component e) standard-process-component (content/mixin
                                            user-messages/mixin
                                            commands/mixin)
   ((form)
@@ -20,7 +20,7 @@
 (def (macro e) standard-process (&body forms)
   `(make-instance 'standard-process-component :form '(progn ,@forms)))
 
-(def refresh standard-process-component
+(def refresh-component standard-process-component
   (bind (((:slots form closure/cc) -self-))
     (setf closure/cc (cl-delico::make-closure/cc (cl-walker:walk-form `(lambda () ,form))))))
 
@@ -72,7 +72,7 @@
 ;;;;;;
 ;;; Answer command
 
-(def (component ea) answer-command-component (command/basic)
+(def (component e) answer-command-component (command/basic)
   ((icon (icon answer :label "Answer")) ;; TODO localize
    (action nil)
    (value nil)))

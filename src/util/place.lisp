@@ -201,37 +201,3 @@
 
 (def (function e) make-list-slot-value-place (instance slot index)
   (make-instance 'list-slot-value-place :instance instance :slot slot :index index))
-
-;;;;;;
-;;; Component place
-
-(def method component-at-place ((place place))
-  (prog1-bind value
-      (value-at-place place)
-    (assert (typep value '(or null component)))))
-
-(def method (setf component-at-place) ((replacement-component component) (place place))
-  (when-bind replacement-place (make-component-place replacement-component)
-    (setf (value-at-place replacement-place) nil))
-  (when-bind original-component (value-at-place place)
-    (setf (parent-component-of original-component) nil))
-  (setf (value-at-place place) replacement-component))
-
-(def method make-component-place ((component parent/mixin))
-  (assert component nil "The value NIL is not a valid component.")
-  (when-bind parent (parent-component-of component)
-    (bind ((parent-class (class-of parent)))
-      (iter (for slot :in (class-slots parent-class))
-            (when (and (child-component-slot? parent slot)
-                       (slot-boundp-using-class parent-class parent slot))
-              (bind ((slot-value (slot-value-using-class parent-class parent slot)))
-                (typecase slot-value
-                  (component
-                   (when (eq component slot-value)
-                     (return-from make-component-place (make-slot-value-place parent slot))))
-                  (list
-                   (iter (for index :from 0)
-                         (for element :in slot-value)
-                         (when (and (typep element 'component)
-                                    (eq component element))
-                           (return-from make-component-place (make-list-slot-value-place parent slot index))))))))))))

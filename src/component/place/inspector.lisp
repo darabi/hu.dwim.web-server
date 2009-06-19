@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Place inspector
 
-(def (component ea) place-inspector (place-component inspector/abstract editable/mixin)
+(def (component e) place-inspector (place-component inspector/abstract editable/mixin)
   ((place nil :type place)))
 
 (def render-xhtml place-inspector

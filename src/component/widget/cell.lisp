@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Cells mixin
 
-(def (component ea) cells/mixin ()
+(def (component e) cells/mixin ()
   ((cells :type components)))
 
 (def (layered-function e) render-cells (component)
@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; Cell basic
 
-(def (component ea) cell/basic (style/abstract content/mixin)
+(def (component e) cell/basic (style/abstract content/mixin)
   ((column-span nil :type integer)
    (row-span nil :type integer)
    (word-wrap :type boolean)

@@ -7,21 +7,21 @@
 ;;;;;;
 ;;; Header
 
-(def (component ea) header/mixin ()
+(def (component e) header/mixin ()
   ((header :type component*))
   (:documentation "A component with a header component."))
 
 ;;;;;;
 ;;; Footer
 
-(def (component ea) footer/mixin ()
+(def (component e) footer/mixin ()
   ((footer :type component*))
   (:documentation "A component with a footer component."))
 
 ;;;;;;
 ;;; Panel basic
 
-(def (component ea) panel/basic (content/abstract title-bar/mixin visible/mixin collapsible/mixin commands/mixin user-messages/mixin)
+(def (component e) panel/basic (content/abstract title-bar/mixin visibility/mixin collapsible/mixin commands/mixin user-messages/mixin)
   ()
   (:documentation "A panel with a title bar, context menu, user messages, commands and another component inside."))
 

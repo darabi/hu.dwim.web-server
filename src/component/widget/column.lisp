@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Columns mixin
 
-(def (component ea) columns/mixin ()
+(def (component e) columns/mixin ()
   ((columns :type components)))
 
 (def (layered-function e) render-columns (component)
@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; Column headers mixin
 
-(def (component ea) column-headers/mixin ()
+(def (component e) column-headers/mixin ()
   ((column-headers :type components)))
 
 (def (layered-function e) render-column-headers (component)
@@ -27,13 +27,13 @@
 ;;;;;;
 ;;; Column header abstract
 
-(def (component ea) column-header/abstract ()
+(def (component e) column-header/abstract ()
   ((cell-factory :type (or null function))))
 
 ;;;;;;
 ;;; Column header basic
 
-(def (component ea) column-header/basic (column-header/abstract content/mixin)
+(def (component e) column-header/basic (column-header/abstract content/mixin)
   ())
 
 (def (macro e) column ((&rest args &key &allow-other-keys) &body content)
@@ -49,7 +49,7 @@
 ;;;;;;
 ;;; Column abstract
 
-(def (component ea) column/abstract ()
+(def (component e) column/abstract ()
   ())
 
 (def method supports-debug-component-hierarchy? ((self column/abstract))
@@ -59,12 +59,12 @@
 ;;; Column basic
 
 ;; TODO:
-(def (component ea) column/basic (column/abstract style/abstract cells/mixin)
+(def (component e) column/basic (column/abstract style/abstract cells/mixin)
   ())
 
 ;;;;;;
 ;;; Entire column basic
 
 ;; TODO:
-(def (component ea) entire-column/basic (column/abstract style/abstract content/mixin)
+(def (component e) entire-column/basic (column/abstract style/abstract content/mixin)
   ())

@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Function inspector
 
-(def component function/inspector ()
+(def (component e) function/inspector ()
   ())

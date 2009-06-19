@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Primitive inspector
 
-(def (component ea) primitive-inspector (primitive/abstract inspector/abstract editable/mixin)
+(def (component e) primitive-inspector (primitive/abstract inspector/abstract editable/mixin)
   ())
 
 (def render-xhtml :before primitive-inspector
@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; T inspector
 
-(def (component ea) t-inspector (t/abstract primitive-inspector)
+(def (component e) t-inspector (t/abstract primitive-inspector)
   ())
 
 (def render-xhtml t-inspector
@@ -28,7 +28,7 @@
 ;;;;;;
 ;;; Boolean inspector
 
-(def (component ea) boolean-inspector (boolean/abstract primitive-inspector)
+(def (component e) boolean-inspector (boolean/abstract primitive-inspector)
   ())
 
 (def render-xhtml boolean-inspector
@@ -62,7 +62,7 @@
 ;;;;;;
 ;;; String inspector
 
-(def (component ea) string-inspector (string/abstract primitive-inspector)
+(def (component e) string-inspector (string/abstract primitive-inspector)
   ())
 
 (def render-xhtml string-inspector
@@ -74,7 +74,7 @@
 ;;;;;;
 ;;; Password inspector
 
-(def (component ea) password-inspector (password/abstract string-inspector)
+(def (component e) password-inspector (password/abstract string-inspector)
   ())
 
 (def method print-component-value ((component password-inspector))
@@ -85,13 +85,13 @@
 ;;;;;;
 ;;; Symbol inspector
 
-(def (component ea) symbol-inspector (symbol/abstract string-inspector)
+(def (component e) symbol-inspector (symbol/abstract string-inspector)
   ())
 
 ;;;;;;
 ;;; Number inspector
 
-(def (component ea) number-inspector (number/abstract primitive-inspector)
+(def (component e) number-inspector (number/abstract primitive-inspector)
   ())
 
 (def render-xhtml number-inspector
@@ -103,19 +103,19 @@
 ;;;;;;
 ;;; Integer inspector
 
-(def (component ea) integer-inspector (integer/abstract number-inspector)
+(def (component e) integer-inspector (integer/abstract number-inspector)
   ())
 
 ;;;;;;
 ;;; Float inspector
 
-(def (component ea) float-inspector (float/abstract number-inspector)
+(def (component e) float-inspector (float/abstract number-inspector)
   ())
 
 ;;;;;;
 ;;; Date inspector
 
-(def (component ea) date-inspector (date/abstract primitive-inspector)
+(def (component e) date-inspector (date/abstract primitive-inspector)
   ())
 
 (def render-xhtml date-inspector
@@ -126,7 +126,7 @@
 ;;;;;;
 ;;; Time inspector
 
-(def (component ea) time-inspector (time/abstract primitive-inspector)
+(def (component e) time-inspector (time/abstract primitive-inspector)
   ())
 
 (def render-xhtml time-inspector
@@ -137,7 +137,7 @@
 ;;;;;;
 ;;; Timestamp inspector
 
-(def (component ea) timestamp-inspector (timestamp/abstract primitive-inspector)
+(def (component e) timestamp-inspector (timestamp/abstract primitive-inspector)
   ())
 
 (def render-xhtml timestamp-inspector
@@ -148,7 +148,7 @@
 ;;;;;;
 ;;; Member inspector
 
-(def (component ea) member-inspector (member/abstract primitive-inspector)
+(def (component e) member-inspector (member/abstract primitive-inspector)
   ())
 
 (def render-xhtml member-inspector
@@ -162,7 +162,7 @@
 ;;;;;;
 ;;; HTML inspector
 
-(def (component ea) html-inspector (html/abstract primitive-inspector)
+(def (component e) html-inspector (html/abstract primitive-inspector)
   ())
 
 (def render-xhtml html-inspector
@@ -173,7 +173,7 @@
 ;;;;;;
 ;;; IP address inspector
 
-(def (component ea) ip-address-inspector (ip-address/abstract primitive-inspector)
+(def (component e) ip-address-inspector (ip-address/abstract primitive-inspector)
   ())
 
 (def method print-component-value ((self ip-address-inspector))
@@ -195,14 +195,14 @@
 ;;;;;;
 ;;; File inspector
 
-(def (component ea) file-inspector (file/abstract primitive-inspector)
+(def (component e) file-inspector (file/abstract primitive-inspector)
   ((upload-command :type component)
    (download-command :type component)
    (directory "/tmp/")
    (file-name)
    (url-prefix "static/")))
 
-(def refresh file-inspector
+(def refresh-component file-inspector
   (bind (((:slots upload-command download-command directory file-name url-prefix) -self-)
          ((:values class instance slot) (extract-primitive-component-place -self-)))
     (setf upload-command (command ()

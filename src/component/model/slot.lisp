@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard slot definition mixin
 
-(def (component ea) standard-slot-definition/mixin ()
+(def (component e) standard-slot-definition/mixin ()
   ((slot
     nil
     :type (or null standard-slot-definition)
@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; Standard slot definition abstract
 
-(def (component ea) standard-slot-definition/abstract (standard-slot-definition/mixin standard-class/mixin)
+(def (component e) standard-slot-definition/abstract (standard-slot-definition/mixin standard-class/mixin)
   ()
   (:documentation "A component with a STANDARD-SLOT-DEFINITION component value and the corresponding STANDARD-CLASS."))
 
@@ -27,14 +27,14 @@
 (def method (setf component-value-of) (new-value (self standard-slot-definition/abstract))
   (setf (slot-of self) new-value))
 
-(def layered-method clone-component ((self standard-slot-definition/abstract))
+(def method clone-component ((self standard-slot-definition/abstract))
   (prog1-bind clone (call-next-method)
     (setf (the-class-of clone) (the-class-of self))))
 
 ;;;;;;
 ;;; Standard slot definition list mixin
 
-(def (component ea) standard-slot-definition-list/mixin ()
+(def (component e) standard-slot-definition-list/mixin ()
   ((the-class nil :type (or null standard-class))
    (slots nil :type list))
   (:documentation "A component with a LIST of STANDARD-SLOT-DEFINITION instances as component value and the corresponding STANDARD-CLASS."))
@@ -45,14 +45,14 @@
 (def method (setf component-value-of) (new-value (component standard-slot-definition-list/mixin))
   (setf (slots-of component) new-value))
 
-(def layered-method clone-component ((self standard-slot-definition-list/mixin))
+(def method clone-component ((self standard-slot-definition-list/mixin))
   (prog1-bind clone (call-next-method)
     (setf (the-class-of clone) (the-class-of self))))
 
 ;;;;;;
 ;;; Standard slot definition table inspector
 
-(def (component ea) standard-slot-definition/table/inspector (standard-slot-definition-list/mixin row-based-table/full)
+(def (component e) standard-slot-definition/table/inspector (standard-slot-definition-list/mixin row-based-table/full)
   ((columns
     (list
      (column #"Column.name")
@@ -61,7 +61,7 @@
      (column #"Column.writers"))))
   (:documentation "Component for a list of STANDARD-SLOT-DEFINITIONs instances as a table"))
 
-(def refresh standard-slot-definition/table/inspector
+(def refresh-component standard-slot-definition/table/inspector
   (bind (((:slots slots columns rows) -self-))
     (setf rows
           (iter (for slot :in slots)
@@ -74,14 +74,14 @@
 ;;;;;;
 ;;; Standard slot definition row
 
-(def (component ea) standard-slot-definition/row/inspector (standard-slot-definition/abstract row/basic)
+(def (component e) standard-slot-definition/row/inspector (standard-slot-definition/abstract row/basic)
   ((label nil :type component)
    (the-type nil :type component)
    (readers nil :type component)
    (writers nil :type component))
   (:documentation "Component for a STANDARD-SLOT-DEFINITION as a table row"))
 
-(def refresh standard-slot-definition/row/inspector
+(def refresh-component standard-slot-definition/row/inspector
   (bind (((:slots slot label the-type readers writers cells) -self-))
     (if slot
         (setf label (qualified-symbol-name (slot-definition-name slot))
@@ -99,7 +99,7 @@
 ;;; Standard slot definition
 
 ;; TODO: fill in stuff
-(def (component ea) standard-slot-definition/inspector (standard-slot-definition/abstract alternator/basic)
+(def (component e) standard-slot-definition/inspector (standard-slot-definition/abstract alternator/basic)
   ()
   (:documentation "Component for an instance of STANDARD-SLOT-DEFINITION in various alternative views"))
 
@@ -111,6 +111,6 @@
 ;;; Standard slot definition detail
 
 ;; TODO: fill in stuff
-(def (component ea) standard-slot-definition/detail/inspector (standard-slot-definition/abstract detail/abstract)
+(def (component e) standard-slot-definition/detail/inspector (standard-slot-definition/abstract detail/abstract)
   ()
   (:documentation "Component for an instance of STANDARD-SLOT-DEFINITION in detail"))

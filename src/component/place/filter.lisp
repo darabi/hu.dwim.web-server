@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Place filter
 
-(def (component ea) place-filter (place-component filter/abstract)
+(def (component e) place-filter (place-component filter/abstract)
   ((name nil)
    (the-type)
    (use-in-filter #f :type boolean)
@@ -121,83 +121,21 @@
   (render-use-in-filter-marker -self-)
   <td ,(call-next-method)>)
 
+;;;;;;
+;;; Icon
 
-(def icon equal)
-(def resources hu
-  (icon-label.equal "Egyenlő")
-  (icon-tooltip.equal "Ellenőrzes egyenlőségre"))
-(def resources en
-  (icon-label.equal "Equal")
-  (icon-tooltip.equal "Compare for equality"))
+(def (icon e) equal)
 
-(def icon like)
-(def resources hu
-  (icon-label.like "Hasonló")
-  (icon-tooltip.like "Ellenőrzes hasonlóságra"))
-(def resources en
-  (icon-label.like "Like")
-  (icon-tooltip.like "Compare for like"))
+(def (icon e) like)
 
-(def icon <)
-(def resources hu
-  (icon-label.< "Kisebb")
-  (icon-tooltip.< "Ellenőrzes kisebbre"))
-(def resources en
-  (icon-label.< "Less")
-  (icon-tooltip.< "Compare for less then"))
+(def (icon e) <)
 
-(def icon <=)
-(def resources hu
-  (icon-label.<= "Kisebb vagy egyenlő")
-  (icon-tooltip.<= "Ellenőrzes kisebbre vagy egyenlőre"))
-(def resources en
-  (icon-label.<= "Less or equal")
-  (icon-tooltip.<= "Compare for less than or equal"))
+(def (icon e) <=)
 
-(def icon >)
-(def resources hu
-  (icon-label.> "Nagyobb")
-  (icon-tooltip.> "Ellenőrzes nagyobbra"))
-(def resources en
-  (icon-label.> "Greater")
-  (icon-tooltip.> "Compare for greater then"))
+(def (icon e) >)
 
-(def icon >=)
-(def resources hu
-  (icon-label.>= "Nagyobb vagy egyenlő")
-  (icon-tooltip.>= "Ellenőrzes nagyobb vagy egyenlőre"))
-(def resources en
-  (icon-label.>= "Greater or equal")
-  (icon-tooltip.>= "Compare for greater than or equal"))
+(def (icon e) >=)
 
-(def icon negated)
-(def resources hu
-  (icon-label.negated "Negált")
-  (icon-tooltip.negated "Negált feltétel"))
-(def resources en
-  (icon-label.negated "Negated")
-  (icon-tooltip.negated "Negate condition"))
+(def (icon e) negated)
 
-(def icon ponated)
-(def resources hu
-  (icon-label.ponated "Ponált")
-  (icon-tooltip.ponated "Ponált feltétel"))
-(def resources en
-  (icon-label.ponated "Ponated")
-  (icon-tooltip.ponated "Ponate condition"))
-
-(def resources hu
-  (predicate.= "Egyenlő")
-  (predicate.~ "Hasonló")
-  (predicate.< "Kisebb")
-  (predicate.≤ "Kisebb vagy egyenlő")
-  (predicate.> "Nagyobb")
-  (predicate.≥ "Nagyobb vagy egyenlő"))
-
-(def resources en
-  (predicate.= "Equal")
-  (predicate.~ "Like")
-  (predicate.< "Smaller than")
-  (predicate.≤ "Smaller than or equal")
-  (predicate.> "Greater than")
-  (predicate.≥ "Greater than or equal"))
+(def (icon e) ponated)

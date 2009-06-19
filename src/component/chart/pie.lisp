@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Pie chart
 
-(def (component ea) pie-chart (chart)
+(def (component e) pie-chart (chart)
   ())
 
 (def render-xhtml pie-chart

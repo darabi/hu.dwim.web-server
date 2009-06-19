@@ -7,11 +7,11 @@
 ;;;;;;
 ;;; Draggable mixin
 
-(def (component ea) draggable/mixin ()
+(def (component e) draggable/mixin ()
   ())
 
 ;;;;;;
 ;;; Drag place mixin
 
-(def (component ea) drag-place/mixin ()
+(def (component e) drag-place/mixin ()
   ())

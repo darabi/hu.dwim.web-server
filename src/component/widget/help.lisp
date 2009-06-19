@@ -9,9 +9,9 @@
 
 (def (constant :test #'string=) +context-sensitive-help-parameter-name+ "_hlp")
 
-(def icon help :tooltip nil)
+(def (icon e) help :tooltip nil)
 
-(def (component ea) context-sensitive-help (content/mixin id/mixin)
+(def (component e) context-sensitive-help (content/mixin id/mixin)
   ()
   (:default-initargs :content (icon help)))
 
@@ -55,7 +55,7 @@
 ;;;;;;
 ;;; Context sensitive help popup
 
-(def (component ea) context-sensitive-help-popup (content/mixin)
+(def (component e) context-sensitive-help-popup (content/mixin)
   ())
 
 (def render-xhtml context-sensitive-help-popup

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Closable mixin
 
-(def (component ea) closable/mixin ()
+(def (component e) closable/mixin ()
   ()
   (:documentation "A COMPONENT that is permanently closable."))
 
@@ -18,7 +18,7 @@
   (command ()
     (icon close)
     (make-component-action component
-      (execute-close-component component class prototype value))))
+      (close-component component class prototype value))))
 
-(def layered-method execute-close-component ((component closable/mixin) class prototype value)
+(def layered-method close-component ((component closable/mixin) class prototype value)
   (remove-place (make-component-place component)))

@@ -37,16 +37,6 @@
 (def method make-expression-component ((expression (eql 'cl-perec::select)) &rest args)
   (apply #'make-instance 'select-expression-component args))
 
-(def resources en
-  (label.select-clause "select")
-  (label.from-clause "from")
-  (label.where-clause "where"))
-
-(def resources hu
-  (label.select-clause "mit")
-  (label.from-clause "honnan")
-  (label.where-clause "mikor"))
-
 ;;;;;;
 ;;; Generic filter
 

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Header mixin
 
-(def (component ea) header/mixin (title/mixin context-menu/mixin expandible/mixin visible/mixin)
+(def (component e) header/mixin (title/mixin context-menu/mixin expandible/mixin visibility/mixin)
   ())
 
 (def (layered-function e) render-header (component)

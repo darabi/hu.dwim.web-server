@@ -7,11 +7,11 @@
 ;;;;;;
 ;;; Generic function
 
-(def component generic-function/inspector ()
+(def (component e) generic-function/inspector ()
   ())
 
 ;;;;;;
 ;;; Generic method
 
-(def component generic-method/inspector ()
+(def (component e) generic-method/inspector ()
   ())

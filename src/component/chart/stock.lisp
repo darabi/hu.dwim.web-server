@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Stock chart
 
-(def (component ea) stock-chart (chart)
+(def (component e) stock-chart (chart)
   ())
 
 (def render-xhtml stock-chart

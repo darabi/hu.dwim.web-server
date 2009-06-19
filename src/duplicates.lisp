@@ -61,6 +61,11 @@ that it creates a fresh binding."
     (setf datum (concatenate-string "Not yet implemented: " datum)))
   (apply #'cerror "Ignore and continue" datum args))
 
+(def function operation-not-supported (&optional (datum "Operation not supported." datum-p) &rest args)
+  (when datum-p
+    (setf datum (concatenate-string "Operation not supported: " datum)))
+  (apply #'error datum args))
+
 (def function map-subclasses (class fn &key proper?)
   "Applies fn to each subclass of class. If proper? is true, then
 the class itself is not included in the mapping. Proper? defaults to nil."

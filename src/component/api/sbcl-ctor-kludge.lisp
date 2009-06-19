@@ -1,10 +1,13 @@
 (in-package :sb-pcl)
 
+;;;;;;
 ;;; KLUDGE: makes possible to use optimized constructors for component-classes
 ;;; KLUDGE: handles only the MOP overrides (setf svuc) :after and initialize-instance :after
 
-;; KLUDGE: copied over from SBCL source and specialized for component-class
-(def function constructor-function-form (ctor)
+;;;;;
+;;; KLUDGE: copied over from SBCL source and specialized for component-class
+
+(defun constructor-function-form (ctor)
   (let* ((class (ctor-class ctor))
          (proto (class-prototype class))
          (make-instance-methods
@@ -34,14 +37,14 @@
           (compute-applicable-methods #'shared-initialize (list proto t)))
          (setf-svuc-slots-methods
           (loop for slot in (class-slots class)
-                collect (compute-applicable-methods
-                         #'(setf slot-value-using-class)
-                         (list nil class proto slot))))
+             collect (compute-applicable-methods
+                      #'(setf slot-value-using-class)
+                      (list nil class proto slot))))
          (sbuc-slots-methods
           (loop for slot in (class-slots class)
-                collect (compute-applicable-methods
-                         #'slot-boundp-using-class
-                         (list class proto slot)))))
+             collect (compute-applicable-methods
+                      #'slot-boundp-using-class
+                      (list class proto slot)))))
     ;; Cannot initialize these variables earlier because the generic
     ;; functions don't exist when PCL is built.
     (when (null *the-system-si-method*)
@@ -86,8 +89,10 @@
         (optimizing-generator ctor ii-methods si-methods)
         (fallback-generator ctor ii-methods si-methods))))
 
-;; KLUDGE: copied over from SBCL source and specialized for component-class
-(def function wrap-in-allocate-forms (ctor body before-method-p)
+;;;;;;
+;;; KLUDGE: copied over from SBCL source and specialized for component-class
+
+(defun wrap-in-allocate-forms (ctor body before-method-p)
   (let* ((class (ctor-class ctor))
          (wrapper (class-wrapper class))
          (allocation-function (raw-instance-allocator class))
@@ -98,7 +103,7 @@
                (.slots. (make-array
                          ,(layout-length wrapper)
                          ,@(when before-method-p
-                             '(:initial-element +slot-unbound+)))))
+                                 '(:initial-element +slot-unbound+)))))
            (setf (std-instance-wrapper .instance.) ,wrapper)
            (setf (std-instance-slots .instance.) .slots.)
            ,body

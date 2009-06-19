@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Movable abstract
 
-(def (component ea) movable/abstract ()
+(def (component e) movable/abstract ()
   ())
 
 (def layered-method make-move-commands ((component movable/abstract) (class standard-class) (prototype standard-object) value)

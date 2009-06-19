@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Wizard
 
-(def (component ea) wizard-component ()
+(def (component e) wizard-component ()
   ((pages nil :type components)
    (page-navigation-bar nil :type component)))
 
@@ -29,7 +29,7 @@
 ;;;;;;
 ;;; Wizard navigation bar
 
-(def (component ea) wizard-navigation-bar-component (page-navigation-bar-component)
+(def (component e) wizard-navigation-bar-component (page-navigation-bar-component)
   ((finish-command :type component)
    (cancel-command :type component)))
 

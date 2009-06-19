@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Extended table
 
-(def (component ea) extended-table-component (id/mixin)
+(def (component e) extended-table-component (id/mixin)
   ((row-headers nil :type components)
    (row-headers-depth :type integer)
    (row-leaf-count :type integer)
@@ -17,7 +17,7 @@
    (header-cell nil :type component)
    (cells nil :type components)))
 
-(def refresh extended-table-component
+(def refresh-component extended-table-component
   (bind (((:slots row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count) -self-))
     (flet ((setf-indices (headers)
              (iter (for index :from 0)
@@ -105,7 +105,7 @@
 ;;;;;;
 ;;; Column header
 
-(def (component ea) table-header-component (content/mixin remote-setup/mixin)
+(def (component e) table-header-component (content/mixin remote-setup/mixin)
   ((children nil :type components)
    (index nil :type integer)))
 

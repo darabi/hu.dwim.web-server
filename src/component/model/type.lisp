@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Type inspector
 
-(def component type/inspector ()
+(def (component e) type/inspector ()
   ())

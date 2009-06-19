@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Enabled mixin
 
-(def (component ea) enabled/mixin ()
+(def (component e) enabled/mixin ()
   ((enabled
     #t
     :type boolean

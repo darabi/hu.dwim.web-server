@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Rows mixin
 
-(def (component ea) rows/mixin ()
+(def (component e) rows/mixin ()
   ((rows :type components)))
 
 (def layered-function render-rows (component)
@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; Row headers mixin
 
-(def (component ea) row-headers/mixin ()
+(def (component e) row-headers/mixin ()
   ((row-headers :type components)))
 
 (def layered-function render-row-headers (component)
@@ -27,13 +27,13 @@
 ;;;;;;
 ;;; Row header abstract
 
-(def (component ea) row-header/abstract ()
+(def (component e) row-header/abstract ()
   ((cell-factory :type (or null function))))
 
 ;;;;;;
 ;;; Row header basic
 
-(def (component ea) row-header/basic (row-header/abstract style/abstract content/mixin)
+(def (component e) row-header/basic (row-header/abstract style/abstract content/mixin)
   ())
 
 (def (macro e) row ((&rest args &key &allow-other-keys) &body content)
@@ -49,7 +49,7 @@
 ;;;;;;
 ;;; Row abstract
 
-(def (component ea) row/abstract ()
+(def (component e) row/abstract ()
   ())
 
 (def method supports-debug-component-hierarchy? ((self row/abstract))
@@ -58,7 +58,7 @@
 ;;;;;;
 ;;; Row basic
 
-(def (component ea) row/basic (row/abstract style/abstract cells/mixin)
+(def (component e) row/basic (row/abstract style/abstract cells/mixin)
   ())
 
 (def render-xhtml row/basic
@@ -86,7 +86,7 @@
 (def (layered-function e) render-table-row (table row)
   (:method :around ((table table/mixin) (row row/basic))
     (ensure-refreshed row)
-    (when (visible? row)
+    (when (visible-component? row)
       (call-next-method)))
 
   (:method :in xhtml-layer ((table table/mixin) (row row/basic))
@@ -106,13 +106,13 @@
   (:method ((table table/mixin) (row row/basic))
     (iter (for cell :in-sequence (cells-of row))
           (for column :in-sequence (columns-of table))
-          (when (visible? column)
+          (when (visible-component? column)
             (render-cells table row column cell)))))
 
 ;;;;;;
 ;;; Entire row basic
 
-(def (component ea) entire-row/basic (row/abstract style/abstract content/mixin)
+(def (component e) entire-row/basic (row/abstract style/abstract content/mixin)
   ())
 
 (def layered-method render-table-row ((table table/mixin) (row entire-row/basic))

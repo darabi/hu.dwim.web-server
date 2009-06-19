@@ -131,6 +131,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +xml-mime-type+        "text/xml"
    +svg-xml-mime-type+    "image/svg+xml"
    +css-mime-type+        "text/css"
+   +text-mime-type+       "text/plain"
    +csv-mime-type+        "text/csv"
    +pdf-mime-type+        "application/pdf"
    +odt-mime-type+        "application/vnd.oasis.opendocument.text"

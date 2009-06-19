@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Glossary basic
 
-(def component glossary/basic ()
+(def (component e) glossary/basic ()
   ())

@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard class mixin
 
-(def (component ea) standard-class/mixin ()
+(def (component e) standard-class/mixin ()
   ((the-class
     nil
     :type (or null standard-class)
@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; Standard class abstract
 
-(def (component ea) standard-class/abstract (dispatch-class/abstract standard-class/mixin)
+(def (component e) standard-class/abstract (dispatch-class/abstract standard-class/mixin)
   ()
   (:documentation "A component with a STANDARD-CLASS component value."))
 
@@ -33,7 +33,7 @@
 ;;;;;;
 ;;; Standard class inspector
 
-(def (component ea) standard-class/inspector (standard-class/mixin alternator/basic)
+(def (component e) standard-class/inspector (standard-class/mixin alternator/basic)
   ()
   (:documentation "Component for an instance of STANDARD-CLASS in various alternative views"))
 
@@ -44,7 +44,7 @@
 ;;;;;;
 ;;; Standard class detail inspector
 
-(def (component ea) standard-class/detail/inspector (detail/abstract standard-class/mixin)
+(def (component e) standard-class/detail/inspector (detail/abstract standard-class/mixin)
   ((metaclass nil :type component)
    (direct-subclasses nil :type component)
    (direct-superclasses nil :type component)
@@ -52,7 +52,7 @@
    (effective-slots nil :type component))
   (:documentation "Component for an instance of STANDARD-CLASS in detail"))
 
-(def refresh standard-class/detail/inspector
+(def refresh-component standard-class/detail/inspector
   (bind (((:slots the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-))
     (if the-class
         (progn

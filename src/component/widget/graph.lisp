@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Graph basic
 
-(def component graph/basic ()
+(def (component e) graph/basic ()
   ())
 
 ;; TODO: copy it over from cl-perec/integration

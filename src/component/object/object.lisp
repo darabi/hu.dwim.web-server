@@ -17,7 +17,7 @@
 ;;;;;;
 ;;; Standard object mixin
 
-(def (component ea) standard-object/mixin ()
+(def (component e) standard-object/mixin ()
   ((instance
     nil
     :type (or null standard-object)
@@ -55,14 +55,14 @@
 ;;;;;;
 ;;; Abstract standard object slot value component
 
-(def (component ea) standard-object-slot/mixin (standard-slot-definition/mixin standard-object/mixin)
+(def (component e) standard-object-slot/mixin (standard-slot-definition/mixin standard-object/mixin)
   ()
   (:documentation "A component with a STANDARD-SLOT-DEFINITION component value and a STANDARD-OBJECT instance."))
 
 ;;;;;;
 ;;; Standard object list mixin
 
-(def (component ea) standard-object-list/mixin ()
+(def (component e) standard-object-list/mixin ()
   ((instances nil :type list))
   (:documentation "A component with a LIST of STANDARD-OBJECT instances as component value."))
 
@@ -82,7 +82,7 @@
 ;;;;;;
 ;;; Standard object tree mixin
 
-(def (component ea) standard-object-tree/mixin (standard-object-list/mixin standard-class/mixin)
+(def (component e) standard-object-tree/mixin (standard-object-list/mixin standard-class/mixin)
   ((parent-provider nil :type (or symbol function))
    (children-provider nil :type (or symbol function)))
   (:documentation "A component with a TREE of STANDARD-OBJECT instances as component value."))
@@ -91,7 +91,7 @@
   (when instance?
     (setf (instances-of -self-) (list instance))))
 
-(def layered-method clone-component ((self standard-object-tree/mixin))
+(def method clone-component ((self standard-object-tree/mixin))
   (prog1-bind clone (call-next-method)
     (setf (parent-provider-of clone) (parent-provider-of self))
     (setf (children-provider-of clone) (children-provider-of self))))
@@ -100,7 +100,7 @@
 ;;; Abstract standard object node component
 
 ;; TODO: tree, tree-node and table, table-row or tree, node and table, row
-(def (component ea) abstract-standard-object-node-component (standard-object/mixin standard-class/mixin)
+(def (component e) abstract-standard-object-node-component (standard-object/mixin standard-class/mixin)
   ((parent-provider nil :type (or symbol function))
    (children-provider nil :type (or symbol function)))
   (:documentation "A component with a TREE of STANDARD-OBJECT instances as component value."))
@@ -108,7 +108,7 @@
 ;;;;;;
 ;;; Abstract selectable standard object component
 
-(def (component ea) abstract-selectable-standard-object-component ()
+(def (component e) abstract-selectable-standard-object-component ()
   ((selected-instance-set (compute-as (or -current-value- (make-hash-table :test #'eql))) :type (or null hash-table))
    (minimum-selection-cardinality 0 :type fixnum)
    (maximum-selection-cardinality 1 :type fixnum)))
@@ -168,14 +168,14 @@
 ;;;;;
 ;;; Standard object detail component
 
-(def (component ea) standard-object-detail-component (detail-component id/mixin)
+(def (component e) standard-object-detail-component (detail-component id/mixin)
   ((slot-value-groups nil :type components)))
 
 (def (layered-function e) collect-standard-object-detail-slot-groups (component class prototype slots)
   (:method ((component standard-object-detail-component) (class standard-class) (prototype standard-object) (slots list))
     (list (cons #"standard-object-detail-component.primary-group" slots))))
 
-(def render standard-object-detail-component
+(def render-component standard-object-detail-component
   (foreach #'render-component (slot-value-groups-of -self-)))
 
 (def function find-slot-value-group-component (slot-group slot-value-groups)
@@ -187,22 +187,10 @@
                        slot-group-1
                        slot-group-2))))
 
-(def resources hu
-  (class-name.standard-object "objektum")
-
-  (standard-object-detail-component.primary-group "Elsődleges tulajdonságok")
-  (standard-object-detail-component.secondary-group "Egyéb tulajdonságok"))
-
-(def resources en
-  (class-name.standard-object "object")
-
-  (standard-object-detail-component.primary-group "Primary properties")
-  (standard-object-detail-component.secondary-group "Other properties"))
-
 ;;;;;;
 ;;; Standard object slot value group component
 
-(def (component ea) standard-object-slot-value-group-component (standard-slot-definition-list/mixin id/mixin)
+(def (component e) standard-object-slot-value-group-component (standard-slot-definition-list/mixin id/mixin)
   ((name nil :type component)
    (slot-values nil :type components)))
 
@@ -221,7 +209,7 @@
           <tbody ,(foreach #'render-component slot-values)>)
         <span (:id ,id) ,#"there-are-none">)))
 
-(def render standard-object-slot-value-group-component
+(def render-component standard-object-slot-value-group-component
   (foreach #'render-component (slot-values-of -self-)))
 
 (def function find-slot-value-component (slot slot-values)
@@ -229,16 +217,10 @@
         :key (lambda (slot-value)
                (slot-definition-name (slot-of slot-value)))))
 
-(def resources hu
-  (standard-object-slot-value-group.there-are-no-slots "Nincs egy tulajdonság sem"))
-
-(def resources en
-  (standard-object-slot-value-group.there-are-no-slots "There are no properties"))
-
 ;;;;;;
 ;;; Standard object slot value inspector
 
-(def (component ea) standard-object-slot-value/inspector (standard-object-slot/mixin user-messages/mixin id/mixin)
+(def (component e) standard-object-slot-value/inspector (standard-object-slot/mixin user-messages/mixin id/mixin)
   ((label nil :type component)
    (value nil :type component)))
 
@@ -259,7 +241,7 @@
 ;;;;;;
 ;;; Standard class selector
 
-(def (component ea) standard-class/selector (member/inspector)
+(def (component e) standard-class/selector (member/inspector)
   ()
   (:default-initargs :edited #t :client-name-generator [localized-class-name !2]))
 
@@ -271,14 +253,14 @@
 
 (def render-xhtml standard-class/selector
   (if (edited? -self-)
-      (bind ((href (register-action/href (make-action (mark-to-be-refreshed (parent-component-of -self-))))))
+      (bind ((href (register-action/href (make-action (mark-component-to-be-refreshed (parent-component-of -self-))))))
         (render-member-component -self- :on-change `js-inline(wui.io.action ,href :ajax #f)))
       (call-next-method)))
 
 ;;;;;;
 ;;; Standard slot definition selector
 
-(def (component ea) standard-slot-definition/selector (member/inspector)
+(def (component e) standard-slot-definition/selector (member/inspector)
   ()
   (:default-initargs :edited #t :client-name-generator [if !2
                                                            (localized-slot-name !2)

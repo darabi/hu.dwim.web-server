@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object tree inspector
 
-(def (component ea) standard-object-tree-inspector (standard-object-tree/mixin
+(def (component e) standard-object-tree-inspector (standard-object-tree/mixin
                                                     inspector/abstract
                                                     alternator/basic
                                                     editable/mixin
@@ -44,7 +44,7 @@
 ;;;;;;
 ;;; Standard object tree table inspector
 
-(def (component ea) standard-object-tree-table-inspector (standard-object-tree/mixin
+(def (component e) standard-object-tree-table-inspector (standard-object-tree/mixin
                                                         inspector/abstract
                                                         tree/basic
                                                         editable/mixin
@@ -53,7 +53,7 @@
   (:default-initargs :expander-column-index 1))
 
 ;; TODO: factor out common parts with standard-object-list-table-inspector
-(def refresh standard-object-tree-table-inspector
+(def refresh-component standard-object-tree-table-inspector
   (bind (((:slots instances the-class root-nodes columns) -self-))
     (setf columns (make-standard-object-tree-table-inspector-columns -self-))
     (if root-nodes
@@ -127,7 +127,7 @@
 ;;;;;;
 ;;; Standard object node inspector
 
-(def (component ea) standard-object-tree-node-inspector (abstract-standard-object-node-component
+(def (component e) standard-object-tree-node-inspector (abstract-standard-object-node-component
                                                        inspector/abstract
                                                        node/basic
                                                        editable/mixin
@@ -135,7 +135,7 @@
                                                        commands/mixin)
   ())
 
-(def refresh standard-object-tree-node-inspector
+(def refresh-component standard-object-tree-node-inspector
   (bind (((:slots children-provider instance command-bar child-nodes cells) -self-))
     (if instance
         (setf child-nodes (sort-child-nodes -self-
@@ -192,14 +192,14 @@
 ;;;;;;
 ;;; Standadr object tree level inspector
 
-(def (component ea) standard-object-tree-level-inspector (standard-object-tree/mixin
+(def (component e) standard-object-tree-level-inspector (standard-object-tree/mixin
                                                         inspector/abstract)
   ((current-instance nil)
    (path nil :type component)
    (children nil :type component)
    (level nil :type component)))
 
-(def refresh standard-object-tree-level-inspector
+(def refresh-component standard-object-tree-level-inspector
   (bind (((:slots current-instance path children level instance) -self-))
     (unless current-instance
       (setf current-instance instance))
@@ -229,7 +229,7 @@
                                                                          (icon expand)
                                                                          (make-action
                                                                            (setf (current-instance-of component) instance)
-                                                                           (mark-to-be-refreshed component))))))))
+                                                                           (mark-component-to-be-refreshed component))))))))
 
 (def (generic e) make-standard-object-tree-level (component class instance)
   (:method ((component standard-object-tree-level-inspector) (class standard-class) (instance standard-object))
@@ -251,11 +251,11 @@
 ;;;;;;
 ;;; Standadr object tree path inspector
 
-(def (component ea) standard-object-tree-path-inspector (standard-object-list/mixin
+(def (component e) standard-object-tree-path-inspector (standard-object-list/mixin
                                                        inspector/abstract)
   ((segments nil :type components)))
 
-(def refresh standard-object-tree-path-inspector
+(def refresh-component standard-object-tree-path-inspector
   (bind (((:slots segments instances) -self-))
     (setf segments (mapcar #'localized-instance-reference-string instances))))
 
@@ -276,7 +276,7 @@
 
 (def special-variable *standard-object-tree-level* 0)
 
-(def (component ea) standard-object-tree-nested-box-inspector (standard-object-tree/mixin
+(def (component e) standard-object-tree-nested-box-inspector (standard-object-tree/mixin
                                                              inspector/abstract)
   ())
 
@@ -312,7 +312,7 @@
 ;;;;;
 ;;; Selectable standard object tree inspector
 
-(def (component ea) selectable-standard-object-tree-inspector (standard-object-tree-inspector)
+(def (component e) selectable-standard-object-tree-inspector (standard-object-tree-inspector)
   ())
 
 (def method selected-instance-of ((self selectable-standard-object-tree-inspector))
@@ -334,7 +334,7 @@
 ;;;;;;
 ;;; Selectable standard object tree table inspector
 
-(def (component ea) selectable-standard-object-tree-table-inspector (standard-object-tree-table-inspector abstract-selectable-standard-object-component)
+(def (component e) selectable-standard-object-tree-table-inspector (standard-object-tree-table-inspector abstract-selectable-standard-object-component)
   ())
 
 (def layered-method make-standard-object-tree-table-node ((component selectable-standard-object-tree-table-inspector) (class standard-class) (instance standard-object))
@@ -346,7 +346,7 @@
 ;;;;;;
 ;;; Selectable standard object tree node inspector
 
-(def (component ea) selectable-standard-object-tree-node-inspector (standard-object-tree-node-inspector)
+(def (component e) selectable-standard-object-tree-node-inspector (standard-object-tree-node-inspector)
   ())
 
 (def (layered-function e) selected-component-p (component)
@@ -354,7 +354,7 @@
     (selected-instance-p (find-ancestor-component-with-type self 'abstract-selectable-standard-object-component) (instance-of self))))
 
 #+nil ; TODO delme, valahogy mashogy kene ezt...
-(def refresh selectable-standard-object-tree-node-inspector
+(def refresh-component selectable-standard-object-tree-node-inspector
   (when (and (find-command -self- 'select)
              (instance-of -self-))
     (when-bind selectable-ancestor (find-ancestor-component-with-type -self- 'abstract-selectable-standard-object-component)

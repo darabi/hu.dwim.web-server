@@ -5,33 +5,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Handle conditions in AJAX requests
+;;; Internal server error message
 
-(def function maybe-invoke-slime-debugger/application (condition &key (context (or (and (boundp '*session*)
-                                                                                        *session*)
-                                                                                   (and (boundp '*application*)
-                                                                                        *application*)
-                                                                                   (and (boundp '*brokers*)
-                                                                                        (first *brokers*))))
-                                                                 (with-continue-restart #t))
-  (maybe-invoke-slime-debugger condition :context context :with-continue-restart with-continue-restart))
-
-(def method handle-toplevel-condition :around (condition (application application))
-  (if (and (boundp '*ajax-aware-request*)
-           *ajax-aware-request*)
-      (progn
-        (maybe-invoke-slime-debugger/application condition)
-        (emit-http-response ((+header/status+       +http-not-acceptable+
-                              +header/content-type+ +xml-mime-type+))
-          <ajax-response
-           <error-message ,#"error-message-for-ajax-requests">
-           <result "failure">>))
-      (call-next-method)))
-
-;;;;;;
-;;; internal server error for applications
-
-(def component internal-error-message-component (content-component)
+(def (component e) internal-error-message-component (content-component)
   ((rendering-phase-reached :type boolean))
   (:default-initargs :title #"error.internal-server-error.title" :id "internal-error"))
 
@@ -70,7 +46,7 @@
                                       :content (inline-render
                                                  (apply-resource-function 'render-application-internal-error-page
                                                                           (list :admin-email-address (admin-email-address-of application)))))
-                     (add-user-error it #"error.internal-server-error.message"))))))
+                     (add-component-error-message it #"error.internal-server-error.message"))))))
               (server.info "Internal server error for request ~S to application ~A and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri application)))
         (abort-server-request error))
       (call-next-method)))

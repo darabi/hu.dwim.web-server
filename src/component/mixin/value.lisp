@@ -5,25 +5,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component value basic
-
-(def (component ea) component-value/basic (cloneable/mixin)
-  ())
-
-(def layered-method clone-component :around ((self component-value/basic))
-  ;; this must be done at the very last, after all primary method customization
-  (prog1-bind clone (call-next-method)
-    (setf (component-value-of clone) (component-value-of self))))
-
-;;;;;;
 ;;; Component value mixin
 
-(def (component ea) component-value/mixin ()
+(def (component e) component-value/mixin ()
   ((component-value
     :type t
     :computed-in compute-as
-    :documentation "The current value displayed by this component."))
-  (:documentation "A component that displays a single value."))
+    :documentation "The current COMPONENT-VALUE that is handled by this COMPONENT."))
+  (:documentation "A COMPONENT that handles a single COMPONENT-VALUE."))
 
 (def method component-value-of ((component component-value/mixin))
   (slot-value component 'component-value))

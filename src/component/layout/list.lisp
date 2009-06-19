@@ -7,19 +7,19 @@
 ;;;;;;;;
 ;;; Orientation mixin
 
-(def (component ea) orientation/mixin ()
+(def (component e) orientation/mixin ()
   ((orientation :vertical :type (member :vertical :horizontal))))
 
 ;;;;;;;;
 ;;; List abstract
 
-(def (component ea) list/abstract (container/abstract orientation/mixin)
+(def (component e) list/abstract (container/abstract orientation/mixin)
   ())
 
 ;;;;;;;;
 ;;; List basic
 
-(def (component ea) list/basic (container/basic style/abstract)
+(def (component e) list/basic (container/basic style/abstract)
   ((orientation :vertical :type (member :vertical :horizontal))))
 
 (def function render-list (orientation contents &key id css-class style)
@@ -32,11 +32,11 @@
           :style ,style)
     <tbody ,@(ecase orientation
                     (:vertical (mapcar (lambda (element)
-                                         (when (visible? element)
+                                         (when (visible-component? element)
                                            <tr <td ,(render-component element)>>))
                                        contents))
                     (:horizontal (list <tr ,(foreach (lambda (element)
-                                                       (when (visible? element)
+                                                       (when (visible-component? element)
                                                          <td ,(render-component element)>))
                                                      contents)>)))>>)
 
@@ -50,13 +50,13 @@
   (bind (((:read-only-slots orientation contents id css-class style) -self-))
     (render-list orientation contents :id id :css-class css-class :style style)))
 
-(def refresh list/basic
-  (foreach #'mark-to-be-refreshed (contents-of -self-)))
+(def refresh-component list/basic
+  (foreach #'mark-component-to-be-refreshed (contents-of -self-)))
 
 ;;;;;;
 ;;; Horizontal list basic
 
-(def (component ea) horizontal-list/basic (list/basic)
+(def (component e) horizontal-list/basic (list/basic)
   ()
   (:default-initargs :orientation :horizontal))
 
@@ -69,7 +69,7 @@
 ;;;;;;
 ;;; Vertical list basic
 
-(def (component ea) vertical-list/basic (list/basic)
+(def (component e) vertical-list/basic (list/basic)
   ()
   (:default-initargs :orientation :vertical))
 

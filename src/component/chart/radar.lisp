@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Radar chart
 
-(def (component ea) radar-chart (chart)
+(def (component e) radar-chart (chart)
   ())
 
 (def render-xhtml radar-chart

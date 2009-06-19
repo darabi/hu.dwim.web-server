@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Column chart
 
-(def (component ea) column-chart (chart)
+(def (component e) column-chart (chart)
   ())
 
 (def render-xhtml column-chart

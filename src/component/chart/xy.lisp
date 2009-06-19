@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Xy chart
 
-(def (component ea) xy-chart (chart)
+(def (component e) xy-chart (chart)
   ())
 
 (def render-xhtml xy-chart

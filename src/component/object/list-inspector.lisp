@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object list inspector
 
-(def (component ea) standard-object-list-inspector (standard-object-list/mixin
+(def (component e) standard-object-list-inspector (standard-object-list/mixin
                                                   standard-class/mixin
                                                   inspector/abstract
                                                   editable/mixin
@@ -53,7 +53,7 @@
 ;;;;;;
 ;;; Standard object list list inspector
 
-(def (component ea) standard-object-list-list-inspector (standard-object-list/mixin
+(def (component e) standard-object-list-list-inspector (standard-object-list/mixin
                                                        standard-class/mixin
                                                        inspector/abstract
                                                        list-component
@@ -62,7 +62,7 @@
     #'make-standard-object-list-component
     :type (or symbol function))))
 
-(def refresh standard-object-list-list-inspector
+(def refresh-component standard-object-list-list-inspector
   (bind (((:slots instances the-class components) -self-))
     (setf components
           (iter (for instance :in instances)
@@ -79,7 +79,7 @@
 ;;;;;;
 ;;; Standard object table inspector
 
-(def (component ea) standard-object-list-table-inspector (standard-object-list/mixin
+(def (component e) standard-object-list-table-inspector (standard-object-list/mixin
                                                         standard-class/mixin
                                                         inspector/abstract
                                                         table-component
@@ -87,7 +87,7 @@
   ()
   (:default-initargs :the-class (find-class 'standard-object)))
 
-(def refresh standard-object-list-table-inspector
+(def refresh-component standard-object-list-table-inspector
   (bind (((:slots instances the-class columns rows page-navigation-bar) -self-))
     (awhen (inherited-initarg -self- :page-size)
       (setf (page-size-of page-navigation-bar) it))
@@ -157,7 +157,7 @@
 ;;;;;;
 ;;; Standard object row inspector
 
-(def (component ea) standard-object-row-inspector (standard-object/mixin
+(def (component e) standard-object-row-inspector (standard-object/mixin
                                                  inspector/abstract
                                                  editable/mixin
                                                  row-component
@@ -169,7 +169,7 @@
   (when-bind expand-command (find-command self 'expand)
     (render-command-onclick-handler expand-command (id-of self))))
 
-(def refresh standard-object-row-inspector
+(def refresh-component standard-object-row-inspector
   (bind (((:slots instance command-bar cells) -self-))
     (setf cells
           (if instance
@@ -206,12 +206,12 @@
 ;;;;;;
 ;;; Standard object slot value cell inspector
 
-(def (component ea) standard-object-slot-value-cell-component (standard-object-slot/mixin
+(def (component e) standard-object-slot-value-cell-component (standard-object-slot/mixin
                                                              cell-component
                                                              editable/mixin)
   ())
 
-(def refresh standard-object-slot-value-cell-component
+(def refresh-component standard-object-slot-value-cell-component
   (bind (((:slots instance slot content) -self-))
     (if slot
         (setf content (make-instance 'place-inspector :place (make-slot-value-place instance slot)))
@@ -220,7 +220,7 @@
 ;;;;;;
 ;;; Standard object list inspector
 
-(def (component ea) selectable-standard-object-list-inspector (standard-object-list-inspector)
+(def (component e) selectable-standard-object-list-inspector (standard-object-list-inspector)
   ())
 
 (def method selected-instance-of ((self selectable-standard-object-list-inspector))
@@ -235,7 +235,7 @@
 ;;;;;;
 ;;; Selectable standard object list table inspector
 
-(def (component ea) selectable-standard-object-list-table-inspector (standard-object-list-table-inspector
+(def (component e) selectable-standard-object-list-table-inspector (standard-object-list-table-inspector
                                                                    abstract-selectable-standard-object-component)
   ())
 
@@ -245,7 +245,7 @@
 ;;;;;;
 ;;; Selectable standard object row inspector
 
-(def (component ea) selectable-standard-object-row-inspector (standard-object-row-inspector)
+(def (component e) selectable-standard-object-row-inspector (standard-object-row-inspector)
   ())
 
 (def layered-method table-row-style-class ((table selectable-standard-object-list-table-inspector) (row selectable-standard-object-row-inspector))
@@ -261,21 +261,9 @@
     (render-command-onclick-handler select-command (id-of self))
     (call-next-method)))
 
-(def icon move-backward)
-(def resources hu
-  (icon-label.move-backward "Mozgatás hátra")
-  (icon-tooltip.move-backward "Objektum mozgatása hátra a listában"))
-(def resources en
-  (icon-label.move-backward "Move backward")
-  (icon-tooltip.move-backward "Move object backward in the list"))
+(def (icon e) move-backward)
 
-(def icon move-forward)
-(def resources hu
-  (icon-label.move-forward "Mozgatás előre")
-  (icon-tooltip.move-forward "Objektum mozgatása előre a listában"))
-(def resources en
-  (icon-label.move-forward "Move forward")
-  (icon-tooltip.move-forward "Move object forward in the list"))
+(def (icon e) move-forward)
 
 (def function make-move-backward-command (component)
   (bind ((place (place-of (find-ancestor-component-with-type component 'place-inspector)))

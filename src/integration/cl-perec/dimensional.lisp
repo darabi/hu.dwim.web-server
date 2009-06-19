@@ -401,15 +401,3 @@
 
 (def (component ea) d-value-line-chart-component (abstract-d-value-chart-component)
   ())
-
-;;;;;;
-;;; Localization
-
-(def resources hu
-  (dimension-name.time "idő")
-  (dimension-name.validity "hatályosság")
-
-  (class-name.dimension "dimenzió")
-  (class-name.pivot-table-dimension-axis-component "Dimenzió alapú pivot tábla tengely")
-
-  (slot-name.dimension "dimenzió"))
