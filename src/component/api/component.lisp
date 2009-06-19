@@ -398,16 +398,18 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   (render-component self))
 
 ;;;;;;
+;;; Component layout
+
+(def (component e) component/layout (parent/mixin visibility/mixin)
+  ()
+  (:documentation "A LAYOUT is a COMPONENT which does not have any visual appearance on its own. If all child COMPONENTS positioned by a LAYOUT is EMPTY then the whole COMPONENT is invisible."))
+
+;;;;;;
 ;;; Component basic
 
 (def (component e) component/basic (renderable/mixin refreshable/mixin parent/mixin visibility/mixin)
-  ())
-
-;;;;;;
-;;; Component full
-
-(def (component e) component/full (component/basic style/abstract cloneable/abstract enableable/mixin)
-  ())
+  ()
+  (:documentation "A base class for COMPONENTs."))
 
 ;;;;;;
 ;;; Print component

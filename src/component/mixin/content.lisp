@@ -41,7 +41,7 @@
   ((contents
     :type components
     :documentation "The content is a sequence of COMPONENTs."))
-  (:documentation "A COMPONENT that has a set of COMPONENT inside."))
+  (:documentation "A COMPONENT that has a set of COMPONENTs inside."))
 
 (def render-component contents/mixin
   (render-contents -self-))
@@ -56,7 +56,7 @@
   ())
 
 (def refresh-component contents/abstract
-  (map nil #'mark-to-be-refreshed-component (contents-of -self-)))
+  (foreach #'mark-to-be-refreshed-component (contents-of -self-)))
 
 (def method component-value-of ((self contents/abstract))
   (mapcar 'component-value-of (contents-of self)))

@@ -8,7 +8,11 @@
 ;;; Editable mixin
 
 (def (component e) editable/mixin ()
-  ((edited-component #f :type boolean :documentation "TRUE means COMPONENT is currently being edited, FALSE otherwise."))
+  ((edited-component
+    #f
+    :type boolean
+    :initarg :edited
+    :documentation "TRUE means COMPONENT is currently being edited, FALSE otherwise."))
   (:documentation "
 A component that supports the editing protocols.
 

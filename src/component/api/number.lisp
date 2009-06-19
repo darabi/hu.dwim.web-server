@@ -41,7 +41,7 @@
   #f)
 
 (def method mark-to-be-refreshed-component ((self number))
-  (operation-not-supported))
+  (values))
 
 (def method mark-refreshed-component ((self number))
   (operation-not-supported))

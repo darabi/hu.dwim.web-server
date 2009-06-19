@@ -122,7 +122,7 @@
 (def (layered-function e) make-toggle-visiblity-command (component class prototype value)
   (:documentation "TODO"))
 
-(def (layered-function e) make-swith-to-alternative-commands (component class prototype value)
+(def (layered-function e) make-switch-to-alternative-commands (component class prototype value)
   (:documentation "Creates a list of COMMANDs to switch between alternative views for COMPONENT with SWITCH-TO-ALTERNATIVE."))
 
 (def (layered-function e) make-go-to-first-page-command (component)
@@ -209,7 +209,7 @@
 ;;;;;;
 ;;; Alternative component views
 
-(def (layered-function e) swith-to-alternative (component class prototype value)
+(def (layered-function e) switch-to-alternative (component alternative)
   (:documentation "TODO"))
 
 ;;;;;;

@@ -11,6 +11,7 @@
   ((enabled-component
     #t
     :type boolean
+    :initarg :enabled
     :computed-in compute-as
     :documentation "TRUE means COMPONENT is ENABLED on the remote side, FALSE otherwise."))
   (:documentation "A COMPONENT that can be ENABLED or DISABLED."))

@@ -5,70 +5,57 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; List abstract
+;;; List layout
 
-(def (component e) list/abstract (container/abstract orientation/mixin)
-  ((orientation :vertical :type (member :vertical :horizontal))))
+(def (component e) list/layout (component/layout contents/abstract)
+  ((orientation :vertical :type (member :vertical :horizontal)))
+  (:documentation "Either a vertical or a horizontal list LAYOUT."))
 
-;;;;;;
-;;; List basic
-
-(def (component e) list/layout (container/layout style/abstract)
-  ((orientation :vertical :type (member :vertical :horizontal))))
-
-(def function render-list (orientation contents &key id css-class style)
-  (check-type orientation (member :vertical :horizontal))
-  <table (:class `str("list " ,(ecase orientation
-                                      (:vertical "vertical ")
-                                      (:horizontal "horizontal "))
-                              ,css-class)
-          :id ,id
-          :style ,style)
-    <tbody ,@(ecase orientation
-                    (:vertical (mapcar (lambda (element)
-                                         (when (visible-component? element)
-                                           <tr <td ,(render-component element)>>))
-                                       contents))
-                    (:horizontal (list <tr ,(foreach (lambda (element)
-                                                       (when (visible-component? element)
-                                                         <td ,(render-component element)>))
-                                                     contents)>)))>>)
-
-(def (function e) render-vertical-list (contents &key id css-class style)
-  (render-list :vertical contents :id id :css-class css-class :style style))
-
-(def (function e) render-horizontal-list (contents &key id css-class style)
-  (render-list :horizontal contents :id id :css-class css-class :style style))
+(def (macro e) list/layout ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'list/layout ,@args :contents (list ,@contents)))
 
 (def render-xhtml list/layout
-  (bind (((:read-only-slots orientation contents id css-class style) -self-))
-    (render-list orientation contents :id id :css-class css-class :style style)))
+  (render-list-layout (orientation-of -self-) (contents-of -self-)))
 
-(def refresh-component list/layout
-  (foreach #'mark-to-be-refreshed-component (contents-of -self-)))
+(def function render-list-layout (orientation contents)
+  (check-type orientation (member :vertical :horizontal))
+  <table (:class `str("list " ,(ecase orientation
+                                 (:vertical "vertical")
+                                 (:horizontal "horizontal"))))
+    <tbody ,(ecase orientation
+              (:vertical (foreach (lambda (element)
+                                    (when (visible-component? element)
+                                      <tr <td ,(render-component element)>>))
+                                  contents))
+              (:horizontal <tr ,(foreach (lambda (element)
+                                           (when (visible-component? element)
+                                             <td ,(render-component element)>))
+                                         contents)>))>>)
+
+(def (function e) render-vertical-list-layout (contents)
+  (render-list-layout :vertical contents))
+
+(def (function e) render-horizontal-list-layout (contents)
+  (render-list-layout :horizontal contents))
 
 ;;;;;;
-;;; Horizontal list basic
+;;; Horizontal list layout
 
 (def (component e) horizontal-list/layout (list/layout)
   ()
-  (:default-initargs :orientation :horizontal))
+  (:default-initargs :orientation :horizontal)
+  (:documentation "A horizontal list LAYOUT."))
 
-(def (function e) make-horizontal-list-component (&rest contents)
-  (make-instance 'horizontal-list/layout :contents contents))
-
-(def (macro e) horizontal-list ((&rest args &key &allow-other-keys) &body contents)
+(def (macro e) horizontal-list/layout ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'horizontal-list/layout ,@args :contents (optional-list ,@contents)))
 
 ;;;;;;
-;;; Vertical list basic
+;;; Vertical list layout
 
 (def (component e) vertical-list/layout (list/layout)
   ()
-  (:default-initargs :orientation :vertical))
+  (:default-initargs :orientation :vertical)
+  (:documentation "A vertical list LAYOUT."))
 
-(def (function e) make-vertical-list-component (&rest contents)
-  (make-instance 'vertical-list/layout :contents contents))
-
-(def (macro e) vertical-list ((&rest args &key &allow-other-keys) &body contents)
+(def (macro e) vertical-list/layout ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'vertical-list/layout ,@args :contents (optional-list ,@contents)))

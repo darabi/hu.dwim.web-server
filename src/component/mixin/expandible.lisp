@@ -11,6 +11,7 @@
   ((expanded-component
     #t
     :type boolean
+    :initarg :expanded
     :computed-in compute-as
     :documentation "TRUE means COMPONENT displays itself with full detail, FALSE means it should be minimized."))
   (:documentation "A COMPONENT that can be EXPANDED or COLLAPSED."))

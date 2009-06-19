@@ -11,6 +11,7 @@
   ((visible-component
     #t
     :type boolean
+    :initarg :visible
     :computed-in compute-as
     :documentation "TRUE means the COMPONENT is visible on the remote side, FALSE otherwise."))
   (:documentation "A COMPONENT that can be HIDDEN or SHOWN."))

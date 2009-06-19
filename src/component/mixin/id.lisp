@@ -15,7 +15,7 @@
 ;;; Frame unique id mixin
 
 (def (component e) frame-unique-id/mixin (refreshable/mixin id/mixin)
-  ()
+  ((id nil))
   (:documentation "A COMPONENT with a permanent frame unique string identifier that is set at the first REFRESH-COMPONENT and never changed afterwards."))
 
 (def function ensure-frame-unique-id (component)

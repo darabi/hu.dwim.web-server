@@ -213,15 +213,15 @@
                                 :depends-on ("api"))
                                (:module "layout"
                                 :components ((:file "empty")
-                                             #+nil
-                                             ((:file "list")
-                                              (:file "container")
-                                              (:file "alternator")))
+                                             (:file "container")
+                                             (:file "list")
+                                             (:file "alternator"))
                                 :depends-on ("mixin"))
                                (:module "widget"
                                 :components ((:file "inline")
                                              #+nil
-                                             ((:file "authentication")
+                                             ((:file "alternator")
+                                              (:file "authentication")
                                               (:file "border")
                                               (:file "cell")
                                               (:file "column")
