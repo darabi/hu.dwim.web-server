@@ -229,7 +229,7 @@
                                                                          (icon expand)
                                                                          (make-action
                                                                            (setf (current-instance-of component) instance)
-                                                                           (mark-component-to-be-refreshed component))))))))
+                                                                           (mark-to-be-refreshed-component component))))))))
 
 (def (generic e) make-standard-object-tree-level (component class instance)
   (:method ((component standard-object-tree-level-inspector) (class standard-class) (instance standard-object))

@@ -20,7 +20,7 @@
   (when (dmm::authorize-operation 'dmm::create-instance-operation :-entity- class)
     (call-next-method)))
 
-(def layered-method execute-create-instance ((ancestor standard-object-list-inspector) (component standard-object-maker) (class prc::persistent-class))
+(def layered-method create-instance ((ancestor standard-object-list-inspector) (component standard-object-maker) (class prc::persistent-class))
   (prog1-bind instance (call-next-method)
     (bind ((slot-value (find-ancestor-component-with-type ancestor 'standard-object-slot/mixin)))
       (when slot-value

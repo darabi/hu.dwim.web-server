@@ -101,7 +101,7 @@
 
 (def layered-method make-context-menu-items ((component standard-object-maker) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (list (make-start-persistent-process-command component
-                                               (delay (execute-create-instance component (the-class-of component))))))
+                                               (delay (create-instance component (the-class-of component))))))
 
 (def layered-method make-context-menu-items ((component standard-object-row-inspector) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))
   (prc::with-revived-instance instance

@@ -5,17 +5,17 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Empty
+;;; Empty/layout
 
 (eval-always
-  (def (component e) empty ()
+  (def (component e) empty/layout ()
     ()
-    (:documentation "A completely empty component that is used as a singleton instead of NIL. NIL is not a valid component for debugging purposes.")))
+    (:documentation "A completely EMPTY (practically invisible) COMPONENT that is used as a singleton (for performance reasons) instead of NIL. The value NIL is not a valid COMPONENT for debugging purposes.")))
 
-(def load-time-constant +empty-component-singleton-instance+ (make-instance 'empty-component))
+(def load-time-constant +empty-layout-singleton-instance+ (make-instance 'empty/layout))
 
-(def render-component empty
+(def render-component empty/layout
   (values))
 
 (def (macro e) empty ()
-  '+empty-component-singleton-instance+)
+  '+empty-layout-singleton-instance+)

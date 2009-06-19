@@ -252,7 +252,8 @@
 ;;; Menu
 
 (def resources hu
-  (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése"))
+  (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése")
+  (context-menu.move-commands "Mozgatás"))
 
 ;;;;;;
 ;;; Page navigation

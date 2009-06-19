@@ -47,11 +47,9 @@
           (make-inspector (place-type place) :initial-alternative-type 'reference-component)
         (update-component-value-from-place place content)))))
 
-(def method map-editable-child-components ((self place-inspector) function)
-  (bind ((content (content-of self)))
-    (when (and (place-editable? (place-of self))
-               (typep content 'editable/mixin))
-      (funcall function content))))
+(def method editable-component? ((self place-inspector))
+  (and (place-editable? (place-of self))
+       (editable-component? (content-of self))))
 
 (def function revert-place-inspector-content (place-inspector)
   (update-component-value-from-place (place-of place-inspector) (content-of place-inspector)))
@@ -68,7 +66,8 @@
                                  (continue error))))
       (setf (value-at-place place) value))))
 
-(def (function e) make-revert-place-command (place-inspector)
+(def (function e) make-revert-place-command (component)
   (command ()
     (icon revert)
-    (make-action (revert-place-inspector-content place-inspector))))
+    (make-component-action component
+      (revert-place-inspector-content component))))

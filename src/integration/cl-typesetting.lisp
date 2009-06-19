@@ -9,7 +9,7 @@
 
 (def (special-variable e) *total-page-count*)
 
-(def layered-method execute-export-pdf ((component component))
+(def layered-method export-pdf ((component component))
   (bind ((typeset::*default-font* (pdf:get-font "Times-Roman"))
          (typeset::*font* typeset::*default-font*)
          (*total-page-count* 0))

@@ -80,7 +80,7 @@
   (:method ((component page-navigation-bar/basic))
     (bind (((:slots position page-size total-count jumper) component))
       (command (:enabled (delay (> position 0))
-                :ajax (ajax-id (parent-component-of component)))
+                :ajax (ajax-of (parent-component-of component)))
         (icon go-to-first)
         (make-action
           (setf (component-value-of jumper) (setf position 0)))))))
@@ -89,7 +89,7 @@
   (:method ((component page-navigation-bar/basic))
     (bind (((:slots position page-size total-count jumper) component))
       (command (:enabled (delay (> position 0))
-               :ajax (ajax-id (parent-component-of component)))
+               :ajax (ajax-of (parent-component-of component)))
         (icon previous)
         (make-action
           (setf (component-value-of jumper) (decf position (min position page-size))))))))
@@ -98,7 +98,7 @@
   (:method ((component page-navigation-bar/basic))
     (bind (((:slots position page-size total-count jumper) component))
       (command (:enabled (delay (< position (- total-count page-size)))
-                :ajax (ajax-id (parent-component-of component)))
+                :ajax (ajax-of (parent-component-of component)))
         (icon next)
         (make-action
           (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size)))))))))
@@ -107,7 +107,7 @@
   (:method ((component page-navigation-bar/basic))
     (bind (((:slots position page-size total-count jumper) component))
       (command (:enabled (delay (< position (- total-count page-size)))
-                :ajax (ajax-id (parent-component-of component)))
+                :ajax (ajax-of (parent-component-of component)))
         (icon last)
         (make-action
           (setf (component-value-of jumper) (setf position (- total-count page-size))))))))

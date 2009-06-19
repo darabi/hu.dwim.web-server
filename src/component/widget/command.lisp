@@ -13,7 +13,7 @@
 ;;;;;;
 ;;; Command basic
 
-(def (component e) command/basic (content/mixin enabled/mixin)
+(def (component e) command/basic (content/mixin enableable/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available

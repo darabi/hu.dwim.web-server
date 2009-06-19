@@ -208,11 +208,11 @@
     (setf upload-command (command ()
                            (icon upload)
                            (make-action
-                             (execute-upload-file -self-))))
+                             (upload-file -self-))))
     (setf download-command (command ()
                              (icon download)
                              (make-action
-                               (execute-download-file -self-))
+                               (download-file -self-))
                              :delayed-content #t
                              :path (download-file-name -self- class instance slot)))))
 
@@ -221,6 +221,6 @@
       (render-component (upload-command-of -self-))
       (render-component (download-command-of -self-))))
 
-(def (layered-function e) execute-upload-file (component))
+(def (layered-function e) upload-file (component))
 
-(def (layered-function e) execute-download-file (component))
+(def (layered-function e) download-file (component))

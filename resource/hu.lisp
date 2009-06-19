@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Mime type
+
 (def resources hu
   (mime-type.application/msword "Microsoft Word Dokumentum")
   (mime-type.application/vnd.ms-excel "Microsoft Excel Dokumentum")
@@ -11,7 +14,9 @@
   (mime-type.image/png "PNG kép")
   (mime-type.image/tiff "TIFF kép"))
 
+;;;;;;
 ;;; Error handling
+
 (def resources hu
   (error.internal-server-error "Ismeretlen eredetű hiba")
   (error.access-denied-error "Hozzáférés megtagadva")
@@ -32,4 +37,3 @@
       <h1 "Hozzáférés megtagadva">
       <p "Nincs joga a kívánt oldal megtekintéséhez.">
       <p <a (:href "#" :onClick `js-inline(history.go -1)) "Vissza">>>))
-

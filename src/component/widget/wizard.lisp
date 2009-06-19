@@ -45,9 +45,11 @@
 (def (function e) make-finish-wizard-command (wizard)
   (command ()
     (icon finish)
-    (make-action (finish-wizard wizard))))
+    (make-component-action wizard
+      (finish-wizard wizard))))
 
 (def (function e) make-cancel-wizard-command (wizard)
   (command ()
     (icon cancel)
-    (make-action (cancel-wizard wizard))))
+    (make-component-action wizard
+      (cancel-wizard wizard))))

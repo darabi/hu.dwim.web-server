@@ -40,10 +40,10 @@
 (def method to-be-refreshed-component? ((self number))
   #f)
 
-(def method mark-component-to-be-refreshed ((self number))
+(def method mark-to-be-refreshed-component ((self number))
   (operation-not-supported))
 
-(def method mark-component-refreshed ((self number))
+(def method mark-refreshed-component ((self number))
   (operation-not-supported))
 
 ;;;;;;

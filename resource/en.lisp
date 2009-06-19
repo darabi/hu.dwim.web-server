@@ -4,6 +4,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Mime type
+
 (def resources en
   (mime-type.application/msword "Microsoft Word Document")
   (mime-type.application/vnd.ms-excel "Microsoft Excel Document")
@@ -11,7 +14,9 @@
   (mime-type.image/png "PNG image")
   (mime-type.image/tiff "TIFF image"))
 
+;;;;;;
 ;;; Error handling
+
 (def resources en
   (error.internal-server-error "Internal server error")
   (error.access-denied-error "Access denied")

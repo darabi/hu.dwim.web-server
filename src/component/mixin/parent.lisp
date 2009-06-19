@@ -17,34 +17,34 @@
     ;;       to easily modify slot options during making the direct slots and thus resulting in an initarg error
     #+nil(or null component))))
 
-(def method (setf slot-value-using-class) :after (new-value (class component-class) (instance parent/mixin) (slot component-effective-slot-definition))
-  (setf (parent-component-references instance) new-value))
+(def method (setf slot-value-using-class) :after (child (class component-class) (parent component) (slot component-effective-slot-definition))
+  (setf (parent-component-references parent) child))
 
-(def (function o) (setf parent-component-references) (new-value instance &optional parent-component-slot-index)
+(def (function o) (setf parent-component-references) (child parent &optional parent-component-slot-index)
   (flet (((setf parent-component) (child)
            (assert (not (parent-component-of child)) nil "The child ~A is already under a parent" child)
            (if parent-component-slot-index
-               (setf (standard-instance-access child parent-component-slot-index) instance)
-               (setf (parent-component-of child) instance))))
-    (typecase new-value
-      (component
-       (setf (parent-component) new-value))
+               (setf (standard-instance-access child parent-component-slot-index) parent)
+               (setf (parent-component-of child) parent))))
+    (typecase child
+      (parent/mixin
+       (setf (parent-component) child))
       (list
-       (dolist (element new-value)
-         (when (typep element 'component)
+       (dolist (element child)
+         (when (typep element 'parent/mixin)
            (setf (parent-component) element))))
       (hash-table
-       (iter (for (key value) :in-hashtable new-value)
-             (when (typep value 'component)
+       (iter (for (key value) :in-hashtable child)
+             (when (typep value 'parent/mixin)
                (setf (parent-component) value))
-             (when (typep key 'component)
+             (when (typep key 'parent/mixin)
                (setf (parent-component) key)))))))
 
 (def method child-component-slot? ((self parent/mixin) (slot standard-effective-slot-definition))
   (not (eq (slot-definition-name slot) 'parent-component)))
 
-(def method add-user-message ((component parent/mixin) message message-args &rest initargs)
-  (apply #'add-user-message (parent-component-of component) message message-args initargs))
+(def method add-component-message ((component parent/mixin) message message-args &rest initargs)
+  (apply #'add-component-message (parent-component-of component) message message-args initargs))
 
 (def method make-component-place ((component parent/mixin))
   (assert component nil "The value NIL is not a valid component.")
@@ -64,4 +64,3 @@
                          (when (and (typep element 'component)
                                     (eq component element))
                            (return-from make-component-place (make-list-slot-value-place parent slot index))))))))))))
-

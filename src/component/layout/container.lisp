@@ -9,7 +9,7 @@
 
 (def (component e) container/abstract (contents/mixin)
   ()
-  (:documentation "A container component with several components inside."))
+  (:documentation "A container COMPONENT with several COMPONENTs inside."))
 
 ;;;;;;
 ;;; Container basic

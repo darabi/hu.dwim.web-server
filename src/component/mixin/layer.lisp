@@ -13,7 +13,7 @@
 (def component-environment layer-context-capturing/mixin
   (call-next-method)
   ;; TODO: revive layer capturing
-  ;; FIXME: it overrides the rendering backend layer now
+  ;; FIXME: currently this is commented out, because it overrides the rendering backend
   #+nil(funcall-with-layer-context (layer-context-of -self-) #'call-next-method))
 
 (def (function ie) current-layer ()

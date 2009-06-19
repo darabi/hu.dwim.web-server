@@ -104,7 +104,7 @@
         (make-action
           (remove-place (make-component-place axis))
           (appendf (slot-value pivot-table slot-name) (list axis))
-          (mark-component-to-be-refreshed pivot-table))))))
+          (mark-to-be-refreshed-component pivot-table))))))
 
 ;;;;;;
 ;;; Icon

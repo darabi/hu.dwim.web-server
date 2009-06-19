@@ -25,7 +25,7 @@
       (make-viewer class :initial-alternative-type 'reference-component)
       (call-next-method)))
 
-(def layered-method execute-delete-instance ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
+(def layered-method delete-instance ((component standard-object-inspector) (class prc::persistent-class) (instance prc::persistent-object))
   (rdbms::with-transaction
     (prc::purge-instance instance)
     (call-next-method)))

@@ -8,40 +8,39 @@
 ;;; Thunk mixin
 
 (def (component e) thunk/mixin ()
-  ((thunk :type function))
-  (:documentation "A COMPONENT with a function to be called in RENDER-COMPONENT."))
-
-(def render-component thunk/mixin
-  (funcall (the function (thunk-of -self-))))
+  ((thunk :type (or symbol function)))
+  (:documentation "A COMPONENT with a FUNCTION."))
 
 ;;;;;;
 ;;; Inline basic
 
 (def (component e) inline/basic (thunk/mixin)
-  ())
+  ()
+  (:documentation "A COMPONENT with a FUNCTION to be called in RENDER-COMPONENT."))
+
+(def render-component inline/basic
+  (funcall (thunk-of -self-)))
 
 (def (macro e) inline/basic (&body forms)
   `(make-instance 'inline/basic :thunk (lambda () ,@forms)))
 
-(def (macro e) inline (&body forms)
-  `(inline/basic ,@forms))
-
 ;;;;;;
-;;; Wrap render basic
+;;; Wrapper basic
 
-(def (component e) wrap-render/basic (thunk/mixin content/mixin)
-  ())
+(def (component e) wrapper/basic (content/mixin thunk/mixin)
+  ()
+  (:documentation "A COMPONENT that has another COMPONENT inside wrapped with a rendering function."))
 
-(def render-component wrap-render/basic
+(def render-component wrapper/basic
   (funcall (thunk-of -self-) #'call-next-method))
 
-(def (macro e) wrap-render/basic (content &body forms)
-  `(make-instance 'wrap-render/basic
+(def (macro e) wrapper/basic (content &body forms)
+  `(make-instance 'wrapper/basic
                   :thunk (lambda (next-method)
                            (flet ((-body- ()
                                     (funcall next-method)))
                              ,@forms))
                   :content ,content))
 
-(def (macro e) wrap-render (content &body forms)
-  `(wrap-render/basic ,content ,@forms))
+(def (macro e) wrapper (content &body forms)
+  `(wrapper/basic ,content ,@forms))

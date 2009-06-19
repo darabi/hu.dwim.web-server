@@ -33,7 +33,7 @@
   (make-replace-command (delay (content-of tab-container))
                         tab-page
                         :content (header-of tab-page)
-                        :ajax (ajax-id tab-container)))
+                        :ajax (ajax-of tab-container)))
 
 (def (icon e) swith-to-page)
 

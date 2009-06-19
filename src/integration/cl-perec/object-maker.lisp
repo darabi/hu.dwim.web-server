@@ -24,7 +24,7 @@
              (call-next-method)))
 
 ;; TODO: FIXME: this is the same signature?
-(def layered-method execute-create-instance ((component standard-object-maker) (class prc::persistent-class))
+(def layered-method create-instance ((component standard-object-maker) (class prc::persistent-class))
   (handler-bind ((prc::persistent-constraint-violation (lambda (error)
                                                          (add-user-error component "Adatösszefüggés hiba")
                                                          (abort-interaction)
@@ -35,7 +35,7 @@
           (cl-rdbms:mark-transaction-for-rollback-only))))))
 
 ;; TODO: FIXME: this is the same signature?
-(def layered-method execute-create-instance ((component standard-object-maker) (class prc::persistent-class))
+(def layered-method create-instance ((component standard-object-maker) (class prc::persistent-class))
   (prog1 (call-next-method)
     (unless (interaction-aborted-p)
       (rdbms:register-transaction-hook :after :commit

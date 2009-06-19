@@ -8,13 +8,13 @@
 ;;; Initargs mixin
 
 (def (component e) initargs/mixin ()
-  ((initargs :type list))
-  (:documentation "A component that captures the initargs as they were originally provided when the component was last time reinitialized."))
+  ((initargs :type list :documentation "The list of captured initargs."))
+  (:documentation "A COMPONENT that captures the initargs as they were originally provided when the COMPONENT was last time initialized."))
 
 (def method shared-initialize :after ((self initargs/mixin) slot-names &rest initargs &key &allow-other-keys)
-  (setf (initargs-of -self-)
+  (setf (initargs-of self)
         (iter (for arg :in (collect-captured-initargs self))
-              (for value = (getf args arg :unbound))
+              (for value = (getf initargs arg :unbound))
               (unless (eq value :unbound)
                 (collect arg)
                 (collect value)))))

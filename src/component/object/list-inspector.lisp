@@ -38,14 +38,14 @@
     (command ()
       (icon new)
       (make-action
-        (execute-begin-editing-new-instance component class instance)))))
+        (begin-editing-new-instance component class instance)))))
 
-(def (layered-function e) execute-begin-editing-new-instance (component class instance)
+(def (layered-function e) begin-editing-new-instance (component class instance)
   (:method ((component standard-object-list-inspector) (class standard-class) (instance standard-object))
     (appendf (rows-of (content-of component))
              (list (make-instance 'entire-row-component :content (make-maker class))))))
 
-(def layered-method execute-create-instance ((ancestor standard-object-list-inspector) (component standard-object-maker) (class standard-class))
+(def layered-method create-instance ((ancestor standard-object-list-inspector) (component standard-object-maker) (class standard-class))
   (prog1-bind instance (call-next-method)
     (setf (component-at-place (make-component-place (parent-component-of component)))
           (make-standard-object-list-table-row (content-of ancestor) (class-of instance) instance))))

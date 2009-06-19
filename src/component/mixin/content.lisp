@@ -9,17 +9,15 @@
 
 (def (component e) content/mixin ()
   ((content
-    (empty)
     :type component*
-    :documentation "The content of this component, empty by default."))
-  (:documentation "A component that has another component inside."))
+    :documentation "The content of is single COMPONENT."))
+  (:documentation "A COMPONENT that has another COMPONENT inside."))
 
 (def render-component content/mixin
   (render-content -self-))
 
-(def (layered-function e) render-content (component)
-  (:method ((self content/mixin))
-    (render-component (content-of self))))
+(def (function e) render-content (component)
+  (render-component (content-of component)))
 
 ;;;;;;
 ;;; Content abstract
@@ -28,7 +26,7 @@
   ())
 
 (def refresh-component content/abstract
-  (mark-component-to-be-refreshed (content-of -self-)))
+  (mark-to-be-refreshed-component (content-of -self-)))
 
 (def method component-value-of ((self content/abstract))
   (component-value-of (content-of self)))
@@ -37,51 +35,13 @@
   (setf (component-value-of (content-of self)) new-value))
 
 ;;;;;;
-;;; XHTML content mixin
-
-(def (component e) xhtml-content/mixin (content/mixin)
-  ((content :type string))
-  (:documentation "A component with an XHTML string content inside."))
-
-(def render-xhtml xhtml-content/mixin
-  (write-sequence (babel:string-to-octets (content-of -self-) :encoding :utf-8) *xml-stream*)
-  (values))
-
-;;;;;;
-;;; Content basic
-
-(def (component e) content/basic (content/abstract component/basic style/abstract)
-  ()
-  (:documentation "A component with style, remote setup and another component inside."))
-
-(def (macro e) content/basic ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'content/basic ,@args :content ,(the-only-element content)))
-
-(def render-xhtml content/basic
-  (with-render-style/abstract (-self-)
-    (call-next-method)))
-
-;;;;;;
-;;; Content basic
-
-(def (component e) content/full (content/basic component/full)
-  ()
-  (:documentation "A component with style, remote setup and another component inside."))
-
-;;;;;;
-;;; Content
-
-(def (macro e) content ((&rest args &key &allow-other-keys) &body content)
-  `(content/basic ,args ,@content))
-
-;;;;;;
 ;;; Contents mixin
 
 (def (component e) contents/mixin ()
   ((contents
-    (empty)
-    :type components))
-  (:documentation "A component that has a set of components inside."))
+    :type components
+    :documentation "The content is a sequence of COMPONENTs."))
+  (:documentation "A COMPONENT that has a set of COMPONENT inside."))
 
 (def render-component contents/mixin
   (render-contents -self-))
@@ -96,7 +56,7 @@
   ())
 
 (def refresh-component contents/abstract
-  (map nil #'mark-component-to-be-refreshed (contents-of -self-)))
+  (map nil #'mark-to-be-refreshed-component (contents-of -self-)))
 
 (def method component-value-of ((self contents/abstract))
   (mapcar 'component-value-of (contents-of self)))

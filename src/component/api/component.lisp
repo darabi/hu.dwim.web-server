@@ -204,6 +204,104 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
     (class-prototype it)))
 
 ;;;;;;
+;;; Component editing
+
+(def method editable-component? ((self component))
+  #f)
+
+(def method edited-component? ((self component))
+  (operation-not-supported))
+
+(def method begin-editing ((self component))
+  (operation-not-supported))
+
+(def method save-editing ((self component))
+  (operation-not-supported))
+
+(def method cancel-editing ((self component))
+  (operation-not-supported))
+
+(def methods store-editing
+  (:method :around ((self component))
+    (call-in-component-environment self #'call-next-method))
+
+  (:method ((self component))
+    (map-editable-child-components self #'store-editing)))
+
+(def methods revert-editing
+  (:method :around ((self component))
+    (call-in-component-environment self #'call-next-method))
+
+  (:method ((self component))
+    (map-editable-child-components self #'revert-editing)))
+
+(def methods join-editing
+  (:method :around ((self component))
+    (call-in-component-environment self #'call-next-method))
+
+  (:method ((self component))
+    (map-editable-child-components self #'join-editing)))
+
+(def methods leave-editing
+  (:method :around ((self component))
+    (call-in-component-environment self #'call-next-method))
+
+  (:method ((self component))
+    (map-editable-child-components self #'leave-editing)))
+
+;;;;;;
+;;; Traverse editable components
+
+(def (function e) map-editable-child-components (component function)
+  (ensure-functionf function)
+  (map-child-components component (lambda (child)
+                                    (when (editable-component? child)
+                                      (funcall function child)))))
+
+(def (function e) map-editable-descendant-components (component function)
+  (ensure-functionf function)
+  (map-editable-child-components component (lambda (child)
+                                             (funcall function child)
+                                             (map-editable-descendant-components child function))))
+
+(def (function e) find-editable-child-component (component function)
+  (ensure-functionf function)
+  (map-editable-child-components component (lambda (child)
+                                             (when (funcall function child)
+                                               (return-from find-editable-child-component child))))
+  nil)
+
+(def (function e) find-editable-descendant-component (component function)
+  (map-editable-descendant-components component (lambda (descendant)
+                                                  (when (funcall function descendant)
+                                                    (return-from find-editable-descendant-component descendant))))
+  nil)
+
+(def (function e) has-edited-child-component-p (component)
+  (find-editable-child-component component #'edited-component?))
+
+(def (function e) has-edited-descendant-component-p (component)
+  (find-editable-descendant-component component #'edited-component?))
+
+;;;;;;
+;;; Export component
+
+(def layered-method export-text ((self component))
+  (operation-not-supported))
+
+(def layered-method export-csv ((self component))
+  (operation-not-supported))
+
+(def layered-method export-pdf ((self component))
+  (operation-not-supported))
+
+(def layered-method export-odt ((self component))
+  (operation-not-supported))
+
+(def layered-method export-ods ((self component))
+  (operation-not-supported))
+
+;;;;;;
 ;;; Render component
 
 (def render-component component
@@ -212,10 +310,10 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 (def method to-be-rendered-component? (component)
   #t)
 
-(def method mark-component-to-be-rendered (component)
+(def method mark-to-be-rendered-component (component)
   (operation-not-supported))
 
-(def method mark-component-rendered (component)
+(def method mark-rendered-component (component)
   (operation-not-supported))
 
 ;;;;;;
@@ -227,10 +325,10 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 (def method to-be-refreshed-component? ((self component))
   #f)
 
-(def method mark-component-to-be-refreshed ((self component))
+(def method mark-to-be-refreshed-component ((self component))
   (operation-not-supported))
 
-(def method mark-component-refreshed ((self component))
+(def method mark-refreshed-component ((self component))
   (operation-not-supported))
 
 ;;;;;;
@@ -245,11 +343,53 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 (def method show-component ((self component))
   (values))
 
+(def method hide-component-recursively ((self component))
+  (map-descendant-components self #'hide-component))
+
+(def method show-component-recursively ((self component))
+  (map-descendant-components self #'show-component))
+
+;;;;;;
+;;; Enable/disable component
+
+(def method enabled-component? ((self component))
+  #t)
+
+(def method disable-component ((self component))
+  (operation-not-supported))
+
+(def method enable-component ((self component))
+  (values))
+
+(def method disable-component-recursively ((self component))
+  (map-descendant-components self #'disable-component))
+
+(def method enable-component-recursively ((self component))
+  (map-descendant-components self #'enable-component))
+
+;;;;;;
+;;; Expand/collapse component
+
+(def method expanded-component? ((self component))
+  #t)
+
+(def method collapse-component ((self component))
+  (operation-not-supported))
+
+(def method expand-component ((self component))
+  (values))
+
+(def method collapse-component-recursively ((self component))
+  (map-descendant-components self #'collapse-component))
+
+(def method expand-component-recursively ((self component))
+  (map-descendant-components self #'expand-component))
+
 ;;;;;;
 ;;; Clone component
 
 (def method clone-component ((self component))
-  (make-instance (class-of self)))
+  (operation-not-supported))
 
 ;;;;;;
 ;;; Export CSV
@@ -266,7 +406,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Component full
 
-(def (component e) component/full (component/basic style/abstract enabled/mixin)
+(def (component e) component/full (component/basic style/abstract cloneable/abstract enableable/mixin)
   ())
 
 ;;;;;;

@@ -253,7 +253,7 @@
 
 (def render-xhtml standard-class/selector
   (if (edited? -self-)
-      (bind ((href (register-action/href (make-action (mark-component-to-be-refreshed (parent-component-of -self-))))))
+      (bind ((href (register-action/href (make-action (mark-to-be-refreshed-component (parent-component-of -self-))))))
         (render-member-component -self- :on-change `js-inline(wui.io.action ,href :ajax #f)))
       (call-next-method)))
 

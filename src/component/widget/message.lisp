@@ -66,7 +66,7 @@
 ;;;;;;
 ;;; User message component
 
-(def (component e) user-message/basic (closable/mixin content/mixin style/mixin)
+(def (component e) user-message/basic (closable/abstract content/mixin style/mixin)
   ((category :information :type (member :information :warning :error))
    (message nil :type string)
    (permanent #f :type boolean)))

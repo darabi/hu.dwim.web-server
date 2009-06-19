@@ -33,9 +33,9 @@
     (command ()
       (icon create)
       (make-component-action component
-        (execute-create-instance component (the-class-of component))))))
+        (create-instance component (the-class-of component))))))
 
-(def (layered-function e) execute-create-instance (ancestor component class)
+(def (layered-function e) create-instance (ancestor component class)
   (:method :around ((component standard-object-maker) (class standard-class))
     (with-interaction component
       (call-next-method)))

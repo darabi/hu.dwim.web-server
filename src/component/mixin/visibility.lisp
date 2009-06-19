@@ -24,11 +24,3 @@
 
 (def method show-component ((self visibility/mixin))
   (setf (visible-component? self) #t))
-
-(def method show-component-recursively ((self visibility/mixin))
-  (map-descendant-components self
-                             (lambda (descendant)
-                               (bind ((slot (find-slot (class-of descendant) 'visible))
-                                      (slot-value (standard-instance-access descendant (slot-definition-location slot))))
-                                 (when (eq #f slot-value) ; avoid making components visible with computed visible flags
-                                   (show-component descendant))))))

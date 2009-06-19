@@ -252,7 +252,8 @@
 ;;; Menu
 
 (def resources en
-  (icon-tooltip.show-context-menu "Show context menu"))
+  (icon-tooltip.show-context-menu "Show context menu")
+  (context-menu.move-commands "Move"))
 
 ;;;;;;
 ;;; Page navigation

@@ -4,22 +4,16 @@
 
 (in-package :hu.dwim.wui)
 
-;;;;;;;;
-;;; Orientation mixin
-
-(def (component e) orientation/mixin ()
-  ((orientation :vertical :type (member :vertical :horizontal))))
-
-;;;;;;;;
+;;;;;;
 ;;; List abstract
 
 (def (component e) list/abstract (container/abstract orientation/mixin)
-  ())
+  ((orientation :vertical :type (member :vertical :horizontal))))
 
-;;;;;;;;
+;;;;;;
 ;;; List basic
 
-(def (component e) list/basic (container/basic style/abstract)
+(def (component e) list/layout (container/layout style/abstract)
   ((orientation :vertical :type (member :vertical :horizontal))))
 
 (def function render-list (orientation contents &key id css-class style)
@@ -46,35 +40,35 @@
 (def (function e) render-horizontal-list (contents &key id css-class style)
   (render-list :horizontal contents :id id :css-class css-class :style style))
 
-(def render-xhtml list/basic
+(def render-xhtml list/layout
   (bind (((:read-only-slots orientation contents id css-class style) -self-))
     (render-list orientation contents :id id :css-class css-class :style style)))
 
-(def refresh-component list/basic
-  (foreach #'mark-component-to-be-refreshed (contents-of -self-)))
+(def refresh-component list/layout
+  (foreach #'mark-to-be-refreshed-component (contents-of -self-)))
 
 ;;;;;;
 ;;; Horizontal list basic
 
-(def (component e) horizontal-list/basic (list/basic)
+(def (component e) horizontal-list/layout (list/layout)
   ()
   (:default-initargs :orientation :horizontal))
 
 (def (function e) make-horizontal-list-component (&rest contents)
-  (make-instance 'horizontal-list/basic :contents contents))
+  (make-instance 'horizontal-list/layout :contents contents))
 
 (def (macro e) horizontal-list ((&rest args &key &allow-other-keys) &body contents)
-  `(make-instance 'horizontal-list/basic ,@args :contents (optional-list ,@contents)))
+  `(make-instance 'horizontal-list/layout ,@args :contents (optional-list ,@contents)))
 
 ;;;;;;
 ;;; Vertical list basic
 
-(def (component e) vertical-list/basic (list/basic)
+(def (component e) vertical-list/layout (list/layout)
   ()
   (:default-initargs :orientation :vertical))
 
 (def (function e) make-vertical-list-component (&rest contents)
-  (make-instance 'vertical-list/basic :contents contents))
+  (make-instance 'vertical-list/layout :contents contents))
 
 (def (macro e) vertical-list ((&rest args &key &allow-other-keys) &body contents)
-  `(make-instance 'vertical-list/basic ,@args :contents (optional-list ,@contents)))
+  `(make-instance 'vertical-list/layout ,@args :contents (optional-list ,@contents)))

@@ -4,13 +4,11 @@
 
 (in-package :hu.dwim.wui)
 
-;;;;;;;;
-
 ;;;;;;
 ;;; Editable mixin
 
 (def (component e) editable/mixin ()
-  ((edited #f :type boolean :documentation "TRUE indicates the component is currently being edited, FALSE otherwise."))
+  ((edited-component #f :type boolean :documentation "TRUE means COMPONENT is currently being edited, FALSE otherwise."))
   (:documentation "
 A component that supports the editing protocols.
 
@@ -30,164 +28,29 @@ and CANCEL-EDITING to continuously leave the component in edit mode.
 "))
 
 (def refresh-component editable/mixin
-  (if (edited? -self-)
+  (if (edited-component? -self-)
       (join-editing -self-)
       (leave-editing -self-)))
 
-(def layered-method begin-editing ((self editable/mixin))
+(def method editable-component? ((self editable/mixin))
+  #t)
+
+(def method begin-editing ((self editable/mixin))
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces
   (join-editing self))
 
-(def layered-method save-editing ((self editable/mixin))
+(def method save-editing ((self editable/mixin))
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces
-  (store-editing editable)
-  (when leave-editing
-    (leave-editing editable)))
+  (store-editing self)
+  (leave-editing self))
 
-(def layered-method cancel-editing ((self editable/mixin))
+(def method cancel-editing ((self editable/mixin))
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces
-  (revert-editing editable)
-  (leave-editing editable))
+  (revert-editing self)
+  (leave-editing self))
 
-(def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
-  (append (list (make-menu-item (icon menu :label "Szerkesztés")
-                                (make-editing-commands component class prototype instance)))
-          (call-next-method)))
+(def method join-editing :before ((self editable/mixin))
+  (setf (edited-component? self) #t))
 
-;;;;;;
-;;; Traverse
-
-(def generic map-editable-child-components (component function)
-  (:method ((component component) function)
-    (ensure-functionf function)
-    (map-child-components component (lambda (child)
-                                      (when (typep child 'editable/mixin)
-                                        (funcall function child))))))
-
-(def function map-editable-descendant-components (component function)
-  (ensure-functionf function)
-  (map-editable-child-components component (lambda (child)
-                                             (funcall function child)
-                                             (map-editable-descendant-components child function))))
-
-(def function find-editable-child-component (component function)
-  (ensure-functionf function)
-  (map-editable-child-components component (lambda (child)
-                                             (when (funcall function child)
-                                               (return-from find-editable-child-component child))))
-  nil)
-
-(def function find-editable-descendant-component (component function)
-  (map-editable-descendant-components component (lambda (descendant)
-                                                  (when (funcall function descendant)
-                                                    (return-from find-editable-descendant-component descendant))))
-  nil)
-
-(def function has-edited-child-component-p (component)
-  (find-editable-child-component component 'edited?))
-
-(def function has-edited-descendant-component-p (component)
-  (find-editable-descendant-component component 'edited?))
-
-;;;;;;
-;;; Customization points
-
-(def layered-methods join-editing (component)
-  (:method ((component component))
-    (map-editable-child-components component 'join-editing))
-
-  (:method :before ((component editable/mixin))
-    (setf (edited? component) #t))
-
-  (:method :around ((component component))
-    (call-in-component-environment component #'call-next-method)))
-
-(def layered-methods leave-editing (component)
-  (:method ((component component))
-    (map-editable-child-components component 'leave-editing))
-
-  (:method :before ((component editable/mixin))
-    (setf (edited? component) #f))
-
-  (:method :around ((component component))
-    (call-in-component-environment component #'call-next-method)))
-
-(def layered-methods store-editing (component)
-  (:method ((component component))
-    (map-editable-child-components component 'store-editing))
-
-  (:method :around ((component component))
-    (call-in-component-environment component #'call-next-method)))
-
-(def layered-methods revert-editing (component)
-  (:method ((component component))
-    (map-editable-child-components component 'revert-editing))
-
-  (:method :around ((component component))
-    (call-in-component-environment component #'call-next-method)))
-
-;;;;;;
-;;; Command
-
-(def layered-method make-begin-editing-command ((component editable/mixin) class prototype value)
-  (command (:visible (or visible (delay (not (edited? component)))))
-    (icon begin-editing)
-    (make-component-action component
-      (with-interaction component
-        (begin-editing component)))))
-
-(def layered-method make-save-editing-command (component class prototype value)
-  (command (:visible (delay (edited? component)))
-    (icon save-editing)
-    (make-component-action component
-      (with-interaction component
-        (save-editing component)))))
-
-(def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
-  (command (:visible (delay (edited? component)))
-    (icon cancel-editing)
-    (make-component-action component
-      (with-interaction component
-        (cancel-editing component)))))
-
-(def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
-  (command (:visible (delay (edited? component)))
-    (icon store-editing)
-    (make-component-action component
-      (with-interaction component
-        (save-editing component)))))
-
-(def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
-  (command (:visible (delay (edited? component)))
-    (icon revert-editing)
-    (make-component-action component
-      (with-interaction component
-        (revert-editing component)))))
-
-(def layered-method make-editing-commands ((component editable/mixin) class prototype instance)
-  (if (inherited-initarg component :store-mode)
-      (list (make-store-editing-command component)
-            (make-revert-editing-command component))
-      (list (make-begin-editing-command component)
-            (make-save-editing-command component)
-            (make-cancel-editing-command component))))
-
-(def layered-method make-refresh-command ((component editable/mixin) class prototype instance)
-  (command (:visible (delay (not (edited? component)))
-            :ajax (ajax-id component))
-    (icon refresh)
-    (make-component-action component
-      (refresh-component component))))
-
-;;;;;;
-;;; Icon
-
-(def (icon e) begin-editing)
-
-(def (icon e) save-editing)
-
-(def (icon e) cancel-editing)
-
-(def (icon e) store-editing)
-
-(def (icon e) revert-editing)
+(def method leave-editing :before ((self editable/mixin))
+  (setf (edited-component? self) #f))

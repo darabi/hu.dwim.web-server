@@ -7,16 +7,16 @@
 ;;;;;;
 ;;; Cloneable abstract
 
-(def (icon e) open-in-new-frame)
+(def (component e) cloneable/abstract ()
+  ())
 
-(def layered-method make-open-in-new-frame-command ((component component) class prototype value)
-  (command (:delayed-content #t
-            :js (lambda (href) `js(window.open ,href)))
-    (icon open-in-new-frame)
-    (make-action
-      (open-in-new-frame component class prototype value))))
+(def method clone-component ((self cloneable/abstract))
+  (make-instance (class-of self)))
 
-(def layered-method open-in-new-frame ((component component) class prototype value)
+(def layered-method make-move-commands ((component cloneable/abstract) class prototype value)
+  (optional-list* (make-open-in-new-frame-command component class prototype value) (call-next-method)))
+
+(def layered-method open-in-new-frame ((component cloneable/abstract) class prototype value)
   (bind ((clone (clone-component component))
          (*frame* (make-new-frame *application* *session*)))
     (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*) *frame* +frame-id-length+))

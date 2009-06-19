@@ -9,14 +9,14 @@
 
 (def (component e) style-class/mixin ()
   ((style-class nil))
-  (:documentation "Generic style classification support, rendered as the class attribute in XHTML."))
+  (:documentation "Generic STYLE classification support, rendered as the class attribute in XHTML."))
 
 ;;;;;;
 ;;; Custom style mixin
 
 (def (component e) custom-style/mixin ()
   ((custom-style nil))
-  (:documentation "Custom per component style support, rendered as the style attribute in XHTML."))
+  (:documentation "Custom STYLE support on a per COMPONENT basis, rendered as the style attribute in XHTML."))
 
 ;;;;;;
 ;;; Style mixin
@@ -29,7 +29,7 @@
 
 (def (component e) style/abstract (style/mixin remote-setup/mixin)
   ()
-  (:documentation "A component with style and remote setup."))
+  (:documentation "A COMPONENT with STYLE and remote setup."))
 
 (def with-macro* with-render-style/abstract (self &key (element-name "div"))
   (bind (((:read-only-slots id style-class custom-style) self))

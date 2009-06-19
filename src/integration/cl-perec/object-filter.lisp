@@ -15,7 +15,7 @@
 (def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class prc::persistent-class) (prototype prc::persistent-object))
   (remove-if #'prc:persistent-object-internal-slot-p (call-next-method)))
 
-(def layered-method execute-filter-instances ((component standard-object-filter) (class prc::persistent-class))
+(def layered-method filter-instances ((component standard-object-filter) (class prc::persistent-class))
   (prc::execute-query (build-filter-query component)))
 
 (def method predicate-function ((component timestamp-component) (class prc::persistent-class) (predicate (eql '=)))

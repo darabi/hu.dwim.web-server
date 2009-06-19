@@ -45,9 +45,9 @@
       (icon delete)
       (make-action
         (bind ((instance (instance-of component)))
-          (execute-delete-instance component (class-of instance) instance))))))
+          (delete-instance component (class-of instance) instance))))))
 
-(def (layered-function e) execute-delete-instance (component class instance)
+(def (layered-function e) delete-instance (component class instance)
   (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
     (setf (component-value-of component) nil)))
 

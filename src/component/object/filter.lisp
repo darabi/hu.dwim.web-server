@@ -167,7 +167,7 @@
   (:method ((component filter/abstract) result)
     (make-replace-and-push-back-command result (delay (with-restored-component-environment component
                                                         (funcall (result-component-factory-of component) component
-                                                                 (execute-filter-instances component (the-class-of component)))))
+                                                                 (filter-instances component (the-class-of component)))))
                                         (list :content (icon filter) :default #t)
                                         (list :content (icon back)))))
 
@@ -181,9 +181,9 @@
       (unless instances
         (add-user-warning component #"no-matches-were-found")))))
 
-(def (layered-function e) execute-filter-instances (component class)
+(def (layered-function e) filter-instances (component class)
   (:method ((component standard-object-filter) (class standard-class))
-    (execute-filter-instances (content-of component) class))
+    (filter-instances (content-of component) class))
 
   #+sbcl
   (:method ((component standard-object-detail-filter) (class standard-class))

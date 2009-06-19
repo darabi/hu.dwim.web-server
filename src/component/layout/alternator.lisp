@@ -57,7 +57,7 @@
                                                  (not (eq (the-class-of alternative) (class-of (content-of component))))
                                                  (or (not reference?)
                                                      (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract))))
-                            :ajax (ajax-id component)))))
+                            :ajax (ajax-of component)))))
 
 (def (generic e) make-replace-with-alternative-command-icon (prototype)
   (:method ((prototype component))
