@@ -7,13 +7,20 @@
 ;;;;;;
 ;;; Chapter basic
 
-(def (component e) chapter/basic (content/basic title/mixin)
+(def (component e) chapter/basic (contents/abstract title/mixin)
   ())
 
 (def (macro e) chapter/basic ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'chapter/basic ,@args :contents (list ,@contents)))
 
 (def render-xhtml chapter/basic
-  <div (:class "chapter")
-    ,(render-title -self-)
-    ,(call-next-method)>)
+  (bind (((:read-only-slots title contents) -self-))
+    <div (:class "chapter")
+         ,(render-title title)
+         ,(foreach #'render-paragraph contents)>))
+
+;;;;;;
+;;; Chapter
+
+(def (macro e) chapter ((&rest args &key &allow-other-keys) &body contents)
+  `(chapter/basic ,args ,@contents))

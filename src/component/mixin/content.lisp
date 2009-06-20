@@ -9,7 +9,7 @@
 
 (def (component e) content/mixin ()
   ((content
-    :type component*
+    :type component
     :documentation "The content of is single COMPONENT."))
   (:documentation "A COMPONENT that has another COMPONENT inside."))
 

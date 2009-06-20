@@ -203,6 +203,7 @@
                                              (:file "refreshable")
                                              (:file "renderable")
                                              (:file "resizable")
+                                             (:file "title" :depends-on ("refreshable"))
                                              (:file "top")
                                              (:file "value")
                                              (:file "visibility")
@@ -258,11 +259,12 @@
                                               (:file "wizard")))
                                 :depends-on ("layout"))
                                (:module "book"
-                                :components ((:file "chapter")
+                                :components ((:file "book")
+                                             (:file "toc")
                                              (:file "glossary")
                                              (:file "index")
                                              (:file "text")
-                                             (:file "toc"))
+                                             (:file "chapter" :depends-on ("text")))
                                 :depends-on ("widget"))
                                (:module "chart"
                                 :components ((:file "chart")

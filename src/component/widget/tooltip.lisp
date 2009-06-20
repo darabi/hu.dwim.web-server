@@ -8,7 +8,7 @@
 ;;; Tooltip mixin
 
 (def (component e) tooltip/mixin ()
-  ((tooltip :type component*))
+  ((tooltip :type component))
   (:documentation "A COMPONENT with a tooltip."))
 
 ;;;;;;

@@ -8,8 +8,8 @@
 ;;; Expandible abstract
 
 (def (component e) expandible/abstract ()
-  ((collapsed-content :type component*)
-   (expanded-content :type component*))
+  ((collapsed-content :type component)
+   (expanded-content :type component))
   (:documentation "A component with two different contents, the expanded and the collapsed variants."))
 
 (def (macro e) expandible ((&rest args &key &allow-other-keys) &body content)

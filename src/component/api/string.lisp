@@ -32,6 +32,18 @@
   "42")
 
 ;;;;;;
+;;; Component value
+
+(def method component-value-of ((self string))
+  nil)
+
+(def method (setf component-value-of) (new-value (self string))
+  (operation-not-supported))
+
+(def method reuse-component-value ((self string) class prototype value)
+  (values))
+
+;;;;;;
 ;;; Refresh component
 
 (def layered-method refresh-component ((self string))

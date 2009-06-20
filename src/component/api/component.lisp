@@ -204,6 +204,18 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
     (class-prototype it)))
 
 ;;;;;;
+;;; Component value
+
+(def method component-value-of ((self component))
+  nil)
+
+(def method (setf component-value-of) (new-value (self component))
+  (operation-not-supported))
+
+(def method reuse-component-value ((self component) class prototype value)
+  (values))
+
+;;;;;;
 ;;; Component editing
 
 (def method editable-component? ((self component))

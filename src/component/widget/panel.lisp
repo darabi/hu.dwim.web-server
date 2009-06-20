@@ -8,14 +8,14 @@
 ;;; Header
 
 (def (component e) header/mixin ()
-  ((header :type component*))
+  ((header :type component))
   (:documentation "A component with a header component."))
 
 ;;;;;;
 ;;; Footer
 
 (def (component e) footer/mixin ()
-  ((footer :type component*))
+  ((footer :type component))
   (:documentation "A component with a footer component."))
 
 ;;;;;;

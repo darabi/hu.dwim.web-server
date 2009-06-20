@@ -24,6 +24,11 @@
 (def (component e) style/mixin (style-class/mixin custom-style/mixin)
   ())
 
+(def with-macro* with-render-style/mixin (self &key (element-name "div"))
+  (bind (((:read-only-slots style-class custom-style) self))
+    <,element-name (:class ,style-class :style ,custom-style)
+      ,(-body-)>))
+
 ;;;;;;
 ;;; Style abstract
 

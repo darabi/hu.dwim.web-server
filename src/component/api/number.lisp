@@ -32,6 +32,18 @@
   42)
 
 ;;;;;;
+;;; Component value
+
+(def method component-value-of ((self number))
+  nil)
+
+(def method (setf component-value-of) (new-value (self number))
+  (operation-not-supported))
+
+(def method reuse-component-value ((self number) class prototype value)
+  (values))
+
+;;;;;;
 ;;; Refresh component
 
 (def layered-method refresh-component ((self number))
