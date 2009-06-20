@@ -61,7 +61,7 @@
   (bind ((place (place-of place-inspector))
          (value (place-component-value-of (content-of place-inspector))))
     (handler-bind ((type-error (lambda (error)
-                                 (add-user-error place-inspector "Nem megfelelő adat")
+                                 (add-component-error-message place-inspector "Nem megfelelő adat")
                                  (abort-interaction)
                                  (continue error))))
       (setf (value-at-place place) value))))

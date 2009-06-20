@@ -179,7 +179,7 @@
     (prog1-bind component
         (call-next-method)
       (unless instances
-        (add-user-warning component #"no-matches-were-found")))))
+        (add-component-warning-message component #"no-matches-were-found")))))
 
 (def (layered-function e) filter-instances (component class)
   (:method ((component standard-object-filter) (class standard-class))

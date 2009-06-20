@@ -41,7 +41,7 @@
 (def render-csv command-bar/basic
   (write-csv-separated-elements #\Space (commands-of -self-)))
 
-(def render-component :in passive-components-layer command-bar/basic
+(def render-component :in passive-layer command-bar/basic
   (values))
 
 (def generic find-command-bar (component)

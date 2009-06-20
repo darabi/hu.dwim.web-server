@@ -50,8 +50,8 @@
   (:method ((self node/basic))
     (concatenate-string "level-" (integer-to-string *tree-level*) " " (css-class-of self))))
 
-(def (function e) render-tree-node-expander (node/basic)
-  (bind (((:slots child-nodes expanded) node/basic)
+(def (function e) render-tree-node-expander (node)
+  (bind (((:slots child-nodes expanded) node)
          (tree *tree*))
     (if child-nodes
         (bind ((id (generate-response-unique-string)))

@@ -80,4 +80,4 @@
 ;;; Print component
 
 (def method print-component ((self string) &optional (*standard-output* *standard-output*))
-  (write-string self))
+  (prin1 self))

@@ -48,6 +48,6 @@
     <table:table-row ,(foreach #'render-component (columns-of -self-))>
     ,(foreach #'render-component (root-nodes-of -self-))>)
 
-(def (layered-function e) render-tree-columns (tree/basic)
-  (:method ((self tree/basic))
+(def (layered-function e) render-tree-columns (tree)
+  (:method ((self tree))
     (foreach #'render-component (columns-of self))))

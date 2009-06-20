@@ -5,12 +5,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Passive components layer
-
-(def (layer e) passive-components-layer ()
-  ())
-
-;;;;;;
 ;;; Command basic
 
 (def (component e) command/basic (content/mixin enableable/mixin)
@@ -78,7 +72,7 @@
   (bind (((:read-only-slots content action enabled default ajax js action-arguments) -self-))
     (render-command content action :enabled enabled :default default :ajax ajax :js js :action-arguments action-arguments)))
 
-(def render-component :in passive-components-layer command/basic
+(def render-component :in passive-layer command/basic
   (render-component (content-of -self-)))
 
 (def function href-for-command (action action-arguments)
@@ -133,7 +127,7 @@
 (def (function e) execute-command (command)
   (bind ((executable? #t))
     (flet ((report-error (string)
-             (add-user-error command string)
+             (add-component-error-message command string)
              (setf executable? #f)))
       (unless (available? command)
         (report-error #"execute-command.command-unavailable"))

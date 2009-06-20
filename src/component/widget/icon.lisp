@@ -5,21 +5,42 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Icon abstract
+;;; Icons cache
 
-(def (component e) icon/abstract ()
-  ())
+(def special-variable *icons* (make-hash-table))
 
-(def method supports-debug-component-hierarchy? ((self icon/abstract))
-  #f)
+(def (function e) find-icon (name &key (otherwise (list :error "The icon ~A cannot be found" name)))
+  (prog1-bind icon (gethash name *icons*)
+    (unless icon
+      (handle-otherwise otherwise))))
+
+(def function (setf find-icon) (icon name)
+  (setf (gethash name *icons*) icon))
 
 ;;;;;;
 ;;; Icon basic
 
-(def (component e) icon/basic (icon/abstract tooltip/mixin)
+(def (component e) icon/basic (tooltip/mixin)
   ((name :type symbol)
-   (label :type (or null string))
+   (label :type (or null component))
    (image-path :type (or null string))))
+
+(def (macro e) icon/basic (name &rest args)
+  `(make-icon/basic ',name ,@args))
+
+(def (function e) make-icon/basic (name &rest args)
+  (bind ((icon (find-icon name :otherwise nil)))
+    (if icon
+        (if args
+            (apply #'make-instance 'icon/basic
+                   :name name (append args
+                                      (list :label (label-of icon)
+                                            :image-path (image-path-of icon)
+                                            :tooltip (tooltip-of icon))))
+            icon)
+        (if args
+            (apply #'make-instance 'icon/basic :name name args)
+            (error "The icon ~A cannot be found and no arguments were specified" name)))))
 
 (def render-component icon/basic
   (render-component (label-of -self-)))
@@ -60,36 +81,14 @@
 (def function icon-class (name)
   (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
 
-(def (macro e) icon (name &rest args)
-  `(make-icon/basic ',name ,@args))
-
-(def (function e) make-icon/basic (name &rest args)
-  (bind ((icon (find-icon name :otherwise nil)))
-    (if icon
-        (if args
-            (apply #'make-instance 'icon/basic
-                   :name name (append args
-                                      (list :label (label-of icon)
-                                            :image-path (image-path-of icon)
-                                            :tooltip (tooltip-of icon))))
-            icon)
-        (if args
-            (apply #'make-instance 'icon/basic :name name args)
-            (error "The icon ~A cannot be found and no arguments were specified" name)))))
+(def method supports-debug-component-hierarchy? ((self icon/abstract))
+  #f)
 
 ;;;;;;
-;;; Icons cache
+;;; Icon
 
-(def special-variable *icons* (make-hash-table))
-
-(def (function e) find-icon (name &key (otherwise ;; TODO breaks sbcl, bug reported `(:error "The icon ~A cannot be found" ,name)
-                                                  (list :error "The icon ~A cannot be found" name)))
-  (prog1-bind icon (gethash name *icons*)
-    (unless icon
-      (handle-otherwise otherwise))))
-
-(def function (setf find-icon) (icon name)
-  (setf (gethash name *icons*) icon))
+(def (macro e) icon (name &rest args)
+  `(icon/basic ,name ,@args))
 
 (def (definer e :available-flags "e") icon (name &key image-path (label nil label-p) (tooltip nil tooltip-p))
   (bind ((name-as-string (string-downcase name)))
@@ -99,7 +98,7 @@
                           :image-path ,image-path
                           :label ,(if label-p
                                       label
-                                      `(delay (lookup-resource ,(concatenate-string "icon-label." name-as-string))))
+                                      `(lookup-resource ,(concatenate-string "icon-label." name-as-string)))
                           :tooltip ,(if tooltip-p
                                         tooltip
-                                        `(delay (lookup-resource ,(concatenate-string "icon-tooltip." name-as-string))))))))
+                                        `(lookup-resource ,(concatenate-string "icon-tooltip." name-as-string)))))))

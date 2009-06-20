@@ -430,12 +430,13 @@
 ;;;;;;
 ;;; Render component layer
 
-(def (definer e :available-flags "e") render-component-layer (name documentation)
+(def (definer e :available-flags "e") render-component-layer (name supers documentation)
   "Defines a RENDER-COMPONENT-LAYER so that RENDER-COMPONENT and various other protocols can be customized on it."
   (bind ((layer-name (format-symbol *package* "~A-LAYER" name))
-         (render-definer-name (format-symbol *package* "RENDER-~A" name)))
+         (render-definer-name (format-symbol *package* "RENDER-~A" name))
+         (super-layer-names (mapcar [format-symbol *package* "~A-LAYER" !1] supers)))
     `(progn
-       (def (layer ,@-options-) ,layer-name () ())
+       (def (layer ,@-options-) ,layer-name ,super-layer-names ())
        (def (function ,@-options-) ,render-definer-name (component)
          (with-active-layers (,layer-name)
            (render-component component)))
@@ -445,17 +446,25 @@
 
 (def (special-variable e :documentation "The output stream for rendering components in text format.") *text-stream*)
 
-(def (render-component-layer e) text "Rendering into pure text.")
+(def (render-component-layer e) text () "Rendering into pure text.")
 
-(def (render-component-layer e) xhtml "Rendering into XHTML and JavaScript.")
+(def (render-component-layer e) xhtml () "Rendering into XHTML with JavaScript.")
 
-(def (render-component-layer e) csv "Rendering into Comma Separated Values.")
+(def (render-component-layer e) offline () "Rendering into offline content that works without the server.")
 
-(def (render-component-layer e) pdf "Rendering into Portable Document Format.")
+(def (render-component-layer e) passive () "Rendering into passive content that does not provide behaviour.")
 
-(def (render-component-layer e) ods "Rendering into Open Office Spreadsheet.")
+(def (render-component-layer e) offline-xhtml (offline xhtml) "Rendering into offline XHTML with JavaScript that works without the server.")
 
-(def (render-component-layer e) odt "Rendering into Open Office Document.")
+(def (render-component-layer e) passive-xhtml (passive xhtml) "Rendering into staic XHTML with JavaScript that does not provide behaviour.")
+
+(def (render-component-layer e) csv () "Rendering into Comma Separated Values.")
+
+(def (render-component-layer e) pdf () "Rendering into Portable Document Format.")
+
+(def (render-component-layer e) ods () "Rendering into Open Office Spreadsheet.")
+
+(def (render-component-layer e) odt () "Rendering into Open Office Document.")
 
 ;;;;;;
 ;;; Refresh component

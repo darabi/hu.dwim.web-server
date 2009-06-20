@@ -113,7 +113,7 @@
 (def (function e) make-standard-object-list-table-command-bar-column ()
   (make-instance 'column-component
                  :content #"object-list-table.column.commands"
-                 :visible (delay (not (layer-active-p 'passive-components-layer)))
+                 :visible (delay (not (layer-active-p 'passive-layer)))
                  :cell-factory #'context-menu-of))
 
 (def (layered-function e) make-standard-object-list-table-inspector-columns (component)

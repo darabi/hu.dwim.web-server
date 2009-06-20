@@ -460,4 +460,4 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
                             (prin1 (subseq value 0 *print-length*))
                             (bind ((*print-circle* #f))
                               (princ "...>")))
-                          (princ value))))))))))
+                          (prin1 value))))))))))

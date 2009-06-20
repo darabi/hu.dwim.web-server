@@ -219,8 +219,8 @@
                                 :depends-on ("mixin"))
                                (:module "widget"
                                 :components ((:file "inline")
-                                             #+nil
                                              (:file "icon")
+                                             (:file "command")
                                              #+nil
                                              ((:file "alternator")
                                               (:file "authentication")
@@ -228,7 +228,6 @@
                                               (:file "cell")
                                               (:file "column")
                                               (:file "command-bar")
-                                              (:file "command")
                                               (:file "debug")
                                               (:file "expression")
                                               (:file "extended-table")

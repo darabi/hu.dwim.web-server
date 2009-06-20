@@ -64,7 +64,7 @@
                    expression new-value)
              #t)
            (progn
-             (add-user-error self "Literal value has invalid type: ~A" new-value)
+             (add-component-error-message self "Literal value has invalid type: ~A" new-value)
              #f)))
       (cons
        (bind ((name (car new-value))
@@ -94,7 +94,7 @@
                                                   (make-remove-expression-argument-command self))))
                  #t)
                (progn
-                 (add-user-error self "Function does not return expected type: ~A" new-value)
+                 (add-component-error-message self "Function does not return expected type: ~A" new-value)
                  #f))))))))
 
 (def function accept-expression (component)

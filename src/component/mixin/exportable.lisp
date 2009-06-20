@@ -10,7 +10,7 @@
 (def (component e) exportable/abstract ()
   ())
 
-(def layered-method make-export-commands (component class prototype value)
+(def layered-method make-export-commands ((component exportable/abstract) class prototype value)
   (optional-list (make-export-command :csv component class prototype value)
                  (make-export-command :pdf component class prototype value)
                  (make-export-command :ods component class prototype value)

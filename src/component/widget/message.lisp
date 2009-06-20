@@ -37,16 +37,16 @@
 (def (function e) remove-user-messages-if (collector predicate)
   (setf (messages-of collector) (delete-if predicate (messages-of collector))))
 
-(def method add-user-information ((collector user-messages/basic) message &rest message-args)
-  (add-user-message collector message message-args :category :information))
+(def method add-component-information-message ((collector user-messages/basic) message &rest message-args)
+  (add-component-message collector message message-args :category :information))
 
-(def method add-user-warning ((collector user-messages/basic) message &rest message-args)
-  (add-user-message collector message message-args :category :warning))
+(def method add-component-warning-message ((collector user-messages/basic) message &rest message-args)
+  (add-component-message collector message message-args :category :warning))
 
-(def method add-user-error ((collector user-messages/basic) message &rest message-args)
-  (add-user-message collector message message-args :category :error))
+(def method add-component-error-message ((collector user-messages/basic) message &rest message-args)
+  (add-component-message collector message message-args :category :error))
 
-(def method add-user-message ((component user-messages/basic) message message-args &rest initargs)
+(def method add-component-message ((component user-messages/basic) message message-args &rest initargs)
   (assert (typep content '(or null component)))
   (appendf (messages-of collector)
            (list (if (typep message 'user-message/basic)
