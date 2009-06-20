@@ -252,6 +252,7 @@
 ;;; Menu
 
 (def resources en
+  (icon-label.menu "Menu")
   (icon-tooltip.show-context-menu "Show context menu")
   (context-menu.move-commands "Move"))
 
@@ -300,8 +301,8 @@
 ;;; Tab container
 
 (def resources en
-  (icon-label.swith-to-page "Page")
-  (icon-tooltip.swith-to-page "Switch to page"))
+  (icon-label.swith-to-tab-page "Page")
+  (icon-tooltip.swith-to-tab-page "Switch to page"))
 
 ;;;;;;
 ;;; Top

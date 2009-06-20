@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Paragraph basic
 
-(def (component e) paragraph/basic (contents/abstract style/mixin)
+(def (component e) paragraph/basic (component/basic contents/abstract style/mixin)
   ((style-class "paragraph")))
 
 (def macro paragraph/basic ((&rest args &key &allow-other-keys) &body contents)
@@ -36,7 +36,7 @@
 ;;;;;;
 ;;; Emphasize basic
 
-(def (component e) emphasize/basic (contents/abstract style/mixin)
+(def (component e) emphasize/basic (component/basic contents/abstract style/mixin)
   ((style-class "emphasize")))
 
 (def macro emphasize/basic ((&rest args &key &allow-other-keys) &body contents)

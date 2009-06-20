@@ -1,3 +1,12 @@
+/* book */
+.book .title {
+  font-size: 24px;
+}
+
+.chapter .title {
+  font-size: 18px;
+}
+
 /* odd even */
 
 tr.odd-row {
@@ -519,7 +528,7 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image: url("/static/wui/icons/20x20/document.png");
 }
 
-.swith-to-page-icon {
+.swith-to-tab-page-icon {
   background-image: url("/static/wui/icons/20x20/eye.png");
 }
 

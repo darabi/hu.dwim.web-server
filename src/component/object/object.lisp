@@ -220,14 +220,14 @@
 ;;;;;;
 ;;; Standard object slot value inspector
 
-(def (component e) standard-object-slot-value/inspector (standard-object-slot/mixin user-messages/mixin id/mixin)
+(def (component e) standard-object-slot-value/inspector (standard-object-slot/mixin component-messages/basic id/mixin)
   ((label nil :type component)
    (value nil :type component)))
 
 (def render-xhtml standard-object-slot-value/inspector
   (bind (((:read-only-slots label value id messages) -self-))
     (when messages
-      <tr <td (:colspan 2) ,(render-user-messages -self-)>>)
+      <tr <td (:colspan 2) ,(render-component-messages -self-)>>)
     <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label") ,(render-component label)>
         <td (:class "slot-value-value") ,(render-component value)>>))

@@ -30,7 +30,7 @@
 ;;       needs refactoring, less direct manipulation and more generalism through inheritance 
 (def (component e) identifier-and-password-login/basic (login/basic
                                                          title/mixin
-                                                         user-messages/mixin
+                                                         component-messages/basic
                                                          remote-setup/mixin)
   ((identifier nil)
    (password nil)
@@ -64,7 +64,7 @@
          (id (id-of -self-)))
     <div (:id ,id :class "identifier-and-password-login-component")
      ,(render-title -self-)
-     ,(render-user-messages -self-)
+     ,(render-component-messages -self-)
      <table
        <tr <td (:class "label") ,#"login.identifier<>">
            <td (:class "value")

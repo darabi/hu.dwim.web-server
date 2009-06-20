@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Command basic
 
-(def (component e) command/basic (content/mixin enableable/mixin)
+(def (component e) command/basic (component/basic content/mixin enableable/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available
@@ -69,8 +69,8 @@
                             :action-arguments ,action-arguments)))))))
 
 (def render-xhtml command/basic
-  (bind (((:read-only-slots content action enabled default ajax js action-arguments) -self-))
-    (render-command content action :enabled enabled :default default :ajax ajax :js js :action-arguments action-arguments)))
+  (bind (((:read-only-slots content action enabled-component default ajax js action-arguments) -self-))
+    (render-command content action :enabled enabled-component :default default :ajax ajax :js js :action-arguments action-arguments)))
 
 (def render-component :in passive-layer command/basic
   (render-component (content-of -self-)))

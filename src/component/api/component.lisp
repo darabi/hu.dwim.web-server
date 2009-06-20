@@ -319,13 +319,13 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 (def render-component component
   (operation-not-supported))
 
-(def method to-be-rendered-component? (component)
+(def method to-be-rendered-component? ((self component))
   #t)
 
-(def method mark-to-be-rendered-component (component)
-  (operation-not-supported))
+(def method mark-to-be-rendered-component ((self component))
+  (map-child-components self #'mark-to-be-rendered-component))
 
-(def method mark-rendered-component (component)
+(def method mark-rendered-component ((self component))
   (operation-not-supported))
 
 ;;;;;;
@@ -338,7 +338,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   #f)
 
 (def method mark-to-be-refreshed-component ((self component))
-  (operation-not-supported))
+  (map-child-components self #'mark-to-be-refreshed-component))
 
 (def method mark-refreshed-component ((self component))
   (operation-not-supported))
@@ -412,16 +412,30 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Component layout
 
-(def (component e) component/layout (parent/mixin visibility/mixin)
+(def (component e) component/abstract (parent/mixin visibility/mixin)
   ()
-  (:documentation "A LAYOUT is a COMPONENT which does not have any visual appearance on its own. If all child COMPONENTS positioned by a LAYOUT is EMPTY then the whole COMPONENT is invisible."))
+  (:documentation "An COMPONENT/ABSTRACT supports navigation through the COMPONENT-HIERARCHY with PARENT-COMPONENT-OF and VISIBILITY with HIDE-COMPONENT and SHOW-COMPONENT."))
+
+;;;;;;
+;;; Component layout
+
+(def (component e) component/layout (component/abstract)
+  ()
+  (:documentation "A COMPONENT/LAYOUT does not have any visual appearance on its own. If all CHILD-COMPONENTs positioned by a LAYOUT are EMPTY/LAYOUTs, then the whole COMPONENT/LAYOUT is invisible."))
 
 ;;;;;;
 ;;; Component basic
 
-(def (component e) component/basic (renderable/mixin refreshable/mixin parent/mixin visibility/mixin)
+(def (component e) component/basic (component/abstract refreshable/mixin renderable/mixin)
   ()
-  (:documentation "A base class for COMPONENTs."))
+  (:documentation "A COMPONENT/BASIC supports REFRESH-COMPONENT and AJAX rendering with RENDER-COMPONENT."))
+
+;;;;;;
+;;; Component full
+
+(def (component e) component/full (component/basic cloneable/abstract style/abstract enableable/mixin)
+  ()
+  (:documentation "A COMPONENT/FULL supports cloning with CLONE-COMPONENT, styles through STYLE-CLASS, CUSTOM-STYLE and REMOTE-SETUP, and ENABLE-COMPONENT, DISABLE-COMPONENT."))
 
 ;;;;;;
 ;;; Print component
@@ -446,7 +460,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
                   (repeat (or *print-length* most-positive-fixnum))
                   (for slot :in (class-slots class))
                   (when (and (child-component-slot? self slot)
-                             (slot-value-using-class class self slot))
+                             (slot-boundp-using-class class self slot))
                     (bind ((initarg (first (slot-definition-initargs slot)))
                            (value (slot-value-using-class class self slot)))
                       (write-char #\Space)

@@ -26,7 +26,8 @@
   ())
 
 (def refresh-component content/abstract
-  (mark-to-be-refreshed-component (content-of -self-)))
+  (awhen (content-of -self-)
+    (mark-to-be-refreshed-component it)))
 
 (def method component-value-of ((self content/abstract))
   (component-value-of (content-of self)))

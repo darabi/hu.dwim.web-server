@@ -128,11 +128,11 @@
 ;;; Standard object node inspector
 
 (def (component e) standard-object-tree-node-inspector (abstract-standard-object-node-component
-                                                       inspector/abstract
-                                                       node/basic
-                                                       editable/mixin
-                                                       user-messages/mixin
-                                                       commands/mixin)
+                                                        inspector/abstract
+                                                        node/basic
+                                                        editable/mixin
+                                                        component-messages/basic
+                                                        commands/mixin)
   ())
 
 (def refresh-component standard-object-tree-node-inspector
@@ -167,7 +167,7 @@
   (when (messages-of -self-)
     (render-entire-node (find-ancestor-component-with-type -self- 'tree/basic) -self-
                         (lambda ()
-                          (render-user-messages -self-))))
+                          (render-component-messages -self-))))
   (call-next-method))
 
 (def layered-method render-onclick-handler ((self standard-object-tree-node-inspector) (button (eql :left)))

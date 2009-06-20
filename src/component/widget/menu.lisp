@@ -9,7 +9,7 @@
 
 (def (component e) menu-items/mixin ()
   ((menu-items nil :type components))
-  (:documentation "A component with a set of menu items."))
+  (:documentation "A COMPONENT with a set of MENU-ITEMs."))
 
 ;;;;;;
 ;;; Menu abstract
@@ -17,7 +17,7 @@
 (def (component e) menu/abstract (menu-items/mixin content/mixin id/mixin style/mixin)
   ()
   (:default-initargs :content (empty))
-  (:documentation "A top level component in a menu hierarchy."))
+  (:documentation "A top level COMPONENT in a MENU hierarchy."))
 
 (def (icon e) menu :tooltip nil)
 
@@ -26,9 +26,9 @@
 
 (def (component e) menu-bar/basic (menu/abstract)
   ((target-place nil :type place))
-  (:documentation "A menu component that is always shown."))
+  (:documentation "A MENU that is always shown."))
 
-(def (macro e) menu-bar ((&rest args &key &allow-other-keys) &body menu-items)
+(def (macro e) menu-bar/basic ((&rest args &key &allow-other-keys) &body menu-items)
   `(make-menu-bar/basic (list ,@menu-items) ,@args))
 
 (def (function e) make-menu-bar/basic (menu-items &key id css-class style)
@@ -53,7 +53,10 @@
 
 (def (component e) popup-menu/basic (menu/abstract)
   ()
-  (:documentation "A menu component that is shown upon explicit user action."))
+  (:documentation "A MENU that is shown upon explicit user interaction."))
+
+(def (macro e) popup-menu/basic ((&rest args &key &allow-other-keys) &body menu-items)
+  `(make-popup-menu (list ,@menu-items) ,@args))
 
 (def (function e) make-popup-menu (menu-items &key id css-class style)
   (make-instance 'popup-menu/basic
@@ -61,9 +64,6 @@
                  :id id
                  :css-class css-class
                  :style style))
-
-(def (macro e) popup-menu (&body menu-items)
-  `(make-popup-menu (list ,@menu-items)))
 
 (def function render-popup-menu (component &key target-node-id)
   (bind (((:read-only-slots menu-items id css-class style) component))
@@ -82,16 +82,16 @@
   (render-popup-menu -self-))
 
 (def render-csv popup-menu/basic
-  (write-csv-separated-elements #\Space (commands-of -self-)))
+  (write-csv-separated-elements #\Space (menu-items-of -self-)))
 
 ;;;;;
 ;;; Context menu basic
 
 (def (component e) context-menu/basic (popup-menu/basic)
   ((target))
-  (:documentation "A popup menu component that is attached to another component as a context menu."))
+  (:documentation "A POPUP-MENU that is attached to another COMPONENT as a CONTEXT-MENU."))
 
-(def (macro e) context-menu (target menu-items)
+(def (macro e) context-menu/bacic (target menu-items)
   `(make-instance 'context-menu/basic
                   :target ,target
                   :content (icon show-context-menu)
@@ -107,7 +107,7 @@
 
 (def (component e) context-menu/mixin ()
   ((context-menu :type component))
-  (:documentation "A component with a context menu attached to it."))
+  (:documentation "A COMPONENT with a CONTEXT-MENU attached to it."))
 
 (def refresh-component context-menu/mixin
   (bind ((class (component-dispatch-class -self-))
@@ -186,13 +186,13 @@
   <div (:dojoType #.+dijit/menu-separator+)>)
 
 ;;;;;;
-;;; Replace menu target command component
+;;; Replace menu target command
 
-(def (component e) replace-menu-target-command-component (command/basic)
+(def (component e) replace-menu-target-command (command/basic)
   ((component))
   (:documentation "A special command that will replace the main menu target place with its component."))
 
-(def constructor replace-menu-target-command-component ()
+(def constructor replace-menu-target-command ()
   (setf (action-of -self-)
         (make-action
           (bind ((menu-component
@@ -205,4 +205,4 @@
                   (component-at-place (target-place-of menu-component)) component)))))
 
 (def (macro e) replace-menu-target-command (content &body forms)
-  `(make-instance 'replace-menu-target-command-component :content ,content :component (delay ,@forms)))
+  `(make-instance 'replace-menu-target-command :content ,content :component (delay ,@forms)))

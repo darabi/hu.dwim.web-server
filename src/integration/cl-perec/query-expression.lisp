@@ -40,7 +40,7 @@
 ;;;;;;
 ;;; Generic filter
 
-(def (component ea) generic-filter (filter/abstract title-mixin user-messages/mixin id/mixin)
+(def (component ea) generic-filter (filter/abstract title-mixin component-messages/basic id/mixin)
   ((expression (make-instance 'select-expression-component) :type component)
    (command-bar :type component)
    (result (make-instance 'empty-component) :type component)))
@@ -53,7 +53,7 @@
   (bind (((:read-only-slots expression command-bar result id) -self-))
     <div (:id ,id :class "generic-filter")
          ,(render-title -self-)
-         ,(render-user-messages -self-)
+         ,(render-component-messages -self-)
          ,(render-component expression)
          ,(render-component command-bar)
          ,(render-component result)>

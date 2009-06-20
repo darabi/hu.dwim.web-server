@@ -29,12 +29,9 @@
   (:method ((self component))
     (render-component self)))
 
-(def (layered-function e) make-title (component class prototype value)
-  (:documentation "Creates the title of a component.")
-
-  (:method ((self title/mixin) class prototype value)
-    ;; don't change the title by default
-    (title-of self)))
+(def layered-method make-title ((self title/mixin) class prototype value)
+  ;; don't change the title by default
+  (title-of self))
 
 ;;;;;;
 ;;; Title bar mixin

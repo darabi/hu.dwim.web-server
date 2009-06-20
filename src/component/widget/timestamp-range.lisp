@@ -49,4 +49,4 @@
   (bind (((:read-only-slots single range range-begin range-end) -self-))
     (if single
         (render-component range)
-        (render-horizontal-list (list range-begin range-end)))))
+        (render-horizontal-list-layout (list range-begin range-end)))))

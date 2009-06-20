@@ -21,9 +21,9 @@
 ;;;;;;
 ;;; Panel basic
 
-(def (component e) panel/basic (content/abstract title-bar/mixin visibility/mixin collapsible/mixin commands/mixin user-messages/mixin)
+(def (component e) panel/basic (content/abstract title-bar/mixin visibility/mixin collapsible/mixin commands/mixin component-messages/basic)
   ()
-  (:documentation "A panel with a title bar, context menu, user messages, commands and another component inside."))
+  (:documentation "A COMPONENT with a TITLE-BAR, CONTEXT-MENU, COMPONENT-MESSAGEs, COMMANDs and another COMPONENT inside."))
 
 (def (layered-function e) render-panel (component)
   (:method ((self panel/basic))
@@ -31,12 +31,12 @@
            (class-name (string-downcase (class-name (class-of self)))))
       (if (typep content '(or primitive-component reference-component))
           <span (:id ,id :class ,class-name)
-                ,(render-user-messages self)
+                ,(render-component-messages self)
                 ,(render-component content)>
           (progn
             <div (:id ,id :class ,class-name)
                  ,(render-component title-bar)
-                 ,(render-user-messages self)
+                 ,(render-component-messages self)
                  ,(render-component content)
                  ,(render-component command-bar)>
             (render-remote-setup self))))))

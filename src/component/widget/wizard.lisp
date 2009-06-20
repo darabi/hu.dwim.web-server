@@ -40,7 +40,7 @@
 
 (def render-xhtml wizard-navigation-bar-component
   (bind (((:read-only-slots first-command previous-command next-command last-command finish-command cancel-command) -self-))
-    (render-horizontal-list (list first-command previous-command next-command last-command finish-command cancel-command))))
+    (render-horizontal-list-layout (list first-command previous-command next-command last-command finish-command cancel-command))))
 
 (def (function e) make-finish-wizard-command (wizard)
   (command ()

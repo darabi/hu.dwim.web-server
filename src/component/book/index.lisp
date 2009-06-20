@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Word index basic 
 
-(def (component e) word-index/basic ()
+(def (component e) word-index/basic (component/basic)
   ())
 
 (def (macro e) word-index ()

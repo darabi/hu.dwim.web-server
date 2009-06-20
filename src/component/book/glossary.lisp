@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Glossary basic
 
-(def (component e) glossary/basic ()
+(def (component e) glossary/basic (component/basic)
   ())
 
 (def (macro e) glossary (&rest args &key &allow-other-keys)

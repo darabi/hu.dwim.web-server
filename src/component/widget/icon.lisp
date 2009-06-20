@@ -42,6 +42,12 @@
             (apply #'make-instance 'icon/basic :name name args)
             (error "The icon ~A cannot be found and no arguments were specified" name)))))
 
+(def method supports-debug-component-hierarchy? ((self icon/basic))
+  #f)
+
+(def method clone-component ((self icon/basic))
+  self)
+
 (def render-component icon/basic
   (render-component (label-of -self-)))
 
@@ -81,9 +87,6 @@
 (def function icon-class (name)
   (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
 
-(def method supports-debug-component-hierarchy? ((self icon/abstract))
-  #f)
-
 ;;;;;;
 ;;; Icon
 
@@ -92,13 +95,16 @@
 
 (def (definer e :available-flags "e") icon (name &key image-path (label nil label-p) (tooltip nil tooltip-p))
   (bind ((name-as-string (string-downcase name)))
-    `(setf (find-icon ',name)
-           (make-instance 'icon/basic
-                          :name ',name
-                          :image-path ,image-path
-                          :label ,(if label-p
-                                      label
-                                      `(lookup-resource ,(concatenate-string "icon-label." name-as-string)))
-                          :tooltip ,(if tooltip-p
-                                        tooltip
-                                        `(lookup-resource ,(concatenate-string "icon-tooltip." name-as-string)))))))
+    `(progn
+       (setf (find-icon ',name)
+             (make-instance 'icon/basic
+                            :name ',name
+                            :image-path ,image-path
+                            :label ,(if label-p
+                                        label
+                                        `(lookup-resource ,(concatenate-string "icon-label." name-as-string)))
+                            :tooltip ,(if tooltip-p
+                                          tooltip
+                                          `(lookup-resource ,(concatenate-string "icon-tooltip." name-as-string)))))
+       ,@(when (getf -options- :export)
+               `((export ',name))))))

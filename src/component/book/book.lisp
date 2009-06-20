@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Book basic
 
-(def (component e) book/basic (title/mixin)
+(def (component e) book/basic (component/basic title/mixin)
   ((author nil :type (or null component))
    (toc nil :type (or null component))
    (chapters :type components)

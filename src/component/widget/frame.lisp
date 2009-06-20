@@ -7,6 +7,18 @@
 ;;;;;;
 ;;; Frame
 
+(def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
+  `(frame/basic ,args ,@content))
+
+;;;;;;
+;;; Frame abstract
+
+(def method parent-component-of ((self frame/basic))
+  nil)
+
+;;;;;;
+;;; Frame basic
+
 (def (component e) frame/basic (top/abstract layer-context-capturing/mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
@@ -19,7 +31,7 @@
    (parse-dojo-widgets-on-load #f :type boolean)
    (debug-client-side *debug-client-side* :type boolean)))
 
-(def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
+(def (macro e) frame/basic ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'frame/basic ,@args :content ,(the-only-element content)))
 
 (def render-xhtml frame/basic

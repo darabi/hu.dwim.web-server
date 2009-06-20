@@ -90,9 +90,9 @@
   (if (and *ajax-aware-request*
            (ajax-enabled? *application*))
       (bind ((dirty-components
-              ;; KLUDGE: finding top/mixin and going down from there
-              (bind ((top (find-descendant-component-with-type component 'top/mixin)))
-                (assert top nil "There is no TOP/MIXIN above ~A, AJAX cannot be used in this situation at the moment" top)
+              ;; KLUDGE: finding top/abstract and going down from there
+              (bind ((top (find-descendant-component-with-type component 'top/abstract)))
+                (assert top nil "There is no TOP component below ~A, AJAX cannot be used in this situation at the moment" component)
                 (collect-covering-id-components-for-descendant-components top #'to-be-rendered-component?))))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         ;; FF does not like proper xml prologue, probably the other browsers even more so...

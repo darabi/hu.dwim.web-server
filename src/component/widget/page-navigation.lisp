@@ -60,7 +60,7 @@
 (def render-xhtml page-navigation-bar/basic
   (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-size) -self-))
     ;; FIXME: the select field rendered for page-count does not work by some fucking dojo reason
-    (render-horizontal-list (list first-command previous-command jumper #+nil page-size-selector next-command last-command))))
+    (render-horizontal-list-layout (list first-command previous-command jumper #+nil page-size-selector next-command last-command))))
 
 ;;;;;;
 ;;; Icon

@@ -11,8 +11,8 @@
 (def (special-variable e) *standard-process-component*)
 
 (def (component e) standard-process-component (content/mixin
-                                           user-messages/mixin
-                                           commands/mixin)
+                                               component-messages/basic
+                                               commands/mixin)
   ((form)
    (closure/cc nil)
    (answer-continuation nil)))
@@ -33,7 +33,7 @@
                 (funcall closure/cc)))))
     (unless (and content answer-continuation)
       (setf content "Process finished"))
-    <div ,(render-user-messages -self-)
+    <div ,(render-component-messages -self-)
          ,(render-component content)
          ,(render-component command-bar)>))
 

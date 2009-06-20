@@ -252,6 +252,7 @@
 ;;; Menu
 
 (def resources hu
+  (icon-label.menu "Menü")
   (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése")
   (context-menu.move-commands "Mozgatás"))
 
@@ -300,8 +301,8 @@
 ;;; Tab container
 
 (def resources hu
-  (icon-label.swith-to-page "Lap")
-  (icon-tooltip.swith-to-page "A lap előrehozása"))
+  (icon-label.swith-to-tab-page "Lap")
+  (icon-tooltip.swith-to-tab-page "A lap előrehozása"))
 
 ;;;;;;
 ;;; Top

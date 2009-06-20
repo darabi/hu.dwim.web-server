@@ -161,7 +161,7 @@
                                                  inspector/abstract
                                                  editable/mixin
                                                  row-component
-                                                 user-messages/mixin
+                                                 component-messages/basic
                                                  commands/mixin)
   ())
 
@@ -182,7 +182,7 @@
   (when (messages-of row)
     (render-entire-row table row
                        (lambda ()
-                         (render-user-messages row))))
+                         (render-component-messages row))))
   (call-next-method))
 
 (def layered-method make-context-menu-items ((component standard-object-row-inspector) (class standard-class) (prototype standard-object) (instance standard-object))

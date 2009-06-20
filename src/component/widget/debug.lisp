@@ -47,7 +47,7 @@
           (make-action (toggle-debug-client-side))))
     (menu-item ()
         ;; from http://turtle.dojotoolkit.org/~david/recss.html
-        (inline-render
+        (inline/basic
           <a (:href "#"
                     :class "command"
                     :onClick `js-inline(wui.reload-css))

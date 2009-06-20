@@ -125,6 +125,9 @@
 (def (layered-function e) make-switch-to-alternative-commands (component class prototype value)
   (:documentation "Creates a list of COMMANDs to switch between alternative views for COMPONENT with SWITCH-TO-ALTERNATIVE."))
 
+(def (layered-function e) make-switch-to-tab-page-command (component class prototype value)
+  (:documentation "TODO"))
+
 (def (layered-function e) make-go-to-first-page-command (component)
   (:documentation "TODO"))
 

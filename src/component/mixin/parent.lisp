@@ -11,7 +11,6 @@
   ((parent-component
     nil
     :type t
-    :accessor nil
     ;; TODO: can't use this type there, because it would make this slot a component-slot, which is not what we want
     ;;       we could introduce a :child-component slot option but that is somewhat difficult due to CLOS being unable
     ;;       to easily modify slot options during making the direct slots and thus resulting in an initarg error
@@ -22,7 +21,9 @@
 
 (def (function o) (setf parent-component-references) (child parent &optional parent-component-slot-index)
   (flet (((setf parent-component) (child)
-           (assert (not (parent-component-of child)) nil "The child ~A is already under a parent" child)
+           (bind ((current-parent (parent-component-of child)))
+             (assert (or (not current-parent)
+                         (eq current-parent parent)) nil "The child ~A is already under another parent" child current-parent))
            (if parent-component-slot-index
                (setf (standard-instance-access child parent-component-slot-index) parent)
                (setf (parent-component-of child) parent))))

@@ -33,7 +33,7 @@
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
 
-(def function find-latest-dojo-directory-name (wwwroot-directory)
+(def (function e) find-latest-dojo-directory-name (wwwroot-directory)
   (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
                                            (mapcar [last-elt (pathname-directory !1)]
                                                    (cl-fad:list-directory wwwroot-directory)))

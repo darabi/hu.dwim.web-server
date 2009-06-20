@@ -77,7 +77,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
                "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-http-test
+  :test-system :wui-http-server-test
   :components
   ((:module "src"
     :components ((:file "package")
@@ -143,7 +143,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-application-test
+  :test-system :wui-application-server-test
   :components
   ((:module "src"
     :components ((:module "application"
@@ -166,7 +166,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-component-test
+  :test-system :wui-component-server-test
   :components
   ((:module "src"
     :components ((:module "util"
@@ -203,10 +203,11 @@
                                              (:file "refreshable")
                                              (:file "renderable")
                                              (:file "resizable")
-                                             (:file "title" :depends-on ("refreshable"))
+                                             (:file "tooltip")
                                              (:file "top")
                                              (:file "value")
                                              (:file "visibility")
+                                             (:file "title" :depends-on ("refreshable"))
                                              (:file "id" :depends-on ("refreshable"))
                                              (:file "remote" :depends-on ("id"))
                                              (:file "style" :depends-on ("remote")))
@@ -218,17 +219,23 @@
                                              (:file "alternator"))
                                 :depends-on ("mixin"))
                                (:module "widget"
-                                :components ((:file "inline")
-                                             (:file "icon")
-                                             (:file "command")
+                                :components ((:file "icon")
+                                             (:file "inline")
+                                             (:file "message")
+                                             (:file "top" :depends-on ("message"))
+                                             (:file "frame" :depends-on ("top"))
+                                             (:file "command" :depends-on ("icon"))
+                                             (:file "command-bar" :depends-on ("command"))
+                                             (:file "menu" :depends-on ("command"))
+                                             (:file "debug" :depends-on ("menu" "frame"))
+                                             (:file "help" :depends-on ("icon"))
+                                             (:file "tab-container" :depends-on ("command-bar"))
                                              #+nil
                                              ((:file "alternator")
                                               (:file "authentication")
                                               (:file "border")
                                               (:file "cell")
                                               (:file "column")
-                                              (:file "command-bar")
-                                              (:file "debug")
                                               (:file "expression")
                                               (:file "extended-table")
                                               (:file "field")
@@ -237,23 +244,18 @@
                                               (:file "frame-size-breakdown")
                                               (:file "graph")
                                               (:file "header")
-                                              (:file "help")
                                               (:file "internal-error")
                                               (:file "image")
-                                              (:file "menu")
-                                              (:file "message")
                                               (:file "node")
                                               (:file "page-navigation")
                                               (:file "panel")
                                               (:file "pivot-table")
                                               (:file "row")
                                               (:file "splitter")
-                                              (:file "tab-container")
                                               (:file "table")
                                               (:file "timestamp-range")
                                               (:file "title")
                                               (:file "tooltip")
-                                              (:file "top")
                                               (:file "tree")
                                               (:file "wizard")))
                                 :depends-on ("layout"))
@@ -349,32 +351,32 @@
 ;;;;;;
 ;;; Test systems
 
-(defsystem* :wui-http-test
+(defsystem* :wui-http-server-test
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "package")
                  (:file "environment" :depends-on ("package"))
-                 (:file "server" :depends-on ("package")))))
+                 (:file "http" :depends-on ("environment")))))
   :depends-on (:wui-http-server :stefil :drakma))
 
-(defsystem* :wui-application-test
+(defsystem* :wui-application-server-test
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "application"))))
-  :depends-on (:wui-application-server :wui-http-test))
+  :depends-on (:wui-application-server :wui-http-server-test))
 
-(defsystem* :wui-component-test
+(defsystem* :wui-component-server-test
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
   :components
   ((:module "test"
-    :components ((:file "demo" :depends-on ("package")))))
-  :depends-on (:wui-component-server :wui-application-test))
+    :components ((:file "component"))))
+  :depends-on (:wui-component-server :wui-application-server-test))
 
-(defsystem* :wui-component-test
+(defsystem* :wui-test
   :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
-  :depends-on (:wui :wui-component-test))
+  :depends-on (:wui :wui-component-server-test))
 
 (defmethod perform ((op test-op) (system wui-system))
   (format *debug-io* "~%*** Testing ~A using the ~A test system~%~%" system (test-system-of system))

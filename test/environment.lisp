@@ -32,8 +32,11 @@
 (def special-variable *test-application* nil
   "The currently running test application.")
 
-(def special-variable *test-host*      +any-host+)
-(def special-variable *test-port*      8080)
+(def special-variable *test-host*      +any-host+
+  "The test server host.")
+
+(def special-variable *test-port*      8080
+  "The test server port.")
 
 (def symbol-macro +test-server-base-url+
   (print-uri-to-string (make-uri :scheme "http" :host *test-host* :port *test-port* :path "/")))

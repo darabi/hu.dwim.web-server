@@ -53,6 +53,7 @@
 ;;;;;;
 ;;; Test classes
 
+#|
 (def class* child-test ()
   ((name :type string)
    (size :type (member :small :big))
@@ -113,21 +114,21 @@
                               (vertical-list (:id "page")
                                 (when *session*
                                   (style (:id "header" :css-class "authenticated")
-                                    (inline-render <span ,(current-authenticated-subject)
-                                                         " "
-                                                         ,(when (running-in-test-mode-p *wudemo-application*)
-                                                                "(test mode)")
-                                                         " "
-                                                         ,(when (profile-request-processing-p *server*)
-                                                                "(profiling)")
-                                                         " "
-                                                         ,(when (debug-client-side? (root-component-of *frame*))
-                                                                "(debugging client side)")>
-                                                   <span ,(render
-                                                           (command (icon logout)
-                                                                    (make-action
-                                                                      (mark-session-invalid *session*)
-                                                                      (make-redirect-response-for-current-application))))>)))
+                                    (inline/basic <span ,(current-authenticated-subject)
+                                                        " "
+                                                        ,(when (running-in-test-mode-p *wudemo-application*)
+                                                               "(test mode)")
+                                                        " "
+                                                        ,(when (profile-request-processing-p *server*)
+                                                               "(profiling)")
+                                                        " "
+                                                        ,(when (debug-client-side? (root-component-of *frame*))
+                                                               "(debugging client side)")>
+                                                  <span ,(render-component
+                                                          (command (icon logout)
+                                                            (make-action
+                                                              (mark-session-invalid *session*)
+                                                              (make-redirect-response-for-current-application))))>)))
                                 (horizontal-list ()
                                   (style (:id "menu") menu)
                                   (top menu-content))))))
@@ -146,7 +147,7 @@
   (if (is-authenticated?)
       (empty)
       (if (parameter-value "example-error")
-          (inline-render
+          (inline/basic
             (error "This is an example error that happens while rendering the response"))
           (bind ((path (path-of (uri-of *request*))))
             (assert (starts-with-subseq (path-prefix-of *application*) path))
@@ -154,10 +155,10 @@
             (switch (path :test #'string=)
               (+login-entry-point-path+ (vertical-list ()
                                           (make-identifier-and-password-login-component)
-                                          (inline-render <div "FYI, the password is \"secret\"...">)))
+                                          (inline/basic <div "FYI, the password is \"secret\"...">)))
               ("help/" (make-help-component))
               ("about/" (make-about-component))
-              (t (inline-render <span "wudemo start page">)))))))
+              (t (inline/basic <span "wudemo start page">)))))))
 
 (def function make-unauthenticated-menu-component ()
   (macrolet ((command* (title path)
@@ -210,7 +211,7 @@
                    (list (menu-item () (command "Example error in action body"
                                          (make-action (error "This is an example error which is signaled when running the action body"))))
                          (menu-item () (replace-menu-target-command "Example error while rendering"
-                                         (inline-render (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
+                                         (inline/basic (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
           debug-menu))
       (menu-item () "Charts"
         (menu-item () "Charts from files"
@@ -253,17 +254,17 @@
                                    (make-action
                                      ;;(break "file in action: ~A" (component-value-of file-upload-component))
                                      ))
-                          (inline-render
+                          (inline/basic
                             (when (slot-boundp file-upload-component 'component-value)
                               (render-mime-part-details (component-value-of file-upload-component))))))))
       (menu-item () (replace-menu-target-command "Dojo InlineEditBox example"
-                      (inline-render
+                      (inline/basic
                         (render-example-inline-edit-box))))
       (menu-item () (replace-menu-target-command "checkbox"
                       (bind ((value1 #t)
                              (value2 #f))
                         (vertical-list ()
-                          (inline-render
+                          (inline/basic
                             (render-checkbox-field value1 :value-sink (lambda (value)
                                                                         (setf value1 value)))
                             (render-checkbox-field value2 :value-sink (lambda (value)
@@ -280,7 +281,7 @@
 
 (def function make-primitive-component-menu ()
   (labels ((make-primitive-menu-item-content (components)
-             (inline-render
+             (inline/basic
                <div ,(render-component (command (icon wui::refresh)
                                                 (make-action)))
                     <table ,(foreach (lambda (component)
@@ -313,7 +314,7 @@
                                                                                   (unless (eq value :unbound)
                                                                                     (list :component-value value)))))
                                                            (list
-                                                            (inline-render
+                                                            (inline/basic
                                                               (bind ((value (if (slot-boundp inspector 'component-value)
                                                                                 (component-value-of inspector)
                                                                                 :unbound)))
@@ -346,10 +347,10 @@
       (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text))))))
 
 (def function make-help-component ()
-  (inline-render <div "This is the help page">))
+  (inline/basic <div "This is the help page">))
 
 (def function make-about-component ()
-  (inline-render <div "This is the about page">))
+  (inline/basic <div "This is the about page">))
 
 ;;;;;;
 ;;; ajax counter example (only a proof-of-concept)
@@ -366,6 +367,26 @@
                       (incf (counter-of -self-)))))
        (render-command "increment" action)
        (render-command "increment without ajax" action :ajax #f))>)
+|#
+
+
+
+;; TODO: kill
+(def function make-wudemo-frame-component ()
+  (frame (:title "wudemo"
+          :stylesheet-uris *wudemo-stylesheet-uris*
+          :script-uris '#.+wudemo-script-uris+
+          :page-icon #.+wudemo-page-icon+)
+    (top ()
+      (tab-container ()
+        (tab-page ()
+          "Hello World")
+        (tab-page ()
+          (expandible ()
+            "SICP"
+            (book (:title "Structure and Interpretation of Computer Programs")
+              (chapter (:title "Introduction")
+                "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."))))))))
 
 ;;;;;;
 ;;; the entry points
@@ -374,7 +395,7 @@
 
 (def js-file-serving-entry-point *wudemo-application* "/wui/js/" (system-relative-pathname :wui "src/js/"))
 
-(def entry-point (*wudemo-application* :path "" :ensure-session #f :ensure-frame #t) ()
+(def entry-point (*wudemo-application* :path "" :with-session-logic #t :requires-valid-session #f :ensure-session #t :ensure-frame #t) ()
   (if *session*
       (progn
         (assert (and (boundp '*frame*) *frame*))
@@ -401,6 +422,7 @@
 (def entry-point (*wudemo-application* :path "help/") ()
   (make-component-rendering-response (make-wudemo-frame-component)))
 
+#|
 (def entry-point (*wudemo-application* :path +login-entry-point-path+ :with-session-logic #f)
     (identifier password continue-url user-action)
   (%login-entry-point identifier password continue-url user-action))
@@ -477,6 +499,7 @@
 (def function valid-login-identifier? (identifier)
   (and identifier
        (>= (length identifier) +minimum-login-identifier-length+)))
+|#
 
 (def function start-test-server-with-wudemo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)

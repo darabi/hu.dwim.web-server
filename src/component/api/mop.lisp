@@ -33,9 +33,10 @@
     (and child-component
          (or (subtypep type 'component)
              (subtypep type '(or null component))
-             (and (consp type)
-                  (eq (first type) 'components)
-                  (subtypep (second type) 'component))))))
+             (or (subtypep type 'components)
+                 (and (consp type)
+                      (eq (first type) 'components)
+                      (subtypep (second type) 'component)))))))
 
 (def method direct-slot-definition-class ((class component-class) &rest args)
   (if (component-slot? args)

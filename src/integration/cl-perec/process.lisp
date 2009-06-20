@@ -20,7 +20,7 @@
     (prc::revive-instance process)
     (when (typep content 'empty-component)
       (add-user-information -self- (process.message.report-process-state process)))
-    <div ,(render-user-messages -self-)
+    <div ,(render-component-messages -self-)
          ,(render-component content)
          ,(render-component command-bar) >))
 

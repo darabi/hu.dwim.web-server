@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Table of contents basic
 
-(def (component e) table-of-contents/basic ()
+(def (component e) table-of-contents/basic (component/basic)
   ())
 
 (def (macro e) table-of-contents ()

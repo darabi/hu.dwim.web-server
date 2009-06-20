@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Chapter basic
 
-(def (component e) chapter/basic (contents/abstract title/mixin)
+(def (component e) chapter/basic (component/basic contents/abstract title/mixin)
   ())
 
 (def (macro e) chapter/basic ((&rest args &key &allow-other-keys) &body contents)
