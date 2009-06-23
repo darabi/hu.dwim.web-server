@@ -412,11 +412,19 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image: url("/static/wui/icons/20x20/green-double-left-arrow.png");
 }
 
-.expand-icon {
+.expand-component-icon {
+  background-image: url("/static/wui/icons/20x20/arrowhead-right.png");
+}
+
+.collapse-component-icon {
+  background-image: url("/static/wui/icons/20x20/arrowhead-down.png");
+}
+
+.expand-reference-icon {
   background-image: url("/static/wui/icons/20x20/magnifier-plus.png");
 }
 
-.collapse-icon {
+.collapse-to-reference-icon {
   background-image: url("/static/wui/icons/20x20/magnifier-minus.png");
 }
 
