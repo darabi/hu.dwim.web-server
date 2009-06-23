@@ -24,7 +24,7 @@
 
 ;; TODO: move
 (def function make-toggle-expanded-command (component)
-  (command ()
+  (command (:ajax (ajax-of component))
     (if (expanded-component? component)
         (icon collapse-component)
         (icon expand-component))

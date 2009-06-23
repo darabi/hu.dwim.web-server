@@ -227,7 +227,8 @@
                                              (:file "command" :depends-on ("icon"))
                                              (:file "command-bar" :depends-on ("command"))
                                              (:file "menu" :depends-on ("command"))
-                                             (:file "debug" :depends-on ("menu" "frame"))
+                                             (:file "debug" :depends-on ("menu" "frame" "inline"))
+                                             (:file "expandible")
                                              (:file "help" :depends-on ("icon"))
                                              (:file "tab-container" :depends-on ("command-bar"))
                                              #+nil
@@ -240,7 +241,6 @@
                                               (:file "extended-table")
                                               (:file "field")
                                               (:file "file-up-and-download")
-                                              (:file "frame")
                                               (:file "frame-size-breakdown")
                                               (:file "graph")
                                               (:file "header")

@@ -410,7 +410,7 @@
   (if *session*
       (progn
         (setf (root-component-of *frame*) (make-viewer *session*))
-        (if (find-frame-for-request *session*)
+        (if (wui::find-frame-for-request *session*)
             (make-root-component-rendering-response *frame*)
             (make-redirect-response-for-current-application "session-info")))
       (make-functional-html-response ()
