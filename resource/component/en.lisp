@@ -23,11 +23,17 @@
   (icon-label.back "Back")
   (icon-tooltip.back "Move back")
 
-  (icon-label.expand "Expand")
-  (icon-tooltip.expand "Expand to detail")
+  (icon-label.expand-component nil)
+  (icon-tooltip.expand-component "Részletek megjelenítése")
 
-  (icon-label.collapse "Collapse")
-  (icon-tooltip.collapse "Collapse to reference")
+  (icon-label.collapse-component nil)
+  (icon-tooltip.collapse-component "Részletek elrejtése")
+
+  (icon-label.expand-from-reference "Expand")
+  (icon-tooltip.expand-from-reference "Expand to detail")
+
+  (icon-label.collapse-to-reference "Collapse")
+  (icon-tooltip.collapse-to-reference "Collapse to reference")
 
   (icon-label.filter "Filter")
   (icon-tooltip.filter "Execute the filter")

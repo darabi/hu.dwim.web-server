@@ -23,11 +23,17 @@
   (icon-label.back "Vissza")
   (icon-tooltip.back "Vissza a helyére")
 
-  (icon-label.expand "Kinyitás")
-  (icon-tooltip.expand "Részletek megjelenítése")
+  (icon-label.expand-component nil)
+  (icon-tooltip.expand-component "Részletek megjelenítése")
 
-  (icon-label.collapse "Összecsukás")
-  (icon-tooltip.collapse "Részletek elrejtése")
+  (icon-label.collapse-component nil)
+  (icon-tooltip.collapse-component "Részletek elrejtése")
+
+  (icon-label.expand-from-reference "Kinyitás")
+  (icon-tooltip.expand-from-reference "Részletek megjelenítése")
+
+  (icon-label.collapse-to-reference "Összecsukás")
+  (icon-tooltip.collapse-to-reference "Részletek elrejtése")
 
   (icon-label.filter "Keresés")
   (icon-tooltip.filter "A keresés végrehajtása")
