@@ -190,6 +190,7 @@
                                (:module "mixin"
                                 :components ((:file "cloneable")
                                              (:file "closable")
+                                             (:file "command-bar")
                                              (:file "content")
                                              (:file "draggable")
                                              (:file "editable")
@@ -198,6 +199,7 @@
                                              (:file "exportable")
                                              (:file "initargs")
                                              (:file "layer")
+                                             (:file "menu-bar")
                                              (:file "mouse")
                                              (:file "parent")
                                              (:file "refreshable")
