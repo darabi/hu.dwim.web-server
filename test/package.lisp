@@ -24,6 +24,8 @@
         :hu.dwim.wui.shortcut
         )
 
+  (:export #:test)
+
   (:shadowing-import-from :cl-syntax-sugar
                           #:define-syntax
                           )
@@ -32,8 +34,6 @@
            #:test
            #:uri
            #:test
-           )
-  (:export #:test
            ))
 
 (in-package :wui.test)
