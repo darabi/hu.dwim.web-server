@@ -224,6 +224,9 @@
 ;;;;;;
 ;;; Show/hide component
 
+(def (generic e) hideable-component? (component)
+  (:documentation "TRUE means COMPONENT can be VISIBLE/HIDDEN, FALSE otherwise."))
+
 (def (generic e) visible-component? (component)
   (:documentation "TRUE means COMPONENT is currently VISIBLE, FALSE means HIDDEN. If a COMPONENT is HIDDEN then it is not rendered at all."))
 
@@ -242,6 +245,9 @@
 ;;;;;;
 ;;; Enable/disable component
 
+(def (generic e) enableable-component? (component)
+  (:documentation "TRUE means COMPONENT can be DISABLED/ENABLED, FALSE otherwise."))
+
 (def (generic e) enabled-component? (component)
   (:documentation "TRUE means COMPONENT is currently ENABLED, FALSE means DISABLED."))
 
@@ -259,6 +265,9 @@
 
 ;;;;;;
 ;;; Expand/collapse component
+
+(def (generic e) expandible-component? (component)
+  (:documentation "TRUE means COMPONENT can be EXPANDED/COLLAPSED, FALSE otherwise."))
 
 (def (generic e) expanded-component? (component)
   (:documentation "TRUE means COMPONENT is currently EXPANDED, FALSE means COLLAPSED."))

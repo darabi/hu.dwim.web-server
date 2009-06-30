@@ -376,6 +376,9 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Show/hide component
 
+(def method hideable-component? ((self component))
+  #f)
+
 (def method visible-component? ((self component))
   #t)
 
@@ -394,6 +397,9 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Enable/disable component
 
+(def method enableable-component? ((self component))
+  #f)
+
 (def method enabled-component? ((self component))
   #t)
 
@@ -411,6 +417,9 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 
 ;;;;;;
 ;;; Expand/collapse component
+
+(def method expandible-component? ((self component))
+  #f)
 
 (def method expanded-component? ((self component))
   #t)

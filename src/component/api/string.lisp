@@ -63,6 +63,9 @@
 ;;;;;;
 ;;; Show/hide component
 
+(def method hideable-component? ((self string))
+  #f)
+
 (def method visible-component? ((self string))
   #t)
 
@@ -70,6 +73,36 @@
   (operation-not-supported))
 
 (def method show-component ((self string))
+  (values))
+
+;;;;;;
+;;; Enable/disable component
+
+(def method enableable-component? ((self string))
+  #f)
+
+(def method enabled-component? ((self string))
+  #t)
+
+(def method disable-component ((self string))
+  (operation-not-supported))
+
+(def method enable-component ((self string))
+  (values))
+
+;;;;;;
+;;; Expand/collapse component
+
+(def method expandible-component? ((self string))
+  #f)
+
+(def method expanded-component? ((self string))
+  #t)
+
+(def method collapse-component ((self string))
+  (operation-not-supported))
+
+(def method expand-component ((self string))
   (values))
 
 ;;;;;;
