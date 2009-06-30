@@ -5,8 +5,8 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; List basic
+;;; List widget
 
-(def (component e) list/basic ()
+(def (component e) list/widget ()
   ()
-  (:documentation "A widget COMPONENT with several COMPONENTs inside."))
+  (:documentation "A WIDGET/ABSTRACT with several COMPONENTs inside."))

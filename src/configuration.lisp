@@ -147,7 +147,7 @@
    :transformation-pipeline (make-xml-transformation-pipeline)))
 
 (register-readtable-for-swank
- '("HU.DWIM.WUI" "HU.DWIM.WUI-USER") 'setup-readtable)
+ '("HU.DWIM.WUI" "HU.DWIM.WUI.USER") 'setup-readtable)
 
 #+nil
 (def (macro e) transform-js (&body body)

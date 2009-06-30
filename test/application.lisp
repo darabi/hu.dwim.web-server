@@ -1,4 +1,4 @@
-(in-package :wui-test)
+(in-package :wui.test)
 
 ;;;;;;
 ;;; Test application for basic app features

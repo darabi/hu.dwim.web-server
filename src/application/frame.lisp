@@ -141,8 +141,8 @@
   (values))
 
 
-;;;;;;;;;;;;;;;;;;;;;;
-;;; client state sinks
+;;;;;;
+;;; Client state sinks
 
 (def constant +client-state-sink-id-length+ 8)
 

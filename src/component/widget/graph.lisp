@@ -5,9 +5,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Graph basic
+;;; Graph widget
 
-(def (component e) graph/basic ()
+(def (component e) graph/widget ()
   ())
 
 ;; TODO: copy it over from cl-perec/integration

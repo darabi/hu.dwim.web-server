@@ -7,6 +7,33 @@
   font-size: 18px;
 }
 
+/* tree */
+
+.node.level-0
+{
+  padding-left: 0em;
+}
+
+.node.level-1
+{
+  padding-left: 1em;
+}
+
+.node.level-2
+{
+  padding-left: 2em;
+}
+
+.node.level-3
+{
+  padding-left: 3em;
+}
+
+.node.level-4
+{
+  padding-left: 4em;
+}
+
 /* odd even */
 
 tr.odd-row {

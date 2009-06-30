@@ -10,21 +10,24 @@
 (def (component e) expandible (expandible/mixin)
   ())
 
-(def (macro e) expandible ((&rest args &key &allow-other-keys) &body content)
-  `(expandible/basic ,args ,@content))
-
 ;;;;;;
 ;;; Expandible abstract
 
-(def (component e) expandible/abstract (expandible component/abstract)
+(def (component e) expandible/abstract (expandible widget/abstract)
   ((collapsed-content :type component)
    (expanded-content :type component)
    (toggle-command :type component))
   (:documentation "A COMPONENT with two different COMPONENTs as content, the expanded and the collapsed variants."))
 
+(def function render-collapsed-content-for (component)
+  (render-component (collapsed-content-of component)))
+
+(def function render-expanded-content-for (component)
+  (render-component (expanded-content-of component)))
+
 ;; TODO: move
 (def function make-toggle-expanded-command (component)
-  (command (:ajax (ajax-of component))
+  (command/widget (:ajax (ajax-of component))
     (if (expanded-component? component)
         (icon collapse-component)
         (icon expand-component))
@@ -34,27 +37,25 @@
           (expand-component component)))))
 
 ;;;;;;
-;;; Expandible abstract
+;;; Expandible widget
 
-(def (component e) expandible/basic (expandible/abstract component/basic)
+(def (component e) expandible/widget (widget/basic expandible/abstract)
   ())
 
-(def (macro e) expandible/basic ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'expandible/basic ,@args :collapsed-content ,(first content) :expanded-content ,(second content)))
+(def (macro e) expandible/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'expandible/widget ,@args :collapsed-content ,(first content) :expanded-content ,(second content)))
 
-(def render-component expandible/basic
+(def render-component expandible/widget
   <span (:class "expandible")
     ,(render-component (make-toggle-expanded-command -self-))
     ,(if (expanded-component? -self-)
-         (render-component (expanded-content-of -self-))
-         (render-component (collapsed-content-of -self-)))>)
+         (render-expanded-content-for -self-)
+         (render-collapsed-content-for -self-))>)
 
 ;;;;;;
-;;; Expandible full
+;;; Icon
 
-(def (component e) expandible/full (expandible/basic component/full)
-  ())
+(def (icon e) expand-component)
 
-(def render-component expandible/full
-  (with-render-style/abstract (-self-)
-    (call-next-method)))
+(def (icon e) collapse-component)
+

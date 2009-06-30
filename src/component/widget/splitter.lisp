@@ -5,7 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Splitter basic
+;;; Splitter widget
 
-(def (component e) splitter/basic ()
+(def (component e) splitter/widget (widget/basic list/layout)
   ())
+
+(def (macro e) splitter/widget ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'splitter ,@args :contents (list ,@contents)))
+
+(def render-xhtml splitter/widget
+  (not-yet-implemented))

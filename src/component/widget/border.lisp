@@ -5,21 +5,8 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Border mixin
+;;; Border widget
 
-(def (component e) border/mixin ()
-  ((border :type component))
-  (:documentation "A component with a border."))
-
-(def (function e) render-with-border (style-class thunk)
-  <table (:class ,style-class :style "clear: both;")
-    <thead <tr <td (:class "border-left")>
-               <td (:class "border-center")>
-               <td (:class "border-right")>>>
-    <tbody <tr <td (:class "border-left")>
-               <td (:class "border-center")
-                   ,(funcall thunk)>
-               <td (:class "border-right")>>>
-    <tfoot <tr <td (:class "border-left")>
-               <td (:class "border-center")>
-               <td (:class "border-right")>>>>)
+(def (component e) border/widget (widget/basic content/abstract)
+  ()
+  (:documentation "A BORDER COMPONENT."))

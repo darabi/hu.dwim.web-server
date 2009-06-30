@@ -5,13 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Table of contents basic
+;;; TOC viewer
 
-(def (component e) table-of-contents/basic (component/basic)
+(def (component e) toc/viewer ()
   ())
 
-(def (macro e) table-of-contents ()
-  `(make-instance 'word-index/basic))
+(def (macro e) toc/viewer ()
+  `(make-instance 'toc/viewer))
 
-(def render-xhtml table-of-contents/basic
+(def render-xhtml toc/viewer
   (not-yet-implemented))

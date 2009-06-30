@@ -383,8 +383,8 @@
     (abort-server-request "The request's socket is not connected anymore")))
 
 
-;;;;;;;;;;;;;;;;;
-;;; serving stuff
+;;;;;;
+;;; Serving stuff
 
 (def definer content-serving-function (name args (&key headers cookies (stream '(client-stream-of *request*))
                                                        last-modified-at seconds-until-expires content-length)

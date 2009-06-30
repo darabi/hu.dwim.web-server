@@ -70,8 +70,8 @@
           (iterate-brokers-for-response visitor request initial-brokers (rest brokers) recursion-depth)))))))
 
 
-;;;;;;;;;;;
-;;; brokers
+;;;;;;
+;;; Brokers
 
 (def generic matches-request? (broker request)
   (:method (broker request)

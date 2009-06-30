@@ -5,15 +5,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Frame
+;;; Frame widget
 
-(def (macro e) frame ((&rest args &key &allow-other-keys) &body content)
-  `(frame/basic ,args ,@content))
-
-;;;;;;
-;;; Frame basic
-
-(def (component e) frame/basic (top/abstract layer-context-capturing/mixin)
+(def (component e) frame/widget (top/abstract layer-context-capturing/mixin)
   ((content-type +xhtml-content-type+)
    (stylesheet-uris nil)
    (script-uris nil)
@@ -25,13 +19,13 @@
    (parse-dojo-widgets-on-load #f :type boolean)
    (debug-client-side *debug-client-side* :type boolean)))
 
-(def (macro e) frame/basic ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'frame/basic ,@args :content ,(the-only-element content)))
+(def (macro e) frame/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'frame/widget ,@args :content ,(the-only-element content)))
 
-(def method parent-component-of ((self frame/basic))
+(def method parent-component-of ((self frame/widget))
   nil)
 
-(def render-xhtml frame/basic
+(def render-xhtml frame/widget
   (bind ((application *application*)
          (path-prefix (path-prefix-of application))
          (encoding (or (when *response*
@@ -131,7 +125,7 @@
                     :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
           ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
-               (render-component (content-of -self-)))
+               (render-content-for -self-))
              `js(on-load
                  (log.debug "Clearing the failed to load timer")
                  (clearTimeout document._wui_failed-to-load-timer)
@@ -139,7 +133,7 @@
                  (log.debug "Clearing the margin -10000px hackery")
                  (dojo.style document.body "margin" "0px")))>>>))
 
-(def method supports-debug-component-hierarchy? ((self frame/basic))
+(def method supports-debug-component-hierarchy? ((self frame/widget))
   #f)
 
 (def (generic e) application-relative-path-for-no-javascript-support-error (application)

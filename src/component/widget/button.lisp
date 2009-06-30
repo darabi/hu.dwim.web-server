@@ -5,19 +5,19 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Button abstract
+;;; Button widget
 
-(def (component e) button/abstract ()
+(def (component e) button/widget (widget/basic)
   ())
 
 ;;;;;;
-;;; Push button basic
+;;; Push button widget
 
-(def (component e) push-button/basic (button/abstract)
+(def (component e) push-button/widget (button/widget)
   ())
 
 ;;;;;;
-;;; Toggle button basic
+;;; Toggle button widget
 
-(def (component e) toggle-button/basic (button/abstract)
+(def (component e) toggle-button/widget (button/widget)
   ())

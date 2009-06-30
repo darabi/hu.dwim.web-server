@@ -12,7 +12,7 @@
   (:default-initargs :title #"error.internal-server-error.title" :id "internal-error"))
 
 (def layered-method make-command-bar-commands ((self internal-error-message-component) class prototype value)
-  (list* (make-instance 'command/basic
+  (list* (make-instance 'command/widget
                         :content (icon back)
                         :action (if (rendering-phase-reached-p self)
                                     (make-uri-for-new-frame)
@@ -43,7 +43,7 @@
                    (aprog1
                        (make-instance 'internal-error-message-component
                                       :rendering-phase-reached rendering-phase-reached
-                                      :content (inline/basic
+                                      :content (inline/widget
                                                  (apply-resource-function 'render-application-internal-error-page
                                                                           (list :admin-email-address (admin-email-address-of application)))))
                      (add-component-error-message it #"error.internal-server-error.message"))))))

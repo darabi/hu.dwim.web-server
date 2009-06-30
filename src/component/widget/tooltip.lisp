@@ -5,10 +5,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tooltip basic
+;;; Tooltip widget
 
-(def (component e) tooltip/basic (content/mixin)
-  ())
+(def (component e) tooltip/widget (content/mixin)
+  ()
+  (:documentation "A COMPONENT which pops up as a tooltip of another COMPONENT."))
 
-(def render-component tooltip/basic
-  (render-tooltip -self-))
+(def render-component tooltip/widget
+  (not-yet-implemented))

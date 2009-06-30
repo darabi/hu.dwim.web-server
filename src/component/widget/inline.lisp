@@ -12,35 +12,32 @@
   (:documentation "A COMPONENT with a FUNCTION."))
 
 ;;;;;;
-;;; Inline basic
+;;; Inline widget
 
-(def (component e) inline/basic (thunk/mixin)
+(def (component e) inline/widget (thunk/mixin)
   ()
-  (:documentation "A COMPONENT with a FUNCTION to be called in RENDER-COMPONENT."))
+  (:documentation "A COMPONENT with a FUNCTION that is called in RENDER-COMPONENT."))
 
-(def render-component inline/basic
+(def (macro e) inline/widget (&body forms)
+  `(make-instance 'inline/widget :thunk (lambda () ,@forms)))
+
+(def render-component inline/widget
   (funcall (thunk-of -self-)))
 
-(def (macro e) inline/basic (&body forms)
-  `(make-instance 'inline/basic :thunk (lambda () ,@forms)))
-
 ;;;;;;
-;;; Wrapper basic
+;;; Wrapper widget
 
-(def (component e) wrapper/basic (content/mixin thunk/mixin)
+(def (component e) wrapper/widget (content/mixin thunk/mixin)
   ()
-  (:documentation "A COMPONENT that has another COMPONENT inside wrapped with a rendering function."))
+  (:documentation "A COMPONENT that has another COMPONENT inside wrapped with a rendering function. The content can be rendered by calling the local function (-body-)."))
 
-(def render-component wrapper/basic
-  (funcall (thunk-of -self-) #'call-next-method))
-
-(def (macro e) wrapper/basic (content &body forms)
-  `(make-instance 'wrapper/basic
+(def (macro e) wrapper/widget (content &body forms)
+  `(make-instance 'wrapper/widget
                   :thunk (lambda (next-method)
                            (flet ((-body- ()
                                     (funcall next-method)))
                              ,@forms))
                   :content ,content))
 
-(def (macro e) wrapper (content &body forms)
-  `(wrapper/basic ,content ,@forms))
+(def render-component wrapper/widget
+  (funcall (thunk-of -self-) (lambda () (render-content-for -self-))))

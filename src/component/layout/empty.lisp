@@ -8,14 +8,17 @@
 ;;; Empty/layout
 
 (eval-always
-  (def (component e) empty/layout ()
+  (def (component e) empty/layout (layout/abstract)
     ()
-    (:documentation "A completely empty (practically invisible) LAYOUT that is used as a singleton (for performance reasons) instead of NIL. The value NIL is not a valid COMPONENT for debugging purposes.")))
+    (:documentation "A LAYOUT that is completely empty, it is practically INVISIBLE. For performance reasons it is used as a singleton, and it does not support PARENT-COMPONENT-OF. The reason to use EMPTY/LATOUT instead of NIL is to make NIL an invalid COMPONENT for debugging purposes.")))
 
 (def load-time-constant +empty-layout-singleton-instance+ (make-instance 'empty/layout))
 
-(def (macro e) empty ()
+(def (macro e) empty/layout ()
   '+empty-layout-singleton-instance+)
 
 (def render-component empty/layout
   (values))
+
+(def (function e) empty-layout? (component)
+  (eq +empty-layout-singleton-instance+ component))

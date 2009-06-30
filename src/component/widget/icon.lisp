@@ -18,40 +18,40 @@
   (setf (gethash name *icons*) icon))
 
 ;;;;;;
-;;; Icon basic
+;;; Icon widget
 
-(def (component e) icon/basic (tooltip/mixin)
+(def (component e) icon/widget (tooltip/mixin)
   ((name :type symbol)
    (label :type (or null component))
    (image-path :type (or null string))))
 
-(def (macro e) icon/basic (name &rest args)
-  `(make-icon/basic ',name ,@args))
+(def (macro e) icon/widget (name &rest args)
+  `(make-icon/widget ',name ,@args))
 
-(def (function e) make-icon/basic (name &rest args)
+(def (function e) make-icon/widget (name &rest args)
   (bind ((icon (find-icon name :otherwise nil)))
     (if icon
         (if args
-            (apply #'make-instance 'icon/basic
+            (apply #'make-instance 'icon/widget
                    :name name (append args
                                       (list :label (label-of icon)
                                             :image-path (image-path-of icon)
                                             :tooltip (tooltip-of icon))))
             icon)
         (if args
-            (apply #'make-instance 'icon/basic :name name args)
+            (apply #'make-instance 'icon/widget :name name args)
             (error "The icon ~A cannot be found and no arguments were specified" name)))))
 
-(def method supports-debug-component-hierarchy? ((self icon/basic))
+(def method supports-debug-component-hierarchy? ((self icon/widget))
   #f)
 
-(def method clone-component ((self icon/basic))
+(def method clone-component ((self icon/widget))
   self)
 
-(def render-component icon/basic
+(def render-component icon/widget
   (render-component (label-of -self-)))
 
-(def render-xhtml icon/basic
+(def render-xhtml icon/widget
   (render-icon :icon -self-))
 
 (def layered-function render-icon-label (icon label)
@@ -76,7 +76,7 @@
                     (icon-class name))))
     ;; render the `js first, so the return value contract of qq is kept.
     (when tooltip
-      (render-tooltip id tooltip))
+      (render-tooltip tooltip :target-id id))
     <span (:id ,id
            :class ,class)
       ,(when image-path
@@ -91,20 +91,20 @@
 ;;; Icon
 
 (def (macro e) icon (name &rest args)
-  `(icon/basic ,name ,@args))
+  `(icon/widget ,name ,@args))
 
 (def (definer e :available-flags "e") icon (name &key image-path (label nil label-p) (tooltip nil tooltip-p))
   (bind ((name-as-string (string-downcase name)))
     `(progn
        (setf (find-icon ',name)
-             (make-instance 'icon/basic
+             (make-instance 'icon/widget
                             :name ',name
                             :image-path ,image-path
                             :label ,(if label-p
                                         label
-                                        `(lookup-resource ,(concatenate-string "icon-label." name-as-string)))
+                                        `(delay (lookup-resource ,(concatenate-string "icon-label." name-as-string))))
                             :tooltip ,(if tooltip-p
                                           tooltip
-                                          `(lookup-resource ,(concatenate-string "icon-tooltip." name-as-string)))))
+                                          `(delay (lookup-resource ,(concatenate-string "icon-tooltip." name-as-string))))))
        ,@(when (getf -options- :export)
                `((export ',name))))))

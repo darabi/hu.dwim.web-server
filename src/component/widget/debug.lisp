@@ -26,28 +26,28 @@
   (menu-item ()
       "Debug"
     (menu-item ()
-        (command (:send-client-state #f)
+        (command/widget (:send-client-state #f)
           "Start over"
           (make-action (reset-frame-root-component))))
     (menu-item ()
-        (command ()
+        (command/widget ()
           "Toggle test mode"
           (make-action (toggle-running-in-test-mode))))
     (menu-item ()
-        (command ()
+        (command/widget ()
           "Toggle profiling"
           (make-action (toggle-profile-request-processing))))
     (menu-item ()
-        (command ()
+        (command/widget ()
           "Toggle hierarchy"
           (make-action (toggle-debug-component-hierarchy))))
     (menu-item ()
-        (command ()
+        (command/widget ()
           "Toggle debug client side"
           (make-action (toggle-debug-client-side))))
     (menu-item ()
         ;; from http://turtle.dojotoolkit.org/~david/recss.html
-        (inline/basic
+        (inline/widget
           <a (:href "#"
                     :class "command"
                     :onClick `js-inline(wui.reload-css))

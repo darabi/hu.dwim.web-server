@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Entity relationship chart
+;;; Structure chart
 
-(def (component e) entity-relationship/chart (chart/abstract)
+(def (component e) structure/chart (chart/abstract)
   ())
 
-(def render-xhtml entity-relationship/chart
+(def render-xhtml structure/chart
   (not-yet-implemented))

@@ -30,59 +30,52 @@
     (call-next-method)))
 
 (def (macro e) table ((&rest args &key &allow-other-keys) &body rows)
-  `(make-instance 'row-based-table/full ,@args :rows (list ,@rows)))
+  `(make-instance 'table/widget ,@args :rows (list ,@rows)))
 
 ;;;;;;
-;;; Row based table basic
+;;; Table widget
 
-(def (component e) row-based-table/basic (table/abstract rows/mixin)
+(def (component e) table/widget (table/abstract rows/mixin)
   ())
 
-(def render-xhtml row-based-table/basic
+(def render-xhtml table/widget
   <table (:class "table")
     <tbody ,(render-rows -self-)>>)
 
-(def render-csv row-based-table/basic
+(def render-csv table/widget
   (write-rows -self-))
 
-(def render-ods row-based-table/basic
+(def render-ods table/widget
   <table:table ,(render-rows -self-)>)
 
 ;;;;;;
-;;; Row based table basic
+;;; Table header
 
-;; TODO:
-(def (component e) column-based-table/basic (table/abstract columns/mixin)
+(def (component e) table/header (table/widget row-headers/mixin column-headers/mixin)
   ())
 
-;;;;;;
-;;; Row based table header
-
-(def (component e) row-based-table/header (row-based-table/basic row-headers/mixin column-headers/mixin)
-  ())
-
-(def render-xhtml row-based-table/header
+(def render-xhtml table/header
   <table (:class "table")
     <thead <tr ,(render-column-headers -self-)>>
     <tbody ,(render-rows -self-)>>)
 
-(def render-csv row-based-table/header
+(def render-csv table/header
   (write-csv-line (column-headers-of -self-))
   (write-csv-line-separator)
   (render-rows -self-))
 
-(def render-ods row-based-table/header
+(def render-ods table/header
   <table:table
     <table:table-row ,(render-column-headers -self-)>
     ,(render-rows -self-)>)
 
 ;;;;;;
-;;; Row based table full
+;;; Table widget
 
-(def (component e) row-based-table/full (row-based-table/header style/abstract page-navigation-bar/mixin)
+(def (component e) table/widget (table/header style/abstract page-navigation-bar/mixin)
   ())
 
-(def render-xhtml row-based-table/full
+(def render-xhtml table/widget
   (bind (((:read-only-slots rows page-navigation-bar id) -self-))
     (setf (total-count-of page-navigation-bar) (length rows))
     <div <table (:id ,id :class "table")
@@ -96,3 +89,37 @@
                                (render-component row)))>>
          ,(when (< (page-size-of page-navigation-bar) (total-count-of page-navigation-bar))
             (render-component page-navigation-bar))>))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(def (layered-function e) render-table-row-cells (table row column cell)
+  (:method :before ((table table/mixin) (row row/widget) (column column-component) (cell cell/widget))
+    (ensure-refreshed cell))
+
+  (:method ((table table/mixin) (row row/widget) (column column-component) (cell cell/widget))
+    (render-component cell))
+
+  (:method :in xhtml-layer ((table table/mixin) (row row/widget) (column column-component) (cell component))
+    <td ,(render-component cell)>)
+
+  (:method :in xhtml-layer ((table table/mixin) (row row/widget) (column column-component) (cell string))
+    <td ,(render-component cell)>)
+
+  (:method :in ods-layer ((table table/mixin) (row row/widget) (column column-component) (cell component))
+    <table:table-cell ,(render-component cell)>)
+
+  (:method :in ods-layer ((table table/mixin) (row row/widget) (column column-component) (cell string))
+    <table:table-cell ,(render-component cell)>))

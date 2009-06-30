@@ -126,7 +126,7 @@
   (abort-server-request "HANDLE-TOPLEVEL-CONDITION succesfully handled the access denied error by sending an error page"))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;
 ;;; Backtrace extraction
 
 (def class* stack-frame ()

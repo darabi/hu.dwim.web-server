@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Alternator layout
 
-(def (component e) alternator/layout (component/layout content/abstract)
+(def (component e) alternator/layout (layout/minimal content/abstract)
   ((alternatives nil :type list))
   (:documentation "A LAYOUT with several child COMPONENTs out of which only one is shown at a time."))
 

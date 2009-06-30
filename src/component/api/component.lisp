@@ -8,6 +8,7 @@
 ;;; Component definer
 
 (def (definer e :available-flags "eas") component (name supers slots &rest options)
+  "Defines components with COMPONENT-CLASS metaclass."
   `(def (class* ,@-options-) ,name ,supers
      ,slots
      (:metaclass component-class)
@@ -17,37 +18,32 @@
 ;;;;;;
 ;;; Component localization
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resource/component/"
-  :log-discriminator "WUI")
+(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resource/component/" :log-discriminator "WUI")
 
 (register-locale-loaded-listener 'wui-resource-loader/component)
 
 ;;;;;;
-;;; Component base class
+;;; Component
 
 (def (type e) component* ()
-  "The generic component type, including supported primitive component types."
+  "The generic COMPONENT type, including supported primitive COMPONENT types: NUMBER and STRING."
   '(or number string component))
 
 (def (type e) components (&optional element-type)
-  "A polimorph type for a sequence of components."
+  "A polimorph type for a SEQUENCE of COMPONENTs."
   (declare (ignore element-type))
   'sequence)
 
 (def (component e) component ()
   ()
   (:documentation "
-Component is the base class for all components, except for primitive strings and numbers that are also considered components.
-For debugging purposes NIL is not a component.
+COMPONENT is the base class for all COMPONENT-CLASSes. The primitive types STRING and NUMBER are also considered COMPONENTs.
+For debugging purposes NIL is not a valid COMPONENT.
 
 Naming convention for non instantiatable components:
 */mixin     - adds some slots and/or behavior, but it is not usable on its own (usually has no superclasses, or only other mixin classes)
 */abstract  - base class for similar kind of components, usually related to a mixin that mixes in an instance of this component in a slot
               it usually has no superclasses, except other kind of mixins, and usually there is only one abstract superclass of an instantiatable component
-
-Naming convention for standard instantiatable components:
-*/basic     - subclass of the minimal set of mixins to have a usable component
-*/full      - subclass of the maximal set of mixins to have a full featured component
 
 Naming convention for meta components related to a lisp type, they are usually alternator components for compound types:
 */maker     - subclasses of maker/abstract
@@ -65,6 +61,34 @@ Naming convention for some alternative components:
 Components are created by either using the component specific factory macros, makers or by calling generic factory methods
 such as make-instance, make-maker, make-viewer, make-editor, make-inspector, make-filter, make-finder and make-selector.
 "))
+
+;;;;;;
+;;; Component minimal
+
+(def (component e) component/minimal (parent/mixin visibility/mixin)
+  ()
+  (:documentation "A COMPONENT/MINIMAL includes a minimal set of MIXINs. It supports navigation towards the ROOT-COMPONENT in the COMPONENT-HIERARCHY with PARENT-COMPONENT-OF, it also provides VISIBILITY with HIDE-COMPONENT and SHOW-COMPONENT."))
+
+;;;;;;
+;;; Component basic
+
+(def (component e) component/basic (component/minimal refreshable/mixin renderable/mixin)
+  ()
+  (:documentation "A COMPONENT/BASIC includes a basic set of MIXINs. It supports reacting upon state changes with REFRESH-COMPONENT and partial rendering with RENDER-COMPONENT."))
+
+;;;;;;
+;;; Component style
+
+(def (component e) component/style (component/basic style/abstract enableable/mixin)
+  ()
+  (:documentation "A COMPONENT/STYLE includes a set of style related MIXINs. It supports styles with STYLE-CLASS and CUSTOM-STYLE, it also provides REMOTE-SETUP with the help of a unique ID, and ENABLE-COMPONENT along with DISABLE-COMPONENT for better user experience."))
+
+;;;;;;
+;;; Component full
+
+(def (component e) component/full (component/style expandible/mixin tooltip/mixin)
+  ()
+  (:documentation "A COMPONENT/FULL includes all generally useful MIXINs. It supports EXPAND-COMPONENT and COLLAPSE-COMPONENT, it also provides tooltip support."))
 
 ;;;;;;
 ;;; Component environment
@@ -197,7 +221,8 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;; Component dispatch class/prototype
 
 (def method component-dispatch-class ((self component))
-  nil)
+  (awhen (component-value-of self)
+    (class-of it)))
 
 (def method component-dispatch-prototype ((self component))
   (awhen (component-dispatch-class self)
@@ -210,7 +235,8 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   nil)
 
 (def method (setf component-value-of) (new-value (self component))
-  (operation-not-supported))
+  (values)
+  #+nil(operation-not-supported))
 
 (def method reuse-component-value ((self component) class prototype value)
   (values))
@@ -319,6 +345,10 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 (def render-component component
   (operation-not-supported))
 
+(def render-component :around component
+  (with-component-environment -self-
+    (call-next-method)))
+
 (def method to-be-rendered-component? ((self component))
   #t)
 
@@ -408,34 +438,6 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 
 (def method write-csv-element ((self component))
   (render-component self))
-
-;;;;;;
-;;; Component layout
-
-(def (component e) component/abstract (parent/mixin visibility/mixin)
-  ()
-  (:documentation "An COMPONENT/ABSTRACT supports navigation through the COMPONENT-HIERARCHY with PARENT-COMPONENT-OF and VISIBILITY with HIDE-COMPONENT and SHOW-COMPONENT."))
-
-;;;;;;
-;;; Component layout
-
-(def (component e) component/layout (component/abstract)
-  ()
-  (:documentation "A COMPONENT/LAYOUT does not have any visual appearance on its own. If all CHILD-COMPONENTs positioned by a LAYOUT are EMPTY/LAYOUTs, then the whole COMPONENT/LAYOUT is invisible."))
-
-;;;;;;
-;;; Component basic
-
-(def (component e) component/basic (component/abstract refreshable/mixin renderable/mixin)
-  ()
-  (:documentation "A COMPONENT/BASIC supports REFRESH-COMPONENT and AJAX rendering with RENDER-COMPONENT."))
-
-;;;;;;
-;;; Component full
-
-(def (component e) component/full (component/basic cloneable/abstract style/abstract enableable/mixin)
-  ()
-  (:documentation "A COMPONENT/FULL supports cloning with CLONE-COMPONENT, styles through STYLE-CLASS, CUSTOM-STYLE and REMOTE-SETUP, and ENABLE-COMPONENT, DISABLE-COMPONENT."))
 
 ;;;;;;
 ;;; Print component

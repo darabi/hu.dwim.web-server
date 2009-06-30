@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
-(defpackage #:hu.dwim.wui-test
-  (:nicknames :wui-test)
+(defpackage #:hu.dwim.wui.test
+  (:nicknames :wui.test)
 
   (:use :common-lisp
         :stefil
@@ -10,8 +10,6 @@
         :cl-def
         :cl-yalog
         :cl-l10n
-        :hu.dwim.wui
-        :hu.dwim.wui.system
         :iterate
         :closer-mop
         :iolib
@@ -21,6 +19,9 @@
         :cl-quasi-quote
         :cl-quasi-quote-js
         :cl-quasi-quote-xml
+        :hu.dwim.wui
+        :hu.dwim.wui.system
+        :hu.dwim.wui.shortcut
         )
 
   (:shadowing-import-from :cl-syntax-sugar
@@ -35,7 +36,7 @@
   (:export #:test
            ))
 
-(in-package :wui-test)
+(in-package :wui.test)
 
 (rename-package :hu.dwim.wui :hu.dwim.wui '(:wui))
 
@@ -43,11 +44,11 @@
   (hu.dwim.wui::setup-readtable))
 
 (register-readtable-for-swank
- '("HU.DWIM.WUI-TEST") 'setup-readtable)
+ '("HU.DWIM.WUI.TEST") 'setup-readtable)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; import all the internal symbol of WUI
   (iter (for symbol :in-package #.(find-package :hu.dwim.wui) :external-only nil)
         (when (and (eq (symbol-package symbol) #.(find-package :hu.dwim.wui))
-                   (not (find-symbol (symbol-name symbol) #.(find-package :wui-test))))
+                   (not (find-symbol (symbol-name symbol) #.(find-package :wui.test))))
           (import symbol))))

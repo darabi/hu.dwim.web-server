@@ -18,23 +18,23 @@
 (def (constant e :test 'string=) +continue-url-query-parameter-name+ "continue-url")
 
 ;;;;;;
-;;; Login basic
+;;; Login widget
 
-(def (component e) login/basic ()
+(def (component e) login/widget ()
   ())
 
 ;;;;;;
-;;; Identifier and password login basic
+;;; Identifier and password login widget
 
 ;; TODO: this is kind separate from all the other components which is bad because it does not combine well with other features
 ;;       needs refactoring, less direct manipulation and more generalism through inheritance 
-(def (component e) identifier-and-password-login/basic (login/basic
+(def (component e) identifier-and-password-login/widget (login/widget
                                                          title/mixin
-                                                         component-messages/basic
+                                                         component-messages/widget
                                                          remote-setup/mixin)
   ((identifier nil)
    (password nil)
-   (command-bar (make-instance 'command-bar/basic) :type component))
+   (command-bar (make-instance 'command-bar/widget) :type component))
   (:default-initargs :title (title #"login.title")))
 
 (def function make-default-identifier-and-password-login-command ()
@@ -47,7 +47,7 @@
 
 (def (function e) make-identifier-and-password-login-component (&key (commands (list (make-default-identifier-and-password-login-command)))
                                                                      identifier password title id)
-  (bind ((result (make-instance 'identifier-and-password-login/basic :identifier identifier :password password)))
+  (bind ((result (make-instance 'identifier-and-password-login/widget :identifier identifier :password password)))
     (when title
       (setf (title-of result) title))
     (when commands
@@ -56,15 +56,15 @@
       (setf (id-of result) id))
     result))
 
-(def render-xhtml identifier-and-password-login/basic
+(def render-xhtml identifier-and-password-login/widget
   (bind (((:read-only-slots identifier password) -self-)
          (focused-field-id (if identifier
                                "password-field"
                                "identifier-field"))
          (id (id-of -self-)))
     <div (:id ,id :class "identifier-and-password-login-component")
-     ,(render-title -self-)
-     ,(render-component-messages -self-)
+     ,(render-title-for -self-)
+     ,(render-component-messages-for -self-)
      <table
        <tr <td (:class "label") ,#"login.identifier<>">
            <td (:class "value")
@@ -105,13 +105,13 @@
 ;;;;;;
 ;;; Fake identifier and password login component
 
-(def (component e) fake-identifier-and-password-login/basic ()
+(def (component e) fake-identifier-and-password-login/widget ()
   ((identifier nil)
    (password nil)
    (comment nil))
   (:documentation "Useful to render one-click logins in test mode"))
 
-(def render-xhtml fake-identifier-and-password-login/basic
+(def render-xhtml fake-identifier-and-password-login/widget
   (bind (((:read-only-slots identifier password comment) -self-)
          (uri (clone-request-uri)))
     (setf (uri-query-parameter-value uri "identifier") identifier)
@@ -120,8 +120,8 @@
          <a (:href ,(print-uri-to-string uri))
             ,(concatenate-string identifier comment)>>))
 
-(def (macro e) fake-identifier-and-password-login/basic (identifier password &optional comment)
-  `(make-instance 'fake-identifier-and-password-login/basic :identifier ,identifier :password ,password :comment ,comment))
+(def (macro e) fake-identifier-and-password-login/widget (identifier password &optional comment)
+  `(make-instance 'fake-identifier-and-password-login/widget :identifier ,identifier :password ,password :comment ,comment))
 
 ;;;;;;
 ;;; Icon

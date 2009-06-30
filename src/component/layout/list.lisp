@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; List layout
 
-(def (component e) list/layout (component/layout contents/abstract)
+(def (component e) list/layout (layout/minimal contents/abstract)
   ((orientation :vertical :type (member :vertical :horizontal)))
   (:documentation "Either a vertical or a horizontal list LAYOUT."))
 

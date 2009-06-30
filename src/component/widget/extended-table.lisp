@@ -87,9 +87,8 @@
              (render-cell (row-path column-path)
                (bind ((expanded (and (every #'expanded-component? row-path)
                                      (every #'expanded-component? column-path)))
-                      (cell (elt cells (cell-index row-path column-path)))
-                      (empty? (typep cell 'empty-component)))
-                 <td (:class ,(if (and (not empty?) (not expanded))
+                      (cell (elt cells (cell-index row-path column-path))))
+                 <td (:class ,(if (and (not (empty-layout? cell)) (not expanded))
                                   "hidden data"
                                   "data"))
                      ,(when expanded

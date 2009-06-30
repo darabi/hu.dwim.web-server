@@ -5,33 +5,20 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Command bar
-
-(def (component e) command-bar ()
-  ()
-  (:documentation "A COMMAND-BAR base class."))
-
-(def (macro e) command-bar ((&rest args &key remote-setup &allow-other-keys) &body commands)
-  (remove-from-plistf args :remote-setup)
-  (if remote-setup
-      `(command-bar/full ,args ,@commands)
-      `(command-bar/basic ,args ,@commands)))
-
-(def render-component :in passive-layer :around command-bar
-  (values))
-
-;;;;;;
 ;;; Command bar abstract
 
-(def (component e) command-bar/abstract (command-bar component/abstract)
+(def (component e) command-bar/abstract (widget/abstract)
   ((commands :type components))
-  (:documentation "A COMMAND-BAR with a list of COMMANDs."))
+  (:documentation "A COMMAND-BAR with a SEQUENCE of COMMANDs."))
 
 (def render-component :before command-bar/abstract
-  (setf (commands-of -self-) (sort-command-bar-commands -self-)))
+  (sort-command-bar-commands -self-))
 
 (def (generic e) sort-command-bar-commands (component)
-  (:documentation "Sorts the COMMANDs of COMMAND-BAR")
+  (:documentation "Sorts the COMMANDs of COMMAND-BAR.")
+
+  (:method :around ((self command-bar/abstract))
+    (setf (commands-of self) (call-next-method)))
 
   (:method ((self command-bar/abstract))
     (sort (commands-of self) #'< :key #'command-bar-command-position)))
@@ -46,38 +33,37 @@
   (:method ((self component))
     most-positive-fixnum)
 
-  (:method ((self icon/basic))
+  (:method ((self icon/widget))
     ;; TODO: can't we make it faster/better (what about a generic method or something?)
     (or (position (name-of self)
                   ;; TODO: this name thingie is fragile
-                  '(answer back focus-out open-in-new-frame focus-in collapse collapse-all expand-all refresh edit save cancel store revert new delete)
-                  :test #'eq)
+                  '(answer back focus-out open-in-new-frame focus-in collapse collapse-all expand-all refresh edit save cancel store revert new delete))
         most-positive-fixnum))
 
-  (:method ((self command/basic))
+  (:method ((self command/widget))
     (command-bar-command-position (content-of self))))
 
 ;;;;;;
-;;; Command bar basic
+;;; Command bar widget
 
-(def (component e) command-bar/basic (command-bar/abstract component/basic)
+(def (component e) command-bar/widget (command-bar/abstract widget/basic)
   ())
 
-(def (macro e) command-bar/basic ((&rest args &key &allow-other-keys) &body commands)
-  `(make-instance 'command-bar/basic ,@args :commands (optional-list ,@commands)))
+(def (macro e) command-bar/widget ((&rest args &key &allow-other-keys) &body commands)
+  `(make-instance 'command-bar/widget ,@args :commands (optional-list ,@commands)))
 
-(def render-xhtml command-bar/basic
+(def render-xhtml command-bar/widget
   <div (:class "command-bar")
     ,(foreach #'render-component (commands-of -self-))>)
 
-(def render-csv command-bar/basic
+(def render-csv command-bar/widget
   (write-csv-separated-elements #\Space (commands-of -self-)))
 
 (def generic find-command-bar (component)
-  (:method ((component component))
-    (map-child-components component
+  (:method ((self component))
+    (map-child-components self
                           (lambda (child)
-                            (when (typep child 'command-bar/basic)
+                            (when (typep child 'command-bar/widget)
                               (return-from find-command-bar child))))))
 
 (def (function e) push-command (command component)
@@ -91,16 +77,3 @@
 (def function pop-command (command)
   "Pop the COMMAND from the containing COMMAND-BAR."
   (removef (commands-of (parent-component-of command)) command))
-
-;;;;;;
-;;; Command bar full
-
-(def (component e) command-bar/full (command-bar/basic component/full)
-  ())
-
-(def (macro e) command-bar/full ((&rest args &key &allow-other-keys) &body commands)
-  `(make-instance 'command-bar/full ,@args :commands (optional-list ,@commands)))
-
-(def render-xhtml command-bar/full
-  (with-render-style/abstract (-self-)
-    (foreach #'render-component (commands-of -self-))))

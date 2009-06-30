@@ -171,6 +171,8 @@
   ((:module "src"
     :components ((:module "util"
                   :components ((:file "csv")
+                               (:file "book")
+                               (:file "dictionary")
                                (:file "place")
                                #+sbcl(:file "object-size")))
                  (:module "component"
@@ -188,25 +190,37 @@
                                              #+nil
                                              (:file "factory" :depends-on ("component"))))
                                (:module "mixin"
-                                :components ((:file "cloneable")
+                                :components ((:file "border")
+                                             (:file "cell")
+                                             (:file "cloneable")
                                              (:file "closable")
+                                             (:file "column")
+                                             (:file "command")
                                              (:file "command-bar")
+                                             (:file "context-menu")
                                              (:file "content")
                                              (:file "draggable")
                                              (:file "editable")
                                              (:file "enableable")
                                              (:file "expandible")
                                              (:file "exportable")
+                                             (:file "footer")
+                                             (:file "header")
                                              (:file "initargs")
                                              (:file "layer")
+                                             (:file "menu")
                                              (:file "menu-bar")
                                              (:file "mouse")
+                                             (:file "page-navigation-bar")
                                              (:file "parent")
                                              (:file "refreshable")
                                              (:file "renderable")
                                              (:file "resizable")
+                                             (:file "row")
+                                             (:file "table")
                                              (:file "tooltip")
                                              (:file "top")
+                                             (:file "tree")
                                              (:file "value")
                                              (:file "visibility")
                                              (:file "title" :depends-on ("refreshable"))
@@ -215,64 +229,66 @@
                                              (:file "style" :depends-on ("remote")))
                                 :depends-on ("api"))
                                (:module "layout"
-                                :components ((:file "empty")
-                                             (:file "container")
-                                             (:file "list")
-                                             (:file "alternator"))
+                                :components ((:file "layout")
+                                             (:file "empty" :depends-on ("layout"))
+                                             (:file "container" :depends-on ("layout"))
+                                             (:file "list" :depends-on ("layout"))
+                                             (:file "alternator" :depends-on ("layout"))
+                                             (:file "cell" :depends-on ("layout"))
+                                             (:file "row" :depends-on ("cell"))
+                                             (:file "table" :depends-on ("row"))
+                                             (:file "xy" :depends-on ("layout")))
                                 :depends-on ("mixin"))
                                (:module "widget"
-                                :components ((:file "icon")
+                                :components ((:file "widget")
+                                             (:file "border")
+                                             (:file "content")
+                                             (:file "icon")
+                                             (:file "image")
                                              (:file "inline")
+                                             (:file "graph")
                                              (:file "message")
+                                             (:file "path")
+                                             (:file "splitter")
+                                             (:file "title")
+                                             (:file "tooltip")
+                                             (:file "tool-bar")
                                              (:file "top" :depends-on ("message"))
+                                             (:file "tree")
+                                             (:file "tree-level")
                                              (:file "frame" :depends-on ("top"))
                                              (:file "command" :depends-on ("icon"))
                                              (:file "command-bar" :depends-on ("command"))
                                              (:file "menu" :depends-on ("command"))
                                              (:file "debug" :depends-on ("menu" "frame" "inline"))
-                                             (:file "expandible")
+                                             (:file "page-navigation-bar" :depends-on ("command"))
+                                             (:file "expandible" :depends-on ("command"))
                                              (:file "help" :depends-on ("icon"))
                                              (:file "tab-container" :depends-on ("command-bar"))
                                              #+nil
+                                             ((:file "panel" :depends-on ("message"))
+                                              (:file "cell")
+                                              (:file "row")
+                                              (:file "column")
+                                              (:file "table")
+                                              (:file "node"))
+                                             #+nil
                                              ((:file "alternator")
                                               (:file "authentication")
-                                              (:file "border")
-                                              (:file "cell")
-                                              (:file "column")
                                               (:file "expression")
                                               (:file "extended-table")
                                               (:file "field")
                                               (:file "file-up-and-download")
                                               (:file "frame-size-breakdown")
-                                              (:file "graph")
-                                              (:file "header")
                                               (:file "internal-error")
-                                              (:file "image")
-                                              (:file "node")
-                                              (:file "page-navigation")
-                                              (:file "panel")
                                               (:file "pivot-table")
-                                              (:file "row")
-                                              (:file "splitter")
-                                              (:file "table")
                                               (:file "timestamp-range")
-                                              (:file "title")
-                                              (:file "tooltip")
-                                              (:file "tree")
                                               (:file "wizard")))
                                 :depends-on ("layout"))
-                               (:module "book"
-                                :components ((:file "book")
-                                             (:file "toc")
-                                             (:file "glossary")
-                                             (:file "index")
-                                             (:file "text")
-                                             (:file "chapter" :depends-on ("text")))
-                                :depends-on ("widget"))
                                (:module "chart"
                                 :components ((:file "chart")
                                              (:file "column" :depends-on ("chart"))
-                                             (:file "er" :depends-on ("chart"))
+                                             (:file "structure" :depends-on ("chart"))
                                              (:file "flow" :depends-on ("chart"))
                                              (:file "line" :depends-on ("chart"))
                                              (:file "pie" :depends-on ("chart"))
@@ -280,36 +296,59 @@
                                              (:file "stock" :depends-on ("chart"))
                                              (:file "xy" :depends-on ("chart")))
                                 :depends-on ("widget"))
+                               (:module "meta"
+                                :components ((:file "maker")
+                                             (:file "viewer")
+                                             (:file "editor")
+                                             (:file "inspector")
+                                             (:file "filter")
+                                             (:file "finder")
+                                             (:file "selector")
+                                             (:file "invoker"))
+                                :depends-on ("api"))
+                               (:module "book"
+                                :components ((:file "book")
+                                             (:file "toc" :depends-on ("book"))
+                                             (:file "glossary" :depends-on ("book"))
+                                             (:file "index" :depends-on ("book"))
+                                             (:file "paragraph" :depends-on ("book"))
+                                             (:file "chapter" :depends-on ("paragraph")))
+                                :depends-on ("widget" "meta"))
                                (:module "model"
-                                :components (#+nil
+                                :components ((:file "model")
+                                             #+nil
                                              (:file "class")
                                              #+nil
                                              (:file "slot")
+                                             (:file "form")
                                              (:file "function")
-                                             (:file "generic-function")
+                                             (:file "generic")
                                              (:file "package")
                                              (:file "file")
-                                             (:file "module")
+                                             (:file "name")
+                                             (:file "dictionary")
                                              (:file "system")
+                                             (:file "module")
                                              (:file "type")
                                              (:file "variable"))
-                                :depends-on ("widget"))
+                                :depends-on ("widget" "meta"))
                                (:module "primitive"
                                 :components (#+nil
                                              ((:file "primitive")
                                               (:file "filter" :depends-on ("primitive"))
                                               (:file "inspector" :depends-on ("primitive"))
                                               (:file "maker" :depends-on ("primitive"))))
-                                :depends-on ("widget"))
+                                :depends-on ("widget" "meta"))
                                (:module "place"
                                 :components (#+nil
                                              ((:file "place")
                                               (:file "filter" :depends-on ("place"))
                                               (:file "inspector" :depends-on ("place"))
                                               (:file "maker" :depends-on ("place"))))
-                                :depends-on ("widget"))
+                                :depends-on ("widget" "meta"))
                                (:module "object"
-                                :components (#+nil
+                                :components ((:file "xxx")
+                                             #+nil
                                              ((:file "object")
                                               (:file "filter" :depends-on ("object"))
                                               (:file "inspector" :depends-on ("object"))
@@ -321,7 +360,11 @@
                                               (:file "reference" :depends-on ("object"))
                                               (:file "tree-filter" :depends-on ("object"))
                                               (:file "tree-inspector" :depends-on ("object"))))
-                                :depends-on ("primitive" "place")))
+                                :depends-on ("primitive" "place"))
+                               (:module "shortcut"
+                                :components ((:file "layout")
+                                             (:file "widget"))
+                                :depends-on ("object")))
                   :depends-on ("util")))))
   :depends-on (:contextl
                :wui-application-server))
@@ -345,7 +388,7 @@
        (read-from-string "cl-delico:*call/cc-returns*")
        ;; If you want the walker to warn about undefined variables and
        ;; functions change this to T. Since this code "breaks" (sort of)
-       ;; loading wui with ASDF on SBCL we leave it off by default.
+       ;; wui loading with ASDF on SBCL we leave it off by default.
        (read-from-string "cl-walker::*warn-for-undefined-references*"))
       (list nil nil)
     (call-next-method)))
@@ -354,7 +397,7 @@
 ;;; Test systems
 
 (defsystem* :wui-http-server-test
-  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
+  :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "package")
@@ -363,35 +406,35 @@
   :depends-on (:wui-http-server :stefil :drakma))
 
 (defsystem* :wui-application-server-test
-  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
+  :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "application"))))
   :depends-on (:wui-application-server :wui-http-server-test))
 
 (defsystem* :wui-component-server-test
-  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
+  :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "component"))))
   :depends-on (:wui-component-server :wui-application-server-test))
 
 (defsystem* :wui-test
-  :setup-readtable-function "hu.dwim.wui-test::setup-readtable"
+  :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
   :depends-on (:wui :wui-component-server-test))
 
 (defmethod perform ((op test-op) (system wui-system))
   (format *debug-io* "~%*** Testing ~A using the ~A test system~%~%" system (test-system-of system))
   (setf *load-as-production-p* nil)
   (operate 'load-op (test-system-of system))
-  (in-package :wui-test)
+  (in-package :wui.test)
   (declaim (optimize (debug 3)))
   (warn "Issued a (declaim (optimize (debug 3))) for easy C-c C-c'ing")
   ;; KLUDGE ASDF wraps everything in a WITH-COMPILATION-UNIT which eventually prevents starting the
   ;; tests on SBCL due to The Big Compiler Lock.
   (eval (read-from-string "(bordeaux-threads:make-thread
                              (lambda ()
-                               (stefil:funcall-test-with-feedback-message 'wui-test:test)))"))
+                               (stefil:funcall-test-with-feedback-message 'wui.test:test)))"))
   (values))
 
 (defmethod operation-done-p ((op test-op) (system wui-system))

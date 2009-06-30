@@ -14,12 +14,12 @@
   #f)
 
 ;;;;;;
-;;; Node basic
+;;; Node widget
 
-(def (component e) node/basic (style/abstract cells/mixin)
+(def (component e) node/widget (style/abstract cells/mixin)
   ((child-nodes nil :type components)))
 
-(def render-xhtml node/basic
+(def render-xhtml node/widget
   (bind (((:read-only-slots child-nodes expanded id style) -self-)
          (tree-id (id-of *tree*))
          (onclick-handler? (render-onclick-handler -self- :left)))
@@ -30,12 +30,12 @@
     (when expanded
       (foreach #'render-component child-nodes))))
 
-(def render-csv node/basic
+(def render-csv node/widget
   (write-csv-line (cells-of -self-))
   (write-csv-line-separator)
   (foreach #'render-component (child-nodes-of -self-)))
 
-(def render-ods node/basic
+(def render-ods node/widget
   <table:table-row ,(foreach (lambda (column cell)
                                (render-ods-tree-cell *tree* -self- column cell))
                              (columns-of *tree*)
@@ -43,11 +43,11 @@
   (awhen (child-nodes-of -self-)
     <table:table-row-group ,(foreach #'render-component (child-nodes-of -self-))>))
 
-(def layered-method render-onclick-handler ((self node/basic) (button (eql :left)))
+(def layered-method render-onclick-handler ((self node/widget) (button (eql :left)))
   nil)
 
 (def (layered-function e) tree-node-style-class (component)
-  (:method ((self node/basic))
+  (:method ((self node/widget))
     (concatenate-string "level-" (integer-to-string *tree-level*) " " (css-class-of self))))
 
 (def (function e) render-tree-node-expander (node)
@@ -81,7 +81,7 @@
             (render-component (content-of expander-cell)))))))
 
 (def (layered-function e) render-tree-node-cells (component)
-  (:method ((self node/basic))
+  (:method ((self node/widget))
     (iter (with expander-column-index = (expander-column-index-of *tree*))
           (for index :from 0)
           (for cell :in (cells-of self))
@@ -91,14 +91,14 @@
                 (render-tree-node-expander-cell self)
                 (render-cells *tree* self column cell))))))
 
-(def component-environment node/basic
+(def component-environment node/widget
   (bind ((*tree-level* (1+ *tree-level*)))
     (call-next-method)))
 
 ;;;;;;
 ;;; Entire node
 
-(def (component e) entire-node/basic (id/mixin content/mixin)
+(def (component e) entire-node/widget (id/mixin content/mixin)
   ())
 
 (def function render-entire-node (tree node body-thunk)
@@ -110,8 +110,8 @@
                    :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,tree-id ,id))
                   ,(funcall body-thunk)>>)))
 
-(def layered-method render-onclick-handler ((self entire-node/basic) (button (eql :left)))
+(def layered-method render-onclick-handler ((self entire-node/widget) (button (eql :left)))
   nil)
 
-(def render-xhtml entire-node/basic
+(def render-xhtml entire-node/widget
   (render-entire-node *tree* -self- #'call-next-method))

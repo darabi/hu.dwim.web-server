@@ -12,10 +12,13 @@
   (:documentation "A COMPONENT with a TITLE."))
 
 (def refresh-component title/mixin
-    (bind ((class (component-dispatch-class -self-))
-           (prototype (component-dispatch-prototype -self-))
-           (value (component-value-of -self-)))
+  (bind ((class (component-dispatch-class -self-))
+         (prototype (component-dispatch-prototype -self-))
+         (value (component-value-of -self-)))
     (setf (title-of -self-) (make-title -self- class prototype value))))
+
+(def (function e) render-title-for (component)
+  (render-title (title-of component)))
 
 (def (layered-function e) render-title (component)
   (:method :in xhtml-layer ((self number))
@@ -39,3 +42,6 @@
 (def (component e) title-bar/mixin ()
   ((title-bar :type component))
   (:documentation "A COMPONENT with a TITLE-BAR."))
+
+(def (function e) render-title-bar (component)
+  (render-component (title-bar-of component)))

@@ -5,13 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Glossary basic
+;;; Glossary viewer
 
-(def (component e) glossary/basic (component/basic)
+(def (component e) glossary/viewer (viewer/basic)
   ())
 
-(def (macro e) glossary (&rest args &key &allow-other-keys)
-  `(make-instance 'glossary/basic ,@args))
+(def (macro e) glossary/viewer (&rest args &key &allow-other-keys)
+  `(make-instance 'glossary/viewer ,@args))
 
-(def render-xhtml glossary/basic
+(def render-xhtml glossary/viewer
   (not-yet-implemented))

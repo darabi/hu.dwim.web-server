@@ -5,39 +5,19 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Rows mixin
-
-(def (component e) rows/mixin ()
-  ((rows :type components)))
-
-(def layered-function render-rows (component)
-  (:method ((self rows/mixin))
-    (foreach #'render-component (rows-of self))))
-
-;;;;;;
-;;; Row headers mixin
-
-(def (component e) row-headers/mixin ()
-  ((row-headers :type components)))
-
-(def layered-function render-row-headers (component)
-  (:method ((self row-headers/mixin))
-    (foreach #'render-component (row-headers-of self))))
-
-;;;;;;
 ;;; Row header abstract
 
 (def (component e) row-header/abstract ()
   ((cell-factory :type (or null function))))
 
 ;;;;;;
-;;; Row header basic
+;;; Row header widget
 
-(def (component e) row-header/basic (row-header/abstract style/abstract content/mixin)
+(def (component e) row-header/widget (row-header/abstract style/abstract content/mixin)
   ())
 
 (def (macro e) row ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'row-header/basic ,@args :content ,(the-only-element content)))
+  `(make-instance 'row-header/widget ,@args :content ,(the-only-element content)))
 
 (def render-xhtml row-header/abstract
   (with-render-style/abstract (-self- :element-name "th")
@@ -56,19 +36,19 @@
   #f)
 
 ;;;;;;
-;;; Row basic
+;;; Row widget
 
-(def (component e) row/basic (row/abstract style/abstract cells/mixin)
+(def (component e) row/widget (row/abstract style/abstract cells/mixin)
   ())
 
-(def render-xhtml row/basic
+(def render-xhtml row/widget
   (render-table-row *table* -self-))
 
-(def render-csv row/basic
+(def render-csv row/widget
   (write-csv-line (cells-of -self-))
   (write-csv-line-separator))
 
-(def render-ods row/basic
+(def render-ods row/widget
   <table:table-row ,(bind ((table (parent-component-of -self-)))
                           (foreach (lambda (cell column)
                                      (render-cells table -self- column cell))
@@ -80,16 +60,16 @@
       "even-row"
       "odd-row"))
 
-(def layered-method render-onclick-handler ((self row/basic) (button (eql :left)))
+(def layered-method render-onclick-handler ((self row/widget) (button (eql :left)))
   nil)
 
 (def (layered-function e) render-table-row (table row)
-  (:method :around ((table table/mixin) (row row/basic))
+  (:method :around ((table table/mixin) (row row/widget))
     (ensure-refreshed row)
     (when (visible-component? row)
       (call-next-method)))
 
-  (:method :in xhtml-layer ((table table/mixin) (row row/basic))
+  (:method :in xhtml-layer ((table table/mixin) (row row/widget))
     (bind (((:read-only-slots id) row)
            (table-id (id-of table))
            (onclick-handler? (render-onclick-handler row :left)))
@@ -99,26 +79,26 @@
         ,(render-table-row-cells table row)>)))
 
 (def (layered-function e) table-row-style-class (table row)
-  (:method ((table table/mixin) (row row/basic))
+  (:method ((table table/mixin) (row row/widget))
     (odd/even-class row (rows-of table))))
 
 (def (layered-function e) render-table-row-cells (table row)
-  (:method ((table table/mixin) (row row/basic))
+  (:method ((table table/mixin) (row row/widget))
     (iter (for cell :in-sequence (cells-of row))
           (for column :in-sequence (columns-of table))
           (when (visible-component? column)
             (render-cells table row column cell)))))
 
 ;;;;;;
-;;; Entire row basic
+;;; Entire row widget
 
-(def (component e) entire-row/basic (row/abstract style/abstract content/mixin)
+(def (component e) entire-row/widget (row/abstract style/abstract content/mixin)
   ())
 
-(def layered-method render-table-row ((table table/mixin) (row entire-row/basic))
+(def layered-method render-table-row ((table table/mixin) (row entire-row/widget))
   (render-component row))
 
-(def layered-method render-onclick-handler ((self entire-row/basic) (button (eql :left)))
+(def layered-method render-onclick-handler ((self entire-row/widget) (button (eql :left)))
   nil)
 
 (def function render-entire-row (table row body-thunk)
@@ -131,5 +111,5 @@
         <td (:colspan ,(length (columns-of table)))
             ,(funcall body-thunk)>>))
 
-(def render-xhtml entire-row/basic
+(def render-xhtml entire-row/widget
   (render-entire-row *table* -self- #'call-next-method))

@@ -4,41 +4,33 @@
 
 (in-package :hu.dwim.wui)
 
-;;;;;
-;;; Menu items mixin
-
-(def (component e) menu-items/mixin ()
-  ((menu-items nil :type components))
-  (:documentation "A COMPONENT with a set of MENU-ITEMs."))
-
 ;;;;;;
 ;;; Menu abstract
 
 (def (component e) menu/abstract (menu-items/mixin content/mixin id/mixin style/mixin)
   ()
-  (:default-initargs :content (empty))
   (:documentation "A top level COMPONENT in a MENU hierarchy."))
 
 (def (icon e) menu :tooltip nil)
 
 ;;;;;;
-;;; Menu bar basic
+;;; Menu bar widget
 
-(def (component e) menu-bar/basic (menu/abstract)
+(def (component e) menu-bar/widget (menu/abstract)
   ((target-place nil :type place))
   (:documentation "A MENU that is always shown."))
 
-(def (macro e) menu-bar/basic ((&rest args &key &allow-other-keys) &body menu-items)
-  `(make-menu-bar/basic (list ,@menu-items) ,@args))
+(def (macro e) menu-bar/widget ((&rest args &key &allow-other-keys) &body menu-items)
+  `(make-menu-bar/widget (list ,@menu-items) ,@args))
 
-(def (function e) make-menu-bar/basic (menu-items &key id css-class style)
-  (make-instance 'menu-bar/basic
+(def (function e) make-menu-bar/widget (menu-items &key id css-class style)
+  (make-instance 'menu-bar/widget
                  :menu-items (flatten menu-items)
                  :id id
                  :css-class css-class
                  :style style))
 
-(def render-xhtml menu-bar/basic
+(def render-xhtml menu-bar/widget
   (bind (((:read-only-slots menu-items id css-class style) -self-))
     (render-dojo-widget (id)
       <div (:id ,id
@@ -49,17 +41,17 @@
         ,(foreach #'render-component menu-items)>)))
 
 ;;;;;
-;;; Popup menu basic
+;;; Popup menu widget
 
-(def (component e) popup-menu/basic (menu/abstract)
+(def (component e) popup-menu/widget (menu/abstract)
   ()
   (:documentation "A MENU that is shown upon explicit user interaction."))
 
-(def (macro e) popup-menu/basic ((&rest args &key &allow-other-keys) &body menu-items)
+(def (macro e) popup-menu/widget ((&rest args &key &allow-other-keys) &body menu-items)
   `(make-popup-menu (list ,@menu-items) ,@args))
 
 (def (function e) make-popup-menu (menu-items &key id css-class style)
-  (make-instance 'popup-menu/basic
+  (make-instance 'popup-menu/widget
                  :menu-items (flatten menu-items)
                  :id id
                  :css-class css-class
@@ -78,64 +70,34 @@
             ,(foreach #'render-component menu-items)>
           (render-remote-setup component))>)))
 
-(def render-xhtml popup-menu/basic
+(def render-xhtml popup-menu/widget
   (render-popup-menu -self-))
 
-(def render-csv popup-menu/basic
+(def render-csv popup-menu/widget
   (write-csv-separated-elements #\Space (menu-items-of -self-)))
 
 ;;;;;
-;;; Context menu basic
+;;; Context menu widget
 
-(def (component e) context-menu/basic (popup-menu/basic)
+(def (component e) context-menu/widget (popup-menu/widget)
   ((target))
   (:documentation "A POPUP-MENU that is attached to another COMPONENT as a CONTEXT-MENU."))
 
 (def (macro e) context-menu/bacic (target menu-items)
-  `(make-instance 'context-menu/basic
+  `(make-instance 'context-menu/widget
                   :target ,target
                   :content (icon show-context-menu)
                   :menu-items (list ,@menu-items)))
 
-(def render-xhtml context-menu/basic
+(def render-xhtml context-menu/widget
   (render-popup-menu -self- :target-node-id (id-of (target-of -self-))))
 
 (def (icon e) show-context-menu :label nil)
 
 ;;;;;;
-;;; Context menu mixin
+;;; Menu item widget
 
-(def (component e) context-menu/mixin ()
-  ((context-menu :type component))
-  (:documentation "A COMPONENT with a CONTEXT-MENU attached to it."))
-
-(def refresh-component context-menu/mixin
-  (bind ((class (component-dispatch-class -self-))
-         (prototype (component-dispatch-prototype -self-))
-         (value (component-value-of -self-)))
-    (setf (context-menu-of -self-) (make-context-menu -self- class prototype value))))
-
-(def layered-method make-context-menu ((component context-menu/mixin) class prototype value)
-  (labels ((make-menu-items (elements)
-             (iter (for element :in elements)
-                   (collect (etypecase element
-                              (cons (make-menu-item (icon menu) (make-menu-items element)))
-                              (command/basic (make-menu-item element nil))
-                              (menu-item/basic
-                               (setf (menu-items-of element) (make-menu-items (menu-items-of element)))
-                               element))))))
-    (make-instance 'context-menu/basic
-                   :target component
-                   :content (icon show-context-menu)
-                   :menu-items (make-menu-items (make-context-menu-items component class prototype value)))))
-
-(def layered-method make-context-menu-items ((component context-menu/mixin) class prototype value)
-  nil)
-
-;;;;;;
-;;; Menu item basic
-
-(def (component e) menu-item/basic (menu-items/mixin content/mixin id/mixin style/mixin)
+(def (component e) menu-item/widget (menu-items/mixin content/mixin id/mixin style/mixin)
   ()
   (:documentation "An intermediate or leaf component in a menu hierarchy."))
 
@@ -146,14 +108,14 @@
   (bind ((menu-items (flatten menu-items)))
     (when (or menu-items
               content)
-      (make-instance 'menu-item/basic
+      (make-instance 'menu-item/widget
                      :content content
                      :menu-items menu-items
                      :id id
                      :css-class css-class
                      :style style))))
 
-(def render-xhtml menu-item/basic
+(def render-xhtml menu-item/widget
   (bind (((:read-only-slots menu-items id css-class style) -self-))
     (if menu-items
         (bind ((popup-id (generate-response-unique-string)))
@@ -176,19 +138,19 @@
           (render-command-onclick-handler command id)))))
 
 ;;;;;;
-;;; Separator menu item basic
+;;; Separator menu item widget
 
-(def (component e) separator-menu-item/basic (menu-item/basic)
+(def (component e) separator-menu-item/widget (menu-item/widget)
   ()
   (:documentation "A menu item separator, a leaf in the menu hierarchy."))
 
-(def render-xhtml separator-menu-item/basic
+(def render-xhtml separator-menu-item/widget
   <div (:dojoType #.+dijit/menu-separator+)>)
 
 ;;;;;;
 ;;; Replace menu target command
 
-(def (component e) replace-menu-target-command (command/basic)
+(def (component e) replace-menu-target-command (command/widget)
   ((component))
   (:documentation "A special command that will replace the main menu target place with its component."))
 
@@ -198,7 +160,7 @@
           (bind ((menu-component
                   (find-ancestor-component -self-
                                            (lambda (ancestor)
-                                             (and (typep ancestor 'menu-bar/basic)
+                                             (and (typep ancestor 'menu-bar/widget)
                                                   (target-place-of ancestor)))))
                  (component (force (component-of -self-))))
             (setf (component-of -self-) component

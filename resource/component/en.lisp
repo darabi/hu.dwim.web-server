@@ -278,7 +278,7 @@
   (icon-label.go-to-last-page "Last")
   (icon-tooltip.go-to-last-page "Jump to last page")
 
-  (page-size/selector.rows/page " rows/page"))
+  (page-size-selector.rows/page " rows/page"))
 
 ;;;;;;
 ;;; Pivot table

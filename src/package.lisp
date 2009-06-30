@@ -4,11 +4,11 @@
 
 (in-package :hu.dwim.wui.system)
 
+(defpackage :hu.dwim.wui.shortcut
+  (:use :common-lisp
+        :cl-def))
+
 (defpackage :hu.dwim.wui
-
-  (:shadowing-import-from :trivial-garbage
-                          #:make-hash-table)
-
   (:use :hu.dwim.wui.system
         :common-lisp
         :closer-mop
@@ -31,8 +31,7 @@
         :trivial-garbage
         :babel
         :babel-streams
-        :contextl
-        )
+        :contextl)
 
   (:shadow #:class-prototype
            #:class-slots
@@ -40,22 +39,23 @@
            #:|defun|
            )
 
-  (:shadowing-import-from :cl-syntax-sugar
-                          #:define-syntax)
-
-  (:export #:path-prefix-of
-           #:id-of
-           ))
-
-(defpackage :hu.dwim.wui-user
-
   (:shadowing-import-from :trivial-garbage
                           #:make-hash-table)
 
+  (:shadowing-import-from :cl-syntax-sugar
+                          #:define-syntax))
+
+(defpackage :hu.dwim.wui.user
   (:use :common-lisp
-        :hu.dwim.wui
         :iterate
         :local-time
         :bordeaux-threads
         :trivial-garbage
-        ))
+        :hu.dwim.wui
+        :hu.dwim.wui.shortcut
+        )
+
+  (:shadowing-import-from :trivial-garbage
+                          #:make-hash-table))
+
+(use-package :hu.dwim.wui :hu.dwim.wui.shortcut)

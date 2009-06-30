@@ -1,34 +1,34 @@
-(in-package :wui-test)
+(in-package :wui.test)
 
 ;;;;;;
 ;;; This is a simple example application with login and logout support
 
 (setf *dojo-directory-name* (find-latest-dojo-directory-name (project-relative-pathname "wwwroot/")))
 
-(def special-variable *wudemo-stylesheet-uris* (append (flet ((entry (path)
-                                                                (list (concatenate-string "static/" path)
-                                                                      (assert-file-exists (project-relative-pathname (concatenate-string "wwwroot/" path)))))
-                                                              (dojo-relative-path (path)
-                                                                (concatenate-string *dojo-directory-name* path)))
-                                                         (list (entry "wui/css/wudemo.css")
-                                                               (entry "wui/css/wui.css")
-                                                               (entry "wui/css/wui-default-skin.css")
-                                                               (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
-                                                               (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
+(def special-variable *demo-stylesheet-uris* (append (flet ((entry (path)
+                                                              (list (concatenate-string "static/" path)
+                                                                    (assert-file-exists (project-relative-pathname (concatenate-string "wwwroot/" path)))))
+                                                            (dojo-relative-path (path)
+                                                              (concatenate-string *dojo-directory-name* path)))
+                                                       (list (entry "wui/css/demo.css")
+                                                             (entry "wui/css/wui.css")
+                                                             (entry "wui/css/wui-default-skin.css")
+                                                             (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
+                                                             (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
 
-(def (constant :test 'equalp) +wudemo-script-uris+ '("wui/js/wui.js"))
+(def (constant :test 'equalp) +demo-script-uris+ '("wui/js/wui.js"))
 
-(def (constant :test 'string=) +wudemo-page-icon+ "static/favicon.ico")
+(def (constant :test 'string=) +demo-page-icon+ "static/favicon.ico")
 
 (def constant +minimum-login-password-length+ 6)
 (def constant +minimum-login-identifier-length+ 3)
 
-(def class* wudemo-application (application-with-home-package
-                                application-with-dojo-support)
+(def class* demo-application (application-with-home-package
+                              application-with-dojo-support)
   ()
   (:metaclass funcallable-standard-class))
 
-(def class* wudemo-session ()
+(def class* demo-session ()
   ((authenticated-subject nil)
    (example-inline-edit-box-value "initial value of the example inline edit box")))
 
@@ -39,13 +39,13 @@
 (def function is-authenticated? ()
   (not (null (current-authenticated-subject))))
 
-(def method session-class list ((application wudemo-application))
-  'wudemo-session)
+(def method session-class list ((application demo-application))
+  'demo-session)
 
-(def special-variable *wudemo-application*
-  (make-instance 'wudemo-application
+(def special-variable *demo-application*
+  (make-instance 'demo-application
                  :path-prefix "/"
-                 :home-package (find-package :wui-test)
+                 :home-package (find-package :wui.test)
                  :default-locale "en"
                  ;; force ajax eanbled regardless *default-ajax-enabled*
                  :ajax-enabled t))
@@ -102,52 +102,52 @@
 ;;;;;;
 ;;; the factories that create the component graph both in logged out and logged in states
 
-(def function make-wudemo-frame-component ()
-  (make-wudemo-frame-component-with-content (make-wudemo-menu-content-component)))
+(def function make-demo-frame-component ()
+  (make-demo-frame-component-with-content (make-demo-menu-content-component)))
 
-(def function make-wudemo-frame-component-with-content (menu-content)
-  (bind ((menu (make-wudemo-menu-component)))
-    (bind ((frame-component (frame (:title "wudemo"
-                                    :stylesheet-uris *wudemo-stylesheet-uris*
-                                    :script-uris '#.+wudemo-script-uris+
-                                    :page-icon #.+wudemo-page-icon+)
+(def function make-demo-frame-component-with-content (menu-content)
+  (bind ((menu (make-demo-menu-component)))
+    (bind ((frame-component (frame (:title "demo"
+                                    :stylesheet-uris *demo-stylesheet-uris*
+                                    :script-uris '#.+demo-script-uris+
+                                    :page-icon #.+demo-page-icon+)
                               (vertical-list (:id "page")
                                 (when *session*
                                   (style (:id "header" :css-class "authenticated")
-                                    (inline/basic <span ,(current-authenticated-subject)
-                                                        " "
-                                                        ,(when (running-in-test-mode-p *wudemo-application*)
-                                                               "(test mode)")
-                                                        " "
-                                                        ,(when (profile-request-processing-p *server*)
-                                                               "(profiling)")
-                                                        " "
-                                                        ,(when (debug-client-side? (root-component-of *frame*))
-                                                               "(debugging client side)")>
-                                                  <span ,(render-component
-                                                          (command (icon logout)
-                                                            (make-action
-                                                              (mark-session-invalid *session*)
-                                                              (make-redirect-response-for-current-application))))>)))
+                                    (inline/widget <span ,(current-authenticated-subject)
+                                                         " "
+                                                         ,(when (running-in-test-mode-p *demo-application*)
+                                                                "(test mode)")
+                                                         " "
+                                                         ,(when (profile-request-processing-p *server*)
+                                                                "(profiling)")
+                                                         " "
+                                                         ,(when (debug-client-side? (root-component-of *frame*))
+                                                                "(debugging client side)")>
+                                                   <span ,(render-component
+                                                           (command (icon logout)
+                                                             (make-action
+                                                               (mark-session-invalid *session*)
+                                                               (make-redirect-response-for-current-application))))>)))
                                 (horizontal-list ()
                                   (style (:id "menu") menu)
                                   (top menu-content))))))
       (setf (target-place-of menu) (make-component-place menu-content))
       (values frame-component menu-content))))
 
-(def layered-method make-frame-component-with-content ((application wudemo-application) content)
-  (make-wudemo-frame-component-with-content content))
+(def layered-method make-frame-component-with-content ((application demo-application) content)
+  (make-demo-frame-component-with-content content))
 
-(def function make-wudemo-menu-component ()
+(def function make-demo-menu-component ()
   (if (is-authenticated?)
       (make-authenticated-menu-component)
       (make-unauthenticated-menu-component)))
 
-(def function make-wudemo-menu-content-component ()
+(def function make-demo-menu-content-component ()
   (if (is-authenticated?)
       (empty)
       (if (parameter-value "example-error")
-          (inline/basic
+          (inline/widget
             (error "This is an example error that happens while rendering the response"))
           (bind ((path (path-of (uri-of *request*))))
             (assert (starts-with-subseq (path-prefix-of *application*) path))
@@ -155,10 +155,10 @@
             (switch (path :test #'string=)
               (+login-entry-point-path+ (vertical-list ()
                                           (make-identifier-and-password-login-component)
-                                          (inline/basic <div "FYI, the password is \"secret\"...">)))
+                                          (inline/widget <div "FYI, the password is \"secret\"...">)))
               ("help/" (make-help-component))
               ("about/" (make-about-component))
-              (t (inline/basic <span "wudemo start page">)))))))
+              (t (inline/widget <span "demo start page">)))))))
 
 (def function make-unauthenticated-menu-component ()
   (macrolet ((command* (title path)
@@ -211,7 +211,7 @@
                    (list (menu-item () (command "Example error in action body"
                                          (make-action (error "This is an example error which is signaled when running the action body"))))
                          (menu-item () (replace-menu-target-command "Example error while rendering"
-                                         (inline/basic (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
+                                         (inline/widget (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
           debug-menu))
       (menu-item () "Charts"
         (menu-item () "Charts from files"
@@ -254,17 +254,17 @@
                                    (make-action
                                      ;;(break "file in action: ~A" (component-value-of file-upload-component))
                                      ))
-                          (inline/basic
+                          (inline/widget
                             (when (slot-boundp file-upload-component 'component-value)
                               (render-mime-part-details (component-value-of file-upload-component))))))))
       (menu-item () (replace-menu-target-command "Dojo InlineEditBox example"
-                      (inline/basic
+                      (inline/widget
                         (render-example-inline-edit-box))))
       (menu-item () (replace-menu-target-command "checkbox"
                       (bind ((value1 #t)
                              (value2 #f))
                         (vertical-list ()
-                          (inline/basic
+                          (inline/widget
                             (render-checkbox-field value1 :value-sink (lambda (value)
                                                                         (setf value1 value)))
                             (render-checkbox-field value2 :value-sink (lambda (value)
@@ -281,7 +281,7 @@
 
 (def function make-primitive-component-menu ()
   (labels ((make-primitive-menu-item-content (components)
-             (inline/basic
+             (inline/widget
                <div ,(render-component (command (icon wui::refresh)
                                                 (make-action)))
                     <table ,(foreach (lambda (component)
@@ -314,7 +314,7 @@
                                                                                   (unless (eq value :unbound)
                                                                                     (list :component-value value)))))
                                                            (list
-                                                            (inline/basic
+                                                            (inline/widget
                                                               (bind ((value (if (slot-boundp inspector 'component-value)
                                                                                 (component-value-of inspector)
                                                                                 :unbound)))
@@ -347,10 +347,10 @@
       (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text))))))
 
 (def function make-help-component ()
-  (inline/basic <div "This is the help page">))
+  (inline/widget <div "This is the help page">))
 
 (def function make-about-component ()
-  (inline/basic <div "This is the about page">))
+  (inline/widget <div "This is the about page">))
 
 ;;;;;;
 ;;; ajax counter example (only a proof-of-concept)
@@ -369,14 +369,38 @@
        (render-command "increment without ajax" action :ajax #f))>)
 |#
 
-
+(def book wui (:title "WUI")
+  (chapter (:title "Introduction")
+    (chapter (:title "What is WUI?")
+      )
+    (chapter (:title "Why not something else?")
+      ))
+  (chapter (:title "Installation")
+    (chapter (:title "Downloading")
+      )
+    (chapter (:title "Extracting")
+      )
+    (chapter (:title "Configuration")
+      ))
+  (chapter (:title "Starting up")
+    (chapter (:title "HTTP server")
+      )
+    (chapter (:title "Application server")
+      )
+    (chapter (:title "Component server")
+      )
+    (chapter (:title "Test")
+      ))
+  (chapter (:title "Quick tutorial")
+    (chapter (:title "Hello world")
+      )))
 
 ;; TODO: kill
-(def function make-wudemo-frame-component ()
-  (frame (:title "wudemo"
-          :stylesheet-uris *wudemo-stylesheet-uris*
-          :script-uris '#.+wudemo-script-uris+
-          :page-icon #.+wudemo-page-icon+)
+(def function make-demo-frame-component ()
+  (frame/widget (:title "demo"
+                 :stylesheet-uris *demo-stylesheet-uris*
+                 :script-uris '#.+demo-script-uris+
+                 :page-icon #.+demo-page-icon+)
     (top ()
       (tab-container ()
         (tab-page ()
@@ -384,29 +408,60 @@
         (tab-page ()
           (expandible ()
             "SICP"
-            (book (:title "Structure and Interpretation of Computer Programs")
-              (chapter (:title "Introduction")
-                "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."))))))))
+            (book/viewer ()
+              (find-book 'wui))))
+        (tab-page ()
+          (make-instance 'tree-level/widget
+                         :path (path/widget () "Magyarország" "Dél-dunántúli régió")
+                         :previous-sibling "Észak-magyarországi régió"
+                         :next-sibling "Közép-magyarországi régió"
+                         :descendants (tree/widget ()
+                                        (node/widget ()
+                                            "Pest megye"
+                                          (node/widget ()
+                                              "Budapest")
+                                          (node/widget ()
+                                              "Érd"))
+                                        (node/widget ()
+                                            "Zala megye"
+                                          (node/widget ()
+                                              "Zala"))
+                                        (node/widget ()
+                                            "Fejér megye"
+                                          (node/widget ()
+                                              "Székesfehérvár")
+                                          (node/widget ()
+                                              "Agárd")))
+                         :node "Dél-magyarországi régió"))
+        (tab-page ()
+          (standard-class/tree/viewer ()
+            (find-class 'component)))
+        (tab-page ()
+          (standard-class/tree-level/viewer ()
+            (find-class 'tree-level/widget)))
+        (tab-page ()
+          (book/tree-level/viewer ()
+            (find-book 'wui)))))))
 
 ;;;;;;
 ;;; the entry points
 
-(def file-serving-entry-point *wudemo-application* "/static/" (system-relative-pathname :wui "wwwroot/"))
+(def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :wui "wwwroot/"))
 
-(def js-file-serving-entry-point *wudemo-application* "/wui/js/" (system-relative-pathname :wui "src/js/"))
+(def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :wui "src/js/"))
 
-(def entry-point (*wudemo-application* :path "" :with-session-logic #t :requires-valid-session #f :ensure-session #t :ensure-frame #t) ()
+(def entry-point (*demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
   (if *session*
       (progn
         (assert (and (boundp '*frame*) *frame*))
         (if (root-component-of *frame*)
             (make-root-component-rendering-response *frame*)
             (progn
-              (setf (root-component-of *frame*) (make-wudemo-frame-component))
+              (setf (root-component-of *frame*) (make-demo-frame-component))
               (make-redirect-response-for-current-application))))
-      (make-component-rendering-response (make-wudemo-frame-component))))
+      (make-component-rendering-response (make-demo-frame-component))))
 
-(def entry-point (*wudemo-application* :path "session-info" :priority 1000) ()
+(def entry-point (*demo-application* :path "session-info" :priority 1000) ()
   (if *session*
       (progn
         (setf (root-component-of *frame*) (make-viewer *session*))
@@ -416,14 +471,14 @@
       (make-functional-html-response ()
         <p "There's no session">)))
 
-(def entry-point (*wudemo-application* :path "about/") ()
-  (make-component-rendering-response (make-wudemo-frame-component)))
+(def entry-point (*demo-application* :path "about/") ()
+  (make-component-rendering-response (make-demo-frame-component)))
 
-(def entry-point (*wudemo-application* :path "help/") ()
-  (make-component-rendering-response (make-wudemo-frame-component)))
+(def entry-point (*demo-application* :path "help/") ()
+  (make-component-rendering-response (make-demo-frame-component)))
 
 #|
-(def entry-point (*wudemo-application* :path +login-entry-point-path+ :with-session-logic #f)
+(def entry-point (*demo-application* :path +login-entry-point-path+ :with-session-logic #f)
     (identifier password continue-url user-action)
   (%login-entry-point identifier password continue-url user-action))
 
@@ -474,7 +529,7 @@
                         response)
             (decorate-application-response application response)
             response))
-        (bind (((:values frame main-component) (make-wudemo-frame-component))
+        (bind (((:values frame main-component) (make-demo-frame-component))
                (login-component (find-descendant-component-with-type main-component 'identifier-and-password-login-component)))
           (assert login-component)
           (setf (identifier-of login-component) identifier)
@@ -484,7 +539,7 @@
             (add-user-error login-component "Login failed"))
           (make-component-rendering-response frame)))))
 
-(def method handle-request-to-invalid-session ((application wudemo-application) session invalidity-reason)
+(def method handle-request-to-invalid-session ((application demo-application) session invalidity-reason)
   (bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
     (setf (uri-query-parameter-value uri +continue-url-query-parameter-name+)
           (print-uri-to-string (clone-request-uri :strip-query-parameters wui::+frame-query-parameter-names+)))
@@ -501,9 +556,9 @@
        (>= (length identifier) +minimum-login-identifier-length+)))
 |#
 
-(def function start-test-server-with-wudemo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
+(def function start-test-server-with-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)
-  (start-test-server-with-brokers (list *wudemo-application*
+  (start-test-server-with-brokers (list *demo-application*
                                         (make-redirect-broker "" "/"))
                                   :host host
                                   :port port

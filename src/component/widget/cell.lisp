@@ -5,28 +5,18 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Cells mixin
+;;; Cell widget
 
-(def (component e) cells/mixin ()
-  ((cells :type components)))
-
-(def (layered-function e) render-cells (component)
-  (:method ((self cells/mixin))
-    (foreach #'render-component (cells-of self))))
-
-;;;;;;
-;;; Cell basic
-
-(def (component e) cell/basic (style/abstract content/mixin)
+(def (component e) cell/widget (widget/basic style/abstract content/mixin)
   ((column-span nil :type integer)
    (row-span nil :type integer)
    (word-wrap :type boolean)
    (horizontal-alignment nil :type (member nil :left :center :right))
    (vertical-alignment nil :type (member nil :top :center :bottom))))
 
-(def with-macro* render-cell/basic (cell &key css-class)
+(def with-macro* render-cell/widget (cell &key css-class)
   (setf css-class (ensure-list css-class))
-  (if (typep cell 'cell/basic)
+  (if (typep cell 'cell/widget)
       (bind (((:read-only-slots column-span row-span horizontal-alignment vertical-alignment) cell))
         (ecase horizontal-alignment
           (:right (push +table-cell-horizontal-alignment-css-class/right+ css-class))
@@ -47,28 +37,9 @@
       <td (:class ,(join-strings css-class))
         ,(-body-)>))
 
-(def render-xhtml cell/basic
-  (render-cell/basic (-self-)
+(def render-xhtml cell/widget
+  (render-cell/widget (-self-)
     (call-next-method)))
 
-(def render-ods cell/basic
+(def render-ods cell/widget
   <table:table-cell ,(call-next-method)>)
-
-(def (layered-function e) render-cells (table row column cell)
-  (:method :before ((table table/mixin) (row row/basic) (column column-component) (cell cell/basic))
-    (ensure-refreshed cell))
-
-  (:method ((table table/mixin) (row row/basic) (column column-component) (cell cell/basic))
-    (render-component cell))
-
-  (:method :in xhtml-layer ((table table/mixin) (row row/basic) (column column-component) (cell component))
-    <td ,(render-component cell)>)
-
-  (:method :in xhtml-layer ((table table/mixin) (row row/basic) (column column-component) (cell string))
-    <td ,(render-component cell)>)
-
-  (:method :in ods-layer ((table table/mixin) (row row/basic) (column column-component) (cell component))
-    <table:table-cell ,(render-component cell)>)
-
-  (:method :in ods-layer ((table table/mixin) (row row/basic) (column column-component) (cell string))
-    <table:table-cell ,(render-component cell)>))

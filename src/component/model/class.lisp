@@ -12,34 +12,59 @@
     nil
     :type (or null standard-class)
     :computed-in compute-as))
-  (:documentation "A component with a STANDARD-CLASS."))
+  (:documentation "A COMPONENT with a STANDARD-CLASS."))
 
 ;;;;;;
 ;;; Standard class abstract
 
-(def (component e) standard-class/abstract (dispatch-class/abstract standard-class/mixin)
+(def (component e) standard-class/abstract (standard-class/mixin)
   ()
-  (:documentation "A component with a STANDARD-CLASS component value."))
+  (:documentation "A COMPONENT with a STANDARD-CLASS component value."))
 
-(def method component-value-of ((component standard-class/abstract))
-  (the-class-of component))
+(def method component-value-of ((self standard-class/abstract))
+  (the-class-of self))
 
-(def method (setf component-value-of) (new-value (component standard-class/abstract))
-  (setf (the-class-of component) new-value))
+(def method (setf component-value-of) (new-value (self standard-class/abstract))
+  (setf (the-class-of self) new-value))
 
 (def method component-dispatch-class ((self standard-class/abstract))
-  (the-class-of self))
+  (class-of (the-class-of self)))
+
+;;;;;;
+;;; Standard class list mixin
+
+(def (component e) standard-class-list/mixin ()
+  ((classes
+    nil
+    :computed-in compute-as))
+  (:documentation "A COMPONENT with a list of STANDARD-CLASSes."))
+
+;;;;;;
+;;; Standard class list abstract
+
+(def (component e) standard-class-list/abstract (standard-class-list/mixin)
+  ()
+  (:documentation "A COMPONENT with a list of STANDARD-CLASSes as component value."))
+
+(def method component-value-of ((self standard-class-list/abstract))
+  (classes-of self))
+
+(def method (setf component-value-of) (new-value (self standard-class-list/abstract))
+  (setf (classes-of self) new-value))
+
+(def method component-dispatch-class ((self standard-class-list/abstract))
+  (class-of (first (classes-of self))))
 
 ;;;;;;
 ;;; Standard class inspector
 
-(def (component e) standard-class/inspector (standard-class/mixin alternator/basic)
+(def (component e) standard-class/inspector (standard-class/mixin alternator/widget)
   ()
-  (:documentation "Component for an instance of STANDARD-CLASS in various alternative views"))
+  (:documentation "A COMPONENT for an instance of STANDARD-CLASS in various alternative views."))
 
 (def layered-method make-alternatives ((component standard-class/inspector) (class standard-class) (prototype standard-object) (instance standard-object))
   (list (delay-alternative-component-with-initargs 'standard-class/detail/inspector :the-class class)
-        (delay-alternative-reference-component 'standard-class-reference class)))
+        (delay-alternative-reference-component 'standard-class/reference class)))
 
 ;;;;;;
 ;;; Standard class detail inspector
@@ -50,7 +75,7 @@
    (direct-superclasses nil :type component)
    (direct-slots nil :type component)
    (effective-slots nil :type component))
-  (:documentation "Component for an instance of STANDARD-CLASS in detail"))
+  (:documentation "A COMPONENT for an instance of STANDARD-CLASS in detail view."))
 
 (def refresh-component standard-class/detail/inspector
   (bind (((:slots the-class metaclass direct-subclasses direct-superclasses direct-slots effective-slots) -self-))
@@ -89,3 +114,12 @@
               ,(render-component direct-slots)>
          <div <h3 "Effective slots">
               ,(render-component effective-slots)>>))
+;;;;;;
+;;; Standard class reference
+
+(def (component e) standard-class/reference (reference-component)
+  ()
+  (:documentation "A COMPONENT for an instance of STANDARD-CLASS in reference view."))
+
+(def method make-reference-label ((reference standard-class/reference) (metaclass standard-class) (class standard-class))
+  (localized-class-name class :capitalize-first-letter #t))

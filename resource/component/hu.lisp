@@ -278,7 +278,7 @@
   (icon-label.go-to-last-page "Utolsó")
   (icon-tooltip.go-to-last-page "Ugrás az utolsó lapra")
 
-  (page-size/selector.rows/page " sor/oldal"))
+  (page-size-selector.rows/page " sor/oldal"))
 
 ;;;;;;
 ;;; Pivot table

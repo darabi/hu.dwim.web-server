@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; File download
 
-(def (component e) file-download-component (command/basic)
+(def (component e) file-download-component (command/widget)
   ((directory "/tmp/")
    (file-name)
    (url-prefix "static/"))

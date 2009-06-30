@@ -5,37 +5,16 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Book basic
+;;; Book viewer
 
-(def (component e) book/basic (component/basic title/mixin)
-  ((author nil :type (or null component))
-   (toc nil :type (or null component))
-   (chapters :type components)
-   (index nil :type (or null component))
-   (glossary nil :type (or null component))))
+(def (component e) book/viewer (viewer/basic)
+  ())
 
-(def (macro e) book/basic ((&rest args &key &allow-other-keys) &body chapters)
-  `(make-instance 'book/basic ,@args :chapters (list ,@chapters)))
+(def (macro e) book/viewer ((&rest args &key &allow-other-keys) &body book)
+  `(make-instance 'book/viewer ,@args :component-value ,(the-only-element book)))
 
-(def render-xhtml book/basic
-  (bind (((:read-only-slots title author toc chapters index glossary) -self-))
-    <div (:class "book")
-      ,(render-title title)
-      ,(when author
-         (render-author author))
-      ,(when toc
-         (render-component toc))
-      ,(foreach #'render-component chapters)
-      ,(when index
-         (render-component index))
-      ,(when glossary
-         (render-component glossary))>))
-
-;;;;;;
-;;; Book
-
-(def (macro e) book ((&rest args &key &allow-other-keys) &body chapters)
-  `(book/basic ,args ,@chapters))
+(def render-xhtml book/viewer
+  <div (:class "book")>)
 
 ;;;;;;
 ;;; Author

@@ -1,4 +1,4 @@
-(in-package :wui-test)
+(in-package :wui.test)
 
 (def special-variable *running-test-servers* (list))
 

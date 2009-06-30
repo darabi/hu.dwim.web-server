@@ -5,21 +5,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Draggable mixin
+;;; Draggable abstract
 
-(def (component e) draggable/mixin ()
+(def (component e) draggable/abstract ()
   ()
   (:documentation "A COMPONENT that can be dragged on the remote side."))
 
-(def render-component draggable/mixin
-  (not-yet-implemented))
-
 ;;;;;;
-;;; Drop place mixin
+;;; Drag and drop place abstract
 
-(def (component e) drop-place/mixin ()
+(def (component e) drag-and-drop-place/abstract ()
   ()
-  (:documentation "A COMPONENT that serves as a drag and drop place."))
-
-(def render-component drop-place/mixin
-  (not-yet-implemented))
+  (:documentation "A COMPONENT that serves as a DRAG-AND-DROP-PLACE."))

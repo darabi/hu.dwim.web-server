@@ -291,7 +291,10 @@
 
 (def (generic e) localized-instance-reference-string (instance)
   (:method ((instance standard-object))
-    (princ-to-string instance)))
+    (princ-to-string instance))
+
+  (:method ((instance standard-class))
+    (localized-class-name instance)))
 
 (def function funcall-resource-function (name &rest args)
   (apply-resource-function name args))

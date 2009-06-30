@@ -73,7 +73,6 @@
 (def (function e) make-standard-object-tree-table-command-bar-column ()
   (make-instance 'column-component
                  :content #"object-tree-table.column.commands"
-                 :visible (delay (not (layer-active-p 'passive-layer)))
                  :cell-factory (lambda (node)
                                  (command-bar-of node))))
 

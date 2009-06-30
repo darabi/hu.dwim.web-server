@@ -44,5 +44,11 @@
 (def method call-compute-as :after ((self refreshable/mixin) thunk)
   (mark-to-be-refreshed-component self))
 
+(def method (setf component-value-of) :before (new-value (self refreshable/mixin))
+  ;; KLUDGE: to allow refresh to kick in when the value is something really different
+  (unless (equal (component-value-of self) new-value)
+    (dolist (slot (component-slots-of (class-of self)))
+      (setf (slot-value-using-class (class-of self) self slot) nil))))
+
 (def method (setf component-value-of) :after (new-value (self refreshable/mixin))
   (mark-to-be-refreshed-component self))

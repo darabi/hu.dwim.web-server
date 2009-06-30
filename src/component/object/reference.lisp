@@ -55,24 +55,6 @@
   <div ,(foreach #'render-component (references-of -self-))>)
 
 ;;;;;;
-;;; Standard slot reference
-
-(def (component e) standard-slot-definition-reference (reference-component)
-  ())
-
-(def method make-reference-label ((reference standard-slot-definition-reference) (class standard-class) (slot standard-slot-definition))
-  (qualified-symbol-name (slot-definition-name slot)))
-
-;;;;;;
-;;; Standard class reference
-
-(def (component e) standard-class-reference (reference-component)
-  ())
-
-(def method make-reference-label ((reference standard-class-reference) (metaclass standard-class) (class standard-class))
-  (localized-class-name class :capitalize-first-letter #t))
-
-;;;;;;
 ;;; Standard object reference
 
 (def (component e) standard-object-inspector-reference (reference-component)

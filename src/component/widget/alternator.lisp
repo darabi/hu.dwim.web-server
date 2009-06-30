@@ -10,7 +10,6 @@
 (def (component e) alternator/mixin (content/mixin)
   ((initial-alternative-type 'detail-component :type symbol)
    (default-alternative-type 'detail-component :type symbol)
-   (alternatives-factory #'make-alternatives :type function)
    (alternatives nil :type list)))
 
 (def refresh-component alternator/mixin
@@ -18,7 +17,7 @@
          (value (component-value-of -self-))
          (class (component-dispatch-class -self-)))
     (unless alternatives
-      (setf alternatives (funcall (alternatives-factory-of -self-) -self- class (class-prototype class) value)))
+      (setf alternatives (make-alternatives -self- class (class-prototype class) value)))
     (unless content
       (setf content (find-initial-alternative-component -self-)))
     (dolist (alternative alternatives)
@@ -74,11 +73,11 @@
 ;;;;;;
 ;;; Alternator component
 
-(def (component e) alternator/basic (visibility/mixin expandible/mixin title/mixin context-menu/mixin commands/mixin alternator/mixin id/mixin component-messages/basic)
+(def (component e) alternator/widget (visibility/mixin expandible/mixin title/mixin context-menu/mixin commands/mixin alternator/mixin id/mixin component-messages/widget)
   ())
 
-(def render-xhtml alternator/basic
-  (render-content -self-))
+(def render-xhtml alternator/widget
+  (render-content-for -self-))
 
 ;;;;;;
 ;;; Alternative factory

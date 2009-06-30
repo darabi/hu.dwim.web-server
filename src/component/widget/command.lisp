@@ -5,9 +5,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Command basic
+;;; Command widget
 
-(def (component e) command/basic (component/basic content/mixin enableable/mixin)
+(def (component e) command/widget (widget/basic content/mixin enableable/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available
@@ -31,10 +31,10 @@
     nil
     :type t)))
 
-(def (macro e) command ((&key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path application-relative-path
-                              (delayed-content nil delayed-content-provided?)
-                              (send-client-state #t send-client-state-provided?))
-                         &body content-and-action)
+(def (macro e) command/widget ((&key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path application-relative-path
+                                     (delayed-content nil delayed-content-provided?)
+                                     (send-client-state #t send-client-state-provided?))
+                                &body content-and-action)
   (assert (length= 2 content-and-action))
   (bind ((content (first content-and-action))
          (action (second content-and-action)))
@@ -58,7 +58,7 @@
              ,(maybe-push :scheme scheme)
              ,(maybe-push :path path)
              ,(maybe-push :application-relative-path application-relative-path)
-             (make-instance 'command/basic
+             (make-instance 'command/widget
                             :content ,content
                             :action ,action
                             :enabled ,enabled
@@ -68,12 +68,12 @@
                             :js ,js
                             :action-arguments ,action-arguments)))))))
 
-(def render-xhtml command/basic
+(def render-xhtml command/widget
   (bind (((:read-only-slots content action enabled-component default ajax js action-arguments) -self-))
     (render-command content action :enabled enabled-component :default default :ajax ajax :js js :action-arguments action-arguments)))
 
-(def render-component :in passive-layer command/basic
-  (render-component (content-of -self-)))
+(def render-component :in passive-layer command/widget
+  (render-content-for -self-))
 
 (def function href-for-command (action action-arguments)
   (bind ((send-client-state? (prog1
@@ -97,7 +97,7 @@
                                                           (force ajax))
                                                  :send-client-state ,send-client-state?))))
              (name (when (running-in-test-mode? *application*)
-                     (if (typep content 'icon/basic)
+                     (if (typep content 'icon/widget)
                          (symbol-name (name-of content))
                          (princ-to-string content)))))
         ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
@@ -105,7 +105,7 @@
         <span (:id ,id :class "command" :name ,name) ,(render-component content)>
         `js(on-load
             (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
-            (wui.setup-component ,id "command/basic"))
+            (wui.setup-component ,id "command/widget"))
         ;; TODO: use dojo.connect for keyboard events
         (when default
           (bind ((submit-id (generate-response-unique-string)))
@@ -139,25 +139,13 @@
         (funcall (action-of command))))))
 
 ;;;;;;
-;;; Commands mixin
-
-(def (component e) commands/mixin (context-menu/mixin menu-bar/mixin command-bar/mixin)
-  ())
-
-(def (layered-function e) find-command (component name)
-  (:method ((self commands/mixin) name)
-    (find-descendant-component self (lambda (descendant)
-                                      (and (typep descendant 'command/basic)
-                                           (eq name (name-of (content-of descendant))))))))
-
-;;;;;;
 ;;; Generic commands
 
 (def (function e) make-replace-command (original-component replacement-component &rest replace-command-args)
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT"
   (assert (and original-component
                replacement-component))
-  (apply #'make-instance 'command/basic
+  (apply #'make-instance 'command/widget
          :action (make-action
                    (execute-replace original-component replacement-component))
          replace-command-args))
@@ -171,7 +159,7 @@
 
 (def (function e) make-back-command (original-component original-place replacement-component replacement-place &rest args)
   "The BACK command puts REPLACEMENT-COMPONENT and ORIGINAL-COMPONENT back to their COMPONENT-PLACE and removes itself from its COMMAND-BAR"
-  (prog1-bind command (apply #'make-instance 'command/basic args)
+  (prog1-bind command (apply #'make-instance 'command/widget args)
     (setf (action-of command) (make-action
                                 (pop-command command)
                                 (when original-place
@@ -183,7 +171,7 @@
   "The REPLACE command replaces ORIGINAL-COMPONENT with REPLACEMENT-COMPONENT and pushes a BACK command into the COMMAND-BAR of REPLACEMENT-COMPONENT to revert the changes"
   (assert (and original-component
                replacement-component))
-  (apply #'make-instance 'command/basic
+  (apply #'make-instance 'command/widget
          :action (make-action
                    (execute-replace-and-push-back original-component replacement-component back-command-args))
          replace-command-args))

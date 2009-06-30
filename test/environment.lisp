@@ -1,4 +1,4 @@
-(in-package :wui-test)
+(in-package :wui.test)
 
 (def macro with-wui-logger-level (log-level &body body)
   `(with-logger-level (wui) ,log-level

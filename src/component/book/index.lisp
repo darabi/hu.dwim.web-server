@@ -5,13 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Word index basic 
+;;; Book index inspector
 
-(def (component e) word-index/basic (component/basic)
+(def (component e) index/viewer ()
   ())
 
-(def (macro e) word-index ()
-  `(make-instance 'word-index/basic))
+(def (macro e) index/viewer ()
+  `(make-instance 'index/viewer))
 
-(def render-xhtml word-index/basic
+(def render-xhtml index/viewer
   (not-yet-implemented))

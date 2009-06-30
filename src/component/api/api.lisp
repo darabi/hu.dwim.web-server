@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component factory for values
+;;; Component factories for values
 
 (def (generic e) make-value-viewer (value &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that displays VALUE."))
@@ -73,6 +73,18 @@
 (def (layered-function e) make-footer (component class prototype value)
   (:documentation "Creates a FOOTER for COMPONENT."))
 
+(def (layered-function e) make-command-bar (component class prototype value)
+  (:documentation "Creates a COMMAND-BAR for COMPONENT."))
+
+(def (layered-function e) make-command-bar-commands (component class prototype value)
+  (:documentation "Creates a list of COMMANDs for the COMPONENT's COMMAND-BAR."))
+
+(def (layered-function e) make-tool-bar (component class prototype value)
+  (:documentation "Creates a TOOL-BAR for COMPONENT."))
+
+(def (layered-function e) make-tool-bar-items (component class prototype value)
+  (:documentation "Creates a list of TOOL-ITEMs for the COMPONENT's TOOL-BAR."))
+
 (def (layered-function e) make-menu-bar (component class prototype value)
   (:documentation "Creates a MENU-BAR for COMPONENT."))
 
@@ -84,12 +96,6 @@
 
 (def (layered-function e) make-context-menu-items (component class prototype value)
   (:documentation "Creates a tree of MENU-ITEMs or COMMANDs for the menu hierarchy of the COMPONENT's CONTEXT-MENU."))
-
-(def (layered-function e) make-command-bar (component class prototype value)
-  (:documentation "Creates a COMMAND-BAR for COMPONENT."))
-
-(def (layered-function e) make-command-bar-commands (component class prototype value)
-  (:documentation "Creates a list of COMMANDs for the COMPONENT's COMMAND-BAR."))
 
 (def (layered-function e) make-alternatives (component class prototype value)
   (:documentation "Creates a list of alternative views for COMPONENT, each being another COMPONENT."))
@@ -473,7 +479,7 @@
 ;;; Refresh component
 
 (def (layered-function e) refresh-component (component)
-  (:documentation "Refreshes child COMPONENTs under COMPONENT based on some state related to them."))
+  (:documentation "Refreshes child COMPONENTs under COMPONENT based on some state related to it (usually its COMPONENT-VALUE)."))
 
 (def (generic e) to-be-refreshed-component? (component)
   (:documentation "TRUE means COMPONENT needs to be refreshed before the next RENDER-COMPONENT call, FALSE otherwise."))
@@ -505,3 +511,16 @@
 
 (def (generic e) print-component (component &optional stream)
   (:documentation "Prints a string representation of COMPONENT into STREAM, this is the default behaviour for the PRINT-OBJECT method of COMPONENT."))
+
+;;;;;;
+;;; Shortcut
+
+(def (definer e) macro-shortcut (original-name shortcut-name)
+  `(progn
+     (setf (macro-function ',shortcut-name) (macro-function ',original-name))
+     (export ',shortcut-name)))
+
+(def (definer e) macro-shortcuts (&body original-shortcut-name-pairs)
+  `(progn
+     ,@(iter (for (original-name shortcut-name) :in original-shortcut-name-pairs)
+             (collect `(def macro-shortcut ,original-name ,shortcut-name)))))

@@ -40,7 +40,7 @@
   (setf (header-alist-value (headers-of message) header-name) value))
 
 
-;;;;;;;;;;;
+;;;;;;
 ;;; Cookies
 
 (def (macro e) do-cookies ((cookie message) &body forms)
@@ -115,7 +115,7 @@
         physical-remote-address)))
 
 
-;;;;;;;;;;;
+;;;;;;
 ;;; Request
 
 (def (class* e) request (http-message)
@@ -174,7 +174,7 @@
   request)
 
 
-;;;;;;;;;;;
+;;;;;;
 ;;; Response
 
 (def (class* e) response (http-message)
@@ -274,8 +274,8 @@
   (send-headers response))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; response-with-html-stream
+;;;;;;
+;;; Response with html stream
 
 (def (class* e) response-with-html-stream (response)
   ((html-stream nil)))
@@ -301,8 +301,8 @@
       (write-sequence content (client-stream-of response)))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;;; functional-response
+;;;;;;
+;;; Functional response
 
 (def (class* e) functional-response (primitive-response)
   ((thunk :type (or symbol function)))
@@ -369,8 +369,8 @@
          ,response))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;;; byte-vector-response
+;;;;;;
+;;; Byte vector response
 
 (def (class* e) byte-vector-response (primitive-response)
   ((last-modified-at nil)
@@ -414,7 +414,7 @@
                   :last-modified-at (last-modified-at-of response)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;
 ;;; No handler response
 
 (def class* no-handler-response (response)
@@ -434,8 +434,8 @@
        " was not found on this server">))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; request echo response
+;;;;;;
+;;; Request echo response
 
 (def class* request-echo-response (primitive-response)
   ()
@@ -476,8 +476,8 @@
                                           rfc2109:cookie-comment))
                         (collect <td ,(or (funcall reader cookie) "")>))>)>))
 
-;;;;;;;;;;;;;;;;;;;;;
-;;; redirect response
+;;;;;;
+;;; Redirect response
 
 (def class* redirect-response (primitive-response)
   ((target-uri :type string)))
@@ -506,8 +506,8 @@
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;;; do nothing response
+;;;;;;
+;;; Do nothing response
 
 (def class* do-nothing-response (primitive-response)
   ())

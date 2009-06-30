@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Container layout
 
-(def (component e) container/layout (component/layout contents/abstract frame-unique-id/mixin)
+(def (component e) container/layout (layout/minimal contents/abstract frame-unique-id/mixin)
   ()
   (:documentation "A LAYOUT with several child COMPONENTs inside. The actual layout is set up on the remote side by style referring to its id."))
 

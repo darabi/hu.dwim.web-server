@@ -38,6 +38,8 @@
   nil)
 
 (def method (setf component-value-of) (new-value (self string))
+  (values)
+  #+nil
   (operation-not-supported))
 
 (def method reuse-component-value ((self string) class prototype value)

@@ -48,8 +48,8 @@
        "<no id yet>"))
 
 
-;;;;;;;;;;;
-;;; session
+;;;;;;
+;;; Session
 
 (def class* session (string-id-mixin
                      activity-monitor-mixin

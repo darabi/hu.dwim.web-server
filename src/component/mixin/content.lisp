@@ -9,14 +9,12 @@
 
 (def (component e) content/mixin ()
   ((content
-    :type component
+    nil
+    :type (or null component)
     :documentation "The content of is single COMPONENT."))
   (:documentation "A COMPONENT that has another COMPONENT inside."))
 
-(def render-component content/mixin
-  (render-content -self-))
-
-(def (function e) render-content (component)
+(def (function e) render-content-for (component)
   (render-component (content-of component)))
 
 ;;;;;;
@@ -40,14 +38,12 @@
 
 (def (component e) contents/mixin ()
   ((contents
+    nil
     :type components
     :documentation "The content is a sequence of COMPONENTs."))
   (:documentation "A COMPONENT that has a set of COMPONENTs inside."))
 
-(def render-component contents/mixin
-  (render-contents -self-))
-
-(def (function e) render-contents (component)
+(def (function e) render-contents-for (component)
   (foreach #'render-component (contents-of component)))
 
 ;;;;;;

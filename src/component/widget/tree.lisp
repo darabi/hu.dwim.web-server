@@ -5,49 +5,78 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tree abstract
+;;; Tree widget
 
-(def special-variable *tree*)
+(def (component e) tree/widget (tree/abstract widget/basic expandible/mixin)
+  ((root-nodes nil :type components)))
 
-(def special-variable *tree-level*)
+(def (macro e) tree/widget ((&rest args &key &allow-other-keys) &body root-nodes)
+  `(make-instance 'tree/widget ,@args :root-nodes (list ,@root-nodes)))
 
-(def (component e) tree/abstract ()
-  ())
+(def refresh-component tree/widget
+  (bind (((:slots root-nodes) -self-)
+         (dispatch-class (component-dispatch-class -self-))
+         (dispatch-prototype (component-dispatch-prototype -self-))
+         (component-value (ensure-list (component-value-of -self-))))
+    (if root-nodes
+        (foreach [setf (component-value-of !1) !2] root-nodes component-value)
+        (setf root-nodes (mapcar [make-tree/root-node -self- dispatch-class dispatch-prototype !1] component-value)))))
 
-(def component-environment tree/basic
-  (bind ((*tree* -self-)
-         (*tree-level* -1))
-    (call-next-method)))
+(def render-xhtml tree/widget
+  (bind (((:read-only-slots root-nodes) -self-))
+    <div (:class "tree")
+         ,(render-component (make-toggle-expanded-command -self-))
+         ,(if (expanded-component? -self-)
+              (foreach #'render-component root-nodes)
+              (concatenate-string (integer-to-string (length root-nodes)) " roots"))>))
 
-(def (macro e) tree ((&rest args &key &allow-other-keys) &body rows)
-  `(make-instance 'tree/full ,@args :rows (list ,@rows)))
+(def (generic e) find-tree/parent (component class prototype value)
+  ;; KLUDGE: to allow instantiating widget without componente-value
+  (:method ((component component) class prototype value)
+    nil))
+
+(def (generic e) collect-tree/children (component class prototype value)
+  ;; KLUDGE: to allow instantiating widget without componente-value
+  (:method ((component component) (class null) (prototype null) (value null))
+    (make-list (length (root-nodes-of component)) :initial-element nil)))
+
+(def (generic e) make-tree/root-node (component class prototype value))
 
 ;;;;;;
-;;; Tree basic
+;;; Node widget
 
-(def (component e) tree/basic (tree/abstract style/abstract)
-  ((columns nil :type components)
-   ;; TODO expander-column-index should be marked by a special column type, or something similar. this way it's very fragile...
-   (expander-column-index 0 :type integer)
-   (root-nodes nil :type components)
-   (expand-nodes-by-default #f :type boolean)))
+(def (component e) node/widget (node/abstract widget/basic content/abstract expandible/mixin)
+  ((child-nodes nil :type components)))
 
-(def render-xhtml tree/basic
-  (bind (((:read-only-slots root-nodes id) -self-))
-    <table (:id ,id :class "tree")
-      <thead <tr ,(render-tree-columns -self-) >>
-      <tbody ,(foreach #'render-component root-nodes) >>))
+(def (macro e) node/widget ((&rest args &key &allow-other-keys) content &body child-nodes)
+  `(make-instance 'node/widget ,@args :content ,content :child-nodes (list ,@child-nodes)))
 
-(def render-csv tree/basic
-  (write-csv-line (columns-of -self-))
-  (write-csv-line-separator)
-  (foreach #'render-component (root-nodes-of -self-)))
+(def refresh-component node/widget
+  (bind (((:slots child-nodes content) -self-)
+         (dispatch-class (component-dispatch-class -self-))
+         (dispatch-prototype (component-dispatch-prototype -self-))
+         (component-value (component-value-of -self-))
+         (children (collect-tree/children -self- dispatch-class dispatch-prototype component-value)))
+    (if content
+        (setf (component-value-of content) component-value)
+        (setf content (make-node/content -self- dispatch-class dispatch-prototype component-value)))
+    (if child-nodes
+        (foreach [setf (component-value-of !1) !2] child-nodes children)
+        (setf child-nodes (mapcar [make-node/child-node -self- dispatch-class dispatch-prototype !1] children)))))
 
-(def render-ods tree/basic
-  <table:table
-    <table:table-row ,(foreach #'render-component (columns-of -self-))>
-    ,(foreach #'render-component (root-nodes-of -self-))>)
+(def render-xhtml node/widget
+  (bind (((:read-only-slots child-nodes) -self-))
+    <div (:class ,(concatenate-string "node level-" (integer-to-string *tree-level*)))
+         <span ,(when child-nodes
+                  (render-component (make-toggle-expanded-command -self-)))
+               ,(render-content-for -self-)>
+         ,(when (expanded-component? -self-)
+            (foreach #'render-component child-nodes))>))
 
-(def (layered-function e) render-tree-columns (tree)
-  (:method ((self tree))
-    (foreach #'render-component (columns-of self))))
+(def (generic e) make-node/content (component class prototype value))
+
+(def (generic e) make-node/child-node (component class prototype value))
+
+(def method collect-tree/children ((component component) (class null) (prototype null) (value null))
+  ;; KLUDGE: to allow instantiating widget without componente-value
+  (make-list (length (child-nodes-of component)) :initial-element nil))

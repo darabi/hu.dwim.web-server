@@ -13,6 +13,3 @@
    (height
     :type number))
   (:documentation "A COMPONENT that remembers its size when resized at the remote side."))
-
-(def render-component resizable/mixin
-  (not-yet-implemented))

@@ -11,4 +11,5 @@
   ())
 
 (def render-xhtml package/inspector
-  (not-yet-implemented))
+  ;; TODO: specialize render (e.g. documentation)
+  (call-next-method))
