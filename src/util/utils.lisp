@@ -32,6 +32,11 @@
 ;;;;;;
 ;;; Utils
 
+(def function string-to-lisp-boolean (value)
+  (eswitch (value :test #'string=)
+    ("true" #t)
+    ("false" #f)))
+
 (def function instance-class-name-as-string (instance)
   (class-name-as-string (class-of instance)))
 
@@ -87,8 +92,16 @@
 (def function mandatory-argument ()
   (error "A mandatory argument was not specified"))
 
+(def function find-type-by-name (name)
+  (find-class name #f))
+
 (def (function i) class-prototype (class)
-  (closer-mop:class-prototype (ensure-finalized class)))
+  (case (class-name class)
+    ;; KLUDGE: SBCL's class prototypes for built in classes are wrong in some cases
+    (float 42.0)
+    (string "42")
+    (list nil)
+    (t (closer-mop:class-prototype (ensure-finalized class)))))
 
 (def (function i) class-slots (class)
   (closer-mop:class-slots (ensure-finalized class)))
@@ -444,8 +457,7 @@
 
 (def (macro e) emit-into-xml-stream (stream &body body)
   `(bind ((*xml-stream* ,stream))
-     (emit (progn
-             ,@body))))
+     (emit (progn ,@body))))
 
 (def (macro e) emit-into-xml-stream-buffer (&body body)
   (with-unique-names (buffer)
@@ -465,15 +477,13 @@
 
 (def (macro e) emit-into-js-stream (stream &body body)
   `(bind ((*js-stream* ,stream))
-     (emit (progn
-             ,@body))))
+     (emit (progn ,@body))))
 
 (def (macro e) emit-into-js-stream-buffer (&body body)
   (with-unique-names (buffer)
     `(with-output-to-sequence (,buffer :external-format +default-external-format+)
        (bind ((*js-stream* ,buffer))
          (emit (progn ,@body))))))
-
 
 ;;;;;;
 ;;; Debug on error

@@ -7,11 +7,6 @@
 ;;;;;;
 ;;; Checkbox field
 
-(def function string-to-lisp-boolean (value)
-  (eswitch (value :test #'string=)
-    ("true" #t)
-    ("false" #f)))
-
 (def (function e) render-checkbox-field (value &key checked-image unchecked-image (id (unique-js-name "_chkb"))
                                                checked-tooltip unchecked-tooltip
                                                checked-class unchecked-class

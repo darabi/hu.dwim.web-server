@@ -220,32 +220,32 @@
 (def (macro e) book/tree-level/viewer ((&rest args &key &allow-other-keys) &body book)
   `(make-instance 'book/tree-level/viewer ,@args :component-value ,(the-only-element book)))
 
-(def method make-tree-level/path ((component book/tree-level/viewer) (class standard-class) (prototype wui::title-mixin) (value list))
+(def method make-tree-level/path ((component book/tree-level/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value list))
   (make-instance 'standard-object/tree-level/path/viewer :component-value value))
 
-(def method make-path/content ((component standard-object/tree-level/path/viewer) (class standard-class) (prototype wui::title-mixin) (value wui::title-mixin))
+(def method make-path/content ((component standard-object/tree-level/path/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (make-instance 'standard-object/tree-level/reference/viewer :component-value value))
 
-(def method make-tree-level/previous-sibling ((component book/tree-level/viewer) (class standard-class) (prototype wui::title-mixin) value)
+(def method make-tree-level/previous-sibling ((component book/tree-level/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) value)
   (make-instance 'standard-object/tree-level/reference/viewer :component-value value))
 
-(def method make-tree-level/next-sibling ((component book/tree-level/viewer) (class standard-class) (prototype wui::title-mixin) value)
+(def method make-tree-level/next-sibling ((component book/tree-level/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) value)
   (make-instance 'standard-object/tree-level/reference/viewer :component-value value))
 
-(def method make-tree-level/descendants ((component book/tree-level/viewer) (class standard-class) (prototype wui::title-mixin) (value wui::title-mixin))
+(def method make-tree-level/descendants ((component book/tree-level/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (make-instance 'standard-object/tree-level/tree/viewer :component-value value))
 
-(def method make-tree-level/node ((component book/tree-level/viewer) (class standard-class) (prototype wui::title-mixin) (value wui::title-mixin))
+(def method make-tree-level/node ((component book/tree-level/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (make-instance 'standard-object/tree-level/reference/viewer :component-value value))
 
-(def method find-tree/parent ((component standard-object/tree-level/viewer) (class standard-class) (prototype wui::title-mixin) (value wui::title-mixin))
+(def method find-tree/parent ((component standard-object/tree-level/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (parent-book-element-of value))
 
-(def method collect-tree/children ((component book/tree-level/viewer) (class standard-class) (prototype wui::title-mixin) (value wui::title-mixin))
+(def method collect-tree/children ((component book/tree-level/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (filter-if (of-type 'title-mixin) (contents-of value)))
 
-(def method collect-tree/children ((component standard-object/node/viewer) (class standard-class) (prototype wui::title-mixin) (value wui::title-mixin))
+(def method collect-tree/children ((component standard-object/node/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (filter-if (of-type 'title-mixin) (contents-of value)))
 
-(def method make-reference/content ((component standard-object/tree-level/reference/viewer) (class standard-class) (prototype wui::title-mixin) (value wui::title-mixin))
+(def method make-reference/content ((component standard-object/tree-level/reference/viewer) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (title-of value))

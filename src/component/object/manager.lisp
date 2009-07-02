@@ -15,8 +15,8 @@
 
 (def layered-method refresh-component :before ((self standard-object-manager))
      (bind (((:slots the-class pages) self))
-       (setf pages (list* (tab-page (icon swith-to-tab-page :label "Keresés")
+       (setf pages (list* (tab-page (icon switch-to-tab-page :label "Keresés")
                             (make-filter the-class))
-                          (tab-page (icon swith-to-tab-page :label "Létrehozás")
+                          (tab-page (icon switch-to-tab-page :label "Létrehozás")
                             (make-maker the-class))
                           pages))))

@@ -24,9 +24,6 @@
                    (when (subtypep component-type 'primitive-component)
                      (list :the-type type))))))
 
-(def function find-type-by-name (name)
-  (find-class name #f))
-
 (def (generic e) find-inspector-type-for-type (type)
   (:method ((type null))
     (error "NIL is not a valid type here"))

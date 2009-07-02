@@ -243,6 +243,7 @@
                                 :components ((:file "widget")
                                              (:file "border")
                                              (:file "content")
+                                             (:file "field")
                                              (:file "icon")
                                              (:file "image")
                                              (:file "inline")
@@ -320,7 +321,6 @@
                                              (:file "class")
                                              #+nil
                                              (:file "slot")
-                                             (:file "form")
                                              (:file "function")
                                              (:file "generic")
                                              (:file "package")
@@ -333,9 +333,11 @@
                                              (:file "variable"))
                                 :depends-on ("widget" "meta"))
                                (:module "primitive"
-                                :components (#+nil
-                                             ((:file "primitive")
-                                              (:file "filter" :depends-on ("primitive"))
+                                :components ((:file "primitive")
+                                             (:file "abstract" :depends-on ("primitive"))
+                                             (:file "viewer" :depends-on ("primitive"))
+                                             #+nil
+                                             ((:file "filter" :depends-on ("primitive"))
                                               (:file "inspector" :depends-on ("primitive"))
                                               (:file "maker" :depends-on ("primitive"))))
                                 :depends-on ("widget" "meta"))
@@ -366,8 +368,7 @@
                                              (:file "widget"))
                                 :depends-on ("object")))
                   :depends-on ("util")))))
-  :depends-on (:contextl
-               :wui-application-server))
+  :depends-on (:contextl :wui-application-server))
 
 (defsystem* :wui
   :description "WUI with all its extensions."
@@ -417,7 +418,7 @@
   :components
   ((:module "test"
     :components ((:file "component"))))
-  :depends-on (:wui-component-server :wui-application-server-test))
+  :depends-on (:wui-component-server :wui-application-server-test :wui-and-informatimago))
 
 (defsystem* :wui-test
   :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
@@ -487,3 +488,17 @@
   ((:module "src"
     :components ((:module "integration"
                   :components ((:file "cl-serializer")))))))
+
+(defsystem* wui-and-informatimago
+  :depends-on (:wui)
+  :components
+  ((:module "src"
+    :components ((:module "integration"
+                  :components ((:module "informatimago"
+                                :components ((:file "source-form")
+                                             (:file "reader" :depends-on ("source-form"))
+                                             (:file "source-text" :depends-on ("reader"))))))
+                 (:module "component"
+                  :components ((:module "model"
+                                :components ((:file "form"))))
+                  :depends-on ("integration"))))))

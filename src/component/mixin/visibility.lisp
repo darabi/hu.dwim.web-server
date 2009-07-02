@@ -17,7 +17,7 @@
   (:documentation "A COMPONENT that can be HIDDEN or SHOWN."))
 
 (def render-component :around visibility/mixin
-  (when (visible-component? -self-)
+  (when (force (visible-component? -self-))
     (call-next-method)))
 
 (def method hide-component ((self visibility/mixin))

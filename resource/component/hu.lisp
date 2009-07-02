@@ -57,7 +57,10 @@
   (icon-tooltip.finish "A varázsló befejezése")
 
   (icon-label.cancel "Mégse")
-  (icon-tooltip.cancel "Az aktuális művelet félbeszakítása az esetleges változtatások elmentése nélkül"))
+  (icon-tooltip.cancel "Az aktuális művelet félbeszakítása az esetleges változtatások elmentése nélkül")
+
+  (icon-label.evaluate-form "Kiértékelés")
+  (icon-tooltip.evaluate-form "A kifejezés kiértékelése és az eredmény megjelenítése"))
 
 ;;;;;;
 ;;; Error handling
@@ -163,8 +166,8 @@
 ;;; Refreshable
 
 (def resources hu
-  (icon-label.refresh "Frissítés")
-  (icon-tooltip.refresh "A tartalom frissítése"))
+  (icon-label.refresh-component "Frissítés")
+  (icon-tooltip.refresh-component "A tartalom frissítése"))
 
 ;;;;;;
 ;;; Filter
@@ -307,8 +310,8 @@
 ;;; Tab container
 
 (def resources hu
-  (icon-label.swith-to-tab-page "Lap")
-  (icon-tooltip.swith-to-tab-page "A lap előrehozása"))
+  (icon-label.switch-to-tab-page "Lap")
+  (icon-tooltip.switch-to-tab-page "A lap előrehozása"))
 
 ;;;;;;
 ;;; Top

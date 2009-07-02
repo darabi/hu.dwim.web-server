@@ -17,5 +17,5 @@
          (value (component-value-of -self-)))
     (setf (context-menu-of -self-) (make-context-menu -self- class prototype value))))
 
-(def layered-method make-context-menu-items ((component context-menu/mixin) class prototype value)
-  nil)
+(def layered-method make-context-menu ((component context-menu/mixin) class prototype value)
+  (make-instance 'context-menu/widget :menu-items (make-context-menu-items component class prototype value)))

@@ -18,7 +18,7 @@
 ;;; Tab page abstract
 
 (def (component e) tab-page/abstract (tab-page widget/abstract content/abstract)
-  ((selector (icon swith-to-tab-page) :type component))
+  ((selector (icon switch-to-tab-page) :type component))
   (:documentation "A TAB-PAGE with a SELECTOR."))
 
 (def render-component tab-page/abstract
@@ -87,4 +87,4 @@
                           :content (clone-component (selector-of component))
                           :ajax (ajax-of tab-container))))
 
-(def (icon e) swith-to-tab-page)
+(def (icon e) switch-to-tab-page)

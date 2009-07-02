@@ -111,9 +111,19 @@ div.list.vertical > div
   cursor: pointer;
 }
 
+.command.disabled
+{
+  cursor: default;
+}
+
 .command:hover span
 {
   text-decoration: underline;
+}
+
+.command.disabled:hover span
+{
+  text-decoration: none;
 }
 
 /*

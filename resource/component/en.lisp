@@ -57,7 +57,10 @@
   (icon-tooltip.finish "Finish wizard")
 
   (icon-label.cancel "Cancel")
-  (icon-tooltip.cancel "Cancel the current operation without modifying anything"))
+  (icon-tooltip.cancel "Cancel the current operation without modifying anything")
+
+  (icon-label.evaluate-form "Evaluate")
+  (icon-tooltip.evaluate-form "Evaluate form and display result"))
 
 ;;;;;;
 ;;; Error handling
@@ -163,8 +166,8 @@
 ;;; Refreshable
 
 (def resources en
-  (icon-label.refresh "Refresh")
-  (icon-tooltip.refresh "Refresh content"))
+  (icon-label.refresh-component "Refresh")
+  (icon-tooltip.refresh-component "Refresh content"))
 
 ;;;;;;
 ;;; Filter
@@ -307,8 +310,8 @@
 ;;; Tab container
 
 (def resources en
-  (icon-label.swith-to-tab-page "Page")
-  (icon-tooltip.swith-to-tab-page "Switch to page"))
+  (icon-label.switch-to-tab-page "Page")
+  (icon-tooltip.switch-to-tab-page "Switch to page"))
 
 ;;;;;;
 ;;; Top

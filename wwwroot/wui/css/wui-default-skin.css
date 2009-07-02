@@ -1,4 +1,45 @@
+/* lisp form */
+
+.lisp-form {
+  font-family: Courier New;
+}
+
+.lisp-form .token {
+  font-style: italic;
+}
+
+.lisp-form .string {
+  color: darkgreen;
+}
+
+.lisp-form .number {
+  color: darkgreen;
+}
+
+.lisp-form .lambda-list-keyword {
+  color: darkblue;
+}
+
+.lisp-form .special-form {
+  color: darkred;
+}
+
+.lisp-form .definition .def {
+  color: darkred;
+}
+
+.lisp-form .definition .kind {
+  color: darkblue;
+  font-weight: bold;
+}
+
+.lisp-form .definition .name {
+  color: darkred;
+  font-weight: bold;
+}
+
 /* book */
+
 .book .title {
   font-size: 24px;
 }
@@ -383,7 +424,7 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image: url("/static/wui/icons/20x20/green-checkmark.png");
 }
 
-.refresh-icon {
+.refresh-component-icon {
   background-image: url("/static/wui/icons/20x20/ying-yang-arrows.png");
 }
 
@@ -563,7 +604,7 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image: url("/static/wui/icons/20x20/document.png");
 }
 
-.swith-to-tab-page-icon {
+.switch-to-tab-page-icon {
   background-image: url("/static/wui/icons/20x20/eye.png");
 }
 
@@ -625,4 +666,8 @@ table.frame-size-breakdown > tbody > tr > td.delta
 
 .generate-new-password-icon {
   background-image: url("/static/wui/icons/20x20/pen-on-document.png");
+}
+
+.evaluate-form-icon {
+  background-image: url("/static/wui/icons/20x20/vcr-play.png");
 }

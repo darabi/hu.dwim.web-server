@@ -106,6 +106,18 @@
   (values))
 
 ;;;;;;
+;;; Command
+
+(def layered-method make-menu-bar-items ((component string) class prototype value)
+  nil)
+
+(def layered-method make-context-menu-items ((component string) class prototype value)
+  nil)
+
+(def layered-method make-command-bar-commands ((component string) class prototype value)
+  nil)
+
+;;;;;;
 ;;; Clone component
 
 (def method clone-component ((self string))

@@ -7,14 +7,14 @@
 ;;;;;;
 ;;; Component factories for values
 
-(def (generic e) make-value-viewer (value &rest args &key &allow-other-keys)
+(def (generic e) make-value-viewer (value)
   (:documentation "Creates a COMPONENT that displays VALUE."))
 
-(def (generic e) make-value-editor (value &rest args &key &allow-other-keys)
+(def (generic e) make-value-editor (value)
   (:documentation "Creates a COMPONENT that edits VALUE."))
 
-(def (generic e) make-value-inspector (value &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays or edits VALUE."))
+(def (generic e) make-value-inspector (value)
+  (:documentation "Creates a COMPONENT that displays or edits VALUE. The user can switch between the two modes."))
 
 ;;;;;;
 ;;; Component factories for types
@@ -29,16 +29,16 @@
   (:documentation "Creates a COMPONENT that edits existing values of TYPE."))
 
 (def (generic e) make-inspector (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays or edits existing values of TYPE."))
+  (:documentation "Creates a COMPONENT that displays or edits existing values of TYPE. The user can switch between the two modes."))
 
 (def (generic e) make-filter (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that filters the set of existing values based on some filter criteria."))
+  (:documentation "Creates a COMPONENT that filters the set of existing values of TYPE based on some filter criteria provided by the user."))
 
 (def (generic e) make-finder (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that searches for a particular existing value based on some filter criteria."))
+  (:documentation "Creates a COMPONENT that searches for a particular existing value of TYPE based on some filter criteria provided by the user."))
 
 (def (generic e) make-selector (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays all existing values of type to select exactly one of them."))
+  (:documentation "Creates a COMPONENT that displays all existing values of TYPE to select exactly one of them."))
 
 ;;;;;;
 ;;; Component factories for types at a place
@@ -195,6 +195,9 @@
   (:documentation "TODO"))
 
 (def (layered-function e) make-create-instance-command (component class prototype)
+  (:documentation "TODO"))
+
+(def (layered-function e) make-evaluate-form-command (component class prototype value)
   (:documentation "TODO"))
 
 ;;;;;;
