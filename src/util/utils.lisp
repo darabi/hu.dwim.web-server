@@ -80,15 +80,6 @@
               (,@surround-with)
               (-body-))))))
 
-(def (function io) find-slot (class-or-name slot-name)
-  (find slot-name
-        (the list
-          (class-slots (if (symbolp class-or-name)
-                           (find-class class-or-name)
-                           class-or-name)))
-        :key 'slot-definition-name
-        :test 'eq))
-
 (def function mandatory-argument ()
   (error "A mandatory argument was not specified"))
 
@@ -162,20 +153,6 @@
       (aprog1
           (make-array length :element-type '(unsigned-byte 8))
         (replace it vector :end2 length))))
-
-(def (function io) handle-otherwise (otherwise)
-  (cond
-    ((eq otherwise :error)
-     (error "Otherwise assertion failed"))
-    ((and (consp otherwise)
-          (member (first otherwise) '(:error :warn)))
-     (case (first otherwise)
-       (:error (apply #'error (second otherwise) (nthcdr 2 otherwise)))
-       (:warn (apply #'warn (second otherwise) (nthcdr 2 otherwise)))))
-    ((functionp otherwise)
-     (funcall otherwise))
-    (t
-     otherwise)))
 
 (def generic hash-key-for (instance)
   (:method ((instance standard-object))
@@ -334,13 +311,6 @@
 
 ;;;;;;
 ;;; String utils
-
-(def (function o) concatenate-string (&rest args)
-  (declare (dynamic-extent args))
-  (apply #'concatenate 'string args))
-
-(def compiler-macro concatenate-string (&rest args)
-  `(concatenate 'string ,@args))
 
 (def (constant :test 'string=) +lower-case-ascii-alphabet+ (coerce "abcdefghijklmnopqrstuvwxyz" 'simple-base-string))
 (def (constant :test 'string=) +upper-case-ascii-alphabet+ (coerce "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 'simple-base-string))

@@ -19,6 +19,7 @@
         :cl-quasi-quote
         :cl-quasi-quote-js
         :cl-quasi-quote-xml
+        :hu.dwim.util
         :hu.dwim.wui
         :hu.dwim.wui.system
         :hu.dwim.wui.shortcut

@@ -131,7 +131,8 @@
                :cl-l10n
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
-               :cl-delico))
+               :cl-delico
+               :cl-dwim-util))
 
 (defsystem* :wui-application-server
   :description "Extension to the basic HTTP server to become an HTTP application server for the world wide web."

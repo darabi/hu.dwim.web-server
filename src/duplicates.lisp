@@ -4,43 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def macro if-bind (var test &body then/else)
-  (assert (first then/else)
-          (then/else)
-          "IF-BIND missing THEN clause.")
-  (destructuring-bind (then &optional else)
-      then/else
-    `(let ((,var ,test))
-       (if ,var ,then ,else))))
-
-(def macro when-bind (var test &body body)
-  `(if-bind ,var ,test (progn ,@body)))
-
-(def macro prog1-bind (var ret &body body)
-  `(let ((,var ,ret))
-    ,@body
-    ,var))
-
-(def macro cond-bind (var &body clauses)
-  "Just like COND but VAR will be bound to the result of the
-  condition in the clause when executing the body of the clause."
-  (if clauses
-      (destructuring-bind ((test &rest body) &rest others)
-          clauses
-        `(if-bind ,var ,test
-           (progn ,@(if body body (list var)))
-           (cond-bind ,var ,@others)))
-      nil))
-
-(def function system-relative-pathname (system path)
-  (merge-pathnames path (asdf:component-pathname (asdf:find-system system))))
-
-(def macro rebind (bindings &body body)
-  `(let ,(loop
-            :for symbol-name :in bindings
-            :collect (list symbol-name symbol-name))
-     ,@body))
-
 ;; from arnesi
 (def macro dolist* ((iterator list &optional return-value) &body body)
   "Like DOLIST but destructuring-binds the elements of LIST.
@@ -55,16 +18,6 @@ that it creates a fresh binding."
       `(dolist (,iterator ,list ,return-value)
          (let ((,iterator ,iterator))
            ,@body))))
-
-(def function not-yet-implemented (&optional (datum "Not yet implemented." datum-p) &rest args)
-  (when datum-p
-    (setf datum (concatenate-string "Not yet implemented: " datum)))
-  (apply #'cerror "Ignore and continue" datum args))
-
-(def function operation-not-supported (&optional (datum "Operation not supported." datum-p) &rest args)
-  (when datum-p
-    (setf datum (concatenate-string "Operation not supported: " datum)))
-  (apply #'error datum args))
 
 (def function map-subclasses (class fn &key proper?)
   "Applies fn to each subclass of class. If proper? is true, then

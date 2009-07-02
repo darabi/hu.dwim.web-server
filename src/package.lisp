@@ -9,8 +9,7 @@
         :cl-def))
 
 (defpackage :hu.dwim.wui
-  (:use :hu.dwim.wui.system
-        :common-lisp
+  (:use :common-lisp
         :closer-mop
         :anaphora
         :alexandria
@@ -31,7 +30,9 @@
         :trivial-garbage
         :babel
         :babel-streams
-        :contextl)
+        :contextl
+        :hu.dwim.util
+        :hu.dwim.wui.system)
 
   (:shadow #:class-prototype
            #:class-slots
@@ -51,7 +52,9 @@
         :local-time
         :bordeaux-threads
         :trivial-garbage
+        :hu.dwim.util
         :hu.dwim.wui
+        :hu.dwim.wui.system
         :hu.dwim.wui.shortcut
         )
 
