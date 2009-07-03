@@ -8,12 +8,12 @@
 ;;; Standard object inspector
 
 (def (component e) standard-object/inspector (standard-object/mixin
-                                               inspector/abstract
-                                               editable/mixin
-                                               exportable/abstract
-                                               alternator/basic
-                                               initargs/mixin
-                                               layer-context-capturing/mixin)
+                                              inspector/abstract
+                                              editable/mixin
+                                              exportable/abstract
+                                              alternator/basic
+                                              initargs/mixin
+                                              layer-context-capturing/mixin)
   ()
   (:documentation "Inspector for an instance of STANDARD-OBJECT in various alternative views."))
 

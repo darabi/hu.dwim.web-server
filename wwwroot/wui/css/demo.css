@@ -99,3 +99,9 @@ th
 {
   color: #008;
 }
+
+#container
+{
+  float: left;
+  width: 100px;
+}

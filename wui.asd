@@ -187,9 +187,7 @@
                                              (:file "computed" :depends-on ("component"))
                                              (:file "interaction" :depends-on ("component"))
                                              (:file "response" :depends-on ("component"))
-                                             (:file "debug" :depends-on ("component"))
-                                             #+nil
-                                             (:file "factory" :depends-on ("component"))))
+                                             (:file "debug" :depends-on ("component"))))
                                (:module "mixin"
                                 :components ((:file "border")
                                              (:file "cell")
@@ -267,6 +265,7 @@
                                              (:file "expandible" :depends-on ("command"))
                                              (:file "help" :depends-on ("icon"))
                                              (:file "tab-container" :depends-on ("command-bar"))
+                                             (:file "external-link")
                                              #+nil
                                              ((:file "panel" :depends-on ("message"))
                                               (:file "cell")
@@ -337,10 +336,10 @@
                                 :components ((:file "primitive")
                                              (:file "abstract" :depends-on ("primitive"))
                                              (:file "viewer" :depends-on ("primitive"))
-                                             #+nil
-                                             ((:file "filter" :depends-on ("primitive"))
-                                              (:file "inspector" :depends-on ("primitive"))
-                                              (:file "maker" :depends-on ("primitive"))))
+                                             (:file "editor" :depends-on ("primitive"))
+                                             (:file "inspector" :depends-on ("primitive"))
+                                             (:file "filter" :depends-on ("primitive"))
+                                             (:file "maker" :depends-on ("primitive")))
                                 :depends-on ("widget" "meta"))
                                (:module "place"
                                 :components (#+nil

@@ -31,7 +31,7 @@
 
 (def render-xhtml boolean/filter
   (ensure-client-state-sink -self-)
-  (bind ((use-in-filter? (use-in-filter-p -self-))
+  (bind ((use-in-filter? (use-in-filter? -self-))
          (use-in-filter-id (use-in-filter-id-of -self-))
          (has-component-value? (slot-boundp -self- 'component-value))
          (component-value (when has-component-value?

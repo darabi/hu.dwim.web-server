@@ -14,9 +14,6 @@
 (def (macro e) container/layout ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'container/layout ,@args :contents (list ,@contents)))
 
-(def (macro e) container ((&rest args &key &allow-other-keys) &body contents)
-  `(container/layout ,args ,@contents))
-
-(def render-component container/layout
+(def render-xhtml container/layout
   <div (:id ,(id-of -self-))
-    ,(call-next-method)>)
+    ,(render-contents-for -self-)>)

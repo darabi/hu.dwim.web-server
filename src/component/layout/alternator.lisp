@@ -18,6 +18,9 @@
                       :content ,first-alternative
                       :alternatives (list* ,first-alternative (list ,@(cdr alternatives)))))))
 
+(def render-component alternator/layout
+  (render-content-for -self-))
+
 (def layered-method switch-to-alternative ((component alternator/layout) alternative)
   (assert (member alternative (alternatives-of component) :test #'equal))
   (setf (content-of component) alternative))

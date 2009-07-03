@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Table layout
 
-(def (component e) table/layout (layout/minimal rows/mixin columns/mixin)
+(def (component e) table/layout (layout/minimal rows/mixin)
   ()
   (:documentation "A LAYOUT that positions a SEQUENCE of ROWS in a TABLE. The CELLs are positioned in the corresponding COLUMNs based on their indices."))
 

@@ -38,9 +38,7 @@
   nil)
 
 (def method (setf component-value-of) (new-value (self string))
-  (values)
-  #+nil
-  (operation-not-supported))
+  (values))
 
 (def method reuse-component-value ((self string) class prototype value)
   (values))
@@ -58,7 +56,7 @@
   (values))
 
 (def method mark-refreshed-component ((self string))
-  (operation-not-supported))
+  (operation-not-supported "Cannot MARK-REFRESHED-COMPONENT ~A" self))
 
 ;;;;;;
 ;;; Show/hide component
@@ -70,7 +68,7 @@
   #t)
 
 (def method hide-component ((self string))
-  (operation-not-supported))
+  (operation-not-supported "Cannot HIDE-COMPONENT ~A" self))
 
 (def method show-component ((self string))
   (values))
@@ -85,7 +83,7 @@
   #t)
 
 (def method disable-component ((self string))
-  (operation-not-supported))
+  (operation-not-supported "Cannot DISABLE-COMPONENT ~A" self))
 
 (def method enable-component ((self string))
   (values))
@@ -100,7 +98,7 @@
   #t)
 
 (def method collapse-component ((self string))
-  (operation-not-supported))
+  (operation-not-supported "Cannot COLLAPSE-COMPONENT ~A" self))
 
 (def method expand-component ((self string))
   (values))

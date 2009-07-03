@@ -18,8 +18,8 @@
 (def method make-place-component-content ((self place-filter))
   (make-filter (the-type-of self)))
 
-(def method use-in-filter-p ((self component))
-  (use-in-filter-p (parent-component-of self)))
+(def method use-in-filter? ((self component))
+  (use-in-filter? (parent-component-of self)))
 
 (def method use-in-filter-id-of ((self component))
   (use-in-filter-id-of (parent-component-of self)))
@@ -110,9 +110,9 @@
 (def function render-use-in-filter-marker (self)
   (bind ((id (generate-frame-unique-string)))
     (setf (use-in-filter-id-of self) id)
-    <td ,(render-checkbox-field (use-in-filter-p self)
+    <td ,(render-checkbox-field (use-in-filter? self)
                                 :id id
-                                :value-sink (lambda (value) (setf (use-in-filter-p self) value))
+                                :value-sink (lambda (value) (setf (use-in-filter? self) value))
                                 :checked-class "icon use-in-filter"
                                 :unchecked-class "icon ignore-in-filter")>))
 

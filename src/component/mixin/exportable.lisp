@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Exportable component
+;;; Exportable abstract
 
 (def (component e) exportable/abstract ()
   ())

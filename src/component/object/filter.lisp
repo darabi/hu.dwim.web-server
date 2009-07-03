@@ -196,7 +196,7 @@
                                                                            (if (negated-p place-filter)
                                                                                (complement function)
                                                                                function))))
-                                                (when (use-in-filter-p place-filter)
+                                                (when (use-in-filter? place-filter)
                                                   (lambda (instance)
                                                     (bind ((instance-class (class-of instance))
                                                            (slot (find-slot instance-class slot-name)))

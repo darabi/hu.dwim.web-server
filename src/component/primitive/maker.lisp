@@ -12,7 +12,7 @@
    (use-initform :type boolean)))
 
 (def constructor primitive/maker ()
-  (setf (use-initform-p -self-)
+  (setf (use-initform? -self-)
         (slot-boundp -self- 'initform)))
 
 (def render-xhtml :before primitive/maker

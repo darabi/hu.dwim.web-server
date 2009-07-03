@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Menu abstract
 
-(def (component e) menu/abstract (menu-items/mixin content/mixin id/mixin style/mixin)
+(def (component e) menu/abstract (style/abstract menu-items/mixin)
   ()
   (:documentation "A top level COMPONENT in a MENU hierarchy."))
 
@@ -16,51 +16,50 @@
 ;;;;;;
 ;;; Menu bar widget
 
-(def (component e) menu-bar/widget (menu/abstract)
+(def (component e) menu-bar/widget (menu/abstract widget/basic)
   ((target-place nil :type place))
   (:documentation "A MENU that is always shown."))
 
 (def (macro e) menu-bar/widget ((&rest args &key &allow-other-keys) &body menu-items)
-  `(make-menu-bar/widget (list ,@menu-items) ,@args))
+  `(make-instance 'menu-bar/widget ,@args :menu-items (list ,@menu-items)))
 
-(def (function e) make-menu-bar/widget (menu-items &key id css-class style)
+(def (function e) make-menu-bar/widget (menu-items &key id style-class style)
   (make-instance 'menu-bar/widget
                  :menu-items (flatten menu-items)
                  :id id
-                 :css-class css-class
-                 :style style))
+                 :style-class style-class
+                 :custom-style custom-style))
 
 (def render-xhtml menu-bar/widget
-  (bind (((:read-only-slots menu-items id css-class style) -self-))
+  (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
     (render-dojo-widget (id)
       <div (:id ,id
-            :class ,css-class
-            :style ,style
+            :class ,style-class
+            :style ,custom-style
             :dojoType #.+dijit/menu+)
-        ,(call-next-method)
         ,(foreach #'render-component menu-items)>)))
 
 ;;;;;
 ;;; Popup menu widget
 
-(def (component e) popup-menu/widget (menu/abstract)
+(def (component e) popup-menu/widget (menu/abstract widget/basic)
   ()
   (:documentation "A MENU that is shown upon explicit user interaction."))
 
 (def (macro e) popup-menu/widget ((&rest args &key &allow-other-keys) &body menu-items)
-  `(make-popup-menu (list ,@menu-items) ,@args))
+  `(make-instance 'popup-menu/widget ,@args :menu-items (list ,@menu-items)))
 
-(def (function e) make-popup-menu (menu-items &key id css-class style)
+(def (function e) make-popup-menu (menu-items &key id style-class custom-style)
   (make-instance 'popup-menu/widget
                  :menu-items (flatten menu-items)
                  :id id
-                 :css-class css-class
-                 :style style))
+                 :style-class style-class
+                 :style custom-style))
 
 (def function render-popup-menu (component &key target-node-id)
-  (bind (((:read-only-slots menu-items id css-class style) component))
+  (bind (((:read-only-slots menu-items id style-class custom-style) component))
     (when menu-items
-      <span (:class ,css-class :style ,style)
+      <span (:class ,style-class :style ,custom-style)
         ,(render-component (content-of component))
         ,(render-dojo-widget (id)
           <div (:id ,id
@@ -97,14 +96,14 @@
 ;;;;;;
 ;;; Menu item widget
 
-(def (component e) menu-item/widget (menu-items/mixin content/mixin id/mixin style/mixin)
+(def (component e) menu-item/widget (widget/basic content/abstract style/abstract menu-items/mixin)
   ()
   (:documentation "An intermediate or leaf component in a menu hierarchy."))
 
-(def (macro e) menu-item ((&key id css-class style) content &body menu-items)
-  `(make-menu-item ,content (list ,@menu-items) :id ,id :css-class ,css-class :style ,style))
+(def (macro e) menu-item/widget ((&rest args &key &allow-other-keys) content &body menu-items)
+  `(make-instance 'menu-item/widget ,@args :content ,content :menu-items (list ,@menu-items)))
 
-(def (function e) make-menu-item (content menu-items &key id css-class style)
+(def (function e) make-menu-item (content menu-items &key id style-class custom-style)
   (bind ((menu-items (flatten menu-items)))
     (when (or menu-items
               content)
@@ -112,19 +111,19 @@
                      :content content
                      :menu-items menu-items
                      :id id
-                     :css-class css-class
-                     :style style))))
+                     :style-class style-class
+                     :style custom-style))))
 
 (def render-xhtml menu-item/widget
-  (bind (((:read-only-slots menu-items id css-class style) -self-))
+  (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
     (if menu-items
         (bind ((popup-id (generate-response-unique-string)))
           (render-dojo-widget (popup-id)
             <div (:id ,popup-id
-                  :class ,css-class
-                  :style ,style
+                  :class ,style-class
+                  :style ,custom-style
                   :dojoType #.+dijit/popup-menu-item+)
-              ,(call-next-method)
+              ,(render-content-for -self-)
               ,(render-dojo-widget (id)
                  <div (:id ,id
                        :dojoType #.+dijit/menu+
@@ -133,7 +132,7 @@
                  (render-remote-setup -self-))>))
         (render-dojo-widget (id)
           <div (:id ,id :dojoType #.+dijit/menu-item+)
-            ,(call-next-method)>
+            ,(render-content-for -self-)>
           #+nil
           (render-command-onclick-handler command id)))))
 

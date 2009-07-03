@@ -16,7 +16,10 @@
   `(make-instance 'xy/layout ,@args :contents (list ,@contents)))
 
 (def render-xhtml xy/layout
-  (not-yet-implemented))
+  (bind (((:read-only-slots width height) -self-))
+    <div (:style ,(concatenate-string "overflow: visible; width: " (integer-to-string width)
+                                      "px; height: " (integer-to-string height) "px;"))
+         ,(render-contents-for -self-)>))
 
 ;;;;;;
 ;;; Position layout
@@ -30,4 +33,7 @@
   `(make-instance 'parent-relative-position/layout ,@args :content ,(the-only-element content)))
 
 (def render-xhtml parent-relative-position/layout
-  (not-yet-implemented))
+  (bind (((:read-only-slots x y) -self-))
+    <div (:style ,(concatenate-string "position: relative; top: " (integer-to-string x)
+                                      "px; left: " (integer-to-string y) "px;"))
+      ,(render-content-for -self-)>))

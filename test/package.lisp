@@ -42,7 +42,8 @@
 (rename-package :hu.dwim.wui :hu.dwim.wui '(:wui))
 
 (def function setup-readtable ()
-  (hu.dwim.wui::setup-readtable))
+  (hu.dwim.wui::setup-readtable)
+  (enable-string-quote-syntax #\｢ #\｣))
 
 (register-readtable-for-swank
  '("HU.DWIM.WUI.TEST") 'setup-readtable)

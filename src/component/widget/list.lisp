@@ -7,6 +7,9 @@
 ;;;;;;
 ;;; List widget
 
-(def (component e) list/widget ()
+(def (component e) list/widget (widget/basic list/layout)
   ()
-  (:documentation "A WIDGET/ABSTRACT with several COMPONENTs inside."))
+  (:documentation "A LIST/WIDGET with several COMPONENTs inside."))
+
+(def (macro e) list/widget ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'list/widget ,@args :contents (list ,@contents)))

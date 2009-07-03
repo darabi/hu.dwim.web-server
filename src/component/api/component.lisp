@@ -131,10 +131,10 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;; Parent component
 
 (def method parent-component-of ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot provide PARENT-COMPONENT for ~A, you may want to subclass PARENT/MIXIN" self))
 
 (def method (setf parent-component-of) (new-value (self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot change PARENT-COMPONENT for ~A, you may want to subclass PARENT/MIXIN" self))
 
 (def method child-component-slot? ((self component) (slot standard-effective-slot-definition))
   #f)
@@ -235,8 +235,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   nil)
 
 (def method (setf component-value-of) (new-value (self component))
-  (values)
-  #+nil(operation-not-supported))
+  (values))
 
 (def method reuse-component-value ((self component) class prototype value)
   (values))
@@ -248,16 +247,16 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   #f)
 
 (def method edited-component? ((self component))
-  (operation-not-supported))
+  #f)
 
 (def method begin-editing ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot BEGIN-EDITING under ~A, you may want to subclass EDITABLE/MIXIN" self))
 
 (def method save-editing ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot SAVE-EDITING under ~A, you may want to subclass EDITABLE/MIXIN" self))
 
 (def method cancel-editing ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot CANCEL-EDITING under ~A, you may want to subclass EDITABLE/MIXIN" self))
 
 (def methods store-editing
   (:method :around ((self component))
@@ -325,25 +324,25 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;; Export component
 
 (def layered-method export-text ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot EXPORT-TEXT ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
 
 (def layered-method export-csv ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot EXPORT-CSV ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
 
 (def layered-method export-pdf ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot EXPORT-PDF ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
 
 (def layered-method export-odt ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot EXPORT-ODT ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
 
 (def layered-method export-ods ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot EXPORT-ODS ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
 
 ;;;;;;
 ;;; Render component
 
 (def render-component component
-  (operation-not-supported))
+  (operation-not-supported "Cannot render ~A, you may want to override RENDER-COMPONENT" -self-))
 
 (def render-component :around component
   (with-component-environment -self-
@@ -356,7 +355,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   (map-child-components self #'mark-to-be-rendered-component))
 
 (def method mark-rendered-component ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot MARK-RENDERED-COMPONENT ~A, you may want to subclass RENDERABLE/MIXIN"))
 
 ;;;;;;
 ;;; Refresh component
@@ -371,7 +370,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   (map-child-components self #'mark-to-be-refreshed-component))
 
 (def method mark-refreshed-component ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot MARK-REFRESHED-COMPONENT ~A, you may want to subclass REFRESHABLE/MIXIN"))
 
 ;;;;;;
 ;;; Show/hide component
@@ -383,7 +382,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   #t)
 
 (def method hide-component ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot HIDE-COMPONENT ~A, you may want to subclass VISIBILITY/MIXIN"))
 
 (def method show-component ((self component))
   (values))
@@ -404,7 +403,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   #t)
 
 (def method disable-component ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot DISABLE-COMPONENT ~A, you may want to subclass ENABLEABLE/MIXIN"))
 
 (def method enable-component ((self component))
   (values))
@@ -425,7 +424,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   #t)
 
 (def method collapse-component ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot COLLAPSE-COMPONENT ~A, you may want to subclass EXPANDIBLE/MIXIN"))
 
 (def method expand-component ((self component))
   (values))
@@ -452,7 +451,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;; Clone component
 
 (def method clone-component ((self component))
-  (operation-not-supported))
+  (operation-not-supported "Cannot clone ~A, you may want to subclass from CLONEABLE/ABSTRACT" self))
 
 ;;;;;;
 ;;; Export CSV

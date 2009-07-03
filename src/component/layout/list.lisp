@@ -19,9 +19,9 @@
 
 (def function render-list-layout (orientation contents)
   (check-type orientation (member :vertical :horizontal))
-  <table (:class `str("list " ,(ecase orientation
-                                 (:vertical "vertical")
-                                 (:horizontal "horizontal"))))
+  <table (:class `str("list layout" ,(ecase orientation
+                                       (:vertical "vertical")
+                                       (:horizontal "horizontal"))))
     <tbody ,(ecase orientation
               (:vertical (foreach (lambda (element)
                                     (when (visible-component? element)

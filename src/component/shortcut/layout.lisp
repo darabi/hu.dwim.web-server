@@ -10,4 +10,5 @@
 (def macro-shortcuts
   (empty/layout empty)
   (horizontal-list/layout horizontal-list)
-  (vertical-list/layout vertical-list))
+  (vertical-list/layout vertical-list)
+  (container/layout container))
