@@ -13,4 +13,5 @@
   (expandible/widget expandible)
   (image/widget image)
   (splitter/widget splitter)
-  (wrapper/widget wrapper))
+  (wrapper/widget wrapper)
+  (top/widget top))

@@ -395,219 +395,231 @@
     (chapter (:title "Hello world")
       )))
 
+(def macro replace-target-demo/widget (content &body forms)
+  `(node/widget ()
+       (replace-target-place/widget ()
+           ,content
+         (demo/widget ()
+           ,@forms))))
+
 (def function make-demo-frame-component ()
   (frame/widget (:title "demo"
-                 :stylesheet-uris *demo-stylesheet-uris*
-                 :script-uris '#.+demo-script-uris+
-                 :page-icon #.+demo-page-icon+)
-    (top ()
-      (tab-container ()
-        (tab-page (:selector (icon switch-to-tab-page :label "Component"))
-          (tab-container ()
-            (tab-page (:selector (icon switch-to-tab-page :label "Number"))
-              42)
-            (tab-page (:selector (icon switch-to-tab-page :label "String"))
-              "Hello World From Lisp")))
-        (tab-page (:selector (icon switch-to-tab-page :label "Layout"))
-          (tab-container ()
-            (tab-page (:selector (icon switch-to-tab-page :label "Empty"))
-              (empty/layout))
-            (tab-page (:selector (icon switch-to-tab-page :label "Vertical List"))
-              (vertical-list/layout ()
-                "Hello"
-                "World"
-                "From"
-                "Lisp"))
-            (tab-page (:selector (icon switch-to-tab-page :label "Horizontal List"))
-              (horizontal-list/layout ()
-                "Hello"
-                "World"
-                "From"
-                "Lisp"))
-            (tab-page (:selector (icon switch-to-tab-page :label "Flow"))
-              (flow/layout ()
-                "Hello "
-                "World "
-                "From "
-                "Lisp "
-                "Resize "
-                "Window "
-                "Please "))
-            (tab-page (:selector (icon switch-to-tab-page :label "Container"))
-              ;; see demo.css
-              (container/layout (:id "container")
-                "Hello "
-                "World "
-                "From "
-                "Common "
-                "Lisp"))
-            (tab-page (:selector (icon switch-to-tab-page :label "Alternator"))
-              ;; a layout does not have behavior, so switching is only possible from the API
-              (alternator/layout ()
-                "Hello"
-                "World"
-                "From"
-                "Lisp"))
-            (tab-page (:selector (icon switch-to-tab-page :label "Table"))
-              (table/layout ()
-                (row/layout ()
-                  (cell/layout ()
-                    "Hello")
-                  (cell/layout ()
-                    "World"))
-                (row/layout ()
-                  (cell/layout ()
-                    "From")
-                  (cell/layout ()
-                    "Lisp"))))
-            (tab-page (:selector (icon switch-to-tab-page :label "XY"))
-              (xy/layout (:width 200 :height 200)
-                (parent-relative-position/layout (:x 100 :y 100)
-                  "Hello")
-                (parent-relative-position/layout (:x 50 :y 150)
-                  "World")
-                (parent-relative-position/layout (:x 120 :y 70)
-                  "From")
-                (parent-relative-position/layout (:x 80 :y 50)
-                  "Lisp")))))
-        (tab-page (:selector (icon switch-to-tab-page :label "Widget"))
-          (tab-container ()
-            (tab-page (:selector (icon switch-to-tab-page :label "External link"))
-              (external-link/widget ()
-                "http://wikipedia.org"
-                "Wikipedia"))
-            (tab-page (:selector (icon switch-to-tab-page :label "Expandible"))
-              (expandible/widget ()
-                "SICP"
-                "Structure and Interpretation of Computer Programs"))
-            (tab-page (:selector (icon switch-to-tab-page :label "Tab container"))
-              (tab-container ()
-                (tab-page (:selector (icon switch-to-tab-page :label "Hello World"))
-                  "Hello World")
-                (tab-page (:selector (icon switch-to-tab-page :label "From Lisp"))
-                  "From Lisp")))
-            (tab-page (:selector (icon switch-to-tab-page :label "Menu bar"))
-              (menu-bar/widget ()
-                (menu-item/widget ()
+                  :stylesheet-uris *demo-stylesheet-uris*
+                  :script-uris '#.+demo-script-uris+
+                  :page-icon #.+demo-page-icon+)
+    (top/widget ()
+      (bind ((content (content/widget ()
+                        (empty/layout))))
+        (target-place/widget (:target-place (make-component-place content))
+          (horizontal-list/layout ()
+            (tree/widget ()
+              (node/widget ()
+                  "Primitve component types"
+                (replace-target-demo/widget "Number"
+                  42)
+                (replace-target-demo/widget "String"
+                  "Hello World From Lisp"))
+              (node/widget ()
+                  "Layouts"
+                (replace-target-demo/widget "Empty"
+                  (empty/layout))
+                (replace-target-demo/widget "Vertical List"
+                  (vertical-list/layout ()
                     "Hello"
-                  (menu-item/widget ()
-                      "World")
-                  (menu-item/widget ()
-                      "From"
-                    (menu-item/widget ()
-                        "Common")
-                    (menu-item/widget ()
-                        "Lisp")))))
-            (tab-page (:selector (icon switch-to-tab-page :label "Popup menu"))
-              "TODO")
-            (tab-page (:selector (icon switch-to-tab-page :label "Context menu"))
-              "TODO")
-            (tab-page (:selector (icon switch-to-tab-page :label "Command"))
-              "TODO")
-            (tab-page (:selector (icon switch-to-tab-page :label "Command bar"))
-              "TODO")
-            (tab-page (:selector (icon switch-to-tab-page :label "Push button"))
-              "TODO")
-            (tab-page (:selector (icon switch-to-tab-page :label "Toggle button"))
-              "TODO")
-            (tab-page (:selector (icon switch-to-tab-page :label "List"))
-              (list/widget ()
-                "Hello"
-                "World"
-                "From"
-                "Lisp"))
-            (tab-page (:selector (icon switch-to-tab-page :label "Table"))
-              "TODO"
-              #+nil
-              (table/widget (:columns (list (column/widget ()
-                                                           )
-                                            (column/widget ()
-                                                           )))
-                            (row/widget ()
-                                        (cell/widget ()
-                                                     "Hello")
-                                        (cell/widget ()
-                                                     "World"))
-                            (row/widget ()
-                                        (cell/widget ()
-                                                     "From")
-                                        (cell/widget ()
-                                                     "Lisp"))))
-            (tab-page (:selector (icon switch-to-tab-page :label "Tree"))
-              (tree/widget ()
-                (node/widget ()
+                    "World"
+                    "From"
+                    "Lisp"))
+                (replace-target-demo/widget "Horizontal List"
+                  (horizontal-list/layout ()
                     "Hello"
-                  (node/widget ()
+                    "World"
+                    "From"
+                    "Lisp"))
+                (replace-target-demo/widget "Flow"
+                  (flow/layout ()
+                    "Hello "
+                    "World "
+                    "From "
+                    "Lisp "
+                    "Resize "
+                    "Window "
+                    "Please "))
+                (replace-target-demo/widget "Container"
+                  ;; see demo.css
+                  (container/layout (:id "container")
+                    "Hello "
+                    "World "
+                    "From "
+                    "Common "
+                    "Lisp"))
+                (replace-target-demo/widget "Alternator"
+                  ;; a layout does not have behavior, so switching is only possible from the API
+                  (alternator/layout ()
+                    "Hello"
+                    "World"
+                    "From"
+                    "Lisp"))
+                (replace-target-demo/widget "Table"
+                  (table/layout ()
+                    (row/layout ()
+                      (cell/layout ()
+                        "Hello")
+                      (cell/layout ()
+                        "World"))
+                    (row/layout ()
+                      (cell/layout ()
+                        "From")
+                      (cell/layout ()
+                        "Lisp"))))
+                (replace-target-demo/widget "XY"
+                  (xy/layout (:width 200 :height 200)
+                    (parent-relative-position/layout (:x 100 :y 100)
+                      "Hello")
+                    (parent-relative-position/layout (:x 50 :y 150)
                       "World")
-                  (node/widget ()
+                    (parent-relative-position/layout (:x 120 :y 70)
                       "From")
-                  (node/widget ()
-                      "Lisp"
+                    (parent-relative-position/layout (:x 80 :y 50)
+                      "Lisp"))))
+              (node/widget ()
+                  "Widgets"
+                (replace-target-demo/widget "External link"
+                  (external-link/widget ()
+                    "http://wikipedia.org"
+                    "Wikipedia"))
+                (replace-target-demo/widget "Expandible"
+                  (expandible/widget ()
+                    "SICP"
+                    "Structure and Interpretation of Computer Programs"))
+                (replace-target-demo/widget "Tab container"
+                  (tab-container ()
+                    (tab-page (:selector (icon switch-to-tab-page :label "Hello World"))
+                      "Hello World")
+                    (tab-page (:selector (icon switch-to-tab-page :label "From Lisp"))
+                      "From Lisp")))
+                (replace-target-demo/widget "Menu bar"
+                  (menu-bar/widget ()
+                    (menu-item/widget ()
+                        "Hello"
+                      (menu-item/widget ()
+                          "World")
+                      (menu-item/widget ()
+                          "From"
+                        (menu-item/widget ()
+                            "Common")
+                        (menu-item/widget ()
+                            "Lisp")))))
+                (replace-target-demo/widget "Popup menu"
+                  "TODO")
+                (replace-target-demo/widget "Context menu"
+                  "TODO")
+                (replace-target-demo/widget "Command"
+                  "TODO")
+                (replace-target-demo/widget "Command bar"
+                  "TODO")
+                (replace-target-demo/widget "Push button"
+                  "TODO")
+                (replace-target-demo/widget "Toggle button"
+                  "TODO")
+                (replace-target-demo/widget "List"
+                  (list/widget ()
+                    "Hello"
+                    "World"
+                    "From"
+                    "Lisp"))
+                (replace-target-demo/widget "Table"
+                  "TODO"
+                  #+nil
+                  (table/widget (:columns (list (column/widget ()
+                                                               )
+                                                (column/widget ()
+                                                               )))
+                                (row/widget ()
+                                            (cell/widget ()
+                                                         "Hello")
+                                            (cell/widget ()
+                                                         "World"))
+                                (row/widget ()
+                                            (cell/widget ()
+                                                         "From")
+                                            (cell/widget ()
+                                                         "Lisp"))))
+                (replace-target-demo/widget "Tree"
+                  (tree/widget ()
                     (node/widget ()
-                        "Common")
-                    (node/widget ()
-                        "Lisp")))))
-            (tab-page (:selector (icon switch-to-tab-page :label "Treeble"))
-              "TODO"
-              #+nil
-              (treeble/widget (:columns (list (column/widget ()
-                                                             )
-                                              (column/widget ()
-                                                             )))
-                              (node/widget ()
-                                  (list (cell/widget ()
-                                                     "Hello")
-                                        (cell/widget ()
-                                                     "World"))
-                                (node/widget ()
-                                    (list (cell/widget ()
-                                                       "From")
-                                          (cell/widget ()
-                                                       "Lisp"))))))
-            (tab-page (:selector (icon switch-to-tab-page :label "Tree navigator"))
-              (make-instance 'tree-level/widget
-                             :path (path/widget () "Magyarország" "Dél-dunántúli régió")
-                             :previous-sibling "Észak-magyarországi régió"
-                             :next-sibling "Közép-magyarországi régió"
-                             :descendants (tree/widget ()
-                                            (node/widget ()
-                                                "Pest megye"
-                                              (node/widget ()
-                                                  "Budapest")
-                                              (node/widget ()
-                                                  "Érd"))
-                                            (node/widget ()
-                                                "Zala megye"
-                                              (node/widget ()
-                                                  "Zala"))
-                                            (node/widget ()
-                                                "Fejér megye"
-                                              (node/widget ()
-                                                  "Székesfehérvár")
-                                              (node/widget ()
-                                                  "Agárd")))
-                             :node "Dél-magyarországi régió"))))
-        (tab-page (:selector (icon switch-to-tab-page :label "Meta"))
-          (tab-container ()
-            (tab-page (:selector (icon switch-to-tab-page :label "Lisp form invoker"))
-              (vertical-list ()
-                (lisp-form/invoker ()
-                  ｢(def function alma (&rest args &key alma &allow-other-keys)
-                     (let* ((foo 1)
-                            (bar 2))
-                       (print "Hello World")
-                       (+ foo bar)))｣)
-                (lisp-form/invoker (:evaluation-mode :multiple)
-                  (print "Hello World"))))
-            (tab-page (:selector (icon switch-to-tab-page :label "Standard class tree viewer"))
-              (standard-class/tree/viewer ()
-                (find-class 'component)))
-            (tab-page (:selector (icon switch-to-tab-page :label "Standard class tree level viewer"))
-              (standard-class/tree-level/viewer ()
-                (find-class 'tree-level/widget)))
-            (tab-page (:selector (icon switch-to-tab-page :label "Book tree level viewer"))
-              (book/tree-level/viewer ()
-                (find-book 'wui)))))))))
+                        "Hello"
+                      (node/widget ()
+                          "World")
+                      (node/widget ()
+                          "From")
+                      (node/widget ()
+                          "Lisp"
+                        (node/widget ()
+                            "Common")
+                        (node/widget ()
+                            "Lisp")))))
+                (replace-target-demo/widget "Treeble"
+                  "TODO"
+                  #+nil
+                  (treeble/widget (:columns (list (column/widget ()
+                                                                 )
+                                                  (column/widget ()
+                                                                 )))
+                                  (node/widget ()
+                                      (list (cell/widget ()
+                                                         "Hello")
+                                            (cell/widget ()
+                                                         "World"))
+                                    (node/widget ()
+                                        (list (cell/widget ()
+                                                           "From")
+                                              (cell/widget ()
+                                                           "Lisp"))))))
+                (replace-target-demo/widget "Tree navigator"
+                  (make-instance 'tree-level/widget
+                                 :path (path/widget () "Magyarország" "Dél-dunántúli régió")
+                                 :previous-sibling "Észak-magyarországi régió"
+                                 :next-sibling "Közép-magyarországi régió"
+                                 :descendants (tree/widget ()
+                                                (node/widget ()
+                                                    "Pest megye"
+                                                  (node/widget ()
+                                                      "Budapest")
+                                                  (node/widget ()
+                                                      "Érd"))
+                                                (node/widget ()
+                                                    "Zala megye"
+                                                  (node/widget ()
+                                                      "Zala"))
+                                                (node/widget ()
+                                                    "Fejér megye"
+                                                  (node/widget ()
+                                                      "Székesfehérvár")
+                                                  (node/widget ()
+                                                      "Agárd")))
+                                 :node "Dél-magyarországi régió")))
+              (node/widget ()
+                  "Meta"
+                (replace-target-demo/widget "Lisp form invoker"
+                  (vertical-list ()
+                    (lisp-form/invoker ()
+                      ｢(def function alma (&rest args &key alma &allow-other-keys)
+                         (let* ((foo 1)
+                                (bar 2))
+                           (print "Hello World")
+                           (+ foo bar)))｣)
+                    (lisp-form/invoker (:evaluation-mode :multiple)
+                      (print "Hello World"))))
+                (replace-target-demo/widget "Standard class tree viewer"
+                  (standard-class/tree/viewer ()
+                    (find-class 'component)))
+                (replace-target-demo/widget "Standard class tree level viewer"
+                  (standard-class/tree-level/viewer ()
+                    (find-class 'tree-level/widget)))
+                (replace-target-demo/widget "Book tree level viewer"
+                  (book/tree-level/viewer ()
+                    (find-book 'wui)))))
+            content))))))
 
 ;;;;;;
 ;;; the entry points

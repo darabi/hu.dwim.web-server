@@ -44,6 +44,10 @@
    (:method ((instance source-text:source-symbol))
      (render-source-symbol (source-text:source-symbol-value instance) instance))
 
+   (:method ((instance source-text:source-quote))
+     <span (:class "quote") ,(princ-to-string (source-text:macro-character instance)) >
+     (render-source-object (source-text:source-object-subform instance)))
+
    (:method :in xhtml-layer ((instance source-text:source-token))
      <span (:class "token") ,(source-text:source-object-text instance)>))}
 

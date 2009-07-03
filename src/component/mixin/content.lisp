@@ -28,10 +28,12 @@
     (mark-to-be-refreshed-component it)))
 
 (def method component-value-of ((self content/abstract))
-  (component-value-of (content-of self)))
+  (awhen (content-of self)
+    (component-value-of it)))
 
 (def method (setf component-value-of) (new-value (self content/abstract))
-  (setf (component-value-of (content-of self)) new-value))
+  (awhen (content-of self)
+    (setf (component-value-of it) new-value)))
 
 ;;;;;;
 ;;; Contents mixin

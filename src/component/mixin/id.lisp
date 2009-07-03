@@ -33,7 +33,7 @@
   (:method ((self component))
     #t)
 
-  (:method ((self id/mixin))
+  (:method ((self frame-unique-id/mixin))
     (ensure-frame-unique-id self)))
 
 (def (generic e) (setf ajax-of) (new-value component))

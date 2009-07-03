@@ -17,13 +17,13 @@
 ;;; Menu bar widget
 
 (def (component e) menu-bar/widget (menu/abstract widget/basic)
-  ((target-place nil :type place))
+  ()
   (:documentation "A MENU that is always shown."))
 
 (def (macro e) menu-bar/widget ((&rest args &key &allow-other-keys) &body menu-items)
   `(make-instance 'menu-bar/widget ,@args :menu-items (list ,@menu-items)))
 
-(def (function e) make-menu-bar/widget (menu-items &key id style-class style)
+(def (function e) make-menu-bar/widget (menu-items &key id style-class custom-style)
   (make-instance 'menu-bar/widget
                  :menu-items (flatten menu-items)
                  :id id
@@ -145,25 +145,3 @@
 
 (def render-xhtml separator-menu-item/widget
   <div (:dojoType #.+dijit/menu-separator+)>)
-
-;;;;;;
-;;; Replace menu target command
-
-(def (component e) replace-menu-target-command (command/widget)
-  ((component))
-  (:documentation "A special command that will replace the main menu target place with its component."))
-
-(def constructor replace-menu-target-command ()
-  (setf (action-of -self-)
-        (make-action
-          (bind ((menu-component
-                  (find-ancestor-component -self-
-                                           (lambda (ancestor)
-                                             (and (typep ancestor 'menu-bar/widget)
-                                                  (target-place-of ancestor)))))
-                 (component (force (component-of -self-))))
-            (setf (component-of -self-) component
-                  (component-at-place (target-place-of menu-component)) component)))))
-
-(def (macro e) replace-menu-target-command (content &body forms)
-  `(make-instance 'replace-menu-target-command :content ,content :component (delay ,@forms)))

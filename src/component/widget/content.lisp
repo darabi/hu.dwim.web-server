@@ -16,7 +16,7 @@
 
 (def render-xhtml content/widget
   (with-render-style/abstract (-self-)
-    (call-next-method)))
+    (render-content-for -self-)))
 
 ;;;;;;
 ;;; XHTML content widget

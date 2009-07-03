@@ -17,9 +17,3 @@
   (with-render-style/abstract (-self-)
     (render-component-messages-for -self-)
     (render-content-for -self-)))
-
-;;;;;;
-;;; Top
-
-(def (macro e) top ((&rest args &key &allow-other-keys) &body content)
-  `(top/widget ,args ,@content))
