@@ -7,6 +7,7 @@
 ;;;;;;
 ;;; External link widget
 
+;; TODO: rename this to a url/uri viewer/inspector/etc. it's not a widget if we have a value
 (def (component e) external-link/widget (widget/basic content/abstract)
   ((url :type string)))
 

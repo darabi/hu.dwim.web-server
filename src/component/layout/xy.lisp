@@ -17,8 +17,8 @@
 
 (def render-xhtml xy/layout
   (bind (((:read-only-slots width height) -self-))
-    <div (:style ,(concatenate-string "overflow: visible; width: " (integer-to-string width)
-                                      "px; height: " (integer-to-string height) "px;"))
+    <div (:class "xy layout" :style `str("overflow: visible; width: " ,(integer-to-string width)
+                                         "px; height: " ,(integer-to-string height) "px;"))
          ,(render-contents-for -self-)>))
 
 ;;;;;;
@@ -34,6 +34,6 @@
 
 (def render-xhtml parent-relative-position/layout
   (bind (((:read-only-slots x y) -self-))
-    <div (:style ,(concatenate-string "position: relative; top: " (integer-to-string x)
-                                      "px; left: " (integer-to-string y) "px;"))
+    <div (:class "parent-relative-position layout" :style `str("position: relative; top: " ,(integer-to-string x)
+                                                               "px; left: " ,(integer-to-string y) "px;"))
       ,(render-content-for -self-)>))

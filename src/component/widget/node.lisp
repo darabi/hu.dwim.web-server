@@ -16,7 +16,7 @@
 ;;;;;;
 ;;; Node widget
 
-(def (component e) node/widget (style/abstract cells/mixin)
+(def (component e) node/widget (style/abstract cells/mixin selectable/mixin)
   ((child-nodes nil :type components)))
 
 (def render-xhtml node/widget

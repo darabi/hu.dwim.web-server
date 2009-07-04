@@ -14,4 +14,5 @@
   `(make-instance 'row/layout ,@args :cells (list ,@cells)))
 
 (def render-xhtml row/layout
-  <tr ,(render-cells -self-)>)
+  <tr (:class "row layout")
+    ,(render-cells-for -self-)>)

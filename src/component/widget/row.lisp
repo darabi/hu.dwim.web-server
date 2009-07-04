@@ -57,8 +57,8 @@
 
 (def function odd/even-class (component components)
   (if (zerop (mod (position component components) 2))
-      "even-row"
-      "odd-row"))
+      "even"
+      "odd"))
 
 (def layered-method render-onclick-handler ((self row/widget) (button (eql :left)))
   nil)

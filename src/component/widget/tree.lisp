@@ -7,12 +7,18 @@
 ;;;;;;
 ;;; Tree widget
 
-(def (component e) tree/widget (tree/abstract widget/basic expandible/mixin)
-  ((root-nodes nil :type components)))
+(def (component e) tree/widget (tree/abstract
+                                widget/basic
+                                expandible/mixin
+                                selection/mixin
+                                frame-unique-id/mixin)
+  ((root-nodes nil :type components))
+  (:documentation "TODO: expandible, resizable, scrolling and selection"))
 
 (def (macro e) tree/widget ((&rest args &key &allow-other-keys) &body root-nodes)
   `(make-instance 'tree/widget ,@args :root-nodes (list ,@root-nodes)))
 
+;; TODO: move this non widgetness to the viewer/inspector etc.
 (def refresh-component tree/widget
   (bind (((:slots root-nodes) -self-)
          (dispatch-class (component-dispatch-class -self-))
@@ -23,12 +29,12 @@
         (setf root-nodes (mapcar [make-tree/root-node -self- dispatch-class dispatch-prototype !1] component-value)))))
 
 (def render-xhtml tree/widget
-  (bind (((:read-only-slots root-nodes) -self-))
-    <div (:class "tree")
-         ,(render-component (make-toggle-expanded-command -self-))
-         ,(if (expanded-component? -self-)
-              (foreach #'render-component root-nodes)
-              (concatenate-string (integer-to-string (length root-nodes)) " roots"))>))
+  (bind (((:read-only-slots id root-nodes) -self-))
+    <div (:id ,id :class "tree widget")
+      ,(render-component (make-toggle-expanded-command -self-))
+      ,(if (expanded-component? -self-)
+           (foreach #'render-component root-nodes)
+           (concatenate-string (integer-to-string (length root-nodes)) " roots"))>))
 
 (def (generic e) find-tree/parent (component class prototype value)
   ;; KLUDGE: to allow instantiating widget without componente-value
@@ -45,12 +51,19 @@
 ;;;;;;
 ;;; Node widget
 
-(def (component e) node/widget (node/abstract widget/basic content/abstract expandible/mixin)
+(def (component e) node/widget (node/abstract
+                                widget/basic
+                                content/abstract
+                                context-menu/mixin
+                                expandible/mixin
+                                selectable/mixin
+                                frame-unique-id/mixin)
   ((child-nodes nil :type components)))
 
 (def (macro e) node/widget ((&rest args &key &allow-other-keys) content &body child-nodes)
   `(make-instance 'node/widget ,@args :content ,content :child-nodes (list ,@child-nodes)))
 
+;; TODO: move this non widgetness to the viewer/inspector etc.
 (def refresh-component node/widget
   (bind (((:slots child-nodes content) -self-)
          (dispatch-class (component-dispatch-class -self-))
@@ -65,13 +78,16 @@
         (setf child-nodes (mapcar [make-node/child-node -self- dispatch-class dispatch-prototype !1] children)))))
 
 (def render-xhtml node/widget
-  (bind (((:read-only-slots child-nodes) -self-))
-    <div (:class ,(concatenate-string "node level-" (integer-to-string *tree-level*)))
-         <span ,(when child-nodes
-                  (render-component (make-toggle-expanded-command -self-)))
-               ,(render-content-for -self-)>
-         ,(when (expanded-component? -self-)
-            (foreach #'render-component child-nodes))>))
+  (bind (((:read-only-slots id child-nodes) -self-))
+    <div (:id ,id :class `str("node widget level-" ,(integer-to-string *tree-level*)))
+      ,(render-context-menu-for -self-)
+      <span (:class `str("content " ,(selectable-component-style-class -self-)))
+            ,(when child-nodes
+               (render-component (make-toggle-expanded-command -self-)))
+            ,(render-content-for -self-)>
+      ,(when (expanded-component? -self-)
+         (foreach #'render-component child-nodes))>
+    (render-command-onclick-handler (find-command -self- 'select-component) id)))
 
 (def (generic e) make-node/content (component class prototype value))
 
@@ -80,3 +96,7 @@
 (def method collect-tree/children ((component component) (class null) (prototype null) (value null))
   ;; KLUDGE: to allow instantiating widget without componente-value
   (make-list (length (child-nodes-of component)) :initial-element nil))
+
+(def layered-method make-context-menu-items ((component node/widget) class prototype value)
+  (optional-list* (make-menu-item (make-select-component-command component class prototype value) nil)
+                  (call-next-method)))

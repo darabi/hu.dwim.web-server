@@ -15,5 +15,5 @@
   `(make-instance 'table/layout ,@args :rows (list ,@rows)))
 
 (def render-xhtml table/layout
-  <table
-    <tbody ,(render-rows -self-)>>)
+  <table (:class "table layout")
+    <tbody ,(render-rows-for -self-)>>)

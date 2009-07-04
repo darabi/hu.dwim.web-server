@@ -18,4 +18,5 @@
 
 (def render-xhtml cell/layout
   ;; TODO: alignment, span
-  <td ,(render-content-for -self-)>)
+  <td (:class "cell layout")
+    ,(render-content-for -self-)>)

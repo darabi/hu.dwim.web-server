@@ -14,6 +14,7 @@
    (descendants nil :type component)
    (node nil :type component)))
 
+;; TODO: move this non widgetness to the viewer/inspector etc.
 (def refresh-component tree-level/widget
   (bind (((:slots path previous-sibling next-sibling descendants node) -self-)
          (dispatch-class (component-dispatch-class -self-))

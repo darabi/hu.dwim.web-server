@@ -15,5 +15,5 @@
   `(make-instance 'container/layout ,@args :contents (list ,@contents)))
 
 (def render-xhtml container/layout
-  <div (:id ,(id-of -self-))
+  <div (:id ,(id-of -self-) :class "container layout")
     ,(render-contents-for -self-)>)

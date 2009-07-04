@@ -19,3 +19,6 @@
 
 (def layered-method make-command-bar ((component command-bar/mixin) class prototype value)
   (make-instance 'command-bar/widget :commands (make-command-bar-commands component class prototype value)))
+
+(def (function e) render-command-bar-for (component)
+  (render-component (command-bar-of component)))

@@ -404,9 +404,9 @@
 
 (def function make-demo-frame-component ()
   (frame/widget (:title "demo"
-                  :stylesheet-uris *demo-stylesheet-uris*
-                  :script-uris '#.+demo-script-uris+
-                  :page-icon #.+demo-page-icon+)
+                 :stylesheet-uris *demo-stylesheet-uris*
+                 :script-uris '#.+demo-script-uris+
+                 :page-icon #.+demo-page-icon+)
     (top/widget ()
       (bind ((content (content/widget ()
                         (empty/layout))))
@@ -414,212 +414,364 @@
           (horizontal-list/layout ()
             (tree/widget ()
               (node/widget ()
-                  "Primitve component types"
-                (replace-target-demo/widget "Number"
-                  42)
-                (replace-target-demo/widget "String"
-                  "Hello World From Lisp"))
-              (node/widget ()
-                  "Layouts"
-                (replace-target-demo/widget "Empty"
-                  (empty/layout))
-                (replace-target-demo/widget "Vertical List"
-                  (vertical-list/layout ()
-                    "Hello"
-                    "World"
-                    "From"
-                    "Lisp"))
-                (replace-target-demo/widget "Horizontal List"
-                  (horizontal-list/layout ()
-                    "Hello"
-                    "World"
-                    "From"
-                    "Lisp"))
-                (replace-target-demo/widget "Flow"
-                  (flow/layout ()
-                    "Hello "
-                    "World "
-                    "From "
-                    "Lisp "
-                    "Resize "
-                    "Window "
-                    "Please "))
-                (replace-target-demo/widget "Container"
-                  ;; see demo.css
-                  (container/layout (:id "container")
-                    "Hello "
-                    "World "
-                    "From "
-                    "Common "
-                    "Lisp"))
-                (replace-target-demo/widget "Alternator"
-                  ;; a layout does not have behavior, so switching is only possible from the API
-                  (alternator/layout ()
-                    "Hello"
-                    "World"
-                    "From"
-                    "Lisp"))
-                (replace-target-demo/widget "Table"
-                  (table/layout ()
-                    (row/layout ()
-                      (cell/layout ()
-                        "Hello")
-                      (cell/layout ()
-                        "World"))
-                    (row/layout ()
-                      (cell/layout ()
-                        "From")
-                      (cell/layout ()
-                        "Lisp"))))
-                (replace-target-demo/widget "XY"
-                  (xy/layout (:width 200 :height 200)
-                    (parent-relative-position/layout (:x 100 :y 100)
-                      "Hello")
-                    (parent-relative-position/layout (:x 50 :y 150)
-                      "World")
-                    (parent-relative-position/layout (:x 120 :y 70)
-                      "From")
-                    (parent-relative-position/layout (:x 80 :y 50)
-                      "Lisp"))))
-              (node/widget ()
-                  "Widgets"
-                (replace-target-demo/widget "External link"
-                  (external-link/widget ()
-                    "http://wikipedia.org"
-                    "Wikipedia"))
-                (replace-target-demo/widget "Expandible"
-                  (expandible/widget ()
-                    "SICP"
-                    "Structure and Interpretation of Computer Programs"))
-                (replace-target-demo/widget "Tab container"
-                  (tab-container ()
-                    (tab-page (:selector (icon switch-to-tab-page :label "Hello World"))
-                      "Hello World")
-                    (tab-page (:selector (icon switch-to-tab-page :label "From Lisp"))
-                      "From Lisp")))
-                (replace-target-demo/widget "Menu bar"
-                  (menu-bar/widget ()
-                    (menu-item/widget ()
-                        "Hello"
-                      (menu-item/widget ()
-                          "World")
-                      (menu-item/widget ()
-                          "From"
-                        (menu-item/widget ()
-                            "Common")
-                        (menu-item/widget ()
-                            "Lisp")))))
-                (replace-target-demo/widget "Popup menu"
-                  "TODO")
-                (replace-target-demo/widget "Context menu"
-                  "TODO")
-                (replace-target-demo/widget "Command"
-                  "TODO")
-                (replace-target-demo/widget "Command bar"
-                  "TODO")
-                (replace-target-demo/widget "Push button"
-                  "TODO")
-                (replace-target-demo/widget "Toggle button"
-                  "TODO")
-                (replace-target-demo/widget "List"
-                  (list/widget ()
-                    "Hello"
-                    "World"
-                    "From"
-                    "Lisp"))
-                (replace-target-demo/widget "Table"
-                  "TODO"
+                  "Components"
+                (node/widget (:expanded #f)
+                    "Immediates"
+                  (replace-target-demo/widget "Number"
+                    42)
+                  (replace-target-demo/widget "String"
+                    "Hello World"))
+                (node/widget (:expanded #f)
+                    "Layouts"
+                  (replace-target-demo/widget "Empty"
+                    (empty/layout))
+                  (replace-target-demo/widget "Vertical List"
+                    (vertical-list/layout ()
+                      "John"
+                      "Mary"
+                      "Steve"
+                      "Kate"))
+                  (replace-target-demo/widget "Horizontal List"
+                    (horizontal-list/layout ()
+                      "John"
+                      "Mary"
+                      "Steve"
+                      "Kate"))
+                  (replace-target-demo/widget "Flow"
+                    (flow/layout ()
+                      "John "
+                      "Mary "
+                      "Steve "
+                      "Kate "
+                      "Fred "
+                      "Susanne "
+                      "George "
+                      "Jenna "))
+                  (replace-target-demo/widget "Container"
+                    ;; see demo.css
+                    (container/layout (:id "container")
+                      "John "
+                      "Mary "
+                      "Steve "
+                      "Kate "
+                      "Fred "))
+                  (replace-target-demo/widget "Alternator"
+                    ;; a layout does not have behavior, so switching between alternative is only possible programatically
+                    (alternator/layout ()
+                      "John"
+                      "Mary"
+                      "Steve"
+                      "Kate"))
+                  (replace-target-demo/widget "Table"
+                    (table/layout ()
+                      (row/layout ()
+                        (cell/layout ()
+                          "John")
+                        (cell/layout ()
+                          "Mary"))
+                      (row/layout ()
+                        (cell/layout ()
+                          "Steve")
+                        (cell/layout ()
+                          "Kate"))))
+                  (replace-target-demo/widget "Tree"
+                    (tree/layout ()
+                      (node/layout ()
+                          "Males"
+                        (node/layout ()
+                            "John")
+                        (node/layout ()
+                            "Steve"))
+                      (node/layout ()
+                          "Females"
+                        (node/layout ()
+                            "Mary")
+                        (node/layout ()
+                            "Kate"))))
+                  (replace-target-demo/widget "Treeble"
+                    (treeble/layout ()
+                      (row/layout ()
+                        (cell/layout ()
+                          "John")
+                        (cell/layout ()
+                          "Mary"))
+                      (row/layout ()
+                        (cell/layout ()
+                          "Steve")
+                        (cell/layout ()
+                          "Kate"))))
+                  (replace-target-demo/widget "XY"
+                    (xy/layout (:width 200 :height 200)
+                      (parent-relative-position/layout (:x 100 :y 100)
+                        "John")
+                      (parent-relative-position/layout (:x 50 :y 150)
+                        "Mary")
+                      (parent-relative-position/layout (:x 120 :y 70)
+                        "Steve")
+                      (parent-relative-position/layout (:x 80 :y 50)
+                        "Kate"))))
+                (node/widget (:expanded #f)
+                    "Widgets"
+                  (replace-target-demo/widget "External link"
+                    (external-link/widget ()
+                      "http://wikipedia.org"
+                      "Wikipedia"))
+                  (replace-target-demo/widget "Expandible"
+                    (expandible/widget ()
+                      "SICP"
+                      "Structure and Interpretation of Computer Programs"))
                   #+nil
-                  (table/widget (:columns (list (column/widget ()
-                                                               )
-                                                (column/widget ()
-                                                               )))
-                                (row/widget ()
-                                            (cell/widget ()
-                                                         "Hello")
-                                            (cell/widget ()
-                                                         "World"))
-                                (row/widget ()
-                                            (cell/widget ()
-                                                         "From")
-                                            (cell/widget ()
-                                                         "Lisp"))))
-                (replace-target-demo/widget "Tree"
-                  (tree/widget ()
-                    (node/widget ()
-                        "Hello"
-                      (node/widget ()
-                          "World")
-                      (node/widget ()
-                          "From")
-                      (node/widget ()
-                          "Lisp"
-                        (node/widget ()
-                            "Common")
-                        (node/widget ()
-                            "Lisp")))))
-                (replace-target-demo/widget "Treeble"
-                  "TODO"
-                  #+nil
-                  (treeble/widget (:columns (list (column/widget ()
+                  (replace-target-demo/widget "Alternator"
+                    (alternator/widget ()
+                      "John"
+                      "Mary"
+                      "Steve"
+                      "Kate"))
+                  (replace-target-demo/widget "Tab container"
+                    (tab-container ()
+                      (tab-page (:selector (icon switch-to-tab-page :label "Male"))
+                        "John")
+                      (tab-page (:selector (icon switch-to-tab-page :label "Female"))
+                        "Mary")))
+                  (replace-target-demo/widget "Menu bar"
+                    (menu-bar/widget ()
+                      (menu-item/widget ()
+                          "John"
+                        (menu-item/widget ()
+                            "Mary")
+                        (menu-item/widget ()
+                            "Steve"
+                          (menu-item/widget ()
+                              "Kate")
+                          (menu-item/widget ()
+                              "Fred")))))
+                  (replace-target-demo/widget "Popup menu"
+                    "TODO")
+                  (replace-target-demo/widget "Context menu"
+                    "TODO")
+                  (replace-target-demo/widget "Command"
+                    "TODO")
+                  (replace-target-demo/widget "Command bar"
+                    "TODO")
+                  (replace-target-demo/widget "Push button"
+                    "TODO")
+                  (replace-target-demo/widget "Toggle button"
+                    "TODO")
+                  (replace-target-demo/widget "List"
+                    (list/widget ()
+                      (element/widget ()
+                        "John")
+                      (element/widget ()
+                        "Mary")
+                      (element/widget ()
+                        "Steve")
+                      (element/widget ()
+                        "Kate")))
+                  (replace-target-demo/widget "Table"
+                    "TODO"
+                    #+nil
+                    (table/widget (:columns (list (column/widget ()
                                                                  )
                                                   (column/widget ()
                                                                  )))
-                                  (node/widget ()
-                                      (list (cell/widget ()
-                                                         "Hello")
-                                            (cell/widget ()
-                                                         "World"))
+                                  (row/widget ()
+                                              (cell/widget ()
+                                                           "John")
+                                              (cell/widget ()
+                                                           "Mary"))
+                                  (row/widget ()
+                                              (cell/widget ()
+                                                           "Steve")
+                                              (cell/widget ()
+                                                           "Kate"))))
+                  (replace-target-demo/widget "Tree"
+                    (tree/widget ()
+                      (node/widget ()
+                          "John"
+                        (node/widget ()
+                            "Mary")
+                        (node/widget ()
+                            "Steve")
+                        (node/widget ()
+                            "Kate"
+                          (node/widget ()
+                              "Fred")
+                          (node/widget ()
+                              "Susanne")))))
+                  (replace-target-demo/widget "Treeble"
+                    "TODO"
+                    #+nil
+                    (treeble/widget (:columns (list (column/widget ()
+                                                                   )
+                                                    (column/widget ()
+                                                                   )))
                                     (node/widget ()
                                         (list (cell/widget ()
-                                                           "From")
+                                                           "John")
                                               (cell/widget ()
-                                                           "Lisp"))))))
-                (replace-target-demo/widget "Tree navigator"
-                  (make-instance 'tree-level/widget
-                                 :path (path/widget () "Magyarország" "Dél-dunántúli régió")
-                                 :previous-sibling "Észak-magyarországi régió"
-                                 :next-sibling "Közép-magyarországi régió"
-                                 :descendants (tree/widget ()
-                                                (node/widget ()
-                                                    "Pest megye"
+                                                           "Mary"))
+                                      (node/widget ()
+                                          (list (cell/widget ()
+                                                             "Steve")
+                                                (cell/widget ()
+                                                             "Kate"))))))
+                  (replace-target-demo/widget "Tree navigator"
+                    (make-instance 'tree-level/widget
+                                   :path (path/widget () "Magyarország" "Dél-dunántúli régió")
+                                   :previous-sibling "Észak-magyarországi régió"
+                                   :next-sibling "Közép-magyarországi régió"
+                                   :descendants (tree/widget ()
                                                   (node/widget ()
-                                                      "Budapest")
+                                                      "Pest megye"
+                                                    (node/widget ()
+                                                        "Budapest")
+                                                    (node/widget ()
+                                                        "Érd"))
                                                   (node/widget ()
-                                                      "Érd"))
-                                                (node/widget ()
-                                                    "Zala megye"
+                                                      "Zala megye"
+                                                    (node/widget ()
+                                                        "Zala"))
                                                   (node/widget ()
-                                                      "Zala"))
-                                                (node/widget ()
-                                                    "Fejér megye"
-                                                  (node/widget ()
-                                                      "Székesfehérvár")
-                                                  (node/widget ()
-                                                      "Agárd")))
-                                 :node "Dél-magyarországi régió")))
-              (node/widget ()
-                  "Meta"
-                (replace-target-demo/widget "Lisp form invoker"
-                  (vertical-list ()
-                    (lisp-form/invoker ()
-                      ｢(def function alma (&rest args &key alma &allow-other-keys)
-                         (let* ((foo 1)
-                                (bar 2))
-                           (print "Hello World")
-                           (+ foo bar)))｣)
-                    (lisp-form/invoker (:evaluation-mode :multiple)
-                      (print "Hello World"))))
-                (replace-target-demo/widget "Standard class tree viewer"
-                  (standard-class/tree/viewer ()
-                    (find-class 'component)))
-                (replace-target-demo/widget "Standard class tree level viewer"
-                  (standard-class/tree-level/viewer ()
-                    (find-class 'tree-level/widget)))
-                (replace-target-demo/widget "Book tree level viewer"
-                  (book/tree-level/viewer ()
-                    (find-book 'wui)))))
+                                                      "Fejér megye"
+                                                    (node/widget ()
+                                                        "Székesfehérvár")
+                                                    (node/widget ()
+                                                        "Agárd")))
+                                   :node "Dél-magyarországi régió")))
+                (node/widget (:expanded #f)
+                    "Chart"
+                  (replace-target-demo/widget "Pie"
+                    "TODO")
+                  (replace-target-demo/widget "Column"
+                    "TODO")
+                  (replace-target-demo/widget "Line"
+                    "TODO")
+                  (replace-target-demo/widget "Radar"
+                    "TODO")
+                  (replace-target-demo/widget "Stock"
+                    "TODO")
+                  (replace-target-demo/widget "XY"
+                    "TODO")
+                  (replace-target-demo/widget "Structure"
+                    "TODO")
+                  (replace-target-demo/widget "Flow"
+                    "TODO"))
+                (node/widget (:expanded #f)
+                    "Book"
+                  (replace-target-demo/widget "Book"
+                    "TODO")
+                  (replace-target-demo/widget "Chapter"
+                    "TODO")
+                  (replace-target-demo/widget "Glossary"
+                    "TODO")
+                  (replace-target-demo/widget "Paragraph"
+                    "TODO")
+                  (replace-target-demo/widget "Toc"
+                    "TODO"))
+                (node/widget (:expanded #f)
+                    "Model"
+                  (replace-target-demo/widget "System"
+                    "TODO")
+                  (replace-target-demo/widget "Module"
+                    "TODO")
+                  (replace-target-demo/widget "File"
+                    "TODO")
+                  (replace-target-demo/widget "Package"
+                    "TODO")
+                  (replace-target-demo/widget "Dictionary"
+                    "TODO")
+                  (replace-target-demo/widget "Name"
+                    "TODO")
+                  (replace-target-demo/widget "Variable"
+                    "TODO")
+                  (replace-target-demo/widget "Type"
+                    "TODO")
+                  (replace-target-demo/widget "Class"
+                    "TODO")
+                  (replace-target-demo/widget "Slot"
+                    "TODO")
+                  (replace-target-demo/widget "Form"
+                    "TODO")
+                  (replace-target-demo/widget "Function"
+                    "TODO")
+                  (replace-target-demo/widget "Generic function"
+                    "TODO")
+                  (replace-target-demo/widget "Generic method"
+                    "TODO"))
+                (node/widget (:expanded #f)
+                    "Meta"
+                  (node/widget (:expanded #f)
+                      "Primitive"
+                    (replace-target-demo/widget "String"
+                      "TODO")
+                    (replace-target-demo/widget "Member"
+                      "TODO")
+                    (replace-target-demo/widget "Integer"
+                      "TODO")
+                    (replace-target-demo/widget "Float"
+                      "TODO"))
+                  (node/widget (:expanded #f)
+                      "Place"
+                    (replace-target-demo/widget "Lexical"
+                      "TODO")
+                    (replace-target-demo/widget "Special"
+                      "TODO")
+                    (replace-target-demo/widget "Slot"
+                      "TODO"))
+                  (node/widget (:expanded #f)
+                      "Object"
+                    (replace-target-demo/widget "Object"
+                      "TODO")
+                    (replace-target-demo/widget "Object list"
+                      "TODO")
+                    (replace-target-demo/widget "Object tree"
+                      "TODO")
+                    ;; TODO: move these?
+                    (replace-target-demo/widget "Lisp form invoker"
+                      (vertical-list ()
+                        (lisp-form/invoker ()
+                          ｢(def function dwim (text &rest args &key (baz 0) &allow-other-keys)
+                               (let* ((foo (sqrt baz))
+                                      (bar (1+ foo)))
+                                 (if (string= text "Hello World")
+                                     (length args)
+                                     (+ foo bar baz))))｣)
+                        (lisp-form/invoker (:evaluation-mode :multiple)
+                          (print "Hello World"))))
+                    (replace-target-demo/widget "Standard class tree viewer"
+                      (standard-class/tree/viewer ()
+                        (find-class 'component)))
+                    (replace-target-demo/widget "Standard class tree level viewer"
+                      (standard-class/tree-level/viewer ()
+                        (find-class 'tree-level/widget)))
+                    (replace-target-demo/widget "Book tree level viewer"
+                      (book/tree-level/viewer ()
+                        (find-book 'wui)))))
+                ;; TODO: delete this stuff
+                (node/widget (:expanded #f)
+                    "RANDOM"
+                  (replace-target-demo/widget "Lisp form list repl inspector"
+                      (lisp-form-list/repl/inspector ())))))
             content))))))
+
+#|
+(node/widget ()
+    "Maker")
+(node/widget ()
+    "Viewer")
+(node/widget ()
+    "Editor")
+(node/widget ()
+    "Inspector")
+(node/widget ()
+    "Filter")
+(node/widget ()
+    "Finder")
+(node/widget ()
+    "Selector")
+(node/widget ()
+    "Invoker")
+|#
 
 ;;;;;;
 ;;; the entry points

@@ -11,7 +11,7 @@
   ((rows :type components))
   (:documentation "A COMPONENT with a SEQUENCE of ROWs."))
 
-(def (function e) render-rows (component)
+(def (function e) render-rows-for (component)
   (foreach #'render-component (rows-of component)))
 
 ;;;;;;
@@ -21,5 +21,5 @@
   ((row-headers :type components))
   (:documentation "A COMPONENT with a SEQUENCE of ROW-HEADERs."))
 
-(def (function e) render-row-headers (component)
+(def (function e) render-row-headers-for (component)
   (foreach #'render-component (row-headers-of component)))

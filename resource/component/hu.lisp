@@ -47,8 +47,8 @@
   (icon-label.set-to-unbound "Alapértelmezett")
   (icon-tooltip.set-to-unbound "Az alapértelmezett értékre beállítása")
 
-  (icon-label.select "Kiválasztás")
-  (icon-tooltip.select "Egy objektum kiválasztása")
+  (icon-label.select-component "Kiválasztás")
+  (icon-tooltip.select-component "Egy objektum kiválasztása")
 
   (icon-label.view "Nézet")
   (icon-tooltip.view "Nézet váltás")
@@ -60,7 +60,10 @@
   (icon-tooltip.cancel "Az aktuális művelet félbeszakítása az esetleges változtatások elmentése nélkül")
 
   (icon-label.evaluate-form "Kiértékelés")
-  (icon-tooltip.evaluate-form "A kifejezés kiértékelése és az eredmény megjelenítése"))
+  (icon-tooltip.evaluate-form "A kifejezés kiértékelése és az eredmény megjelenítése")
+
+  (icon-label.remove-list-element "Eltávolítás")
+  (icon-tooltip.remove-list-element "Az lista elem eltávolítása"))
 
 ;;;;;;
 ;;; Error handling

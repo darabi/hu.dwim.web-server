@@ -93,7 +93,7 @@
                                           0))
                       (incf new-total-count new-count)
                       (incf new-total-size new-size)
-                      <tr (:class ,(if (oddp index) "odd-row" "even-row"))
+                      <tr (:class ,(if (oddp index) "odd" "even"))
                           ,(render-cells (string-downcase class-name) last-count new-count last-size new-size)>)
                <tr (:class "total-row")
                    ,(render-cells "Total" last-total-count new-total-count last-total-size new-total-size)>>>)))

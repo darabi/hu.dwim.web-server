@@ -1,0 +1,67 @@
+;;; Copyright (c) 2003-2009 by the authors.
+;;;
+;;; See LICENCE and AUTHORS for details.
+
+(in-package :hu.dwim.wui)
+
+;;;;;;
+;;; Selectable mixin
+
+(def (component e) selectable/mixin ()
+  ()
+  (:documentation "A COMPONENT that can be SELECTED."))
+
+;;;;;;
+;;; Selection mixin
+
+(def (component e) selection/mixin ()
+  ((selected-component-set (compute-as (or -current-value- (make-hash-table))) :type (or null hash-table))
+   (minimum-selection-cardinality 0 :type fixnum)
+   (maximum-selection-cardinality 1 :type fixnum))
+  (:documentation "A COMPONENT that maintains SELECTION."))
+
+(def (generic e) single-selection-mode? (selection-component)
+  (:method ((self selection/mixin))
+    (= 1 (maximum-selection-cardinality-of self))))
+
+(def (generic e) selected-component-of (selection-component)
+  (:method ((self selection/mixin))
+    (assert (single-selection-mode? self))
+    (first (selected-components-of self))))
+
+(def (generic e) selected-components-of (selection-component)
+  (:method ((self selection/mixin))
+    (awhen (selected-component-set-of self)
+      (hash-table-values it))))
+
+(def (generic e) (setf selected-components-of) (new-value selection-component)
+  (:method (new-value (self selection/mixin))
+    (bind ((selected-component-set (selected-component-set-of self)))
+      (clrhash selected-component-set)
+      (dolist (component new-value)
+        (setf (gethash (hash-key-for component) selected-component-set) component))
+      (invalidate-computed-slot self 'selected-component-set))))
+
+(def (generic e) selected-component? (selection-component selectable-component)
+  (:method ((selection-component selection/mixin) (selectable-component selectable/mixin))
+    (awhen (selected-component-set-of selection-component)
+      (gethash (hash-key-for selectable-component) it))))
+
+(def (generic e) (setf selected-component?) (new-value selection-component selectable-component)
+  (:method (new-value (selection-component selection/mixin) (selectable-component selectable/mixin))
+    (bind ((selected-component-set (selected-component-set-of selection-component)))
+      (if new-value
+          (setf (gethash (hash-key-for selectable-component) selected-component-set) selectable-component)
+          (remhash (hash-key-for selectable-component) selected-component-set))
+      (invalidate-computed-slot selection-component 'selected-component-set))))
+
+(def (generic e) select-component (selectable-component class prototype value)
+  (:method ((selectable-component selectable/mixin) class prototype value)
+    (notf (selected-component? (find-selection-component selectable-component) selectable-component))))
+
+(def (function e) find-selection-component (selectable-component)
+  (find-ancestor-component-with-type selectable-component 'selection/mixin))
+
+(def (function e) selectable-component-style-class (selectable-component)
+  (when (selected-component? (find-selection-component selectable-component) selectable-component)
+    " selected"))

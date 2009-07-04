@@ -16,5 +16,5 @@
 
 (def render-xhtml flow/layout
   ;; TODO: orientation, direction
-  <div (:style "float: left;")
+  <div (:class "flow layout" :style "float: left;")
     ,(render-contents-for -self-)>)

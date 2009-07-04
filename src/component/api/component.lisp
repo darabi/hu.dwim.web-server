@@ -173,6 +173,13 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
                (while parent)
                (collect parent))))
 
+(def (function e) find-child-component (component function)
+  (ensure-functionf function)
+  (map-child-components component (lambda (child)
+                                    (when (funcall function child)
+                                      (return-from find-child-component child))))
+  nil)
+
 (def (function e) find-descendant-component (component predicate)
   (map-descendant-components component (lambda (child)
                                          (when (funcall predicate child)

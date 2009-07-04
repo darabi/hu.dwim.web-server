@@ -93,40 +93,42 @@ a.external-link
 
 /* odd even */
 
-tr.odd-row {
+.odd {
   background-color: #ddffdd;
 }
 
-tr.even-row {
+.even {
   background-color: #ffffff;
 }
 
-tr.selected {
+/* selection, highlight */
+
+.selected {
   background-color: #bbbbbb;
 }
 
-tr.selected.highlighted {
+.selected.highlighted {
   background-color: #bbbbbb;
 }
 
-tr.selected.highlighted.odd-row {
+.selected.highlighted.odd {
   background-color: #bbbbbb;
 }
 
-tr.selected.highlighted.even-row {
+.selected.highlighted.even {
   background-color: #bbbbbb;
 }
 
-tr.highlighted {
+.highlighted {
   background-color: #ffee88;
 }
 
-tr.highlighted.even-row {
-  background-color: #ccffff;
+.highlighted.odd {
+  background-color: #ddddff;
 }
 
-tr.highlighted.odd-row {
-  background-color: #ddddff;
+.highlighted.even {
+  background-color: #ccffff;
 }
 
 /* table */
@@ -552,7 +554,7 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image: url("/static/wui/icons/20x20/unplug.png");
 }
 
-.select-icon {
+.select-component-icon {
   background-image: url("/static/wui/icons/20x20/checkmark.png");
 }
 

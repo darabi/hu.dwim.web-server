@@ -11,14 +11,17 @@
   ((parse-tree :type source-text:source-object)))
 
 (def (macro e) lisp-form/viewer ((&rest args &key &allow-other-keys) &body form)
-  `(make-instance 'lisp-form/viewer ,@args :component-value ',(make-lisp-form-component-value (the-only-element form))))
+  `(make-instance 'lisp-form/viewer ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
 
 (def function make-lisp-form-component-value (form)
+  (bind ((*print-case* :downcase))
+    (with-output-to-string (*standard-output*)
+      (pprint form))))
+
+(def function make-lisp-form-component-value* (form)
   (if (stringp form)
       form
-      (bind ((*print-case* :downcase))
-        (with-output-to-string (*standard-output*)
-          (pprint form)))))
+      (make-lisp-form-component-value form)))
 
 (def refresh-component lisp-form/viewer
   (bind (((:slots component-value parse-tree) -self-))
@@ -80,6 +83,18 @@
       <span (:class ,style-class) ,(source-text:source-object-text instance)>)))}
 
 ;;;;;;
+;;; Lisp form editor
+
+(def (component e) lisp-form/editor (editor/basic)
+  ())
+
+;;;;;;
+;;; Lisp form inspector
+
+(def (component e) lisp-form/inspector (inspector/basic)
+  ())
+
+;;;;;;
 ;;; Lisp form invoker
 
 (def (component e) lisp-form/invoker (lisp-form/viewer frame-unique-id/mixin commands/mixin)
@@ -87,13 +102,13 @@
    (result (empty/layout) :type component)))
 
 (def (macro e) lisp-form/invoker ((&rest args &key &allow-other-keys) &body form)
-  `(make-instance 'lisp-form/invoker ,@args :component-value ',(make-lisp-form-component-value (the-only-element form))))
+  `(make-instance 'lisp-form/invoker ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
 
 (def render-xhtml lisp-form/invoker
   <div (:class "lisp-form invoker")
-       ,(call-next-method)
-       ,(render-component (command-bar-of -self-))
-       <div (:class "result") ,(render-component (result-of -self-))>>)
+    ,(call-next-method)
+    ,(render-command-bar-for -self-)
+    <div (:class "result") ,(render-component (result-of -self-))>>)
 
 (def (icon e) evaluate-form)
 

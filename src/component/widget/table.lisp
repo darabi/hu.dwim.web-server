@@ -40,13 +40,13 @@
 
 (def render-xhtml table/widget
   <table (:class "table")
-    <tbody ,(render-rows -self-)>>)
+    <tbody ,(render-rows-for -self-)>>)
 
 (def render-csv table/widget
   (write-rows -self-))
 
 (def render-ods table/widget
-  <table:table ,(render-rows -self-)>)
+  <table:table ,(render-rows-for -self-)>)
 
 ;;;;;;
 ;;; Table header
@@ -57,17 +57,17 @@
 (def render-xhtml table/header
   <table (:class "table")
     <thead <tr ,(render-column-headers -self-)>>
-    <tbody ,(render-rows -self-)>>)
+    <tbody ,(render-rows-for -self-)>>)
 
 (def render-csv table/header
   (write-csv-line (column-headers-of -self-))
   (write-csv-line-separator)
-  (render-rows -self-))
+  (render-rows-for -self-))
 
 (def render-ods table/header
   <table:table
     <table:table-row ,(render-column-headers -self-)>
-    ,(render-rows -self-)>)
+    ,(render-rows-for -self-)>)
 
 ;;;;;;
 ;;; Table widget

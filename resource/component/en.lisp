@@ -47,8 +47,8 @@
   (icon-label.set-to-unbound "Default")
   (icon-tooltip.set-to-unbound "Set to default")
 
-  (icon-label.select "Select")
-  (icon-tooltip.select "Select an object")
+  (icon-label.select-component "Select")
+  (icon-tooltip.select-component "Select an object")
 
   (icon-label.view "View")
   (icon-tooltip.view "Change view")
@@ -60,7 +60,10 @@
   (icon-tooltip.cancel "Cancel the current operation without modifying anything")
 
   (icon-label.evaluate-form "Evaluate")
-  (icon-tooltip.evaluate-form "Evaluate form and display result"))
+  (icon-tooltip.evaluate-form "Evaluate form and display result")
+
+  (icon-label.remove-list-element "Remove")
+  (icon-tooltip.remove-list-element "Remove element from list"))
 
 ;;;;;;
 ;;; Error handling

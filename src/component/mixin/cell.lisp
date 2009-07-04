@@ -11,7 +11,7 @@
   ((cells :type components))
   (:documentation "A COMPONENT with a SEQUENCE of CELLs."))
 
-(def (function e) render-cells (component)
+(def (function e) render-cells-for (component)
   (foreach #'render-cell (cells-of component)))
 
 (def (layered-function e) render-cell (component)

@@ -23,29 +23,29 @@
   (notf (debug-client-side? (root-component-of frame))))
 
 (def (function e) make-debug-menu ()
-  (menu-item ()
+  (menu-item/widget ()
       "Debug"
-    (menu-item ()
+    (menu-item/widget ()
         (command/widget (:send-client-state #f)
           "Start over"
           (make-action (reset-frame-root-component))))
-    (menu-item ()
+    (menu-item/widget ()
         (command/widget ()
           "Toggle test mode"
           (make-action (toggle-running-in-test-mode))))
-    (menu-item ()
+    (menu-item/widget ()
         (command/widget ()
           "Toggle profiling"
           (make-action (toggle-profile-request-processing))))
-    (menu-item ()
+    (menu-item/widget ()
         (command/widget ()
           "Toggle hierarchy"
           (make-action (toggle-debug-component-hierarchy))))
-    (menu-item ()
+    (menu-item/widget ()
         (command/widget ()
           "Toggle debug client side"
           (make-action (toggle-debug-client-side))))
-    (menu-item ()
+    (menu-item/widget ()
         ;; from http://turtle.dojotoolkit.org/~david/recss.html
         (inline/widget
           <a (:href "#"
@@ -53,23 +53,23 @@
                     :onClick `js-inline(wui.reload-css))
              "Reload CSS">))
     #+sbcl
-    (menu-item ()
-        (replace-menu-target-command ()
+    (menu-item/widget ()
+        (replace-target-place/widget ()
           "Frame size breakdown"
           (make-instance 'frame-size-breakdown)))
-    (menu-item ()
-        (replace-menu-target-command ()
+    (menu-item/widget ()
+        (replace-target-place/widget ()
           "Server"
           (make-inspector *server*)))
-    (menu-item ()
-        (replace-menu-target-command ()
+    (menu-item/widget ()
+        (replace-target-place/widget ()
           "Application"
           (make-inspector *application*)))
-    (menu-item ()
-        (replace-menu-target-command ()
+    (menu-item/widget ()
+        (replace-target-place/widget ()
           "Session"
           (make-inspector *session*)))
-    (menu-item ()
-        (replace-menu-target-command ()
+    (menu-item/widget ()
+        (replace-target-place/widget ()
           "Frame"
           (make-inspector *frame*)))))

@@ -54,13 +54,13 @@
                  :menu-items (flatten menu-items)
                  :id id
                  :style-class style-class
-                 :style custom-style))
+                 :custom-style custom-style))
 
 (def function render-popup-menu (component &key target-node-id)
   (bind (((:read-only-slots menu-items id style-class custom-style) component))
     (when menu-items
       <span (:class ,style-class :style ,custom-style)
-        ,(render-component (content-of component))
+        ;;,(render-component (content-of component))
         ,(render-dojo-widget (id)
           <div (:id ,id
                 :dojoType #.+dijit/menu+
@@ -112,7 +112,7 @@
                      :menu-items menu-items
                      :id id
                      :style-class style-class
-                     :style custom-style))))
+                     :custom-style custom-style))))
 
 (def render-xhtml menu-item/widget
   (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
