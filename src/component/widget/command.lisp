@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Command widget
 
-(def (component e) command/widget (widget/basic content/mixin enableable/mixin)
+(def (component e) command/widget (widget/basic content/mixin disableable/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in cl-perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available

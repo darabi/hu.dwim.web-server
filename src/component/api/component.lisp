@@ -79,14 +79,14 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Component style
 
-(def (component e) component/style (component/basic style/abstract enableable/mixin)
+(def (component e) component/style (component/basic style/abstract disableable/mixin)
   ()
   (:documentation "A COMPONENT/STYLE includes a set of style related MIXINs. It supports styles with STYLE-CLASS and CUSTOM-STYLE, it also provides REMOTE-SETUP with the help of a unique ID, and ENABLE-COMPONENT along with DISABLE-COMPONENT for better user experience."))
 
 ;;;;;;
 ;;; Component full
 
-(def (component e) component/full (component/style expandible/mixin tooltip/mixin)
+(def (component e) component/full (component/style collapsible/mixin tooltip/mixin)
   ()
   (:documentation "A COMPONENT/FULL includes all generally useful MIXINs. It supports EXPAND-COMPONENT and COLLAPSE-COMPONENT, it also provides tooltip support."))
 
@@ -403,14 +403,14 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Enable/disable component
 
-(def method enableable-component? ((self component))
+(def method disableable-component? ((self component))
   #f)
 
 (def method enabled-component? ((self component))
   #t)
 
 (def method disable-component ((self component))
-  (operation-not-supported "Cannot DISABLE-COMPONENT ~A, you may want to subclass ENABLEABLE/MIXIN"))
+  (operation-not-supported "Cannot DISABLE-COMPONENT ~A, you may want to subclass DISABLEABLE/MIXIN"))
 
 (def method enable-component ((self component))
   (values))
@@ -424,14 +424,14 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Expand/collapse component
 
-(def method expandible-component? ((self component))
+(def method collapsible-component? ((self component))
   #f)
 
 (def method expanded-component? ((self component))
   #t)
 
 (def method collapse-component ((self component))
-  (operation-not-supported "Cannot COLLAPSE-COMPONENT ~A, you may want to subclass EXPANDIBLE/MIXIN"))
+  (operation-not-supported "Cannot COLLAPSE-COMPONENT ~A, you may want to subclass COLLAPSIBLE/MIXIN"))
 
 (def method expand-component ((self component))
   (values))

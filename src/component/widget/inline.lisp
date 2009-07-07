@@ -14,7 +14,7 @@
 ;;;;;;
 ;;; Inline widget
 
-(def (component e) inline/widget (thunk/mixin)
+(def (component e) inline/widget (widget/basic thunk/mixin)
   ()
   (:documentation "A COMPONENT with a FUNCTION that is called in RENDER-COMPONENT."))
 
@@ -27,7 +27,7 @@
 ;;;;;;
 ;;; Wrapper widget
 
-(def (component e) wrapper/widget (content/mixin thunk/mixin)
+(def (component e) wrapper/widget (widget/basic content/abstract thunk/mixin)
   ()
   (:documentation "A COMPONENT that has another COMPONENT inside wrapped with a rendering function. The content can be rendered by calling the local function (-body-)."))
 

@@ -73,7 +73,7 @@
 ;;;;;;
 ;;; Alternator component
 
-(def (component e) alternator/widget (visibility/mixin expandible/mixin title/mixin context-menu/mixin commands/mixin alternator/mixin id/mixin component-messages/widget)
+(def (component e) alternator/widget (visibility/mixin collapsible/mixin title/mixin context-menu/mixin commands/mixin alternator/mixin id/mixin component-messages/widget)
   ())
 
 (def render-xhtml alternator/widget

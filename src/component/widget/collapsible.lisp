@@ -5,15 +5,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Expandible
+;;; Collapsible
 
-(def (component e) expandible (expandible/mixin)
+(def (component e) collapsible (collapsible/mixin)
   ())
 
 ;;;;;;
-;;; Expandible abstract
+;;; Collapsible abstract
 
-(def (component e) expandible/abstract (expandible widget/abstract)
+(def (component e) collapsible/abstract (collapsible widget/abstract)
   ((collapsed-content :type component)
    (expanded-content :type component)
    (toggle-command :type component))
@@ -37,16 +37,16 @@
           (expand-component component)))))
 
 ;;;;;;
-;;; Expandible widget
+;;; Collapsible widget
 
-(def (component e) expandible/widget (widget/basic expandible/abstract)
+(def (component e) collapsible/widget (widget/basic collapsible/abstract)
   ())
 
-(def (macro e) expandible/widget ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'expandible/widget ,@args :collapsed-content ,(first content) :expanded-content ,(second content)))
+(def (macro e) collapsible/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'collapsible/widget ,@args :collapsed-content ,(first content) :expanded-content ,(second content)))
 
-(def render-component expandible/widget
-  <span (:class "expandible")
+(def render-component collapsible/widget
+  <span (:class "collapsible")
     ,(render-component (make-toggle-expanded-command -self-))
     ,(if (expanded-component? -self-)
          (render-expanded-content-for -self-)

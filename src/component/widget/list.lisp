@@ -12,10 +12,13 @@
                                 context-menu/mixin
                                 command-bar/mixin
                                 selection/mixin
+                                resizable/mixin
+                                scrollable/mixin
+                                collapsible/mixin
                                 page-navigation-bar/mixin
                                 frame-unique-id/mixin)
   ()
-  (:documentation "A LIST/WIDGET with several COMPONENTs inside. TODO: expandible, resizable, page navigation, scrolling and selection"))
+  (:documentation "A LIST/WIDGET with several COMPONENTs inside. It supports expanding, resizing, scrolling, page navigation, selection and commands."))
 
 (def (macro e) list/widget ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'list/widget ,@args :contents (list ,@contents)))
@@ -23,8 +26,8 @@
 (def render-xhtml list/widget
   <div (:id ,(id-of -self-) :class "list widget")
     ,(render-context-menu-for -self-)
-    ,(call-next-method)>)
-
+    ,(call-next-method)
+    ,(render-page-navigation-bar-for -self-) >)
 
 ;; TODO: move this to list/editor
 ;;;;;;

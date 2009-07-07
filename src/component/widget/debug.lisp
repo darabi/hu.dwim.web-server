@@ -48,6 +48,24 @@
             "Debug client side"
             (make-action (toggle-debug-client-side)))))
     (menu-item/widget ()
+        "Inspect"
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Server"
+            (make-inspector *server*)))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Application"
+            (make-inspector *application*)))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Session"
+            (make-inspector *session*)))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Frame"
+            (make-inspector *frame*))))
+    (menu-item/widget ()
         "Miscellaneous"
       (menu-item/widget ()
           (command/widget ()
@@ -70,22 +88,4 @@
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Frame size breakdown"
-            (make-instance 'frame-size-breakdown))))
-    (menu-item/widget ()
-        "Inspect"
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Server"
-            (make-inspector *server*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Application"
-            (make-inspector *application*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Session"
-            (make-inspector *session*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Frame"
-            (make-inspector *frame*))))))
+            (make-instance 'frame-size-breakdown))))))

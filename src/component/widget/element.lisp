@@ -13,7 +13,7 @@
                                    selectable/mixin
                                    frame-unique-id/mixin)
   ()
-  (:documentation "TODO: expandible"))
+  (:documentation "TODO: collapsible"))
 
 (def (macro e) element/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'element/widget ,@args :content ,(the-only-element content)))

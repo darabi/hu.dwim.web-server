@@ -5,9 +5,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Expandible mixin
+;;; Collapsible mixin
 
-(def (component e) expandible/mixin ()
+(def (component e) collapsible/mixin ()
   ((expanded-component
     #t
     :type boolean
@@ -16,8 +16,8 @@
     :documentation "TRUE means COMPONENT displays itself with full detail, FALSE means it should be minimized."))
   (:documentation "A COMPONENT that can be EXPANDED or COLLAPSED."))
 
-(def method expand-component ((self expandible/mixin))
+(def method expand-component ((self collapsible/mixin))
   (setf (expanded-component? self) #t))
 
-(def method collapse-component ((self expandible/mixin))
+(def method collapse-component ((self collapsible/mixin))
   (setf (expanded-component? self) #f))

@@ -9,11 +9,11 @@
 
 (def (component e) tree/widget (tree/abstract
                                 widget/basic
-                                expandible/mixin
+                                collapsible/mixin
                                 selection/mixin
                                 frame-unique-id/mixin)
   ((root-nodes nil :type components))
-  (:documentation "TODO: expandible, resizable, scrolling and selection"))
+  (:documentation "TODO: collapsible, resizable, scrolling and selection"))
 
 (def (macro e) tree/widget ((&rest args &key &allow-other-keys) &body root-nodes)
   `(make-instance 'tree/widget ,@args :root-nodes (list ,@root-nodes)))
@@ -52,7 +52,7 @@
                                 widget/basic
                                 content/abstract
                                 context-menu/mixin
-                                expandible/mixin
+                                collapsible/mixin
                                 selectable/mixin
                                 frame-unique-id/mixin)
   ((child-nodes nil :type components)))

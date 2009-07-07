@@ -125,7 +125,9 @@
                   :dojoType ,(if (typep (parent-component-of -self-) 'menu-bar/widget)
                                  #.+dijit/popup-menu-bar-item+
                                  #.+dijit/popup-menu-item+))
-              ,(render-content-for -self-)
+              ,(if (stringp (content-of -self-))
+                   <span ,(render-content-for -self-)>
+                   (render-content-for -self-))
               ,(render-dojo-widget (id)
                  <div (:id ,id
                        :dojoType #.+dijit/menu+
@@ -134,7 +136,7 @@
                  (render-remote-setup -self-))>))
         (render-dojo-widget (id)
           <div (:id ,id :dojoType #.+dijit/menu-item+)
-            ,(render-content-for -self-)>
+            ,(render-content-for -self-) >
           #+nil
           (render-command-onclick-handler command id)))))
 

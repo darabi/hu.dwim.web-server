@@ -10,7 +10,7 @@
 (def macro-shortcuts
   (command/widget command)
   (command-bar/widget command-bar)
-  (expandible/widget expandible)
+  (collapsible/widget collapsible)
   (image/widget image)
   (splitter/widget splitter)
   (wrapper/widget wrapper)

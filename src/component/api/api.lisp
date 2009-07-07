@@ -248,7 +248,7 @@
 ;;;;;;
 ;;; Enable/disable component
 
-(def (generic e) enableable-component? (component)
+(def (generic e) disableable-component? (component)
   (:documentation "TRUE means COMPONENT can be DISABLED/ENABLED, FALSE otherwise."))
 
 (def (generic e) enabled-component? (component)
@@ -269,7 +269,7 @@
 ;;;;;;
 ;;; Expand/collapse component
 
-(def (generic e) expandible-component? (component)
+(def (generic e) collapsible-component? (component)
   (:documentation "TRUE means COMPONENT can be EXPANDED/COLLAPSED, FALSE otherwise."))
 
 (def (generic e) expanded-component? (component)

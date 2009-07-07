@@ -5,9 +5,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Enableable mixin
+;;; Disableable mixin
 
-(def (component e) enableable/mixin ()
+(def (component e) disableable/mixin ()
   ((enabled-component
     #t
     :type boolean
@@ -16,8 +16,8 @@
     :documentation "TRUE means COMPONENT is ENABLED on the remote side, FALSE otherwise."))
   (:documentation "A COMPONENT that can be ENABLED or DISABLED."))
 
-(def method enable-component ((self enableable/mixin))
+(def method enable-component ((self disableable/mixin))
   (setf (enabled-component? self) #t))
 
-(def method disable-component ((self enableable/mixin))
+(def method disable-component ((self disableable/mixin))
   (setf (enabled-component? self) #f))

@@ -76,7 +76,7 @@
 ;;;;;;
 ;;; Enable/disable component
 
-(def method enableable-component? ((self string))
+(def method disableable-component? ((self string))
   #f)
 
 (def method enabled-component? ((self string))
@@ -91,7 +91,7 @@
 ;;;;;;
 ;;; Expand/collapse component
 
-(def method expandible-component? ((self string))
+(def method collapsible-component? ((self string))
   #f)
 
 (def method expanded-component? ((self string))

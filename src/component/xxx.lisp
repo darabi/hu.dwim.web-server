@@ -474,7 +474,7 @@
 ;;; Header mixin
 
 #+nil
-(def (component e) header/basic (widget/basic title/mixin context-menu/mixin expandible/mixin)
+(def (component e) header/basic (widget/basic title/mixin context-menu/mixin collapsible/mixin)
   ()
   (:documentation "A COMPONENT with a HEADER."))
 ;;; Copyright (c) 2003-2009 by the authors.

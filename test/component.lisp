@@ -417,13 +417,13 @@
               (node/widget ()
                   "Components"
                 (node/widget (:expanded #f)
-                    "Immediates"
+                    "Immediate"
                   (replace-target-demo/widget "Number"
                     42)
                   (replace-target-demo/widget "String"
                     "Hello World"))
                 (node/widget (:expanded #f)
-                    "Layouts"
+                    "Layout"
                   (replace-target-demo/widget "Empty"
                     (empty/layout))
                   (replace-target-demo/widget "Vertical List"
@@ -512,13 +512,13 @@
                       (parent-relative-position/layout (:x 80 :y 50)
                         "Kate"))))
                 (node/widget (:expanded #f)
-                    "Widgets"
+                    "Widget"
                   (replace-target-demo/widget "External link"
                     (external-link/widget ()
                       "http://wikipedia.org"
                       "Wikipedia"))
-                  (replace-target-demo/widget "Expandible"
-                    (expandible/widget ()
+                  (replace-target-demo/widget "Collapsible"
+                    (collapsible/widget ()
                       "SICP"
                       "Structure and Interpretation of Computer Programs"))
                   #+nil

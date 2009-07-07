@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Tree level widget
 
-(def (component e) tree-level/widget (widget/basic expandible/mixin)
+(def (component e) tree-level/widget (widget/basic collapsible/mixin)
   ((path nil :type component)
    (previous-sibling nil :type component)
    (next-sibling nil :type component)
