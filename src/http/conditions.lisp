@@ -59,7 +59,7 @@ TODO delme?
 (def condition dos-attack-detected (simple-error request-processing-error)
   ())
 
-(def function report-dos (&optional (format-control "Denial of Service attack?") &rest format-arguments)
+(def function dos-attack-detected (&optional (format-control "Denial of Service attack?") &rest format-arguments)
   (error 'dos-attack-detected :format-control format-control :format-arguments format-arguments))
 
 

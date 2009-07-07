@@ -98,10 +98,13 @@
       (with-session-logic (:requires-valid-session requires-valid-session :ensure-session ensure-session)
         (-body-))
     (surround-body-when with-frame-logic
-        (if *session*
-            (with-frame-logic (:requires-valid-frame requires-valid-frame :ensure-frame ensure-frame)
-              (-body-))
-            (-body-))
+        (progn
+          (when requires-valid-session
+            (assert *session*))
+          (if *session*
+              (with-frame-logic (:requires-valid-frame requires-valid-frame :ensure-frame ensure-frame)
+                (-body-))
+              (-body-)))
       (surround-body-when with-action-logic
           (if *frame*
               (with-action-logic ()

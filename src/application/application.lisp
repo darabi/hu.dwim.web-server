@@ -214,12 +214,13 @@
 
 (def (with-macro* eo) with-frame-logic (&key (requires-valid-frame #t) (ensure-frame #f))
   (assert (and *application* *session* (boundp '*frame*)) () "May not use WITH-FRAME-LOGIC without a proper session in the environment")
+  (app.debug "WITH-FRAME-LOGIC speaking, requires-valid-frame ~A, ensure-frame ~A" requires-valid-frame ensure-frame)
   (bind ((application *application*)
          (session *session*)
          ((:values frame frame-id-parameter-received? invalidity-reason frame-instance) (when session
                                                                                           (find-frame-for-request session))))
     (setf *frame* frame)
-    (app.dribble "WITH-FRAME-LOGIC looked up frame ~A from session ~A" frame session)
+    (app.debug "WITH-FRAME-LOGIC looked up frame ~A from session ~A" frame session)
     (if frame
         (-body-)
         (cond
