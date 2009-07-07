@@ -4,8 +4,53 @@
 
 (in-package :hu.dwim.wui)
 
+(def (icon e) refresh-component)
+
+(def layered-method make-refresh-component-command ((component refreshable/mixin) class prototype value)
+  (command/widget ()
+    (icon refresh-component)
+    (make-component-action component
+      (refresh-component component))))
+
+(def (icon e) select-component)
+
+(def (layered-function e) make-select-component-command (component class prototype value)
+  (:method ((component selectable/mixin) class prototype value)
+    (command/widget (:ajax (ajax-of (find-selection-component component)))
+      (icon select-component)
+      (make-component-action component
+        (select-component component class prototype value)))))
+
+(def function command-with-icon-name? (component name)
+  (and (typep component 'command/widget)
+       (bind ((content (content-of component)))
+         (and (typep content 'icon/widget)
+              (eq name (name-of content))))))
+
+(def (generic e) find-command (component name)
+  (:method ((self component) name)
+    nil)
+
+  (:method ((self context-menu/mixin) name)
+    (or (call-next-method)
+        (find-descendant-component (context-menu-of self)
+                                   (lambda (descendant)
+                                     (command-with-icon-name? descendant name)))))
+
+  (:method ((self menu-bar/mixin) name)
+    (or (call-next-method)
+        (find-descendant-component (menu-bar-of self)
+                                   (lambda (descendant)
+                                     (command-with-icon-name? descendant name)))))
+
+  (:method ((self command-bar/mixin) name)
+    (or (call-next-method)
+        (find-child-component (command-bar-of self)
+                              (lambda (child)
+                                (command-with-icon-name? child name))))))
 
 
+#|
 (def function extract-primitive-component-place (component)
   (bind ((parent-component (parent-component-of component)))
     (typecase parent-component
@@ -180,22 +225,6 @@
 ;;;;;;
 ;;; Refreshable
 
-(def (icon e) refresh-component)
-
-(def layered-method make-refresh-component-command ((component refreshable/mixin) class prototype value)
-  (command/widget ()
-    (icon refresh-component)
-    (make-component-action component
-      (refresh-component component))))
-
-(def (icon e) select-component)
-
-(def (layered-function e) make-select-component-command (component class prototype value)
-  (:method ((component selectable/mixin) class prototype value)
-    (command/widget (:ajax (ajax-of (find-selection-component component)))
-      (icon select-component)
-      (make-component-action component
-        (select-component component class prototype value)))))
 
 
 
@@ -429,33 +458,6 @@
 
 
 
-(def function command-with-icon-name? (component name)
-  (and (typep component 'command/widget)
-       (bind ((content (content-of component)))
-         (and (typep content 'icon/widget)
-              (eq name (name-of content))))))
-
-(def (generic e) find-command (component name)
-  (:method ((self component) name)
-    nil)
-
-  (:method ((self context-menu/mixin) name)
-    (or (call-next-method)
-        (find-descendant-component (context-menu-of self)
-                                   (lambda (descendant)
-                                     (command-with-icon-name? descendant name)))))
-
-  (:method ((self menu-bar/mixin) name)
-    (or (call-next-method)
-        (find-descendant-component (menu-bar-of self)
-                                   (lambda (descendant)
-                                     (command-with-icon-name? descendant name)))))
-
-  (:method ((self command-bar/mixin) name)
-    (or (call-next-method)
-        (find-child-component (command-bar-of self)
-                              (lambda (child)
-                                (command-with-icon-name? child name))))))
 
 
 
@@ -973,3 +975,4 @@
 
 (def function null-subtype-p (type)
   (subtypep 'null type))
+|#

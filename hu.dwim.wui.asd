@@ -379,7 +379,9 @@
                                (:module "shortcut"
                                 :components ((:file "layout")
                                              (:file "widget"))
-                                :depends-on ("object")))
+                                :depends-on ("object"))
+                               ;; KLUDGE: kill this
+                               (:file "xxx" :depends-on ("shortcut")))
                   :depends-on ("util")))))
   :depends-on (:contextl :hu.dwim.wui.application))
 
