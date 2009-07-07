@@ -206,7 +206,7 @@
   (bind ((authenticated-subject (current-authenticated-subject)))
     (menu
       (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
-        (bind ((debug-menu (make-debug-menu)))
+        (bind ((debug-menu (make-debug-menu-item)))
           (appendf (menu-items-of debug-menu)
                    (list (menu-item () (command "Example error in action body"
                                          (make-action (error "This is an example error which is signaled when running the action body"))))
@@ -407,7 +407,8 @@
                  :stylesheet-uris *demo-stylesheet-uris*
                  :script-uris '#.+demo-script-uris+
                  :page-icon #.+demo-page-icon+)
-    (top/widget ()
+    (top/widget (:menu-bar (menu-bar/widget ()
+                             (make-debug-menu-item)))
       (bind ((content (content/widget ()
                         (empty/layout))))
         (target-place/widget (:target-place (make-component-place content))

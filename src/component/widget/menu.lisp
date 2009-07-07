@@ -36,7 +36,7 @@
       <div (:id ,id
             :class ,style-class
             :style ,custom-style
-            :dojoType #.+dijit/menu+)
+            :dojoType #.+dijit/menu-bar+)
         ,(foreach #'render-component menu-items)>)))
 
 ;;;;;
@@ -122,7 +122,9 @@
             <div (:id ,popup-id
                   :class ,style-class
                   :style ,custom-style
-                  :dojoType #.+dijit/popup-menu-item+)
+                  :dojoType ,(if (typep (parent-component-of -self-) 'menu-bar/widget)
+                                 #.+dijit/popup-menu-bar-item+
+                                 #.+dijit/popup-menu-item+))
               ,(render-content-for -self-)
               ,(render-dojo-widget (id)
                  <div (:id ,id

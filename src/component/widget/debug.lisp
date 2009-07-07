@@ -22,7 +22,7 @@
 (def (function e) toggle-debug-client-side (&optional (frame *frame*))
   (notf (debug-client-side? (root-component-of frame))))
 
-(def (function e) make-debug-menu ()
+(def (function e) make-debug-menu-item ()
   (menu-item/widget ()
       "Debug"
     (menu-item/widget ()
@@ -30,46 +30,62 @@
           "Start over"
           (make-action (reset-frame-root-component))))
     (menu-item/widget ()
-        (command/widget ()
-          "Toggle test mode"
-          (make-action (toggle-running-in-test-mode))))
+        "Toggle"
+      (menu-item/widget ()
+          (command/widget ()
+            "Test mode"
+            (make-action (toggle-running-in-test-mode))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Profiling"
+            (make-action (toggle-profile-request-processing))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Hierarchy"
+            (make-action (toggle-debug-component-hierarchy))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Debug client side"
+            (make-action (toggle-debug-client-side)))))
     (menu-item/widget ()
-        (command/widget ()
-          "Toggle profiling"
-          (make-action (toggle-profile-request-processing))))
+        "Miscellaneous"
+      (menu-item/widget ()
+          (command/widget ()
+            "Action time error"
+            (make-action
+              (error "Testing error handling, error was produced during handling an action"))))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Render time error"
+            (inline/widget
+              (error "Testing error handling, error was produced during rendering a component"))))
+      (menu-item/widget ()
+          ;; from http://turtle.dojotoolkit.org/~david/recss.html
+          (inline/widget
+            <a (:href "#"
+                :class "command"
+                :onClick `js-inline(wui.reload-css))
+               "Reload CSS">))
+      #+sbcl
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Frame size breakdown"
+            (make-instance 'frame-size-breakdown))))
     (menu-item/widget ()
-        (command/widget ()
-          "Toggle hierarchy"
-          (make-action (toggle-debug-component-hierarchy))))
-    (menu-item/widget ()
-        (command/widget ()
-          "Toggle debug client side"
-          (make-action (toggle-debug-client-side))))
-    (menu-item/widget ()
-        ;; from http://turtle.dojotoolkit.org/~david/recss.html
-        (inline/widget
-          <a (:href "#"
-                    :class "command"
-                    :onClick `js-inline(wui.reload-css))
-             "Reload CSS">))
-    #+sbcl
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-          "Frame size breakdown"
-          (make-instance 'frame-size-breakdown)))
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-          "Server"
-          (make-inspector *server*)))
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-          "Application"
-          (make-inspector *application*)))
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-          "Session"
-          (make-inspector *session*)))
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-          "Frame"
-          (make-inspector *frame*)))))
+        "Inspect"
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Server"
+            (make-inspector *server*)))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Application"
+            (make-inspector *application*)))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Session"
+            (make-inspector *session*)))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Frame"
+            (make-inspector *frame*))))))

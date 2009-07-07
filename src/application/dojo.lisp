@@ -27,9 +27,12 @@
    +dijit/tooltip-dialog+        "dijit.TooltipDialog"
    +dijit/editor+                "dijit.Editor"
    +dijit/menu+                  "dijit.Menu"
+   +dijit/menu-bar+              "dijit.MenuBar"
    +dijit/menu-item+             "dijit.MenuItem"
+   +dijit/menu-bar-item+         "dijit.MenuBarItem"
    +dijit/menu-separator+        "dijit.MenuSeparator"
    +dijit/popup-menu-item+       "dijit.PopupMenuItem"
+   +dijit/popup-menu-bar-item+   "dijit.PopupMenuBarItem"
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
 

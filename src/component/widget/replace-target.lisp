@@ -8,7 +8,8 @@
 ;;; Target place widget
 
 (def (component e) target-place/widget (widget/basic content/abstract)
-  ((target-place :type place)))
+  ((target-place :type place))
+  (:documentation "A TARGET-PLACE/WIDGET has a PLACE that refers into its CONTENT. This place can be set by REPLACE-TARGET-PLACE/WIDGET descendant COMPONENTs."))
 
 (def (macro e) target-place/widget ((&rest args &key target-place &allow-other-keys) &body content)
   ;; evaluation of target-place must be after content
@@ -25,7 +26,8 @@
 ;;; Replace target place widget
 
 (def (component e) replace-target-place/widget (command/widget)
-  ((replacement-component :type t)))
+  ((replacement-component :type t))
+  (:documentation "A REPLACE-TARGET-PLACE/WIDGET is a COMMAND/WIDGET that will replace the TARGET-PLAGE of its nearest TARGET-PLACE/WIDGET ancestor."))
 
 (def (macro e) replace-target-place/widget ((&rest args &key &allow-other-keys) content &body forms)
   `(make-instance 'replace-target-place/widget ,@args

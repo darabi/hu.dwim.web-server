@@ -9,7 +9,7 @@
 
 (def (component e) widget/abstract ()
   ()
-  (:documentation "A WIDGET/ABSTRACT has visual appearance on its own, it also provides behaviour (e.g. context menu, selection, etc.) on the client side to modify its state."))
+  (:documentation "A WIDGET/ABSTRACT has visual appearance on its own, it also provides behaviour on the client side such as visiblility, expanding, scrolling, resizing, context menu, selection, sorting subparts, etc."))
 
 ;;;;;;
 ;;; Widget minimal

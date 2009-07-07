@@ -31,10 +31,7 @@
 (def render-xhtml tree/widget
   (bind (((:read-only-slots id root-nodes) -self-))
     <div (:id ,id :class "tree widget")
-      ,(render-component (make-toggle-expanded-command -self-))
-      ,(if (expanded-component? -self-)
-           (foreach #'render-component root-nodes)
-           (concatenate-string (integer-to-string (length root-nodes)) " roots"))>))
+      ,(foreach #'render-component root-nodes)>))
 
 (def (generic e) find-tree/parent (component class prototype value)
   ;; KLUDGE: to allow instantiating widget without componente-value
