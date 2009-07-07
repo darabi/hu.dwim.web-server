@@ -896,15 +896,13 @@
 (def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "src/js/"))
 
 (def entry-point (*demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
-  (if *session*
+  (assert (and (boundp '*session*) *session*))
+  (assert (and (boundp '*frame*) *frame*))
+  (if (root-component-of *frame*)
+      (make-root-component-rendering-response *frame*)
       (progn
-        (assert (and (boundp '*frame*) *frame*))
-        (if (root-component-of *frame*)
-            (make-root-component-rendering-response *frame*)
-            (progn
-              (setf (root-component-of *frame*) (make-demo-frame-component))
-              (make-redirect-response-for-current-application))))
-      (make-component-rendering-response (make-demo-frame-component))))
+        (setf (root-component-of *frame*) (make-demo-frame-component))
+        (make-redirect-response-for-current-application))))
 
 (def entry-point (*demo-application* :path "session-info" :priority 1000) ()
   (if *session*
