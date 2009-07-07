@@ -82,7 +82,7 @@
   ((:module "src"
     :components ((:file "package")
                  (:file "duplicates" :depends-on ("package"))
-                 (:file "configuration" :depends-on ("package"))
+                 (:file "configuration" :depends-on ("package" "logging"))
                  (:file "logging" :depends-on ("package"))
                  (:module "util"
                   :components ((:file "zlib")
