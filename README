@@ -16,5 +16,6 @@ http://localhost.localdomain:8080/
 
 You need to build dojo for WUI to work:
 
-$ svn co -r 17259 http://svn.dojotoolkit.org/src/trunk/ dojo/
-$ ~/workspace/wui/etc/build-dojo.sh --dojo ~/workspace/dojo.head --dojo-release-dir ~/workspace/wui/wwwroot/ --profile ~/workspace/wui/etc/wui.profile.js --locales "en-us,hu"
+svn checkout -r 18738 http://svn.dojotoolkit.org/src/trunk/ dojo/
+svn update -r 18738
+~/workspace/wui/etc/build-dojo.sh --dojo ~/workspace/dojo --dojo-release-dir ~/workspace/wui/wwwroot/ --profile ~/workspace/wui/etc/wui.profile.js --locales "en-us,hu"
