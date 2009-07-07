@@ -10,8 +10,11 @@
 (def (function e) reset-frame-root-component ()
   (setf (root-component-of *frame*) nil))
 
-(def (function e) toggle-running-in-test-mode (&optional (application *application*))
+(def (function e) toggle-running-in-test-mode (application)
   (notf (running-in-test-mode? application)))
+
+(def (function e) toggle-ajax-enabled (application)
+  (notf (ajax-enabled? application)))
 
 (def (function e) toggle-profile-request-processing (&optional (server *server*))
   (notf (profile-request-processing? server)))
@@ -46,7 +49,11 @@
       (menu-item/widget ()
           (command/widget ()
             "Debug client side"
-            (make-action (toggle-debug-client-side)))))
+            (make-action (toggle-debug-client-side))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Toggle AJAX"
+            (make-action (toggle-ajax-enabled *application*)))))
     (menu-item/widget ()
         "Inspect"
       (menu-item/widget ()
