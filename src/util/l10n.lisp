@@ -18,10 +18,10 @@
              (bind ((*readtable* (copy-readtable nil)))
                (awhen ,setup-readtable-function
                  (funcall it))
-               (cl-l10n::load-resource-file :wui file)
+               (cl-l10n::load-resource-file :hu.dwim.wui file)
                (l10n.info "Loaded ~A resources for locale ~S from ~A" ,log-discriminator locale-name file))))))))
 
-(def resource-loading-locale-loaded-listener wui-resource-loader :wui "resource/"
+(def resource-loading-locale-loaded-listener wui-resource-loader :hu.dwim.wui "resource/"
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader)
 

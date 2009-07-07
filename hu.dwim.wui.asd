@@ -33,7 +33,7 @@
 (in-package :hu.dwim.wui.system)
 
 (defun project-relative-pathname (path)
-  (merge-pathnames path (component-pathname (find-system :wui))))
+  (merge-pathnames path (component-pathname (find-system :hu.dwim.wui))))
 
 (defparameter *load-as-production-p* t
   "When T, load the WUI lisp files so that it will be used in a production system. This means that debug-only blocks are dropped and log levels and various variables are initialized accordingly.")
@@ -67,7 +67,7 @@
 ;;;;;;
 ;;; WUI server systems 
 
-(defsystem* :wui-http-server
+(defsystem* :hu.dwim.wui.http
   :description "Basic HTTP server to build user interfaces for the world wide web."
   :long-description "Provides error handling, compression, static file serving, quasi quoted JavaScript and quasi quoted XML serving."
   :author ("Attila Lendvai <attila.lendvai@gmail.com>"
@@ -77,7 +77,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
                "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-http-server-test
+  :test-system :hu.dwim.wui.http.test
   :components
   ((:module "src"
     :components ((:file "package")
@@ -132,9 +132,9 @@
                :cl-quasi-quote-xml
                :cl-quasi-quote-js
                :cl-delico
-               :cl-dwim-util))
+               :hu.dwim.util))
 
-(defsystem* :wui-application-server
+(defsystem* :hu.dwim.wui.application
   :description "Extension to the basic HTTP server to become an HTTP application server for the world wide web."
   :long-description "Provides application, session, frame, action and entry point abstractions."
   :author ("Attila Lendvai <attila.lendvai@gmail.com>"
@@ -144,7 +144,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-application-server-test
+  :test-system :hu.dwim.wui.application.test
   :components
   ((:module "src"
     :components ((:module "application"
@@ -152,12 +152,12 @@
                                (:file "variables")
                                (:file "session" :depends-on ("variables"))
                                (:file "frame" :depends-on ("variables"))
-                               (:file "application" :depends-on ("variables" "dojo"))
+                               (:file "application" :depends-on ("variables" "dojo" "session"))
                                (:file "entry-point" :depends-on ("variables"))
                                (:file "action" :depends-on ("variables")))))))
-  :depends-on (:wui-http-server))
+  :depends-on (:hu.dwim.wui.http))
 
-(defsystem* :wui-component-server
+(defsystem* :hu.dwim.wui.component
   :description "Extension to the HTTP application server to become an HTTP component based user interface server for the world wide web."
   :long-description "Provides various components, layouts, widgets, charts, books, model documentation components, meta components. Components have server and client side state and behavior."
   :author ("Attila Lendvai <attila.lendvai@gmail.com>"
@@ -167,7 +167,7 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-component-server-test
+  :test-system :hu.dwim.wui.component.test
   :components
   ((:module "src"
     :components ((:module "util"
@@ -381,9 +381,9 @@
                                              (:file "widget"))
                                 :depends-on ("object")))
                   :depends-on ("util")))))
-  :depends-on (:contextl :wui-application-server))
+  :depends-on (:contextl :hu.dwim.wui.application))
 
-(defsystem* :wui
+(defsystem* :hu.dwim.wui
   :description "WUI with all its extensions."
   :author ("Attila Lendvai <attila.lendvai@gmail.com>"
 	   "Levente Mészáros <levente.meszaros@gmail.com>"
@@ -392,8 +392,8 @@
                "Levente Mészáros <levente.meszaros@gmail.com>"
 	       "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD (sans advertising clause)"
-  :test-system :wui-test
-  :depends-on (:wui-component-server))
+  :test-system :hu.dwim.wui.test
+  :depends-on (:hu.dwim.wui.component))
 
 #+nil
 (defmethod perform :around ((o t) (system wui-system))
@@ -410,38 +410,38 @@
 ;;;;;;
 ;;; Test systems
 
-(defsystem* :wui-http-server-test
+(defsystem* :hu.dwim.wui.http.test
   :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "package")
                  (:file "environment" :depends-on ("package"))
                  (:file "http" :depends-on ("environment")))))
-  :depends-on (:wui-http-server :stefil :drakma))
+  :depends-on (:hu.dwim.wui.http :stefil :drakma))
 
-(defsystem* :wui-application-server-test
+(defsystem* :hu.dwim.wui.application.test
   :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "application"))))
-  :depends-on (:wui-application-server :wui-http-server-test))
+  :depends-on (:hu.dwim.wui.application :hu.dwim.wui.http.test))
 
-(defsystem* :wui-component-server-test
+(defsystem* :hu.dwim.wui.component.test
   :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
   :components
   ((:module "test"
     :components ((:file "component"))))
-  :depends-on (:wui-component-server :wui-application-server-test :wui-and-informatimago))
+  :depends-on (:hu.dwim.wui.component :hu.dwim.wui.application.test :hu.dwim.wui&informatimago))
 
-(defsystem* :wui-test
+(defsystem* :hu.dwim.wui.test
   :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
-  :depends-on (:wui :wui-component-server-test))
+  :depends-on (:hu.dwim.wui :hu.dwim.wui.component.test))
 
 (defmethod perform ((op test-op) (system wui-system))
   (format *debug-io* "~%*** Testing ~A using the ~A test system~%~%" system (test-system-of system))
   (setf *load-as-production-p* nil)
   (operate 'load-op (test-system-of system))
-  (in-package :wui.test)
+  (in-package :hu.dwim.wui.test)
   (declaim (optimize (debug 3)))
   (warn "Issued a (declaim (optimize (debug 3))) for easy C-c C-c'ing")
   ;; KLUDGE ASDF wraps everything in a WITH-COMPILATION-UNIT which eventually prevents starting the
@@ -457,8 +457,8 @@
 ;;;;;;
 ;;; WUI integration with other systems
 
-(defsystem* wui-and-cl-perec
-  :depends-on (:wui
+(defsystem* hu.dwim.wui&cl-perec
+  :depends-on (:hu.dwim.wui
                :cl-l10n
                :cl-perec
                :dwim-meta-model)
@@ -485,25 +485,25 @@
                  (:file "dimensional")
                  (:file "query-expression")))))
 
-(defmethod perform ((op load-op) (system (eql (find-system :wui-and-cl-perec))))
-  (pushnew :wui-and-cl-perec *features*))
+(defmethod perform ((op load-op) (system (eql (find-system :hu.dwim.wui&cl-perec))))
+  (pushnew :hu.dwim.wui&cl-perec *features*))
 
-(defsystem* wui-and-cl-typesetting
-  :depends-on (:wui :cl-typesetting)
+(defsystem* hu.dwim.wui&cl-typesetting
+  :depends-on (:hu.dwim.wui :cl-typesetting)
   :components
   ((:module "src"
     :components ((:module "integration"
                   :components ((:file "cl-typesetting")))))))
 
-(defsystem* wui-and-cl-serializer
-  :depends-on (:wui :cl-serializer :cl-perec)
+(defsystem* hu.dwim.wui&cl-serializer
+  :depends-on (:hu.dwim.wui :cl-serializer :cl-perec)
   :components
   ((:module "src"
     :components ((:module "integration"
                   :components ((:file "cl-serializer")))))))
 
-(defsystem* wui-and-informatimago
-  :depends-on (:wui)
+(defsystem* hu.dwim.wui&informatimago
+  :depends-on (:hu.dwim.wui)
   :components
   ((:module "src"
     :components ((:module "integration"

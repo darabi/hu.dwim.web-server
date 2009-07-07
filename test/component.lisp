@@ -777,9 +777,9 @@
 ;;;;;;
 ;;; the entry points
 
-(def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :wui "wwwroot/"))
+(def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "wwwroot/"))
 
-(def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :wui "src/js/"))
+(def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "src/js/"))
 
 (def entry-point (*demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
   (if *session*

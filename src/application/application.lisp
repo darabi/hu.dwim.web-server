@@ -29,7 +29,7 @@
 (def (special-variable e) *default-ajax-enabled* #t
   "The default for the same slot in applications.")
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/application :wui "resource/application/"
+(def resource-loading-locale-loaded-listener wui-resource-loader/application :hu.dwim.wui "resource/application/"
   :log-discriminator "WUI")
 
 (register-locale-loaded-listener 'wui-resource-loader/application)

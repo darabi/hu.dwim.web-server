@@ -18,7 +18,7 @@
 ;;;;;;
 ;;; Component localization
 
-(def resource-loading-locale-loaded-listener wui-resource-loader/component :wui "resource/component/" :log-discriminator "WUI")
+(def resource-loading-locale-loaded-listener wui-resource-loader/component :hu.dwim.wui "resource/component/" :log-discriminator "WUI")
 
 (register-locale-loaded-listener 'wui-resource-loader/component)
 
