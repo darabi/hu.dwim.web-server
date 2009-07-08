@@ -123,12 +123,20 @@
 (def (function e) render-command-onclick-handler (command id)
   (bind ((action (action-of command))
          (action-arguments (action-arguments-of command))
-         ((:values href send-client-state?) (href-for-command action action-arguments)))
-    `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
+         ((:values href send-client-state?) (href-for-command action action-arguments))
+         (onclick-js (or (js-of command)
+                         (lambda (href)
+                           `js(wui.io.action ,href
+                                             :event event
+                                             :ajax ,(when (ajax-enabled? *application*)
+                                                          (force (ajax-p command)))
+                                             :send-client-state ,send-client-state?)))))
+    `js(on-load (dojo.connect (dojo.by-id ,id) "onclick"
                               (lambda (event)
                                 (wui.io.action ,href
                                                :event event
-                                               :ajax ,(when (ajax-enabled? *application*) (force (ajax-of command)))
+                                               :ajax,(when (ajax-enabled? *application*)
+                                                      (force (ajax-p command)))
                                                :send-client-state ,send-client-state?))))))
 
 (def (function e) execute-command (command)
