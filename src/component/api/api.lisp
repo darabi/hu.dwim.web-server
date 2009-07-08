@@ -5,57 +5,60 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component factories for values
-
-(def (generic e) make-value-viewer (value)
-  (:documentation "Creates a COMPONENT that displays VALUE."))
-
-(def (generic e) make-value-editor (value)
-  (:documentation "Creates a COMPONENT that edits VALUE."))
-
-(def (generic e) make-value-inspector (value)
-  (:documentation "Creates a COMPONENT that displays or edits VALUE. The user can switch between the two modes."))
-
-;;;;;;
 ;;; Component factories for types
 
-(def (generic e) make-maker (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-maker (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that creates new values of TYPE."))
 
-(def (generic e) make-viewer (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays existing values of TYPE."))
+(def (layered-function e) make-viewer (type value &rest args &key &allow-other-keys)
+  (:documentation "Creates a COMPONENT that displays existing values of TYPE, initialized to VALUE."))
 
-(def (generic e) make-editor (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that edits existing values of TYPE."))
+(def (layered-function e) make-editor (type value &rest args &key &allow-other-keys)
+  (:documentation "Creates a COMPONENT that edits existing values of TYPE, initialized to VALUE."))
 
-(def (generic e) make-inspector (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays or edits existing values of TYPE. The user can switch between the two modes."))
+(def (layered-function e) make-inspector (type value &rest args &key &allow-other-keys)
+  (:documentation "Creates a COMPONENT that displays or edits existing values of TYPE, initialized to VALUE. The user can switch between the two modes."))
 
-(def (generic e) make-filter (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-filter (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that filters the set of existing values of TYPE based on some filter criteria provided by the user."))
 
-(def (generic e) make-finder (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-finder (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that searches for a particular existing value of TYPE based on some filter criteria provided by the user."))
 
-(def (generic e) make-selector (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-selector (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that displays all existing values of TYPE to select exactly one of them."))
+
+;;;;;;
+;;; Component factories for values
+
+(def (function e) make-value-viewer (value)
+  "Creates a COMPONENT that displays VALUE and other values of its TYPE."
+  (make-viewer (class-of value) value))
+
+(def (function e) make-value-editor (value)
+  "Creates a COMPONENT that edits VALUE and other values of its TYPE."
+  (make-editor (class-of value) value))
+
+(def (function e) make-value-inspector (value)
+  "Creates a COMPONENT that displays or edits VALUE and other values of its TYPE. The user can switch between the two modes."
+  (make-inspector (class-of value) value))
 
 ;;;;;;
 ;;; Component factories for types at a place
 
-(def (generic e) make-place-maker (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-place-maker (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that creates new values of TYPE at a PLACE."))
 
-(def (generic e) make-place-viewer (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-place-viewer (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that displays existing values of TYPE at a PLACE."))
 
-(def (generic e) make-place-editor (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-place-editor (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that edits existing values of TYPE at a PLACE."))
 
-(def (generic e) make-place-inspector (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-place-inspector (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that displays or edits values of TYPE at a PLACE."))
 
-(def (generic e) make-place-filter (type &rest args &key &allow-other-keys)
+(def (layered-function e) make-place-filter (type &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that filters the set of existing values based on some filter criteria at a PLACE."))
 
 ;;;;;;
@@ -209,18 +212,21 @@
 ;;;;;;
 ;;; Close component
 
+;; TODO: are these really layered?
 (def (layered-function e) close-component (component class prototype value)
   (:documentation "TODO"))
 
 ;;;;;;
 ;;; Open component in new frame
 
+;; TODO: are these really layered?
 (def (layered-function e) open-in-new-frame (component class prototype value)
   (:documentation "Opens a new FRAME with the result of CLONE-COMPONENT called on COMPONENT."))
 
 ;;;;;;
 ;;; Alternative component views
 
+;; TODO: are these really layered?
 (def (layered-function e) switch-to-alternative (component alternative)
   (:documentation "TODO"))
 

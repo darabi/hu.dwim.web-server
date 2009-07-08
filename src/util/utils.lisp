@@ -87,11 +87,14 @@
   (find-class name #f))
 
 (def (function i) class-prototype (class)
-  (case (class-name class)
+  (cond
     ;; KLUDGE: SBCL's class prototypes for built in classes are wrong in some cases
-    (float 42.0)
-    (string "42")
-    (list nil)
+    ((subtypep class 'float)
+     42.0)
+    ((subtypep class 'string)
+     "42")
+    ((subtypep class 'list)
+     nil)
     (t (closer-mop:class-prototype (ensure-finalized class)))))
 
 (def (function i) class-slots (class)

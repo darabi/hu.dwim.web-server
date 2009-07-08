@@ -37,17 +37,7 @@
 ;;;;;;
 ;;; Viewer
 
-(def methods make-value-viewer
-  (:method (value)
-    (make-viewer (class-of value) :component-value value))
-
-  (:method ((value number))
-    value)
-
-  (:method ((value string))
-    value))
-
-(def method make-viewer (type &rest args &key &allow-other-keys)
+(def layered-method make-viewer (type value &rest args &key &allow-other-keys)
   "A TYPE specifier is either
      - a primitive type name such as boolean, integer, string
      - a parameterized type specifier such as (integer 100 200) 
@@ -63,6 +53,7 @@
     (if (typep component-class 'built-in-class)
         (class-prototype component-class)
         (apply #'make-instance component-type
+               :component-value value
                (append args additional-args
                        (when (subtypep component-type 'primitive/abstract)
                          (list :the-type type)))))))
@@ -161,4 +152,5 @@
     'standard-object/viewer)
 
   (:method ((prototype standard-object))
-    'standard-object/viewer))
+    't/viewer
+    #+nil'standard-object/viewer))

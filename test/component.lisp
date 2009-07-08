@@ -521,7 +521,6 @@
                     (collapsible/widget ()
                       "SICP"
                       "Structure and Interpretation of Computer Programs"))
-                  #+nil
                   (replace-target-demo/widget "Alternator"
                     (alternator/widget ()
                       "John"

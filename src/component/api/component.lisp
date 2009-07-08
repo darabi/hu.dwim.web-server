@@ -65,9 +65,9 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Component minimal
 
-(def (component e) component/minimal (parent/mixin visibility/mixin)
+(def (component e) component/minimal (parent/mixin hideable/mixin)
   ()
-  (:documentation "A COMPONENT/MINIMAL includes a minimal set of MIXINs. It supports navigation towards the ROOT-COMPONENT in the COMPONENT-HIERARCHY with PARENT-COMPONENT-OF, it also provides VISIBILITY with HIDE-COMPONENT and SHOW-COMPONENT."))
+  (:documentation "A COMPONENT/MINIMAL includes a minimal set of MIXINs. It supports navigation towards the ROOT-COMPONENT in the COMPONENT-HIERARCHY with PARENT-COMPONENT-OF, it also provides HIDEABLE with HIDE-COMPONENT and SHOW-COMPONENT."))
 
 ;;;;;;
 ;;; Component basic
@@ -389,7 +389,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   #t)
 
 (def method hide-component ((self component))
-  (operation-not-supported "Cannot HIDE-COMPONENT ~A, you may want to subclass VISIBILITY/MIXIN"))
+  (operation-not-supported "Cannot HIDE-COMPONENT ~A, you may want to subclass HIDEABLE/MIXIN"))
 
 (def method show-component ((self component))
   (values))

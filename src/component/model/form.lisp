@@ -33,7 +33,15 @@
   <pre (:class "lisp-form viewer")
     ,(render-source-object (parse-tree-of -self-))>)
 
-{(with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)
+;;;;;;
+;;; Render lisp form
+
+(eval-always
+  (def function with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form ()
+    "Unconditionally turns off XML indent to keep original whitespaces for the XHTML pre element."
+    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)))
+
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-object (instance)
    (:method ((instance source-text:source-list))
      (render-source-list (first (source-text:source-sequence-elements instance)) instance))
@@ -54,7 +62,7 @@
    (:method :in xhtml-layer ((instance source-text:source-token))
      <span (:class "token") ,(source-text:source-object-text instance)>))}
 
-{(with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-list (first instance)
    (:method :in xhtml-layer (first (instance source-text:source-list))
      <span (:class "list") "(" ,(foreach #'render-source-object (source-text:source-sequence-elements instance)) ")">)
@@ -72,7 +80,7 @@
              ,(foreach #'render-source-object (cdddr (source-text:source-sequence-elements instance)))
              ")">)))}
 
-{(with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-symbol (value instance)
    (:method :in xhtml-layer (value (instance source-text:source-symbol))
      (bind ((style-class (cond ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))
@@ -122,9 +130,9 @@
     (icon evaluate-form)
     (make-component-action component
       (setf (result-of component)
-            (make-value-viewer (handler-case (evaluate-form component class prototype value)
-                                 (error (e)
-                                   (make-value-viewer e))))))))
+            (handler-case (make-value-viewer (evaluate-form component class prototype value))
+              (error (e)
+                (make-value-viewer e)))))))
 
 (def (layered-function e) evaluate-form (component class prototype value)
   (:method ((component lisp-form/invoker) class prototype value)

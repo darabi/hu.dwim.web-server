@@ -37,10 +37,7 @@
 ;;;;;;
 ;;; Inspector
 
-(def method make-value-inspector (value)
-  (make-inspector (class-of value) :component-value value))
-
-(def method make-inspector (type &rest args &key &allow-other-keys)
+(def layered-method make-inspector (type value &rest args &key &allow-other-keys)
   "A TYPE specifier is either
      - a primitive type name such as boolean, integer, string
      - a parameterized type specifier such as (integer 100 200) 
@@ -53,6 +50,7 @@
     (unless (subtypep component-type 'alternator/basic)
       (remove-from-plistf args :initial-alternative-type))
     (apply #'make-instance component-type
+           :component-value value
            (append args additional-args
                    (when (subtypep component-type 'primitive/abstract)
                      (list :the-type type))))))

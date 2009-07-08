@@ -224,7 +224,7 @@
                                              (:file "top")
                                              (:file "tree")
                                              (:file "value")
-                                             (:file "visibility")
+                                             (:file "hideable")
                                              (:file "title" :depends-on ("refreshable"))
                                              (:file "id" :depends-on ("refreshable"))
                                              (:file "remote" :depends-on ("id"))
@@ -247,6 +247,7 @@
                                 :depends-on ("mixin"))
                                (:module "widget"
                                 :components ((:file "widget")
+                                             (:file "alternator")
                                              (:file "border")
                                              (:file "content")
                                              (:file "external-link")

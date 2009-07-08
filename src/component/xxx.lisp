@@ -97,25 +97,25 @@
 ;;;;;;
 ;;; Command
 
-(def layered-method make-hide-command ((component visibility/mixin) class prototype value)
+(def layered-method make-hide-command ((component hideable/mixin) class prototype value)
   (command ()
     (icon hide-component)
     (make-component-action component
       (hide-component component))))
 
-(def layered-method make-show-command ((component visibility/mixin) class prototype value)
+(def layered-method make-show-command ((component hideable/mixin) class prototype value)
   (command ()
     (icon show-component)
     (make-component-action component
       (show-component component))))
 
-(def layered-method make-show-component-recursively-command ((component visibility/mixin) class prototype value)
+(def layered-method make-show-component-recursively-command ((component hideable/mixin) class prototype value)
   (command ()
     (icon show-component)
     (make-component-action component
       (show-component-recursively component))))
 
-(def layered-method make-toggle-visiblity-command ((component visibility/mixin) class prototype value)
+(def layered-method make-toggle-visiblity-command ((component hideable/mixin) class prototype value)
   (command ()
     (if (visible-component? component)
         (icon hide-component)
@@ -125,7 +125,7 @@
           (hide-component component)
           (show-component component)))))
 
-(def layered-method make-context-menu-items ((component visibility/mixin) class prototype value)
+(def layered-method make-context-menu-items ((component hideable/mixin) class prototype value)
   (list* (menu-item ()
              (icon menu :label "Show/Hide")
            (make-hide-command component class prototype value)

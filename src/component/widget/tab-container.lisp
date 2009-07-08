@@ -5,33 +5,17 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tab page
+;;; Tab page widget
 
-(def (component e) tab-page ()
-  ()
-  (:documentation "A TAB-PAGE base class."))
-
-(def (macro e) tab-page ((&rest args &key &allow-other-keys) &body content)
-  `(tab-page/widget ,args ,@content))
-
-;;;;;;
-;;; Tab page abstract
-
-(def (component e) tab-page/abstract (tab-page widget/abstract content/abstract)
+(def (component e) tab-page/widget (widget/basic content/abstract)
   ((selector (icon switch-to-tab-page) :type component))
   (:documentation "A TAB-PAGE with a SELECTOR."))
 
-(def render-component tab-page/abstract
-  (render-content-for -self-))
-
-;;;;;;
-;;; Tab page widget
-
-(def (component e) tab-page/widget (tab-page/abstract widget/basic)
-  ())
-
 (def (macro e) tab-page/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'tab-page/widget ,@args :content ,(the-only-element content)))
+
+(def render-component tab-page/widget
+  (render-content-for -self-))
 
 ;;;;;;
 ;;; Tab page selector bar widget
@@ -61,9 +45,6 @@
 
 (def (macro e) tab-container/widget ((&rest args &key &allow-other-keys) &body tab-pages)
   `(make-instance 'tab-container/widget ,@args :content nil :tab-pages (optional-list ,@tab-pages)))
-
-(def (macro e) tab-container ((&rest args &key &allow-other-keys) &body content)
-  `(tab-container/widget ,args ,@content))
 
 (def render-xhtml tab-container/widget
   (bind (((:read-only-slots content tab-page-selector-bar) -self-))

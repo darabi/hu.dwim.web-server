@@ -14,4 +14,6 @@
   (image/widget image)
   (splitter/widget splitter)
   (wrapper/widget wrapper)
-  (top/widget top))
+  (top/widget top)
+  (tab-container/widget tab-container)
+  (tab-page/widget tab-page))

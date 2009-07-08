@@ -27,5 +27,5 @@
   (with-render-style/abstract (-self-)
     #+nil(delegate-render -self- (class-prototype 'context-menu/mixin))
     (render-component (title-of -self-))
-    #+nil(delegate-render -self- (class-prototype 'visibility/mixin))
+    #+nil(delegate-render -self- (class-prototype 'hideable/mixin))
     #+nil(delegate-render -self- (class-prototype 'collapsible/mixin))))

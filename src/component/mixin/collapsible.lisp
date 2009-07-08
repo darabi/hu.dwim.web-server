@@ -8,7 +8,13 @@
 ;;; Collapsible mixin
 
 (def (component e) collapsible/mixin ()
-  ((expanded-component
+  ((collapsible-component
+    #t
+    :type boolean
+    :initarg :collapsible
+    :computed-in compute-as
+    :documentation "TRUE means COMPONENT can be EXPANDED/COLLAPSED, FALSE otherwise.")
+   (expanded-component
     #t
     :type boolean
     :initarg :expanded

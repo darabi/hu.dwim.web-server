@@ -8,7 +8,12 @@
 ;;; Editable mixin
 
 (def (component e) editable/mixin ()
-  ((edited-component
+  ((editable-component
+    #t
+    :type boolean
+    :initarg :editable
+    :documentation "TRUE means COMPONENT can be edited, FALSE otherwise.")
+   (edited-component
     #f
     :type boolean
     :initarg :edited

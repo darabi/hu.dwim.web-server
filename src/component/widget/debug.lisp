@@ -52,19 +52,19 @@
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Server"
-            (make-inspector *server*)))
+            (make-value-inspector *server*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Application"
-            (make-inspector *application*)))
+            (make-value-inspector *application*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Session"
-            (make-inspector *session*)))
+            (make-value-inspector *session*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Frame"
-            (make-inspector *frame*))))
+            (make-value-inspector *frame*))))
     (menu-item/widget ()
         "Miscellaneous"
       (menu-item/widget ()
