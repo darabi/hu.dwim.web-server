@@ -17,16 +17,16 @@
 (def refresh-component demo/widget
   (bind (((:slots form content) -self-)
          (component (eval form)))
-    (setf content (tab-container ()
-                    (tab-page (:selector (icon switch-to-tab-page :label "Demo"))
+    (setf content (tab-container/widget ()
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Demo"))
                       component)
-                    (tab-page (:selector (icon switch-to-tab-page :label "Source"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Source"))
                       (make-instance 'lisp-form/viewer :component-value (make-lisp-form-component-value form)))
-                    (tab-page (:selector (icon switch-to-tab-page :label "XHTML"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "XHTML"))
                       ;; TODO: make a component/xhtml-source/viewer
                       (quoted-xhtml-content/widget ()
                         (render-to-xhtml-string component)))
-                    (tab-page (:selector (icon switch-to-tab-page :label "Documentation"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation"))
                       "TODO"
                       #+nil
                       (standard-object/inspector ()
