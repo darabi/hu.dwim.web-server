@@ -36,7 +36,7 @@
    (client-state-sink-id->client-state-sink (make-hash-table :test 'equal))
    (action-id->action (make-hash-table :test 'equal))
    (root-component nil :export #t)
-   (debug-component-hierarchy #f :type boolean)
+   (debug-component-hierarchy #f :accessor debug-component-hierarchy? :type boolean)
    (valid #t :accessor is-frame-valid? :export :accessor)))
 
 (def print-object (frame :identity #t :type #f)

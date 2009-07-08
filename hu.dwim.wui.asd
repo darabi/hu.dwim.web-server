@@ -247,7 +247,6 @@
                                 :depends-on ("mixin"))
                                (:module "widget"
                                 :components ((:file "widget")
-                                             (:file "alternator")
                                              (:file "border")
                                              (:file "content")
                                              (:file "external-link")
@@ -259,6 +258,7 @@
                                              (:file "graph")
                                              (:file "message")
                                              (:file "path")
+                                             (:file "reference")
                                              (:file "scroll")
                                              (:file "scroll-bar")
                                              (:file "splitter")
@@ -268,6 +268,7 @@
                                              (:file "top" :depends-on ("message"))
                                              (:file "tree")
                                              (:file "tree-level")
+                                             (:file "alternator" :depends-on ("reference"))
                                              (:file "frame" :depends-on ("top"))
                                              (:file "command" :depends-on ("icon"))
                                              (:file "command-bar" :depends-on ("command"))
@@ -288,8 +289,7 @@
                                               (:file "table")
                                               (:file "node"))
                                              #+nil
-                                             ((:file "alternator")
-                                              (:file "authentication")
+                                             ((:file "authentication")
                                               (:file "expression")
                                               (:file "extended-table")
                                               (:file "field")

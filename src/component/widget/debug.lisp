@@ -7,8 +7,8 @@
 ;;;;;;
 ;;; Debug menu
 
-(def (function e) reset-frame-root-component ()
-  (setf (root-component-of *frame*) nil))
+(def (function e) reset-root-component (frame)
+  (setf (root-component-of frame) nil))
 
 (def (function e) toggle-running-in-test-mode (application)
   (notf (running-in-test-mode? application)))
@@ -16,13 +16,13 @@
 (def (function e) toggle-ajax-enabled (application)
   (notf (ajax-enabled? application)))
 
-(def (function e) toggle-profile-request-processing (&optional (server *server*))
+(def (function e) toggle-profile-request-processing (server)
   (notf (profile-request-processing? server)))
 
-(def (function e) toggle-debug-component-hierarchy (&optional (frame *frame*))
-  (notf (debug-component-hierarchy-p frame)))
+(def (function e) toggle-debug-component-hierarchy (frame)
+  (notf (debug-component-hierarchy? frame)))
 
-(def (function e) toggle-debug-client-side (&optional (frame *frame*))
+(def (function e) toggle-debug-client-side (frame)
   (notf (debug-client-side? (root-component-of frame))))
 
 (def (function e) make-debug-menu-item ()
@@ -31,28 +31,28 @@
     (menu-item/widget ()
         (command/widget (:send-client-state #f)
           "Start over"
-          (make-action (reset-frame-root-component))))
+          (make-action (reset-root-component *frame*))))
     (menu-item/widget ()
         "Toggle"
       (menu-item/widget ()
           (command/widget ()
             "Test mode"
-            (make-action (toggle-running-in-test-mode))))
+            (make-action (toggle-running-in-test-mode *application*))))
       (menu-item/widget ()
           (command/widget ()
             "Profiling"
-            (make-action (toggle-profile-request-processing))))
+            (make-action (toggle-profile-request-processing *server*))))
       (menu-item/widget ()
           (command/widget ()
             "Hierarchy"
-            (make-action (toggle-debug-component-hierarchy))))
+            (make-action (toggle-debug-component-hierarchy *frame*))))
       (menu-item/widget ()
           (command/widget ()
             "Debug client side"
-            (make-action (toggle-debug-client-side))))
+            (make-action (toggle-debug-client-side *frame*))))
       (menu-item/widget ()
           (command/widget ()
-            "Toggle AJAX"
+            "Ajax"
             (make-action (toggle-ajax-enabled *application*)))))
     (menu-item/widget ()
         "Inspect"

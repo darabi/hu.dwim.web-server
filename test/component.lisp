@@ -794,7 +794,7 @@
 (def entry-point (*demo-application* :path "session-info" :priority 1000) ()
   (if *session*
       (progn
-        (setf (root-component-of *frame*) (make-viewer *session*))
+        (setf (root-component-of *frame*) (make-value-viewer *session*))
         (if (wui::find-frame-for-request *session*)
             (make-root-component-rendering-response *frame*)
             (make-redirect-response-for-current-application "session-info")))

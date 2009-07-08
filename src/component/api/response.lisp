@@ -59,7 +59,7 @@
   (bind ((*frame* (frame-of self))
          (*session* (session-of self))
          (*application* (application-of self))
-         (*debug-component-hierarchy* (if *frame* (debug-component-hierarchy-p *frame*) *debug-component-hierarchy*))
+         (*debug-component-hierarchy* (if *frame* (debug-component-hierarchy? *frame*) *debug-component-hierarchy*))
          (*ajax-aware-request* (ajax-aware-request?))
          (*delayed-content-request* (or *ajax-aware-request*
                                         (delayed-content-request?)))
