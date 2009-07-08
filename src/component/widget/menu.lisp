@@ -18,7 +18,7 @@
 
 (def (component e) menu-bar/widget (menu/abstract widget/basic)
   ()
-  (:documentation "A MENU that is always shown."))
+  (:documentation "A MENU that is always shown immediately presenting a list of MENU-ITEMs."))
 
 (def (macro e) menu-bar/widget ((&rest args &key &allow-other-keys) &body menu-items)
   `(make-instance 'menu-bar/widget ,@args :menu-items (list ,@menu-items)))

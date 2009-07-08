@@ -426,6 +426,13 @@
                     "Layout"
                   (replace-target-demo/widget "Empty"
                     (empty/layout))
+                  (replace-target-demo/widget "Alternator"
+                    ;; a layout does not have behavior, so switching between alternative is only possible programatically
+                    (alternator/layout ()
+                      "John"
+                      "Mary"
+                      "Steve"
+                      "Kate"))
                   (replace-target-demo/widget "Vertical List"
                     (vertical-list/layout ()
                       "John"
@@ -456,13 +463,6 @@
                       "Steve "
                       "Kate "
                       "Fred "))
-                  (replace-target-demo/widget "Alternator"
-                    ;; a layout does not have behavior, so switching between alternative is only possible programatically
-                    (alternator/layout ()
-                      "John"
-                      "Mary"
-                      "Steve"
-                      "Kate"))
                   (replace-target-demo/widget "Table"
                     (table/layout ()
                       (row/layout ()
@@ -513,6 +513,7 @@
                         "Kate"))))
                 (node/widget (:expanded #f)
                     "Widget"
+                  ;; TODO: this must not be a widget
                   (replace-target-demo/widget "External link"
                     (external-link/widget ()
                       "http://wikipedia.org"
@@ -640,21 +641,21 @@
                                    :node "Dél-magyarországi régió")))
                 (node/widget (:expanded #f)
                     "Chart"
-                  (replace-target-demo/widget "Pie"
-                    "TODO")
                   (replace-target-demo/widget "Column"
                     "TODO")
+                  (replace-target-demo/widget "Flow"
+                    "TODO")
                   (replace-target-demo/widget "Line"
+                    "TODO")
+                  (replace-target-demo/widget "Pie"
                     "TODO")
                   (replace-target-demo/widget "Radar"
                     "TODO")
                   (replace-target-demo/widget "Stock"
                     "TODO")
-                  (replace-target-demo/widget "XY"
-                    "TODO")
                   (replace-target-demo/widget "Structure"
                     "TODO")
-                  (replace-target-demo/widget "Flow"
+                  (replace-target-demo/widget "XY"
                     "TODO"))
                 (node/widget (:expanded #f)
                     "Book"

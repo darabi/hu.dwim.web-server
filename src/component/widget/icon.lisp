@@ -88,7 +88,7 @@
   (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
 
 ;;;;;;
-;;; Icon
+;;; Definer
 
 (def (macro e) icon (name &rest args)
   `(icon/widget ,name ,@args))

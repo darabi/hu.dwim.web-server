@@ -11,7 +11,7 @@
   ((content
     nil
     :type (or null component)
-    :documentation "The content of is single COMPONENT."))
+    :documentation "The content is a single COMPONENT."))
   (:documentation "A COMPONENT that has another COMPONENT inside."))
 
 (def (function e) render-content-for (component)

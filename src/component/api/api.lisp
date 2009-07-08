@@ -4,6 +4,8 @@
 
 (in-package :hu.dwim.wui)
 
+;; TODO: move some not so generic functions from this file to the place their methods are first defined
+
 ;;;;;;
 ;;; Component factories for types
 
