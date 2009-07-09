@@ -8,7 +8,7 @@
 ;;; Tree widget
 
 (def (component e) tree/widget (tree/abstract
-                                widget/basic
+                                widget/style
                                 collapsible/mixin
                                 selection/mixin
                                 frame-unique-id/mixin)
@@ -29,9 +29,9 @@
         (setf root-nodes (mapcar [make-tree/root-node -self- dispatch-class dispatch-prototype !1] component-value)))))
 
 (def render-xhtml tree/widget
-  (bind (((:read-only-slots id root-nodes) -self-))
-    <div (:id ,id :class "tree widget")
-      ,(foreach #'render-component root-nodes)>))
+  (bind (((:read-only-slots root-nodes) -self-))
+    (with-render-style/abstract (-self-)
+      (foreach #'render-component root-nodes))))
 
 (def (generic e) find-tree/parent (component class prototype value)
   ;; KLUDGE: to allow instantiating widget without componente-value

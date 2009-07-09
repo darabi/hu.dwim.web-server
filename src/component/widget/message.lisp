@@ -78,10 +78,6 @@
   (with-render-style/abstract (-self-)
     (render-content-for -self-)))
 
-(def layered-method render-remote-setup :in xhtml-layer ((self component-message/widget))
-  `js(on-load (wui.setup-component ,(id-of self) ,(instance-class-name-as-string self)
-                                   (create :css-class ,(style-class-of self)))))
-
 (def layered-method make-close-component-command ((component component-message/widget) class prototype value)
   (when (permanent? component)
     (call-next-method)))

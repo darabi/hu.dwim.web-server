@@ -30,7 +30,7 @@
 ;;;;;;
 ;;; Tab container widget
 
-(def (component e) tab-container/widget (widget/basic content/abstract)
+(def (component e) tab-container/widget (widget/style content/abstract)
   ((tab-pages :type components)
    (tab-page-selector-bar :type component))
   (:documentation "A TAB-CONTAINER/WIDGET allows the user to select between its TAB-PAGE/WIDGETs."))
@@ -48,9 +48,9 @@
 
 (def render-xhtml tab-container/widget
   (bind (((:read-only-slots content tab-page-selector-bar) -self-))
-    <div (:class "tab-container")
-      ,(render-component tab-page-selector-bar)
-      ,(render-component content)>))
+    (with-render-style/abstract (-self-)
+      (render-component tab-page-selector-bar)
+      (render-component content))))
 
 (def (generic e) find-default-tab-page (component)
   (:method ((self tab-container/widget))

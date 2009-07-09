@@ -715,11 +715,17 @@
             (dojo.place table-element next-sibling "before")
             (dojo.place table-element parent-element))))))
 
-(wui.register-component-setup "component-message/widget" (lambda (id &key css-class)
-                                                           (wui.attach-border id css-class)))
+;;;;;;
+;;; Style
 
-(dolist (entry #(#("title-bar/widget" "title-border")
-                 #("column/widget"    "table-header-border")))
+;; TODO: move this to the test directory since it is specific to the demo
+(wui.register-component-setup "component-message/widget" (lambda (id)
+                                                           (wui.attach-border id (slot-value (dojo.byId id) 'className))))
+
+(dolist (entry #(#("title-bar/widget"        "title-border")
+                 #("column/widget"           "table-header-border")
+                 #("tab-container/widget"    "box-border")
+                 #("tree/widget"             "box-border")))
   (bind ((type (first entry))
          (css-class (second entry)))
     (unless (dojo.isArray css-class)
