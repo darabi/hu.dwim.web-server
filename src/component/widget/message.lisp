@@ -72,12 +72,15 @@
 
 (def refresh-component component-message/widget
   (bind (((:slots category style-class) -self-))
-    (unless style-class
-      (setf style-class (concatenate-string (string-downcase category) "-message")))))
+    (setf style-class (concatenate-string (string-downcase category) "-message"))))
 
 (def render-xhtml component-message/widget
   (with-render-style/abstract (-self-)
     (render-content-for -self-)))
+
+(def layered-method render-remote-setup :in xhtml-layer ((self component-message/widget))
+  `js(on-load (wui.setup-component ,(id-of self) ,(instance-class-name-as-string self)
+                                   (create :css-class ,(style-class-of self)))))
 
 (def layered-method make-close-component-command ((component component-message/widget) class prototype value)
   (when (permanent? component)

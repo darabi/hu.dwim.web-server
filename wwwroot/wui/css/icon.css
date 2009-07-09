@@ -1,3 +1,5 @@
+/* for all icons */
+
 .icon {
   width: 24px;
   height: 24px;
@@ -8,6 +10,8 @@
   background-repeat: no-repeat;
   background-position: left center;
 }
+
+/* authentication */
 
 .login-icon {
   background-image: url("/static/wui/icon/20x20/green-checkmark.png");
@@ -32,6 +36,8 @@
 .refresh-component-icon {
   background-image: url("/static/wui/icon/20x20/ying-yang-arrows.png");
 }
+
+/* editable */
 
 .edit-icon {
   background-image: url("/static/wui/icon/20x20/pen-on-document.png");
@@ -85,16 +91,6 @@
   background-image: url("/static/wui/icon/20x20/green-double-left-arrow.png");
 }
 
-.expand-component-icon {
-  background-image: url("/static/wui/icon/20x20/arrowhead-right.png");
-  padding-left: 1em;
-}
-
-.collapse-component-icon {
-  background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
-  padding-left: 1em;
-}
-
 .expand-reference-icon {
   background-image: url("/static/wui/icon/20x20/magnifier-plus.png");
 }
@@ -103,21 +99,53 @@
   background-image: url("/static/wui/icon/20x20/magnifier-minus.png");
 }
 
-.first-icon {
-  background-image: url("/static/wui/icon/20x20/vcr-begin.png");
+/* collapsible */
+
+.collapse-component-icon {
+  background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
+  padding-left: 1em;
 }
 
-.previous-icon {
-  background-image: url("/static/wui/icon/20x20/vcr-backward.png");
+.expand-component-icon {
+  background-image: url("/static/wui/icon/20x20/arrowhead-right.png");
+  padding-left: 1em;
 }
 
-.next-icon {
-  background-image: url("/static/wui/icon/20x20/vcr-forward.png");
+/* page-navigation-bar */
+
+.go-to-first-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-first.png");
 }
 
-.last-icon {
-  background-image: url("/static/wui/icon/20x20/vcr-end.png");
+.disabled .go-to-first-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-first-disabled.png");
 }
+
+.go-to-previous-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-previous.png");
+}
+
+.disabled .go-to-previous-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-previous-disabled.png");
+}
+
+.go-to-next-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-next.png");
+}
+
+.disabled .go-to-next-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-next-disabled.png");
+}
+
+.go-to-last-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-last.png");
+}
+
+.disabled .go-to-last-page-icon {
+  background-image: url("/static/wui/icon/24x24/page-last-disabled.png");
+}
+
+/* filter */
 
 .use-in-filter {
   background-image: url("/static/wui/icon/20x20/checkmark.png");
@@ -292,37 +320,37 @@
 */
 
 .predicate-equal {
-  background-image: url("/static/themes/nafi42/icon/17x17/operator-equal.png");
+  background-image: url("/static/wui/icon/17x17/operator-equal.png");
   width: 17px;
   height: 17px;
 }
 
 .predicate-like {
-  background-image: url("/static/themes/nafi42/icon/17x17/operator-similar.png");
+  background-image: url("/static/wui/icon/17x17/operator-similar.png");
   width: 17px;
   height: 17px;
 }
 
 .predicate-less-than {
-  background-image: url("/static/themes/nafi42/icon/17x17/operator-less.png");
+  background-image: url("/static/wui/icon/17x17/operator-less.png");
   width: 17px;
   height: 17px;
 }
 
 .predicate-less-than-or-equal {
-  background-image: url("/static/themes/nafi42/icon/17x17/operator-less-equal.png");
+  background-image: url("/static/wui/icon/17x17/operator-less-equal.png");
   width: 17px;
   height: 17px;
 }
 
 .predicate-greater-than {
-  background-image: url("/static/themes/nafi42/icon/17x17/operator-greater.png");
+  background-image: url("/static/wui/icon/17x17/operator-greater.png");
   width: 17px;
   height: 17px;
 }
 
 .predicate-greater-than-or-equal {
-  background-image: url("/static/themes/nafi42/icon/17x17/operator-greater-equal.png");
+  background-image: url("/static/wui/icon/17x17/operator-greater-equal.png");
   width: 17px;
   height: 17px;
 }

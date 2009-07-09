@@ -779,7 +779,7 @@ table.frame-size-breakdown > tbody > tr > td.delta
   font-weight: bold;
 }
 
-/* messages */
+/* error message */
 
 .error-message 
 {
@@ -857,6 +857,8 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image : url( '/static/wui/image/error-box/border-center-right.png' );
   background-repeat : repeat-y;
 }
+
+/* warning message */
 
 .warning-message 
 {
@@ -937,6 +939,8 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-repeat : repeat-y;
 }
 
+/* information message */
+
 .information-message 
 {
   color: white;
@@ -1014,7 +1018,7 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-repeat : repeat-y;
 }
 
-/* command (aka. button) */
+/* command-bar */
 
 .command-bar .command
 {

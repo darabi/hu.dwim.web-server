@@ -670,7 +670,65 @@
       (clearTimeout wui.help.timer)
       (setf wui.help.timer nil))))
 
+;;;;;;
+;;; border & style
 
+(defun wui.attach-border ((element :by-id) css-class)
+  (bind ((parent-element element.parentNode)
+         (next-sibling element.nextSibling)
+         (table-element (create-dom-node "table")))
+    (if (dojo.isArray css-class)
+        (dolist (one-class css-class)
+          (dojo.addClass table-element one-class))
+        (dojo.addClass table-element css-class))
+    (progn
+      ;; KLUDGE: we copy the id on the border not to confuse ajax what should be replaced
+      (setf table-element.id element.id)
+      (setf element.id ""))
+    (flet ((create-dummy-div ()
+             (bind ((result (document.createElement "div")))
+               (dojo.addClass result "decoration")
+               (return result)))
+           (create-row (row-kind)
+             (with-dom-nodes ((row-kind-element (+ "t" row-kind))
+                              (row-element "tr")
+                              (left-cell-element "td" :class "border-left")
+                              (cell-element "td" :class "border-center")
+                              (right-cell-element "td" :class "border-right"))
+               (when (= row-kind "head")
+                 (dojo.place (create-dummy-div) left-cell-element "only")
+                 (dojo.place (create-dummy-div) right-cell-element "only"))
+               (when (= row-kind "body")
+                 (dojo.place (create-dummy-div) left-cell-element "only")
+                 (dojo.place (create-dummy-div) right-cell-element "only"))
+               (dojo.place row-kind-element table-element)
+               (dojo.place row-element row-kind-element)
+               (dojo.place left-cell-element row-element)
+               (dojo.place cell-element row-element)
+               (dojo.place right-cell-element row-element)
+               (return cell-element))))
+      (create-row "head")
+      (bind ((cell-element (create-row "body")))
+        (create-row "foot")
+        (dojo.place element cell-element)
+        (if next-sibling
+            (dojo.place table-element next-sibling "before")
+            (dojo.place table-element parent-element))))))
 
+(wui.register-component-setup "component-message/widget" (lambda (id &key css-class)
+                                                           (wui.attach-border id css-class)))
+
+(dolist (entry #(#("title-bar/widget" "title-border")))
+  (bind ((type (first entry))
+         (css-class (second entry)))
+    (unless (dojo.isArray css-class)
+      (setf css-class (array css-class)))
+    (rebind (css-class)
+      (log.debug "Registering component setup callback for type " type)
+      (wui.register-component-setup type (lambda (id)
+                                           (wui.attach-border id css-class))))))
+
+;;;;;;
+;;; End of story
 
 (log.debug "Finished evaluating wui.js")

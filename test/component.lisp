@@ -643,6 +643,15 @@
                                                     (icon refresh-component)
                                                     (make-action))))
                       "John"))
+                  (replace-target-demo/widget "Information message"
+                    (component-message/widget (:category :information)
+                      "John has been added to the list of males"))
+                  (replace-target-demo/widget "Warning message"
+                    (component-message/widget (:category :warning)
+                      "John has been alreay added to the list of males"))
+                  (replace-target-demo/widget "Error message"
+                    (component-message/widget (:category :error)
+                      "Cannot add John to the list of females, he is a male"))
                   (replace-target-demo/widget "Table"
                     (table/widget (:columns (list (column/widget ()
                                                     "Male")
