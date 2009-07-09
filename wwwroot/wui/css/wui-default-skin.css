@@ -107,18 +107,6 @@ a.external-link
   background-color: #bbbbbb;
 }
 
-.selected.highlighted {
-  background-color: #bbbbbb;
-}
-
-.selected.highlighted.odd {
-  background-color: #bbbbbb;
-}
-
-.selected.highlighted.even {
-  background-color: #bbbbbb;
-}
-
 .highlighted {
   background-color: #ffee88;
 }
@@ -129,6 +117,36 @@ a.external-link
 
 .highlighted.even {
   background-color: #ccffff;
+}
+
+.highlighted.selected {
+  background-color: #ffee88;
+}
+
+.highlighted.selected.odd {
+  background-color: #ddddff;
+}
+
+.highlighted.selected.even {
+  background-color: #ccffff;
+}
+
+/* list */
+
+.list.widget
+{
+  border-collapse: collapse;
+  border-style: solid;
+  border-width: 1px;
+}
+
+/* tree */
+
+.tree.widget
+{
+  border-collapse: collapse;
+  border-style: solid;
+  border-width: 1px;
 }
 
 /* table */
@@ -317,9 +335,7 @@ table.extended-table > tbody > tr > td.total
   border-width: 1px;
 }
 
-/*
-  command bar
-*/
+/* command bar */
 
 .command-bar a
 {
@@ -500,10 +516,12 @@ table.frame-size-breakdown > tbody > tr > td.delta
 
 .expand-component-icon {
   background-image: url("/static/wui/icons/20x20/arrowhead-right.png");
+  padding-left: 1em;
 }
 
 .collapse-component-icon {
   background-image: url("/static/wui/icons/20x20/arrowhead-down.png");
+  padding-left: 1em;
 }
 
 .expand-reference-icon {

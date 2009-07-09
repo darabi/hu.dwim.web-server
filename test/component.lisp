@@ -421,7 +421,7 @@
           (horizontal-list/layout ()
             (tree/widget ()
               (node/widget ()
-                  "Components"
+                  "Component"
                 (node/widget (:expanded #f)
                     "Immediate"
                   (replace-target-demo/widget "Number"
@@ -636,9 +636,20 @@
                         (inline-render-xhtml/widget ()
                           <span "Last command: " ,s>))))
                   (replace-target-demo/widget "Push button"
-                    "TODO")
+                    (push-button/widget ()
+                      (command ()
+                        (icon refresh-component)
+                        (make-action))))
                   (replace-target-demo/widget "Toggle button"
-                    "TODO")
+                    (toggle-button/widget ()
+                      (command ()
+                        (icon refresh-component)
+                        (make-action))))
+                  (replace-target-demo/widget "Drop down button"
+                    (drop-down-button/widget ()
+                      (command ()
+                        (icon refresh-component)
+                        (make-action))))
                   (replace-target-demo/widget "List"
                     (list/widget ()
                       (element/widget ()
@@ -649,6 +660,22 @@
                         "Steve")
                       (element/widget ()
                         "Kate")))
+                  (replace-target-demo/widget "Name value list"
+                    (name-value-list/widget ()
+                      (name-value-group/widget (:title "Name")
+                        (name-value-pair/widget ()
+                          "First Name"
+                          "John")
+                        (name-value-pair/widget ()
+                          "Last Name"
+                          "Doe"))
+                      (name-value-group/widget (:title "Other")
+                        (name-value-pair/widget ()
+                          "Sex"
+                          "Male")
+                        (name-value-pair/widget ()
+                          "Age"
+                          "34"))))
                   (replace-target-demo/widget "Table"
                     "TODO"
                     #+nil
@@ -732,11 +759,11 @@
                     "TODO")
                   (replace-target-demo/widget "Radar"
                     "TODO")
+                  (replace-target-demo/widget "Scatter"
+                    "TODO")
                   (replace-target-demo/widget "Stock"
                     "TODO")
                   (replace-target-demo/widget "Structure"
-                    "TODO")
-                  (replace-target-demo/widget "XY"
                     "TODO"))
                 (node/widget (:expanded #f)
                     "Book"

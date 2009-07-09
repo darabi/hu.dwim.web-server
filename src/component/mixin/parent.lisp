@@ -42,7 +42,8 @@
                (setf (parent-component) key)))))))
 
 (def method child-component-slot? ((self parent/mixin) (slot standard-effective-slot-definition))
-  (not (eq (slot-definition-name slot) 'parent-component)))
+  (and (not (eq (slot-definition-name slot) 'parent-component))
+       (call-next-method)))
 
 (def method add-component-message ((component parent/mixin) message message-args &rest initargs)
   (apply #'add-component-message (parent-component-of component) message message-args initargs))

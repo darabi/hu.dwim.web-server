@@ -248,6 +248,7 @@
                                (:module "widget"
                                 :components ((:file "widget")
                                              (:file "border")
+                                             (:file "button")
                                              (:file "content")
                                              (:file "external-link")
                                              (:file "field")
@@ -257,6 +258,7 @@
                                              (:file "list")
                                              (:file "graph")
                                              (:file "message")
+                                             (:file "name-value")
                                              (:file "path")
                                              (:file "reference")
                                              (:file "scroll")
@@ -303,13 +305,13 @@
                                (:module "chart"
                                 :components ((:file "chart")
                                              (:file "column" :depends-on ("chart"))
-                                             (:file "structure" :depends-on ("chart"))
                                              (:file "flow" :depends-on ("chart"))
                                              (:file "line" :depends-on ("chart"))
                                              (:file "pie" :depends-on ("chart"))
                                              (:file "radar" :depends-on ("chart"))
+                                             (:file "scatter" :depends-on ("chart"))
                                              (:file "stock" :depends-on ("chart"))
-                                             (:file "xy" :depends-on ("chart")))
+                                             (:file "structure" :depends-on ("chart")))
                                 :depends-on ("widget"))
                                (:module "meta"
                                 :components ((:file "maker")

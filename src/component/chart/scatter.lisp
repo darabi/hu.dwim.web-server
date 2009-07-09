@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; XY chart
+;;; Scatter chart
 
-(def (component e) xy/chart (chart/abstract)
+(def (component e) scatter/chart (chart/abstract)
   ())
 
-(def render-xhtml xy/chart
+(def render-xhtml scatter/chart
   (render-chart -self- "amxy"))

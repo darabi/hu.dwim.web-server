@@ -81,7 +81,7 @@
 ;;; Context menu widget
 
 (def (component e) context-menu/widget (popup-menu/widget)
-  ((content (icon show-context-menu))
+  ((content (empty/layout))
    (target nil :type t))
   (:documentation "A CONTEXT-MENU/WIDGET is a special POPUP-MENU/WIDGET that is attached to another COMPONENT as its CONTEXT-MENU."))
 
