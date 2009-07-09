@@ -7,23 +7,28 @@
 ;;;;;;
 ;;; Debug menu
 
-(def (function e) reset-root-component (&optional (frame *frame*))
-  (setf (root-component-of frame) nil))
+(def (function e) toggle-profile-request-processing (&optional (server *server*))
+  (notf (profile-request-processing? server)))
 
 (def (function e) toggle-running-in-test-mode (&optional (application *application*))
   (notf (running-in-test-mode? application)))
 
+(def (function e) toggle-debug-server-side (&optional (application *application*))
+  (if (slot-boundp application 'debug-on-error)
+      (notf (slot-value application 'debug-on-error))
+      (setf (slot-value application 'debug-on-error) (not *debug-on-error*))))
+
 (def (function e) toggle-ajax-enabled (&optional (application *application*))
   (notf (ajax-enabled? application)))
-
-(def (function e) toggle-profile-request-processing (&optional (server *server*))
-  (notf (profile-request-processing? server)))
 
 (def (function e) toggle-debug-component-hierarchy (&optional (frame *frame*))
   (notf (debug-component-hierarchy? frame)))
 
 (def (function e) toggle-debug-client-side (&optional (frame *frame*))
   (notf (debug-client-side? (root-component-of frame))))
+
+(def (function e) reset-root-component (&optional (frame *frame*))
+  (setf (root-component-of frame) nil))
 
 (def (function e) make-debug-menu-item ()
   (menu-item/widget ()
@@ -40,16 +45,20 @@
             (make-action (toggle-running-in-test-mode))))
       (menu-item/widget ()
           (command/widget ()
+            "Debug server side (globally)"
+            (make-action (notf *debug-on-error*))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Debug client side (in this frame)"
+            (make-action (toggle-debug-client-side))))
+      (menu-item/widget ()
+          (command/widget ()
             "Profiling"
             (make-action (toggle-profile-request-processing))))
       (menu-item/widget ()
           (command/widget ()
             "Hierarchy"
             (make-action (toggle-debug-component-hierarchy))))
-      (menu-item/widget ()
-          (command/widget ()
-            "Debug client side"
-            (make-action (toggle-debug-client-side))))
       (menu-item/widget ()
           (command/widget ()
             "Ajax"
