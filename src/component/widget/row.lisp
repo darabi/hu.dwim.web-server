@@ -5,41 +5,19 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Row header abstract
-
-(def (component e) row-header/abstract ()
-  ((cell-factory :type (or null function))))
-
-;;;;;;
-;;; Row header widget
-
-(def (component e) row-header/widget (row-header/abstract style/abstract content/mixin)
-  ())
-
-(def (macro e) row ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'row-header/widget ,@args :content ,(the-only-element content)))
-
-(def render-xhtml row-header/abstract
-  (with-render-style/abstract (-self- :element-name "th")
-    (call-next-method)))
-
-(def render-ods row-header/abstract
-  <table:table-cell ,(call-next-method)>)
-
-;;;;;;
-;;; Row abstract
-
-(def (component e) row/abstract ()
-  ())
-
-(def method supports-debug-component-hierarchy? ((self row/abstract))
-  #f)
-
-;;;;;;
 ;;; Row widget
 
-(def (component e) row/widget (row/abstract style/abstract cells/mixin)
+(def (component e) row/widget (widget/style
+                               row/layout
+                               header/mixin
+                               cells/mixin
+                               context-menu/mixin
+                               selectable/mixin
+                               frame-unique-id/mixin)
   ())
+
+(def (macro e) row/widget ((&rest args &key &allow-other-keys) &body cells)
+  `(make-instance 'row/widget ,@args :cells (list ,@cells)))
 
 (def render-xhtml row/widget
   (render-table-row *table* -self-))
@@ -55,46 +33,45 @@
                                    (cells-of -self-)
                                    (columns-of table)))>)
 
-(def function odd/even-class (component components)
-  (if (zerop (mod (position component components) 2))
-      "even"
-      "odd"))
-
 (def layered-method render-onclick-handler ((self row/widget) (button (eql :left)))
   nil)
 
 (def (layered-function e) render-table-row (table row)
-  (:method :around ((table table/mixin) (row row/widget))
-    (ensure-refreshed row)
-    (when (visible-component? row)
-      (call-next-method)))
-
-  (:method :in xhtml-layer ((table table/mixin) (row row/widget))
+  (:method :in xhtml-layer ((table table/widget) (row row/widget))
     (bind (((:read-only-slots id) row)
            (onclick-handler? (render-onclick-handler row :left)))
-      <tr (:id ,id :class ,(concatenate-string (table-row-style-class table row) (when onclick-handler? " selectable"))
+      <tr (:id ,id :class `str(,(table-row-style-class table row)
+                               ,(when onclick-handler? " selectable")
+                               ,(selectable-component-style-class row))
            :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
            :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
-        ,(render-table-row-cells table row)>)))
+        ,(render-table-row-cells table row)>
+      (render-context-menu-for row))))
 
 (def (layered-function e) table-row-style-class (table row)
-  (:method ((table table/mixin) (row row/widget))
-    (odd/even-class row (rows-of table))))
+  (:method ((table table/widget) (row row/widget))
+    (element-style-class (length (rows-of table)) *row-index*)))
 
 (def (layered-function e) render-table-row-cells (table row)
-  (:method ((table table/mixin) (row row/widget))
+  (:method ((table table/widget) (row row/widget))
     (iter (for cell :in-sequence (cells-of row))
           (for column :in-sequence (columns-of table))
           (when (visible-component? column)
-            (render-cells table row column cell)))))
+            (render-table-row-cell table row column cell)))))
 
 ;;;;;;
 ;;; Entire row widget
 
-(def (component e) entire-row/widget (row/abstract style/abstract content/mixin)
+(def (component e) entire-row/widget (widget/style
+                                      row/abstract
+                                      header/mixin
+                                      content/mixin
+                                      context-menu/mixin
+                                      selectable/mixin
+                                      frame-unique-id/mixin)
   ())
 
-(def layered-method render-table-row ((table table/mixin) (row entire-row/widget))
+(def layered-method render-table-row ((table table/widget) (row entire-row/widget))
   (render-component row))
 
 (def layered-method render-onclick-handler ((self entire-row/widget) (button (eql :left)))

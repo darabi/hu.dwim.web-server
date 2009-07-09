@@ -4,6 +4,13 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;
+;;; Header cell mixin
+
+(def (component e) header-cell/mixin ()
+  ((header-cell :type component))
+  (:documentation "A COMPONENT with a HEADER-CELL."))
+
 ;;;;;;
 ;;; Cells mixin
 
@@ -12,7 +19,9 @@
   (:documentation "A COMPONENT with a SEQUENCE of CELLs."))
 
 (def (function e) render-cells-for (component)
-  (foreach #'render-cell (cells-of component)))
+  (iter (for *column-index* :from 0)
+        (for cell :in-sequence (cells-of component))
+        (render-cell cell)))
 
 (def (layered-function e) render-cell (component)
   (:method :in xhtml-layer ((self number))

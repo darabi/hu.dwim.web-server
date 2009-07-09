@@ -138,7 +138,7 @@
 
 (def render-xhtml standard-object-slot-value-filter
   (bind (((:read-only-slots label value id) -self-))
-    <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
+    <tr (:id ,id :class ,(element-style-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label")
             ,(render-component label)>
         ;; NOTE: the value component is resposible to render the cells

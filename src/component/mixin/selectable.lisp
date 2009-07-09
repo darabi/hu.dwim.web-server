@@ -8,7 +8,13 @@
 ;;; Selectable mixin
 
 (def (component e) selectable/mixin ()
-  ()
+  (#+nil ;; TODO: some instances are not selectable even though the class allows it
+   (selectable-component
+    #t
+    :type boolean
+    :initarg :hideable
+    :computed-in compute-as
+    :documentation "TRUE means COMPONENT can be SELECTED, FALSE otherwise."))
   (:documentation "A COMPONENT that can be SELECTED."))
 
 ;;;;;;

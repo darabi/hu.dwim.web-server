@@ -21,6 +21,10 @@
       (make-component-action component
         (select-component component class prototype value)))))
 
+(def layered-method make-context-menu-items ((component selectable/mixin) class prototype value)
+  (optional-list* (make-menu-item (make-select-component-command component class prototype value) nil)
+                  (call-next-method)))
+
 (def function command-with-icon-name? (component name)
   (and (typep component 'command/widget)
        (bind ((content (content-of component)))

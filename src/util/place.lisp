@@ -167,22 +167,22 @@
   (make-instance 'slot-value-place :instance instance :slot slot))
 
 ;;;;;;
-;;; List slot value place
+;;; Sequence slot value place
 
-(def class* list-slot-value-place (slot-value-place)
+(def class* sequence-slot-value-place (slot-value-place)
   ((index :type integer))
   (:documentation "A PLACE for a particular slot of a STANDARD-CLASS instance's nth value."))
 
-(def method place-bound? ((self list-slot-value-place))
+(def method place-bound? ((self sequence-slot-value-place))
   #t)
 
-(def method make-place-unbound ((self list-slot-value-place))
+(def method make-place-unbound ((self sequence-slot-value-place))
   (error "Cannot make ~A unbound" self))
 
-(def method value-at-place ((self list-slot-value-place))
+(def method value-at-place ((self sequence-slot-value-place))
   (nth (index-of self) (call-next-method)))
 
-(def method (setf value-at-place) (new-value (self list-slot-value-place))
+(def method (setf value-at-place) (new-value (self sequence-slot-value-place))
   (bind ((instance (instance-of self))
          (slot (slot-of self))
          (class (class-of instance)))
@@ -190,7 +190,7 @@
       (setf (nth (index-of self) list) new-value)
       (setf (slot-value-using-class class instance slot) list))))
 
-(def method remove-place ((self list-slot-value-place))
+(def method remove-place ((self sequence-slot-value-place))
   (bind ((instance (instance-of self))
          (slot (slot-of self))
          (class (class-of instance))
@@ -199,5 +199,5 @@
     (setf (slot-value-using-class class instance slot)
           (append (subseq value 0 index) (subseq value (1+ index))))))
 
-(def (function e) make-list-slot-value-place (instance slot index)
-  (make-instance 'list-slot-value-place :instance instance :slot slot :index index))
+(def (function e) make-sequence-slot-value-place (instance slot index)
+  (make-instance 'sequence-slot-value-place :instance instance :slot slot :index index))

@@ -210,7 +210,7 @@
                                              (:file "menu")
                                              (:file "menu-bar")
                                              (:file "mouse")
-                                             (:file "node")
+                                             (:file "node" :depends-on ("tree"))
                                              (:file "page-navigation-bar")
                                              (:file "parent")
                                              (:file "refreshable")
@@ -284,12 +284,12 @@
                                              (:file "tab-container" :depends-on ("command-bar"))
                                              (:file "demo" :depends-on ("tab-container"))
                                              (:file "internal-error" :depends-on ("message" "command-bar" "command"))
+                                             (:file "table")
+                                             (:file "column")
+                                             (:file "row" :depends-on ("table"))
+                                             (:file "cell" :depends-on ("table" "row"))
                                              #+nil
                                              ((:file "panel" :depends-on ("message"))
-                                              (:file "cell")
-                                              (:file "row")
-                                              (:file "column")
-                                              (:file "table")
                                               (:file "node"))
                                              #+nil
                                              ((:file "authentication")
@@ -448,7 +448,7 @@
   (operate 'load-op (test-system-of system))
   (in-package :hu.dwim.wui.test)
   (declaim (optimize (debug 3)))
-  (let ((*pakcage* (find-package :hu.dwim.wui)))
+  (let ((*package* (find-package :hu.dwim.wui)))
     (eval (read-from-string "(progn
                                ;; set dojo to the latest available
                                (setf *dojo-directory-name* (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui \"wwwroot/\")))

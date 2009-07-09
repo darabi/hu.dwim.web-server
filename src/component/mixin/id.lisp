@@ -8,8 +8,12 @@
 ;;; Id mixin
 
 (def (component e) id/mixin ()
-  ((id :type string :documentation "A life time unique string identifier."))
-  (:documentation "A COMPONENT with a life time unique string identifier."))
+  ((id :type string :documentation "A life time permanent string identifier."))
+  (:documentation "A COMPONENT with a life time permanent string identifier."))
+
+(debug-only
+  (def method (setf id-of) :before (new-value (self id/mixin))
+    (assert (not (id-of self)))))
 
 ;;;;;;
 ;;; Frame unique id mixin

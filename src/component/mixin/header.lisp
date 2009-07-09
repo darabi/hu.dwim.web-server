@@ -11,5 +11,5 @@
   ((header :type component))
   (:documentation "A COMPONENT with a HEADER."))
 
-(def (function e) render-header (component)
+(def (function e) render-header-for (component)
   (render-component (header-of component)))

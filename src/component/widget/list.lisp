@@ -9,9 +9,9 @@
 
 (def (component e) list/widget (widget/style
                                 list/layout
-                                context-menu/mixin
-                                command-bar/mixin
                                 selection/mixin
+                                command-bar/mixin
+                                context-menu/mixin
                                 resizable/mixin
                                 scrollable/mixin
                                 collapsible/mixin
@@ -23,6 +23,10 @@
 (def (macro e) list/widget ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'list/widget ,@args :contents (list ,@contents)))
 
+(def refresh-component list/widget
+  (bind (((:slots contents page-navigation-bar) -self-))
+    (setf page-navigation-bar (page-navigation-bar/widget))))
+
 (def render-xhtml list/widget
   (bind (((:read-only-slots id style-class custom-style) -self-))
     <div (:id ,id :class `str("list widget" ,style-class) :style ,custom-style
@@ -30,5 +34,4 @@
           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)
       ,(call-next-method)
-      #+nil
       ,(render-page-navigation-bar-for -self-)>))

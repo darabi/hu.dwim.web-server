@@ -60,9 +60,9 @@
                   (component
                    (when (eq component slot-value)
                      (return-from make-component-place (make-slot-value-place parent slot))))
-                  (list
+                  (sequence
                    (iter (for index :from 0)
-                         (for element :in slot-value)
+                         (for element :in-sequence slot-value)
                          (when (and (typep element 'component)
                                     (eq component element))
-                           (return-from make-component-place (make-list-slot-value-place parent slot index))))))))))))
+                           (return-from make-component-place (make-sequence-slot-value-place parent slot index))))))))))))

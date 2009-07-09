@@ -27,6 +27,11 @@
       ,(render-content-for -self-)>
     (render-command-onclick-handler (find-command -self- 'select-component) id)))
 
-(def layered-method make-context-menu-items ((component element/widget) class prototype value)
-  (optional-list* (make-menu-item (make-select-component-command component class prototype value) nil)
-                  (call-next-method)))
+(def (function e) element-style-class (index total)
+  (concatenate-string (when (zerop index)
+                        "first ")
+                      (when (= total (1+ index))
+                        "last ")
+                      (if (zerop (mod index 2))
+                       "even"
+                       "odd")))

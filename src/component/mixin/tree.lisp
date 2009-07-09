@@ -18,13 +18,3 @@
   (bind ((*tree* -self-)
          (*tree-level* -1))
     (call-next-method)))
-
-;;;;;;
-;;; Node abstract
-
-(def (component e) node/abstract ()
-  ())
-
-(def component-environment node/abstract
-  (bind ((*tree-level* (1+ *tree-level*)))
-    (call-next-method)))

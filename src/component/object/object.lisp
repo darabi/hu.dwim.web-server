@@ -228,7 +228,7 @@
   (bind (((:read-only-slots label value id messages) -self-))
     (when messages
       <tr <td (:colspan 2) ,(render-component-messages -self-)>>)
-    <tr (:id ,id :class ,(odd/even-class -self- (slot-values-of (parent-component-of -self-))))
+    <tr (:id ,id :class ,(element-style-class -self- (slot-values-of (parent-component-of -self-))))
         <td (:class "slot-value-label") ,(render-component label)>
         <td (:class "slot-value-value") ,(render-component value)>>))
 

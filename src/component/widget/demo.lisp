@@ -26,7 +26,7 @@
                       ;; TODO: make a component/xhtml-source/viewer
                       (quote-xml-string-content/widget ()
                         (render-to-xhtml-string component)))
-                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Switch to the component inspector"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Switch to the inspector of the live demo component"))
                       "TODO"
                       #+nil
                       (standard-object/inspector ()

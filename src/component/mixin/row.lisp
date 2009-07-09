@@ -5,6 +5,17 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Row abstract
+
+(def special-variable *row-index*)
+
+(def (component e) row/abstract ()
+  ())
+
+(def method supports-debug-component-hierarchy? ((self row/abstract))
+  #f)
+
+;;;;;;
 ;;; Rows mixin
 
 (def (component e) rows/mixin ()
@@ -12,14 +23,6 @@
   (:documentation "A COMPONENT with a SEQUENCE of ROWs."))
 
 (def (function e) render-rows-for (component)
-  (foreach #'render-component (rows-of component)))
-
-;;;;;;
-;;; Row headers mixin
-
-(def (component e) row-headers/mixin ()
-  ((row-headers :type components))
-  (:documentation "A COMPONENT with a SEQUENCE of ROW-HEADERs."))
-
-(def (function e) render-row-headers-for (component)
-  (foreach #'render-component (row-headers-of component)))
+  (iter (for *row-index* :from 0)
+        (for row :in-sequence (rows-of component))
+        (render-component row)))

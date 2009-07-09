@@ -32,32 +32,34 @@
   ())
 
 (def render-xhtml boolean/inspector
-  (bind (((:read-only-slots the-type edited client-state-sink) -self-)
+  (bind (((:read-only-slots the-type edited-component client-state-sink) -self-)
          (has-component-value? (slot-boundp -self- 'component-value))
          (component-value (when has-component-value?
                             (component-value-of -self-))))
-    <div ,(when edited
-                <input (:type "hidden" :name ,(id-of client-state-sink) :value ,(if component-value "true" "false"))>)
+    <div ,(when edited-component
+            <input (:type "hidden"
+                    :name ,(id-of client-state-sink)
+                    :value ,(if component-value "true" "false"))>)
          ,(if (eq the-type 'boolean)
               (bind ((checked (when component-value "checked"))
-                     (disabled (unless edited "disabled")))
+                     (disabled (unless edited-component "disabled")))
                 <input (:type "checkbox" :checked ,checked :disabled ,disabled)>)
-              (bind ((disabled (unless edited "disabled")))
+              (bind ((disabled (unless edited-component "disabled")))
                 <select (:disabled ,disabled)
                   ;; TODO: add error marker when no initform and default value is selected
                   ,(bind ((selected (unless has-component-value? "yes")))
-                         <option (:selected ,selected)
-                                 ,#"value.nil">)
+                     <option (:selected ,selected)
+                       ,#"value.nil">)
                   ,(bind ((selected (when (and has-component-value?
                                                component-value)
                                       "yes")))
-                         <option (:selected ,selected)
-                                 ,#"boolean.true">)
+                     <option (:selected ,selected)
+                       ,#"boolean.true">)
                   ,(bind ((selected (when (and has-component-value?
                                                (not component-value))
                                       "yes")))
-                         <option (:selected ,selected)
-                                 ,#"boolean.false">) >))>))
+                     <option (:selected ,selected)
+                      ,#"boolean.false">) >))>))
 
 ;;;;;;
 ;;; String inspector
@@ -66,8 +68,8 @@
   ())
 
 (def render-xhtml string/inspector
-  (bind (((:read-only-slots edited) -self-))
-    (if edited
+  (bind (((:read-only-slots edited-component) -self-))
+    (if edited-component
         (render-string-component -self-)
         `xml,(print-component-value -self-))))
 
@@ -95,8 +97,8 @@
   ())
 
 (def render-xhtml number/inspector
-  (bind (((:read-only-slots edited) -self-))
-    (if edited
+  (bind (((:read-only-slots edited-component) -self-))
+    (if edited-component
         (render-number-field-for-primitive-component -self-)
         `xml,(print-component-value -self-))))
 

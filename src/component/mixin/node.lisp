@@ -5,6 +5,16 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Node abstract
+
+(def (component e) node/abstract ()
+  ())
+
+(def component-environment node/abstract
+  (bind ((*tree-level* (1+ *tree-level*)))
+    (call-next-method)))
+
+;;;;;;
 ;;; Root nodes mixin
 
 (def (component e) root-nodes/mixin ()
