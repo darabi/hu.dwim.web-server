@@ -43,7 +43,7 @@
                    (aprog1
                        (make-instance 'internal-error-message-component
                                       :rendering-phase-reached rendering-phase-reached
-                                      :content (inline/widget
+                                      :content (inline-render-component/widget ()
                                                  (apply-resource-function 'render-application-internal-error-page
                                                                           (list :admin-email-address (admin-email-address-of application)))))
                      (add-component-error-message it #"error.internal-server-error.message"))))))

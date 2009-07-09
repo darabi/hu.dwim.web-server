@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Demo widget
 
-;; TODO: rename this to lisp-form/component-demo/viewer
+;; TODO: rename this to lisp-form/component-demo/viewer and move
 (def (component e) demo/widget (widget/basic content/abstract)
   ((form :type t)))
 
@@ -24,9 +24,9 @@
                       (make-instance 'lisp-form/viewer :component-value (make-lisp-form-component-value form)))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "XHTML"))
                       ;; TODO: make a component/xhtml-source/viewer
-                      (quoted-xhtml-content/widget ()
+                      (quote-xml-string-content/widget ()
                         (render-to-xhtml-string component)))
-                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Component"))
                       "TODO"
                       #+nil
                       (standard-object/inspector ()

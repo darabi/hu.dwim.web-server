@@ -38,12 +38,6 @@
 (def (macro e) tab-container/widget ((&rest args &key &allow-other-keys) &body tab-pages)
   `(make-instance 'tab-container/widget ,@args :content nil :tab-pages (optional-list ,@tab-pages)))
 
-(def render-xhtml tab-container/widget
-  (bind (((:read-only-slots content tab-page-selector-bar) -self-))
-    <div (:class "tab-container")
-      ,(render-component tab-page-selector-bar)
-      ,(render-component content)>))
-
 (def refresh-component tab-container/widget
   (bind (((:slots tab-pages tab-page-selector-bar content) -self-))
     (setf tab-page-selector-bar
@@ -51,6 +45,12 @@
                          :commands (mapcar [make-switch-to-tab-page-command !1 nil nil nil] tab-pages)))
     (unless content
       (setf content (find-default-tab-page -self-)))))
+
+(def render-xhtml tab-container/widget
+  (bind (((:read-only-slots content tab-page-selector-bar) -self-))
+    <div (:class "tab-container")
+      ,(render-component tab-page-selector-bar)
+      ,(render-component content)>))
 
 (def (generic e) find-default-tab-page (component)
   (:method ((self tab-container/widget))

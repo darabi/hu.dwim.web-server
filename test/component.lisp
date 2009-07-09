@@ -114,21 +114,22 @@
                               (vertical-list (:id "page")
                                 (when *session*
                                   (style (:id "header" :css-class "authenticated")
-                                    (inline/widget <span ,(current-authenticated-subject)
-                                                         " "
-                                                         ,(when (running-in-test-mode-p *demo-application*)
-                                                                "(test mode)")
-                                                         " "
-                                                         ,(when (profile-request-processing-p *server*)
-                                                                "(profiling)")
-                                                         " "
-                                                         ,(when (debug-client-side? (root-component-of *frame*))
-                                                                "(debugging client side)")>
-                                                   <span ,(render-component
-                                                           (command (icon logout)
-                                                             (make-action
-                                                               (mark-session-invalid *session*)
-                                                               (make-redirect-response-for-current-application))))>)))
+                                    (inline-render-component/widget ()
+                                      <span ,(current-authenticated-subject)
+                                            " "
+                                            ,(when (running-in-test-mode-p *demo-application*)
+                                                   "(test mode)")
+                                            " "
+                                            ,(when (profile-request-processing-p *server*)
+                                                   "(profiling)")
+                                            " "
+                                            ,(when (debug-client-side? (root-component-of *frame*))
+                                                   "(debugging client side)")>
+                                      <span ,(render-component
+                                              (command (icon logout)
+                                                (make-action
+                                                  (mark-session-invalid *session*)
+                                                  (make-redirect-response-for-current-application))))>)))
                                 (horizontal-list ()
                                   (style (:id "menu") menu)
                                   (top menu-content))))))
@@ -147,7 +148,7 @@
   (if (is-authenticated?)
       (empty)
       (if (parameter-value "example-error")
-          (inline/widget
+          (inline-render-component/widget ()
             (error "This is an example error that happens while rendering the response"))
           (bind ((path (path-of (uri-of *request*))))
             (assert (starts-with-subseq (path-prefix-of *application*) path))
@@ -155,10 +156,12 @@
             (switch (path :test #'string=)
               (+login-entry-point-path+ (vertical-list ()
                                           (make-identifier-and-password-login-component)
-                                          (inline/widget <div "FYI, the password is \"secret\"...">)))
+                                          (inline-render-component/widget ()
+                                            <div "FYI, the password is \"secret\"...">)))
               ("help/" (make-help-component))
               ("about/" (make-about-component))
-              (t (inline/widget <span "demo start page">)))))))
+              (t (inline-render-component/widget ()
+                   <span "demo start page">)))))))
 
 (def function make-unauthenticated-menu-component ()
   (macrolet ((command* (title path)
@@ -211,7 +214,8 @@
                    (list (menu-item () (command "Example error in action body"
                                          (make-action (error "This is an example error which is signaled when running the action body"))))
                          (menu-item () (replace-menu-target-command "Example error while rendering"
-                                         (inline/widget (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
+                                         (inline-render-component/widget ()
+                                           (error "This is an example error which is signaled when rendering the root component of the current frame"))))))
           debug-menu))
       (menu-item () "Charts"
         (menu-item () "Charts from files"
@@ -254,17 +258,17 @@
                                    (make-action
                                      ;;(break "file in action: ~A" (component-value-of file-upload-component))
                                      ))
-                          (inline/widget
+                          (inline-render-component/widget ()
                             (when (slot-boundp file-upload-component 'component-value)
                               (render-mime-part-details (component-value-of file-upload-component))))))))
       (menu-item () (replace-menu-target-command "Dojo InlineEditBox example"
-                      (inline/widget
+                      (inline-render-component/widget ()
                         (render-example-inline-edit-box))))
       (menu-item () (replace-menu-target-command "checkbox"
                       (bind ((value1 #t)
                              (value2 #f))
                         (vertical-list ()
-                          (inline/widget
+                          (inline-render-component/widget ()
                             (render-checkbox-field value1 :value-sink (lambda (value)
                                                                         (setf value1 value)))
                             (render-checkbox-field value2 :value-sink (lambda (value)
@@ -281,7 +285,7 @@
 
 (def function make-primitive-component-menu ()
   (labels ((make-primitive-menu-item-content (components)
-             (inline/widget
+             (inline-render-component/widget ()
                <div ,(render-component (command (icon wui::refresh)
                                                 (make-action)))
                     <table ,(foreach (lambda (component)
@@ -314,7 +318,7 @@
                                                                                   (unless (eq value :unbound)
                                                                                     (list :component-value value)))))
                                                            (list
-                                                            (inline/widget
+                                                            (inline-render-component/widget ()
                                                               (bind ((value (if (slot-boundp inspector 'component-value)
                                                                                 (component-value-of inspector)
                                                                                 :unbound)))
@@ -347,10 +351,12 @@
       (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text))))))
 
 (def function make-help-component ()
-  (inline/widget <div "This is the help page">))
+  (inline-render-component/widget ()
+    <div "This is the help page">))
 
 (def function make-about-component ()
-  (inline/widget <div "This is the about page">))
+  (inline-render-component/widget ()
+    <div "This is the about page">))
 
 ;;;;;;
 ;;; ajax counter example (only a proof-of-concept)
@@ -404,9 +410,9 @@
 
 (def function make-demo-frame-component ()
   (frame/widget (:title "demo"
-                 :stylesheet-uris *demo-stylesheet-uris*
-                 :script-uris '#.+demo-script-uris+
-                 :page-icon #.+demo-page-icon+)
+                  :stylesheet-uris *demo-stylesheet-uris*
+                  :script-uris '#.+demo-script-uris+
+                  :page-icon #.+demo-page-icon+)
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu-item)))
       (bind ((content (content/widget ()
@@ -511,13 +517,29 @@
                         "Steve")
                       (parent-relative-position/layout (:x 80 :y 50)
                         "Kate"))))
-                (node/widget (:expanded #f)
+                (node/widget (:expanded #t)
                     "Widget"
-                  ;; TODO: this must not be a widget
-                  (replace-target-demo/widget "External link"
-                    (external-link/widget ()
-                      "http://wikipedia.org"
-                      "Wikipedia"))
+                  (replace-target-demo/widget "Inline render XHTML"
+                    (inline-render-xhtml/widget ()
+                      <div <span (:style "color: blue") "John">
+                           <span (:style "color: red") "Mary">>))
+                  (replace-target-demo/widget "Wrap render XHTML"
+                    (wrap-render-xhtml/widget ()
+                        "The wrapped component is now a simple string"
+                      <span ">>> "
+                        <span (:style "color: blue")
+                          ,(-body-)>
+                        " <<<">))
+                  (replace-target-demo/widget "Inline XHTML string content"
+                    (inline-xhtml-string-content/widget ()
+                      "<div><span style=\"color: blue\">John</span><span style=\"color: red\">Mary</span></div>"))
+                  (replace-target-demo/widget "Quote XML string content"
+                    (quote-xml-string-content/widget ()
+                      "<div><span style=\"color: blue\">John</span><span style=\"color: red\">Mary</span></div>"))
+                  (replace-target-demo/widget "Quote XML form"
+                    (quote-xml-form/widget ()
+                      <div <span (:style ,(concatenate-string "color:" " blue")) "John">
+                           <span (:style "color: red") "Mary">>))
                   (replace-target-demo/widget "Collapsible"
                     (collapsible/widget ()
                       "SICP"
@@ -545,11 +567,51 @@
                           (menu-item/widget ()
                               "Kate")
                           (menu-item/widget ()
-                              "Fred")))))
+                              "Fred")))
+                      (menu-item/widget ()
+                          "Susanne "
+                        (menu-item/widget ()
+                            "George ")
+                        (menu-item/widget ()
+                            "Jenna "))))
                   (replace-target-demo/widget "Popup menu"
-                    "TODO")
+                    (popup-menu/widget ()
+                        "Right click here"
+                      (menu-item/widget ()
+                          "John"
+                        (menu-item/widget ()
+                            "Mary")
+                        (menu-item/widget ()
+                            "Steve"
+                          (menu-item/widget ()
+                              "Kate")
+                          (menu-item/widget ()
+                              "Fred")))
+                      (menu-item/widget ()
+                          "Susanne "
+                        (menu-item/widget ()
+                            "George ")
+                        (menu-item/widget ()
+                            "Jenna "))))
                   (replace-target-demo/widget "Context menu"
-                    "TODO")
+                    (content/widget (:context-menu (context-menu/widget ()
+                                                     (menu-item/widget ()
+                                                         "John"
+                                                       (menu-item/widget ()
+                                                           "Mary")
+                                                       (menu-item/widget ()
+                                                           "Steve"
+                                                         (menu-item/widget ()
+                                                             "Kate")
+                                                         (menu-item/widget ()
+                                                             "Fred")))
+                                                     (menu-item/widget ()
+                                                         "Susanne "
+                                                       (menu-item/widget ()
+                                                           "George ")
+                                                       (menu-item/widget ()
+                                                           "Jenna "))))
+                      "Right click here"))
                   (replace-target-demo/widget "Command"
                     "TODO")
                   (replace-target-demo/widget "Command bar"
@@ -732,11 +794,11 @@
                       (vertical-list ()
                         (lisp-form/invoker ()
                           ｢(def function dwim (text &rest args &key (baz 0) &allow-other-keys)
-                               (let* ((foo (sqrt baz))
-                                      (bar (1+ foo)))
-                                 (if (string= text "Hello World")
-                                     (length args)
-                                     (+ foo bar baz))))｣)
+                             (let* ((foo (sqrt baz))
+                                    (bar (1+ foo)))
+                               (if (string= text "Hello World")
+                                   (length args)
+                                   (+ foo bar baz))))｣)
                         (lisp-form/invoker (:evaluation-mode :multiple)
                           (print "Hello World"))))
                     (replace-target-demo/widget "Standard class tree viewer"
@@ -752,10 +814,16 @@
                 (node/widget (:expanded #f)
                     "RANDOM"
                   (replace-target-demo/widget "Lisp form list repl inspector"
-                      (lisp-form-list/repl/inspector ())))))
+                    (lisp-form-list/repl/inspector ())))))
             content))))))
 
 #|
+;; TODO: this must not be a widget
+(replace-target-demo/widget "External link"
+  (external-link/widget ()
+    "http://wikipedia.org"
+    "Wikipedia"))
+
 (node/widget ()
     "Maker")
 (node/widget ()

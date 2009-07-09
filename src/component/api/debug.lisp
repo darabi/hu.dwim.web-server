@@ -49,13 +49,23 @@
 ;;; Render to string
 
 (def (with-macro e) with-render-to-xhtml-string-context ()
-  (bind ((*request* (make-instance 'request :uri (parse-uri "")))
-         (*response* (make-instance 'response))
-         (*application* (make-instance 'application :path-prefix ""))
-         (*session* (make-instance 'session))
-         (*frame* (make-instance 'frame :session *session*))
+  (bind ((*request* (if (boundp '*request*)
+                        *request*
+                        (make-instance 'request :uri (parse-uri ""))))
+         (*response* (if (boundp '*response*)
+                         *response*
+                         (make-instance 'response)))
+         (*application* (if (boundp '*application*)
+                            *application*
+                            (make-instance 'application :path-prefix "")))
+         (*session* (if (boundp '*session*)
+                        *session*
+                        (aprog1 (make-instance 'session)
+                          (setf (id-of it) "1234567890"))))
+         (*frame* (if (boundp '*frame*)
+                      *frame*
+                      (make-instance 'frame :session *session*)))
          (*rendering-phase-reached* #f))
-    (setf (id-of *session*) "1234567890")
     (with-lock-held-on-session (*session*)
       (octets-to-string
        (with-output-to-sequence (buffer-stream :external-format +default-encoding+ :initial-buffer-size 256)

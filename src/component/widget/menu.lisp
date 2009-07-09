@@ -9,7 +9,7 @@
 
 (def (component e) menu/abstract (style/abstract menu-items/mixin)
   ()
-  (:documentation "A top level COMPONENT in a MENU hierarchy."))
+  (:documentation "A MENU/ABSTRACT is a top level COMPONENT in a MENU-HIERARCHY."))
 
 (def (icon e) menu :tooltip nil)
 
@@ -18,7 +18,7 @@
 
 (def (component e) menu-bar/widget (menu/abstract widget/basic)
   ()
-  (:documentation "A MENU that is always shown immediately presenting a list of MENU-ITEMs."))
+  (:documentation "A MENU-BAR/WIDGET is a specail MENU/ABSTRACT that is always shown with a list of MENU-ITEM/WIDGETs."))
 
 (def (macro e) menu-bar/widget ((&rest args &key &allow-other-keys) &body menu-items)
   `(make-instance 'menu-bar/widget ,@args :menu-items (list ,@menu-items)))
@@ -39,15 +39,17 @@
             :dojoType #.+dijit/menu-bar+)
         ,(foreach #'render-component menu-items)>)))
 
-;;;;;
+;;;;;;
 ;;; Popup menu widget
 
-(def (component e) popup-menu/widget (menu/abstract widget/basic)
+(def (component e) popup-menu/widget (menu/abstract widget/basic content/abstract)
   ()
-  (:documentation "A MENU that is shown upon explicit user interaction."))
+  (:documentation "A POPUP-MENU/WIDGET is a special MENU/ABSTRACT that is only shown upon explicit user interaction."))
 
-(def (macro e) popup-menu/widget ((&rest args &key &allow-other-keys) &body menu-items)
-  `(make-instance 'popup-menu/widget ,@args :menu-items (list ,@menu-items)))
+(def (macro e) popup-menu/widget ((&rest args &key &allow-other-keys) content &body menu-items)
+  `(make-instance 'popup-menu/widget ,@args
+                  :content ,content
+                  :menu-items (list ,@menu-items)))
 
 (def (function e) make-popup-menu (menu-items &key id style-class custom-style)
   (make-instance 'popup-menu/widget
@@ -60,14 +62,13 @@
   (bind (((:read-only-slots menu-items id style-class custom-style) component))
     (when menu-items
       <span (:class ,style-class :style ,custom-style)
-        ;;,(render-component (content-of component))
+        ,(render-content-for component)
         ,(render-dojo-widget (id)
           <div (:id ,id
                 :dojoType #.+dijit/menu+
                 :targetNodeIds ,target-node-id
                 :style "display: none;")
-            ,(foreach #'render-component menu-items)>
-          (render-remote-setup component))>)))
+            ,(foreach #'render-component menu-items)>)>)))
 
 (def render-xhtml popup-menu/widget
   (render-popup-menu -self-))
@@ -75,18 +76,22 @@
 (def render-csv popup-menu/widget
   (write-csv-separated-elements #\Space (menu-items-of -self-)))
 
-;;;;;
+;;;;;;
 ;;; Context menu widget
 
 (def (component e) context-menu/widget (popup-menu/widget)
-  ((target))
-  (:documentation "A POPUP-MENU that is attached to another COMPONENT as a CONTEXT-MENU."))
+  ((content (icon show-context-menu))
+   (target nil :type t))
+  (:documentation "A CONTEXT-MENU/WIDGET is a special POPUP-MENU/WIDGET that is attached to another COMPONENT as its CONTEXT-MENU."))
 
-(def (macro e) context-menu/bacic (target menu-items)
-  `(make-instance 'context-menu/widget
-                  :target ,target
-                  :content (icon show-context-menu)
+(def (macro e) context-menu/widget ((&rest args &key &allow-other-keys) &body menu-items)
+  `(make-instance 'context-menu/widget ,@args
                   :menu-items (list ,@menu-items)))
+
+(def refresh-component context-menu/widget
+  (bind (((:slots target) -self-))
+    (unless target
+      (setf target (parent-component-of -self-)))))
 
 (def render-xhtml context-menu/widget
   (render-popup-menu -self- :target-node-id (id-of (target-of -self-))))
@@ -98,7 +103,7 @@
 
 (def (component e) menu-item/widget (widget/basic content/abstract style/abstract menu-items/mixin)
   ()
-  (:documentation "An intermediate or leaf component in a menu hierarchy."))
+  (:documentation "A MENU-ITEM/WIDGET is an intermediate or leaf COMPONENT in a MENU-HIERARCHY."))
 
 (def (macro e) menu-item/widget ((&rest args &key &allow-other-keys) content &body menu-items)
   `(make-instance 'menu-item/widget ,@args :content ,content :menu-items (list ,@menu-items)))
@@ -115,7 +120,7 @@
                      :custom-style custom-style))))
 
 (def render-xhtml menu-item/widget
-  (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
+  (bind (((:read-only-slots menu-items id style-class custom-style content) -self-))
     (if menu-items
         (bind ((popup-id (generate-response-unique-string)))
           (render-dojo-widget (popup-id)
@@ -132,20 +137,19 @@
                  <div (:id ,id
                        :dojoType #.+dijit/menu+
                        :style "display: none;")
-                   ,(foreach #'render-component menu-items)>
-                 (render-remote-setup -self-))>))
+                   ,(foreach #'render-component menu-items)>)>))
         (render-dojo-widget (id)
           <div (:id ,id :dojoType #.+dijit/menu-item+)
             ,(render-content-for -self-) >
-          #+nil
-          (render-command-onclick-handler command id)))))
+          (when (typep content 'command/widget)
+            (render-command-onclick-handler content id))))))
 
 ;;;;;;
 ;;; Separator menu item widget
 
 (def (component e) separator-menu-item/widget (menu-item/widget)
   ()
-  (:documentation "A menu item separator, a leaf in the menu hierarchy."))
+  (:documentation "A SEPARATOR-MENU-ITEM/WIDGET is a special MENU-ITEM/WIDGET, a leaf COMPONENT in the MENU-HIERARCHY."))
 
 (def render-xhtml separator-menu-item/widget
   <div (:dojoType #.+dijit/menu-separator+)>)

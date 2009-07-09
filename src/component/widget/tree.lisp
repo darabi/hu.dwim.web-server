@@ -49,6 +49,7 @@
 ;;; Node widget
 
 (def (component e) node/widget (node/abstract
+                                collapsible/abstract
                                 widget/basic
                                 content/abstract
                                 context-menu/mixin
@@ -80,7 +81,7 @@
       ,(render-context-menu-for -self-)
       <span (:class `str("content " ,(selectable-component-style-class -self-)))
             ,(when child-nodes
-               (render-component (make-toggle-expanded-command -self-)))
+               (render-collapse-or-expand-command-for -self-))
             ,(render-content-for -self-)>
       ,(when (expanded-component? -self-)
          (foreach #'render-component child-nodes))>

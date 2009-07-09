@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Tree level widget
 
-(def (component e) tree-level/widget (widget/basic collapsible/mixin)
+(def (component e) tree-level/widget (widget/basic collapsible/abstract)
   ((path nil :type component)
    (previous-sibling nil :type component)
    (next-sibling nil :type component)
@@ -59,7 +59,7 @@
   (bind (((:read-only-slots path previous-sibling next-sibling descendants node) -self-))
     <div (:class "tree-level")
          <span (:class "header")
-              ,(render-component (make-toggle-expanded-command -self-))
+              ,(render-collapse-or-expand-command-for -self-)
               ,(when (expanded-component? -self-)
                      <span (:class "previous-sibling")
                            ,(when previous-sibling

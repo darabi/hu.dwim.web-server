@@ -5,52 +5,72 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Collapsible
-
-(def (component e) collapsible (collapsible/mixin)
-  ())
-
-;;;;;;
 ;;; Collapsible abstract
 
-(def (component e) collapsible/abstract (collapsible widget/abstract)
-  ((collapsed-content :type component)
-   (expanded-content :type component)
-   (toggle-command :type component))
-  (:documentation "A COMPONENT with two different COMPONENTs as content, the expanded and the collapsed variants."))
+(def (component e) collapsible/abstract (widget/abstract collapsible/mixin)
+  ((collapse-command :type component)
+   (expand-command :type component))
+  (:documentation "A COLLAPSIBLE/ABSTRACT has two different COMPONENTs as content, the EXPANDED and the COLLAPSED variants."))
 
-(def function render-collapsed-content-for (component)
-  (render-component (collapsed-content-of component)))
+(def refresh-component collapsible/abstract
+  (bind ((class (component-dispatch-class -self-))
+         (prototype (component-dispatch-prototype -self-))
+         (value (component-value-of -self-)))
+    (setf (collapse-command-of -self-)
+          (make-collapse-command -self- class prototype value))
+    (setf (expand-command-of -self-)
+          (make-expand-command -self- class prototype value))))
 
-(def function render-expanded-content-for (component)
-  (render-component (expanded-content-of component)))
+(def (function e) render-collapse-command-for (component)
+  (render-component (collapse-command-of component)))
 
-;; TODO: move
-(def function make-toggle-expanded-command (component)
-  (command/widget (:ajax (ajax-of component))
-    (if (expanded-component? component)
-        (icon collapse-component)
-        (icon expand-component))
-    (make-component-action component
-      (if (expanded-component? component)
-          (collapse-component component)
-          (expand-component component)))))
+(def (function e) render-expand-command-for (component)
+  (render-component (expand-command-of component)))
+
+(def (function e) render-collapse-or-expand-command-for (component)
+  (if (expanded-component? component)
+      (render-collapse-command-for component)
+      (render-expand-command-for component)))
+
+(def (layered-function e) make-collapse-command (component class prototype value)
+  (:method ((component collapsible/abstract) class prototype value)
+    (command/widget (:ajax (ajax-of component))
+      (icon collapse-component)
+      (make-component-action component
+        (collapse-component component)))))
+
+(def (layered-function e) make-expand-command (component class prototype value)
+  (:method ((component collapsible/abstract) class prototype value)
+    (command/widget (:ajax (ajax-of component))
+      (icon expand-component)
+      (make-component-action component
+        (expand-component component)))))
 
 ;;;;;;
 ;;; Collapsible widget
 
 (def (component e) collapsible/widget (widget/basic collapsible/abstract)
-  ())
+  ((collapsed-content :type component)
+   (expanded-content :type component)))
 
 (def (macro e) collapsible/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'collapsible/widget ,@args :collapsed-content ,(first content) :expanded-content ,(second content)))
 
 (def render-component collapsible/widget
   <span (:class "collapsible")
-    ,(render-component (make-toggle-expanded-command -self-))
-    ,(if (expanded-component? -self-)
-         (render-expanded-content-for -self-)
-         (render-collapsed-content-for -self-))>)
+    ,(render-collapse-or-expand-command-for -self-)
+    ,(render-collapsed-or-expanded-content-for -self-)>)
+
+(def (function e) render-collapsed-content-for (component)
+  (render-component (collapsed-content-of component)))
+
+(def (function e) render-expanded-content-for (component)
+  (render-component (expanded-content-of component)))
+
+(def (function e) render-collapsed-or-expanded-content-for (component)
+  (if (expanded-component? component)
+      (render-expanded-content-for component)
+      (render-collapsed-content-for component)))
 
 ;;;;;;
 ;;; Icon
@@ -58,4 +78,3 @@
 (def (icon e) expand-component)
 
 (def (icon e) collapse-component)
-

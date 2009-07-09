@@ -35,6 +35,8 @@
 
 (def function ensure-refreshed (component)
   (when (or (to-be-refreshed-component? component)
+            ;; TODO: kludge
+            #+nil
             (some (lambda (slot)
                     (not (computed-slot-valid-p component slot)))
                   (computed-slots-of (class-of component))))

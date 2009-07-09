@@ -81,6 +81,8 @@
                   (script-uris-of -self-))>
       <body (:class ,(dojo-skin-name-of -self-)
              :style ,(when javascript-supported? "margin-left: -10000px;"))
+        ;; TODO: this causes problems when content-type is application/xhtml+xml
+        ;;       should solve the no javascript issue in a different way
         ,(when javascript-supported?
            <noscript <meta (:http-equiv #.+header/refresh+
                             :content ,(concatenate-string "0; URL="
