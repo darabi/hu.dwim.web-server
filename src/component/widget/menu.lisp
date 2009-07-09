@@ -53,7 +53,7 @@
 
 (def (icon e) show-context-menu)
 
-(def (component e) context-menu/widget (menu/abstract widget/style)
+(def (component e) context-menu/widget (widget/style menu-items/mixin)
   ()
   (:documentation "A CONTEXT-MENU/WIDGET is attached to its PARENT-COMPONENT as its CONTEXT-MENU."))
 
@@ -121,6 +121,7 @@
             (render-command-onclick-handler content id))))))
 
 (def function render-show-context-menu-command-for (component)
+  ;; TODO: add js to really show the menu
   (render-component (icon show-context-menu :label nil)))
 
 ;;;;;;
