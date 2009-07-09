@@ -7,14 +7,15 @@
 ;;;;;;
 ;;; Internal server error message
 
-(def (component e) internal-error-message-component (component-messages/widget
-                                                     content/widget
-                                                     title/mixin
-                                                     id/mixin)
+;; TODO inherit from panel/widget instead of these (currently title is not rendered)
+(def (component e) internal-error-message/widget (component-messages/widget
+                                                  content/widget
+                                                  title/mixin
+                                                  id/mixin)
   ((rendering-phase-reached :type boolean))
   (:default-initargs :title #"error.internal-server-error.title" :id "internal-error"))
 
-(def layered-method make-command-bar-commands ((self internal-error-message-component) class prototype value)
+(def layered-method make-command-bar-commands ((self internal-error-message/widget) class prototype value)
   (list* (make-instance 'command/widget
                         :content (icon back)
                         :action (if (rendering-phase-reached? self)
@@ -22,7 +23,7 @@
                                     (make-uri-for-current-frame)))
          (call-next-method)))
 
-(def method handle-toplevel-condition ((error serious-condition) (application application))
+(def method handle-toplevel-error ((application application) (error serious-condition))
   (when (and (not *inside-user-code*)
              *session*)
     ;; oops, this error comes from inside WUI or at least not from an action or from render. let's try to invalidate the session if there's any...
@@ -44,7 +45,7 @@
                   (make-frame-component-with-content
                    application *session* *frame*
                    (aprog1
-                       (make-instance 'internal-error-message-component
+                       (make-instance 'internal-error-message/widget
                                       :rendering-phase-reached rendering-phase-reached
                                       :content (inline-render-component/widget ()
                                                  (apply-resource-function 'render-application-internal-error-page

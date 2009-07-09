@@ -99,12 +99,12 @@
           (command/widget ()
             "Action time error"
             (make-action
-              (error "Testing error handling, error was produced during handling an action"))))
+              (error "This is a demo error for testing purposes. It was signalled from the body of an action."))))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Render time error"
             (inline-render-component/widget ()
-              (error "Testing error handling, error was produced during rendering a component"))))
+              (error "This is a demo error for testing purposes. It was signalled from the render method of a component."))))
       (menu-item/widget ()
           ;; from http://turtle.dojotoolkit.org/~david/recss.html
           (inline-render-component/widget ()

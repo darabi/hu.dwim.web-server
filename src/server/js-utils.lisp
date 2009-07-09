@@ -139,7 +139,7 @@
          (if (= e "graceful-abort")
              (log.debug "Gracefully aborting execution and returning to toplevel")
              (progn
-               (log.warn "Exception reached toplevel")
+               (log.warn "Exception reached toplevel: " e)
                (if dojo.config.isDebug
                    debugger
                    (let ((message (wui.i18n.localize "unknown-error-at-toplevel")))

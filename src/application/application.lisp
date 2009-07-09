@@ -546,20 +546,19 @@ Custom implementations should look something like this:
 ;;;;;;
 ;;; Handle conditions in AJAX requests
 
-(def function maybe-invoke-slime-debugger/application (condition &key (context (or (and (boundp '*session*)
-                                                                                        *session*)
-                                                                                   (and (boundp '*application*)
-                                                                                        *application*)
-                                                                                   (and (boundp '*brokers*)
-                                                                                        (first *brokers*))))
-                                                                 (with-continue-restart #t))
-  (maybe-invoke-slime-debugger condition :context context :with-continue-restart with-continue-restart))
+(def function maybe-invoke-debugger/application (condition &key (context (or (and (boundp '*session*)
+                                                                                  *session*)
+                                                                             (and (boundp '*application*)
+                                                                                  *application*)
+                                                                             (and (boundp '*brokers*)
+                                                                                  (first *brokers*)))))
+  (maybe-invoke-debugger condition :context context))
 
-(def method handle-toplevel-condition :around (condition (application application))
+(def method handle-toplevel-error :around ((application application) condition)
   (if (and (boundp '*ajax-aware-request*)
            *ajax-aware-request*)
       (progn
-        (maybe-invoke-slime-debugger/application condition)
+        (maybe-invoke-debugger/application condition)
         (emit-http-response ((+header/status+       +http-not-acceptable+
                               +header/content-type+ +xml-mime-type+))
           <ajax-response

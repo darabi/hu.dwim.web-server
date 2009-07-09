@@ -82,7 +82,7 @@
   (bind ((dimensions (dimensions-of -self-))
          (coordinates (force (coordinates-of -self-))))
     (cl-perec:with-coordinates dimensions coordinates
-      (with-error-log-decorator (error-log-decorator
+      (with-error-log-decorator (make-error-log-decorator
                                   (format t "~%The environment of the coordinates-provider ~A follows:" -self-)
                                   (iter (for dimension :in dimensions)
                                         (for coordinate :in coordinates)

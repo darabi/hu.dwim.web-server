@@ -310,8 +310,10 @@
            (bind ((broker (when (boundp '*brokers*)
                             (first *brokers*))))
              ;; no need to handle (nested) errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
-             (handle-toplevel-condition condition broker))
-           (server.dribble "HANDLE-TOPLEVEL-CONDITION returned, worker continues...")))
+             (handle-toplevel-error broker condition))
+           (server.dribble "HANDLE-TOPLEVEL-ERROR returned, worker continues..."))
+         (abort-unit-of-work-callback (error &key message &allow-other-keys)
+           (abort-server-request (or message error))))
     (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response* *request-remote-host* *request-id*))))
     (bind ((*server* server)
            (*brokers* (list server))
@@ -319,23 +321,24 @@
            (*response* nil)
            (*request-remote-host* nil)
            (*request-id* nil))
-      (with-error-log-decorator (special-variable-printing-error-log-decorator *request-remote-host* *request-id*)
+      (with-error-log-decorator (make-special-variable-printing-error-log-decorator *request-remote-host* *request-id*)
         (restart-case
             (unwind-protect-case (interrupted)
                 (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
-                  (call-with-server-error-handler #'serve-one-request
-                                                  stream-socket
-                                                  #'handle-request-error)
+                  (with-layered-error-handlers (#'handle-request-error
+                                                #'abort-unit-of-work-callback
+                                                :ignore-condition-callback (lambda (error)
+                                                                             (is-error-from-client-stream? error stream-socket)))
+                    (serve-one-request))
                   (server.dribble "Worker ~A finished processing a request, will close the socket now" worker))
               (:always
-               (block nil
-                 (call-with-server-error-handler (lambda ()
-                                                   (server.dribble "Closing the socket")
-                                                   (close stream-socket))
-                                                 stream-socket
-                                                 (lambda (error)
-                                                   (log-error-with-backtrace error :message (list "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block." (if interrupted "unwinding" "normally exiting")))
-                                                   (return))))))
+               (block closing
+                 (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
+                                                 (log-error-with-backtrace error :message (list "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block." (if interrupted "unwinding" "normally exiting")))
+                                                 (return-from closing))
+                                               #'abort-unit-of-work-callback)
+                   (server.dribble "Closing the socket")
+                   (close stream-socket)))))
           (abort-server-request ()
             :report (lambda (stream)
                       (format stream "~@<Abort processing request ~A by simply closing the network socket~@:>" *request-id*))

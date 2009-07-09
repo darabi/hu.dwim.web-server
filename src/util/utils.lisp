@@ -445,20 +445,13 @@
 ;;;;;;
 ;;; Debug on error
 
-(def special-variable *debug-on-error* (not *load-as-production-p*)
-  "The default, system wide, value for debug-on-error.")
-
 (def class* debug-context-mixin ()
   ((debug-on-error :type boolean :accessor nil)))
 
-(def (generic e) debug-on-error (context error)
-  (:method (context error)
-    *debug-on-error*)
-
-  (:method ((context debug-context-mixin) error)
-    (if (slot-boundp context 'debug-on-error)
-        (slot-value context 'debug-on-error)
-        (call-next-method))))
+(def method debug-on-error? ((context debug-context-mixin) error)
+  (if (slot-boundp context 'debug-on-error)
+      (slot-value context 'debug-on-error)
+      (call-next-method)))
 
 ;;;;;;
 ;;; Tree
