@@ -576,7 +576,7 @@
                             "Jenna "))))
                   (replace-target-demo/widget "Popup menu"
                     (popup-menu/widget ()
-                        "Right click here"
+                        "Right click for popup menu"
                       (menu-item/widget ()
                           "John"
                         (menu-item/widget ()
@@ -611,11 +611,30 @@
                                                            "George ")
                                                        (menu-item/widget ()
                                                            "Jenna "))))
-                      "Right click here"))
+                      "Right click for context menu"))
                   (replace-target-demo/widget "Command"
-                    "TODO")
+                    (bind ((c 0))
+                      (vertical-list ()
+                        (command/widget ()
+                          "Click me"
+                          (make-action
+                            (incf c)))
+                        (inline-render-xhtml/widget ()
+                          <span "Click counter: " ,c>))))
                   (replace-target-demo/widget "Command bar"
-                    "TODO")
+                    (bind ((s nil))
+                      (vertical-list ()
+                        (command-bar/widget ()
+                          (command/widget ()
+                            (icon refresh-component)
+                            (make-action
+                              (setf s "refresh")))
+                          (command/widget ()
+                            (icon select-component)
+                            (make-action
+                              (setf s "select"))))
+                        (inline-render-xhtml/widget ()
+                          <span "Last command: " ,s>))))
                   (replace-target-demo/widget "Push button"
                     "TODO")
                   (replace-target-demo/widget "Toggle button"

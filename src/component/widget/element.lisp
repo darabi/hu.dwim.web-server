@@ -20,10 +20,30 @@
 
 (def render-xhtml element/widget
   (bind (((:read-only-slots id) -self-))
-    <div (:id ,id :class ,(concatenate-string "element widget " (selectable-component-style-class -self-)))
+    <div (:id ,id :class ,(concatenate-string "element widget " (selectable-component-style-class -self-))
+          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
+          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)
       ,(render-content-for -self-)>
     (render-command-onclick-handler (find-command -self- 'select-component) id)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ;; TODO: move this to element/editor
 (def layered-method make-context-menu-items ((component element/widget) class prototype value)

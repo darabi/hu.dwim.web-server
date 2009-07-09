@@ -21,11 +21,10 @@
 
 (def render-xhtml node/widget
   (bind (((:read-only-slots child-nodes expanded id style) -self-)
-         (tree-id (id-of *tree*))
          (onclick-handler? (render-onclick-handler -self- :left)))
     <tr (:id ,id :style ,style :class ,(concatenate-string (tree-node-style-class -self-) (when onclick-handler? " selectable"))
-         :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,tree-id ,id)
-         :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,tree-id ,id))
+         :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
+         :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-tree-node-cells -self-) >
     (when expanded
       (foreach #'render-component child-nodes))))
@@ -102,12 +101,11 @@
   ())
 
 (def function render-entire-node (tree node body-thunk)
-  (bind (((:read-only-slots id) node)
-         (tree-id (id-of tree)))
+  (bind (((:read-only-slots id) node))
     (list <tr (:id ,id)
               <td (:colspan ,(length (columns-of tree))
-                   :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,tree-id ,id)
-                   :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,tree-id ,id))
+                   :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
+                   :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
                   ,(funcall body-thunk)>>)))
 
 (def layered-method render-onclick-handler ((self entire-node/widget) (button (eql :left)))

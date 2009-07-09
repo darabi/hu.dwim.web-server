@@ -18,7 +18,7 @@
                                 page-navigation-bar/mixin
                                 frame-unique-id/mixin)
   ()
-  (:documentation "A LIST/WIDGET with several COMPONENTs inside. It supports expanding, resizing, scrolling, page navigation, selection and commands."))
+  (:documentation "A LIST/WIDGET with several COMPONENTs inside. It supports expanding, resizing, scrolling, page navigation, selection, highlighting and commands."))
 
 (def (macro e) list/widget ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'list/widget ,@args :contents (list ,@contents)))
@@ -27,7 +27,31 @@
   <div (:id ,(id-of -self-) :class "list widget")
     ,(render-context-menu-for -self-)
     ,(call-next-method)
+    #+nil
     ,(render-page-navigation-bar-for -self-) >)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ;; TODO: move this to list/editor
 ;;;;;;

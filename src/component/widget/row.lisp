@@ -71,11 +71,10 @@
 
   (:method :in xhtml-layer ((table table/mixin) (row row/widget))
     (bind (((:read-only-slots id) row)
-           (table-id (id-of table))
            (onclick-handler? (render-onclick-handler row :left)))
       <tr (:id ,id :class ,(concatenate-string (table-row-style-class table row) (when onclick-handler? " selectable"))
-           :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,table-id ,id)
-           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,table-id ,id))
+           :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
+           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
         ,(render-table-row-cells table row)>)))
 
 (def (layered-function e) table-row-style-class (table row)
@@ -103,11 +102,10 @@
 
 (def function render-entire-row (table row body-thunk)
   (bind (((:read-only-slots id) row)
-         (table-id (id-of table))
          (onclick-handler? (render-onclick-handler row :left)))
     <tr (:id ,id :class ,(when onclick-handler? "selectable")
-         :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,table-id ,id)
-         :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,table-id ,id))
+         :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
+         :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
         <td (:colspan ,(length (columns-of table)))
             ,(funcall body-thunk)>>))
 

@@ -61,17 +61,18 @@
 (def function render-popup-menu (component &key target-node-id)
   (bind (((:read-only-slots menu-items id style-class custom-style) component))
     (when menu-items
-      <span (:class ,style-class :style ,custom-style)
+      <span (:id ,id :class ,style-class :style ,custom-style)
         ,(render-content-for component)
-        ,(render-dojo-widget (id)
-          <div (:id ,id
+        ,(bind ((menu-id (generate-response-unique-string)))
+               (render-dojo-widget (menu-id)
+          <div (:id ,menu-id
                 :dojoType #.+dijit/menu+
                 :targetNodeIds ,target-node-id
                 :style "display: none;")
-            ,(foreach #'render-component menu-items)>)>)))
+            ,(foreach #'render-component menu-items)>))>)))
 
 (def render-xhtml popup-menu/widget
-  (render-popup-menu -self-))
+  (render-popup-menu -self- :target-node-id (id-of -self-)))
 
 (def render-csv popup-menu/widget
   (write-csv-separated-elements #\Space (menu-items-of -self-)))

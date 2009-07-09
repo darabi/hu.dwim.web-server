@@ -77,7 +77,9 @@
 
 (def render-xhtml node/widget
   (bind (((:read-only-slots id child-nodes) -self-))
-    <div (:id ,id :class `str("node widget level-" ,(integer-to-string *tree-level*)))
+    <div (:id ,id :class `str("node widget level-" ,(integer-to-string *tree-level*))
+          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
+          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)
       <span (:class `str("content " ,(selectable-component-style-class -self-)))
             ,(when child-nodes
