@@ -218,22 +218,6 @@
   (:method ((self babel-encodings:character-encoding))
     (babel-encodings:enc-name self)))
 
-(def macro with-thread-name (name &body body)
-  (declare (ignorable name))
-  #*((:sbcl
-      (with-unique-names (thread previous-name)
-        `(let* ((,thread sb-thread:*current-thread*)
-                (,previous-name (sb-thread:thread-name ,thread)))
-           (setf (sb-thread:thread-name ,thread)
-                 (concatenate-string ,previous-name ,name))
-           (unwind-protect
-                (progn
-                  ,@body)
-             (setf (sb-thread:thread-name ,thread) ,previous-name)))))
-     (t
-      `(progn
-         ,@body))))
-
 (def function get-bytes-allocated ()
   "Returns a monotonic counter of bytes allocated, preferable a per-thread value."
   #*((:sbcl
