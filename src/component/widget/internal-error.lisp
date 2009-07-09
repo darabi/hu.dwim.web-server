@@ -7,14 +7,17 @@
 ;;;;;;
 ;;; Internal server error message
 
-(def (component e) internal-error-message-component (content-component)
+(def (component e) internal-error-message-component (component-messages/widget
+                                                     content/widget
+                                                     title/mixin
+                                                     id/mixin)
   ((rendering-phase-reached :type boolean))
   (:default-initargs :title #"error.internal-server-error.title" :id "internal-error"))
 
 (def layered-method make-command-bar-commands ((self internal-error-message-component) class prototype value)
   (list* (make-instance 'command/widget
                         :content (icon back)
-                        :action (if (rendering-phase-reached-p self)
+                        :action (if (rendering-phase-reached? self)
                                     (make-uri-for-new-frame)
                                     (make-uri-for-current-frame)))
          (call-next-method)))
@@ -39,7 +42,7 @@
                 (send-response
                  (make-component-rendering-response
                   (make-frame-component-with-content
-                   application
+                   application *session* *frame*
                    (aprog1
                        (make-instance 'internal-error-message-component
                                       :rendering-phase-reached rendering-phase-reached

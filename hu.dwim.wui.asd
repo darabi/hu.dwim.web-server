@@ -283,6 +283,7 @@
                                              (:file "help" :depends-on ("icon"))
                                              (:file "tab-container" :depends-on ("command-bar"))
                                              (:file "demo" :depends-on ("tab-container"))
+                                             (:file "internal-error" :depends-on ("message" "command-bar" "command"))
                                              #+nil
                                              ((:file "panel" :depends-on ("message"))
                                               (:file "cell")
@@ -297,7 +298,6 @@
                                               (:file "field")
                                               (:file "file-up-and-download")
                                               (:file "frame-size-breakdown")
-                                              (:file "internal-error")
                                               (:file "pivot-table")
                                               (:file "timestamp-range")
                                               (:file "wizard")))
