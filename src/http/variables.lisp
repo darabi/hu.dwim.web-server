@@ -139,6 +139,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
    +javascript-mime-type+ "text/javascript"
    +plain-text-mime-type+ "text/plain"
    +octet-stream-mime-type+ "application/octet-stream"
+   +atom-feed-mime-type+  "application/atom+xml"
 
    +xhtml-1.0-strict-doctype+       "\"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""
    +xhtml-1.0-transitional-doctype+ "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/transitional.dtd\""
@@ -162,6 +163,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 
 (def (constant e :test 'string=) +xml-namespace-uri/xhtml+ "http://www.w3.org/1999/xhtml")
 (def (constant e :test 'string=) +xml-namespace-uri/dojo+  "http://www.dojotoolkit.org/2004/dojoml")
+(def (constant e :test 'string=) +xml-namespace-uri/atom+  "http://www.w3.org/2005/Atom")
 
 (def (constant e :test 'string=) +form-encoding/multipart-form-data+  "multipart/form-data")
 (def (constant e :test 'string=) +form-encoding/url-encoded+  "application/x-www-form-urlencoded")

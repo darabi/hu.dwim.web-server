@@ -348,7 +348,7 @@
 
 ;; TODO delme?
 (def (macro e) make-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
-  `(make-functional-response ((+header/content-type+ +html-content-type+
+  `(make-functional-response ((+header/content-type+ (content-type-for +html-mime-type+ +default-encoding+)
                                ,@headers-as-plist)
                               (,@cookie-list))
      (emit-into-xml-stream (client-stream-of *request*)
@@ -445,7 +445,7 @@
   (make-instance 'request-echo-response))
 
 (def method send-response ((self request-echo-response))
-  (emit-http-response ((+header/content-type+ +html-content-type+))
+  (emit-http-response ((+header/content-type+ +html-mime-type+))
     (render-request *request*)))
 
 (def (function e) render-request (request)

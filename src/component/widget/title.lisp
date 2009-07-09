@@ -7,7 +7,8 @@
 ;;;;;;
 ;;; Title widget
 
-(def (component e) title/widget (content/abstract)
+(def (component e) title/widget (content/abstract
+                                 title/mixin)
   ()
   (:default-initargs :style-class "title")
   (:documentation "A COMPONENT that represents the title of another COMPONENT."))
