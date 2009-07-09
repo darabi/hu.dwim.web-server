@@ -96,7 +96,3 @@
 (def method collect-tree/children ((component component) (class null) (prototype null) (value null))
   ;; KLUDGE: to allow instantiating widget without componente-value
   (make-list (length (child-nodes-of component)) :initial-element nil))
-
-(def layered-method make-context-menu-items ((component node/widget) class prototype value)
-  (optional-list* (make-menu-item (make-select-component-command component class prototype value) nil)
-                  (call-next-method)))
