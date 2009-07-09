@@ -50,54 +50,10 @@
                  ;; force ajax eanbled regardless *default-ajax-enabled*
                  :ajax-enabled t))
 
-;;;;;;
-;;; Test classes
+(def layered-method make-frame-component-with-content ((application demo-application) session frame content)
+  (make-demo-frame-component-with-content content))
 
 #|
-(def class* child-test ()
-  ((name :type string)
-   (size :type (member :small :big))
-   (parent :type parent-test)))
-
-(def class* parent-test ()
-  ((important #f :type boolean)
-   (age nil :type (or null integer))
-   (name nil :type (or null string))))
-
-(def resources en
-  (class-name.child-test "child")
-  (class-name.parent-test "parent")
-  (slot-name.name "name")
-  (slot-name.size "size")
-  (slot-name.important "important")
-  (slot-name.age "age")
-  (child-test.parent "parent"))
-
-(def resources hu
-  (class-name.child-test "gyerek")
-  (class-name.parent-test "szülő")
-  (slot-name.name "név")
-  (slot-name.size "size")
-  (slot-name.important "fontos")
-  (slot-name.age "kor")
-  (child-test.parent "szülő"))
-
-;;;;;;
-;;; Test instances
-
-(def special-variable *test-instances* nil)
-
-(def function make-test-instances ()
-  (setf *test-instances*
-        (append *test-instances*
-                (bind ((parent-1 (make-instance 'parent-test :name "Parent/1" :important #t))
-                       (parent-2 (make-instance 'parent-test)))
-                  (list parent-1
-                        (make-instance 'child-test :name "Child/1" :parent parent-1 :size :small)
-                        (make-instance 'child-test :name "Child/2" :parent parent-2 :size :small)
-                        (make-instance 'child-test :name "Child/3" :parent parent-2 :size :big))))))
-
-(make-test-instances)
 
 ;;;;;;
 ;;; the factories that create the component graph both in logged out and logged in states
@@ -135,9 +91,6 @@
                                   (top menu-content))))))
       (setf (target-place-of menu) (make-component-place menu-content))
       (values frame-component menu-content))))
-
-(def layered-method make-frame-component-with-content ((application demo-application) content)
-  (make-demo-frame-component-with-content content))
 
 (def function make-demo-menu-component ()
   (if (is-authenticated?)
@@ -409,14 +362,17 @@
            ,@forms))))
 
 (def function make-demo-frame-component ()
+  (make-demo-frame-component-with-content (empty/layout)))
+
+(def function make-demo-frame-component-with-content (initial-content-component)
   (frame/widget (:title "demo"
-                  :stylesheet-uris *demo-stylesheet-uris*
-                  :script-uris '#.+demo-script-uris+
-                  :page-icon #.+demo-page-icon+)
+                 :stylesheet-uris *demo-stylesheet-uris*
+                 :script-uris '#.+demo-script-uris+
+                 :page-icon #.+demo-page-icon+)
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu-item)))
       (bind ((content (content/widget ()
-                        (empty/layout))))
+                        initial-content-component)))
         (target-place/widget (:target-place (make-component-place content))
           (horizontal-list/layout ()
             (tree/widget ()
@@ -1007,3 +963,55 @@
                                   :port port
                                   :maximum-worker-count maximum-worker-count
                                   :request-content-length-limit (* 1024 1024 50)))
+
+#|
+
+;;;;;;
+;;; Test classes
+
+(def class* child-test ()
+  ((name :type string)
+   (size :type (member :small :big))
+   (parent :type parent-test)))
+
+(def class* parent-test ()
+  ((important #f :type boolean)
+   (age nil :type (or null integer))
+   (name nil :type (or null string))))
+
+(def resources en
+  (class-name.child-test "child")
+  (class-name.parent-test "parent")
+  (slot-name.name "name")
+  (slot-name.size "size")
+  (slot-name.important "important")
+  (slot-name.age "age")
+  (child-test.parent "parent"))
+
+(def resources hu
+  (class-name.child-test "gyerek")
+  (class-name.parent-test "szülő")
+  (slot-name.name "név")
+  (slot-name.size "size")
+  (slot-name.important "fontos")
+  (slot-name.age "kor")
+  (child-test.parent "szülő"))
+
+;;;;;;
+;;; Test instances
+
+(def special-variable *test-instances* nil)
+
+(def function make-test-instances ()
+  (setf *test-instances*
+        (append *test-instances*
+                (bind ((parent-1 (make-instance 'parent-test :name "Parent/1" :important #t))
+                       (parent-2 (make-instance 'parent-test)))
+                  (list parent-1
+                        (make-instance 'child-test :name "Child/1" :parent parent-1 :size :small)
+                        (make-instance 'child-test :name "Child/2" :parent parent-2 :size :small)
+                        (make-instance 'child-test :name "Child/3" :parent parent-2 :size :big))))))
+
+(make-test-instances)
+
+|#
