@@ -53,7 +53,10 @@
         `xml,@(with-collapsed-js-scripts
                `js(on-load
                    (let ((widget-ids (array ,@*dojo-widget-ids*)))
-                     (log.debug "Instantiating the following widgets " widget-ids)
+                     (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
+                     (dolist (widget-id widget-ids)
+                       (awhen (dijit.byId widget-id)
+                         (.destroyRecursive it)))
                      (dojo.parser.instantiate (map 'dojo.by-id widget-ids)))))))))
 
 (def macro render-dojo-widget ((&optional (id '(generate-frame-unique-string "_w")))
