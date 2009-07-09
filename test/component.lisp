@@ -10,9 +10,9 @@
                                                                     (assert-file-exists (project-relative-pathname (concatenate-string "wwwroot/" path)))))
                                                             (dojo-relative-path (path)
                                                               (concatenate-string *dojo-directory-name* path)))
-                                                       (list (entry "wui/css/demo.css")
-                                                             (entry "wui/css/wui.css")
-                                                             (entry "wui/css/wui-default-skin.css")
+                                                       (list (entry "wui/css/wui.css")
+                                                             (entry "wui/css/icon.css")
+                                                             (entry "wui/css/widget.css")
                                                              (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
                                                              (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
 
@@ -418,7 +418,7 @@
                       "George "
                       "Jenna "))
                   (replace-target-demo/widget "Container"
-                    ;; see demo.css
+                    ;; see style.css #container
                     (container/layout (:id "container")
                       "John "
                       "Mary "

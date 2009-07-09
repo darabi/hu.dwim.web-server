@@ -1,465 +1,10 @@
-/* external link */
-
-a.external-link
-{
-  padding-right: 12px;
-  background-image: url("/static/wui/icon/10x10/arrow-out.png");
-  background-repeat: no-repeat;
-  background-position: right center;
-  color: darkblue;
-}
-
-.external-link:hover
-{
-  text-decoration: underline;
-}
-
-/* lisp form */
-
-.lisp-form {
-  font-family: Courier New;
-}
-
-.lisp-form .token {
-  font-style: italic;
-}
-
-.lisp-form .string {
-  color: darkgreen;
-}
-
-.lisp-form .number {
-  color: darkgreen;
-}
-
-.lisp-form .lambda-list-keyword {
-  color: darkblue;
-}
-
-.lisp-form .special-form {
-  color: darkred;
-}
-
-.lisp-form .definition .def {
-  color: darkred;
-}
-
-.lisp-form .definition .kind {
-  color: darkblue;
-  font-weight: bold;
-}
-
-.lisp-form .definition .name {
-  color: darkred;
-  font-weight: bold;
-}
-
-/* book */
-
-.book .title {
-  font-size: 24px;
-}
-
-.chapter .title {
-  font-size: 18px;
-}
-
-/* tree */
-
-.node.level-0
-{
-  padding-left: 0em;
-}
-
-/* NOTE: the 1em values all the way down is not an accident, they are divs, so they are nested */
-.node.level-1
-{
-  padding-left: 1em;
-}
-
-.node.level-2
-{
-  padding-left: 1em;
-}
-
-.node.level-3
-{
-  padding-left: 1em;
-}
-
-.node.level-4
-{
-  padding-left: 1em;
-}
-
-.node.level-5
-{
-  padding-left: 1em;
-}
-
-.node.level-6
-{
-  padding-left: 1em;
-}
-
-.node.level-7
-{
-  padding-left: 1em;
-}
-
-.node.level-8
-{
-  padding-left: 1em;
-}
-
-.node.level-9
-{
-  padding-left: 1em;
-}
-
-/* odd even */
-
-.odd {
-  background-color: #ddffdd;
-}
-
-.even {
-  background-color: #ffffff;
-}
-
-/* selection, highlight */
-
-.selected {
-  background-color: #bbbbbb;
-}
-
-.highlighted {
-  background-color: #ffee88;
-}
-
-.highlighted.odd {
-  background-color: #ddddff;
-}
-
-.highlighted.even {
-  background-color: #ccffff;
-}
-
-.highlighted.selected {
-  background-color: #ffee88;
-}
-
-.highlighted.selected.odd {
-  background-color: #ddddff;
-}
-
-.highlighted.selected.even {
-  background-color: #ccffff;
-}
-
-/* widget */
-
-.command.widget
-{
-  border-style: none;
-}
-
-.icon.widget
-{
-  border-style: none;
-}
-
-.widget
-{
-  border-style: solid;
-  border-width: 1px;
-}
-
-/* table */
-
-table
-{
-  border-collapse: collapse;
-}
-
-th
-{
-  background-color: lightgray;
-  border-style: solid;
-  border-width: 1px;
-}
-
-td
-{
-  vertical-align: top;
-}
-
-/* tree */
-
-table.tree > tbody > tr > td.expander img
-{
-  padding-right: 6px;
-}
-
-table.tree > tbody > tr > td > .non-expandable
-{
-  padding-left: 17px; /* 11px missing img + 6px right padding */
-}
-
-table.tree > tbody > tr.level-0 > td.expander
-{
-  padding-left: 0em;
-}
-
-table.tree > tbody > tr.level-1 > td.expander
-{
-  padding-left: 1em;
-}
-
-table.tree > tbody > tr.level-2 > td.expander
-{
-  padding-left: 2em;
-}
-
-table.tree > tbody > tr.level-3 > td.expander
-{
-  padding-left: 3em;
-}
-
-table.tree > tbody > tr.level-4 > td.expander
-{
-  padding-left: 4em;
-}
-
-table.tree > tbody > tr.level-5 > td.expander
-{
-  padding-left: 5em;
-}
-
-table.tree > tbody > tr.level-6 > td.expander
-{
-  padding-left: 6em;
-}
-
-table.tree > tbody > tr.level-7 > td.expander
-{
-  padding-left: 7em;
-}
-
-table.tree > tbody > tr.level-8 > td.expander
-{
-  padding-left: 8em;
-}
-
-table.tree > tbody > tr.level-9 > td.expander
-{
-  padding-left: 9em;
-}
-
-/*
-  standard-object-tree-nested-box
-*/
-
-.standard-object-tree-nested-box table
-{
-  margin: 1em;
-}
-
-/* this screws up opera
-.standard-object-tree-nested-box table.node
-{
-  width: 100%;
-}
-*/
-
-.standard-object-tree-nested-box .leaf td
-{
-  border-style: none;
-}
-
-.standard-object-tree-nested-box td
-{
-  white-space: nowrap;
-  border-width: 1px;
-  border-style: solid;
-  border-collapse: collapse;
-}
-
-.standard-object-tree-nested-box .node thead
-{
-  background-color: lightskyblue;
-}
-
-/*
-  extended-table
-*/
-
-table.extended-table
-{
-  border-style: solid;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td
-{
-  vertical-align: middle;
-  text-align: center;
-}
-
-table.extended-table > tbody> tr > td.header
-{
-  background-color: lightgreen;
-  padding: 3px;
-  border-style: dotted;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.axis
-{
-  background-color: lightgreen;
-}
-
-table.extended-table > tbody > tr > td.separator
-{
-  background-color: yellow;
-}
-
-table.extended-table > tbody > tr > td.row-tooltip
-{
-  background-color: yellow;
-  height: 5px;
-  border-style: solid;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.column-tooltip
-{
-  background-color: yellow;
-  width: 5px;
-  border-style: solid;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.data
-{
-  padding: 3px;
-  border-style: dotted;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.hidden
-{
-  background-color: lightgray;
-}
-
-table.extended-table > tbody > tr > td.total
-{
-  font-weight: bold;
-  padding: 3px;
-  background-color: yellow;
-  border-style: solid;
-  border-width: 1px;
-}
-
-/* command bar */
-
-.command-bar a
-{
-  margin-right: 1em;
-}
-
-/*
-  frame size breakdown
-*/
-
-table.frame-size-breakdown
-{
-  margin: 10px;
-}
-
-table.frame-size-breakdown > tbody > tr.total-row
-{
-  font-weight: bold;
-}
-
-table.frame-size-breakdown > tbody > tr > td.last
-{
-  color: gray;
-}
-
-table.frame-size-breakdown > tbody > tr > td.delta
-{
-  color: gray;
-}
-
-/*
-  file download
-*/
-
-.file-download .missing-file
-{
-  color: red;
-}
-
-/*
-  filter
-*/
-.ignore-in-filter
-{
-  opacity: 0.3;
-}
-
-/*
-  filter predicate
-*/
-
-.predicate-equal {
-  background-image: url("/static/wui/icon/20x20/equal-sign.png");
-  width: 20px;
-  height: 20px;
-}
-
-.predicate-like {
-  background-image: url("/static/wui/icon/20x20/tilde.png");
-  width: 20px;
-  height: 20px;
-}
-
-.predicate-less-than {
-  background-image: url("/static/wui/icon/20x20/less-than-sign.png");
-  width: 20px;
-  height: 20px;
-}
-
-.predicate-less-than-or-equal {
-  background-image: url("/static/wui/icon/20x20/less-than-or-equal-sign.png");
-  width: 20px;
-  height: 20px;
-}
-
-.predicate-greater-than {
-  background-image: url("/static/wui/icon/20x20/greater-than-sign.png");
-  width: 20px;
-  height: 20px;
-}
-
-.predicate-greater-than-or-equal {
-  background-image: url("/static/wui/icon/20x20/greater-than-or-equal-sign.png");
-  width: 20px;
-  height: 20px;
-}
-
-/**
-  icon
- */
-
 .icon {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
   padding-left: 24px;
-  padding-top: 3px;
-  padding-bottom: 3px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   background-repeat: no-repeat;
   background-position: left center;
 }
@@ -740,4 +285,48 @@ table.frame-size-breakdown > tbody > tr > td.delta
 
 .evaluate-form-icon {
   background-image: url("/static/wui/icon/20x20/vcr-play.png");
+}
+
+/*
+  filter predicate
+*/
+
+.predicate-equal {
+  background-image: url("/static/themes/nafi42/icon/17x17/operator-equal.png");
+  width: 17px;
+  height: 17px;
+}
+
+.predicate-like {
+  background-image: url("/static/themes/nafi42/icon/17x17/operator-similar.png");
+  width: 17px;
+  height: 17px;
+}
+
+.predicate-less-than {
+  background-image: url("/static/themes/nafi42/icon/17x17/operator-less.png");
+  width: 17px;
+  height: 17px;
+}
+
+.predicate-less-than-or-equal {
+  background-image: url("/static/themes/nafi42/icon/17x17/operator-less-equal.png");
+  width: 17px;
+  height: 17px;
+}
+
+.predicate-greater-than {
+  background-image: url("/static/themes/nafi42/icon/17x17/operator-greater.png");
+  width: 17px;
+  height: 17px;
+}
+
+.predicate-greater-than-or-equal {
+  background-image: url("/static/themes/nafi42/icon/17x17/operator-greater-equal.png");
+  width: 17px;
+  height: 17px;
+}
+
+.dijitMenuItemIcon {
+  padding-left: 5px;
 }
