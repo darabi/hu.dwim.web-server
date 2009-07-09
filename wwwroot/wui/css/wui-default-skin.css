@@ -71,6 +71,7 @@ a.external-link
   padding-left: 0em;
 }
 
+/* NOTE: the 1em values all the way down is not an accident, they are divs, so they are nested */
 .node.level-1
 {
   padding-left: 1em;
@@ -78,17 +79,42 @@ a.external-link
 
 .node.level-2
 {
-  padding-left: 2em;
+  padding-left: 1em;
 }
 
 .node.level-3
 {
-  padding-left: 3em;
+  padding-left: 1em;
 }
 
 .node.level-4
 {
-  padding-left: 4em;
+  padding-left: 1em;
+}
+
+.node.level-5
+{
+  padding-left: 1em;
+}
+
+.node.level-6
+{
+  padding-left: 1em;
+}
+
+.node.level-7
+{
+  padding-left: 1em;
+}
+
+.node.level-8
+{
+  padding-left: 1em;
+}
+
+.node.level-9
+{
+  padding-left: 1em;
 }
 
 /* odd even */
