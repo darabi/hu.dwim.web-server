@@ -13,16 +13,16 @@
 (def (function e) toggle-running-in-test-mode (&optional (application *application*))
   (notf (running-in-test-mode? application)))
 
-(def (function e) toggle-debug-server-side (&optional (application *application*))
-  (if (slot-boundp application 'debug-on-error)
-      (notf (slot-value application 'debug-on-error))
-      (setf (slot-value application 'debug-on-error) (not *debug-on-error*))))
-
 (def (function e) toggle-ajax-enabled (&optional (application *application*))
   (notf (ajax-enabled? application)))
 
 (def (function e) toggle-debug-component-hierarchy (&optional (frame *frame*))
   (notf (debug-component-hierarchy? frame)))
+
+(def (function e) toggle-debug-server-side (&optional (application *application*))
+  (if (slot-boundp application 'debug-on-error)
+      (notf (slot-value application 'debug-on-error))
+      (setf (slot-value application 'debug-on-error) (not *debug-on-error*))))
 
 (def (function e) toggle-debug-client-side (&optional (frame *frame*))
   (notf (debug-client-side? (root-component-of frame))))
@@ -35,34 +35,38 @@
       "Debug"
     (menu-item/widget ()
         (command/widget (:send-client-state #f)
-          "Start over"
+          "Start over (frame)"
           (make-action (reset-root-component))))
     (menu-item/widget ()
         "Toggle"
       (menu-item/widget ()
           (command/widget ()
-            "Test mode"
+            "Hierarchy (frame)"
+            (make-action (toggle-debug-component-hierarchy))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Test mode (application)"
             (make-action (toggle-running-in-test-mode))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Ajax (application)"
+            (make-action (toggle-ajax-enabled))))
+      (menu-item/widget ()
+          (command/widget ()
+            "Profiling (server)"
+            (make-action (toggle-profile-request-processing))))
       (menu-item/widget ()
           (command/widget ()
             "Debug server side (globally)"
             (make-action (notf *debug-on-error*))))
       (menu-item/widget ()
           (command/widget ()
-            "Debug client side (in this frame)"
-            (make-action (toggle-debug-client-side))))
+            "Debug server side (application)"
+            (make-action (toggle-debug-server-side))))
       (menu-item/widget ()
           (command/widget ()
-            "Profiling"
-            (make-action (toggle-profile-request-processing))))
-      (menu-item/widget ()
-          (command/widget ()
-            "Hierarchy"
-            (make-action (toggle-debug-component-hierarchy))))
-      (menu-item/widget ()
-          (command/widget ()
-            "Ajax"
-            (make-action (toggle-ajax-enabled)))))
+            "Debug client side (frame)"
+            (make-action (toggle-debug-client-side)))))
     (menu-item/widget ()
         "Inspect"
       (menu-item/widget ()
