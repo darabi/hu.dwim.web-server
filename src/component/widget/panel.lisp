@@ -7,25 +7,33 @@
 ;;;;;;
 ;;; Panel widget
 
-(def (component e) panel/widget (component-messages/widget content/abstract title-bar/mixin collapsible/mixin commands/mixin)
+(def (component e) panel/widget (component-messages/widget
+                                 content/abstract
+                                 collapsible/abstract
+                                 title-bar/mixin
+                                 collapsible/mixin
+                                 context-menu/mixin
+                                 command-bar/mixin
+                                 frame-unique-id/mixin)
   ()
   (:documentation "A COMPONENT with a TITLE-BAR, CONTEXT-MENU, COMPONENT-MESSAGEs, COMMANDs and another COMPONENT inside."))
 
-(def (layered-function e) render-panel (component)
-  (:method ((self panel/widget))
-    (bind (((:read-only-slots title-bar command-bar content id) self)
-           (class-name (string-downcase (class-name (class-of self)))))
-      (if (typep content '(or primitive-component reference-component))
-          <span (:id ,id :class ,class-name)
-                ,(render-component-messages-for self)
-                ,(render-content-for self)>
-          (progn
-            <div (:id ,id :class ,class-name)
-                 ,(render-component title-bar)
-                 ,(render-component-messages-for self)
-                 ,(render-content-for self)
-                 ,(render-command-bar-for self)>
-            (render-remote-setup self))))))
+(def (macro e) panel/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'panel/widget ,@args :content ,(the-only-element content)))
 
 (def render-xhtml panel/widget
-  (render-panel -self-))
+  (bind (((:read-only-slots content) -self-))
+    (if (typep content 'reference/widget)
+        (with-render-style/abstract (-self- :element-name "span")
+          (render-context-menu-for -self-)
+          (render-component-messages-for -self-)
+          (render-content-for -self-))
+        (if (expanded-component? -self-)
+            (with-render-style/abstract (-self-)
+              (render-context-menu-for -self-)
+              (render-title-bar-for -self-)
+              (render-component-messages-for -self-)
+              <div ,(render-content-for -self-)>
+              (render-command-bar-for -self-)
+              (render-remote-setup -self-))
+            (render-title-bar-for -self-)))))

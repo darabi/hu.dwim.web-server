@@ -25,7 +25,7 @@
 
 (def refresh-component list/widget
   (bind (((:slots contents page-navigation-bar) -self-))
-    (setf page-navigation-bar (page-navigation-bar/widget))))
+    (setf page-navigation-bar (make-instance 'page-navigation-bar/widget :total-count (length contents)))))
 
 (def render-xhtml list/widget
   (bind (((:read-only-slots id style-class custom-style) -self-))

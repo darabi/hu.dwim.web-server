@@ -23,10 +23,10 @@
   (icon-label.back "Vissza")
   (icon-tooltip.back "Vissza a helyére")
 
-  (icon-label.expand-component nil)
+  (icon-label.expand-component "Kinyitás")
   (icon-tooltip.expand-component "Részletek megjelenítése")
 
-  (icon-label.collapse-component nil)
+  (icon-label.collapse-component "összecsukás")
   (icon-tooltip.collapse-component "Részletek elrejtése")
 
   (icon-label.expand-from-reference "Kinyitás")
@@ -63,7 +63,10 @@
   (icon-tooltip.evaluate-form "A kifejezés kiértékelése és az eredmény megjelenítése")
 
   (icon-label.remove-list-element "Eltávolítás")
-  (icon-tooltip.remove-list-element "Az lista elem eltávolítása"))
+  (icon-tooltip.remove-list-element "Az lista elem eltávolítása")
+
+  (icon-label.hide-component "Elrejtés")
+  (icon-tooltip.hide-component "Objektum elrejtése"))
 
 ;;;;;;
 ;;; Error handling
@@ -264,8 +267,12 @@
 ;;; Menu
 
 (def resources hu
-  (icon-label.menu "Menü")
+  (icon-label.show-submenu "Menü")
+  (icon-tooltip.show-submenu "Almenü megjelenítése")
+
+  (icon-label.show-context-menu "Menü")
   (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése")
+  
   (context-menu.move-commands "Mozgatás"))
 
 ;;;;;;

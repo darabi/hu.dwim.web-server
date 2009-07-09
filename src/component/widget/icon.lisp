@@ -58,7 +58,7 @@
   (:method (icon label)
     `xml,label))
 
-(def (function e) render-icon (&key icon (name nil name?) (label nil label?) (image-path nil image-path?) (tooltip nil tooltip?) (class nil class?))
+(def (function e) render-icon (&key icon (name nil name?) (label nil label?) (image-path nil image-path?) (tooltip nil tooltip?) (style-class nil style-class?))
   (when (and icon
              (not (stringp icon)))
     (unless name?
@@ -71,21 +71,20 @@
       (setf tooltip (tooltip-of icon))))
   (bind ((tooltip (force tooltip))
          (id (generate-response-unique-string))
-         (class (if class?
-                    class
-                    (icon-class name))))
+         (style-class (if style-class?
+                          style-class
+                          (icon-style-class name))))
     ;; render the `js first, so the return value contract of qq is kept.
     (when tooltip
       (render-tooltip tooltip :target-id id))
-    <span (:id ,id
-           :class ,class)
+    <span (:id ,id :class ,style-class)
       ,(when image-path
          <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
       ,(awhen (force label)
          (render-icon-label icon it))>))
 
-(def function icon-class (name)
-  (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon"))
+(def function icon-style-class (name)
+  (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon widget"))
 
 ;;;;;;
 ;;; Definer

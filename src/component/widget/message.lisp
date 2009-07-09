@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Component messages widget
 
-(def (component e) component-messages/widget (widget/basic)
+(def (component e) component-messages/widget (widget/style)
   ((messages nil :type components))
   (:documentation "A COMPONENT with a list of COMPONENT-MESSAGEs."))
 
@@ -62,7 +62,7 @@
 ;;;;;;
 ;;; Component message widget
 
-(def (component e) component-message/widget (widget/basic closable/abstract content/abstract style/abstract)
+(def (component e) component-message/widget (widget/style closable/abstract content/abstract)
   ((category :information :type (member :information :warning :error))
    (permanent #f :type boolean))
   (:documentation "An optionally permanent COMPONENT-MESSAGE with a CATEGORY. Permanent messages must be removed by explicit user interaction."))

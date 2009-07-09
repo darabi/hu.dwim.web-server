@@ -27,7 +27,7 @@
 
 (def refresh-component table/widget
   (bind (((:slots rows page-navigation-bar) -self-))
-    (setf page-navigation-bar (page-navigation-bar/widget :total-count (length rows)))
+    (setf page-navigation-bar (make-instance 'page-navigation-bar/widget :total-count (length rows)))
     #+nil ;; TODO:
     (when (< (page-size-of page-navigation-bar) (total-count-of page-navigation-bar))
       (setf (total-count-of page-navigation-bar) (length rows)))))

@@ -518,6 +518,7 @@
                           "John"
                         (menu-item/widget ()
                             "Mary")
+                        (menu-item-separator/widget)
                         (menu-item/widget ()
                             "Steve"
                           (menu-item/widget ()
@@ -537,6 +538,7 @@
                           "John"
                         (menu-item/widget ()
                             "Mary")
+                        (menu-item-separator/widget)
                         (menu-item/widget ()
                             "Steve"
                           (menu-item/widget ()
@@ -555,6 +557,7 @@
                                                          "John"
                                                        (menu-item/widget ()
                                                            "Mary")
+                                                       (menu-item-separator/widget)
                                                        (menu-item/widget ()
                                                            "Steve"
                                                          (menu-item/widget ()
@@ -632,6 +635,14 @@
                         (name-value-pair/widget ()
                           "Age"
                           "34"))))
+                  (replace-target-demo/widget "Panel"
+                    (panel/widget (:title-bar (title-bar/widget ()
+                                                "The panel's title")
+                                   :command-bar (command-bar/widget ()
+                                                  (command/widget ()
+                                                    (icon refresh-component)
+                                                    (make-action))))
+                      "John"))
                   (replace-target-demo/widget "Table"
                     (table/widget (:columns (list (column/widget ()
                                                     "Male")

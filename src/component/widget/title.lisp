@@ -7,26 +7,31 @@
 ;;;;;;
 ;;; Title widget
 
-(def (component e) title/widget (content/abstract
-                                 title/mixin)
+(def (component e) title/widget (widget/style content/abstract)
   ()
-  (:default-initargs :style-class "title")
-  (:documentation "A COMPONENT that represents the title of another COMPONENT."))
+  (:documentation "A TITLE/WIDGET represents the TITLE of another COMPONENT."))
 
-(def (macro e) title ((&rest args &key &allow-other-keys) &body content)
+(def (macro e) title/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'title/widget ,@args :content ,(the-only-element content)))
+
+(def render-xhtml title/widget
+  (with-render-style/abstract (-self-)
+    (render-content-for -self-)))
 
 ;;;;;;
 ;;; Title bar widget
 
-(def (component e) title-bar/widget (style/abstract title/mixin)
+(def (component e) title-bar/widget (widget/style title/mixin)
   ()
-  (:default-initargs :style-class "title-bar")
-  (:documentation "A COMPONENT that has a title and various other small widgets around the title."))
+  (:documentation "A COMPONENT that has a TITLE and various other small widgets around it."))
 
-(def render-xhtml title-bar/widget ()
-  (with-render-style/abstract (-self-)
-    #+nil(delegate-render -self- (class-prototype 'context-menu/mixin))
-    (render-component (title-of -self-))
-    #+nil(delegate-render -self- (class-prototype 'hideable/mixin))
-    #+nil(delegate-render -self- (class-prototype 'collapsible/mixin))))
+(def (macro e) title-bar/widget ((&rest args &key &allow-other-keys) &body title)
+  `(make-instance 'title-bar/widget ,@args :title ,(the-only-element title)))
+
+(def render-xhtml title-bar/widget
+  (bind ((parent-component (parent-component-of -self-)))
+    (with-render-style/abstract (-self- :element-name "span")
+      (render-collapse-or-expand-command-for parent-component)
+      (render-show-context-menu-command-for parent-component)
+      (render-title-for -self-)
+      (render-hide-command-for parent-component))))

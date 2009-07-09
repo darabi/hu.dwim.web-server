@@ -288,14 +288,13 @@
                                              (:file "column")
                                              (:file "row" :depends-on ("table"))
                                              (:file "cell" :depends-on ("table" "row"))
+                                             (:file "panel" :depends-on ("message"))
                                              #+nil
-                                             ((:file "panel" :depends-on ("message"))
-                                              (:file "node"))
+                                             ((:file "node"))
                                              #+nil
                                              ((:file "authentication")
                                               (:file "expression")
                                               (:file "extended-table")
-                                              (:file "field")
                                               (:file "file-up-and-download")
                                               (:file "frame-size-breakdown")
                                               (:file "pivot-table")

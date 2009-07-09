@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Content widget
 
-(def (component e) content/widget (widget/basic content/abstract style/abstract context-menu/mixin)
+(def (component e) content/widget (widget/style content/abstract context-menu/mixin)
   ()
   (:documentation "A COMPONENT with style, remote setup, context menu and another COMPONENT inside."))
 

@@ -131,20 +131,20 @@ a.external-link
   background-color: #ccffff;
 }
 
-/* list */
+/* widget */
 
-.list.widget
+.command.widget
 {
-  border-collapse: collapse;
-  border-style: solid;
-  border-width: 1px;
+  border-style: none;
 }
 
-/* tree */
-
-.tree.widget
+.icon.widget
 {
-  border-collapse: collapse;
+  border-style: none;
+}
+
+.widget
+{
   border-style: solid;
   border-width: 1px;
 }
@@ -668,8 +668,16 @@ table.frame-size-breakdown > tbody > tr > td.delta
   background-image: url("/static/wui/icons/20x20/right-arrow.png");
 }
 
-.menu-icon {
+.show-submenu-icon {
   background-image: url("/static/wui/icons/20x20/open-folder.png");
+}
+
+.show-context-menu-icon {
+  background-image: url("/static/wui/icons/20x20/open-folder.png");
+}
+
+.hide-component-icon {
+  background-image: url("/static/wui/icons/20x20/yellow-x.png");
 }
 
 .start-process-icon {

@@ -23,11 +23,11 @@
   (icon-label.back "Back")
   (icon-tooltip.back "Move back")
 
-  (icon-label.expand-component nil)
-  (icon-tooltip.expand-component "Részletek megjelenítése")
+  (icon-label.expand-component "Expand")
+  (icon-tooltip.expand-component "Show details")
 
-  (icon-label.collapse-component nil)
-  (icon-tooltip.collapse-component "Részletek elrejtése")
+  (icon-label.collapse-component "Collapse")
+  (icon-tooltip.collapse-component "Hide details")
 
   (icon-label.expand-from-reference "Expand")
   (icon-tooltip.expand-from-reference "Expand to detail")
@@ -63,7 +63,10 @@
   (icon-tooltip.evaluate-form "Evaluate form and display result")
 
   (icon-label.remove-list-element "Remove")
-  (icon-tooltip.remove-list-element "Remove element from list"))
+  (icon-tooltip.remove-list-element "Remove element from list")
+
+  (icon-label.hide-component "Hide")
+  (icon-tooltip.hide-component "Hide object"))
 
 ;;;;;;
 ;;; Error handling
@@ -264,8 +267,12 @@
 ;;; Menu
 
 (def resources en
-  (icon-label.menu "Menu")
+  (icon-label.show-context-menu "Submenu")
+  (icon-tooltip.show-context-menu "Show submenu")
+
+  (icon-label.show-context-menu "Menu")
   (icon-tooltip.show-context-menu "Show context menu")
+
   (context-menu.move-commands "Move"))
 
 ;;;;;;

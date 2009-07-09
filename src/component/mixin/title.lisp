@@ -22,11 +22,11 @@
 
 (def (layered-function e) render-title (component)
   (:method :in xhtml-layer ((self number))
-    <div (:class "title")
+    <span (:class "title")
       ,(render-component self)>)
 
   (:method :in xhtml-layer ((self string))
-    <div (:class "title")
+    <span (:class "title")
       ,(render-component self)>)
 
   (:method ((self component))
@@ -43,5 +43,5 @@
   ((title-bar :type component))
   (:documentation "A COMPONENT with a TITLE-BAR."))
 
-(def (function e) render-title-bar (component)
+(def (function e) render-title-bar-for (component)
   (render-component (title-bar-of component)))

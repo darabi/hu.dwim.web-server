@@ -4,15 +4,22 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; Icon
+
+(def (icon e) hide-component)
+
+(def (icon e) show-component)
+
 (def (icon e) refresh-component)
+
+(def (icon e) select-component)
 
 (def layered-method make-refresh-component-command ((component refreshable/mixin) class prototype value)
   (command/widget ()
     (icon refresh-component)
     (make-component-action component
       (refresh-component component))))
-
-(def (icon e) select-component)
 
 (def (layered-function e) make-select-component-command (component class prototype value)
   (:method ((component selectable/mixin) class prototype value)
@@ -53,6 +60,11 @@
                               (lambda (child)
                                 (command-with-icon-name? child name))))))
 
+(def (function e) render-hide-command-for (component)
+  (render-component (command/widget ()
+                      (icon hide-component :label nil)
+                      (make-action
+                        (hide-component component)))))
 
 #|
 (def function extract-primitive-component-place (component)
@@ -90,13 +102,6 @@
     (setf (component-value-of clone) (component-value-of self))))
 
 
-
-;;;;;;
-;;; Icon
-
-(def (icon e) hide-component)
-
-(def (icon e) show-component)
 
 ;;;;;;
 ;;; Command
