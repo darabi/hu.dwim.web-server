@@ -1078,18 +1078,6 @@ table.frame-size-breakdown > tbody > tr > td.delta
 
 /* Menu */
 
-.tundra table.dijitMenu
-{
-  background-color: transparent;
-  border-width: 0px;
-}
-
-.tundra table.dijitMenu.wuiComboBox
-{
-  background-color:#F7F7F7;
-  border-width: 1px;
-}
-
 .menu-border
 {
   color: white;
@@ -1168,20 +1156,4 @@ table.frame-size-breakdown > tbody > tr > td.delta
 {
   background-image : url( '/static/wui/image/menu-box/border-center-right.png' );
   background-repeat : repeat-y;
-}
-
-.tundra .dijitMenuPassive .dijitMenuItem td
-{
-  border-width: 0px;
-}
-
-.tundra .dijitMenuPassive .dijitMenuItem.dijitMenuItemSelected
-{
-  background-color: transparent;
-}
-
-.tundra .dijitMenuPassive .dijitMenuItem.dijitMenuItemHover
-{
-  background-color: #eaeff5;
-  color: black;
 }
