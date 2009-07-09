@@ -718,7 +718,8 @@
 (wui.register-component-setup "component-message/widget" (lambda (id &key css-class)
                                                            (wui.attach-border id css-class)))
 
-(dolist (entry #(#("title-bar/widget" "title-border")))
+(dolist (entry #(#("title-bar/widget" "title-border")
+                 #("column/widget"    "table-header-border")))
   (bind ((type (first entry))
          (css-class (second entry)))
     (unless (dojo.isArray css-class)

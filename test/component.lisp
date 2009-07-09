@@ -652,6 +652,20 @@
                   (replace-target-demo/widget "Error message"
                     (component-message/widget (:category :error)
                       "Cannot add John to the list of females, he is a male"))
+                  (replace-target-demo/widget "Component messages"
+                    (component-messages/widget ()
+                      (component-message/widget (:permanent #t :category :information)
+                        "John has been added to the list of males")
+                      (component-message/widget (:permanent #t :category :warning)
+                        "John has been alreay added to the list of males")
+                      (component-message/widget (:permanent #t :category :error)
+                        "Cannot add John to the list of females, he is a male")
+                      (component-message/widget (:permanent #t :category :information)
+                        "Mary has been added to the list of females")
+                      (component-message/widget (:permanent #t :category :warning)
+                        "Mary has been alreay added to the list of females")
+                      (component-message/widget (:permanent #t :category :error)
+                        "Cannot add Mary to the list of males, he is a female")))
                   (replace-target-demo/widget "Table"
                     (table/widget (:columns (list (column/widget ()
                                                     "Male")

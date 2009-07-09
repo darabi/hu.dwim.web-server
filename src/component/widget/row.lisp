@@ -50,7 +50,7 @@
 
 (def (layered-function e) table-row-style-class (table row)
   (:method ((table table/widget) (row row/widget))
-    (element-style-class (length (rows-of table)) *row-index*)))
+    (element-style-class *row-index* (length (rows-of table)))))
 
 (def (layered-function e) render-table-row-cells (table row)
   (:method ((table table/widget) (row row/widget))

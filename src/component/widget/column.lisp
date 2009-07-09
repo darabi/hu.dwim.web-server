@@ -19,4 +19,6 @@
   `(make-instance 'column/widget ,@args :header ,(the-only-element header)))
 
 (def render-xhtml column/widget
-  (render-header-for -self-))
+  ;; NOTE: don't put style and the like on th, because that cannot be easily updated on the client side
+  <th ,(with-render-style/abstract (-self-)
+         (render-header-for -self-))>)
