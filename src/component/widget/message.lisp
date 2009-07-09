@@ -5,18 +5,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component messages
-
-(def (component e) component-messages ()
-  ())
-
-(def macro component-messages ((&rest args &key &allow-other-keys) &body content)
-  `(component-messages/widget ,args ,@content))
-
-;;;;;;
 ;;; Component messages widget
 
-(def (component e) component-messages/widget (component-messages widget/basic)
+(def (component e) component-messages/widget (widget/basic)
   ((messages nil :type components))
   (:documentation "A COMPONENT with a list of COMPONENT-MESSAGEs."))
 
@@ -65,23 +56,13 @@
                                          message)
                             initargs)))))
 
-(def (function e) has-component-message-p (collector category)
+(def (function e) has-component-message? (collector category)
   (find category (messages-of collector) :key #'category-of))
-
-;;;;;;
-;;; Component message
-
-(def (component e) component-message ()
-  ()
-  (:documentation "Base COMPONENT for all COMPONENT-MESSAGEs."))
-
-(def macro component-message ((&rest args &key &allow-other-keys) &body content)
-  `(component-message/widget ,args ,@content))
 
 ;;;;;;
 ;;; Component message widget
 
-(def (component e) component-message/widget (component-message widget/basic closable/abstract content/abstract style/abstract)
+(def (component e) component-message/widget (widget/basic closable/abstract content/abstract style/abstract)
   ((category :information :type (member :information :warning :error))
    (permanent #f :type boolean))
   (:documentation "An optionally permanent COMPONENT-MESSAGE with a CATEGORY. Permanent messages must be removed by explicit user interaction."))
@@ -96,7 +77,7 @@
 
 (def render-xhtml component-message/widget
   (with-render-style/abstract (-self-)
-    (call-next-method)))
+    (render-content-for -self-)))
 
 (def layered-method make-close-component-command ((component component-message/widget) class prototype value)
   (when (permanent? component)
