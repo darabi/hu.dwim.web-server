@@ -448,12 +448,18 @@
   (operate 'load-op (test-system-of system))
   (in-package :hu.dwim.wui.test)
   (declaim (optimize (debug 3)))
-  (warn "Issued a (declaim (optimize (debug 3))) for easy C-c C-c'ing")
-  ;; KLUDGE ASDF wraps everything in a WITH-COMPILATION-UNIT which eventually prevents starting the
-  ;; tests on SBCL due to The Big Compiler Lock.
-  (eval (read-from-string "(bordeaux-threads:make-thread
-                             (lambda ()
-                               (stefil:funcall-test-with-feedback-message 'wui.test:test)))"))
+  (let ((*pakcage* (find-package :hu.dwim.wui)))
+    (eval (read-from-string "(progn
+                               ;; set dojo to the latest available
+                               (setf *dojo-directory-name* (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui \"wwwroot/\")))
+                               (setf (log-level 'wui) +debug+)
+                               (setf *debug-on-error* t)
+                               ;; KLUDGE ASDF wraps everything in a WITH-COMPILATION-UNIT which eventually prevents starting the
+                               ;; tests on SBCL due to The Big Compiler Lock, so we spawn here a thread to run the tests.
+                               (bordeaux-threads:make-thread
+                                 (lambda ()
+                                   (stefil:funcall-test-with-feedback-message 'wui.test:test))))")))
+  (warn "Issued a (declaim (optimize (debug 3))) for easy C-c C-c'ing; set WUI log level to +debug+; enabled server-side debugging")
   (values))
 
 (defmethod operation-done-p ((op test-op) (system wui-system))
