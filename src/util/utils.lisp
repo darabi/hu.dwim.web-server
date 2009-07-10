@@ -13,13 +13,17 @@
 
 (def (macro e) delay (&body forms)
   (with-unique-names (computation)
-    (if (and (length= 1 forms)
-             (not (consp (first forms)))
-             (constantp (first forms)))
-        (first forms)
-        `(bind ((,computation (make-instance 'computation)))
-           (set-funcallable-instance-function ,computation (named-lambda delay-body () ,@forms))
-           ,computation))))
+    `(delay* (:class-name computation :variable-name ,computation)
+       ,@forms)))
+
+(def (macro e) delay* ((&key class-name variable-name) &body forms)
+  (if (and (length= 1 forms)
+           (not (consp (first forms)))
+           (constantp (first forms)))
+      (first forms)
+      `(bind ((,variable-name (make-instance ',class-name)))
+         (set-funcallable-instance-function ,variable-name (named-lambda delay-body () ,@forms))
+         ,variable-name)))
 
 (def (function e) force (value)
   (if (typep value 'computation)
@@ -28,6 +32,19 @@
 
 (def (function e) computation? (thing)
   (typep thing 'computation))
+
+(def class* one-time-computation (computation)
+  ((value :type t))
+  (:metaclass funcallable-standard-class))
+
+(def (macro e) one-time-delay (&body forms)
+  (with-unique-names (computation)
+    `(delay* (:class-name one-time-computation :variable-name ,computation)
+       (if (slot-boundp ,computation 'value)
+           (value-of ,computation)
+           (setf (value-of ,computation)
+                 (progn
+                   ,@forms))))))
 
 ;;;;;;
 ;;; Utils
@@ -129,9 +146,17 @@
   (remove-if (complement predicate) list :key key))
 
 (def function filter-slots (names slots)
-  (filter-if (lambda (slot)
-               (member (slot-definition-name slot) names))
-             slots))
+  (when names
+    (filter-if (lambda (slot)
+                 (member (slot-definition-name slot) names))
+               slots)))
+
+(def function remove-slots (names slots)
+  (if names
+      (remove-if (lambda (slot)
+                   (member (slot-definition-name slot) names))
+                 slots)
+      slots))
 
 (def function partition (list &rest predicates)
   (iter (with result = (make-array (length predicates) :initial-element nil))

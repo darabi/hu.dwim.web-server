@@ -362,9 +362,9 @@
            ,@forms))))
 
 (def function make-demo-frame-component ()
-  (make-demo-frame-component-with-content (empty/layout)))
+  (make-demo-frame-component-with-content))
 
-(def function make-demo-frame-component-with-content (initial-content-component)
+(def function make-demo-frame-component-with-content (&optional (initial-content-component (empty/layout)))
   (frame/widget (:title "demo"
                  :stylesheet-uris *demo-stylesheet-uris*
                  :script-uris '#.+demo-script-uris+
@@ -373,7 +373,7 @@
                              (make-debug-menu-item)))
       (bind ((content (content/widget ()
                         initial-content-component)))
-        (target-place/widget (:target-place (make-component-place content))
+        (target-place/widget (:target-place (make-slot-value-place content 'content))
           (horizontal-list/layout ()
             (tree/widget ()
               (node/widget ()

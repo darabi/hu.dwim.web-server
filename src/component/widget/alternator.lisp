@@ -81,6 +81,7 @@
 ;;;;;;
 ;;; Alternative factory
 
+;; TODO: factor it with one-time-computation
 (def class* alternative-factory (computation)
   ((the-class :type standard-class :documentation "The class of the component that this factory produces.")
    (component nil :documentation "The component instance or NIL if not yet produced."))

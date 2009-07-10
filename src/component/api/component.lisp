@@ -118,7 +118,8 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   (when-bind replacement-place (make-component-place replacement-component)
     (setf (value-at-place replacement-place) nil))
   (when-bind original-component (value-at-place place)
-    (setf (parent-component-of original-component) nil))
+    (when (typep original-component 'parent/mixin)
+      (setf (parent-component-of original-component) nil)))
   (setf (value-at-place place) replacement-component))
 
 ;;;;;;
@@ -188,10 +189,10 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 (def (function e) find-descendant-component-with-type (component type)
   (find-descendant-component component [typep !1 type]))
 
-(def (function e) map-child-components (component visitor)
+(def (function e) map-child-components (component visitor &optional (child-slot-provider [class-slots (class-of !1)]))
   (ensure-functionf visitor)
   (iter (with class = (class-of component))
-        (for slot :in (class-slots class))
+        (for slot :in (funcall child-slot-provider component))
         (when (and (child-component-slot? component slot)
                    (slot-boundp-using-class class component slot))
           (bind ((value (slot-value-using-class class component slot)))
@@ -356,7 +357,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
     (call-next-method)))
 
 (def method to-be-rendered-component? ((self component))
-  #t)
+  #f)
 
 (def method mark-to-be-rendered-component ((self component))
   (map-child-components self #'mark-to-be-rendered-component))
@@ -399,6 +400,20 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 
 (def method show-component-recursively ((self component))
   (map-descendant-components self #'show-component))
+
+;;;;;;
+;;; Traverse visible components
+
+(def (generic e) visible-child-component-slots (component)
+  (:method ((self component))
+    (class-slots (class-of self))))
+
+(def (function e) map-visible-child-components (component function)
+  (ensure-functionf function)
+  (map-child-components component (lambda (child)
+                                    (when (visible-component? child)
+                                      (funcall function child)))
+                        #'visible-child-component-slots))
 
 ;;;;;;
 ;;; Enable/disable component

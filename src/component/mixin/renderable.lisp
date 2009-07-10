@@ -29,9 +29,11 @@
 (def method (setf slot-value-using-class) (new-value (class component-class) (instance renderable/mixin) (slot standard-effective-slot-definition))
   (unless (eq (standard-instance-access instance (slot-definition-location slot)) new-value)
     (call-next-method)
-    (mark-to-be-rendered-component instance)))
+    (unless (to-be-rendered-component-slot? slot)
+      (mark-to-be-rendered-component instance))))
 
 (def method slot-makunbound-using-class ((class component-class) (instance renderable/mixin) (slot standard-effective-slot-definition))
   (unless (slot-boundp-using-class class instance slot)
     (call-next-method)
-    (mark-to-be-rendered-component instance)))
+    (unless (to-be-rendered-component-slot? slot)
+      (mark-to-be-rendered-component instance))))

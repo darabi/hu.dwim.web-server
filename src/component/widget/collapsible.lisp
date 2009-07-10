@@ -21,6 +21,12 @@
     (setf (expand-command-of -self-)
           (make-expand-command -self- class prototype value))))
 
+(def method visible-child-component-slots ((self collapsible/abstract))
+  (remove-slots (if (expanded-component? self)
+                    '(expand-command)
+                    '(collapse-command))
+                (call-next-method)))
+
 (def (function e) render-collapse-command-for (component)
   (render-component (collapse-command-of component)))
 

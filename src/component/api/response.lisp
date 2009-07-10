@@ -89,11 +89,11 @@
   (app.debug "Inside AJAX-AWARE-RENDER; is this an ajax-aware-request? ~A" *ajax-aware-request*)
   (if (and *ajax-aware-request*
            (ajax-enabled? *application*))
-      (bind ((dirty-components
+      (bind ((to-be-rendered-components
               ;; KLUDGE: finding top/abstract and going down from there
               (bind ((top (find-descendant-component-with-type component 'top/abstract)))
                 (assert top nil "There is no TOP component below ~A, AJAX cannot be used in this situation at the moment" component)
-                (collect-covering-id-components-for-descendant-components top #'to-be-rendered-component?))))
+                (collect-covering-to-be-rendered-descendant-components top))))
         (setf (header-value *response* +header/content-type+) +xml-mime-type+)
         ;; FF does not like proper xml prologue, probably the other browsers even more so...
         ;; (emit-xml-prologue)
@@ -101,36 +101,35 @@
          ,@(with-collapsed-js-scripts
              (with-dojo-widget-collector
                <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
-                 ,(foreach (lambda (dirty-component)
-                             (with-restored-component-environment (parent-component-of dirty-component)
+                 ,(foreach (lambda (to-be-rendered-component)
+                             (with-restored-component-environment (parent-component-of to-be-rendered-component)
                                (bind ((*inside-user-code* #t))
                                  (setf *rendering-phase-reached* #t)
-                                 (render-xhtml dirty-component))))
-                           dirty-components)>))
+                                 (render-xhtml to-be-rendered-component))))
+                           to-be-rendered-components)>))
          <result "success">>)
       (bind ((*inside-user-code* #t))
         (setf *rendering-phase-reached* #t)
         (render-xhtml component))))
 
-(def function collect-covering-id-components-for-descendant-components (component predicate)
-  (bind ((covering-components nil))
+(def function collect-covering-to-be-rendered-descendant-components (component)
+  (prog1-bind covering-components nil
     (labels ((traverse (component)
                (catch component
                  (with-component-environment component
-                   (when (visible-component? component)
-                     (if (funcall predicate component)
-                         (bind ((ancestor (find-ancestor-component-with-type component 'id/mixin)))
-                           (assert ancestor nil "There is no ancestor component with id for ~A" component)
-                           (pushnew ancestor covering-components)
-                           (throw ancestor nil))
-                         (map-child-components component #'traverse)))))))
+                   (if (to-be-rendered-component? component)
+                       (bind ((new-covering-component (find-ancestor-component-with-type component 'id/mixin)))
+                         (assert new-covering-component nil "There is no covering ancestor component with id for ~A" component)
+                         (break "~A ~A" component new-covering-component)
+                         (setf covering-components
+                               (cons new-covering-component
+                                     (remove-if (lambda (covering-component)
+                                                  (find-ancestor-component covering-component [eq !1 new-covering-component]))
+                                                covering-components)))
+                         (throw new-covering-component nil))
+                       (map-visible-child-components component #'traverse))))))
       (traverse component))
-    (remove-if (lambda (component-to-be-removed)
-                 (find-if (lambda (covering-component)
-                            (and (not (eq component-to-be-removed covering-component))
-                                 (find-ancestor-component component-to-be-removed [eq !1 covering-component])))
-                          covering-components))
-               covering-components)))
+    (break "~A" covering-components)))
 
 (def method call-in-rendering-environment (application session thunk)
   (funcall thunk))

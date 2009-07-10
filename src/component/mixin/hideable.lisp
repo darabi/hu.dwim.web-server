@@ -23,8 +23,11 @@
   (:documentation "A COMPONENT that can be HIDDEN or SHOWN."))
 
 (def render-component :around hideable/mixin
-  (when (force (visible-component? -self-))
+  (when (visible-component? -self-)
     (call-next-method)))
+
+(def method visible-component? :around ((self hideable/mixin))
+  (force (call-next-method)))
 
 (def method hide-component ((self hideable/mixin))
   (setf (visible-component? self) #f))

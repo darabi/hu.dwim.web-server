@@ -32,7 +32,7 @@
 (def (macro e) replace-target-place/widget ((&rest args &key &allow-other-keys) content &body forms)
   `(make-instance 'replace-target-place/widget ,@args
                   :content ,content 
-                  :replacement-component (delay ,@forms)))
+                  :replacement-component (one-time-delay ,@forms)))
 
 (def constructor replace-target-place/widget
   (setf (action-of -self-) (make-component-action -self-
@@ -40,10 +40,13 @@
 
 (def refresh-component replace-target-place/widget
   (bind (((:slots ajax) -self-)
-         (target-place (target-place-of (find-replace-target-place-widget -self-))))
+         (target-place (target-place-of (find-replace-target-place-widget -self-)))
+         (component (component-at-place target-place)))
     (setf ajax
-          (awhen (find-ancestor-component-with-type (component-at-place target-place) 'id/mixin)
-            (ajax-of it)))))
+          (if (typep component 'parent/mixin)
+              (awhen (find-ancestor-component-with-type component 'id/mixin)
+                (ajax-of it))
+              #t))))
 
 (def function find-replace-target-place-widget (component)
   (find-ancestor-component component
@@ -55,5 +58,4 @@
   (:method ((component replace-target-place/widget) class prototype value)
     (bind ((target-place (target-place-of (find-replace-target-place-widget component)))
            (replacement-component (force (replacement-component-of component))))
-      (setf (replacement-component-of component) replacement-component
-            (component-at-place target-place) replacement-component))))
+      (setf (component-at-place target-place) replacement-component))))

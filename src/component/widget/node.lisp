@@ -49,10 +49,18 @@
          (foreach #'render-component child-nodes))>
     (render-command-onclick-handler (find-command -self- 'select-component) id)))
 
+(def method visible-child-component-slots ((self node/widget))
+  (remove-slots (append (unless (expanded-component? self)
+                          '(child-nodes))
+                        (unless (child-nodes-of self)
+                          '(collapse-command expand-command)))
+                (call-next-method)))
+
 (def (generic e) make-node/content (component class prototype value))
 
 (def (generic e) make-node/child-node (component class prototype value))
 
 (def method collect-tree/children ((component component) (class null) (prototype null) (value null))
-  ;; KLUDGE: to allow instantiating widget without componente-value
+  ;; KLUDGE: to allow instantiating widget without component-value
+  ;; TODO: kill this
   (make-list (length (child-nodes-of component)) :initial-element nil))

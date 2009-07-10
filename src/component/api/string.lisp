@@ -44,6 +44,18 @@
   (values))
 
 ;;;;;;
+;;; Render component
+
+(def method to-be-rendered-component? ((self string))
+  #f)
+
+(def method mark-to-be-rendered-component ((self string))
+  (values))
+
+(def method mark-rendered-component ((self string))
+  (operation-not-supported "Cannot MARK-RENDERED-COMPONENT ~A"))
+
+;;;;;;
 ;;; Refresh component
 
 (def layered-method refresh-component ((self string))
