@@ -42,9 +42,9 @@
           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)
       <span (:class `str("content " ,(selectable-component-style-class -self-)))
-            ,(when child-nodes
-               (render-collapse-or-expand-command-for -self-))
-            ,(render-content-for -self-)>
+        ,(when child-nodes
+           (render-collapse-or-expand-command-for -self-))
+        ,(render-content-for -self-)>
       ,(when (expanded-component? -self-)
          (foreach #'render-component child-nodes))>
     (render-command-onclick-handler (find-command -self- 'select-component) id)))
