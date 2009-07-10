@@ -7,55 +7,35 @@
 ;;;;;;
 ;;; Treeble widget
 
-(def (component e) treeble/widget (widget/basic)
-  ())
-
-;; TODO: call this whole stuff a treeble
-
-;;;;;;
-;;; Tree abstract
-
-(def special-variable *tree*)
-
-(def special-variable *tree-level*)
-
-(def (component e) tree/abstract ()
-  ())
-
-(def component-environment tree/abstract
-  (bind ((*tree* -self-)
-         (*tree-level* -1))
-    (call-next-method)))
-
-(def (macro e) tree ((&rest args &key &allow-other-keys) &body rows)
-  `(make-instance 'tree/widget ,@args :rows (list ,@rows)))
-
-;;;;;;
-;;; Tree widget
-
-(def (component e) tree/widget (tree/abstract style/abstract)
-  ((columns nil :type components)
-   ;; TODO expander-column-index should be marked by a special column type, or something similar. this way it's very fragile...
+(def (component e) treeble/widget (tree/abstract
+                                   widget/style
+                                   root-nodes/mixin
+                                   columns/mixin
+                                   collapsible/mixin
+                                   selection/mixin)
+  (;; TODO expander-column-index should be marked by a special column type, or something similar. this way it's very fragile...
    (expander-column-index 0 :type integer)
-   (root-nodes nil :type components)
    (expand-nodes-by-default #f :type boolean)))
 
-(def render-xhtml tree/widget
-  (bind (((:read-only-slots root-nodes id) -self-))
-    <table (:id ,id :class "tree")
-      <thead <tr ,(render-tree-columns -self-) >>
-      <tbody ,(foreach #'render-component root-nodes) >>))
+(def (macro e) treeble/widget ((&rest args &key &allow-other-keys) &body root-nodes)
+  `(make-instance 'treeble/widget ,@args :root-nodes (list ,@root-nodes)))
 
-(def render-csv tree/widget
+(def render-xhtml treeble/widget
+  (bind (((:read-only-slots root-nodes) -self-))
+    (with-render-style/abstract (-self- :element-name "table")
+      <thead <tr ,(render-treeble-columns -self-)>>
+      <tbody ,(foreach #'render-component root-nodes)>)))
+
+(def render-csv treeble/widget
   (write-csv-line (columns-of -self-))
   (write-csv-line-separator)
   (foreach #'render-component (root-nodes-of -self-)))
 
-(def render-ods tree/widget
+(def render-ods treeble/widget
   <table:table
     <table:table-row ,(foreach #'render-component (columns-of -self-))>
     ,(foreach #'render-component (root-nodes-of -self-))>)
 
-(def (layered-function e) render-tree-columns (tree)
-  (:method ((self tree))
+(def (layered-function e) render-treeble-columns (treeble)
+  (:method ((self treeble/widget))
     (foreach #'render-component (columns-of self))))

@@ -10,13 +10,18 @@
 (def (component e) pie/chart (chart/abstract)
   ())
 
+(def (macro e) pie/chart ((&rest args &key &allow-other-keys) &body name-value-pairs)
+  `(make-pie-chart ,@args
+                   :names (list ,@(mapcar #'first name-value-pairs))
+                   :values (list ,@(mapcar #'second name-value-pairs))))
+
 (def render-xhtml pie/chart
   (render-chart -self- "ampie"))
 
-(def (function e) make-pie-chart (&key title names values width height colors
+(def (function e) make-pie-chart (&key width height title names values colors
                                        (3d #f) (animation #f) (font-size 12) (label-format "{title}: {value} ({percents}%)")
                                        (tooltip-format label-format))
-  (make-instance 'pie-chart
+  (make-instance 'pie/chart
                  :width width
                  :height height
                  :data-provider (make-xml-provider

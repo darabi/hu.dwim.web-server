@@ -12,8 +12,7 @@
                                header/mixin
                                cells/mixin
                                context-menu/mixin
-                               selectable/mixin
-                               frame-unique-id/mixin)
+                               selectable/mixin)
   ())
 
 (def (macro e) row/widget ((&rest args &key &allow-other-keys) &body cells)
@@ -64,12 +63,14 @@
 
 (def (component e) entire-row/widget (widget/style
                                       row/abstract
+                                      content/abstract
                                       header/mixin
-                                      content/mixin
                                       context-menu/mixin
-                                      selectable/mixin
-                                      frame-unique-id/mixin)
+                                      selectable/mixin)
   ())
+
+(def (macro e) entire-row/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'entire-row/widget ,@args :content ,(the-only-element content)))
 
 (def layered-method render-table-row ((table table/widget) (row entire-row/widget))
   (render-component row))
@@ -77,14 +78,11 @@
 (def layered-method render-onclick-handler ((self entire-row/widget) (button (eql :left)))
   nil)
 
-(def function render-entire-row (table row body-thunk)
-  (bind (((:read-only-slots id) row)
-         (onclick-handler? (render-onclick-handler row :left)))
+(def render-xhtml entire-row/widget
+  (bind (((:read-only-slots id) -self-)
+         (onclick-handler? (render-onclick-handler -self- :left)))
     <tr (:id ,id :class ,(when onclick-handler? "selectable")
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
-        <td (:colspan ,(length (columns-of table)))
-            ,(funcall body-thunk)>>))
-
-(def render-xhtml entire-row/widget
-  (render-entire-row *table* -self- #'call-next-method))
+      <td (:colspan ,(length (columns-of *table*)))
+        ,(render-content-for -self-)>>))

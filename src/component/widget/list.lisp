@@ -15,8 +15,7 @@
                                 resizable/mixin
                                 scrollable/mixin
                                 collapsible/mixin
-                                page-navigation-bar/mixin
-                                frame-unique-id/mixin)
+                                page-navigation-bar/mixin)
   ()
   (:documentation "A LIST/WIDGET has several COMPONENTs inside either positioned vertically or horizontally. It supports expanding, resizing, scrolling, page navigation, selection, highlighting and commands."))
 

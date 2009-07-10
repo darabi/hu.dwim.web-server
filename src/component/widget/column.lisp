@@ -11,8 +11,7 @@
                                   column/abstract
                                   header/mixin
                                   context-menu/mixin
-                                  selectable/mixin
-                                  frame-unique-id/mixin)
+                                  selectable/mixin)
   ())
 
 (def (macro e) column/widget ((&rest args &key &allow-other-keys) &body header)

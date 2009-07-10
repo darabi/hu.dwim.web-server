@@ -10,8 +10,7 @@
 (def (component e) element/widget (widget/style
                                    context-menu/mixin
                                    content/abstract
-                                   selectable/mixin
-                                   frame-unique-id/mixin)
+                                   selectable/mixin)
   ()
   (:documentation "An ELEMENT/WIDGET has a single COMPONENT inside. It supports selection, highlight and commands."))
 

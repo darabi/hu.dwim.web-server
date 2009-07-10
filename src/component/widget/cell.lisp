@@ -23,8 +23,7 @@
 (def (component e) cell/widget (widget/style
                                 content/abstract
                                 context-menu/mixin
-                                selectable/mixin
-                                frame-unique-id/mixin)
+                                selectable/mixin)
   ((column-span nil :type integer)
    (row-span nil :type integer)
    (word-wrap :type boolean)

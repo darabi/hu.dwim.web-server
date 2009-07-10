@@ -10,11 +10,14 @@
 (def (component e) stock/chart (chart/abstract)
   ())
 
+(def (macro e) stock/chart ((&rest args &key &allow-other-keys) &body data)
+  `(make-stock-chart ,@args :data (list ,@data)))
+
 (def render-xhtml stock/chart
   (render-chart -self- "amstock"))
 
 (def (function e) make-stock-chart (&key title file-name)
-  (make-instance 'stock-chart
+  (make-instance 'stock/chart
                  :configuration-provider (make-xml-provider
                                            <settings
                                             <data_sets

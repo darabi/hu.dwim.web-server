@@ -14,7 +14,7 @@
 ;;;;;;
 ;;; Inline render component widget
 
-(def (component e) inline-render-component/widget (widget/basic style/mixin thunk/mixin)
+(def (component e) inline-render-component/widget (widget/basic thunk/mixin)
   ()
   (:documentation "An INLINE-RENDER-COMPONENT/WIDGET has a FUNCTION that is called in its RENDER-COMPONENT."))
 
@@ -22,8 +22,7 @@
   `(make-instance 'inline-render-component/widget ,@args :thunk (lambda () ,@forms)))
 
 (def function render-inline-render-component (component)
-  (with-render-style/mixin (component)
-    (funcall (thunk-of component))))
+  (funcall (thunk-of component)))
 
 (def render-component inline-render-component/widget
   (render-inline-render-component -self-))
@@ -47,7 +46,7 @@
 ;;;;;;
 ;;; Wrap render component widget
 
-(def (component e) wrap-render-component/widget (widget/basic content/abstract style/mixin thunk/mixin)
+(def (component e) wrap-render-component/widget (widget/basic content/abstract thunk/mixin)
   ()
   (:documentation "A WRAP-RENDER-COMPONENT/WIDGET has a FUNCTION and another COMPONENT inside. It wraps the rendering of its CONTENT with the rendering FUNCTION. The CONTENT can be rendered by calling the local function (-body-)."))
 
@@ -64,8 +63,7 @@
                   :content ,content))
 
 (def function render-wrap-render-component (component)
-  (with-render-style/mixin (component)
-    (funcall (thunk-of component) (lambda () (render-content-for component)))))
+  (funcall (thunk-of component) (lambda () (render-content-for component))))
 
 (def render-component wrap-render-component/widget
   (render-wrap-render-component -self-))

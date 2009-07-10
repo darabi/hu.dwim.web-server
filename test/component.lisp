@@ -665,18 +665,20 @@
                       (component-message/widget (:permanent #t :category :warning)
                         "Mary has been alreay added to the list of females")
                       (component-message/widget (:permanent #t :category :error)
-                        "Cannot add Mary to the list of males, he is a female")))
+                        "Cannot add Mary to the list of males, she is a female")))
                   (replace-target-demo/widget "Table"
                     (table/widget (:columns (list (column/widget ()
                                                     "Male")
                                                   (column/widget ()
                                                     "Female")))
-                      (row/widget (:header "Old")
+                      (row/widget (:header "1")
                         (cell/widget ()
                           "John")
                         (cell/widget ()
                           "Mary"))
-                      (row/widget (:header "Young")
+                      (entire-row/widget (:header "2")
+                        "Entire row")
+                      (row/widget (:header "3")
                         (cell/widget ()
                           "Steve")
                         (cell/widget ()
@@ -696,22 +698,18 @@
                           (node/widget ()
                               "Susanne")))))
                   (replace-target-demo/widget "Treeble"
-                    "TODO"
-                    #+nil
                     (treeble/widget (:columns (list (column/widget ()
-                                                                   )
+                                                      "Male")
                                                     (column/widget ()
-                                                                   )))
-                                    (node/widget ()
-                                        (list (cell/widget ()
-                                                           "John")
-                                              (cell/widget ()
-                                                           "Mary"))
-                                      (node/widget ()
-                                          (list (cell/widget ()
-                                                             "Steve")
-                                                (cell/widget ()
-                                                             "Kate"))))))
+                                                      "Female")))
+                      (nodrow/widget (:cells (list (cell/widget ()
+                                                     "John")
+                                                   (cell/widget ()
+                                                     "Mary")))
+                        (nodrow/widget (:cells (list (cell/widget ()
+                                                       "Steve")
+                                                     (cell/widget ()
+                                                       "Kate")))))))
                   (replace-target-demo/widget "Tree navigator"
                     (make-instance 'tree-level/widget
                                    :path (path/widget () "Magyarország" "Dél-dunántúli régió")
@@ -738,13 +736,25 @@
                 (node/widget (:expanded #f)
                     "Chart"
                   (replace-target-demo/widget "Column"
-                    "TODO")
+                    (column/chart (:title "Salary"
+                                   :width 400
+                                   :height 400)
+                      ("John" 12500)
+                      ("Mary" 14300)
+                      ("Steve" 9800)
+                      ("Kate" 13700)))
                   (replace-target-demo/widget "Flow"
                     "TODO")
                   (replace-target-demo/widget "Line"
                     "TODO")
                   (replace-target-demo/widget "Pie"
-                    "TODO")
+                    (pie/chart (:title "Salary"
+                                :width 400
+                                :height 400)
+                      ("John" 12500)
+                      ("Mary" 14300)
+                      ("Steve" 9800)
+                      ("Kate" 13700)))
                   (replace-target-demo/widget "Radar"
                     "TODO")
                   (replace-target-demo/widget "Scatter"

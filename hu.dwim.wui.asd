@@ -269,6 +269,9 @@
                                              (:file "tool-bar")
                                              (:file "top" :depends-on ("message"))
                                              (:file "tree")
+                                             (:file "node")
+                                             (:file "treeble")
+                                             (:file "nodrow")
                                              (:file "tree-level")
                                              (:file "alternator" :depends-on ("reference"))
                                              (:file "frame" :depends-on ("top"))
@@ -289,8 +292,6 @@
                                              (:file "row" :depends-on ("table"))
                                              (:file "cell" :depends-on ("table" "row"))
                                              (:file "panel" :depends-on ("message"))
-                                             #+nil
-                                             ((:file "node"))
                                              #+nil
                                              ((:file "authentication")
                                               (:file "expression")
