@@ -83,7 +83,9 @@
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-symbol (value instance)
    (:method :in xhtml-layer (value (instance source-text:source-symbol))
-     (bind ((style-class (cond ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))
+     (bind ((style-class (cond ((keywordp value)
+                                "keyword")
+                               ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))
                                 "lambda-list-keyword")
                                ((member value '(if let let* progn prog1 block return-from tagbody go throw catch flet labels))
                                 "special-form")

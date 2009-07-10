@@ -283,10 +283,10 @@
   (icon-tooltip.go-to-first-page "Jump to first page")
 
   (icon-label.go-to-previous-page "Previous")
-  (icon-tooltip.go-to-previous-page "Move to previous page")
+  (icon-tooltip.go-to-previous-page "Go to previous page")
 
   (icon-label.go-to-next-page "Next")
-  (icon-tooltip.go-to-next-page "Move to next page")
+  (icon-tooltip.go-to-next-page "go to next page")
 
   (icon-label.go-to-last-page "Last")
   (icon-tooltip.go-to-last-page "Jump to last page")

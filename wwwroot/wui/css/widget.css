@@ -49,6 +49,10 @@ a.external-link
   color: darkgreen;
 }
 
+.lisp-form .keyword {
+  color: darkred;
+}
+
 .lisp-form .lambda-list-keyword {
   color: darkblue;
 }

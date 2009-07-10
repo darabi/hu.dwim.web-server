@@ -49,7 +49,8 @@
 (def render-xhtml page-navigation-bar/widget
   (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-size-selector) -self-))
     <span (:class "page-navigation-bar")
-      ,(foreach #'render-component (list first-command previous-command jumper page-size-selector next-command last-command))>))
+      ;; TODO: revive page-size-selector (does not work with ajax)
+      ,(foreach #'render-component (list first-command previous-command jumper #+nil page-size-selector next-command last-command))>))
 
 ;;;;;;
 ;;; Icon
