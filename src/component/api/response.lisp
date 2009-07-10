@@ -120,7 +120,6 @@
                    (if (to-be-rendered-component? component)
                        (bind ((new-covering-component (find-ancestor-component-with-type component 'id/mixin)))
                          (assert new-covering-component nil "There is no covering ancestor component with id for ~A" component)
-                         (break "~A ~A" component new-covering-component)
                          (setf covering-components
                                (cons new-covering-component
                                      (remove-if (lambda (covering-component)
@@ -128,8 +127,7 @@
                                                 covering-components)))
                          (throw new-covering-component nil))
                        (map-visible-child-components component #'traverse))))))
-      (traverse component))
-    (break "~A" covering-components)))
+      (traverse component))))
 
 (def method call-in-rendering-environment (application session thunk)
   (funcall thunk))
