@@ -271,7 +271,7 @@
                                              (:file "tree")
                                              (:file "node")
                                              (:file "treeble")
-                                             (:file "nodrow")
+                                             (:file "nodrow" :depends-on ("column" "cell"))
                                              (:file "tree-level")
                                              (:file "alternator" :depends-on ("reference"))
                                              (:file "frame" :depends-on ("top"))
@@ -290,7 +290,7 @@
                                              (:file "table")
                                              (:file "column")
                                              (:file "row" :depends-on ("table"))
-                                             (:file "cell" :depends-on ("table" "row"))
+                                             (:file "cell" :depends-on ("table" "row" "column"))
                                              (:file "panel" :depends-on ("message"))
                                              #+nil
                                              ((:file "authentication")
