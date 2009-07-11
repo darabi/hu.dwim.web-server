@@ -20,7 +20,8 @@
   (write-string "/")
   (princ (port-of -self-)))
 
-(def (class* e) server (request-counter-mixin)
+(def (class* e) server (request-counter-mixin
+                        debug-context-mixin)
   ((admin-email-address nil)
    (gracefully-aborted-request-count 0 :export :accessor)
    (failed-request-count 0 :export :accessor)

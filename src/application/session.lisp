@@ -62,6 +62,11 @@
    (computed-universe nil)
    (valid #t :accessor is-session-valid? :export :accessor)))
 
+(def method debug-on-error? ((session session) error)
+  (if (slot-boundp session 'debug-on-error)
+      (slot-value session 'debug-on-error)
+      (debug-on-error? (application-of session) error)))
+
 (def (function e) mark-session-invalid (session)
   (setf (is-session-valid? session) #f))
 

@@ -59,6 +59,16 @@
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:metaclass funcallable-standard-class))
 
+(def method debug-on-error? ((application application) error)
+  (cond
+    ((slot-boundp application 'debug-on-error)
+     (slot-value application 'debug-on-error))
+    ;; TODO: there's some anomaly here compared to sessions/apps: sessions are owned by an application, but apps don't have a server slot. resolve or ignore? are apps exclusively owned by servers?
+    ((and (boundp '*server*)
+          *server*)
+     (debug-on-error? *server* error))
+    (t (call-next-method))))
+
 (def method compile-time-debug-client-side? :around ((self application))
   (if (slot-boundp self 'compile-time-debug-client-side)
       (call-next-method)
