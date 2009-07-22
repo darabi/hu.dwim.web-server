@@ -17,9 +17,11 @@
 ;;;;;;
 ;;; T inspector
 
+#+nil
 (def (component e) t/inspector (t/abstract primitive/inspector)
   ())
 
+#+nil
 (def render-xhtml t/inspector
   (if (edited-component? -self-)
       (render-t-component -self-)
@@ -64,7 +66,7 @@
 ;;;;;;
 ;;; String inspector
 
-(def (component e) string/inspector (string/abstract primitive/inspector)
+(def (component e) string/inspector (string/abstract primitive/inspector inspector/basic)
   ())
 
 (def render-xhtml string/inspector

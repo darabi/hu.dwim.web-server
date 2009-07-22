@@ -35,8 +35,8 @@
          (not (headers-are-sent-p *response*)))
      (server.info "Sending an internal server error page for request ~S" (raw-uri-of *request*))
      (emit-simple-html-document-http-response (:status +http-internal-server-error+ :title #"error.internal-server-error.title")
-       (bind ((args (list :admin-email-address (and (boundp '*server*)
-                                                    (admin-email-address-of *server*)))))
+       (bind ((args (list :administrator-email-address (and (boundp '*server*)
+                                                            (administrator-email-address-of *server*)))))
          (apply-resource-function 'render-internal-error-page args)))
      (abort-server-request "HANDLE-TOPLEVEL-ERROR succesfully handled the error by sending an error page"))
     (t

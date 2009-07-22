@@ -8,14 +8,14 @@
   :log-discriminator "WUI")
 (register-locale-loaded-listener 'wui-resource-loader/cl-perec)
 
-(def method localized-instance-reference-string ((instance prc::persistent-object))
+(def method localized-instance-name ((instance prc::persistent-object))
   (bind ((class (class-of instance)))
     (if (typep class 'dmm::entity)
         (flet ((localize-value (value)
                  (bind ((d-value? (prc::d-value-p value)))
                    (if (and (not d-value?)
                             (typep value 'standard-object))
-                       (localized-instance-reference-string value)
+                       (localized-instance-name value)
                        (princ-to-string (if (and d-value?
                                                  (prc::single-d-value-p value))
                                             (prc::single-d-value value)

@@ -5,37 +5,37 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Inspector abstract
+;;; inspector/abstract
 
 (def (component e) inspector/abstract (editable/mixin component-value/mixin)
   ())
 
 ;;;;;;
-;;; Inspector minimal
+;;; inspector/minimal
 
 (def (component e) inspector/minimal (inspector/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Inspector basic
+;;; inspector/basic
 
 (def (component e) inspector/basic (inspector/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Inspector style
+;;; inspector/style
 
 (def (component e) inspector/style (inspector/basic component/style)
   ())
 
 ;;;;;;
-;;; Inspector full
+;;; inspector/full
 
 (def (component e) inspector/full (inspector/style component/full)
   ())
 
 ;;;;;;
-;;; Inspector
+;;; Inspector factory
 
 (def layered-method make-inspector (type value &rest args &key &allow-other-keys)
   "A TYPE specifier is either
@@ -55,7 +55,10 @@
                    (when (subtypep component-type 'primitive/abstract)
                      (list :the-type type))))))
 
-(def (generic e) find-inspector-type-for-type (type)
+(def (layered-function e) find-inspector-type-for-type (type)
+  (:method (class)
+    't/inspector)
+  
   (:method ((type null))
     (error "NIL is not a valid type to make an inspector for it"))
 
@@ -86,9 +89,12 @@
 (def (function) find-inspector-type-for-compound-type (type)
   (find-inspector-type-for-compound-type* (first type) type))
 
-(def (generic e) find-inspector-type-for-compound-type* (first type)
+(def (layered-function e) find-inspector-type-for-compound-type* (first type)
   (:method ((first (eql 'member)) (type cons))
     `(member/inspector :possible-values ,(rest type)))
+
+  (:method ((first (eql 'single-float)) (type cons))
+    'float/inspector)
 
   (:method ((first (eql 'or)) (type cons))
     (bind ((main-type (find-main-type-in-or-type type)))
@@ -100,18 +106,18 @@
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
           `(standard-object-list/inspector :the-class ,(find-type-by-name main-type))
-          'list/inspector)))
+          'sequence/inspector)))
 
   (:method ((first (eql 'components)) (type cons))
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
           `(standard-object-list/inspector :the-class ,(find-type-by-name main-type))
-          'list/inspector))))
+          'sequence/inspector))))
 
 (def (function e) make-inspector-for-prototype (prototype &rest args &key &allow-other-keys)
   (apply #'make-instance (find-inspector-type-for-prototype prototype) args))
 
-(def (generic e) find-inspector-type-for-prototype (prototype)
+(def (layered-function e) find-inspector-type-for-prototype (prototype)
   (:method ((prototype t))
     't/inspector)
 
@@ -119,7 +125,9 @@
     'string/inspector)
 
   (:method ((prototype symbol))
-    'symbol/inspector)
+    (if (null prototype)
+        (call-next-method)
+        'symbol/inspector))
 
   (:method ((prototype integer))
     'integer/inspector)
@@ -134,7 +142,7 @@
     'timestamp/inspector)
 
   (:method ((prototype list))
-    'list/inspector)
+    'sequence/inspector)
 
   (:method ((prototype standard-slot-definition))
     'standard-slot-definition/inspector)
@@ -146,7 +154,15 @@
     'standard-class/inspector)
 
   (:method ((prototype structure-object))
-    'standard-object/inspector)
+    't/inspector)
+
+  (:method ((prototype package))
+    'package/inspector)
 
   (:method ((prototype standard-object))
-    'standard-object/inspector))
+    't/inspector))
+
+(def function find-main-type-in-or-type (type)
+  (remove-if (lambda (element)
+               (member element '(or null)))
+             type))

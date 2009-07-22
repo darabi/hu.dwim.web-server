@@ -5,19 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; File inspector
+;;; source-file/inspector
 
-(def (component e) file/inspector ()
+(def (component e) source-file/inspector (t/inspector)
   ())
 
-(def render-xhtml file/inspector
-  (not-yet-implemented))
-
-;;;;;;
-;;; Source file inspector
-
-(def (component e) source-file/inspector (file/inspector)
-  ())
-
-(def render-xhtml source-file/inspector
-  (not-yet-implemented))
+(def (macro e) source-file/inspector ((&rest args &key &allow-other-keys) &body file)
+  `(make-instance 'source-file/inspector ,@args :component-value ,(the-only-element file)))

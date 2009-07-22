@@ -5,31 +5,37 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Filter abstract
+;;; filter/abstract
 
 (def (component e) filter/abstract (component-value/mixin)
   ())
 
 ;;;;;;
-;;; Filter minimal
+;;; filter/minimal
 
 (def (component e) filter/minimal (filter/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Filter basic
+;;; filter/basic
 
 (def (component e) filter/basic (filter/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Filter style
+;;; filter/style
 
 (def (component e) filter/style (filter/basic component/style)
   ())
 
 ;;;;;;
-;;; Filter full
+;;; filter/full
 
 (def (component e) filter/full (filter/style component/full)
   ())
+
+;;;;;;
+;;; Filter factory
+
+(def layered-method make-filter (type &rest args &key &allow-other-keys)
+  (not-yet-implemented))

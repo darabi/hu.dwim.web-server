@@ -7,5 +7,5 @@
 ;;;;;;
 ;;; Reference widget
 
-(def (component e) reference/widget (widget/basic content/abstract)
+(def (component e) reference/widget (command/widget)
   ())

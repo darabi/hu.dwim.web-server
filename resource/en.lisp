@@ -5,6 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Util
+
+(def resources en
+  (sequence.empty "empty")
+  (sequence.element "element"))
+
+;;;;;;
 ;;; Mime type
 
 (def resources en
@@ -21,14 +28,14 @@
   (error.internal-server-error "Internal server error")
   (error.access-denied-error "Access denied")
 
-  (render-internal-error-page (&key admin-email-address &allow-other-keys)
+  (render-internal-error-page (&key administrator-email-address &allow-other-keys)
     <div
       <h1 "Internal server error">
       <p "An internal server error has occured while processing your request. We are sorry for the inconvenience.">
       <p "The developers will be notified about this error and will hopefully fix it in the near future.">
-      ,(when admin-email-address
+      ,(when administrator-email-address
          <p "You may contact the administrators at the "
-            <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
+            <a (:href ,(mailto-href administrator-email-address)) ,administrator-email-address>
             " email address.">)
       <p <a (:href "#" :onClick `js-inline(history.go -1)) "Go back">>>)
 

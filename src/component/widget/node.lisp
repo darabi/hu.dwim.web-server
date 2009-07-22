@@ -60,7 +60,7 @@
 
 (def (generic e) make-node/child-node (component class prototype value))
 
-(def method collect-tree/children ((component component) (class null) (prototype null) (value null))
+(def method collect-tree/children ((component node/widget) (class null) (prototype null) (value null))
   ;; KLUDGE: to allow instantiating widget without component-value
   ;; TODO: kill this
   (make-list (length (child-nodes-of component)) :initial-element nil))

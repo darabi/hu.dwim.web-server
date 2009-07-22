@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Content widget
+;;; content/widget
 
 (def (component e) content/widget (widget/style content/abstract context-menu/mixin)
   ()
@@ -20,7 +20,22 @@
     (render-content-for -self-)))
 
 ;;;;;;
-;;; Inline XHTML string content widget
+;;; contents/widget
+
+(def (component e) contents/widget (widget/style contents/abstract context-menu/mixin)
+  ()
+  (:documentation "A COMPONENT with style, remote setup, context menu and several COMPONENTs inside."))
+
+(def (macro e) contents/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'contents/widget ,@args :content ,(the-only-element content)))
+
+(def render-xhtml contents/widget
+  (with-render-style/abstract (-self-)
+    (render-context-menu-for -self-)
+    (render-contents-for -self-)))
+
+;;;;;;
+;;; inline-xhtml-string-content/widget
 
 (def (component e) inline-xhtml-string-content/widget (widget/basic content/abstract style/mixin)
   ((content :type string))
@@ -41,7 +56,7 @@
       (values))))
 
 ;;;;;;
-;;; Quote XML string content widget
+;;; quote-xml-string-content/widget
 
 (def (component e) quote-xml-string-content/widget (widget/basic content/abstract style/mixin)
   ((content :type string))
@@ -55,7 +70,7 @@
     (render-content-for -self-)))
 
 ;;;;;;
-;;; Quote XML form widget
+;;; quote-xml-form/widget
 
 (def (component e) quote-xml-form/widget (widget/basic style/mixin thunk/mixin)
   ()

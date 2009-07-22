@@ -13,7 +13,7 @@
       (make-reference-label reference class target)))
 
 (def method make-reference-label ((reference standard-object-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
-  (localized-instance-reference-string (target-of reference)))
+  (localized-instance-name (target-of reference)))
 
 (def method make-reference-label ((reference standard-object-list-inspector-reference) (class dmm::entity) (instance prc::persistent-object))
-  (localized-instance-reference-string instance))
+  (localized-instance-name instance))

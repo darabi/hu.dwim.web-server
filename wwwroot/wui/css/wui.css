@@ -109,11 +109,13 @@ div.list.vertical > div
 .command
 {
   cursor: pointer;
+  color: darkblue;
 }
 
 .command.disabled
 {
   cursor: default;
+  color: inherit;
 }
 
 .command:hover span

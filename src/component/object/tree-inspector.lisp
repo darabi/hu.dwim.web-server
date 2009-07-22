@@ -256,7 +256,7 @@
 
 (def refresh-component standard-object-tree-path-inspector
   (bind (((:slots segments instances) -self-))
-    (setf segments (mapcar #'localized-instance-reference-string instances))))
+    (setf segments (mapcar #'localized-instance-name instances))))
 
 (def render-xhtml standard-object-tree-path-inspector
   (bind (((:read-only-slots segments instances) -self-))
@@ -306,7 +306,7 @@
 
 (def (generic e) render-standard-object-tree-nested-box-inspector-node (component node)
   (:method ((component standard-object-tree-nested-box-inspector) (instance standard-object))
-    <div ,(localized-instance-reference-string instance)>))
+    <div ,(localized-instance-name instance)>))
 
 ;;;;;
 ;;; Selectable standard object tree inspector

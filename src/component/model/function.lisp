@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Function inspector
+;;; function/inspector
 
-(def (component e) function/inspector ()
+(def (component e) function/inspector (t/inspector)
   ())
 
-(def render-xhtml function/inspector
-  (not-yet-implemented))
+(def (macro e) function/inspector ((&rest args &key &allow-other-keys) &body name)
+  `(make-instance 'function/inspector ,@args :component-value ,(the-only-element name)))

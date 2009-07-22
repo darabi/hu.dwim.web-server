@@ -5,31 +5,37 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Invoker abstract
+;;; invoker/abstract
 
 (def (component e) invoker/abstract (component-value/mixin)
   ())
 
 ;;;;;;
-;;; Invoker minimal
+;;; invoker/minimal
 
 (def (component e) invoker/minimal (invoker/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Invoker basic
+;;; invoker/basic
 
 (def (component e) invoker/basic (invoker/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Invoker style
+;;; invoker/style
 
 (def (component e) invoker/style (invoker/basic component/style)
   ())
 
 ;;;;;;
-;;; Invoker full
+;;; invoker/full
 
 (def (component e) invoker/full (invoker/style component/full)
   ())
+
+;;;;;;
+;;; Invoker factory
+
+(def layered-method make-invoker (type &rest args &key &allow-other-keys)
+  (not-yet-implemented))

@@ -5,13 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Lisp form viewer
+;;; t/lisp-form/inspector
 
-(def (component e) lisp-form/viewer (viewer/basic)
+(def (component e) t/lisp-form/inspector (inspector/basic)
   ((parse-tree :type source-text:source-object)))
 
-(def (macro e) lisp-form/viewer ((&rest args &key &allow-other-keys) &body form)
-  `(make-instance 'lisp-form/viewer ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
+(def (macro e) t/lisp-form/inspector ((&rest args &key &allow-other-keys) &body form)
+  `(make-instance 't/lisp-form/inspector ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
 
 (def function make-lisp-form-component-value (form)
   (bind ((*print-case* :downcase))
@@ -23,14 +23,14 @@
       form
       (make-lisp-form-component-value form)))
 
-(def refresh-component lisp-form/viewer
+(def refresh-component t/lisp-form/inspector
   (bind (((:slots component-value parse-tree) -self-))
     (setf parse-tree
           (with-input-from-string (src component-value)
             (source-text:source-read src #f src #f #t)))))
 
-(def render-component lisp-form/viewer
-  <pre (:class "lisp-form viewer")
+(def render-component t/lisp-form/inspector
+  <pre (:class "lisp-form inspector")
     ,(render-source-object (parse-tree-of -self-))>)
 
 ;;;;;;
@@ -93,28 +93,16 @@
       <span (:class ,style-class) ,(source-text:source-object-text instance)>)))}
 
 ;;;;;;
-;;; Lisp form editor
+;;; t/lisp-form/invoker
 
-(def (component e) lisp-form/editor (editor/basic)
-  ())
-
-;;;;;;
-;;; Lisp form inspector
-
-(def (component e) lisp-form/inspector (inspector/basic)
-  ())
-
-;;;;;;
-;;; Lisp form invoker
-
-(def (component e) lisp-form/invoker (lisp-form/viewer frame-unique-id/mixin commands/mixin)
+(def (component e) t/lisp-form/invoker (t/lisp-form/inspector frame-unique-id/mixin commands/mixin)
   ((evaluation-mode :single :type (member :single :multiple))
    (result (empty/layout) :type component)))
 
-(def (macro e) lisp-form/invoker ((&rest args &key &allow-other-keys) &body form)
-  `(make-instance 'lisp-form/invoker ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
+(def (macro e) t/lisp-form/invoker ((&rest args &key &allow-other-keys) &body form)
+  `(make-instance 't/lisp-form/invoker ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
 
-(def render-xhtml lisp-form/invoker
+(def render-xhtml t/lisp-form/invoker
   <div (:class "lisp-form invoker")
     ,(call-next-method)
     ,(render-command-bar-for -self-)
@@ -122,20 +110,20 @@
 
 (def (icon e) evaluate-form)
 
-(def layered-method make-command-bar-commands ((component lisp-form/invoker) class prototype value)
+(def layered-method make-command-bar-commands ((component t/lisp-form/invoker) class prototype value)
   (optional-list* (make-evaluate-form-command component class prototype value) (call-next-method)))
 
-(def layered-method make-evaluate-form-command ((component lisp-form/invoker) class prototype value)
+(def layered-method make-evaluate-form-command ((component t/lisp-form/invoker) class prototype value)
   (command/widget (:visible (delay (or (eq :multiple (evaluation-mode-of component))
                                        (empty-layout? (result-of component))))
                    :ajax (ajax-of component))
     (icon evaluate-form)
     (make-component-action component
       (setf (result-of component)
-            (handler-case (make-value-viewer (evaluate-form component class prototype value))
+            (handler-case (make-value-inspector (evaluate-form component class prototype value))
               (error (e)
-                (make-value-viewer e)))))))
+                (make-value-inspector e)))))))
 
 (def (layered-function e) evaluate-form (component class prototype value)
-  (:method ((component lisp-form/invoker) class prototype value)
+  (:method ((component t/lisp-form/invoker) class prototype value)
     (eval (read-from-string (component-value-of component)))))

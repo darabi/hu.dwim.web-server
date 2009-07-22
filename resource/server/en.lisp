@@ -4,8 +4,6 @@
 
 (in-package :hu.dwim.wui)
 
-;;;;;;
-;;; dictionary/inspector
-
-(def (component e) dictionary/inspector (t/inspector)
-  ())
+(def resources en
+  (class-name.request "request")
+  (class-name.response "response"))

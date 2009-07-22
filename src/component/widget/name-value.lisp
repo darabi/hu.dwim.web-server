@@ -46,8 +46,8 @@
 ;;; Name value widget
 
 (def (component e) name-value-pair/widget (widget/basic)
-  ((name :type component)
-   (value :type component)))
+  ((name nil :type component)
+   (value nil :type component)))
 
 (def (macro e) name-value-pair/widget ((&rest args &key &allow-other-keys) &body name-and-value)
   (assert (length= 2 name-and-value))

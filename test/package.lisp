@@ -3,39 +3,36 @@
 (defpackage #:hu.dwim.wui.test
   (:nicknames :wui.test)
 
-  (:use :common-lisp
-        :stefil
-        :alexandria
-        :metabang-bind
-        :cl-def
-        :cl-yalog
-        :cl-l10n
-        :iterate
-        :closer-mop
-        :iolib
+  (:use :alexandria
         :babel
         :babel-streams
-        :cl-syntax-sugar
+        :cl-def
+        :cl-l10n
         :cl-quasi-quote
         :cl-quasi-quote-js
         :cl-quasi-quote-xml
+        :cl-syntax-sugar
+        :cl-yalog
+        :closer-mop
+        :common-lisp
         :hu.dwim.util
         :hu.dwim.wui
-        :hu.dwim.wui.system
         :hu.dwim.wui.shortcut
-        )
+        :hu.dwim.wui.system
+        :iolib
+        :iterate
+        :metabang-bind
+        :stefil)
 
   (:export #:test)
 
   (:shadowing-import-from :cl-syntax-sugar
-                          #:define-syntax
-                          )
+                          #:define-syntax)
 
   (:shadow #:parent
            #:test
-           #:uri
            #:test
-           ))
+           #:uri))
 
 (in-package :wui.test)
 

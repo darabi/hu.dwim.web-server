@@ -49,7 +49,7 @@
                                       :rendering-phase-reached rendering-phase-reached
                                       :content (inline-render-component/widget ()
                                                  (apply-resource-function 'render-application-internal-error-page
-                                                                          (list :admin-email-address (admin-email-address-of application)))))
+                                                                          (list :administrator-email-address (administrator-email-address-of application)))))
                      (add-component-error-message it #"error.internal-server-error.message"))))))
               (server.info "Internal server error for request ~S to application ~A and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri application)))
         (abort-server-request error))

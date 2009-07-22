@@ -5,31 +5,37 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Finder abstract
+;;; finder/abstract
 
 (def (component e) finder/abstract (component-value/mixin)
   ())
 
 ;;;;;;
-;;; Finder minimal
+;;; finder/minimal
 
 (def (component e) finder/minimal (finder/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Finder basic
+;;; finder/basic
 
 (def (component e) finder/basic (finder/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Finder style
+;;; finder/style
 
 (def (component e) finder/style (finder/basic component/style)
   ())
 
 ;;;;;;
-;;; Finder full
+;;; finder/full
 
 (def (component e) finder/full (finder/style component/full)
   ())
+
+;;;;;;
+;;; Finder factory
+
+(def layered-method make-finder (type &rest args &key &allow-other-keys)
+  (not-yet-implemented))

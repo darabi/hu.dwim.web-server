@@ -362,7 +362,7 @@
 ;;; Component editing
 
 (def (generic e) editable-component? (component)
-  (:documentation "TRUE means COMPONENT can be edited, FALSE otherwise."))
+  (:documentation "TRUE means COMPONENT can be switched between edited and non edited mode, FALSE otherwise."))
 
 (def (generic e) edited-component? (component)
   (:documentation "TRUE menas COMPONENT is currently being edited, FALSE otherwise."))
@@ -494,6 +494,14 @@
 (def (render-component-layer e) ods () "Rendering into Open Office Spreadsheet.")
 
 (def (render-component-layer e) odt () "Rendering into Open Office Document.")
+
+(def (render-component-layer e) raw-names () "Rendering without localizing names.")
+
+;;;;;;
+;;; Render dictionary
+
+(def (dictionary e) render-dictionary ()
+  to-be-rendered-component? mark-to-be-rendered-component mark-rendered-component render-component render-component-layer)
 
 ;;;;;;
 ;;; Refresh component

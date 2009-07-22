@@ -5,34 +5,37 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Editor abstract
+;;; editor/abstract
 
 (def (component e) editor/abstract (component-value/mixin)
   ())
 
-(def method editable-component? ((self editor/abstract))
-  #t)
-
 ;;;;;;
-;;; Editor minimal
+;;; editor/minimal
 
 (def (component e) editor/minimal (editor/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Editor basic
+;;; editor/basic
 
 (def (component e) editor/basic (editor/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Editor style
+;;; editor/style
 
 (def (component e) editor/style (editor/basic component/style)
   ())
 
 ;;;;;;
-;;; Editor full
+;;; editor/full
 
 (def (component e) editor/full (editor/style component/full)
   ())
+
+;;;;;;
+;;; Editor factory
+
+(def layered-method make-editor (type value &rest args &key &allow-other-keys)
+  (apply #'make-instance type value :editable #f :edited #t args))

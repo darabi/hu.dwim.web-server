@@ -29,6 +29,9 @@
 (def (special-variable e) *default-ajax-enabled* #t
   "The default for the same slot in applications.")
 
+(def (special-variable e) *default-compile-time-debug-client-side* #t
+  "The default for the same slot in applications.")
+
 (def resource-loading-locale-loaded-listener wui-resource-loader/application :hu.dwim.wui "resource/application/"
   :log-discriminator "WUI")
 
@@ -52,10 +55,10 @@
    (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal) :export :accessor)
-   (admin-email-address nil)
+   (administrator-email-address nil)
    (lock)
-   (running-in-test-mode? #f :type boolean :export :accessor)
-   (compile-time-debug-client-side :type boolean :accessor compile-time-debug-client-side? :export :accessor)
+   (running-in-test-mode #f :type boolean :accessor running-in-test-mode? :export :accessor)
+   (compile-time-debug-client-side *default-compile-time-debug-client-side* :type boolean :accessor compile-time-debug-client-side? :export :accessor)
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:metaclass funcallable-standard-class))
 
@@ -546,7 +549,7 @@ Custom implementations should look something like this:
     (values)))
 
 (def (class* e) application-with-home-package (application)
-  ((home-package))
+  ((home-package :type package))
   (:metaclass funcallable-standard-class))
 
 (def method call-in-application-environment :around ((application application-with-home-package) session thunk)

@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Variable
+;;; symbol/special-variable-name/inspector
 
-(def (component e) variable/inspector ()
+(def (component e) symbol/special-variable-name/inspector (t/inspector)
   ())
 
-(def render-xhtml variable/inspector
-  (not-yet-implemented))
+(def (macro e) symbol/special-variable-name/inspector ((&rest args &key &allow-other-keys) &body name)
+  `(make-instance 'symbol/special-variable-name/inspector ,@args :component-value ,(the-only-element name)))

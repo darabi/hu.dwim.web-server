@@ -5,11 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Package inspector
+;;; package/inspector
 
-(def (component e) package/inspector ()
+(def (component e) package/inspector (t/inspector)
   ())
-
-(def render-xhtml package/inspector
-  ;; TODO: specialize render (e.g. documentation)
-  (call-next-method))

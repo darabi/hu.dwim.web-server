@@ -33,16 +33,18 @@
     (with-render-style/abstract (-self-)
       (foreach #'render-component root-nodes))))
 
+;; TODO: kill, we don't need the parent
 (def (generic e) find-tree/parent (component class prototype value)
   ;; KLUDGE: to allow instantiating widget without componente-value
   ;; TODO: remove it
   (:method ((component component) class prototype value)
     nil))
 
+;; TODO: move to mixin
 (def (generic e) collect-tree/children (component class prototype value)
   ;; KLUDGE: to allow instantiating widget without componente-value
   ;; TODO: remove it
-  (:method ((component component) (class null) (prototype null) (value null))
+  (:method ((component tree/widget) (class null) (prototype null) (value null))
     (make-list (length (root-nodes-of component)) :initial-element nil)))
 
 (def (generic e) make-tree/root-node (component class prototype value))

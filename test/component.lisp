@@ -473,7 +473,7 @@
                         "Steve")
                       (parent-relative-position/layout (:x 80 :y 50)
                         "Kate"))))
-                (node/widget (:expanded #t)
+                (node/widget (:expanded #f)
                     "Widget"
                   (replace-target-demo/widget "Inline render XHTML"
                     (inline-render-xhtml/widget ()
@@ -775,37 +775,46 @@
                     "TODO")
                   (replace-target-demo/widget "Toc"
                     "TODO"))
-                (node/widget (:expanded #f)
+                (node/widget (:expanded #t)
                     "Model"
                   (replace-target-demo/widget "System"
-                    "TODO")
+                    (make-value-inspector (asdf:find-system :hu.dwim.wui)))
                   (replace-target-demo/widget "Module"
-                    "TODO")
-                  (replace-target-demo/widget "File"
-                    "TODO")
+                    (make-value-inspector (reduce 'asdf:find-component (list "src" "component") :initial-value (asdf:find-system :hu.dwim.wui.component))))
+                  (replace-target-demo/widget "Source file"
+                    (make-value-inspector (reduce 'asdf:find-component (list "src" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
+                  (replace-target-demo/widget "Pathname"
+                    (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "src/component/api/api.lisp")))
                   (replace-target-demo/widget "Package"
-                    "TODO")
+                    (make-value-inspector (find-package :hu.dwim.wui)))
                   (replace-target-demo/widget "Dictionary"
-                    "TODO")
-                  (replace-target-demo/widget "Name"
-                    "TODO")
-                  (replace-target-demo/widget "Variable"
-                    "TODO")
-                  (replace-target-demo/widget "Type"
-                    "TODO")
-                  (replace-target-demo/widget "Class"
-                    "TODO")
-                  (replace-target-demo/widget "Slot"
-                    "TODO")
-                  (replace-target-demo/widget "Form"
-                    "TODO")
+                    (make-value-inspector (find-dictionary 'render-dictionary)))
+                  (replace-target-demo/widget "Defintion name"
+                    (symbol/definition-name/inspector ()
+                      'render-component))
+                  (replace-target-demo/widget "Special variable name"
+                    (symbol/special-variable-name/inspector ()
+                      '*xml-stream*))
+                  (replace-target-demo/widget "Type name"
+                    (symbol/type-name/inspector ()
+                      'components))
+                  (replace-target-demo/widget "Standard class"
+                    (make-value-inspector (find-class 'component/basic)))
+                  (replace-target-demo/widget "Standard direct slot definition"
+                    (make-value-inspector (first (class-direct-slots (find-class 'parent/mixin)))))
+                  (replace-target-demo/widget "Standard effective slot definition"
+                    (make-value-inspector (find-slot 'component/basic 'parent-component)))
+                  (replace-target-demo/widget "Lisp form"
+                    (t/lisp-form/inspector ()
+                      ｢(defun foo ()
+                         (print "Hello World"))｣))
                   (replace-target-demo/widget "Function"
-                    "TODO")
-                  (replace-target-demo/widget "Generic function"
-                    "TODO")
-                  (replace-target-demo/widget "Generic method"
-                    "TODO"))
-                (node/widget (:expanded #f)
+                    (make-value-inspector (fdefinition 'make-value-inspector)))
+                  (replace-target-demo/widget "Standard generic function"
+                    (make-value-inspector (fdefinition 'visible-component?)))
+                  (replace-target-demo/widget "Standard method"
+                    (make-value-inspector (first (generic-function-methods (fdefinition 'visible-component?))))))
+                (node/widget (:expanded #t)
                     "Meta"
                   (node/widget (:expanded #f)
                       "Primitive"
@@ -825,10 +834,10 @@
                       "TODO")
                     (replace-target-demo/widget "Slot"
                       "TODO"))
-                  (node/widget (:expanded #f)
+                  (node/widget (:expanded #t)
                       "Object"
                     (replace-target-demo/widget "Object"
-                      "TODO")
+                      (make-value-inspector *application*))
                     (replace-target-demo/widget "Object list"
                       "TODO")
                     (replace-target-demo/widget "Object tree"

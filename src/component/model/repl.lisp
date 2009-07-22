@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Lisp form list repl inspector
+;;; lisp-form-list/repl/inspector
 
 (def (component e) lisp-form-list/repl/inspector (list/inspector)
   ())

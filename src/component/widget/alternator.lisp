@@ -21,7 +21,7 @@
 
 (def render-xhtml alternator/widget
   <div (:id ,(id-of -self-))
-;; TODO:    ,(render-context-menu-for -self-)
+    ,(render-context-menu-for -self-)
     ,(render-content-for -self-)>)
 
 (def method clone-component ((self alternator/widget))
@@ -33,7 +33,7 @@
 
 (def layered-method make-context-menu-items ((component alternator/widget) class prototype value)
   (append (call-next-method)
-          (list (make-menu-item (icon menu :label "Nézet")
+          (list (make-menu-item (icon show-submenu :label "Nézet")
                                 (make-switch-to-alternative-commands component class prototype value)))))
 
 (def layered-method make-command-bar-commands ((component alternator/widget) class prototype value)
@@ -53,7 +53,7 @@
                                            (class-of alternative))))
            (reference? (typep prototype 'reference/widget)))
       (make-replace-command (delay (content-of component)) alternative
-                            :content (make-replace-with-alternative-command-icon alternative prototype)
+                            :content (make-replace-with-alternative-command-content alternative prototype)
                             :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
                                                  (not (eq (if (computation? alternative)
                                                               (the-class-of alternative)
@@ -63,16 +63,16 @@
                                                      (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract))))
                             :ajax (ajax-of component)))))
 
-(def (generic e) make-replace-with-alternative-command-icon (alternative prototype)
+(def (generic e) make-replace-with-alternative-command-content (alternative prototype)
   (:method (alternative (prototype component))
     (bind ((name (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
-      (icon view :label name :tooltip name)))
+      (icon switch-to-alternative :label name :tooltip name)))
 
   (:method ((alternative string) (prototype string))
-    (icon view :label alternative :tooltip alternative))
+    (icon switch-to-alternative :label alternative :tooltip alternative))
 
   (:method (alternative (prototype reference/widget))
-    (icon collapse)))
+    (icon collapse-component)))
 
 (def method join-editing ((alternator alternator/widget))
   (unless (typep (content-of alternator) 'reference/widget)
@@ -121,10 +121,9 @@
   `(delay-alternative-component ,type (make-instance ,type ,@args)))
 
 (def (macro e) delay-alternative-reference (type target)
-  `(delay-alternative-component ,type (make-alternative-reference/widget ,type ,target)))
+  `(delay-alternative-component ,type (make-alternative-reference ,type ,target)))
 
 (def (function e) make-alternative-reference (type target)
-  (prog1-bind reference (make-instance type :target target)
-    (setf (expand-command-of reference)
-          (make-expand-reference-command reference (class-of target) target
-                                         (delay (find-default-alternative-component (parent-component-of reference)))))))
+  (prog1-bind reference (make-instance type :component-value target)
+    (setf (ajax-of reference) (delay (ajax-of (parent-component-of reference)))
+          (action-of reference) (make-action (execute-replace reference (delay (find-default-alternative-component (parent-component-of reference))))))))

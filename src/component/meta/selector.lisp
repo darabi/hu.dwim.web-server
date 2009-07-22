@@ -5,31 +5,37 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Selector abstract
+;;; selector/abstract
 
 (def (component e) selector/abstract (component-value/mixin)
   ())
 
 ;;;;;;
-;;; Selector minimal
+;;; selector/minimal
 
 (def (component e) selector/minimal (selector/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Selector basic
+;;; selector/basic
 
 (def (component e) selector/basic (selector/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Selector style
+;;; selector/style
 
 (def (component e) selector/style (selector/basic component/style)
   ())
 
 ;;;;;;
-;;; Selector full
+;;; selector/full
 
 (def (component e) selector/full (selector/style component/full)
   ())
+
+;;;;;;
+;;; Selector factory
+
+(def layered-method make-selector (type &rest args &key &allow-other-keys)
+  (not-yet-implemented))

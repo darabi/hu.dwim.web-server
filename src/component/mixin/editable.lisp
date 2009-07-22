@@ -12,7 +12,7 @@
     #t
     :type boolean
     :initarg :editable
-    :documentation "TRUE means COMPONENT can be edited, FALSE otherwise.")
+    :documentation "TRUE means COMPONENT can be switched between edited and non edited mode, FALSE otherwise.")
    (edited-component
     #f
     :type boolean
@@ -40,9 +40,6 @@ and CANCEL-EDITING to continuously leave the component in edit mode.
   (if (edited-component? -self-)
       (join-editing -self-)
       (leave-editing -self-)))
-
-(def method editable-component? ((self editable/mixin))
-  #t)
 
 (def method begin-editing ((self editable/mixin))
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces

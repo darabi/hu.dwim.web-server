@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Type inspector
+;;; symbol/type-name/inspector
 
-(def (component e) type/inspector ()
+(def (component e) symbol/type-name/inspector (t/inspector)
   ())
 
-(def render-xhtml type/inspector
-  (not-yet-implemented))
+(def (macro e) symbol/type-name/inspector ((&rest args &key &allow-other-keys) &body name)
+  `(make-instance 'symbol/type-name/inspector ,@args :component-value ,(the-only-element name)))

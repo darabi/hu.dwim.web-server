@@ -78,7 +78,7 @@
              (render-component expander-cell)
              (progn
                (ensure-refreshed expander-cell)
-               (render-component (content-of expander-cell))))>)))
+               (render-component (content-of expander-cell))))>))
 
 (def (layered-function e) render-nodrow-cells (component)
   (:method ((self nodrow/widget))

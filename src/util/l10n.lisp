@@ -289,12 +289,36 @@
         (setf (slot-value ($ ,id) 'value)
               (dojo.date.to-rfc-3339 (new *date))))))
 
-(def (generic e) localized-instance-reference-string (instance)
-  (:method ((instance standard-object))
-    (princ-to-string instance))
+(def (generic e) localized-instance-name (value)
+  (:method (value)
+    (princ-to-string value))
 
-  (:method ((instance standard-class))
-    (localized-class-name instance)))
+  (:method ((value number))
+    value)
+
+  (:method ((value string))
+    value)
+
+  (:method ((value sequence))
+    (if (emptyp value)
+        (lookup-resource "sequence.empty")
+        (bind ((length (length value))
+               (first (elt value 0))
+               (class (class-of first))
+               (elements-name (lookup-resource "sequence.element")))
+          (concatenate-string (princ-to-string length)
+                              " "
+                              (when (every (of-type class) value)
+                                (localized-class-name class))
+                              " "
+                              (if (= length 1)
+                                  elements-name
+                                  (plural-of elements-name))
+                              " "
+                              (call-next-method)))))
+
+  (:method ((class standard-class))
+    (localized-class-name class)))
 
 (def function funcall-resource-function (name &rest args)
   (apply-resource-function name args))

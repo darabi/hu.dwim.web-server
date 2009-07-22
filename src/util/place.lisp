@@ -18,10 +18,10 @@
   (:documentation "Returns a lisp type specifier for PLACE."))
 
 (def (generic e) place-initform (place)
-  (:documentation "Returns a lisp form for PLACE."))
+  (:documentation "Returns a lisp initform for PLACE."))
 
 (def (generic e) place-editable? (place)
-  (:documentation "TRUE means the PLACE can be edited to refer to other values, otherwise FALSE."))
+  (:documentation "TRUE means the PLACE can be edited and set to other values, otherwise FALSE."))
 
 (def (generic e) place-bound? (place)
   (:documentation "TRUE means the PLACE actually holds a value, otherwise FALSE."))
@@ -45,7 +45,7 @@
   ((name :type symbol)
    (initform :type t)
    (the-type :type t))
-  (:documentation "A PLACE for a variable."))
+  (:documentation "An abstract PLACE for a variable."))
 
 (def method place-name ((self variable-place))
   (name-of self))
@@ -113,28 +113,33 @@
 ;;;;;;
 ;;; Slot value place
 
+;; TODO: rename
 (def class* slot-value-place (place)
   ((instance :type standard-object)
    (slot :type standard-effective-slot-definition))
-  (:documentation "A PLACE for a particular slot of a STANDARD-CLASS instance."))
+  (:documentation "A PLACE for a particular slot of a STANDARD-OBJECT instance."))
 
 (def (generic e) slot-value-place-editable? (place class instance slot)
-  (:documentation "TRUE means the PLACE can be edited to refer to other values, otherwise FALSE."))
+  (:documentation "TRUE means the PLACE can be edited and set to other values, otherwise FALSE.")
+
+  (:method  ((place slot-value-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
+    #t))
 
 (def generic slot-type (slot)
-  (:documentation "TRUE means the PLACE can be edited to refer to other values, otherwise FALSE."))
+  (:documentation "Returns a lisp type specifier for SLOT.")
+
+  (:method ((slot standard-slot-definition))
+    (slot-definition-type slot))
+
+  #+sbcl
+  (:method ((slot sb-pcl::structure-slot-definition))
+    (slot-definition-type slot)))
 
 (def method place-name ((self slot-value-place))
   (slot-definition-name (slot-of self)))
 
-(def method slot-type ((slot standard-slot-definition))
-  (slot-definition-type slot))
-
 (def method place-type ((self slot-value-place))
   (slot-type (slot-of self)))
-
-(def method slot-value-place-editable? ((place slot-value-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
-  #t)
 
 (def method place-editable? ((self slot-value-place))
   (bind ((instance (instance-of self))
@@ -169,9 +174,10 @@
 ;;;;;;
 ;;; Sequence slot value place
 
+;; TODO: rename
 (def class* sequence-slot-value-place (slot-value-place)
   ((index :type integer))
-  (:documentation "A PLACE for a particular slot of a STANDARD-CLASS instance's nth value."))
+  (:documentation "A PLACE for the nth element of a sequence in a particular slot of a STANDARD-OBJECT instance."))
 
 (def method place-bound? ((self sequence-slot-value-place))
   #t)
@@ -201,3 +207,16 @@
 
 (def (function e) make-sequence-slot-value-place (instance slot index)
   (make-instance 'sequence-slot-value-place :instance instance :slot slot :index index))
+
+;;;;;;
+;;; Slot value place list
+
+;; TODO: rename and move?
+(def class* slot-value-place-list ()
+  ((name :type string)
+   (instance :type standard-object)
+   (slots :type list))
+  (:documentation "A PLACE for a list of slots of a STANDARD-OBJECT instance."))
+
+(def (function e) make-slot-value-place-list (instance slots &key name)
+  (make-instance 'slot-value-place-list :name name :instance instance :slots slots))

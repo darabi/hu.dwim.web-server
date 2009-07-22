@@ -5,10 +5,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; System inspector
+;;; system/inspector
 
-(def (component e) system/inspector ()
+(def (component e) system/inspector (t/inspector)
   ())
 
-(def render-xhtml system/inspector
-  (not-yet-implemented))
+(def layered-method find-inspector-type-for-prototype ((prototype asdf:system))
+  'system/inspector)

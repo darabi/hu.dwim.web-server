@@ -21,7 +21,7 @@
     (princ-to-string value))
 
   (:method ((component reference/viewer) (class standard-class) (prototype standard-object) (value standard-object))
-    (localized-instance-reference-string value)))
+    (localized-instance-name value)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -44,7 +44,7 @@
   (make-instance 'standard-object/node/viewer :component-value value))
 
 (def method make-node/content ((component standard-object/node/viewer) (class standard-class) (prototype standard-object) (value standard-object))
-  (localized-instance-reference-string value))
+  (localized-instance-name value))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

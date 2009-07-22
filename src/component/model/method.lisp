@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; dictionary/inspector
+;;; standard-method/inspector
 
-(def (component e) dictionary/inspector (t/inspector)
+(def (component e) standard-method/inspector (t/inspector)
   ())

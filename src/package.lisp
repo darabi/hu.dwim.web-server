@@ -5,40 +5,39 @@
 (in-package :hu.dwim.wui.system)
 
 (defpackage :hu.dwim.wui.shortcut
-  (:use :common-lisp
-        :cl-def))
+  (:use :cl-def
+        :common-lisp))
 
 (defpackage :hu.dwim.wui
-  (:use :common-lisp
-        :closer-mop
+  (:use :alexandria
         :anaphora
-        :alexandria
-        :metabang-bind
-        :defclass-star
-        :computed-class
-        :iterate
+        :babel
+        :babel-streams
+        :bordeaux-threads
         :cl-def
-        :cl-yalog
-        :cl-syntax-sugar
+        :cl-delico
         :cl-l10n
         :cl-l10n.lang
         :cl-quasi-quote
-        :cl-quasi-quote-xml
         :cl-quasi-quote-js
-        :cl-delico
-        :bordeaux-threads
-        :trivial-garbage
-        :babel
-        :babel-streams
+        :cl-quasi-quote-xml
+        :cl-syntax-sugar
+        :cl-yalog
+        :closer-mop
+        :common-lisp
+        :computed-class
         :contextl
+        :defclass-star
         :hu.dwim.util
-        :hu.dwim.wui.system)
+        :hu.dwim.wui.system
+        :iterate
+        :metabang-bind
+        :trivial-garbage)
 
   (:shadow #:class-prototype
            #:class-slots
            #:class-precedence-list
-           #:|defun|
-           )
+           #:|defun|)
 
   (:shadowing-import-from :trivial-garbage
                           #:make-hash-table)
@@ -47,16 +46,15 @@
                           #:define-syntax))
 
 (defpackage :hu.dwim.wui.user
-  (:use :common-lisp
-        :iterate
-        :local-time
-        :bordeaux-threads
-        :trivial-garbage
+  (:use :bordeaux-threads
+        :common-lisp
         :hu.dwim.util
         :hu.dwim.wui
-        :hu.dwim.wui.system
         :hu.dwim.wui.shortcut
-        )
+        :hu.dwim.wui.system
+        :iterate
+        :local-time
+        :trivial-garbage)
 
   (:shadowing-import-from :trivial-garbage
                           #:make-hash-table))

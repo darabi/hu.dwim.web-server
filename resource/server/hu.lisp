@@ -3,9 +3,3 @@
 ;;; See LICENCE and AUTHORS for details.
 
 (in-package :hu.dwim.wui)
-
-;;;;;;
-;;; dictionary/inspector
-
-(def (component e) dictionary/inspector (t/inspector)
-  ())

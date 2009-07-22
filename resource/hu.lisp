@@ -5,6 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Util
+
+(def resources hu
+  (sequence.empty "üres")
+  (sequence.element "elem"))
+
+;;;;;;
 ;;; Mime type
 
 (def resources hu
@@ -21,14 +28,14 @@
   (error.internal-server-error "Ismeretlen eredetű hiba")
   (error.access-denied-error "Hozzáférés megtagadva")
 
-  (render-internal-error-page (&key admin-email-address &allow-other-keys)
+  (render-internal-error-page (&key administrator-email-address &allow-other-keys)
     <div
       <h1 "Programhiba">
       <p "A szerverhez érkezett kérés feldolgozása közben váratlan hiba történt. Elnézést kérünk az esetleges kellemetlenségért!">
       <p "A hibáról értesülni fognak a fejlesztők és valószínűleg a közeljövőben javítják azt.">
-      ,(when admin-email-address
+      ,(when administrator-email-address
          <p "Amennyiben kapcsolatba szeretne lépni az üzemeltetőkkel, azt a "
-            <a (:href ,(mailto-href admin-email-address)) ,admin-email-address>
+            <a (:href ,(mailto-href administrator-email-address)) ,administrator-email-address>
             " email címen megteheti.">)
       <p <a (:href "#" :onClick `js-inline(history.go -1)) "Vissza">>>)
 

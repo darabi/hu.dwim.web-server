@@ -8,7 +8,7 @@
 ;;; Title mixin
 
 (def (component e) title/mixin (refreshable/mixin)
-  ((title :type component))
+  ((title nil :type component))
   (:documentation "A COMPONENT with a TITLE."))
 
 (def refresh-component title/mixin
@@ -18,7 +18,8 @@
     (setf (title-of -self-) (make-title -self- class prototype value))))
 
 (def (function e) render-title-for (component)
-  (render-title (title-of component)))
+  (awhen (title-of component)
+    (render-title it)))
 
 (def (layered-function e) render-title (component)
   (:method :in xhtml-layer ((self number))

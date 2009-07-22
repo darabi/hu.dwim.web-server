@@ -5,10 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Module inspector
+;;; module/inspector
 
-(def (component e) module/inspector ()
+(def (component e) module/inspector (t/inspector)
   ())
-
-(def render-xhtml module/inspector
-  (not-yet-implemented))

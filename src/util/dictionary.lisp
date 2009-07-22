@@ -4,6 +4,8 @@
 
 (in-package :hu.dwim.wui)
 
+;; TODO: move this stuff to hu.dwim.util?
+
 ;;;;;;
 ;;; Dictionaries
 
@@ -25,9 +27,13 @@
 ;;;;;;
 ;;; Definer
 
-(def (definer e :available-flags "e") dictionary (name &rest names)
+(def (definer e :available-flags "e") dictionary (name args &body names)
   (bind ((quoted-names (mapcar [list 'quote !1] names)))
-    `(setf (find-dictionary ',name) (make-instance 'dictionary :names (list ,@quoted-names)))))
+    `(progn
+       (setf (find-dictionary ',name) (make-instance 'dictionary ,@args :names (list ,@quoted-names)))
+       ,@(when (getf -options- :export)
+                   `((eval-when (:compile-toplevel :load-toplevel :execute)
+                       (export ',name)))))))
 
 ;; TODO: move to cl-def or what?
 (def (function e) collect-definitions (name)
