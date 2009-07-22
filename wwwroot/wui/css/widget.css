@@ -45,6 +45,11 @@ a.external-link
   color: darkgray;
 }
 
+.lisp-form .function {
+  color: black;
+  font-weight: bold;
+}
+
 .lisp-form .quote {
   color: black;
   font-weight: bold;
@@ -79,6 +84,10 @@ a.external-link
 }
 
 .lisp-form .keyword {
+  color: darkred;
+}
+
+.lisp-form .common-lisp {
   color: darkred;
 }
 

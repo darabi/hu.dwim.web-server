@@ -323,6 +323,15 @@
   (:method ((component sequence/list/inspector) class prototype value)
     (make-instance 't/element/inspector :component-value value)))
 
+;; TODO: move
+(def layered-method make-list/element ((component standard-method-sequence/lisp-form-list/inspector) class prototype value)
+  (make-instance 'standard-method/lisp-form/inspector :component-value value))
+
+;; TODO: move
+(def layered-method make-list/element ((component lisp-form-list/repl/inspector) class prototype value)
+  (lisp-form/invoker ()
+    value))
+
 ;;;;;;
 ;;; t/element/inspector
 
@@ -1400,9 +1409,6 @@
     (if contents
         (foreach [setf (component-value-of !1) !2] contents component-value)
         (setf contents (mapcar [make-list/element -self- dispatch-class dispatch-prototype !1] component-value)))))
-
-(def (generic e) make-list/element (component class prototype value))
-
 
 
 

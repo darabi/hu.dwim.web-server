@@ -806,14 +806,15 @@
                     (make-value-inspector (find-slot 'component/basic 'parent-component)))
                   (replace-target-demo/widget "Lisp form"
                     (t/lisp-form/inspector ()
-                      ｢(defun foo ()
-                         (print "Hello World"))｣))
+                      ｢;; a simple example
+ (defun foo ()
+   (print "Hello World"))｣))
                   (replace-target-demo/widget "Function"
                     (make-value-inspector (fdefinition 'make-value-inspector)))
                   (replace-target-demo/widget "Standard generic function"
-                    (make-value-inspector (fdefinition 'visible-component?)))
+                    (make-value-inspector (fdefinition 'make-instance)))
                   (replace-target-demo/widget "Standard method"
-                    (make-value-inspector (first (generic-function-methods (fdefinition 'visible-component?))))))
+                    (make-value-inspector (second (generic-function-methods (fdefinition 'handle-request))))))
                 (node/widget (:expanded #t)
                     "Meta"
                   (node/widget (:expanded #f)
@@ -845,14 +846,14 @@
                     ;; TODO: move these?
                     (replace-target-demo/widget "Lisp form invoker"
                       (vertical-list ()
-                        (lisp-form/invoker ()
+                        (t/lisp-form/invoker ()
                           ｢(def function dwim (text &rest args &key (baz 0) &allow-other-keys)
-                             (let* ((foo (sqrt baz))
-                                    (bar (1+ foo)))
-                               (if (string= text "Hello World")
-                                   (length args)
-                                   (+ foo bar baz))))｣)
-                        (lisp-form/invoker (:evaluation-mode :multiple)
+  (let* ((foo (sqrt baz))
+         (bar (1+ foo)))
+    (if (string= text "Hello World")
+        (length args)
+        (+ foo bar baz))))｣)
+                        (t/lisp-form/invoker (:evaluation-mode :multiple)
                           (print "Hello World"))))
                     (replace-target-demo/widget "Standard class tree viewer"
                       (standard-class/tree/viewer ()

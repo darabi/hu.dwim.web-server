@@ -84,6 +84,9 @@
     (find-inspector-type-for-prototype (class-prototype class)))
 
   (:method ((class standard-class))
+    (find-inspector-type-for-prototype (class-prototype class)))
+
+  (:method ((class funcallable-standard-class))
     (find-inspector-type-for-prototype (class-prototype class))))
 
 (def (function) find-inspector-type-for-compound-type (type)
@@ -117,6 +120,7 @@
 (def (function e) make-inspector-for-prototype (prototype &rest args &key &allow-other-keys)
   (apply #'make-instance (find-inspector-type-for-prototype prototype) args))
 
+;; TODO: split all around?
 (def (layered-function e) find-inspector-type-for-prototype (prototype)
   (:method ((prototype t))
     't/inspector)

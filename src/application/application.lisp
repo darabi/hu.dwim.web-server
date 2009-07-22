@@ -29,7 +29,7 @@
 (def (special-variable e) *default-ajax-enabled* #t
   "The default for the same slot in applications.")
 
-(def (special-variable e) *default-compile-time-debug-client-side* #t
+(def (special-variable e) *default-compile-time-debug-client-side* #f
   "The default for the same slot in applications.")
 
 (def resource-loading-locale-loaded-listener wui-resource-loader/application :hu.dwim.wui "resource/application/"
