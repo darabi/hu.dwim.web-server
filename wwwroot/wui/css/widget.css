@@ -41,6 +41,35 @@ a.external-link
   font-style: italic;
 }
 
+.lisp-form .comment {
+  color: darkgray;
+}
+
+.lisp-form .quote {
+  color: black;
+  font-weight: bold;
+}
+
+.lisp-form .unquote {
+  color: black;
+  font-weight: bold;
+}
+
+.lisp-form .backquote {
+  color: black;
+  font-weight: bold;
+}
+
+.lisp-form .unqoute-splicing {
+  color: black;
+  font-weight: bold;
+}
+
+.lisp-form .lexical-error {
+  color: red;
+  font-weight: bold;
+}
+
 .lisp-form .string {
   color: darkgreen;
 }

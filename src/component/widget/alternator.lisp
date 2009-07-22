@@ -117,6 +117,7 @@
      (set-funcallable-instance-function it (delay (or (component-of it)
                                                       (setf (component-of it) (progn ,@forms)))))))
 
+;; TODO: factor these into a single delay-alternative-component
 (def (macro e) delay-alternative-component-with-initargs (type &rest args)
   `(delay-alternative-component ,type (make-instance ,type ,@args)))
 

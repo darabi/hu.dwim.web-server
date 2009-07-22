@@ -8,7 +8,7 @@
 ;;; t/lisp-form/inspector
 
 (def (component e) t/lisp-form/inspector (inspector/basic)
-  ((parse-tree :type source-text:source-object)))
+  ((parse-tree :type list)))
 
 (def (macro e) t/lisp-form/inspector ((&rest args &key &allow-other-keys) &body form)
   `(make-instance 't/lisp-form/inspector ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
@@ -27,11 +27,14 @@
   (bind (((:slots component-value parse-tree) -self-))
     (setf parse-tree
           (with-input-from-string (src component-value)
-            (source-text:source-read src #f src #f #t)))))
+            (iter (for element = (source-text:source-read src #f src #f #t))
+                  (until (eq element src))
+                  (collect element)
+                  (until (typep element 'source-text:source-lexical-error)))))))
 
 (def render-component t/lisp-form/inspector
   <pre (:class "lisp-form inspector")
-    ,(render-source-object (parse-tree-of -self-))>)
+    ,(foreach #'render-source-object (parse-tree-of -self-))>)
 
 ;;;;;;
 ;;; Render lisp form
@@ -46,21 +49,40 @@
    (:method ((instance source-text:source-list))
      (render-source-list (first (source-text:source-sequence-elements instance)) instance))
 
-   (:method :in xhtml-layer ((instance source-text:source-string))
-     <span (:class "string") ,(source-text:source-object-text instance)>)
+   (:method :in xhtml-layer ((instance source-text:source-semicolon-comment))
+     <span (:class "comment") ,(source-text:comment-text instance)>)
 
    (:method :in xhtml-layer ((instance source-text:source-number))
      <span (:class "number") ,(source-text:source-object-text instance)>)
+
+   (:method :in xhtml-layer ((instance source-text:source-string))
+     <span (:class "string") ,(source-text:source-object-text instance)>)
 
    (:method ((instance source-text:source-symbol))
      (render-source-symbol (source-text:source-symbol-value instance) instance))
 
    (:method ((instance source-text:source-quote))
-     <span (:class "quote") ,(princ-to-string (source-text:macro-character instance)) >
+     <span (:class "quote") ,(princ-to-string (source-text:macro-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
+
+   (:method ((instance source-text:source-backquote))
+     <span (:class "backquote") ,(princ-to-string (source-text:macro-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
+
+   (:method ((instance source-text:source-unquote))
+     <span (:class "unquote") ,(princ-to-string (source-text:macro-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
+
+   (:method ((instance source-text:source-splice))
+     <span (:class "unquote-splicing") ,(princ-to-string (source-text:macro-character instance))>
      (render-source-object (source-text:source-object-subform instance)))
 
    (:method :in xhtml-layer ((instance source-text:source-token))
-     <span (:class "token") ,(source-text:source-object-text instance)>))}
+     <span (:class "token") ,(source-text:source-object-text instance)>)
+
+   (:method ((instance source-text:source-lexical-error))
+     <span (:class "lexical-error") ,(princ-to-string (source-text:source-lexical-error-error instance))>
+     (source-text:source-object-text instance)))}
 
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-list (first instance)
