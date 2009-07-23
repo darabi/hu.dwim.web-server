@@ -10,17 +10,22 @@
 (def (component e) pathname/inspector (t/inspector)
   ())
 
-;;;;;;
-;;; pathname/file/inspector
-
-(def (component e) pathname/file/inspector (t/inspector)
-  ())
-
-(def (macro e) pathname/file/inspector ((&rest args &key &allow-other-keys) &body path)
-  `(make-instance 'pathname/file/inspector ,@args :component-value ,(the-only-element path)))
+(def (macro e) pathname/inspector (pathname &rest args)
+  `(make-instance 'pathname/inspector :component-value ,pathname ,@args))
 
 ;;;;;;
-;;; lisp-source-file/inspector
+;;; pathname/text-file/inspector
 
-(def (component e) pathname/lisp-source-file/inspector (t/inspector)
+(def (component e) pathname/text-file/inspector (inspector/basic content/widget)
   ())
+
+(def (macro e) pathname/text-file/inspector (pathname &rest args)
+  `(make-instance 'pathname/text-file/inspector :component-value ,pathname ,@args))
+
+(def refresh-component pathname/text-file/inspector
+  (bind (((:slots component-value content) -self-))
+    (setf content (read-file-into-string component-value))))
+
+(def render-xhtml pathname/text-file/inspector
+  (with-render-style/mixin (-self- :element-name "pre")
+    (render-content-for -self-)))

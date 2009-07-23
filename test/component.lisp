@@ -783,6 +783,8 @@
                     (make-value-inspector (reduce 'asdf:find-component (list "src" "component") :initial-value (asdf:find-system :hu.dwim.wui.component))))
                   (replace-target-demo/widget "Source file"
                     (make-value-inspector (reduce 'asdf:find-component (list "src" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
+                  (replace-target-demo/widget "Text file"
+                    (pathname/text-file/inspector (asdf:system-relative-pathname :hu.dwim.wui "README")))
                   (replace-target-demo/widget "Pathname"
                     (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "src/component/api/api.lisp")))
                   (replace-target-demo/widget "Package"
@@ -798,12 +800,18 @@
                   (replace-target-demo/widget "Type name"
                     (symbol/type-name/inspector ()
                       'components))
-                  (replace-target-demo/widget "Standard class"
-                    (make-value-inspector (find-class 'component/basic)))
+                  (replace-target-demo/widget "Structure Class"
+                    (make-value-inspector (find-class 'package)))
+                  (replace-target-demo/widget "Structure direct slot definition"
+                    (make-value-inspector (first (class-direct-slots (find-class 'package)))))
+                  (replace-target-demo/widget "Structure effective slot definition"
+                    (make-value-inspector (first (class-slots (find-class 'package)))))
+                  (replace-target-demo/widget "Standard Class"
+                    (make-value-inspector (find-class 'parent/mixin)))
                   (replace-target-demo/widget "Standard direct slot definition"
                     (make-value-inspector (first (class-direct-slots (find-class 'parent/mixin)))))
                   (replace-target-demo/widget "Standard effective slot definition"
-                    (make-value-inspector (find-slot 'component/basic 'parent-component)))
+                    (make-value-inspector (first (class-slots (find-class 'parent/mixin)))))
                   (replace-target-demo/widget "Lisp form"
                     (t/lisp-form/inspector ()
                       ｢;; a simple example
@@ -838,11 +846,12 @@
                   (node/widget (:expanded #t)
                       "Object"
                     (replace-target-demo/widget "Object"
-                      (make-value-inspector *application*))
+                      (make-value-inspector *server*))
                     (replace-target-demo/widget "Object list"
-                      "TODO")
+                      (make-value-inspector (list *server* *application* *session* *frame*)))
                     (replace-target-demo/widget "Object tree"
-                      "TODO")
+                      (make-value-inspector (list "John" "Mary" (list *server* *application* *session* *frame*) "Steve" "Kate")
+                                            :initial-alternative-type 'sequence/tree/inspector))
                     ;; TODO: move these?
                     (replace-target-demo/widget "Lisp form invoker"
                       (vertical-list ()

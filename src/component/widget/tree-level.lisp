@@ -16,6 +16,7 @@
 
 ;; TODO: move this non widgetness to the viewer/inspector etc.
 (def refresh-component tree-level/widget
+  #+nil ;; TODO: kill find-tree/parent
   (bind (((:slots path previous-sibling next-sibling descendants node) -self-)
          (dispatch-class (component-dispatch-class -self-))
          (dispatch-prototype (component-dispatch-prototype -self-))
@@ -77,12 +78,12 @@
             <hr>)
          ,(render-component node)>))
 
-(def (generic e) make-tree-level/path (component class prototype value))
+(def (layered-function e) make-tree-level/path (component class prototype value))
 
-(def (generic e) make-tree-level/previous-sibling (component class prototype value))
+(def (layered-function e) make-tree-level/previous-sibling (component class prototype value))
 
-(def (generic e) make-tree-level/next-sibling (component class prototype value))
+(def (layered-function e) make-tree-level/next-sibling (component class prototype value))
 
-(def (generic e) make-tree-level/descendants (component class prototype value))
+(def (layered-function e) make-tree-level/descendants (component class prototype value))
 
-(def (generic e) make-tree-level/node (component class prototype value))
+(def (layered-function e) make-tree-level/node (component class prototype value))

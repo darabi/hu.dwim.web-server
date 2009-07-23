@@ -20,9 +20,11 @@
       (setf content (find-initial-alternative-component -self-)))))
 
 (def render-xhtml alternator/widget
-  <div (:id ,(id-of -self-))
-    ,(render-context-menu-for -self-)
-    ,(render-content-for -self-)>)
+  (with-render-style/abstract (-self- :element-name (if (typep (content-of -self-) 'reference/widget)
+                                                        "span"
+                                                        "div"))
+    (render-context-menu-for -self-)
+    (render-content-for -self-)))
 
 (def method clone-component ((self alternator/widget))
   (prog1-bind clone (call-next-method)

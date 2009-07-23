@@ -337,7 +337,7 @@
 ;;; Object
 
 (def resources en
-  (class-name.standard-object "object")
+  (class-name.standard-object "standard object")
 
   (standard-object-detail-component.primary-group "Primary properties")
   (standard-object-detail-component.secondary-group "Other properties")

@@ -16,3 +16,7 @@
 (def method add-list-element ((component lisp-form-list/repl/inspector) class prototype value)
   (t/lisp-form/invoker ()
     (print "Hello World")))
+
+(def layered-method make-list/element ((component lisp-form-list/repl/inspector) class prototype value)
+  (lisp-form/invoker ()
+    value))

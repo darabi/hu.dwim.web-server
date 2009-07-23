@@ -321,7 +321,8 @@
                                              (:file "invoker")
                                              (:file "maker")
                                              (:file "selector")
-                                             (:file "viewer"))
+                                             (:file "viewer")
+                                             (:file "xxx"))
                                 :depends-on ("api"))
                                (:module "book"
                                 :components ((:file "book")

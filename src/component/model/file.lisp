@@ -13,12 +13,12 @@
 (def (macro e) source-file/inspector ((&rest args &key &allow-other-keys) &body file)
   `(make-instance 'source-file/inspector ,@args :component-value ,(the-only-element file)))
 
+(def layered-method find-inspector-type-for-prototype ((prototype asdf:source-file))
+  'source-file/inspector)
+
 (def layered-method make-alternatives ((component source-file/inspector) class prototype value)
   (list* (delay-alternative-component-with-initargs 'source-file/lisp-form-list/inspector :component-value value)
          (call-next-method)))
-
-(def layered-method find-inspector-type-for-prototype ((prototype asdf:source-file))
-  'source-file/inspector)
 
 ;;;;;;
 ;;; source-file/lisp-form-list/inspector

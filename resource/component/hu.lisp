@@ -337,7 +337,7 @@
 ;;; Object
 
 (def resources hu
-  (class-name.standard-object "objektum")
+  (class-name.standard-object "standard objektum")
 
   (standard-object-detail-component.primary-group "Elsődleges tulajdonságok")
   (standard-object-detail-component.secondary-group "Egyéb tulajdonságok")

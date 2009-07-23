@@ -38,4 +38,4 @@
 ;;; Editor factory
 
 (def layered-method make-editor (type value &rest args &key &allow-other-keys)
-  (apply #'make-instance type value :editable #f :edited #t args))
+  (apply #'make-inspector type value :editable #f :edited #t args))

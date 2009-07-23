@@ -47,7 +47,7 @@
      - a CLOS type instance parsed from a compound type specifier such as #<INTEGER-TYPE 0x1232112>"
   (bind (((component-type &rest additional-args)
           (ensure-list (find-inspector-type-for-type type))))
-    (unless (subtypep component-type 'alternator/basic)
+    (unless (subtypep component-type 'alternator/widget)
       (remove-from-plistf args :initial-alternative-type))
     (apply #'make-instance component-type
            :component-value value
@@ -150,12 +150,6 @@
 
   (:method ((prototype standard-slot-definition))
     'standard-slot-definition/inspector)
-
-  (:method ((prototype structure-class))
-    'standard-class/inspector)
-
-  (:method ((prototype standard-class))
-    'standard-class/inspector)
 
   (:method ((prototype structure-object))
     't/inspector)

@@ -38,4 +38,4 @@
 ;;; Viewer factory
 
 (def layered-method make-viewer (type value &rest args &key &allow-other-keys)
-  (apply #'make-instance type value :editable #f :edited #f args))
+  (apply #'make-inspector type value :editable #f :edited #f args))
