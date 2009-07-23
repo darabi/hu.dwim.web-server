@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Context menu mixin
+;;; context-menu/mixin
 
 (def (component e) context-menu/mixin ()
   ((context-menu :type component))

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Closable abstract
+;;; closable/abstract
 
 (def (component e) closable/abstract ()
   ()

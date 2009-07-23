@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Frame size breakdown
+;;; frame-size-breakdown
 
 (def (component e) frame-size-breakdown ()
   ((last-dynamic-usage 0)

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Top abstract
+;;; top/abstract
 
 (def (component e) top/abstract (content/mixin)
   ()

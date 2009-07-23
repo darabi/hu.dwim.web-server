@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Disableable mixin
+;;; disableable/mixin
 
 (def (component e) disableable/mixin ()
   ((enabled-component

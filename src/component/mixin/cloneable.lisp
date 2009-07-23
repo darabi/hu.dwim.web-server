@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Cloneable abstract
+;;; cloneable/abstract
 
 (def (component e) cloneable/abstract ()
   ())

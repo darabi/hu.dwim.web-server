@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tree layout
+;;; tree/layout
 
 (def (component e) tree/layout (tree/abstract layout/minimal root-nodes/mixin)
   ())

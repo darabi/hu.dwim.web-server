@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Pie chart
+;;; pie/chart
 
 (def (component e) pie/chart (chart/abstract)
   ())

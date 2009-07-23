@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Treeble widget
+;;; treeble/widget
 
 (def (component e) treeble/widget (tree/abstract
                                    widget/style

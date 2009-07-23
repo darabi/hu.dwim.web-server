@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Row widget
+;;; row/widget
 
 (def (component e) row/widget (widget/style
                                row/layout
@@ -59,7 +59,7 @@
             (render-table-row-cell table row column cell)))))
 
 ;;;;;;
-;;; Entire row widget
+;;; entire-row/widget
 
 (def (component e) entire-row/widget (widget/style
                                       row/abstract

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Editable mixin
+;;; editable/mixin
 
 (def (component e) editable/mixin ()
   ((editable-component

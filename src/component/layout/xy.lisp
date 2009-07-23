@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; XY container layout
+;;; xy/layout
 
 (def (component e) xy/layout (layout/minimal contents/abstract)
   ((width :type number)
@@ -22,7 +22,7 @@
          ,(render-contents-for -self-)>))
 
 ;;;;;;
-;;; Position layout
+;;; parent-relative-position/layout
 
 (def (component e) parent-relative-position/layout (layout/minimal content/abstract)
   ((x :type number)

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Command widget
+;;; command/widget
 
 (def (component e) command/widget (widget/basic content/mixin disableable/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in cl-perec integration

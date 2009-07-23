@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tree level widget
+;;; tree-level/widget
 
 (def (component e) tree-level/widget (widget/basic collapsible/abstract)
   ((path nil :type component)

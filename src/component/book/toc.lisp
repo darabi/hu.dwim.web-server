@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; TOC viewer
+;;; toc/viewer
 
 (def (component e) toc/viewer ()
   ())

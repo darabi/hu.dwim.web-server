@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Table abstract
+;;; table/abstract
 
 (def special-variable *table*)
 

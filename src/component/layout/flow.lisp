@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Flow layout
+;;; flow/layout
 
 (def (component e) flow/layout (layout/minimal contents/abstract)
   ((orientation :horizontal :type (member :vertical :horizontal))

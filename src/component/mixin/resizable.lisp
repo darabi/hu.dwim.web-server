@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Resizable mixin
+;;; resizable/mixin
 
 (def (component e) resizable/mixin ()
   ((width

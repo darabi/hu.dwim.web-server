@@ -5,14 +5,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component chart
+;;; component/chart
 
 (def (component e) component/chart ()
   ()
   (:documentation "TODO"))
 
 ;;;;;;
-;;; Chart abstract
+;;; chart/abstract
 
 (def (component e) chart/abstract ()
   ((configuration-provider

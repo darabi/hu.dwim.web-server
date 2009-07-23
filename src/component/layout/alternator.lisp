@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Alternator layout
+;;; alternator/layout
 
 (def (component e) alternator/layout (layout/minimal content/abstract)
   ((alternatives nil :type list))

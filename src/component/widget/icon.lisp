@@ -18,7 +18,7 @@
   (setf (gethash name *icons*) icon))
 
 ;;;;;;
-;;; Icon widget
+;;; icon/widget
 
 (def (component e) icon/widget (tooltip/mixin)
   ((name :type symbol)

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component value mixin
+;;; component-value/mixin
 
 (def (component e) component-value/mixin ()
   ((component-value

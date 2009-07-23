@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Primitive editor
+;;; primitive/editor
 
 (def (component e) primitive/editor (primitive/abstract editor/abstract)
   ())

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Paragraph viewer
+;;; paragraph/viewer
 
 (def (component e) paragraph/viewer (viewer/basic contents/abstract style/mixin)
   ((style-class "paragraph")))

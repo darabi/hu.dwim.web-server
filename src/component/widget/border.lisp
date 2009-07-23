@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Border widget
+;;; border/widget
 
 (def (component e) border/widget (widget/basic content/abstract)
   ()

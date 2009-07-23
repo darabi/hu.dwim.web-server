@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Node widget
+;;; node/widget
 
 (def (component e) node/widget (node/abstract
                                 collapsible/abstract

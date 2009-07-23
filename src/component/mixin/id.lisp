@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Id mixin
+;;; id/mixin
 
 (def (component e) id/mixin ()
   ((id :type string :documentation "A life time permanent string identifier."))
@@ -16,7 +16,7 @@
     (assert (not (id-of self)))))
 
 ;;;;;;
-;;; Frame unique id mixin
+;;; frame-unique-id/mixin
 
 (def (component e) frame-unique-id/mixin (refreshable/mixin id/mixin)
   ((id nil))

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Component messages widget
+;;; component-messages/widget
 
 (def (component e) component-messages/widget (widget/style)
   ((messages nil :type components))
@@ -60,7 +60,7 @@
   (find category (messages-of collector) :key #'category-of))
 
 ;;;;;;
-;;; Component message widget
+;;; component-message/widget
 
 (def (component e) component-message/widget (widget/style closable/abstract content/abstract)
   ((category :information :type (member :information :warning :error))

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Name value list widget
+;;; name-value-list/widget
 
 (def (component e) name-value-list/widget (widget/basic contents/abstract)
   ())
@@ -18,7 +18,7 @@
     ,(render-contents-for -self-)>)
 
 ;;;;;;
-;;; Name value group widget
+;;; name-value-group/widget
 
 (def (component e) name-value-group/widget (widget/basic collapsible/abstract contents/abstract title/mixin)
   ())
@@ -43,7 +43,7 @@
                          (contents-of -self-)))>)
 
 ;;;;;;
-;;; Name value widget
+;;; name-value-pair/widget
 
 (def (component e) name-value-pair/widget (widget/basic)
   ((name nil :type component)

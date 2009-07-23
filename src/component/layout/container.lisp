@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Container layout
+;;; container/layout
 
 (def (component e) container/layout (layout/minimal contents/abstract frame-unique-id/mixin)
   ()

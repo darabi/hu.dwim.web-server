@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Page size selector widget
+;;; page-size-selector/widget
 
 ;; TODO: revive
 (def (component e) page-size-selector/widget (widget/basic member/inspector)
@@ -19,7 +19,7 @@
   (setf (page-size-of (parent-component-of -self-)) (component-value-of -self-)))
 
 ;;;;;;
-;;; Page navigation bar widget
+;;; page-navigation-bar/widget
 
 ;; TODO: clickable pages: first, 4, 5, previous, (jumper 7), next, 9, 10, last
 (def (component e) page-navigation-bar/widget (widget/basic)

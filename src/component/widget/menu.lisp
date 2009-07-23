@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Menu bar widget
+;;; menu-bar/widget
 
 (def (icon e) show-submenu)
 
@@ -26,7 +26,7 @@
         ,(foreach #'render-component menu-items)>)))
 
 ;;;;;;
-;;; Popup menu widget
+;;; popup-menu/widget
 
 (def (component e) popup-menu/widget (widget/style content/abstract menu-items/mixin)
   ()
@@ -49,7 +49,7 @@
             ,(foreach #'render-component menu-items)>))>)))
 
 ;;;;;;
-;;; Context menu widget
+;;; context-menu/widget
 
 (def (icon e) show-context-menu)
 
@@ -72,7 +72,7 @@
           ,(foreach #'render-component menu-items)>))))
 
 ;;;;;;
-;;; Menu item widget
+;;; menu-item/widget
 
 (def (component e) menu-item/widget (widget/style content/abstract menu-items/mixin)
   ()
@@ -125,7 +125,7 @@
   (render-component (icon show-context-menu :label nil)))
 
 ;;;;;;
-;;; Menu item separator widget
+;;; menu-item-separator/widget
 
 (def (component e) menu-item-separator/widget (widget/style)
   ()

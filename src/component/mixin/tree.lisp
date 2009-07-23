@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tree abstract
+;;; tree/abstract
 
 (def special-variable *tree*)
 

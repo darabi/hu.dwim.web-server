@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Column chart
+;;; column/chart
 
 (def (component e) column/chart (chart/abstract)
   ())

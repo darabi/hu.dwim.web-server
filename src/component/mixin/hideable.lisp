@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Hideable mixin
+;;; hideable/mixin
 
 (def (component e) hideable/mixin ()
   ((hideable-component

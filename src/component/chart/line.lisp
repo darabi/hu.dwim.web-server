@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Line chart
+;;; line/chart
 
 (def (component e) line/chart (chart/abstract)
   ())

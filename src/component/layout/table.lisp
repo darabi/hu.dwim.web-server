@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Table layout
+;;; table/layout
 
 (def (component e) table/layout (layout/minimal rows/mixin)
   ()

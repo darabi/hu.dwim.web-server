@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Radar chart
+;;; radar/chart
 
 (def (component e) radar/chart (chart/abstract)
   ())

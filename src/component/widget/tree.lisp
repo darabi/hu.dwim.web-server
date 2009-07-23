@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tree widget
+;;; tree/widget
 
 (def (component e) tree/widget (tree/abstract
                                 widget/style

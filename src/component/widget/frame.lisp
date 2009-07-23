@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Frame widget
+;;; frame/widget
 
 (def (component e) frame/widget (top/abstract layer-context-capturing/mixin)
   ((content-type +xhtml-content-type+)

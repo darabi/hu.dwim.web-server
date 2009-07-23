@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Internal server error message
+;;; internal-error-message/widget
 
 ;; TODO inherit from panel/widget instead of these (currently title is not rendered)
 (def (component e) internal-error-message/widget (component-messages/widget

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Style class mixin
+;;; style-class/mixin
 
 (def (component e) style-class/mixin ()
   ((style-class nil))
@@ -17,14 +17,14 @@
       (setf style-class (string-downcase (substitute #\Space #\/ (symbol-name (class-name (class-of -self-)))))))))
 
 ;;;;;;
-;;; Custom style mixin
+;;; custom-style/mixin
 
 (def (component e) custom-style/mixin ()
   ((custom-style nil))
   (:documentation "Custom STYLE support on a per COMPONENT basis, rendered as the style attribute in XHTML."))
 
 ;;;;;;
-;;; Style mixin
+;;; style/mixin
 
 (def (component e) style/mixin (style-class/mixin custom-style/mixin)
   ())
@@ -35,7 +35,7 @@
       ,(-body-)>))
 
 ;;;;;;
-;;; Style abstract
+;;; style/abstract
 
 (def (component e) style/abstract (style/mixin remote-setup/mixin)
   ()

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; List widget
+;;; list/widget
 
 (def (component e) list/widget (widget/style
                                 list/layout

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Primitive filter
+;;; primitive/filter
 
 (def (component e) primitive/filter (primitive/abstract filter/abstract)
   ())
@@ -14,7 +14,7 @@
   `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of component) #t))
 
 ;;;;;;
-;;; T filter
+;;; t/filter
 
 (def (component e) t/filter (t/abstract primitive/filter)
   ())
@@ -24,7 +24,7 @@
   (render-t-component -self-))
 
 ;;;;;;
-;;; Boolean filter
+;;; boolean/filter
 
 (def (component e) boolean/filter (boolean/abstract primitive/filter)
   ())
@@ -61,7 +61,7 @@
                          ,#"boolean.false">)>)))
 
 ;;;;;;
-;;; String filter
+;;; string/filter
 
 (def (component e) string/filter (string/abstract primitive/filter)
   ((component-value nil)))
@@ -76,19 +76,19 @@
     `js(wui.field.setup-string-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
 ;;;;;;
-;;; Password filter
+;;; password/filter
 
 (def (component e) password/filter (password/abstract string/filter)
   ())
 
 ;;;;;;
-;;; Symbol filter
+;;; symbol/filter
 
 (def (component e) symbol/filter (symbol/abstract string/filter)
   ())
 
 ;;;;;;
-;;; Number filter
+;;; number/filter
 
 (def (component e) number/filter (number/abstract primitive/filter)
   ())
@@ -103,19 +103,19 @@
     `js(wui.field.setup-number-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
 ;;;;;;
-;;; Integer filter
+;;; integer/filter
 
 (def (component e) integer/filter (integer/abstract number/filter)
   ())
 
 ;;;;;;
-;;; Float filter
+;;; float/filter
 
 (def (component e) float/filter (float/abstract number/filter)
   ())
 
 ;;;;;;
-;;; Date filter
+;;; date/filter
 
 (def (component e) date/filter (date/abstract primitive/filter)
   ())
@@ -128,7 +128,7 @@
   '(= < ≤ > ≥))
 
 ;;;;;;
-;;; Time filter
+;;; time/filter
 
 (def (component e) time/filter (time/abstract primitive/filter)
   ())
@@ -141,7 +141,7 @@
   '(= < ≤ > ≥))
 
 ;;;;;;
-;;; Timestamp filter
+;;; timestamp/filter
 
 (def (component e) timestamp/filter (timestamp/abstract primitive/filter)
   ())
@@ -154,7 +154,7 @@
   '(= < ≤ > ≥))
 
 ;;;;;;
-;;; Member filter
+;;; member/filter
 
 (def (component e) member/filter (member/abstract primitive/filter)
   ())
@@ -167,13 +167,13 @@
   (render-member-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 ;;;;;;
-;;; HTML filter
+;;; html/filter
 
 (def (component e) html/filter (html/abstract string/filter)
   ())
 
 ;;;;;;
-;;; IP address filter
+;;; ip-address/filter
 
 (def (component e) ip-address/filter (ip-address/abstract primitive/filter)
   ())

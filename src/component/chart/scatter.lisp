@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Scatter chart
+;;; scatter/chart
 
 (def (component e) scatter/chart (chart/abstract)
   ())

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Primitive abstract
+;;; primitive/abstract
 
 (def (component e) primitive/abstract (component-value/mixin)
   ((name nil :type (or null symbol))
@@ -31,25 +31,25 @@
   (:documentation "Prints the COMPONENT-VALUE of COMPONENT into a STRING."))
 
 ;;;;;;
-;;; Primitive minimal
+;;; primitive/minimal
 
 (def (component e) primitive/minimal (primitive/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Primitive basic
+;;; primitive/basic
 
 (def (component e) primitive/basic (primitive/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Primitive style
+;;; primitive/style
 
 (def (component e) primitive/style (primitive/basic component/style)
   ())
 
 ;;;;;;
-;;; Primitive full
+;;; primitive/full
 
 (def (component e) primitive/full (primitive/style component/full)
   ())

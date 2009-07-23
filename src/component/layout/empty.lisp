@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Empty/layout
+;;; empty/layout
 
 (eval-always
   (def (component e) empty/layout (layout/abstract)

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Node layout
+;;; node/layout
 
 (def (component e) node/layout (node/abstract layout/minimal content/abstract child-nodes/mixin)
   ())

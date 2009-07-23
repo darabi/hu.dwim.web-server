@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Initargs mixin
+;;; initargs/mixin
 
 (def (component e) initargs/mixin ()
   ((initargs :type list :documentation "The list of captured initargs."))

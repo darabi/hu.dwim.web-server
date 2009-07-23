@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Book index inspector
+;;; index/viewer
 
 (def (component e) index/viewer ()
   ())

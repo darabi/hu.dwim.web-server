@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Border mixin
+;;; border/mixin
 
 (def (component e) border/mixin ()
   ((border :type component))

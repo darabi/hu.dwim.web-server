@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Title widget
+;;; title/widget
 
 (def (component e) title/widget (widget/style content/abstract)
   ()
@@ -19,7 +19,7 @@
     (render-content-for -self-)))
 
 ;;;;;;
-;;; Title bar widget
+;;; title-bar/widget
 
 (def (component e) title-bar/widget (widget/style title/mixin)
   ()

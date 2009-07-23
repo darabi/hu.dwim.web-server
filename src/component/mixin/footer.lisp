@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Footer
+;;; footer/mixin
 
 (def (component e) footer/mixin ()
   ((footer :type component))

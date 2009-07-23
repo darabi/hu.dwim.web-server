@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tab page widget
+;;; tab-page/widget
 
 (def (component e) tab-page/widget (widget/basic content/abstract)
   ((selector (icon switch-to-tab-page) :type component))
@@ -18,7 +18,7 @@
   (render-content-for -self-))
 
 ;;;;;;
-;;; Tab page selector bar widget
+;;; tab-page-selector-bar/widget
 
 (def (component e) tab-page-selector-bar/widget (command-bar/widget)
   ()
@@ -28,7 +28,7 @@
   `(make-instance 'tab-page-selector-bar/widget ,@args :commands (list ,@commands)))
 
 ;;;;;;
-;;; Tab container widget
+;;; tab-container/widget
 
 (def (component e) tab-container/widget (widget/style content/abstract)
   ((tab-pages :type components)

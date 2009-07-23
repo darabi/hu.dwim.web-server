@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; External link widget
+;;; external-link/widget
 
 ;; TODO: rename this to a url/uri viewer/inspector/etc. it's not a widget if we have a value
 (def (component e) external-link/widget (widget/basic content/abstract)

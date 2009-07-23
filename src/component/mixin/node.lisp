@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Node abstract
+;;; node/abstract
 
 (def (component e) node/abstract ()
   ())
@@ -15,13 +15,13 @@
     (call-next-method)))
 
 ;;;;;;
-;;; Root nodes mixin
+;;; root-nodes/mixin
 
 (def (component e) root-nodes/mixin ()
   ((root-nodes nil :type components)))
 
 ;;;;;;
-;;; Child nodes mixin
+;;; child-nodes/mixin
 
 (def (component e) child-nodes/mixin ()
   ((child-nodes nil :type components)))

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Nodrow widget
+;;; nodrow/widget
 
 (def (component e) nodrow/widget (widget/style
                                   node/abstract
@@ -112,7 +112,7 @@
     <table:table-cell ,(render-component cell)>))
 
 ;;;;;;
-;;; Entire nodrow widget
+;;; entire-nodrow/widget
 
 (def (component e) entire-nodrow/widget (widget/style
                                          node/abstract

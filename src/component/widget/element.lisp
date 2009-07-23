@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Element widget
+;;; element/widget
 
 (def (component e) element/widget (widget/style
                                    context-menu/mixin

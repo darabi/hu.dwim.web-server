@@ -5,14 +5,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Thunk mixin
+;;; thunk/mixin
 
 (def (component e) thunk/mixin ()
   ((thunk :type (or symbol function)))
   (:documentation "A COMPONENT with a FUNCTION."))
 
 ;;;;;;
-;;; Inline render component widget
+;;; inline-render-component/widget
 
 (def (component e) inline-render-component/widget (widget/basic thunk/mixin)
   ()
@@ -28,7 +28,7 @@
   (render-inline-render-component -self-))
 
 ;;;;;;
-;;; Inline render xhtml widget
+;;; inline-render-xhtml/widget
 
 (def (component e) inline-render-xhtml/widget (inline-render-component/widget)
   ()
@@ -44,7 +44,7 @@
   (render-inline-render-component -self-))
 
 ;;;;;;
-;;; Wrap render component widget
+;;; wrap-render-component/widget
 
 (def (component e) wrap-render-component/widget (widget/basic content/abstract thunk/mixin)
   ()
@@ -69,7 +69,7 @@
   (render-wrap-render-component -self-))
 
 ;;;;;;
-;;; Wrap render XHTML widget
+;;; wrap-render-xhtml/widget
 
 (def (component e) wrap-render-xhtml/widget (wrap-render-component/widget)
   ()

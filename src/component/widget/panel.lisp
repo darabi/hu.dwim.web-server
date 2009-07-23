@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Panel widget
+;;; panel/widget
 
 (def (component e) panel/widget (component-messages/widget
                                  content/abstract

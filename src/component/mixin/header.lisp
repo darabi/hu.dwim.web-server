@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Header mixin
+;;; header/mixin
 
 (def (component e) header/mixin ()
   ((header :type component))

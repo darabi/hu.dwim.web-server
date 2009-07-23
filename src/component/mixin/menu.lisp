@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;
-;;; Menu items mixin
+;;; menu-items/mixin
 
 (def (component e) menu-items/mixin ()
   ((menu-items nil :type components))

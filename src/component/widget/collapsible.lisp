@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Collapsible abstract
+;;; collapsible/abstract
 
 (def (component e) collapsible/abstract (widget/abstract collapsible/mixin)
   ((collapse-command :type component)
@@ -53,7 +53,7 @@
         (expand-component component)))))
 
 ;;;;;;
-;;; Collapsible widget
+;;; collapsible/widget
 
 (def (component e) collapsible/widget (widget/basic collapsible/abstract)
   ((collapsed-content :type component)

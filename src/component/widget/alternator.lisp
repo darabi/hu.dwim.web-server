@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Alternator widget
+;;; alternator/widget
 
 (def (component e) alternator/widget (component-messages/widget alternator/layout hideable/mixin collapsible/mixin #+nil title/mixin context-menu/mixin command-bar/mixin frame-unique-id/mixin)
   ((initial-alternative-type t :type symbol)

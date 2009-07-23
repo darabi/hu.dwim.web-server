@@ -39,7 +39,7 @@
             has-component-value?)))
 
 ;;;;;;
-;;; Unbound component
+;;; unbound/abstract
 
 (def (component e) unbound/abstract (primitive/abstract)
   ())
@@ -54,7 +54,7 @@
   (render-unbound-component))
 
 ;;;;;;
-;;; Null component
+;;; null/abstract
 
 (def (component e) null/abstract (primitive/abstract)
   ())
@@ -69,7 +69,7 @@
   (render-null-component))
 
 ;;;;;;
-;;; T component
+;;; t/abstract
 
 (def (component e) t/abstract (primitive/abstract)
   ())
@@ -91,7 +91,7 @@
         (values (read-from-string client-value)))))
 
 ;;;;;;
-;;; Boolean component
+;;; boolean/abstract
 
 (def (component e) boolean/abstract (primitive/abstract)
   ())
@@ -102,7 +102,7 @@
       (string-to-lisp-boolean client-value)))
 
 ;;;;;;
-;;; String component
+;;; string/abstract
 
 (def (component e) string/abstract (primitive/abstract)
   ())
@@ -133,7 +133,7 @@
       client-value))
 
 ;;;;;;
-;;; Password component
+;;; password/abstract
 
 (def (component e) password/abstract (string/abstract)
   ())
@@ -142,7 +142,7 @@
   "password")
 
 ;;;;;;
-;;; Symbol component
+;;; symbol/abstract
 
 (def (component e) symbol/abstract (string/abstract)
   ())
@@ -155,7 +155,7 @@
         (qualified-symbol-name component-value))))
 
 ;;;;;;
-;;; Number component
+;;; number/abstract
 
 (def (component e) number/abstract (primitive/abstract)
   ())
@@ -186,7 +186,7 @@
       (parse-number:parse-number client-value)))
 
 ;;;;;;
-;;; Integer component
+;;; integer/abstract
 
 (def (component e) integer/abstract (number/abstract)
   ())
@@ -205,7 +205,7 @@
       (values (parse-integer client-value))))
 
 ;;;;;;
-;;; Float component
+;;; float/abstract
 
 (def (component e) float/abstract (number/abstract)
   ())
@@ -216,7 +216,7 @@
       (parse-number:parse-real-number client-value)))
 
 ;;;;;;
-;;; Date component
+;;; date/abstract
 
 (def (component e) date/abstract (primitive/abstract)
   ())
@@ -253,7 +253,7 @@
       result)))
 
 ;;;;;;
-;;; Time component
+;;; time/abstract
 
 (def (component e) time/abstract (primitive/abstract)
   ())
@@ -286,7 +286,7 @@
         (invalid-client-value "Failed to parse ~S as a time" client-value)))))
 
 ;;;;;;
-;;; Timestamp component
+;;; timestamp/abstract
 
 (def (component e) timestamp/abstract (primitive/abstract)
   ())
@@ -323,7 +323,7 @@
         (invalid-client-value "Failed to parse ~S as a timestamp" client-value)))))
 
 ;;;;;;
-;;; Member component
+;;; member/abstract
 
 (def (component e) member/abstract (primitive/abstract)
   ((possible-values)
@@ -374,7 +374,7 @@
                          :on-change on-change)))
 
 ;;;;;;
-;;; HTML component
+;;; html/abstract
 
 (def (component e) html/abstract (string/abstract)
   ())
@@ -403,7 +403,7 @@
         ,(emit-html-component-value component)>)))
 
 ;;;;;;
-;;; IP address component
+;;; ip-address/abstract
 
 (def (component e) ip-address/abstract (primitive/abstract)
   ())
@@ -422,7 +422,7 @@
         "")))
 
 ;;;;;;
-;;; File component
+;;; file/abstract
 
 (def (component e) file/abstract (primitive/abstract)
   ())

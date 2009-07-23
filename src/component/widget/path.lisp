@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Path widget
+;;; path/widget
 
 (def (component e) path/widget (widget/basic contents/abstract)
   ())

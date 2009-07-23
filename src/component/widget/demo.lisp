@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Demo widget
+;;; demo/widget
 
 ;; TODO: rename this to lisp-form/component-demo/viewer and move
 (def (component e) demo/widget (widget/basic content/abstract)

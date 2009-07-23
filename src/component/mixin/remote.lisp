@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Remote setup mixin
+;;; remote-setup/mixin
 
 (def (component e) remote-setup/mixin (frame-unique-id/mixin)
   ()

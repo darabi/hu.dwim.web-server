@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Structure chart
+;;; structure/chart
 
 (def (component e) structure/chart (chart/abstract)
   ())

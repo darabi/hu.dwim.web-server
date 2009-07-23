@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Row layout
+;;; row/layout
 
 (def (component e) row/layout (layout/minimal row/abstract cells/mixin)
   ((vertical-alignment nil :type (member nil :top :center :bottom))))

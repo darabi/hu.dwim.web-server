@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Menu bar mixin
+;;; menu-bar/mixin
 
 (def (component e) menu-bar/mixin ()
   ((menu-bar :type component :documentation "A NIL value specifies no MENU-BAR."))

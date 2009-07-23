@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Primitive maker
+;;; primitive/maker
 
 (def (component e) primitive/maker (primitive/abstract maker/abstract)
   ((initform)
@@ -23,7 +23,7 @@
     <span ,#"value.defaults-to" ,(princ-to-string (initform-of component))>))
 
 ;;;;;;
-;;; T maker
+;;; t/maker
 
 (def (component e) t/maker (t/abstract primitive/maker)
   ())
@@ -32,7 +32,7 @@
   (render-t-component -self-))
 
 ;;;;;;
-;;; Boolean maker
+;;; boolean/maker
 
 (def (component e) boolean/maker (boolean/abstract primitive/maker)
   ())
@@ -71,7 +71,7 @@
                          ,#"boolean.false">) >)))
 
 ;;;;;;
-;;; String maker
+;;; string/maker
 
 (def (component e) string/maker (string/abstract primitive/maker)
   ((component-value nil)))
@@ -80,19 +80,19 @@
   (render-string-component -self-))
 
 ;;;;;;
-;;; Password maker
+;;; password/maker
 
 (def (component e) password/maker (password/abstract string/maker)
   ())
 
 ;;;;;;
-;;; Symbol maker
+;;; symbol/maker
 
 (def (component e) symbol/maker (symbol/abstract string/maker)
   ())
 
 ;;;;;;
-;;; Number maker
+;;; number/maker
 
 (def (component e) number/maker (number/abstract primitive/maker)
   ())
@@ -101,19 +101,19 @@
   (render-number-field-for-primitive-component -self-))
 
 ;;;;;;
-;;; Integer maker
+;;; integer/maker
 
 (def (component e) integer/maker (integer/abstract number/maker)
   ())
 
 ;;;;;;
-;;; Float maker
+;;; float/maker
 
 (def (component e) float/maker (float/abstract number/maker)
   ())
 
 ;;;;;;
-;;; Date maker
+;;; date/maker
 
 (def (component e) date/maker (date/abstract primitive/maker)
   ())
@@ -122,7 +122,7 @@
   (render-date-component -self-))
 
 ;;;;;;
-;;; Time maker
+;;; time/maker
 
 (def (component e) time/maker (time/abstract primitive/maker)
   ())
@@ -131,7 +131,7 @@
   (render-time-component -self-))
 
 ;;;;;;
-;;; Timestamp maker
+;;; timestamp/maker
 
 (def (component e) timestamp/maker (timestamp/abstract primitive/maker)
   ())
@@ -140,7 +140,7 @@
   (render-timestamp-component -self-))
 
 ;;;;;;
-;;; Member maker
+;;; member/maker
 
 (def (component e) member/maker (member/abstract primitive/maker)
   ())
@@ -149,7 +149,7 @@
   (render-member-component -self-))
 
 ;;;;;;
-;;; HTML inspector
+;;; html/maker
 
 (def (component e) html/maker (html/abstract primitive/maker)
   ())
@@ -158,7 +158,7 @@
   (render-html-component -self-))
 
 ;;;;;;
-;;; IP address maker
+;;; ip-address/maker
 
 (def (component e) ip-address/maker (ip-address/abstract primitive/maker)
   ())

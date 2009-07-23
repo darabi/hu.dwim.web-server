@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Page navigation bar mixin
+;;; page-navigation-bar/mixin
 
 (def (component e) page-navigation-bar/mixin ()
   ((page-navigation-bar :type component))

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Chapter viewer
+;;; chapter/viewer
 
 (def (component e) chapter/viewer (viewer/basic contents/abstract title/mixin)
   ())

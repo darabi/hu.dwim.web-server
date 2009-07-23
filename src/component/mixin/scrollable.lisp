@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Scrollable
+;;; scrollable/mixin
 
 (def (component e) scrollable/mixin ()
   ())

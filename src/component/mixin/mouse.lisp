@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Mouse abstract
+;;; mouse/abstract
 
 (def (component e) mouse/abstract ()
   ())

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Parent mixin
+;;; parent/mixin
 
 (def (component e) parent/mixin ()
   ((parent-component

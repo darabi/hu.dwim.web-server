@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tool bar
+;;; tool-bar/widget
 
-(def (component e) tool-bar ()
+(def (component e) tool-bar/widget ()
   ())

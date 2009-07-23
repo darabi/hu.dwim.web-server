@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Splitter widget
+;;; splitter/widget
 
 (def (component e) splitter/widget (widget/basic list/layout)
   ())

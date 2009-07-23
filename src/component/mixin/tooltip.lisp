@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Tooltip mixin
+;;; tooltip/mixin
 
 (def (component e) tooltip/mixin ()
   ((tooltip :type component))

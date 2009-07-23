@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Table widget
+;;; table/widget
 
 (def (component e) table/widget (widget/style
                                  table/abstract

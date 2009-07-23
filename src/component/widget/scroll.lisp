@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Scroll widget
+;;; scroll/widget
 
 (def (component e) scroll/widget (widget/basic)
   ())

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Collapsible mixin
+;;; collapsible/mixin
 
 (def (component e) collapsible/mixin ()
   ((collapsible-component

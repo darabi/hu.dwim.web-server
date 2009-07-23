@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Layer context capturing mixin
+;;; layer-context-capturing/mixin
 
 (def (component e) layer-context-capturing/mixin ()
   ((layer-context (current-layer-context))))

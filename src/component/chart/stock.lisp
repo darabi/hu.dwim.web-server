@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Stock chart
+;;; stock/chart
 
 (def (component e) stock/chart (chart/abstract)
   ())

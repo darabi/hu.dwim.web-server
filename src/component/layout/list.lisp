@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; List layout
+;;; list/layout
 
 (def (component e) list/layout (layout/minimal contents/abstract)
   ((orientation :vertical :type (member :vertical :horizontal)))
@@ -39,7 +39,7 @@
   (render-list-layout :horizontal contents))
 
 ;;;;;;
-;;; Horizontal list layout
+;;; horizontal-list/layout
 
 (def (component e) horizontal-list/layout (list/layout)
   ()
@@ -50,7 +50,7 @@
   `(make-instance 'horizontal-list/layout ,@args :contents (optional-list ,@contents)))
 
 ;;;;;;
-;;; Vertical list layout
+;;; vertical-list/layout
 
 (def (component e) vertical-list/layout (list/layout)
   ()

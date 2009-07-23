@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Book viewer
+;;; book/viewer
 
 (def (component e) book/viewer (viewer/basic)
   ())

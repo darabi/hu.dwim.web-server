@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Selectable mixin
+;;; selectable/mixin
 
 (def (component e) selectable/mixin ()
   (#+nil ;; TODO: some instances are not selectable even though the class allows it
@@ -18,7 +18,7 @@
   (:documentation "A COMPONENT that can be SELECTED."))
 
 ;;;;;;
-;;; Selection mixin
+;;; selection/mixin
 
 (def (component e) selection/mixin ()
   ((selected-component-set (compute-as (or -current-value- (make-hash-table))) :type (or null hash-table))

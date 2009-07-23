@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Image widget
+;;; image/widget
 
 (def (component e) image/widget (widget/basic)
   ((path :type string))

@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Target place widget
+;;; target-place/widget
 
 (def (component e) target-place/widget (widget/basic content/abstract)
   ((target-place :type place))
@@ -23,7 +23,7 @@
     ,(render-content-for -self-)>)
 
 ;;;;;;
-;;; Replace target place widget
+;;; replace-target-place/widget
 
 (def (component e) replace-target-place/widget (command/widget)
   ((replacement-component :type t))

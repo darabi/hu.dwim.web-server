@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Column widget
+;;; column/widget
 
 (def (component e) column/widget (widget/style
                                   column/abstract

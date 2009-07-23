@@ -5,13 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Primitive viewer
+;;; primitive/viewer
 
 (def (component e) primitive/viewer (primitive/abstract viewer/abstract)
   ())
 
 ;;;;;;
-;;; Symbol viewer
+;;; symbol/viewer
 
 (def (component e) symbol/viewer (symbol/abstract primitive/viewer)
   ())

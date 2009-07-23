@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Glossary viewer
+;;; glossary/viewer
 
 (def (component e) glossary/viewer (viewer/basic)
   ())

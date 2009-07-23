@@ -18,7 +18,7 @@
 (def (constant e :test 'string=) +table-cell-nowrap-css-class+ "_nw")
 
 ;;;;;;
-;;; Cell widget
+;;; cell/widget
 
 (def (component e) cell/widget (widget/style
                                 content/abstract

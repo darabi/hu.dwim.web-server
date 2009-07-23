@@ -5,32 +5,32 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Widget abstract
+;;; widget/abstract
 
 (def (component e) widget/abstract ()
   ()
   (:documentation "A WIDGET/ABSTRACT has visual appearance on its own, it also provides behaviour on the client side such as visiblility, expanding, scrolling, resizing, context menu, selection, sorting subparts, etc."))
 
 ;;;;;;
-;;; Widget minimal
+;;; widget/minimal
 
 (def (component e) widget/minimal (widget/abstract component/minimal)
   ())
 
 ;;;;;;
-;;; Widget basic
+;;; widget/basic
 
 (def (component e) widget/basic (widget/minimal component/basic)
   ())
 
 ;;;;;;
-;;; Widget style
+;;; widget/style
 
 (def (component e) widget/style (widget/basic component/style)
   ())
 
 ;;;;;;
-;;; Widget full
+;;; widget/full
 
 (def (component e) widget/full (widget/style component/full)
   ())

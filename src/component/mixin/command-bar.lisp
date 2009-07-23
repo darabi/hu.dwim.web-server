@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Command bar mixin
+;;; command-bar/mixin
 
 (def (component e) command-bar/mixin ()
   ((command-bar :type component))

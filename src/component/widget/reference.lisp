@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Reference widget
+;;; reference/widget
 
 (def (component e) reference/widget (command/widget)
   ())

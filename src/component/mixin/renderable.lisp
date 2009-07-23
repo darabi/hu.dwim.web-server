@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Renderable mixin
+;;; renderable/mixin
 
 (def (component e) renderable/mixin ()
   ((to-be-rendered-component

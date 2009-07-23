@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Refreshable mixin
+;;; refreshable/mixin
 
 (def (component e) refreshable/mixin ()
   ((to-be-refreshed-component

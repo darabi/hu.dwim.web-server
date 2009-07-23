@@ -63,28 +63,28 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 "))
 
 ;;;;;;
-;;; Component minimal
+;;; component/minimal
 
 (def (component e) component/minimal (parent/mixin hideable/mixin)
   ()
   (:documentation "A COMPONENT/MINIMAL includes a minimal set of MIXINs. It supports navigation towards the ROOT-COMPONENT in the COMPONENT-HIERARCHY with PARENT-COMPONENT-OF, it also provides HIDEABLE with HIDE-COMPONENT and SHOW-COMPONENT."))
 
 ;;;;;;
-;;; Component basic
+;;; component/basic
 
 (def (component e) component/basic (component/minimal refreshable/mixin renderable/mixin)
   ()
   (:documentation "A COMPONENT/BASIC includes a basic set of MIXINs. It supports reacting upon state changes with REFRESH-COMPONENT and partial rendering with RENDER-COMPONENT."))
 
 ;;;;;;
-;;; Component style
+;;; component/style
 
 (def (component e) component/style (component/basic style/abstract disableable/mixin)
   ()
   (:documentation "A COMPONENT/STYLE includes a set of style related MIXINs. It supports styles with STYLE-CLASS and CUSTOM-STYLE, it also provides REMOTE-SETUP with the help of a unique ID, and ENABLE-COMPONENT along with DISABLE-COMPONENT for better user experience."))
 
 ;;;;;;
-;;; Component full
+;;; component/full
 
 (def (component e) component/full (component/style collapsible/mixin tooltip/mixin)
   ()

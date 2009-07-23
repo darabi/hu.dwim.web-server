@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Command bar abstract
+;;; command-bar/abstract
 
 (def (component e) command-bar/abstract (widget/abstract)
   ((commands :type components))
@@ -44,7 +44,7 @@
     (command-bar-command-position (content-of self))))
 
 ;;;;;;
-;;; Command bar widget
+;;; command-bar/widget
 
 (def (component e) command-bar/widget (command-bar/abstract widget/basic)
   ())

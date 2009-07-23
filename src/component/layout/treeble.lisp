@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Treeble layout
+;;; treeble/layout
 
 (def (component e) treeble/layout (tree/abstract layout/minimal root-nodes/mixin)
   ())

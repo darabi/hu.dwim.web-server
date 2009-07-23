@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Top widget
+;;; top/widget
 
 (def (component e) top/widget (component-messages/widget target-place/widget top/abstract style/abstract menu-bar/mixin)
   ())

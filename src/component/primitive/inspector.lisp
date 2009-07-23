@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Primitive inspector
+;;; primitive/inspector
 
 (def (component e) primitive/inspector (primitive/abstract inspector/abstract)
   ())
@@ -15,7 +15,7 @@
     (ensure-client-state-sink -self-)))
 
 ;;;;;;
-;;; T inspector
+;;; t/inspector
 
 #+nil
 (def (component e) t/inspector (t/abstract primitive/inspector)
@@ -28,7 +28,7 @@
       `xml,(print-component-value -self-)))
 
 ;;;;;;
-;;; Boolean inspector
+;;; boolean/inspector
 
 (def (component e) boolean/inspector (boolean/abstract primitive/inspector)
   ())
@@ -64,7 +64,7 @@
                       ,#"boolean.false">) >))>))
 
 ;;;;;;
-;;; String inspector
+;;; string/inspector
 
 (def (component e) string/inspector (string/abstract primitive/inspector inspector/basic)
   ())
@@ -76,7 +76,7 @@
         `xml,(print-component-value -self-))))
 
 ;;;;;;
-;;; Password inspector
+;;; password/inspector
 
 (def (component e) password/inspector (password/abstract string/inspector)
   ())
@@ -87,13 +87,13 @@
       "**********"))
 
 ;;;;;;
-;;; Symbol inspector
+;;; symbol/inspector
 
 (def (component e) symbol/inspector (symbol/abstract string/inspector)
   ())
 
 ;;;;;;
-;;; Number inspector
+;;; number/inspector
 
 (def (component e) number/inspector (number/abstract primitive/inspector)
   ())
@@ -105,19 +105,19 @@
         `xml,(print-component-value -self-))))
 
 ;;;;;;
-;;; Integer inspector
+;;; integer/inspector
 
 (def (component e) integer/inspector (integer/abstract number/inspector)
   ())
 
 ;;;;;;
-;;; Float inspector
+;;; float/inspector
 
 (def (component e) float/inspector (float/abstract number/inspector)
   ())
 
 ;;;;;;
-;;; Date inspector
+;;; date/inspector
 
 (def (component e) date/inspector (date/abstract primitive/inspector)
   ())
@@ -128,7 +128,7 @@
       `xml,(print-component-value -self-)))
 
 ;;;;;;
-;;; Time inspector
+;;; time/inspector
 
 (def (component e) time/inspector (time/abstract primitive/inspector)
   ())
@@ -139,7 +139,7 @@
       `xml,(print-component-value -self-)))
 
 ;;;;;;
-;;; Timestamp inspector
+;;; timestamp/inspector
 
 (def (component e) timestamp/inspector (timestamp/abstract primitive/inspector)
   ())
@@ -150,7 +150,7 @@
       `xml,(print-component-value -self-)))
 
 ;;;;;;
-;;; Member inspector
+;;; member/inspector
 
 (def (component e) member/inspector (member/abstract primitive/inspector)
   ())
@@ -164,7 +164,7 @@
             `xml,(print-component-value -self-)))))
 
 ;;;;;;
-;;; HTML inspector
+;;; html/inspector
 
 (def (component e) html/inspector (html/abstract primitive/inspector)
   ())
@@ -175,7 +175,7 @@
       (emit-html-component-value -self-)))
 
 ;;;;;;
-;;; IP address inspector
+;;; ip-address/inspector
 
 (def (component e) ip-address/inspector (ip-address/abstract primitive/inspector)
   ())
@@ -197,7 +197,7 @@
         ,(print-component-value -self-)>))
 
 ;;;;;;
-;;; File inspector
+;;; file/inspector
 
 (def (component e) file/inspector (file/abstract primitive/inspector)
   ((upload-command :type component)

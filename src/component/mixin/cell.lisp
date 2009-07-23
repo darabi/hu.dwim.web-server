@@ -5,14 +5,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;
-;;; Header cell mixin
+;;; header-cell/mixin
 
 (def (component e) header-cell/mixin ()
   ((header-cell :type component))
   (:documentation "A COMPONENT with a HEADER-CELL."))
 
 ;;;;;;
-;;; Cells mixin
+;;; cells/mixin
 
 (def (component e) cells/mixin ()
   ((cells :type components))

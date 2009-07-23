@@ -18,13 +18,13 @@
 (def (constant e :test 'string=) +continue-url-query-parameter-name+ "continue-url")
 
 ;;;;;;
-;;; Login widget
+;;; login/widget
 
 (def (component e) login/widget ()
   ())
 
 ;;;;;;
-;;; Identifier and password login widget
+;;; identifier-and-password-login/widget
 
 ;; TODO: this is kind separate from all the other components which is bad because it does not combine well with other features
 ;;       needs refactoring, less direct manipulation and more generalism through inheritance 
@@ -103,7 +103,7 @@
     (setf *session* nil)))
 
 ;;;;;;
-;;; Fake identifier and password login component
+;;; fake-identifier-and-password-login/widget
 
 (def (component e) fake-identifier-and-password-login/widget ()
   ((identifier nil)

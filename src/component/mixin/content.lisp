@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Content mixin
+;;; content/mixin
 
 (def (component e) content/mixin ()
   ((content
@@ -18,7 +18,7 @@
   (render-component (content-of component)))
 
 ;;;;;;
-;;; Content abstract
+;;; content/abstract
 
 (def (component e) content/abstract (refreshable/mixin content/mixin)
   ())
@@ -36,7 +36,7 @@
     (setf (component-value-of it) new-value)))
 
 ;;;;;;
-;;; Contents mixin
+;;; contents/mixin
 
 (def (component e) contents/mixin ()
   ((contents
@@ -49,7 +49,7 @@
   (foreach #'render-component (contents-of component)))
 
 ;;;;;;
-;;; Contents abstract
+;;; contents/abstract
 
 (def (component e) contents/abstract (refreshable/mixin contents/mixin)
   ())

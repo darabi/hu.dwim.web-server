@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Title mixin
+;;; title/mixin
 
 (def (component e) title/mixin (refreshable/mixin)
   ((title nil :type component))
@@ -38,7 +38,7 @@
   (title-of self))
 
 ;;;;;;
-;;; Title bar mixin
+;;; title-bar/mixin
 
 (def (component e) title-bar/mixin ()
   ((title-bar :type component))

@@ -5,13 +5,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Button widget
+;;; button/widget
 
 (def (component e) button/widget (widget/basic style/abstract content/abstract)
   ())
 
 ;;;;;;
-;;; Push button widget
+;;; push-button/widget
 
 (def (component e) push-button/widget (button/widget)
   ())
@@ -25,7 +25,7 @@
     (render-content-for -self-)))
 
 ;;;;;;
-;;; Toggle button widget
+;;; toggle-button/widget
 
 (def (component e) toggle-button/widget (button/widget)
   ((pushed-in :type boolean)))
@@ -39,7 +39,7 @@
     (render-content-for -self-)))
 
 ;;;;;;
-;;; Drop down button widget
+;;; drop-down-button/widget
 
 ;; TODO: add contents and what? is it really a button or what?
 (def (component e) drop-down-button/widget (button/widget)

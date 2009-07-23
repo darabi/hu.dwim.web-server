@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Row abstract
+;;; column/abstract
 
 (def special-variable *column-index*)
 
@@ -16,7 +16,7 @@
   #f)
 
 ;;;;;;
-;;; Columns mixin
+;;; columns/mixin
 
 (def (component e) columns/mixin ()
   ((columns :type components))

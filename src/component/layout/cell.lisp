@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Cell layout
+;;; cell/layout
 
 (def (component e) cell/layout (layout/minimal content/abstract)
   ((column-span nil :type integer)

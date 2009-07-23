@@ -5,7 +5,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Flow chart
+;;; flow/chart
 
 (def (component e) flow/chart (chart/abstract)
   ())
