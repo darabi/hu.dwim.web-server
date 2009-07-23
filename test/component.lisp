@@ -473,7 +473,7 @@
                         "Steve")
                       (parent-relative-position/layout (:x 80 :y 50)
                         "Kate"))))
-                (node/widget (:expanded #f)
+                (node/widget (:expanded #t)
                     "Widget"
                   (replace-target-demo/widget "Inline render XHTML"
                     (inline-render-xhtml/widget ()
@@ -732,7 +732,25 @@
                                                         "Székesfehérvár")
                                                     (node/widget ()
                                                         "Agárd")))
-                                   :node "Dél-magyarországi régió")))
+                                   :node "Dél-magyarországi régió"))
+                  (replace-target-demo/widget "Graph"
+                    (graph/widget ()
+                      (vertex/widget (:vertex-id 0)
+                        "John")
+                      (vertex/widget (:vertex-id 1)
+                        "Mary")
+                      (vertex/widget (:vertex-id 2)
+                        "Steve")
+                      (vertex/widget (:vertex-id 3)
+                        "Kate")
+                      (edge/widget (:vertex-1 0 :vertex-2 1)
+                        "Likes")
+                      (edge/widget (:vertex-1 1 :vertex-2 2)
+                        "Dislikes")
+                      (edge/widget (:vertex-1 2 :vertex-2 3)
+                        "Friendly")
+                      (edge/widget (:vertex-1 3 :vertex-2 0)
+                        "Unfriendly"))))
                 (node/widget (:expanded #f)
                     "Chart"
                   (replace-target-demo/widget "Column"

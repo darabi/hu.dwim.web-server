@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Persistent processs
 
-(def (component ea) persistent-process-component (standard-process-component)
+(def (component e) persistent-process-component (standard-process-component)
   ((process)))
 
 (def layered-method make-context-menu-items ((component persistent-process-component) (class dmm::persistent-process) (prototype dmm::standard-persistent-process) (instance dmm::standard-persistent-process))

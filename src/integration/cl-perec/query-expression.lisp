@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Select expression component
 
-(def (component ea) select-expression-component (abstract-expression-component)
+(def (component e) select-expression-component (abstract-expression-component)
   ((select-clause (make-instance 'expression-component :the-type 'list) :type component)
    (from-clause (make-class-selector (sort (filter-if (lambda (class)
                                                         (dmm::authorize-operation 'dmm::filter-entity-operation :-entity- class))
@@ -40,7 +40,7 @@
 ;;;;;;
 ;;; Generic filter
 
-(def (component ea) generic-filter (filter/abstract title-mixin component-messages/basic id/mixin)
+(def (component e) generic-filter (filter/abstract title-mixin component-messages/basic id/mixin)
   ((expression (make-instance 'select-expression-component) :type component)
    (command-bar :type component)
    (result (make-instance 'empty-component) :type component)))

@@ -21,14 +21,12 @@
 
 (defpackage :hu.dwim.wui.system
   (:export #:*load-as-production-p*
-           #:project-relative-pathname
-           )
+           #:project-relative-pathname)
 
   (:use :common-lisp
         :asdf
         :cl-syntax-sugar
-        :alexandria
-        ))
+        :alexandria))
 
 (in-package :hu.dwim.wui.system)
 
@@ -261,7 +259,6 @@
                                              (:file "external-link")
                                              (:file "field")
                                              (:file "frame" :depends-on ("top"))
-                                             (:file "graph")
                                              (:file "help" :depends-on ("icon"))
                                              (:file "icon")
                                              (:file "image")
@@ -444,7 +441,8 @@
     :components ((:file "component"))))
   :depends-on (:hu.dwim.wui.application.test
                :hu.dwim.wui.component
-               :hu.dwim.wui&informatimago))
+               :hu.dwim.wui&informatimago
+               :hu.dwim.wui&cl-graph))
 
 (defsystem* :hu.dwim.wui.test
   :setup-readtable-function "hu.dwim.wui.test::setup-readtable"
@@ -491,7 +489,6 @@
                   (:file "menu")
                   (:file "place")
                   (:file "reference")
-                  (:file "graph")
                   (:file "editable")
                   (:file "exportable")
                   (:file "expression")
@@ -509,21 +506,24 @@
 (defmethod perform ((op load-op) (system (eql (find-system :hu.dwim.wui&cl-perec))))
   (pushnew :hu.dwim.wui&cl-perec *features*))
 
-(defsystem* hu.dwim.wui&cl-typesetting
-  :depends-on (:cl-typesetting :hu.dwim.wui)
+(defsystem* :hu.dwim.wui&cl-typesetting
+  :depends-on (:cl-typesetting
+               :hu.dwim.wui)
   :components
   ((:module "src"
     :components ((:module "integration"
                   :components ((:file "cl-typesetting")))))))
 
-(defsystem* hu.dwim.wui&cl-serializer
-  :depends-on (:cl-perec :cl-serializer :hu.dwim.wui)
+(defsystem* :hu.dwim.wui&cl-serializer
+  :depends-on (:cl-serializer
+               :cl-perec
+               :hu.dwim.wui)
   :components
   ((:module "src"
     :components ((:module "integration"
                   :components ((:file "cl-serializer")))))))
 
-(defsystem* hu.dwim.wui&informatimago
+(defsystem* :hu.dwim.wui&informatimago
   :depends-on (:hu.dwim.wui)
   :components
   ((:module "src"
@@ -536,3 +536,12 @@
                   :components ((:module "model"
                                 :components ((:file "form"))))
                   :depends-on ("integration"))))))
+
+(defsystem* :hu.dwim.wui&cl-graph
+  :depends-on (:cl-graph
+               :hu.dwim.wui)
+  :components
+  ((:module "src"
+    :components ((:module "component"
+                  :components ((:module "widget"
+                                :components ((:file "graph")))))))))

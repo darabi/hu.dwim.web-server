@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; Standard object filter menu item
 
-(def (component ea) standard-object-filter-menu-item-component (menu-item-component)
+(def (component e) standard-object-filter-menu-item-component (menu-item-component)
   ((the-class)))
 
 (def constructor standard-object-filter-menu-item-component ()
@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; Standard object maker menu item
 
-(def (component ea) standard-object-maker-menu-item-component (menu-item-component)
+(def (component e) standard-object-maker-menu-item-component (menu-item-component)
   ((the-class)))
 
 (def constructor standard-object-maker-menu-item-component ()
@@ -45,7 +45,7 @@
 ;;;;;;
 ;;; Persistent process starter menu item
 
-(def (component ea) persistent-process-starter-menu-item-component (menu-item-component)
+(def (component e) persistent-process-starter-menu-item-component (menu-item-component)
   ((the-class)))
 
 (def constructor persistent-process-starter-menu-item-component ()

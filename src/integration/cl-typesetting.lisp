@@ -169,3 +169,238 @@
               ;; TODO: consider page size and orientation
               (* 725 (coerce (/ width total-width) 'double-float)))
             column-widths)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;; TODO: factor/move?!
+
+;;;;;;
+;;; Graph stuff
+
+(def special-variable *vertex-inset* 5)
+
+(def special-variable *dpi* 72.0)
+
+(def special-variable *max-vertex-width* 200)
+
+(def special-variable *arrow-width* 6)
+
+(def special-variable *arrow-length* 10)
+
+(def special-variable *edge-label-font* "FreeSerif")
+
+(def special-variable *edge-label-font-size* 11)
+
+(def special-variable *vertex-label-font* "FreeSerif")
+
+(def special-variable *vertex-label-font-size* 11)
+
+(def function center-x-of (vertex)
+  (+ (x-of vertex) (/ (width-of vertex) 2.0)))
+
+(def function center-y-of (vertex)
+  (+ (y-of vertex) (/ (height-of vertex) 2.0)))
+
+(def function push-dot-attribute (object key value)
+  (push value (dot-attributes object))
+  (push key (dot-attributes object)))
+
+
+(def generic compute-vertex-size (vertex content)
+  (:method (vertex (content (eql nil)))
+           (values))
+
+  (:method (vertex content)
+           ;; NOTE: size measurement seems to work in a somewhat bad way
+           ;; if you don't know what is going on here, it's better not to change anything
+           (bind (box width height)
+             ;; first make it as wide as it wants to be
+             (unless width
+               (setf box (render-vertex-content content))
+               (setf width (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dx))
+               ;; to calculate the height we have to fit in a box
+               (setf box (render-vertex-content content width))
+               ;; TODO: WTF 5?
+               (setf height (+ 5 (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dy))))
+             ;; if it is wider than the maximum, then rewrap the whole thing
+             (when (> width *max-vertex-width*)
+               (setf box (render-vertex-content content *max-vertex-width*))
+               (setf width *max-vertex-width*)
+               ;; TODO: WTF 5?
+               (setf height (+ 5 (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dy))))
+             (when box
+               (setf (compiled-content-of vertex) box))
+             ;; store sizes in dpi
+             (log.debug "Precalculated vertex size for ~A is (~A, ~A)" vertex width height)
+             (setf (getf (dot-attributes vertex) :width) (/ (+ (* 2 *vertex-inset*) width) *dpi*))
+             (setf (getf (dot-attributes vertex) :height) (/ (+ (* 2 *vertex-inset*) height) *dpi*)))))
+
+(def function render-graph (graph &rest args)
+  (layout-graph graph)
+  (apply 'user-drawn-box
+         :inline #t
+         :stroke-fn (lambda (box x y)
+                      (declare (ignore box))
+                      (stroke-graph graph x y))
+         :dx (* (scale-of graph) (width-of graph)) :dy (* (scale-of graph) (height-of graph))
+         args))
+
+(def function stroke-graph (graph x y)
+  (pdf:with-saved-state
+    (pdf:set-color-fill (background-color-of graph))
+    (pdf:translate x y)
+    (pdf:scale (scale-of graph) (scale-of graph))
+    (pdf:translate (- (x-of graph)) (- (+ (y-of graph) (height-of graph))))
+    (when (border-width-of graph)
+      (pdf:set-color-stroke (border-color-of graph))
+      (pdf:set-line-width (border-width-of graph))
+      (pdf:basic-rect (x-of graph) (y-of graph) (width-of graph) (height-of graph))
+      (pdf:fill-and-stroke))
+    (iterate-edges graph
+                   (lambda (edge)
+                     (stroke-edge edge)))
+    (iterate-nodes graph
+                   (lambda (vertex)
+                     (stroke-vertex vertex)))))
+
+(def function stroke-vertex (vertex)
+  (pdf:with-saved-state
+    (pdf:set-color-fill (background-color-of vertex))
+    (when (border-width-of vertex)
+      (pdf:set-color-stroke (border-color-of vertex))
+      (pdf:set-line-width (border-width-of vertex))
+      (pdf:basic-rect (x-of vertex)
+                      (y-of vertex)
+                      (width-of vertex)
+                      (height-of vertex))
+      (pdf:fill-and-stroke)))
+  (stroke-vertex-content vertex (compiled-content-of vertex)))
+
+(def generic stroke-vertex-content (vertex content)
+  (:method (vertex (content string))
+           (when content
+             (pdf:set-color-fill '(0.0 0.0 0.0))
+             (pdf:draw-centered-text (center-x-of vertex) (- (center-y-of vertex) (* 0.3 *vertex-label-font-size*))
+                                     (format nil "~A" content)
+                                     (pdf:get-font *vertex-label-font*) *vertex-label-font-size*)))
+
+  (:method (vertex (content (eql nil)))
+           (values))
+
+  (:method (vertex (box typeset::box))
+           (typeset::stroke box
+                            (+ *vertex-inset* (x-of vertex))
+                            (+ (- *vertex-inset*) (y-of vertex) (height-of vertex))))
+
+  (:method (vertex (box typeset::text-content))
+           (typeset::stroke box
+                            (+ *vertex-inset* (x-of vertex))
+                            (+ (- *vertex-inset*) (y-of vertex) (height-of vertex)))))
+
+(def function stroke-edge (edge)
+  (pdf:with-saved-state
+    (pdf:set-color-stroke (line-color-of edge))
+    (pdf:set-color-fill (line-color-of edge))
+    (pdf:set-line-width (width-of edge))
+    (let ((points (points-of edge))
+          x1 y1 x2 y2 x3 y3 prev-x1 prev-y1)
+      (when points
+        (pdf:move-to (caar points) (second (pop points)))
+        (iter (while points)
+              (setf prev-x1 x1 prev-y1 y1)
+              (setf x1 (caar points) y1 (second (pop points))
+                    x2 (caar points) y2 (second (pop points))
+                    x3 (caar points) y3 (second (pop points)))
+              (assert (and x1 y1 x2 y2 x3 y3))
+              (pdf:bezier-to x1 y1 x2 y2 x3 y3))
+        (pdf:stroke)
+        (setf points (points-of edge))
+        (awhen (tail-arrow-of edge)
+          (stroke-arrow it (caaddr points) (car (cdaddr points)) (caar points) (cadar points)))
+        (awhen (head-arrow-of edge)
+          (stroke-arrow it x1 y1 x3 y3))
+        (stroke-label edge)))))
+
+(def function stroke-arrow (arrow x1 y1 x2 y2)
+  (when arrow
+    (bind ((nx (- x1 x2))
+           (ny (- y1 y2))
+           (l (sqrt (+ (* nx nx)(* ny ny))))
+           (x0)
+           (y0)
+           (shape (shape-of arrow))
+           (reverse-arrow-with-line-p (eq shape :reverse-arrow-with-line))
+           (arrow-length (if reverse-arrow-with-line-p
+                             (- *arrow-length*)
+                             *arrow-length*)))
+      (setf nx (/ nx l)
+            ny (/ ny l))
+      (unless reverse-arrow-with-line-p
+        (decf x2 (* nx arrow-length))
+        (decf y2 (* ny arrow-length)))
+      (pdf:move-to x2 y2)
+      (setf x0 (+ x2 (* nx arrow-length))
+            y0 (+ y2 (* ny arrow-length))
+            nx (* nx *arrow-width*)
+            ny (* ny *arrow-width*))
+      (pdf:line-to (+ x0 ny) (- y0 nx))
+      (pdf:line-to (- x0 ny) (+ y0 nx))
+      (pdf:line-to x2 y2)
+      (when reverse-arrow-with-line-p
+        (pdf:line-to x0 y0))
+      (if (eq (shape-of arrow) :filled-arrow)
+          (pdf:fill-and-stroke)
+          (pdf:stroke)))))
+
+;; TODO: handle label coordinates
+(def function stroke-label (edge)
+  (when (label-of edge)
+    (bind ((points (points-of edge))
+           (first-point (first points))
+           (last-point (lastcar points))
+           (x (/ (+ (first first-point) (first last-point)) 2))
+           (y (/ (+ (second first-point) (second last-point)) 2)))
+      (pdf:set-color-fill (label-color-of edge))
+      (pdf:draw-centered-text x y (label-of edge)
+                              (pdf:get-font *edge-label-font*) *edge-label-font-size*))))
+
+(def function render-vertex-content (content &optional max-width)
+  (bind ((compiled-content
+          (cond ((typep content 'string)
+                 (compile-text ()
+                   (paragraph (:h-align :center
+                               :v-align :center
+                               :color '(0 0 0)
+                               ;; TODO: WTF? parenthesis messes up cl-pdf's output when using FreeSerif font!
+                               :font "Helvetica"
+                               :font-size *vertex-label-font-size*)
+                     (put-string content))))
+                ((typep content 'cons)
+                 (eval
+                  `(compile-text () ,content)))
+                (t
+                 content))))
+    (if max-width
+        (make-filled-vbox compiled-content max-width typeset::+HUGE-NUMBER+)
+        compiled-content)))

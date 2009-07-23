@@ -10,7 +10,7 @@
 (def (component e) class/inspector (t/inspector)
   ())
 
-(def (macro e) class/inspector (class &rest args)
+(def (macro e) class/inspector (class &rest args &key &allow-other-keys)
   `(make-instance 'class/inspector ,class ,@args))
 
 (def layered-method find-inspector-type-for-prototype ((prototype class))
@@ -27,7 +27,7 @@
 (def (component e) class/subclass-hierarchy/tree/inspector (t/tree/inspector)
   ())
 
-(def (macro e) class/subclass-hierarchy/tree/inspector (class &rest args)
+(def (macro e) class/subclass-hierarchy/tree/inspector (class &rest args &key &allow-other-keys)
   `(make-instance 'class/subclass-hierarchy/tree/inspector :component-value ,class ,@args))
 
 (def layered-method make-tree/root-node ((component class/subclass-hierarchy/tree/inspector) (class class) (prototype class) (value class))
@@ -39,7 +39,7 @@
 (def (component e) class/subclass-hierarchy/node/inspector (t/node/inspector)
   ())
 
-(def (macro e) class/subclass-hierarchy/node/inspector (class &rest args)
+(def (macro e) class/subclass-hierarchy/node/inspector (class &rest args &key &allow-other-keys)
   `(make-instance 'class/subclass-hierarchy/node/inspector :component-value ,class ,@args))
 
 (def layered-method make-node/child-node ((component class/subclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
@@ -57,7 +57,7 @@
 (def (component e) class/superclass-hierarchy/tree/inspector (t/tree/inspector)
   ())
 
-(def (macro e) class/superclass-hierarchy/tree/inspector (class &rest args)
+(def (macro e) class/superclass-hierarchy/tree/inspector (class &rest args &key &allow-other-keys)
   `(make-instance 'class/superclass-hierarchy/tree/inspector :component-value ,class ,@args))
 
 (def layered-method make-tree/root-node ((component class/superclass-hierarchy/tree/inspector) (class class) (prototype class) (value class))
@@ -69,7 +69,7 @@
 (def (component e) class/superclass-hierarchy/node/inspector (t/node/inspector)
   ())
 
-(def (macro e) class/superclass-hierarchy/node/inspector (class &rest args)
+(def (macro e) class/superclass-hierarchy/node/inspector (class &rest args &key &allow-other-keys)
   `(make-instance 'class/superclass-hierarchy/node/inspector :component-value ,class ,@args))
 
 (def layered-method make-node/child-node ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))

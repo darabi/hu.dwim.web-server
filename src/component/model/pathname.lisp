@@ -10,7 +10,7 @@
 (def (component e) pathname/inspector (t/inspector)
   ())
 
-(def (macro e) pathname/inspector (pathname &rest args)
+(def (macro e) pathname/inspector (pathname &rest args &key &allow-other-keys)
   `(make-instance 'pathname/inspector :component-value ,pathname ,@args))
 
 ;;;;;;
@@ -19,7 +19,7 @@
 (def (component e) pathname/text-file/inspector (inspector/basic content/widget)
   ())
 
-(def (macro e) pathname/text-file/inspector (pathname &rest args)
+(def (macro e) pathname/text-file/inspector (pathname &rest args &key &allow-other-keys)
   `(make-instance 'pathname/text-file/inspector :component-value ,pathname ,@args))
 
 (def refresh-component pathname/text-file/inspector
