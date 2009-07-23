@@ -63,6 +63,9 @@
    (:method ((instance source-text:source-list))
      (render-source-list (first (source-text:source-sequence-elements instance)) instance))
 
+   (:method :in xhtml-layer ((instance source-text:source-token))
+     <span (:class "token") ,(render-source-object-text instance)>)
+
    (:method :in xhtml-layer ((instance source-text:source-semicolon-comment))
      <span (:class "comment") ,(render-source-object-text instance)>)
 
@@ -71,6 +74,9 @@
 
    (:method :in xhtml-layer ((instance source-text:source-string))
      <span (:class "string") ,(render-source-object-text instance)>)
+
+   (:method :in xhtml-layer ((instance source-text:source-character))
+     <span (:class "character") ,(render-source-object-text instance)>)
 
    (:method ((instance source-text:source-symbol))
      (render-source-symbol (source-text:source-symbol-value instance) instance))
@@ -81,32 +87,41 @@
        <span (:class "function") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
        (render-source-object (source-text:source-object-subform instance))))
 
-   (:method ((instance source-text:source-quote))
+   (:method :in xhtml-layer ((instance source-text:source-quote))
      (with-render-source-object-whitespace instance
        (incf *previous-source-position*)
        <span (:class "quote") ,(princ-to-string (source-text:macro-character instance))>
        (render-source-object (source-text:source-object-subform instance))))
 
-   (:method ((instance source-text:source-backquote))
+   (:method :in xhtml-layer ((instance source-text:source-backquote))
      (with-render-source-object-whitespace instance
        (incf *previous-source-position*)
        <span (:class "backquote") ,(princ-to-string (source-text:macro-character instance))>
        (render-source-object (source-text:source-object-subform instance))))
 
-   (:method ((instance source-text:source-unquote))
+   (:method :in xhtml-layer ((instance source-text:source-unquote))
      (with-render-source-object-whitespace instance
        (incf *previous-source-position*)
        <span (:class "unquote") ,(princ-to-string (source-text:macro-character instance))>
        (render-source-object (source-text:source-object-subform instance))))
 
-   (:method ((instance source-text:source-splice))
+   (:method :in xhtml-layer ((instance source-text:source-splice))
      (with-render-source-object-whitespace instance
        (incf *previous-source-position*)
        <span (:class "unquote-splicing") ,(princ-to-string (source-text:macro-character instance))>
        (render-source-object (source-text:source-object-subform instance))))
 
-   (:method :in xhtml-layer ((instance source-text:source-token))
-     <span (:class "token") ,(render-source-object-text instance)>)
+   (:method :in xhtml-layer ((instance source-text:source-feature))
+     (with-render-source-object-whitespace instance
+       (incf *previous-source-position*)
+       <span (:class "feature") ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
+       (render-source-object (source-text:source-object-subform instance))))
+   
+   (:method :in xhtml-layer ((instance source-text:source-read-eval))
+     (with-render-source-object-whitespace instance
+       (incf *previous-source-position*)
+       <span (:class "read-eval") ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
+       (render-source-object (source-text:source-object-subform instance))))
 
    (:method ((instance source-text:source-lexical-error))
      <span (:class "lexical-error") ,(princ-to-string (source-text:source-lexical-error-error instance))>
@@ -137,7 +152,8 @@
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-symbol (value instance)
    (:method :in xhtml-layer (value (instance source-text:source-symbol))
-     (bind ((style-class (cond ((keywordp value)
+     (bind ((id (generate-response-unique-string))
+            (style-class (cond ((keywordp value)
                                 "keyword")
                                ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))
                                 "lambda-list-keyword")
@@ -146,7 +162,18 @@
                                ((eq (symbol-package value) #.(find-package :common-lisp))
                                 "common-lisp")
                                (t "symbol"))))
-      <span (:class ,style-class) ,(render-source-object-text instance)>)))}
+       <span (:id ,id :class ,style-class)
+         ,(render-source-object-text instance)>
+       (awhen (ignore-errors (fdefinition value))
+         (render-tooltip (make-action
+                           (make-component-rendering-response
+                            (tooltip/widget ()
+                              (etypecase it
+                                (standard-generic-function
+                                 (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods it)))
+                                (function
+                                 (make-instance 'function/lisp-form/inspector :component-value it))))))
+                         id)))))}
 
 (def function render-source-object-text (source-object)
   (with-render-source-object-whitespace source-object
@@ -196,17 +223,22 @@
   ;; TODO: use swank
   ;; TODO: find a portable way
   ;; TODO: bind *package*, etc
-  (bind ((definition-source (sb-introspect:find-definition-source definition)))
-    (with-input-from-file (stream (translate-logical-pathname (sb-introspect:definition-source-pathname definition-source)))
-      ;; TODO: handle form path? (not needed with swank)
-      (or (iter (with index = (first (aprog1 (sb-introspect:definition-source-form-path definition-source)
+  (bind ((definition-source (sb-introspect:find-definition-source definition))
+         (pathname (sb-introspect:definition-source-pathname definition-source)))
+    (if pathname
+        (with-input-from-file (stream (translate-logical-pathname pathname))
+          ;; TODO: handle form path? (not needed with swank)
+          (iter (with index = (first (aprog1 (sb-introspect:definition-source-form-path definition-source)
                                        (assert (length= 1 it)))))
                 (for element = (source-text:source-read stream #f stream #f #t))
                 (until (eq element stream))
+                ;; TODO: breaks on #t, #f, <> syntax, etc.
+                (when (typep element 'source-text:source-lexical-error)
+                  (return (format nil ";; source cannot be read for ~A due to ~A" definition element)))
                 (unless (typep element 'source-text:comment)
                   (when (zerop index)
                     (return (source-text:source-object-text element)))
                   (decf index))
-                ;; TODO: breaks on #t, #f, <> syntax, etc.
-                (until (typep element 'source-text:source-lexical-error)))
-          (format nil ";; source not found for defintiion ~A" (princ-to-string definition))))))
+                (finally
+                 (return (format nil ";; source not found for ~A in ~A" definition pathname)))))
+        (format nil ";; no source path for ~A" definition))))

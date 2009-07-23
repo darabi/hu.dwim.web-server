@@ -695,11 +695,10 @@ POST:  The dispatching reader macro function for the MACRO-CHARACTER
 
 (defun source-reader-dispatch-macro-unreadable        (stream arg sub-char)
   "Source reader #< dispatch macro reader."
-  (declare (ignore sub-char arg))
-  ;; TODO: see if we can do something to read #< ...
-  (com.informatimago.common-lisp.reader::serror
-   'simple-reader-error stream
-   "objects printed as #<...> cannot be read back in"))
+  (building-reader-dispatch-macro-source-object
+   stream arg sub-char
+   'source-token 
+   :token "<unreadable>"))
 
 
 ;;; ---------------------------------------- ;;;

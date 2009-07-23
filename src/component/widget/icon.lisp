@@ -76,7 +76,7 @@
                           (icon-style-class name))))
     ;; render the `js first, so the return value contract of qq is kept.
     (when tooltip
-      (render-tooltip tooltip :target-id id))
+      (render-tooltip tooltip id))
     <span (:id ,id :class ,style-class)
       ,(when image-path
          <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)

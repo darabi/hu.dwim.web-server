@@ -12,10 +12,10 @@
   (:documentation "A COMPONENT with a tooltip."))
 
 (def (function e) render-tooltip-for (component)
-  (render-tooltip (tooltip-of component) :target (id-of component)))
+  (render-tooltip (tooltip-of component) (id-of component)))
 
 ;; TODO: this could collect the essential data in a special variable and at the end of rendering emit a literal js array with all the tooltips
-(def (function e) render-tooltip (tooltip &key target-id position)
+(def (function e) render-tooltip (tooltip target-id &key position)
   ":position might be '(\"below\" \"right\")"
   (check-type tooltip (or string uri action function))
   (check-type target-id string)

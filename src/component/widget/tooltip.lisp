@@ -11,5 +11,11 @@
   ()
   (:documentation "A COMPONENT which pops up as a tooltip of another COMPONENT."))
 
+(def (macro e) tooltip/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'tooltip/widget ,@args :content ,(the-only-element content)))
+
 (def render-component tooltip/widget
-  (not-yet-implemented))
+  <div ,@(with-collapsed-js-scripts
+          (with-dojo-widget-collector
+            (with-active-layers (passive-xhtml-layer)
+              (render-content-for -self-))))>)
