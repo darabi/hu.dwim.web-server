@@ -16,7 +16,7 @@
 (def layered-method find-inspector-type-for-prototype ((prototype asdf:system))
   'system/inspector)
 
-(def layered-method make-alternatives ((component system/inspector) class prototype value)
+(def layered-method make-alternatives ((component system/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (list* (delay-alternative-component-with-initargs 'system/depends-on-hierarchy/tree/inspector :component-value value)
          (call-next-method)))
 
@@ -49,6 +49,3 @@
           (cdr (find-if (lambda (description)
                           (eq 'asdf:load-op (first description)))
                         (asdf:component-depends-on 'asdf:load-op value)))))
-
-(def layered-method make-node/content ((component system/depends-on-hierarchy/node/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
-  (make-value-inspector value))

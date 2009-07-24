@@ -529,9 +529,10 @@
   ((:module "src"
     :components ((:module "integration"
                   :components ((:module "informatimago"
-                                :components ((:file "source-form")
+                                :components ((:file "reader" :depends-on ("source-form"))
+                                             (:file "source-form")
                                              (:file "source-text" :depends-on ("reader"))
-                                             (:file "reader" :depends-on ("source-form"))))))
+                                             (:file "syntax-sugar")))))
                  (:module "component"
                   :components ((:module "model"
                                 :components ((:file "form"))))
@@ -545,3 +546,12 @@
     :components ((:module "component"
                   :components ((:module "widget"
                                 :components ((:file "graph")))))))))
+
+(defsystem* :hu.dwim.wui&stefil
+  :depends-on (:stefil
+               :hu.dwim.wui)
+  :components
+  ((:module "src"
+    :components ((:module "component"
+                  :components ((:module "model"
+                                :components ((:file "test")))))))))

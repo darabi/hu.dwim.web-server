@@ -24,7 +24,9 @@
                                                         "span"
                                                         "div"))
     (render-context-menu-for -self-)
-    (render-content-for -self-)))
+    (render-content-for -self-)
+    (unless (typep (content-of -self-) 'reference/widget)
+      (render-command-bar-for -self-))))
 
 (def method clone-component ((self alternator/widget))
   (prog1-bind clone (call-next-method)

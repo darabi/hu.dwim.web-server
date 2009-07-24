@@ -75,6 +75,14 @@ a.external-link
   font-weight: bold;
 }
 
+.lisp-form .boolean {
+  color: darkgreen;
+}
+
+.lisp-form .character {
+  color: darkgreen;
+}
+
 .lisp-form .string {
   color: darkgreen;
 }

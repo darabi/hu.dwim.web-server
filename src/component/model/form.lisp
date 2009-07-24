@@ -28,7 +28,10 @@
       (make-lisp-form-component-value form)))
 
 (def refresh-component t/lisp-form/inspector
-  (bind (((:slots component-value source-objects) -self-))
+  (bind (((:slots component-value source-objects) -self-)
+         (source-text:*source-readtable* (source-text::make-source-readtable)))
+    ;; TODO: take over the original syntax
+    (source-text::enable-sharp-boolean-syntax)
     (setf source-objects (with-input-from-string (stream component-value)
                            (iter (for element = (source-text:source-read stream #f stream #f #f))
                                  (until (eq element stream))
@@ -58,25 +61,26 @@
                                         (length (source-text:source-object-text source-object))))
     (values)))
 
+;; TODO: some factoring could make this code shorter
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-object (instance)
-   (:method ((instance source-text:source-list))
-     (render-source-list (first (source-text:source-sequence-elements instance)) instance))
-
    (:method :in xhtml-layer ((instance source-text:source-token))
      <span (:class "token") ,(render-source-object-text instance)>)
 
    (:method :in xhtml-layer ((instance source-text:source-semicolon-comment))
      <span (:class "comment") ,(render-source-object-text instance)>)
 
+   (:method :in xhtml-layer ((instance source-text:source-boolean))
+     <span (:class "boolean") ,(render-source-object-text instance)>)
+
    (:method :in xhtml-layer ((instance source-text:source-number))
      <span (:class "number") ,(render-source-object-text instance)>)
 
-   (:method :in xhtml-layer ((instance source-text:source-string))
-     <span (:class "string") ,(render-source-object-text instance)>)
-
    (:method :in xhtml-layer ((instance source-text:source-character))
      <span (:class "character") ,(render-source-object-text instance)>)
+
+   (:method :in xhtml-layer ((instance source-text:source-string))
+     <span (:class "string") ,(render-source-object-text instance)>)
 
    (:method ((instance source-text:source-symbol))
      (render-source-symbol (source-text:source-symbol-value instance) instance))
@@ -123,6 +127,14 @@
        <span (:class "read-eval") ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
        (render-source-object (source-text:source-object-subform instance))))
 
+   (:method ((instance source-text:source-list))
+     (render-source-list (first (source-text:source-sequence-elements instance)) instance))
+
+   (:method :in xhtml-layer ((instance source-text:source-vector))
+     (with-render-source-object-whitespace instance
+       (incf *previous-source-position* 2)
+       <span (:class "vector") "#(" ,(foreach #'render-source-object (source-text:source-sequence-elements instance)) ")">))
+
    (:method ((instance source-text:source-lexical-error))
      <span (:class "lexical-error") ,(princ-to-string (source-text:source-lexical-error-error instance))>
      (render-source-object-text instance)))}
@@ -153,15 +165,16 @@
  (def layered-function render-source-symbol (value instance)
    (:method :in xhtml-layer (value (instance source-text:source-symbol))
      (bind ((id (generate-response-unique-string))
-            (style-class (cond ((keywordp value)
-                                "keyword")
-                               ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))
-                                "lambda-list-keyword")
-                               ((member value '(if let let* progn prog1 block return-from tagbody go throw catch flet labels))
-                                "special-form")
-                               ((eq (symbol-package value) #.(find-package :common-lisp))
-                                "common-lisp")
-                               (t "symbol"))))
+            (style-class (concatenate-string (cond ((keywordp value)
+                                                    "keyword")
+                                                   ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))
+                                                    "lambda-list-keyword")
+                                                   ((member value '(if let let* progn prog1 block return-from tagbody go throw catch flet labels))
+                                                    "special-form")
+                                                   ((eq (symbol-package value) #.(find-package :common-lisp))
+                                                    "common-lisp")
+                                                   (t nil))
+                                             " symbol")))
        <span (:id ,id :class ,style-class)
          ,(render-source-object-text instance)>
        (awhen (ignore-errors (fdefinition value))
@@ -222,23 +235,31 @@
 (def function read-definition-lisp-source (definition)
   ;; TODO: use swank
   ;; TODO: find a portable way
-  ;; TODO: bind *package*, etc
+  ;; TODO: bind *package*, etc.
+  ;; TODO: cache result
   (bind ((definition-source (sb-introspect:find-definition-source definition))
          (pathname (sb-introspect:definition-source-pathname definition-source)))
     (if pathname
         (with-input-from-file (stream (translate-logical-pathname pathname))
           ;; TODO: handle form path? (not needed with swank)
           (iter (with index = (first (aprog1 (sb-introspect:definition-source-form-path definition-source)
-                                       (assert (length= 1 it)))))
+                                       ;; FIXME:
+                                       (unless (length= 1 it)
+                                         (return-from read-definition-lisp-source
+                                           (format nil ";; form path ~A in source file is too complex for ~A" it definition))))))
                 (for element = (source-text:source-read stream #f stream #f #t))
                 (until (eq element stream))
                 ;; TODO: breaks on #t, #f, <> syntax, etc.
                 (when (typep element 'source-text:source-lexical-error)
-                  (return (format nil ";; source cannot be read for ~A due to ~A" definition element)))
-                (unless (typep element 'source-text:comment)
-                  (when (zerop index)
-                    (return (source-text:source-object-text element)))
-                  (decf index))
+                  (return (format nil ";; source file cannot be read for ~A due to ~A" definition element)))
+                (if (typep element 'source-text:comment)
+                    (collect element :into comments)
+                    (progn
+                      (when (zerop index)
+                        (return (concatenate-string (reduce #'concatenate-string (mapcar #'source-text:source-object-text comments))
+                                                    (source-text:source-object-text element))))
+                      (decf index)
+                      (setf comments nil)))
                 (finally
-                 (return (format nil ";; source not found for ~A in ~A" definition pathname)))))
-        (format nil ";; no source path for ~A" definition))))
+                 (return (format nil ";; source file not found for ~A in ~A" definition pathname)))))
+        (format nil ";; no source file path for ~A" definition))))

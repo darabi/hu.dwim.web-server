@@ -834,13 +834,15 @@
                     (t/lisp-form/inspector ()
                       ｢;; a simple example
  (defun foo ()
-   (print "Hello World"))｣))
+   (print `(#f #t 42 3.14 #\a "Hello World" #(1 2) :foo bar #'list ,42)))｣))
                   (replace-target-demo/widget "Function"
                     (make-value-inspector (fdefinition 'make-value-inspector)))
                   (replace-target-demo/widget "Standard generic function"
                     (make-value-inspector (fdefinition 'make-instance)))
                   (replace-target-demo/widget "Standard method"
-                    (make-value-inspector (second (generic-function-methods (fdefinition 'handle-request))))))
+                    (make-value-inspector (second (generic-function-methods (fdefinition 'handle-request)))))
+                  (replace-target-demo/widget "Test"
+                    (make-value-inspector (stefil::find-test 'test)))) ;; TODO: make a simple test
                 (node/widget (:expanded #t)
                     "Meta"
                   (node/widget (:expanded #f)
