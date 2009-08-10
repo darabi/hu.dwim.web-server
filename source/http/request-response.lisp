@@ -489,7 +489,7 @@
 
 (def constructor redirect-response
   (setf (header-value -self- +header/status+) +http-moved-temporarily+)
-  (setf (header-value -self- +header/content-type+) +html-content-type+)
+  (setf (header-value -self- +header/content-type+) +utf-8-html-content-type+)
   (setf (external-format-of -self-) (ensure-external-format :utf-8)))
 
 (def (function e) make-redirect-response (target-uri)

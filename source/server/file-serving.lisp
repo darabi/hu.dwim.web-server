@@ -143,7 +143,7 @@
       (make-instance 'directory-index-response
                      :path-prefix path-prefix :root-directory root-directory
                      :relative-path relative-path :directory directory)
-    (setf (header-value it +header/content-type+) +html-content-type+)))
+    (setf (header-value it +header/content-type+) (content-type-for +html-mime-type+ (encoding-name-of it)))))
 
 (def method convert-to-primitive-response ((self directory-index-response))
   (bind ((title (concatenate-string "Directory index of \"" (relative-path-of self) "\" under \"" (path-prefix-of self) "\""))

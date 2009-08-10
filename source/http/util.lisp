@@ -7,12 +7,15 @@
 (in-package :hu.dwim.wui)
 
 (eval-when (:compile-toplevel :load-toplevel)
+  (def (function io) guess-encoding-for-http-response ()
+    (or (awhen (and *response*
+                    (external-format-of *response*))
+          (encoding-name-of it))
+        +default-encoding+))
+
   (def (function eio) content-type-for (mime-type &optional encoding)
     (unless encoding
-      (setf encoding (or (awhen (and *response*
-                                     (external-format-of *response*))
-                           (encoding-name-of it))
-                         +default-encoding+)))
+      (setf encoding (guess-encoding-for-http-response)))
     ;; this is a somewhat ugly optimization: return constants for the most often used combinations
     (or (case encoding
           (:utf-8    (case mime-type
@@ -52,7 +55,7 @@
 (def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +default-encoding+))
 (def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +default-encoding+))
 
-(def function emit-xml-prologue (&key (encoding +default-encoding+) (stream *xml-stream*) (version "1.1"))
+(def function emit-xml-prologue (&key (encoding (guess-encoding-for-http-response)) (stream *xml-stream*) (version "1.1"))
   (macrolet ((emit (string)
                `(write-string ,string stream)))
     (if (and (eq encoding :utf-8)

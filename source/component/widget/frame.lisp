@@ -10,7 +10,7 @@
 ;;; frame/widget
 
 (def (component e) frame/widget (top/abstract layer-context-capturing/mixin)
-  ((content-type +xhtml-content-type+)
+  ((content-mime-type +xhtml-mime-type+)
    (stylesheet-uris nil)
    (script-uris nil)
    (page-icon nil)
@@ -40,7 +40,7 @@
            xmlns:dojo #.+xml-namespace-uri/dojo+)
       <head
         <meta (:http-equiv #.+header/content-type+
-               :content ,(content-type-for +xhtml-mime-type+ encoding))>
+               :content ,(content-type-for (content-mime-type-of -self-) encoding))>
         ,(bind (((icon-uri &optional file-name) (ensure-list (page-icon-of -self-))))
            (when icon-uri
              <link (:rel "icon"
