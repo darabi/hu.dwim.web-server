@@ -122,7 +122,7 @@
                                            (requires-valid-session with-session-logic)
                                            (ensure-session #f)
                                            (with-frame-logic with-session-logic)
-                                           (requires-valid-frame #t)
+                                           (requires-valid-frame requires-valid-session)
                                            (ensure-frame #f)
                                            (with-action-logic with-frame-logic)
                                            (path nil path-p)
