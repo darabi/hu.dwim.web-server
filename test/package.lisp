@@ -1,32 +1,30 @@
-(in-package :cl-user)
+;;; -*- mode: Lisp; Syntax: Common-Lisp; -*-
+;;;
+;;; Copyright (c) 2009 by the authors.
+;;;
+;;; See COPYING for details.
 
-(defpackage #:hu.dwim.wui.test
-  (:nicknames :wui.test)
+(in-package :common-lisp-user)
 
-  (:use :alexandria
-        :babel
+(defpackage :hu.dwim.wui.test
+  (:use :babel
         :babel-streams
-        :cl-def
         :cl-l10n
-        :cl-quasi-quote
-        :cl-quasi-quote-js
-        :cl-quasi-quote-xml
-        :cl-syntax-sugar
-        :cl-yalog
-        :closer-mop
-        :common-lisp
+        :hu.dwim.asdf
+        :hu.dwim.common-lisp
+        :hu.dwim.def
+        :hu.dwim.logger
+        :hu.dwim.quasi-quote
+        :hu.dwim.quasi-quote.js
+        :hu.dwim.quasi-quote.xml
+        :hu.dwim.stefil
+        :hu.dwim.syntax-sugar
         :hu.dwim.util
         :hu.dwim.wui
         :hu.dwim.wui.shortcut
-        :hu.dwim.wui.system
-        :iolib
-        :iterate
-        :metabang-bind
-        :stefil)
+        :iolib)
 
-  (:export #:test)
-
-  (:shadowing-import-from :cl-syntax-sugar
+  (:shadowing-import-from :hu.dwim.syntax-sugar
                           #:define-syntax)
 
   (:shadow #:parent
@@ -34,20 +32,20 @@
            #:test
            #:uri))
 
-(in-package :wui.test)
+(in-package :hu.dwim.wui.test)
 
 (rename-package :hu.dwim.wui :hu.dwim.wui '(:wui))
 
 (def function setup-readtable ()
   (hu.dwim.wui::setup-readtable)
-  (enable-string-quote-syntax #\｢ #\｣))
+  (enable-string-quote-syntax))
 
 (register-readtable-for-swank
- '("HU.DWIM.WUI.TEST") 'setup-readtable)
+ '(:hu.dwim.wui.test) 'setup-readtable)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; import all the internal symbol of WUI
   (iter (for symbol :in-package #.(find-package :hu.dwim.wui) :external-only nil)
         (when (and (eq (symbol-package symbol) #.(find-package :hu.dwim.wui))
-                   (not (find-symbol (symbol-name symbol) #.(find-package :wui.test))))
+                   (not (find-symbol (symbol-name symbol) #.(find-package :hu.dwim.wui.test))))
           (import symbol))))

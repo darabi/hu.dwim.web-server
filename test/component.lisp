@@ -1,13 +1,13 @@
-(in-package :wui.test)
+(in-package :hu.dwim.wui.test)
 
 ;;;;;;
 ;;; This is a simple example application with login and logout support
 
-(setf *dojo-directory-name* (find-latest-dojo-directory-name (project-relative-pathname "wwwroot/")))
+(setf *dojo-directory-name* (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui.test "www/")))
 
 (def special-variable *demo-stylesheet-uris* (append (flet ((entry (path)
                                                               (list (concatenate-string "static/" path)
-                                                                    (assert-file-exists (project-relative-pathname (concatenate-string "wwwroot/" path)))))
+                                                                    (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (concatenate-string "www/" path)))))
                                                             (dojo-relative-path (path)
                                                               (concatenate-string *dojo-directory-name* path)))
                                                        (list (entry "wui/css/wui.css")
@@ -45,7 +45,7 @@
 (def special-variable *demo-application*
   (make-instance 'demo-application
                  :path-prefix "/"
-                 :home-package (find-package :wui.test)
+                 :home-package (find-package :hu.dwim.wui.test)
                  :default-locale "en"
                  ;; force ajax eanbled regardless *default-ajax-enabled*
                  :ajax-enabled t))
@@ -175,8 +175,8 @@
           (macrolet ((make-chart-menu (name type settings-file data-file)
                        `(replace-menu-target-command ,name
                           (make-chart-from-files ',type
-                                                 :settings-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" settings-file))
-                                                 :data-file (project-relative-pathname ,(concatenate-string "test/amCharts/examples/" data-file))))))
+                                                 :settings-file (system-relative-pathname :hu.dwim.wui.test ,(concatenate-string "test/amCharts/examples/" settings-file))
+                                                 :data-file (system-relative-pathname :hu.dwim.wui.test ,(concatenate-string "test/amCharts/examples/" data-file))))))
             (menu-item () (make-chart-menu "Column chart" column-chart
                                            "amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
                                            "amcolumn/3d_stacked_bar_chart/amcolumn_data.txt"))
@@ -287,21 +287,21 @@
                                              types)))))))
     (menu-item () "Primitive"
       (make-primitive-menu-item 't '(t) '(:unbound nil #t 42 "alma" 'korte (anything)) nil)
-      (make-primitive-menu-item 'boolean '(boolean #+wui-and-cl-perec (or prc::unbound boolean)) '(#f #t) '(:unbound (monday?)))
+      (make-primitive-menu-item 'boolean '(boolean #+hu.dwim.wui+hu.dwim.perec (or hu.dwim.perec::unbound boolean)) '(#f #t) '(:unbound (monday?)))
       (make-primitive-menu-item 'string '(string (or null string)) '(nil "alma") '(:unbound (user-name)))
       (make-primitive-menu-item 'symbol '(symbol (or null symbol)) '(nil eval) '(:unbound (find-symbol "EVAL" "COMMON-LISP")))
       (make-primitive-menu-item 'number '(number (or null number)) '(nil 3 3.14) '(:unbound (life-universe-and-everything)))
       (make-primitive-menu-item 'integer '(integer (or null integer)) '(nil 3) '(:unbound (life-universe-and-everything)))
       (make-primitive-menu-item 'float '(float (or null float)) '(nil 3.14) '(:unbound (pi)))
-      #+wui-and-cl-perec
-      (make-primitive-menu-item 'prc::date '(prc::date (or null prc::date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(:unbound (today)))
-      #+wui-and-cl-perec
-      (make-primitive-menu-item 'prc::time '(prc::time (or null prc::time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
-      #+wui-and-cl-perec
-      (make-primitive-menu-item 'prc::timestamp '(prc::timestamp (or null prc::timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
+      #+hu.dwim.wui+hu.dwim.perec
+      (make-primitive-menu-item 'hu.dwim.perec::date '(hu.dwim.perec::date (or null hu.dwim.perec::date)) `(nil ,(local-time:parse-datestring "2008-01-01")) '(:unbound (today)))
+      #+hu.dwim.wui+hu.dwim.perec
+      (make-primitive-menu-item 'hu.dwim.perec::time '(hu.dwim.perec::time (or null hu.dwim.perec::time)) `(nil ,(local-time:parse-timestring "12:30:00Z")) '(:unbound (midnight)))
+      #+hu.dwim.wui+hu.dwim.perec
+      (make-primitive-menu-item 'hu.dwim.perec::timestamp '(hu.dwim.perec::timestamp (or null hu.dwim.perec::timestamp)) `(nil ,(local-time:parse-timestring "2008-01-01T12:30:00Z")) '(:unbound (now)))
       (make-primitive-menu-item 'member '((member one two three) (or null (member one two three))) '(nil "alma") '(:unbound (one-plus-one)))
-      #+wui-and-cl-perec
-      (make-primitive-menu-item 'dmm::html-text '(dmm::html-text (or null dmm::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text))))))
+      #+hu.dwim.wui+hu.dwim.perec
+      (make-primitive-menu-item 'hu.dwim.meta-model::html-text '(hu.dwim.meta-model::html-text (or null hu.dwim.meta-model::html-text)) '(nil "Hello <b>World</b>") '(:unbound (styled-text))))))
 
 (def function make-help-component ()
   (inline-render-component/widget ()
@@ -842,7 +842,7 @@
                   (replace-target-demo/widget "Standard method"
                     (make-value-inspector (second (generic-function-methods (fdefinition 'handle-request)))))
                   (replace-target-demo/widget "Test"
-                    (make-value-inspector (stefil::find-test 'test)))) ;; TODO: make a simple test
+                    (make-value-inspector (hu.dwim.stefil::find-test 'test)))) ;; TODO: make a simple test
                 (node/widget (:expanded #t)
                     "Meta"
                   (node/widget (:expanded #f)
@@ -928,7 +928,7 @@
 ;;;;;;
 ;;; the entry points
 
-(def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "wwwroot/"))
+(def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "www/"))
 
 (def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "src/js/"))
 
@@ -1060,7 +1060,7 @@
    (age nil :type (or null integer))
    (name nil :type (or null string))))
 
-(def resources en
+(def localization en
   (class-name.child-test "child")
   (class-name.parent-test "parent")
   (slot-name.name "name")
@@ -1069,7 +1069,7 @@
   (slot-name.age "age")
   (child-test.parent "parent"))
 
-(def resources hu
+(def localization hu
   (class-name.child-test "gyerek")
   (class-name.parent-test "szülő")
   (slot-name.name "név")

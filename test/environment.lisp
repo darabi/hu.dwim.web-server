@@ -1,4 +1,4 @@
-(in-package :wui.test)
+(in-package :hu.dwim.wui.test)
 
 (def macro with-wui-logger-level (log-level &body body)
   `(with-logger-level (wui) ,log-level
@@ -20,7 +20,7 @@
       (run-child-tests))))
 
 (def definer test (name args &body body)
-  `(def stefil::test ,name ,args
+  `(def hu.dwim.stefil::test ,name ,args
     ;; rebind these, so that we can setf it freely in the tests...
     (bind ((*test-application* *test-application*)
            (*test-server* *test-server*))

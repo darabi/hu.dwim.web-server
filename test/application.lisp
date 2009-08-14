@@ -1,4 +1,4 @@
-(in-package :wui.test)
+(in-package :hu.dwim.wui.test)
 
 ;;;;;;
 ;;; Test application for basic app features
@@ -111,7 +111,7 @@
         (delete-session *application* old-session)))
     (make-redirect-response (path-prefix-of *application*))))
 
-(def file-serving-entry-point *session-application* "/session/static/" (project-relative-pathname "wwwroot/"))
+(def file-serving-entry-point *session-application* "/session/static/" (system-relative-pathname :hu.dwim.wui.test "www/"))
 
 (def function start-test-server-with-test-applications (&key (maximum-worker-count 16) (log-level +debug+))
   (setf (log-level 'wui) log-level)

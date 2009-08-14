@@ -1,4 +1,4 @@
-(in-package :wui.test)
+(in-package :hu.dwim.wui.test)
 
 (in-suite test/action)
 

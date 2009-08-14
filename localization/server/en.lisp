@@ -1,0 +1,11 @@
+;;; -*- mode: Lisp; Syntax: Common-Lisp; -*-
+;;;
+;;; Copyright (c) 2009 by the authors.
+;;;
+;;; See LICENCE for details.
+
+(in-package :hu.dwim.wui)
+
+(def localization en
+  (class-name.request "request")
+  (class-name.response "response"))

@@ -1,4 +1,4 @@
-(in-package :wui.test)
+(in-package :hu.dwim.wui.test)
 
 (def special-variable *running-test-servers* (list))
 
@@ -84,7 +84,7 @@
 
 (def function start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
-    (start-test-server-with-brokers (make-directory-serving-broker "/wui/" (project-relative-pathname ""))
+    (start-test-server-with-brokers (make-directory-serving-broker "/wui/" (system-relative-pathname :hu.dwim.wui.test ""))
                                     :maximum-worker-count maximum-worker-count)))
 
 (def function start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
