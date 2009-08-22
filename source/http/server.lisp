@@ -605,3 +605,37 @@
                     (list :content-disposition nil))
                   args))
           (values #t nil #f))))))
+
+;;;;;;
+;;; CGI
+
+;; TODO: error handling, etc.
+(def (function e) handle-cgi-request (pathname)
+  (bind ((stream (client-stream-of *request*))
+         (filename (namestring pathname))
+         (tmp (filename-for-temporary-file)))
+    (write-sequence #.(string-to-us-ascii-octets "HTTP/1.1 ") stream)
+    (write-sequence (string-to-us-ascii-octets "200 OK") stream)
+    (write-byte +space+ stream)
+    (sb-ext:run-program filename nil
+                        :wait #t
+                        ;; TODO: revise according to http://hoohoo.ncsa.illinois.edu/cgi/env.html
+                        :environment (list "GATEWAY_INTERFACE=CGI/1.1"
+                                           "SERVER_SOFTWARE=hu.dwim.wui"
+                                           (concatenate-string "SERVER_NAME=" (machine-instance))
+                                           (concatenate-string "SERVER_PROTOCOL=" (http-version-string-of *request*))
+                                           (concatenate-string "SERVER_PORT=" "8080")
+                                           (concatenate-string "REQUEST_METHOD=" (http-method-of *request*))
+                                           (concatenate-string "PATH_INFO=" (path-of (uri-of *request*)))
+                                           (concatenate-string "PATH_TRANSLATED=")
+                                           (concatenate-string "SCRIPT_NAME=" filename)
+                                           (concatenate-string "QUERY_STRING=" (query-of (uri-of *request*)))
+                                           (concatenate-string "REMOTE_HOST=")
+                                           (concatenate-string "REMOTE_ADDR=")
+                                           (concatenate-string "REMOTE_USER=")
+                                           (concatenate-string "REMOTE_IDENT=")
+                                           (concatenate-string "AUTH_TYPE=")
+                                           (concatenate-string "CONTENT_TYPE=")
+                                           (concatenate-string "CONTENT_LENGTH="))
+                        :output tmp)
+    (write-sequence (read-file-into-byte-vector tmp) stream)))

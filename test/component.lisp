@@ -930,7 +930,16 @@
 
 (def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "www/"))
 
-(def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "src/js/"))
+(def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
+
+(def file-serving-entry-point *demo-application* "/darcs/" #P"/home/levy/workspace/")
+
+(def file-serving-entry-point *demo-application* "/static/darcsweb/" #P"/home/levy/workspace/darcsweb/")
+
+;; TODO: why these two falses?
+(def entry-point (*demo-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f :requires-valid-frame #f) ()
+  (make-raw-functional-response ()
+    (handle-cgi-request #P"/home/levy/workspace/darcsweb/darcsweb.cgi")))
 
 (def entry-point (*demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
   (assert (and (boundp '*session*) *session*))
