@@ -23,11 +23,10 @@
                :cffi
                :cl-fad
                :hu.dwim.common-lisp
-               :hu.dwim.computed-class
                :hu.dwim.def+cl-l10n
                :hu.dwim.def+contextl
                :hu.dwim.def+hu.dwim.logger
-               :hu.dwim.defclass-star
+               :hu.dwim.defclass-star+hu.dwim.computed-class
                :hu.dwim.delico
                :hu.dwim.quasi-quote.xml+hu.dwim.quasi-quote.js
                :hu.dwim.syntax-sugar

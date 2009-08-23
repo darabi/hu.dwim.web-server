@@ -373,7 +373,7 @@
                              (make-debug-menu-item)))
       (bind ((content (content/widget ()
                         initial-content-component)))
-        (target-place/widget (:target-place (make-slot-value-place content 'content))
+        (target-place/widget (:target-place (make-slot-value-place content 'hu.dwim.wui::content))
           (horizontal-list/layout ()
             (tree/widget ()
               (node/widget ()

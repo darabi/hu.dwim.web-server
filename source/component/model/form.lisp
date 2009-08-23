@@ -309,6 +309,6 @@
 
 (def function make-source-readtable ()
   ;; TODO: use the original readtable
-  (bind ((readtable (source-text::make-source-readtable)))
+  (prog1-bind readtable (source-text::make-source-readtable)
     (source-text::enable-sharp-boolean-syntax readtable)
     (source-text::enable-shebang-syntax readtable)))
