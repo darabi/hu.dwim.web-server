@@ -19,6 +19,6 @@
   :depends-on (:hu.dwim.reader
                :hu.dwim.wui.application.test
                :hu.dwim.wui.component
-               :hu.dwim.wui+cl-graph)
+               :hu.dwim.wui+cl-graph+cl-typesetting)
   :components ((:module "test"
                 :components ((:file "component")))))
