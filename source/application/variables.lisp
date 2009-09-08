@@ -74,3 +74,11 @@
 (def (special-variable e) *dojo-skin-name* "tundra")
 (def (special-variable e) *dojo-file-name* "dojo.js")
 (def (special-variable e) *dojo-directory-name* "dojo/")
+
+(def (load-time-constant e) +chrome-version-scanner+ (cl-ppcre:create-scanner "Chrome/([0-9]{1,}\.[0-9]{0,})"))
+(def (load-time-constant e) +opera-version-scanner+ (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
+(def (load-time-constant e) +konqueror-version-scanner+ (cl-ppcre:create-scanner "Konqueror/([0-9]{1,}\.[0-9]{0,})"))
+(def (load-time-constant e) +safari-version-scanner+ (cl-ppcre:create-scanner "Safari/([0-9]{1,}\.[0-9]{0,})"))
+(def (load-time-constant e) +msie-version-scanner+ (cl-ppcre:create-scanner "MSIE ([0-9]{1,}\.[0-9]{0,})"))
+(def (load-time-constant e) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
+(def (load-time-constant e) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
