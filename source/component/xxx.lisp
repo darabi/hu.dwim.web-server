@@ -115,6 +115,89 @@
                       (make-action
                         (hide-component component)))))
 
+
+
+
+
+
+;;;;;;
+;;; Icon
+
+(def (icon e) begin-editing)
+
+(def (icon e) save-editing)
+
+(def (icon e) cancel-editing)
+
+(def (icon e) store-editing)
+
+(def (icon e) revert-editing)
+
+(def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (list (make-menu-item (icon menu :label "Szerkesztés")
+                                (make-editing-commands component class prototype instance)))
+          (call-next-method)))
+
+(def layered-method make-command-bar-commands ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
+  (append (when (editable-component? component)
+            (list (make-save-editing-command component class prototype instance)
+                  (make-cancel-editing-command component class prototype instance)))
+          (call-next-method)))
+
+;;;;;;
+;;; Editable
+
+(def layered-method make-begin-editing-command ((component editable/mixin) class prototype value)
+  (command/widget (:visible (or (editable-component? component)
+                                (delay (not (edited-component? component)))))
+    (icon begin-editing)
+    (make-component-action component
+      (with-interaction component
+        (begin-editing component)))))
+
+(def layered-method make-save-editing-command (component class prototype value)
+  (command/widget (:visible (delay (edited-component? component)))
+    (icon save-editing)
+    (make-component-action component
+      (with-interaction component
+        (save-editing component)))))
+
+(def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
+  (command/widget (:visible (delay (edited-component? component)))
+    (icon cancel-editing)
+    (make-component-action component
+      (with-interaction component
+        (cancel-editing component)))))
+
+(def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
+  (command/widget (:visible (delay (edited-component? component)))
+    (icon store-editing)
+    (make-component-action component
+      (with-interaction component
+        (save-editing component)))))
+
+(def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
+  (command/widget (:visible (delay (edited-component? component)))
+    (icon revert-editing)
+    (make-component-action component
+      (with-interaction component
+        (revert-editing component)))))
+
+(def layered-method make-editing-commands ((component editable/mixin) class prototype instance)
+  (if (editable-component? component)
+      (list (make-begin-editing-command component class prototype instance)
+            (make-save-editing-command component class prototype instance)
+            (make-cancel-editing-command component class prototype instance))
+      (list (make-store-editing-command component class prototype instance)
+            (make-revert-editing-command component class prototype instance))))
+
+(def layered-method make-refresh-component-command ((component editable/mixin) class prototype instance)
+  (command/widget (:visible (delay (not (edited-component? component)))
+                   :ajax (ajax-of component))
+    (icon refresh-component)
+    (make-component-action component
+      (refresh-component component))))
+
 #|
 (def function extract-primitive-component-place (component)
   (bind ((parent-component (parent-component-of component)))
@@ -189,99 +272,6 @@
            (make-hide-command component class prototype value)
            (make-show-component-recursively-command component class prototype value))
          (call-next-method)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;;;;;
-;;; Editable
-
-(def layered-method make-begin-editing-command ((component editable/mixin) class prototype value)
-  (command (:visible (or visible (delay (not (edited? component)))))
-    (icon begin-editing)
-    (make-component-action component
-      (with-interaction component
-        (begin-editing component)))))
-
-(def layered-method make-save-editing-command (component class prototype value)
-  (command (:visible (delay (edited? component)))
-    (icon save-editing)
-    (make-component-action component
-      (with-interaction component
-        (save-editing component)))))
-
-(def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
-  (command (:visible (delay (edited? component)))
-    (icon cancel-editing)
-    (make-component-action component
-      (with-interaction component
-        (cancel-editing component)))))
-
-(def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
-  (command (:visible (delay (edited? component)))
-    (icon store-editing)
-    (make-component-action component
-      (with-interaction component
-        (save-editing component)))))
-
-(def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
-  (command (:visible (delay (edited? component)))
-    (icon revert-editing)
-    (make-component-action component
-      (with-interaction component
-        (revert-editing component)))))
-
-(def layered-method make-editing-commands ((component editable/mixin) class prototype instance)
-  (if (inherited-initarg component :store-mode)
-      (list (make-store-editing-command component)
-            (make-revert-editing-command component))
-      (list (make-begin-editing-command component)
-            (make-save-editing-command component)
-            (make-cancel-editing-command component))))
-
-(def layered-method make-refresh-component-command ((component editable/mixin) class prototype instance)
-  (command/widget (:visible (delay (not (edited-component? component)))
-                   :ajax (ajax-of component))
-    (icon refresh-component)
-    (make-component-action component
-      (refresh-component component))))
-
-;;;;;;
-;;; Icon
-
-(def (icon e) begin-editing)
-
-(def (icon e) save-editing)
-
-(def (icon e) cancel-editing)
-
-(def (icon e) store-editing)
-
-(def (icon e) revert-editing)
-
-(def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
-  (append (list (make-menu-item (icon menu :label "Szerkesztés")
-                                (make-editing-commands component class prototype instance)))
-          (call-next-method)))
-
-
-
-
-
-
-;;;;;;
-;;; Refreshable
 
 
 

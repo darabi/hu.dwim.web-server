@@ -6,21 +6,12 @@
 
 (in-package :hu.dwim.wui)
 
-
-
-
-
-;;;;;;
-;;; t/reference/inspector
-
-(def (component e) t/reference/inspector (inspector/basic reference/widget)
-  ())
-
 ;;;;;;
 ;;; t/presentation
 
 (def (component e) t/presentation (alternator/widget)
-  ((initial-alternative-type 't/reference/presentation)))
+  ((initial-alternative-type 't/reference/presentation)
+   (default-alternative-type 't/detail/presentation)))
 
 (def layered-method refresh-component :before ((-self- t/presentation))
   (setf (alternatives-of -self-) (make-alternatives -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) (component-value-of -self-))))
@@ -42,9 +33,15 @@
     (localized-instance-name value)))
 
 ;;;;;;
+;;; t/detail/presentation
+
+(def (component e) t/detail/presentation ()
+  ())
+
+;;;;;;
 ;;; t/slot-value-list/presentation
 
-(def (component e) t/slot-value-list/presentation (content/widget)
+(def (component e) t/slot-value-list/presentation (t/detail/presentation content/widget)
   ())
 
 (def refresh-component t/slot-value-list/presentation
@@ -252,6 +249,9 @@
                       (value-at-place value)
                       "<unbound>")))
 
+(def layered-method find-inspector-type-for-prototype ((type slot-value-place))
+  'slot-value-place/content/inspector)
+
 
 
 
@@ -290,7 +290,7 @@
 ;;;;;;
 ;;; sequence/list/inspector
 
-(def (component e) sequence/list/inspector (inspector/basic list/widget)
+(def (component e) sequence/list/inspector (inspector/basic t/detail/presentation list/widget)
   ())
 
 (def refresh-component sequence/list/inspector

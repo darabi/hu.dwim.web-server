@@ -25,7 +25,7 @@
 (def (component e) icon/widget (tooltip/mixin)
   ((name :type symbol)
    (label :type (or null component))
-   (image-path :type (or null string))))
+   (image-path nil :type (or null string))))
 
 (def (macro e) icon/widget (name &rest args)
   `(make-icon/widget ',name ,@args))

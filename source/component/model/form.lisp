@@ -11,8 +11,6 @@
 
 (def special-variable *lisp-form*)
 
-(def special-variable *previous-source-position*)
-
 (def special-variable *line-number*)
 
 (def (component e) t/lisp-form/inspector (inspector/basic style/abstract)
@@ -36,7 +34,7 @@
   (bind (((:slots source-objects line-count component-value) -self-)
          (source-text:*source-readtable* (make-source-readtable)))
     (setf source-objects (with-input-from-string (stream component-value)
-                           (iter (for element = (source-text:source-read stream #f stream #f #f))
+                           (iter (for element = (source-text:source-read stream #f stream #f #t))
                                  (until (eq element stream))
                                  (collect element)
                                  (until (typep element 'source-text:source-lexical-error))))
@@ -47,7 +45,6 @@
 
 (def render-component t/lisp-form/inspector
   (bind ((*lisp-form* -self-)
-         (*previous-source-position* 0)
          (*line-number* 0))
     (with-render-style/abstract (-self- :element-name "pre")
       (render-line-number)
@@ -61,21 +58,14 @@
     "Unconditionally turns off XML indent to keep original whitespaces for the XHTML pre element."
     (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)))
 
-(def with-macro with-render-source-object-whitespace (source-object)
-  (bind ((position (source-text:source-object-position source-object))
-         (whitespace (subseq (component-value-of *lisp-form*) *previous-source-position* position)))
-    (render-lines-with-line-numbers whitespace)
-    (setf *previous-source-position* position)
-    (-body-)
-    (setf *previous-source-position* (+ (source-text:source-object-position source-object)
-                                        (length (source-text:source-object-text source-object))))
-    (values)))
-
 ;; TODO: some factoring could make this code shorter
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-object (instance)
    (:method :in xhtml-layer ((instance source-text:source-token))
      <span (:class "token") ,(render-source-object-text instance)>)
+
+   (:method :in xhtml-layer ((instance source-text:source-whitespace))
+     <span (:class "whitespace") ,(render-source-object-text instance)>)
 
    (:method :in xhtml-layer ((instance source-text:source-semicolon-comment))
      <span (:class "comment") ,(render-source-object-text instance)>)
@@ -96,54 +86,42 @@
      (render-source-symbol (source-text:source-symbol-value instance) instance))
 
    (:method :in xhtml-layer ((instance source-text:source-function))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position* 2)
-       <span (:class "function") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
-       (render-source-object (source-text:source-object-subform instance))))
+     <span (:class "function") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
 
    (:method :in xhtml-layer ((instance source-text:source-quote))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position*)
-       <span (:class "quote") ,(princ-to-string (source-text:macro-character instance))>
-       (render-source-object (source-text:source-object-subform instance))))
+     <span (:class "quote") ,(princ-to-string (source-text:macro-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
 
    (:method :in xhtml-layer ((instance source-text:source-backquote))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position*)
-       <span (:class "backquote") ,(princ-to-string (source-text:macro-character instance))>
-       (render-source-object (source-text:source-object-subform instance))))
+     <span (:class "backquote") ,(princ-to-string (source-text:macro-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
 
    (:method :in xhtml-layer ((instance source-text:source-unquote))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position*)
-       <span (:class "unquote") ,(princ-to-string (source-text:macro-character instance))>
-       (render-source-object (source-text:source-object-subform instance))))
+     <span (:class "unquote") ,(princ-to-string (source-text:macro-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
 
    (:method :in xhtml-layer ((instance source-text:source-splice))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position*)
-       <span (:class "unquote-splicing") ,(princ-to-string (source-text:macro-character instance))>
-       (render-source-object (source-text:source-object-subform instance))))
+     <span (:class "unquote-splicing") ,(princ-to-string (source-text:macro-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
 
    (:method :in xhtml-layer ((instance source-text:source-feature))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position* 2)
-       <span (:class "feature") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
-       (render-source-object (source-text:source-object-subform instance))))
+     <span (:class "feature") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
+
+   (:method :in xhtml-layer ((instance source-text:source-not-feature))
+     <span (:class "feature") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
 
    (:method :in xhtml-layer ((instance source-text:source-read-eval))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position* 2)
-       <span (:class "read-eval") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
-       (render-source-object (source-text:source-object-subform instance))))
+     <span (:class "read-eval") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
 
    (:method ((instance source-text:source-list))
      (render-source-list (first (source-text:source-sequence-elements instance)) instance))
 
    (:method :in xhtml-layer ((instance source-text:source-vector))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position* 2)
-       <span (:class "vector") "#(" ,(foreach #'render-source-object (source-text:source-sequence-elements instance)) ")">))
+     <span (:class "vector") "#(" ,(foreach #'render-source-object (source-text:source-sequence-elements instance)) ")">)
 
    (:method ((instance source-text:source-lexical-error))
      <span (:class "lexical-error") ,(princ-to-string (source-text:source-lexical-error-error instance))>
@@ -152,24 +130,20 @@
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-list (first instance)
    (:method :in xhtml-layer (first (instance source-text:source-list))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position*)
-       <span (:class "list") "(" ,(foreach #'render-source-object (source-text:source-sequence-elements instance)) ")">))
+     <span (:class "list") "(" ,(foreach #'render-source-object (source-text:source-sequence-elements instance)) ")">)
 
    (:method ((first source-text:source-symbol) (instance source-text:source-list))
      (render-source-list (source-text:source-symbol-value first) instance))
 
    (:method :in xhtml-layer ((first (eql 'def)) (instance source-text:source-list))
-     (with-render-source-object-whitespace instance
-       (incf *previous-source-position*)
-       (bind ((elements (source-text:source-sequence-elements instance)))
-         <span (:class "definition")
-               "("
-               <span (:class "def") ,(render-source-object-text (first elements))>
-               <span (:class "kind") ,(render-source-object-text (second elements))>
-               <span (:class "name") ,(render-source-object-text (third elements))>
-               ,(foreach #'render-source-object (cdddr (source-text:source-sequence-elements instance)))
-               ")">))))}
+     (bind ((elements (source-text:source-sequence-elements instance)))
+       <span (:class "definition")
+             "("
+             <span (:class "def") ,(render-source-object-text (first elements))>
+             <span (:class "kind") ,(render-source-object-text (second elements))>
+             <span (:class "name") ,(render-source-object-text (third elements))>
+             ,(foreach #'render-source-object (cdddr (source-text:source-sequence-elements instance)))
+             ")">)))}
 
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
  (def layered-function render-source-symbol (value instance)
@@ -199,8 +173,7 @@
                          id)))))}
 
 (def function render-source-object-text (source-object)
-  (with-render-source-object-whitespace source-object
-    (render-lines-with-line-numbers (source-text:source-object-text source-object))))
+  (render-lines-with-line-numbers (source-text:source-object-text source-object)))
 
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
   (def function render-lines-with-line-numbers (lines)
@@ -264,7 +237,7 @@
   ;; TODO: use swank?
   ;; TODO: find a portable way?!
   ;; TODO: bind, setf *package* to intern symbols in the right package, etc.
-  ;; TODO: cache result
+  ;; TODO: cache, reuse, share result
   (bind ((definition-source (sb-introspect:find-definition-source definition))
          (pathname (sb-introspect:definition-source-pathname definition-source))
          (*package* *package*)
@@ -285,15 +258,18 @@
                           (bind ((first-element (first (source-text:source-sequence-elements element))))
                             (when (and (typep first-element 'source-text:source-symbol)
                                        (eq 'in-package (source-text:source-symbol-value first-element)))
-                              (bind ((second-element (second (source-text:source-sequence-elements element)))
-                                     (package-name (etypecase second-element
-                                                     (source-text:source-string (source-text:source-string-value second-element))
-                                                     (source-text:source-symbol (symbol-name (source-text:source-symbol-value second-element)))))
+                              (bind ((name-element (find-if (of-type '(or source-text:source-string
+                                                                          source-text:source-symbol))
+                                                              (cdr (source-text:source-sequence-elements element))))
+                                     (package-name (etypecase name-element
+                                                     (source-text:source-string (source-text:source-string-value name-element))
+                                                     (source-text:source-symbol (symbol-name (source-text:source-symbol-value name-element)))))
                                      (fixed-package-name (substitute #\- #\! package-name))
                                      (package (find-package fixed-package-name)))
                                 (assert package)
                                 (setf *package* package)))))
-                        (if (typep element 'source-text:comment)
+                        (if (typep element '(or source-text:comment
+                                                source-text:source-whitespace))
                             (collect element :into comments)
                             (progn
                               (when (zerop index)
@@ -308,7 +284,38 @@
             *package*)))
 
 (def function make-source-readtable ()
-  ;; TODO: use the original readtable
+  ;; TODO: use the original readtable (at least derive from it)
   (prog1-bind readtable (source-text::make-source-readtable)
     (source-text::enable-sharp-boolean-syntax readtable)
     (source-text::enable-shebang-syntax readtable)))
+
+
+;;;;;;
+;;; TODO: Move to reader? or kill this code fragment
+
+(def special-variable *form-path->source-text*)
+
+(def special-variable *form-path*)
+
+(def function build-form (instance)
+  (bind ((*form-path->source-text* (make-hash-table :test #'equal))
+         (*form-path* nil))
+    (values (build-form* instance) *form-path->source-text*)))
+
+(def generic build-form* (instance)
+  (:method :after (instance)
+    (setf (gethash (reverse *form-path*) *form-path->source-text*) instance))
+
+  (:method ((instance source-text:source-symbol))
+    (source-text::source-symbol-value instance))
+
+  (:method ((instance source-text:source-number))
+    (source-text::source-number-value instance))
+
+  (:method ((instance source-text:source-sequence))
+    (iter (with index = 0)
+          (for element :in (source-text::source-sequence-elements instance))
+          (unless (typep element 'source-text:source-whitespace)
+            (bind ((*form-path* (cons index *form-path*)))
+              (collect (build-form* element)))
+            (incf index)))))

@@ -39,23 +39,23 @@
 
 /* editable */
 
-.edit-icon {
+.begin-editing-icon {
   background-image: url("/static/wui/icon/20x20/pen-on-document.png");
 }
 
-.save-icon {
+.save-editing-icon {
   background-image: url("/static/wui/icon/20x20/disc-on-document.png");
 }
 
-.cancel-icon {
+.cancel-editing-icon {
   background-image: url("/static/wui/icon/20x20/yellow-x.png");
 }
 
-.store-icon {
+.store-editing-icon {
   background-image: url("/static/wui/icon/20x20/disc-on-document.png");
 }
 
-.revert-icon {
+.revert-editing-icon {
   background-image: url("/static/wui/icon/20x20/yellow-x.png");
 }
 

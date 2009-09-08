@@ -245,7 +245,7 @@
                      (server.dribble "Acceptor multiplexer returned with fd ~A, events ~S" fd event-types)
                      (until (shutdown-initiated-p server))
                      (when (member :read event-types :test #'eq)
-                       (server.debug "Acceptor multiplexer handed a :read event for fd ~A" fd)
+                       (server.debug "Acceptor multiplexer handled a :read event for fd ~A" fd)
                        (bind ((listen-entry (aprog1
                                                 (find fd listen-entries :key [iolib:fd-of (socket-of !1)])
                                               (unless it

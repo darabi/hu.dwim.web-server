@@ -10,11 +10,12 @@
 ;;; tooltip/mixin
 
 (def (component e) tooltip/mixin ()
-  ((tooltip :type component))
+  ((tooltip nil :type (or null component)))
   (:documentation "A COMPONENT with a tooltip."))
 
 (def (function e) render-tooltip-for (component)
-  (render-tooltip (tooltip-of component) (id-of component)))
+  (awhen (tooltip-of component)
+    (render-tooltip it (id-of component))))
 
 ;; TODO: this could collect the essential data in a special variable and at the end of rendering emit a literal js array with all the tooltips
 (def (function e) render-tooltip (tooltip target-id &key position)
