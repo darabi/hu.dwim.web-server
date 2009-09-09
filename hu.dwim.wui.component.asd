@@ -199,8 +199,10 @@
                                                          (:file "project")
                                                          (:file "repl")
                                                          (:file "slot")
+                                                         (:file "shell-script")
                                                          (:file "system")
                                                          (:file "type")
+                                                         (:file "uri")
                                                          (:file "variable")))
                                            (:module "primitive"
                                             :depends-on ("widget" "meta")
