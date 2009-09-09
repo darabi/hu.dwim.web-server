@@ -134,7 +134,7 @@
 (def (icon e) revert-editing)
 
 (def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
-  (append (list (make-menu-item (icon menu :label "Szerkesztés")
+  (append (list (make-menu-item (icon menu :label "Edit")
                                 (make-editing-commands component class prototype instance)))
           (call-next-method)))
 

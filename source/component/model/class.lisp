@@ -21,6 +21,7 @@
 (def layered-method make-alternatives ((component class/inspector) class prototype value)
   (list* (delay-alternative-component-with-initargs 'class/subclass-hierarchy/tree/inspector :component-value value)
          (delay-alternative-component-with-initargs 'class/superclass-hierarchy/tree/inspector :component-value value)
+         (delay-alternative-component-with-initargs 't/lisp-form/inspector :component-value (read-definition-lisp-source value))
          (call-next-method)))
 
 ;;;;;;

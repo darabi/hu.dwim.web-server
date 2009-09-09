@@ -39,7 +39,7 @@
 
 (def layered-method make-context-menu-items ((component alternator/widget) class prototype value)
   (append (call-next-method)
-          (list (make-menu-item (icon show-submenu :label "Nézet")
+          (list (make-menu-item (icon show-submenu :label "View")
                                 (make-switch-to-alternative-commands component class prototype value)))))
 
 (def layered-method make-command-bar-commands ((component alternator/widget) class prototype value)

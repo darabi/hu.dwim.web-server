@@ -43,22 +43,22 @@ COMPONENT is the base class for all COMPONENT-CLASSes. The primitive types STRIN
 For debugging purposes NIL is not a valid COMPONENT.
 
 Naming convention for non instantiatable components:
-*/mixin     - adds some slots and/or behavior, but it is not usable on its own (usually has no superclasses, or only other mixin classes)
-*/abstract  - base class for similar kind of components, usually related to a mixin that mixes in an instance of this component in a slot
-              it usually has no superclasses, except other kind of mixins, and usually there is only one abstract superclass of an instantiatable component
+*/mixin       - adds some slots and/or behavior, but it is not usable on its own (usually has no superclasses, or only other mixin classes)
+*/abstract    - base class for similar kind of components, usually related to a mixin that mixes in an instance of this component in a slot
+                it usually has no superclasses, except other mixins, and usually there is only one abstract superclass of an instantiatable component
 
-Naming convention for meta components related to a lisp type, they are usually alternator components for compound types:
-*/maker     - subclasses of maker/abstract
-*/viewer    - subclasses of viewer/abstract
-*/editor    - subclasses of editor/abstract
-*/inspector - subclasses of inspector/abstract
-*/filter    - subclasses of filter/abstract
-*/finder    - subclasses of finder/abstract
-*/selector  - subclasses of selector/abstract
+Naming convention for meta components related to a lisp type, they are usually alternator components:
+*/maker       - subclasses of maker/abstract
+*/viewer      - subclasses of viewer/abstract
+*/editor      - subclasses of editor/abstract
+*/inspector   - subclasses of inspector/abstract
+*/filter      - subclasses of filter/abstract
+*/finder      - subclasses of finder/abstract
+*/selector    - subclasses of selector/abstract
 
 Naming convention for some alternative components:
-*/brief/*   - subclasses of brief/abstract
-*/detail/*  - subclasses of detail/abstract
+*/reference/* - subclasses of reference/abstract
+*/detail/*    - subclasses of detail/abstract
 
 Components are created by either using the component specific factory macros, makers or by calling generic factory methods
 such as make-instance, make-maker, make-viewer, make-editor, make-inspector, make-filter, make-finder and make-selector.

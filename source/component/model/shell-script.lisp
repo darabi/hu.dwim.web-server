@@ -1,0 +1,55 @@
+;;; -*- mode: Lisp; Syntax: Common-Lisp; -*-
+;;;
+;;; Copyright (c) 2009 by the authors.
+;;;
+;;; See LICENCE for details.
+
+(in-package :hu.dwim.wui)
+
+;;;;;;
+;;; shell-script
+
+(def (class* e) shell-script ()
+  ((contents :type list)))
+
+(def (macro e) shell-script ((&rest args &key &allow-other-keys) &body lines)
+  `(make-instance 'shell-script ,@args :contents (list ,@lines)))
+
+;;;;;;
+;;; shell-script/inspector
+
+(def (component e) shell-script/inspector (t/inspector)
+  ())
+
+(def (macro e) shell-script/inspector ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'shell-script/inspector ,@args :contents (list ,@contents)))
+
+(def layered-method find-inspector-type-for-prototype ((prototype shell-script))
+  'shell-script/inspector)
+
+(def layered-method make-alternatives ((component shell-script/inspector) class prototype (value shell-script))
+  (list* (delay-alternative-component-with-initargs 'shell-script/text/inspector :component-value value)
+         (call-next-method)))
+
+;;;;;;
+;;; string/shell-script/inspector
+
+(def (component e) shell-script/text/inspector (t/text/inspector)
+  ())
+
+(def (macro e) shell-script/text/inspector ((&rest args &key &allow-other-keys) &body shell-script)
+  `(make-instance 'shell-script/text/inspector ,@args :component-value ,(the-only-element shell-script)))
+
+(eval-always
+  (def function with-quasi-quoted-xml-to-binary-emitting-form-syntax/shell-script ()
+    "Unconditionally turns off XML indent to keep original whitespaces for the XHTML pre element."
+    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)))
+
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/shell-script
+  (def render-xhtml shell-script/text/inspector
+      (with-render-style/abstract (-self- :element-name "pre")
+        (iter (for line :in (contents-of (component-value-of -self-)))
+              (unless (first-iteration-p)
+                (write-char #\NewLine *xml-stream*))
+              <span (:class "prompt") "$ ">
+              <span (:class "command") ,(render-component line)>)))}

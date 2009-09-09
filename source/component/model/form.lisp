@@ -13,7 +13,7 @@
 
 (def special-variable *line-number*)
 
-(def (component e) t/lisp-form/inspector (inspector/basic style/abstract)
+(def (component e) t/lisp-form/inspector (inspector/style)
   ((source-objects :type list)
    (line-count :type integer)))
 
@@ -139,10 +139,12 @@
      (bind ((elements (source-text:source-sequence-elements instance)))
        <span (:class "definition")
              "("
-             <span (:class "def") ,(render-source-object-text (first elements))>
-             <span (:class "kind") ,(render-source-object-text (second elements))>
-             <span (:class "name") ,(render-source-object-text (third elements))>
-             ,(foreach #'render-source-object (cdddr (source-text:source-sequence-elements instance)))
+             <span (:class "def") ,(render-source-object-text (pop elements))>
+             ,(render-source-object (pop elements))
+             <span (:class "kind") ,(render-source-object-text (pop elements))>
+             ,(render-source-object (pop elements))
+             <span (:class "name") ,(render-source-object-text (pop elements))>
+             ,(foreach #'render-source-object elements)
              ")">)))}
 
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
@@ -279,8 +281,8 @@
                               (decf index)
                               (setf comments nil)))
                         (finally
-                         (return (format nil ";; source fiel ~A cannot be found for ~A" pathname definition)))))
-                (format nil ";; no source file ~A" definition))
+                         (return (format nil ";; source file ~A cannot be found for ~A" pathname definition)))))
+                (format nil ";; cannot determine source file for ~A" definition))
             *package*)))
 
 (def function make-source-readtable ()
