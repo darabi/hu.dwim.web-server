@@ -31,6 +31,23 @@ a.external-link
   text-decoration: underline;
 }
 
+/* shell script */
+
+.shell-script.text.inspector {
+  background-color: lightyellow;
+  color: black;
+}
+
+.shell-script .prompt {
+  font-weight: bold;
+  color: darkgray;
+}
+
+.shell-script .command {
+  color: black;
+  cursor: default;
+}
+
 /* lisp form */
 
 .t.lisp-form.inspector {
