@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # http://docs.dojocampus.org/build/buildScript
-# example usage: ~/workspace/wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/wui/www/ --profile ~/workspace/wui/etc/wui-dojo-profile.js --locales "en-us,hu"
+# example usage: ~/workspace/hu.dwim.wui/etc/build-dojo.sh --dojo ~/workspace/dojo/ --dojo-release-dir ~/workspace/hu.dwim.wui/www/ --profile ~/workspace/hu.dwim.wui/etc/wui.profile.js --locales "en-us,hu"
 
 absolutize ()
 {
