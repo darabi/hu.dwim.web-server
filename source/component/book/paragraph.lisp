@@ -7,17 +7,32 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; paragraph/viewer
+;;; paragraph/inspector
 
-(def (component e) paragraph/viewer (viewer/basic contents/abstract style/mixin)
-  ((style-class "paragraph")))
+(def (component e) paragraph/inspector (t/inspector)
+  ())
 
-(def macro paragraph/viewer ((&rest args &key &allow-other-keys) &body contents)
-  `(make-instance 'paragraph/viewer ,@args :contents (list ,@contents)))
+(def (macro e) paragraph/inspector ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'paragraph/inspector ,@args :contents (list ,@contents)))
 
-(def render-xhtml paragraph/viewer
+(def layered-method find-inspector-type-for-prototype ((prototype paragraph))
+  'paragraph/inspector)
+
+(def layered-method make-alternatives ((component paragraph/inspector) class prototype (value paragraph))
+  (list* (delay-alternative-component-with-initargs 'paragraph/text/inspector :component-value value)
+         (call-next-method)))
+
+;;;;;;
+;;; paragraph/text/inspector
+
+(def (component e) paragraph/text/inspector (t/text/inspector)
+  ())
+
+(def refresh-component paragraph/text/inspector)
+
+(def render-xhtml paragraph/text/inspector
   (with-render-style/mixin (-self- :element-name "p")
-    (call-next-method)))
+    (render-contents-for -self-)))
 
 (def layered-function render-paragraph (component)
   (:method :in xhtml-layer ((self number))

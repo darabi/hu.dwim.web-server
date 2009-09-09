@@ -7,13 +7,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; toc/viewer
+;;; toc/inspector
 
-(def (component e) toc/viewer ()
+(def (component e) toc/inspector ()
   ())
 
-(def (macro e) toc/viewer ()
-  `(make-instance 'toc/viewer))
+(def (macro e) toc/inspector ()
+  `(make-instance 'toc/inspector))
 
-(def render-xhtml toc/viewer
+(def render-xhtml toc/inspector
   (not-yet-implemented))

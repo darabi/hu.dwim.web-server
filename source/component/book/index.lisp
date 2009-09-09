@@ -7,13 +7,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; index/viewer
+;;; index/inspector
 
-(def (component e) index/viewer ()
+(def (component e) index/inspector ()
   ())
 
-(def (macro e) index/viewer ()
-  `(make-instance 'index/viewer))
+(def (macro e) index/inspector ()
+  `(make-instance 'index/inspector))
 
-(def render-xhtml index/viewer
+(def render-xhtml index/inspector
   (not-yet-implemented))
