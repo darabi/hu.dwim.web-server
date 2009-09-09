@@ -418,35 +418,21 @@
     (handle-request application request)))
 
 (def method handle-request ((application application) request)
-  (bind (((:values matches? relative-path) (request-uri-matches-path-prefix? application request)))
+  (assert (eq *application* application))
+  (assert (eq (first *brokers*) application))
+  (bind (((:values matches? *application-relative-path*) (request-uri-matches-path-prefix? application request)))
     (when matches?
       (with-locale (default-locale-of application)
         (bind ((*ajax-aware-request* (ajax-aware-request?))
                (*delayed-content-request* (or *ajax-aware-request*
                                               (delayed-content-request?)))
                (local-time:*default-timezone* (default-timezone-of application)))
-          (app.debug "~A matched with relative-path ~S, querying entry-points for response" application relative-path)
-          (bind ((response (query-entry-points-for-response application request relative-path)))
+          (app.debug "~A matched with *application-relative-path* ~S, querying entry-points for response" application *application-relative-path*)
+          (bind ((response (query-brokers-for-response request (entry-points-of application))))
             (when response
               (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of the HANDLE-REQUEST method of application" response)
               (send-response response)
               (make-do-nothing-response))))))))
-
-(def (function o) query-entry-points-for-response (application initial-request relative-path)
-  (assert (eq *application* application))
-  (assert (eq (first *brokers*) application))
-  (bind ((results (multiple-value-list
-                   (iterate-brokers-for-response (lambda (broker request)
-                                                   (if (typep broker 'entry-point)
-                                                       (funcall broker request application relative-path)
-                                                       (funcall broker request)))
-                                                 initial-request
-                                                 (entry-points-of application)
-                                                 (entry-points-of application)
-                                                 0))))
-    (if (first results)
-        (values-list results)
-        (make-no-handler-response))))
 
 (def (generic e) session-class (application)
   (:documentation "Returns a list of the session mixin classes.

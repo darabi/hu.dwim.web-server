@@ -34,13 +34,13 @@
 
 (def constructor path-entry-point
   (set-funcallable-instance-function
-    -self- (lambda (request application relative-path)
-             (path-entry-point-handler -self- request application relative-path))))
+    -self- (lambda (request)
+             (path-entry-point-handler -self- request))))
 
-(def function path-entry-point-handler (entry-point request application relative-path)
-  (declare (ignore application))
-  (when (string= (path-of entry-point) relative-path)
-    (produce-response entry-point request)))
+(def function path-entry-point-handler (entry-point request)
+  (when (string= (path-of entry-point) *application-relative-path*)
+    (bind ((*entry-point-relative-path* ""))
+      (produce-response entry-point request))))
 
 (def class* path-prefix-entry-point (entry-point broker-with-path-prefix)
   ()
@@ -48,13 +48,13 @@
 
 (def constructor path-prefix-entry-point
   (set-funcallable-instance-function
-    -self- (lambda (request application relative-path)
-             (path-prefix-entry-point-handler -self- request application relative-path))))
+    -self- (lambda (request)
+             (path-prefix-entry-point-handler -self- request))))
 
-(def function path-prefix-entry-point-handler (entry-point request application relative-path)
-  (declare (ignore application))
-  (when (starts-with-subseq (path-prefix-of entry-point) relative-path)
-    (produce-response entry-point request)))
+(def function path-prefix-entry-point-handler (entry-point request)
+  (bind (((:values matches? *entry-point-relative-path*) (starts-with-subseq (path-prefix-of entry-point) *application-relative-path* :return-suffix #t)))
+    (when matches?
+      (produce-response entry-point request))))
 
 (def (function e) ensure-entry-point (application entry-point)
   (setf (entry-points-of application)

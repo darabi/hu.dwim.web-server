@@ -33,6 +33,12 @@
 (def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the remote JS stack and awaits a structured XML answer.")
   *ajax-aware-request*)
 
+(def (special-variable e :documentation "Bound inside entry-points, and contains part of the path of the request url that comes after the application's url prefix.")
+  *application-relative-path*)
+
+(def (special-variable e :documentation "Bound inside entry-points, and contains part of the path of the request url that comes after the entry-point url prefix (so, it's an empty string for exact path matching entry-point's).")
+  *entry-point-relative-path*)
+
 (def constant +action-id-length+   8)
 (def constant +frame-id-length+    8)
 (def constant +frame-index-length+ 4)
