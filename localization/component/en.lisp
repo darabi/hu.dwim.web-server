@@ -269,8 +269,8 @@
 ;;; Menu
 
 (def localization en
-  (icon-label.show-context-menu "Submenu")
-  (icon-tooltip.show-context-menu "Show submenu")
+  (icon-label.show-submenu "Submenu")
+  (icon-tooltip.show-submenu "Show submenu")
 
   (icon-label.show-context-menu "Menu")
   (icon-tooltip.show-context-menu "Show context menu")
