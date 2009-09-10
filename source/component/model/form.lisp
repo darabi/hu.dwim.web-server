@@ -117,6 +117,10 @@
      <span (:class "read-eval") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
      (render-source-object (source-text:source-object-subform instance)))
 
+   (:method :in xhtml-layer ((instance source-text:source-pathname))
+     <span (:class "pathname") "#" ,(princ-to-string (source-text:dispatch-macro-sub-character instance))>
+     (render-source-object (source-text:source-object-subform instance)))
+
    (:method ((instance source-text:source-list))
      (render-source-list (first (source-text:source-sequence-elements instance)) instance))
 
