@@ -22,13 +22,21 @@
       (setf content (find-initial-alternative-component -self-)))))
 
 (def render-xhtml alternator/widget
-  (with-render-style/abstract (-self- :element-name (if (typep (content-of -self-) 'reference/widget)
-                                                        "span"
-                                                        "div"))
-    (render-context-menu-for -self-)
-    (render-content-for -self-)
-    (unless (typep (content-of -self-) 'reference/widget)
-      (render-command-bar-for -self-))))
+  (bind (((:read-only-slots content) -self-))
+    (with-render-style/abstract (-self- :element-name (if (typep content 'reference/widget)
+                                                          "span"
+                                                          "div"))
+      (render-context-menu-for -self-)
+      (render-content-for -self-)
+      (when (render-command-bar-for-alternative? content)
+        (render-command-bar-for -self-)))))
+
+(def generic render-command-bar-for-alternative? (component)
+  (:method (component)
+    #t)
+
+  (:method ((component reference/widget))
+    #f))
 
 (def method clone-component ((self alternator/widget))
   (prog1-bind clone (call-next-method)

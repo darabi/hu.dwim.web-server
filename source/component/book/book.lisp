@@ -33,8 +33,8 @@
     (setf contents (mapcar [make-value-inspector !1 :initial-alternative-type 't/text/inspector]
                            (contents-of component-value)))))
 
-(def layered-method make-command-bar-commands ((component t/text/inspector) class prototype instance)
-  nil)
+(def method render-command-bar-for-alternative? ((component t/text/inspector))
+  #f)
 
 ;;;;;;
 ;;; book/text/inspector

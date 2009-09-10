@@ -29,3 +29,6 @@
   (with-render-style/abstract (-self-)
     (bind ((uri (print-uri-to-string (component-value-of -self-))))
       <a (:href ,uri :target "_new") ,uri>)))
+
+(def method render-command-bar-for-alternative? ((component uri/external-link/inspector))
+  #f)
