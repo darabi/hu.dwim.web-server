@@ -34,10 +34,48 @@ a.external-link
 /* shell script */
 
 .shell-script.text.inspector {
-  background-color: lightyellow;
+  font-family: Courier New;
   color: black;
-  padding: 12px;
+  background-color: lightyellow;
   border: 1px darkgray solid;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.shell-script .gutter {
+  display: block;
+  float: left;
+  color: inherit;
+  background-color: lightyellow;
+  border: none;
+  padding: 0px;
+}
+
+.shell-script .content {
+  display: block;
+  color: inherit;
+  background-color: inherit;
+  border: none;
+  padding: 0px;
+}
+
+.shell-script .line-number.first {
+  padding-top: 6px;
+}
+
+.shell-script .line-number.last {
+  padding-bottom: 6px;
+}
+
+.shell-script .line-number {
+  color: black;
+  background-color: lightgray;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-right: 3px darkgray solid;
+  margin-right: 6px;
 }
 
 .shell-script .prompt {
@@ -68,16 +106,9 @@ a.external-link
   padding-bottom: 12px;
 }
 
-.lisp-form .line-number.odd {
-  background-color: #dddddd;
-}
-
-.lisp-form .line-number.even {
-  background-color: #dddddd;
-}
-
 .lisp-form .line-number {
   color: black;
+  background-color: #dddddd;
   padding-left: 6px;
   padding-right: 6px;
   border-right: 3px darkgray solid;

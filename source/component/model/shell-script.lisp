@@ -47,9 +47,16 @@
 
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/shell-script
   (def render-xhtml shell-script/text/inspector
-      (with-render-style/abstract (-self- :element-name "pre")
-        (iter (for line :in (contents-of (component-value-of -self-)))
-              (unless (first-iteration-p)
-                (write-char #\NewLine *xml-stream*))
-              <span (:class "prompt") "$ ">
-              <span (:class "command") ,(render-component line)>)))}
+    (bind (((:read-only-slots component-value) -self-))
+      (with-render-style/abstract (-self-)
+        <pre (:class "gutter")
+             ,(iter (with line-count = (length (contents-of component-value)))
+                    (for line-number :from 0)
+                    (repeat line-count)
+                    <span (:class `str("line-number " ,(element-style-class line-number line-count))) ,(format nil "~3,' ',D" line-number)>
+                    <span (:class "prompt") ,(format nil "$ ~%")>)>
+        <pre (:class "content")
+             ,(iter (for line :in (contents-of component-value))
+                    (unless (first-iteration-p)
+                      (write-char #\NewLine *xml-stream*))
+                    <span (:class "command") ,(render-component line)>)>)))}
