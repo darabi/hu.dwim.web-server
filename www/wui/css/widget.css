@@ -5,7 +5,7 @@ body.tundra
 //  background-image: url('/static/wui/image/about/dwim-logo.png');
 //  background-position: top right;
 //  background-repeat: no-repeat;
-  font-family: 'Tahoma';
+  font-family: Tahoma;
   font-size: 12px;
 }
 
@@ -45,6 +45,7 @@ a.external-link
 .shell-script .gutter {
   display: block;
   float: left;
+  font-family: Courier New;
   color: inherit;
   background-color: lightyellow;
   border: none;
@@ -53,6 +54,7 @@ a.external-link
 
 .shell-script .content {
   display: block;
+  font-family: Courier New;
   color: inherit;
   background-color: inherit;
   border: none;
@@ -91,8 +93,9 @@ a.external-link
 /* lisp form */
 
 .t.lisp-form.inspector {
-  background-color: lightyellow;
   font-family: Courier New;
+  color: black;
+  background-color: lightyellow;
   padding: 12px;
   padding-left: 0px;
   border: 1px darkgray solid;
