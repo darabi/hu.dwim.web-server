@@ -36,6 +36,8 @@ a.external-link
 .shell-script.text.inspector {
   background-color: lightyellow;
   color: black;
+  padding: 12px;
+  border: 1px darkgray solid;
 }
 
 .shell-script .prompt {
