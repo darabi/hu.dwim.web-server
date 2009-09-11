@@ -51,9 +51,9 @@
       (with-render-style/abstract (-self-)
         <pre (:class "gutter")
              ,(iter (with line-count = (length (contents-of component-value)))
-                    (for line-number :from 1)
+                    (for line-number :from 0)
                     (repeat line-count)
-                    <span (:class `str("line-number " ,(element-style-class line-number line-count))) ,(format nil "~3,' ',D" line-number)>
+                    <span (:class `str("line-number " ,(element-style-class line-number line-count))) ,(format nil "~3,' ',D" (1+ line-number))>
                     <span (:class "prompt") ,(format nil "$ ~%")>)>
         <pre (:class "content")
              ,(iter (for line :in (contents-of component-value))
