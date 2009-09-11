@@ -82,7 +82,7 @@
   ())
 
 (def method make-reference-label ((reference standard-object-list-inspector-reference) class (list list))
-  (apply #'concatenate-string
+  (apply #'string+
          (append (list "(")
                  (iter (for index :from 0 :below 3)
                        (for element :in list)
@@ -112,7 +112,7 @@
   ())
 
 (def method make-reference-label ((reference standard-object-tree-inspector-reference) (class standard-class) (instance standard-object))
-  (concatenate-string "Tree rooted at: " (princ-to-string instance)))
+  (string+ "Tree rooted at: " (princ-to-string instance)))
 
 ;;;;;;
 ;;; Standard object filter reference

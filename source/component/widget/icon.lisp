@@ -81,12 +81,12 @@
       (render-tooltip tooltip id))
     <span (:id ,id :class ,style-class)
       ,(when image-path
-         <img (:src ,(concatenate-string (path-prefix-of *application*) image-path))>)
+         <img (:src ,(string+ (path-prefix-of *application*) image-path))>)
       ,(awhen (force label)
          (render-icon-label icon it))>))
 
 (def function icon-style-class (name)
-  (concatenate-string "icon " (string-downcase (symbol-name name)) "-icon widget"))
+  (string+ "icon " (string-downcase (symbol-name name)) "-icon widget"))
 
 ;;;;;;
 ;;; Definer
@@ -103,9 +103,9 @@
                             :image-path ,image-path
                             :label ,(if label-p
                                         label
-                                        `(delay (lookup-resource ,(concatenate-string "icon-label." name-as-string))))
+                                        `(delay (lookup-resource ,(string+ "icon-label." name-as-string))))
                             :tooltip ,(if tooltip-p
                                           tooltip
-                                          `(delay (lookup-resource ,(concatenate-string "icon-tooltip." name-as-string))))))
+                                          `(delay (lookup-resource ,(string+ "icon-tooltip." name-as-string))))))
        ,@(when (getf -options- :export)
                `((export ',name))))))

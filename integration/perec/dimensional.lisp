@@ -139,7 +139,7 @@
 (def method make-reference-label ((reference d-value-inspector-reference) class (instance hu.dwim.perec::d-value))
   (if (hu.dwim.perec::single-d-value-p instance)
       (make-reference-label reference class (hu.dwim.perec::single-d-value instance))
-      (concatenate-string (write-to-string (length (hu.dwim.perec::c-values-of instance))) " values")))
+      (string+ (write-to-string (length (hu.dwim.perec::c-values-of instance))) " values")))
 
 ;;;;;
 ;;; Abstract d value component
@@ -245,11 +245,11 @@
                     (or (= year-end year-begin)
                         (and (= 1 (- year-end year-begin))
                              (= 1 month-end))))
-               (concatenate-string (localize-month-name (1- month-begin)) " - " (localize-month-name (mod (- month-end 2) 12))))
+               (string+ (localize-month-name (1- month-begin)) " - " (localize-month-name (mod (- month-end 2) 12))))
               ;; TODO: whole day
               ;; TODO: range of days
               (t
-               (concatenate-string (localized-timestamp begin) " - " (localized-timestamp end)))))))))
+               (string+ (localized-timestamp begin) " - " (localized-timestamp end)))))))))
 
 ;;;;;;
 ;;; D value pivot table

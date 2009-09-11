@@ -15,7 +15,7 @@
   (:default-initargs
    :edited #t
    :possible-values '(10 20 50 100)
-   :client-name-generator [concatenate-string (integer-to-string !2) #"page-size-selector.rows/page"]))
+   :client-name-generator [string+ (integer-to-string !2) #"page-size-selector.rows/page"]))
 
 (def refresh-component page-size-selector/widget
   (setf (page-size-of (parent-component-of -self-)) (component-value-of -self-)))

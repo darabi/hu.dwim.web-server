@@ -70,7 +70,7 @@
 (def generic compile-js-file-to-byte-vector (broker filename &key encoding)
   (:method ((broker js-directory-serving-broker) filename &key (encoding +default-encoding+))
     (bind ((body-as-string (read-file-into-string filename :external-format encoding)))
-      (setf body-as-string (concatenate-string "`js(progn "
+      (setf body-as-string (string+ "`js(progn "
                                                body-as-string
                                                ")"))
       (bind ((*package* (find-package :hu.dwim.wui)))

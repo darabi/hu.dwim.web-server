@@ -125,6 +125,6 @@
 
     `(hu.dwim.perec:like
       (,(hu.dwim.perec::reader-name-of slot) ,(first (query-variable-stack-of query)))
-      ,(concatenate-string "%" value "%")
+      ,(string+ "%" value "%")
       :case-sensitive-p #f)))
 

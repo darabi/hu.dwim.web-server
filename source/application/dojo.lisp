@@ -44,7 +44,7 @@
                                                    (cl-fad:list-directory www-directory)))
                                 #'string>=))))
     (assert dojo-dir () "Seems like there's not any dojo directory in ~S. Hint: see wui/etc/build-dojo.sh" www-directory)
-    (concatenate-string dojo-dir "/")))
+    (string+ dojo-dir "/")))
 
 (def with-macro with-dojo-widget-collector ()
   (bind ((*dojo-widget-ids* nil))

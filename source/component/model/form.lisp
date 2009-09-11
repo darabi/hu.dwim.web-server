@@ -155,7 +155,7 @@
  (def layered-function render-source-symbol (value instance)
    (:method :in xhtml-layer (value (instance source-text:source-symbol))
      (bind ((id (generate-response-unique-string))
-            (style-class (concatenate-string (cond ((keywordp value)
+            (style-class (string+ (cond ((keywordp value)
                                                     "keyword ")
                                                    ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))
                                                     "lambda-list-keyword ")
@@ -280,7 +280,7 @@
                             (progn
                               (when (zerop index)
                                 (return (string-trim (coerce '(#\Newline #\Space) 'simple-string)
-                                                     (concatenate-string (reduce #'concatenate-string (mapcar #'source-text:source-object-text comments))
+                                                     (string+ (reduce #'string+ (mapcar #'source-text:source-object-text comments))
                                                                          (source-text:source-object-text element)))))
                               (decf index)
                               (setf comments nil)))

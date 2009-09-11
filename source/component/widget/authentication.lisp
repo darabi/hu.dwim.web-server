@@ -120,7 +120,7 @@
     (setf (uri-query-parameter-value uri "password") password)
     <div (:class "fake-login")
          <a (:href ,(print-uri-to-string uri))
-            ,(concatenate-string identifier comment)>>))
+            ,(string+ identifier comment)>>))
 
 (def (macro e) fake-identifier-and-password-login/widget (identifier password &optional comment)
   `(make-instance 'fake-identifier-and-password-login/widget :identifier ,identifier :password ,password :comment ,comment))

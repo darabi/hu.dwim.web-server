@@ -234,8 +234,8 @@
 (defun wui.io.execute-ajax-action (params)
   (with-wui-error-handler
     (macrolet ((only-one-of (primary secondary &key (defaulting T))
-                 (let ((primary-name (CONCATENATE-STRING ":" (STRING-DOWNCASE (SYMBOL-NAME primary))))
-                       (secondary-name (CONCATENATE-STRING ":" (STRING-DOWNCASE (SYMBOL-NAME secondary)))))
+                 (let ((primary-name (STRING+ ":" (STRING-DOWNCASE (SYMBOL-NAME primary))))
+                       (secondary-name (STRING+ ":" (STRING-DOWNCASE (SYMBOL-NAME secondary)))))
                    `(if (slot-value params ',primary)
                         (when (slot-value params ',secondary)
                           (log.debug "WARNING: ajax-action got params with both " ,primary-name " and "

@@ -23,7 +23,7 @@
   (bind ((messages (messages-of collector)))
     (flet ((render-message-category (category)
              (awhen (filter category messages :key #'category-of)
-               <div (:class ,(concatenate-string (string-downcase category) "-messages"))
+               <div (:class ,(string+ (string-downcase category) "-messages"))
                     ,(foreach #'render-component it)>)))
       (multiple-value-prog1
           (when messages
@@ -74,7 +74,7 @@
 
 (def refresh-component component-message/widget
   (bind (((:slots category style-class) -self-))
-    (setf style-class (concatenate-string (string-downcase category) "-message"))))
+    (setf style-class (string+ (string-downcase category) "-message"))))
 
 (def render-xhtml component-message/widget
   (with-render-style/abstract (-self-)

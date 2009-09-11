@@ -317,7 +317,7 @@
 
 (def method parse-component-value ((component timestamp/abstract) client-value)
   (when (consp client-value)
-    (setf client-value (apply #'concatenate-string client-value)))
+    (setf client-value (apply #'string+ client-value)))
   (unless (string= client-value "")
     (aprog1 (local-time:parse-timestring client-value :fail-on-error #f)
       ;; TODO: timezone is not present in the string and thus this parsing fails: (local-time:parse-rfc3339-timestring client-value :fail-on-error #f)

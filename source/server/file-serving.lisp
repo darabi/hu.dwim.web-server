@@ -146,7 +146,7 @@
     (setf (header-value it +header/content-type+) (content-type-for +html-mime-type+ (encoding-name-of it)))))
 
 (def method convert-to-primitive-response ((self directory-index-response))
-  (bind ((title (concatenate-string "Directory index of \"" (relative-path-of self) "\" under \"" (path-prefix-of self) "\""))
+  (bind ((title (string+ "Directory index of \"" (relative-path-of self) "\" under \"" (path-prefix-of self) "\""))
          (body (with-output-to-sequence (*xml-stream* :external-format (external-format-of self)
                                                       :initial-buffer-size 256)
                  (with-html-document (:content-type +html-content-type+ :title title)
@@ -168,16 +168,16 @@
               (for name = (lastcar (pathname-directory directory)))
               <tr
                 <td
-                  <a (:href ,(concatenate-string path-prefix relative-path name "/"))
+                  <a (:href ,(string+ path-prefix relative-path name "/"))
                     ,name "/">>>)
         (iter (for file :in files)
-              (for name = (apply 'concatenate-string
+              (for name = (apply 'string+
                                  (pathname-name file)
                                  (awhen (pathname-type file)
                                    (list "." it))))
               <tr
                 <td
-                  <a (:href ,(escape-as-uri (concatenate-string path-prefix relative-path name)))
+                  <a (:href ,(escape-as-uri (string+ path-prefix relative-path name)))
                     ,name>>
                 <td ;; TODO iolib pending bug, replace when fixed... ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))
                     ,(integer-to-string

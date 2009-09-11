@@ -16,7 +16,7 @@
    (page-icon nil)
    (title nil)
    (dojo-skin-name *dojo-skin-name*)
-   (dojo-release-uri (parse-uri (concatenate-string "static/" *dojo-directory-name* "dojo/")))
+   (dojo-release-uri (parse-uri (string+ "static/" *dojo-directory-name* "dojo/")))
    (dojo-file-name *dojo-file-name*)
    (parse-dojo-widgets-on-load #f :type boolean)
    (debug-client-side *debug-client-side* :type boolean)))
@@ -46,7 +46,7 @@
              <link (:rel "icon"
                     :type "image/x-icon"
                     :href ,(append-file-write-date-to-uri (etypecase icon-uri
-                                                            (string (concatenate-string path-prefix icon-uri))
+                                                            (string (string+ path-prefix icon-uri))
                                                             (uri (prefix-uri-path (clone-uri icon-uri) path-prefix)))
                                                           file-name))>))
         <title ,(title-of -self-)>
@@ -55,7 +55,7 @@
                       <link (:rel "stylesheet"
                              :type "text/css"
                              :href ,(append-file-write-date-to-uri (etypecase stylesheet-uri
-                                                                     (string (concatenate-string path-prefix stylesheet-uri))
+                                                                     (string (string+ path-prefix stylesheet-uri))
                                                                      (uri (prefix-uri-path (clone-uri stylesheet-uri) path-prefix)))
                                                                    file-name))>))
                   (stylesheet-uris-of -self-))
@@ -66,7 +66,7 @@
                    (to-js-literal (default-locale-of application)))>
         <script (:type         #.+javascript-mime-type+
                  :src          ,(bind ((dojo-release-uri (dojo-release-uri-of -self-)))
-                                  (concatenate-string (unless (host-of dojo-release-uri)
+                                  (string+ (unless (host-of dojo-release-uri)
                                                         path-prefix)
                                                       (print-uri-to-string dojo-release-uri)
                                                       (dojo-file-name-of -self-)
@@ -77,7 +77,7 @@
         ,(foreach (lambda (el)
                     (bind (((script-uri &optional file-name) (ensure-list el)))
                       <script (:type         #.+javascript-mime-type+
-                               :src          ,(append-file-write-date-to-uri (concatenate-string path-prefix script-uri) file-name))
+                               :src          ,(append-file-write-date-to-uri (string+ path-prefix script-uri) file-name))
                               ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                               "">))
                   (script-uris-of -self-))>
@@ -87,7 +87,7 @@
         ;;       should solve the no javascript issue in a different way
         ,(when javascript-supported?
            <noscript <meta (:http-equiv #.+header/refresh+
-                            :content ,(concatenate-string "0; URL="
+                            :content ,(string+ "0; URL="
                                                           (application-relative-path-for-no-javascript-support-error *application*)
                                                           "?"
                                                           +no-javascript-error-parameter-name+

@@ -364,7 +364,7 @@
         (execute-select-instance -self- (class-of (instance-of -self-)) (instance-of -self-))))))
 
 (def layered-method tree-node-style-class ((self selectable-standard-object-tree-node-inspector))
-  (concatenate-string (call-next-method)
+  (string+ (call-next-method)
                       (when (selected-component-p self)
                         " selected")))
 

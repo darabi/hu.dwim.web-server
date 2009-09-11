@@ -83,7 +83,7 @@
 (def (function e) human-readable-broker-path (server application)
   (bind ((path (broker-path-to-broker server application)))
     (assert (member application path))
-    (apply #'concatenate-string
+    (apply #'string+
            (iter (for el :in path)
                  (etypecase el
                    (application (collect (path-prefix-of el)))
@@ -391,7 +391,7 @@
                    :max-age (unless *session*
                               0)
                    :comment "WUI session id"
-                   :domain (concatenate-string "." (host-of request-uri))
+                   :domain (string+ "." (host-of request-uri))
                    :path (path-prefix-of application))
                   response)))
   response)
@@ -649,7 +649,7 @@ Custom implementations should look something like this:
   (make-redirect-response (make-uri-for-current-application relative-path)))
 
 (def (function e) make-static-content-uri-for-current-application (&optional relative-path)
-  (make-uri :path (concatenate-string (path-prefix-of *application*) relative-path)))
+  (make-uri :path (string+ (path-prefix-of *application*) relative-path)))
 
 (def (function e) mark-all-sessions-expired (application)
   (with-lock-held-on-application (application)

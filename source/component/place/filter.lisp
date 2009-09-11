@@ -31,7 +31,7 @@
     nil))
 
 (def function localize-predicate (predicate)
-  (lookup-resource (concatenate-string "predicate." (symbol-name predicate))))
+  (lookup-resource (string+ "predicate." (symbol-name predicate))))
 
 (def function predicate-class (predicate)
   (ecase predicate

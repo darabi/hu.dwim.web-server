@@ -199,7 +199,7 @@
         (etypecase uri
           (uri (setf (uri-query-parameter-value uri "_ts") value))
           ;; TODO this is not correct, but parsing the uri string is not such a good idea here either... decide.
-          (string (concatenate-string uri "?_ts=" (princ-to-string value)))))
+          (string (string+ uri "?_ts=" (princ-to-string value)))))
       uri))
 
 (def (function e) substitute-illegal-characters-in-file-name (name &key (replacement "_"))

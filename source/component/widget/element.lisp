@@ -29,7 +29,7 @@
     (render-command-onclick-handler (find-command -self- 'select-component) id)))
 
 (def (function e) element-style-class (index total)
-  (concatenate-string (when (zerop index)
+  (string+ (when (zerop index)
                         "first ")
                       (when (= total (1+ index))
                         "last ")

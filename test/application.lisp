@@ -37,7 +37,7 @@
   (make-raw-functional-response ()
     (emit-simple-html-document-http-response (:title "foo")
       <p "Parameters:"
-        <a (:href ,(concatenate-string (path-prefix-of *test-application*)
+        <a (:href ,(string+ (path-prefix-of *test-application*)
                                        (if (or number? the-answer?)
                                            "params"
                                            "params?theanswer=yes&number=42")))
@@ -89,13 +89,13 @@
             <p "We have a session now... "
                <span ,(or (root-component-of *frame*)
                           (setf (root-component-of *frame*) "Hello world from a session!"))>
-               <a (:href ,(concatenate-string (path-prefix-of *application*) "delete/"))
+               <a (:href ,(string+ (path-prefix-of *application*) "delete/"))
                   "delete session">>)))
       (bind ((application *application*)) ; need to capture it in the closure
         (make-raw-functional-response ()
           (emit-simple-html-document-http-response ()
             <p "There's no session... "
-               <a (:href ,(concatenate-string (path-prefix-of application) "new/"))
+               <a (:href ,(string+ (path-prefix-of application) "new/"))
                   "create new session">>)))))
 
 (def entry-point (*session-application* :path "new/" :requires-valid-session #f :ensure-session #t :requires-valid-frame #f) ()

@@ -204,7 +204,7 @@ If the request contains a param (no distinction between GET and POST params is m
                   (for parameter-name = (second name-part))
                   (for default-value = (second entry))
                   (for supplied-variable-name = (or (third entry)
-                                                    (gensym (concatenate-string
+                                                    (gensym (string+
                                                              (string variable-name)
                                                              "-SUPPLIED?"))))
                   (unless parameter-name

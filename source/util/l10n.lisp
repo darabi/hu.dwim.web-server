@@ -15,7 +15,7 @@
     (once-only (setup-readtable-function asdf-system base-directory log-discriminator)
       `(def function ,name (locale-name)
          (l10n.debug "Loading ~A resources for locale ~S" ,log-discriminator locale-name)
-         (bind ((file (merge-pathnames (concatenate-string locale-name ".lisp") (system-relative-pathname ,asdf-system ,base-directory))))
+         (bind ((file (merge-pathnames (string+ locale-name ".lisp") (system-relative-pathname ,asdf-system ,base-directory))))
            (when (probe-file file)
              (bind ((*readtable* (copy-readtable nil)))
                (awhen ,setup-readtable-function
@@ -67,7 +67,7 @@
 
 (def (function e) localized-mime-type-description<> (mime-type)
   (bind (((:values str found) (localized-mime-type-description mime-type)))
-    <span (:class ,@(concatenate-string "slot-name "
+    <span (:class ,@(string+ "slot-name "
                                         (unless found
                                           +missing-resource-css-class+)))
           ,str>))
@@ -91,13 +91,13 @@
       (when capitalize-first-letter
         (setf str (capitalize-first-letter str)))
       (values (if prefix-with
-                  (concatenate-string prefix-with str)
+                  (string+ prefix-with str)
                   str)
               found?))))
 
 (def function localized-slot-name<> (slot &rest args)
   (bind (((:values str found) (apply #'localized-slot-name slot args)))
-    <span (:class ,(concatenate-string "slot-name "
+    <span (:class ,(string+ "slot-name "
                                        (unless found
                                          +missing-resource-css-class+)
                             ;; TODO this is fragile here, should use a public api in dmm
@@ -131,7 +131,7 @@
                    article)
                :stream *xml-stream*)
         (write-char #\Space *xml-stream*)))
-    <span (:class ,(concatenate-string "class-name "
+    <span (:class ,(string+ "class-name "
                                        (unless found?
                                          +missing-resource-css-class+)))
           ,(if (and capitalize-first-letter
@@ -308,7 +308,7 @@
                (first (elt value 0))
                (class (class-of first))
                (elements-name (lookup-resource "sequence.element")))
-          (concatenate-string (princ-to-string length)
+          (string+ (princ-to-string length)
                               " "
                               (when (every (of-type class) value)
                                 (localized-class-name class))

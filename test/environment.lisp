@@ -48,7 +48,7 @@
 (def generic web (path &key request-parameters expected-status parse-result-as)
   (:method ((path string) &key request-parameters (expected-status 200) parse-result-as)
     (multiple-value-bind (body status headers url)
-        (drakma:http-request (concatenate-string (when (or (< (length path) 4)
+        (drakma:http-request (string+ (when (or (< (length path) 4)
                                                            (not (string= (subseq path 0 4) "http")))
                                                    +test-server-base-url+)
                                                  (if (and (> (length path) 0)
@@ -75,7 +75,7 @@
     (apply 'web (print-uri-to-string path) args)))
 
 (def function uri (&optional (path ""))
-  (let ((concatenated-path (apply #'concatenate-string (ensure-list path))))
+  (let ((concatenated-path (apply #'string+ (ensure-list path))))
     (make-uri
      :scheme "http"
      :host (address-to-string *test-host*)

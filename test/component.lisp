@@ -6,10 +6,10 @@
 (setf *dojo-directory-name* (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui.test "www/")))
 
 (def special-variable *demo-stylesheet-uris* (append (flet ((entry (path)
-                                                              (list (concatenate-string "static/" path)
-                                                                    (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (concatenate-string "www/" path)))))
+                                                              (list (string+ "static/" path)
+                                                                    (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (string+ "www/" path)))))
                                                             (dojo-relative-path (path)
-                                                              (concatenate-string *dojo-directory-name* path)))
+                                                              (string+ *dojo-directory-name* path)))
                                                        (list (entry "wui/css/wui.css")
                                                              (entry "wui/css/icon.css")
                                                              (entry "wui/css/widget.css")
@@ -175,8 +175,8 @@
           (macrolet ((make-chart-menu (name type settings-file data-file)
                        `(replace-menu-target-command ,name
                           (make-chart-from-files ',type
-                                                 :settings-file (system-relative-pathname :hu.dwim.wui.test ,(concatenate-string "test/amCharts/examples/" settings-file))
-                                                 :data-file (system-relative-pathname :hu.dwim.wui.test ,(concatenate-string "test/amCharts/examples/" data-file))))))
+                                                 :settings-file (system-relative-pathname :hu.dwim.wui.test ,(string+ "test/amCharts/examples/" settings-file))
+                                                 :data-file (system-relative-pathname :hu.dwim.wui.test ,(string+ "test/amCharts/examples/" data-file))))))
             (menu-item () (make-chart-menu "Column chart" column-chart
                                            "amcolumn/3d_stacked_bar_chart/amcolumn_settings.xml"
                                            "amcolumn/3d_stacked_bar_chart/amcolumn_data.txt"))
@@ -494,7 +494,7 @@
                       "<div><span style=\"color: blue\">John</span><span style=\"color: red\">Mary</span></div>"))
                   (replace-target-demo/widget "Quote XML form"
                     (quote-xml-form/widget ()
-                      <div <span (:style ,(concatenate-string "color:" " blue")) "John">
+                      <div <span (:style ,(string+ "color:" " blue")) "John">
                            <span (:style "color: red") "Mary">>))
                   (replace-target-demo/widget "Collapsible"
                     (collapsible/widget ()
@@ -1013,8 +1013,8 @@
                                (make-redirect-response-for-current-application))))
             (add-cookie (make-cookie +login-identifier-cookie-name+ identifier
                                      :max-age #.(* 60 60 24 365 100)
-                                     :domain (concatenate-string "." (host-of (uri-of *request*)))
-                                     :path (concatenate-string (path-prefix-of application) +login-entry-point-path+))
+                                     :domain (string+ "." (host-of (uri-of *request*)))
+                                     :path (string+ (path-prefix-of application) +login-entry-point-path+))
                         response)
             (decorate-application-response application response)
             response))

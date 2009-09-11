@@ -25,7 +25,7 @@
 (def render-xhtml nodrow/widget
   (bind (((:read-only-slots child-nodes expanded-component id custom-style) -self-)
          (onclick-handler? (render-onclick-handler -self- :left)))
-    <tr (:id ,id :style ,custom-style :class ,(concatenate-string (nodrow-style-class -self-) (when onclick-handler? " selectable"))
+    <tr (:id ,id :style ,custom-style :class ,(string+ (nodrow-style-class -self-) (when onclick-handler? " selectable"))
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-nodrow-cells -self-) >
@@ -50,14 +50,14 @@
 
 (def (layered-function e) nodrow-style-class (component)
   (:method ((self nodrow/widget))
-    (concatenate-string "level-" (integer-to-string *tree-level*) " " (style-class-of self))))
+    (string+ "level-" (integer-to-string *tree-level*) " " (style-class-of self))))
 
 (def (function e) render-nodrow-expander (nodrow)
   (bind (((:slots child-nodes expanded-component) nodrow)
          (treeble *tree*))
     (if child-nodes
         (bind ((id (generate-response-unique-string)))
-          <img (:id ,id :src ,(concatenate-string (path-prefix-of *application*)
+          <img (:id ,id :src ,(string+ (path-prefix-of *application*)
                                                   (if expanded-component
                                                       "static/wui/icon/20x20/arrowhead-down.png"
                                                       "static/wui/icon/20x20/arrowhead-right.png")))>

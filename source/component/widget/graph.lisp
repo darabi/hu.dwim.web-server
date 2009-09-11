@@ -101,7 +101,7 @@
                       (make-buffered-functional-html-response ((+header/content-type+ +svg-xml-mime-type+))
                         (with-active-layers (xhtml-layer)
                           <svg:svg (:xmlns:svg "http://www.w3.org/2000/svg" :version "1.2")
-                            <svg:g (:transform ,(concatenate-string "translate(" inset-string "," inset-string ")"))
+                            <svg:g (:transform ,(string+ "translate(" inset-string "," inset-string ")"))
                               <svg:defs
                                   ;; TODO fuck SVG and firefox! for not being able to draw markers intentionally pointing into the right direction
                                   ,(progn
@@ -181,7 +181,7 @@
 
 (def render-xhtml edge/widget
   (flet ((p->string (p)
-           (concatenate-string (princ-to-string (first p)) "," (princ-to-string (svg-y (second p))))))
+           (string+ (princ-to-string (first p)) "," (princ-to-string (svg-y (second p))))))
     (bind (((:read-only-slots points head-arrow tail-arrow) -self-)
            (bezier-points points)
            (points-length (length bezier-points)))
@@ -189,7 +189,7 @@
         (iter (for p1 first (car bezier-points) then p4)
               (for (p2 p3 p4 more) on (cdr bezier-points) by #'cdddr)
               (for i :from 1)
-              <svg:path (:d ,(concatenate-string "M" (p->string p1)
+              <svg:path (:d ,(string+ "M" (p->string p1)
                                                  " C" (p->string p2)
                                                  " " (p->string p3)
                                                  " " (p->string p4))
@@ -221,7 +221,7 @@
 
 (def function arrow-marker (arrow type)
   (when arrow
-    (concatenate-string "url(#" (string-downcase (symbol-name (shape-of arrow))) "-" type ")")))
+    (string+ "url(#" (string-downcase (symbol-name (shape-of arrow))) "-" type ")")))
 
 (def function emit-tspan (elements)
   (when elements
@@ -234,7 +234,7 @@
                    ,(emit-tspan (cdr elements))>)))
 
 (def function svg-color (color)
-  (concatenate-string "rgb("
+  (string+ "rgb("
                       (princ-to-string (round (* 255 (first color)))) ","
                       (princ-to-string (round (* 255 (second color)))) ","
                       (princ-to-string (round (* 255 (third color)))) ")"))

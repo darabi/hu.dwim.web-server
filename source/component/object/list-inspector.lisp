@@ -250,7 +250,7 @@
   ())
 
 (def layered-method table-row-style-class ((table selectable-standard-object-list-table-inspector) (row selectable-standard-object-row-inspector))
-  (concatenate-string (call-next-method)
+  (string+ (call-next-method)
                       (when (selected-instance-p table (instance-of row))
                         " selected")))
 

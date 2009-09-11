@@ -23,7 +23,7 @@
 
 (def refresh-component file-download-component
   (bind (((:slots file-name action url-prefix) -self-))
-    (setf action (make-uri :path (concatenate-string url-prefix (namestring file-name))))))
+    (setf action (make-uri :path (string+ url-prefix (namestring file-name))))))
 
 (def render-xhtml file-download-component
   (bind ((absolute-file-name (merge-pathnames (file-name-of -self-) (directory-of -self-))))
