@@ -521,21 +521,21 @@
 ;;;;;;
 ;;; Temporary file
 
-(def special-variable *temporary-file-random* (princ-to-string (isys:%sys-getpid)))
-
+(def special-variable *temporary-file-random-state* (make-random-state t))
 (def special-variable *temporary-file-unique-number* 0)
 
 (def (special-variable e) *directory-for-temporary-files* "/tmp/wui/"
-  "Used for file uploads, too.")
+  "Used for file uploads among other things.")
 
 (def function filename-for-temporary-file (&optional prefix)
-  (concatenate 'string
-               *directory-for-temporary-files*
-               prefix
-               *temporary-file-random*
-               "-"
-               ;; TODO atomic-incf
-               (integer-to-string (incf *temporary-file-unique-number*))))
+  (string+ *directory-for-temporary-files*
+           prefix
+           (integer-to-string (isys:%sys-getpid))
+           "-"
+           ;; TODO atomic-incf
+           (integer-to-string (incf *temporary-file-unique-number*))
+           "-"
+           (integer-to-string (random 100000 *temporary-file-random-state*))))
 
 (def function open-temporary-file (&rest args &key
                                          (element-type '(unsigned-byte 8))

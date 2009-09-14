@@ -90,6 +90,8 @@
   (setf (shutdown-initiated-p server) #f)
   (restart-case
       (bind ((swank::*sldb-quit-restart* (find-restart 'abort)))
+        (server.debug "Making sure temp dir exists at ~S" *directory-for-temporary-files*)
+        (ensure-directories-exist *directory-for-temporary-files*)
         (with-lock-held-on-server (server) ; the started workers are waiting until this lock is released
           (bind ((listen-entries (listen-entries-of server))
                  (mux (make-instance 'iolib:epoll-multiplexer)))
