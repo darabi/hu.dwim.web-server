@@ -144,6 +144,9 @@
       (when executable?
         (funcall (action-of command))))))
 
+(def method command-position ((self command/widget))
+  (command-position (content-of self)))
+
 ;;;;;;
 ;;; Generic commands
 

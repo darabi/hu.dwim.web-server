@@ -88,6 +88,14 @@
 (def function icon-style-class (name)
   (string+ "icon " (string-downcase (symbol-name name)) "-icon widget"))
 
+(def method command-position ((self icon/widget))
+  ;; TODO: can't we make it faster/better (what about a generic method or something?)
+  (or (position (name-of self)
+                ;; TODO: this name thingie is quite fragile
+                '(answer back focus-out open-in-new-frame focus-in collapse-component refresh-component begin-editing save-editing cancel-editing store-editing revert-editing
+                  new-instance delete-instance))
+      most-positive-fixnum))
+
 ;;;;;;
 ;;; Definer
 

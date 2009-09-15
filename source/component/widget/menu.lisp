@@ -126,6 +126,11 @@
   ;; TODO: add js to really show the menu
   (render-component (icon show-context-menu :label nil)))
 
+(def method command-position ((self menu-item/widget))
+  (if (menu-items-of self)
+      most-positive-fixnum
+      (command-position (content-of self))))
+
 ;;;;;;
 ;;; menu-item-separator/widget
 
