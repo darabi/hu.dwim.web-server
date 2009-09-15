@@ -9,16 +9,17 @@
 ;;;;;;
 ;;; image/widget
 
-(def (component e) image/widget (widget/basic)
-  ((path :type string))
-  (:documentation "An IMAGE specified by a file system path."))
+(def (component e) image/widget (widget/style)
+  ((location :type uri))
+  (:documentation "An IMAGE specified by an URI location"))
 
-(def (macro e) image/widget (&rest args &key path &allow-other-keys)
-  (declare (ignore path))
+(def (macro e) image/widget (&rest args &key location &allow-other-keys)
+  (declare (ignore location))
   `(make-instance 'image/widget ,@args))
 
 (def render-component image/widget
   (render-image -self-))
 
 (def (function e) render-image (self)
-  <img (:id ,(id-of self) :class ,(style-class-of self) :style ,(custom-style-of self) :src ,(path-of self))>)
+  (bind (((:read-only-slots id style-class custom-style location) self))
+    <img (:id ,id :class ,style-class :style ,custom-style :src ,(print-uri-to-string location))>))
