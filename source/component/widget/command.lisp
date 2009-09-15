@@ -117,7 +117,7 @@
           (bind ((submit-id (generate-response-unique-string)))
             <input (:id ,submit-id :type "submit" :style "display: none;")>
             `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
-      <span (:class "command disabled") ,(render-component content)>))
+      <span (:class "command widget disabled") ,(render-component content)>))
 
 (def (function e) render-command-onclick-handler (command id)
   (bind ((action (action-of command))

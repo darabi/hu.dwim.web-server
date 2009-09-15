@@ -58,12 +58,19 @@
   (:method ((self tab-container/widget))
     (first (tab-pages-of self))))
 
+;;;;;;
+;;; switch-to-tab-page/widget
+
 (def (icon e) switch-to-tab-page)
+
+(def (component e) switch-to-tab-page/widget (command/widget)
+  ())
 
 (def layered-method make-switch-to-tab-page-command ((component tab-page/widget) class prototype value)
   (bind ((tab-container (find-ancestor-component-with-type component 'tab-container/widget)))
     (assert tab-container)
-    (make-replace-command (delay (content-of tab-container))
-                          component
-                          :content (clone-component (selector-of component))
-                          :ajax (ajax-of tab-container))))
+    (make-instance 'switch-to-tab-page/widget
+                   :action (make-action
+                             (execute-replace (delay (content-of tab-container)) component))
+                   :content (clone-component (selector-of component))
+                   :ajax (ajax-of tab-container))))

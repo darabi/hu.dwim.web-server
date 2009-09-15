@@ -49,10 +49,11 @@
           page-size-selector (make-instance 'page-size-selector/widget :component-value page-size))))
 
 (def render-xhtml page-navigation-bar/widget
-  (bind (((:read-only-slots first-command previous-command next-command last-command jumper page-size-selector) -self-))
-    <span (:class "page-navigation-bar")
-      ;; TODO: revive page-size-selector (does not work with ajax)
-      ,(foreach #'render-component (list first-command previous-command jumper #+nil page-size-selector next-command last-command))>))
+  (bind (((:read-only-slots total-count first-command previous-command next-command last-command jumper page-size-selector) -self-))
+    (unless (zerop total-count)
+      <span (:class "page-navigation-bar")
+        ;; TODO: revive page-size-selector (does not work with ajax)
+        ,(foreach #'render-component (list first-command previous-command jumper #+nil page-size-selector next-command last-command))>)))
 
 (def layered-method render-component :in passive-layer ((self page-navigation-bar/widget))
   (values))

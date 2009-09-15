@@ -728,10 +728,9 @@
 (wui.register-component-setup "component-message/widget" (lambda (id)
                                                            (wui.attach-border id (slot-value (dojo.byId id) 'className))))
 
-(dolist (entry #(#("title-bar/widget"        "title-border")
-                 #("column/widget"           "table-header-border")
-                 #("tab-container/widget"    "box-border")
-                 #("tree/widget"             "box-border")))
+(dolist (entry #(#("title-bar/widget"                       "title-border")
+                 #("column/widget"                          "table-header-border")
+                 #("switch-to-tab-page/widget"              "tab-border")))
   (bind ((type (first entry))
          (css-class (second entry)))
     (unless (dojo.isArray css-class)

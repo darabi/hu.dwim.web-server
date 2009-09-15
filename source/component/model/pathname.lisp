@@ -35,7 +35,7 @@
 ;;;;;;
 ;;; pathname/text-file/inspector
 
-(def (component e) pathname/text-file/inspector (inspector/basic content/widget)
+(def (component e) pathname/text-file/inspector (inspector/basic t/detail/presentation content/widget)
   ())
 
 (def (macro e) pathname/text-file/inspector (pathname &rest args &key &allow-other-keys)
@@ -52,7 +52,7 @@
 ;;;;;;
 ;;; pathname/binary-file/inspector
 
-(def (component e) pathname/binary-file/inspector (inspector/basic content/widget)
+(def (component e) pathname/binary-file/inspector (inspector/basic t/detail/presentation content/widget)
   ())
 
 (def (macro e) pathname/binary-file/inspector (pathname &rest args &key &allow-other-keys)
@@ -74,7 +74,7 @@
 ;;;;;;
 ;;; pathname/lisp-file/inspector
 
-(def (component e) pathname/lisp-file/inspector (inspector/basic content/widget)
+(def (component e) pathname/lisp-file/inspector (inspector/basic t/detail/presentation content/widget)
   ())
 
 (def (macro e) pathname/lisp-file/inspector ((&rest args &key &allow-other-keys) &body file)
@@ -87,7 +87,7 @@
 ;;;;;;
 ;;; pathname/directory-tree/inspector
 
-(def (component e) pathname/directory/tree/inspector (t/tree/inspector)
+(def (component e) pathname/directory/tree/inspector (t/tree/inspector t/detail/presentation)
   ())
 
 (def layered-method make-tree/root-node ((component pathname/directory/tree/inspector) (class structure-class) (prototype pathname) (value pathname))
