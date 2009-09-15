@@ -30,5 +30,8 @@
     (bind ((uri (print-uri-to-string (component-value-of -self-))))
       <a (:href ,uri :target "_new") ,uri>)))
 
+(def render-text uri/external-link/inspector
+  (render-component (print-uri-to-string (component-value-of -self-))))
+
 (def method render-command-bar-for-alternative? ((component uri/external-link/inspector))
   #f)

@@ -13,7 +13,7 @@
   `xml,-self-)
 
 (def render-text string
-  (write -self- :stream *text-stream*))
+  (write-string -self- *text-stream*))
 
 (def render-csv string
   (write-csv-value -self-))

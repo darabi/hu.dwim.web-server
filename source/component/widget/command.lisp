@@ -75,6 +75,9 @@
   (bind (((:read-only-slots content action enabled-component default ajax js action-arguments) -self-))
     (render-command content action :enabled enabled-component :default default :ajax ajax :js js :action-arguments action-arguments)))
 
+(def render-text command/widget
+  (render-component (content-of -self-)))
+
 (def render-component :in passive-layer command/widget
   (render-content-for -self-))
 

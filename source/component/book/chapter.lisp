@@ -34,5 +34,11 @@
     (render-title-for -self-)
     (render-contents-for -self-)))
 
+(def render-text chapter/text/inspector
+  (write-text-line-begin)
+  (render-title-for -self-)
+  (write-text-line-separator)
+  (call-next-method))
+
 (def layered-method make-title ((self chapter/text/inspector) class prototype (value chapter))
   (title-of value))

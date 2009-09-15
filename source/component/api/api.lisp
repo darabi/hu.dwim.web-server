@@ -479,6 +479,8 @@
 
 (def (render-component-layer e) text () "Rendering into pure text.")
 
+(def (render-component-layer e) shell-script (text) "Rendering into shell script.")
+
 (def (render-component-layer e) xhtml () "Rendering into XHTML with JavaScript.")
 
 (def (render-component-layer e) offline () "Rendering into offline content that works without the server.")
