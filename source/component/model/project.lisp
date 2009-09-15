@@ -19,7 +19,7 @@
   'project/inspector)
 
 (def layered-method make-alternatives ((component project/inspector) class prototype value)
-  (list* (delay-alternative-component-with-initargs 'project/detail/inspector :component-value value)
+  (list* (delay-alternative-component-with-initargs 'project/content/inspector :component-value value)
          (call-next-method)))
 
 (def method localized-instance-name ((project project))
@@ -28,17 +28,20 @@
 ;;;;;;
 ;;; project/detail/inspector
 
-(def (component e) project/detail/inspector (inspector/basic widget/style)
+(def (component e) project/detail/inspector (inspector/style t/detail/presentation)
+  ())
+
+;;;;;;
+;;; project/content/inspector
+
+(def (component e) project/content/inspector (inspector/style t/detail/presentation)
   ((directory :type component)))
 
-(def refresh-component project/detail/inspector
+(def refresh-component project/content/inspector
   (bind (((:slots directory) -self-)
          (component-value (component-value-of -self-)))
-    (setf directory (make-value-inspector (path-of component-value) :initial-alternative-type 'sequence/list/inspector))))
+    (setf directory (make-value-inspector (path-of component-value) :initial-alternative-type 'pathname/directory/tree/inspector))))
 
-(def render-xhtml project/detail/inspector
-  (bind (((:read-only-slots directory component-value) -self-))
-    (with-render-style/abstract (-self-)
-      <div "Project name" ,(name-of component-value)>
-      <div "Project contents">
-      (render-component directory))))
+(def render-xhtml project/content/inspector
+  (with-render-style/abstract (-self-)
+    (render-component (directory-of -self-))))

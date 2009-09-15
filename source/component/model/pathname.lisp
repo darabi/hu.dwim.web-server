@@ -23,7 +23,7 @@
          (file-type (when file?
                       (guess-file-type value))))
     (optional-list* (unless file?
-                      (delay-alternative-component-with-initargs 'pathname/directory/inspector :component-value value))
+                      (delay-alternative-component-with-initargs 'pathname/directory/tree/inspector :component-value value))
                     (when (eq file-type :text)
                       (delay-alternative-component-with-initargs 'pathname/text-file/inspector :component-value value))
                     (when (member file-type '(:asd :lisp))
@@ -85,16 +85,33 @@
     (setf content (make-instance 't/lisp-form/inspector :component-value (read-lisp-source component-value)))))
 
 ;;;;;;
-;;; pathname/directory/inspector
+;;; pathname/directory-tree/inspector
 
-(def (component e) pathname/directory/inspector (inspector/basic content/widget)
+(def (component e) pathname/directory/tree/inspector (t/tree/inspector)
   ())
 
-(def refresh-component pathname/directory/inspector
-  (bind (((:slots component-value content) -self-))
-    (setf content (make-value-inspector (directory (merge-pathnames component-value "*.*"))
-                                        :initial-alternative-type 'sequence/list/inspector))))
+(def layered-method make-tree/root-node ((component pathname/directory/tree/inspector) (class structure-class) (prototype pathname) (value pathname))
+  (make-instance 'pathname/directory/node/inspector :component-value value))
 
-(def render-xhtml pathname/directory/inspector
-  (with-render-style/mixin (-self-)
-    (render-content-for -self-)))
+;;;;;;
+;;; pathname/directory/node/inspector
+
+(def (component e) pathname/directory/node/inspector (t/node/inspector)
+  ())
+
+(def layered-method collect-tree/children ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
+  (sort (directory (merge-pathnames "*.*" value)) #'string< :key #'namestring))
+
+(def layered-method make-node/child-node ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
+  (if (pathname-name value)
+      (make-instance 'pathname/file/node/inspector :component-value value :expanded #f)
+      (make-instance 'pathname/directory/node/inspector :component-value value :expanded #f)))
+
+;;;;;;
+;;; pathname/file/node/inspector
+
+(def (component e) pathname/file/node/inspector (t/node/inspector)
+  ())
+
+(def layered-method collect-tree/children ((component pathname/file/node/inspector) (class structure-class) (prototype pathname) (value pathname))
+  nil)
