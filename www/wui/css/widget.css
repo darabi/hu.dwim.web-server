@@ -214,6 +214,11 @@ a.external-link
 
 /* tree */
 
+.node .content.leaf
+{
+  padding-left: 1em;
+}
+
 .node.level-0
 {
   padding-left: 0em;

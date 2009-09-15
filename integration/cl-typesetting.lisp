@@ -11,15 +11,16 @@
 
 (def (special-variable e) *total-page-count*)
 
-(def layered-method export-pdf ((component component))
-  (bind ((typeset::*default-font* (pdf:get-font "Times-Roman"))
-         (typeset::*font* typeset::*default-font*)
-         (*total-page-count* 0))
-    (typeset::with-document ()
-      (render-pdf-pages component)
-      (when pdf:*page*
-        (typeset:finalize-page pdf:*page*))
-      (typeset:write-document *pdf-stream*))))
+(def layered-method export-pdf (component)
+  (with-output-to-export-stream (*pdf-stream* :content-type +pdf-mime-type+ :external-format :iso-8859-1)
+    (bind ((typeset::*default-font* (pdf:get-font "Times-Roman"))
+           (typeset::*font* typeset::*default-font*)
+           (*total-page-count* 0))
+      (typeset::with-document ()
+        (render-pdf-pages component)
+        (when pdf:*page*
+          (typeset:finalize-page pdf:*page*))
+        (typeset:write-document *pdf-stream*)))))
 
 (def (layered-function e) render-pdf-pages (component)
   (:method ((component component))

@@ -134,9 +134,9 @@
 (def (icon e) revert-editing)
 
 (def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
-  (append (list (make-menu-item (icon menu :label "Edit")
-                                (make-editing-commands component class prototype instance)))
-          (call-next-method)))
+  (optional-list* (make-menu-item (icon menu :label "Edit")
+                                  (make-editing-commands component class prototype instance))
+                  (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
   (append (when (editable-component? component)
@@ -319,65 +319,51 @@
 ;;;;;
 ;;; Exportable
 
-(def layered-method make-context-menu-items ((component exportable/abstract) (class standard-class) (prototype standard-object) (instance standard-object))
-  (append (call-next-method)
-          (list (make-menu-item (icon menu :label "Mentés")
-                                (make-export-commands component class prototype instance)))))
-
-
+(def layered-method make-context-menu-items ((component exportable/abstract) class prototype instance)
+  (optional-list* (make-menu-item (icon menu :label "Export") (make-export-commands component class prototype instance))
+                  (call-next-method)))
 
 (def (icon e) export-text)
 
-
-(def layered-method make-export-command ((format (eql :text)) (component exportable/abstract) class prototype instance)
-  (command (:delayed-content #t
-            :path (export-file-name format component))
+(def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype instance)
+  (command/widget (:delayed-content #t :path (export-file-name format component))
     (icon export-text)
     (make-component-action component
-      (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
-        (export-text component)))))
+      (export-text component))))
 
 (def (icon e) export-csv)
 
 (def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype instance)
-  (command (:delayed-content #t
-            :path (export-file-name format component))
+  (command/widget (:delayed-content #t :path (export-file-name format component))
     (icon export-csv)
     (make-component-action component
-      (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format :utf-8)
-        (export-csv component)))))
+      (export-csv component))))
 
 (def (icon e) export-pdf)
 
 (def special-variable *pdf-stream*)
 
 (def layered-method make-export-command ((format (eql :pdf)) (component exportable/abstract) class prototype instance)
-  (command (:delayed-content #t
-            :path (export-file-name format component))
+  (command/widget (:delayed-content #t :path (export-file-name format component))
     (icon export-pdf)
     (make-component-action component
-      (with-output-to-export-stream (*pdf-stream* :content-type +pdf-mime-type+ :external-format :iso-8859-1)
-        (export-pdf component)))))
+      (export-pdf component))))
 
 (def (icon e) export-odt)
 
 (def layered-method make-export-command ((format (eql :odt)) (component exportable/abstract) class prototype instance)
-  (command (:delayed-content #t
-            :path (export-file-name format component))
+  (command/widget (:delayed-content #t :path (export-file-name format component))
     (icon export-odt)
     (make-component-action component
-      (with-output-to-export-stream (*xml-stream* :content-type +odt-mime-type+ :external-format :utf-8)
-        (export-odt component)))))
+      (export-odt component))))
 
 (def (icon e) export-ods)
 
 (def layered-method make-export-command ((format (eql :ods)) (component exportable/abstract) class prototype instance)
-  (command (:delayed-content #t
-            :path (export-file-name format component))
+  (command/widget (:delayed-content #t :path (export-file-name format component))
     (icon export-ods)
     (make-component-action component
-      (with-output-to-export-stream (*xml-stream* :content-type +ods-mime-type+ :external-format :utf-8)
-        (export-ods component)))))
+      (export-ods component))))
 
 
 
