@@ -23,27 +23,7 @@
     (setf (commands-of self) (call-next-method)))
 
   (:method ((self command-bar/abstract))
-    (sort (commands-of self) #'< :key #'command-bar-command-position)))
-
-(def (generic e) command-bar-command-position (component)
-  (:method ((self number))
-    most-positive-fixnum)
-
-  (:method ((self string))
-    most-positive-fixnum)
-
-  (:method ((self component))
-    most-positive-fixnum)
-
-  (:method ((self icon/widget))
-    ;; TODO: can't we make it faster/better (what about a generic method or something?)
-    (or (position (name-of self)
-                  ;; TODO: this name thingie is fragile
-                  '(answer back focus-out open-in-new-frame focus-in collapse collapse-all expand-all refresh edit save cancel store revert new delete))
-        most-positive-fixnum))
-
-  (:method ((self command/widget))
-    (command-bar-command-position (content-of self))))
+    (sort (commands-of self) #'< :key #'command-position)))
 
 ;;;;;;
 ;;; command-bar/widget
