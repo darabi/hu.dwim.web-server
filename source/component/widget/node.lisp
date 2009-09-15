@@ -29,7 +29,9 @@
           :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)
-      <span (:class `str("content " ,(selectable-component-style-class -self-)))
+      <span (:class `str("content " ,(selectable-component-style-class -self-)
+                                    ,(unless child-nodes
+                                       " leaf")))
         ,(when child-nodes
            (render-collapse-or-expand-command-for -self-))
         ,(render-content-for -self-)>

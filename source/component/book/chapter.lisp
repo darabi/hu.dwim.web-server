@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; chapter/inspector
 
-(def (component e) chapter/inspector (t/inspector)
+(def (component e) chapter/inspector (t/inspector exportable/abstract)
   ())
 
 (def (macro e) chapter/inspector ((&rest args &key &allow-other-keys) &body contents)

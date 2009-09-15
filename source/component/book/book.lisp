@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; book/inspector
 
-(def (component e) book/inspector (t/inspector)
+(def (component e) book/inspector (t/inspector exportable/abstract)
   ())
 
 (def (macro e) book/inspector ((&rest args &key &allow-other-keys) &body book)
@@ -33,6 +33,12 @@
     (setf contents (mapcar [make-value-inspector !1 :initial-alternative-type 't/text/inspector]
                            (contents-of component-value)))))
 
+(def render-text t/text/inspector
+  (iter (for content :in (contents-of -self-))
+        (write-text-line-begin)
+        (render-component content)
+        (write-text-line-separator)))
+
 (def method render-command-bar-for-alternative? ((component t/text/inspector))
   #f)
 
@@ -46,6 +52,12 @@
   (with-render-style/abstract (-self-)
     (render-title-for -self-)
     (render-contents-for -self-)))
+
+(def render-text book/text/inspector
+  (write-text-line-begin)
+  (render-title-for -self-)
+  (write-text-line-separator)
+  (call-next-method))
 
 (def layered-method make-title ((self book/text/inspector) class prototype (value book))
   (title-of value))

@@ -33,6 +33,12 @@
       ,(render-component self)>)
 
   (:method ((self component))
+    (render-component self))
+
+  (:method ((self string))
+    (render-component self))
+
+  (:method ((self number))
     (render-component self)))
 
 (def layered-method make-title ((self title/mixin) class prototype value)

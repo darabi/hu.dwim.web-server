@@ -26,7 +26,7 @@
   ())
 
 (def render-xhtml uri/external-link/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/abstract (-self- :element-name "span")
     (bind ((uri (print-uri-to-string (component-value-of -self-))))
       <a (:href ,uri :target "_new") ,uri>)))
 
