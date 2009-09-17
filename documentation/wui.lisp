@@ -6,6 +6,13 @@
 
 (in-package :hu.dwim.wui.documentation)
 
+(def project :hu.dwim.wui :path (hu.dwim.asdf:system-pathname :hu.dwim.wui))
+
+(def method make-project-tab-pages ((component project/detail/inspector) (project (eql (find-project :hu.dwim.wui))))
+  (append (call-next-method)
+          (list (tab-page/widget (:selector "Demo")
+                  (hu.dwim.wui.test::make-demo-content)))))
+
 #|
 1. WUI
 ------
