@@ -43,7 +43,8 @@
                                            (mapcar [last-elt (pathname-directory !1)]
                                                    (cl-fad:list-directory www-directory)))
                                 #'string>=))))
-    (assert dojo-dir () "Seems like there's not any dojo directory in ~S. Hint: see wui/etc/build-dojo.sh" www-directory)
+    (unless dojo-dir
+      (cerror "Ignore" "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" www-directory))
     (string+ dojo-dir "/")))
 
 (def with-macro with-dojo-widget-collector ()
