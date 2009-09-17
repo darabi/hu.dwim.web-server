@@ -33,7 +33,7 @@
 ;;; tab-container/widget
 
 (def (component e) tab-container/widget (widget/style content/abstract)
-  ((tab-pages :type components)
+  ((tab-pages :type list)
    (tab-page-selector-bar :type component))
   (:documentation "A TAB-CONTAINER/WIDGET allows the user to select between its TAB-PAGE/WIDGETs."))
 
@@ -41,10 +41,15 @@
   `(make-instance 'tab-container/widget ,@args :content nil :tab-pages (optional-list ,@tab-pages)))
 
 (def refresh-component tab-container/widget
-  (bind (((:slots tab-pages tab-page-selector-bar content) -self-))
+  (bind (((:slots tab-pages tab-page-selector-bar content) -self-)
+         (dispatch-class (component-dispatch-class -self-))
+         (dispatch-prototype (component-dispatch-class -self-))
+         (component-value (component-value-of -self-)))
     (setf tab-page-selector-bar
           (make-instance 'tab-page-selector-bar/widget
-                         :commands (mapcar [make-switch-to-tab-page-command !1 nil nil nil] tab-pages)))
+                         :commands (iter (for tab-page :in tab-pages)
+                                         (setf (parent-component-of tab-page) -self-)
+                                         (collect (make-switch-to-tab-page-command tab-page dispatch-class dispatch-prototype component-value)))))
     (unless content
       (setf content (find-default-tab-page -self-)))))
 
