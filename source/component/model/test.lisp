@@ -20,7 +20,18 @@
 
 (def layered-method make-alternatives ((component test/inspector) (class standard-class) (prototype hu.dwim.stefil::test) (value hu.dwim.stefil::test))
   (list* (delay-alternative-component-with-initargs 'test/hierarchy/tree/inspector :component-value value)
+         (delay-alternative-component-with-initargs 'test/lisp-form/inspector :component-value value)
          (call-next-method)))
+
+;;;;;;
+;;; test/lisp-form/inspector
+
+(def (component e) test/lisp-form/inspector (inspector/style content/widget)
+  ())
+
+(def refresh-component test/lisp-form/inspector
+  (bind (((:slots content component-value) -self-))
+    (setf content (make-instance 'function/lisp-form/inspector :component-value (fdefinition (hu.dwim.stefil::name-of component-value))))))
 
 ;;;;;;
 ;;; test/hierarchy/tree/inspector
@@ -45,6 +56,9 @@
 
 (def layered-method make-node/child-node ((component test/hierarchy/node/inspector) (class standard-class) (prototype hu.dwim.stefil::test) (value hu.dwim.stefil::test))
   (make-instance 'test/hierarchy/node/inspector :component-value value :expanded #f))
+
+(def layered-method make-node/content ((component test/hierarchy/node/inspector) (class standard-class) (prototype hu.dwim.stefil::test) (value hu.dwim.stefil::test))
+  (make-value-inspector value :default-alternative-type 'test/lisp-form/inspector))
 
 (def layered-method collect-tree/children ((component test/hierarchy/node/inspector) (class standard-class) (prototype hu.dwim.stefil::test) (value hu.dwim.stefil::test))
   (sort (hash-table-values (hu.dwim.stefil::children-of value)) #'string< :key #'hu.dwim.stefil::name-of))
