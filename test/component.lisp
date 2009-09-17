@@ -162,7 +162,7 @@
   (bind ((authenticated-subject (current-authenticated-subject)))
     (menu
       (when (> (length authenticated-subject) 0) ; just a random condition for demo purposes
-        (bind ((debug-menu (make-debug-menu-item)))
+        (bind ((debug-menu (make-debug-menu)))
           (appendf (menu-items-of debug-menu)
                    (list (menu-item () (command "Example error in action body"
                                          (make-action (error "This is an example error which is signaled when running the action body"))))
@@ -364,541 +364,545 @@
 (def function make-demo-frame-component ()
   (make-demo-frame-component-with-content))
 
-(def function make-demo-frame-component-with-content (&optional (initial-content-component (empty/layout)))
+(def function make-demo-frame-component-with-content (&optional initial-content-component)
   (frame/widget (:title "demo"
                  :stylesheet-uris *demo-stylesheet-uris*
                  :script-uris '#.+demo-script-uris+
                  :page-icon #.+demo-page-icon+)
     (top/widget (:menu-bar (menu-bar/widget ()
-                             (make-debug-menu-item)))
-      (bind ((content (content/widget ()
-                        initial-content-component)))
-        (target-place/widget (:target-place (make-slot-value-place content 'hu.dwim.wui::content))
-          (horizontal-list/layout ()
-            (tree/widget ()
-              (node/widget ()
-                  "Component"
-                (node/widget (:expanded #f)
-                    "Immediate"
-                  (replace-target-demo/widget "Number"
-                    42)
-                  (replace-target-demo/widget "String"
-                    "Hello World"))
-                (node/widget (:expanded #f)
-                    "Layout"
-                  (replace-target-demo/widget "Empty"
-                    (empty/layout))
-                  (replace-target-demo/widget "Alternator"
-                    ;; a layout does not have behavior, so switching between alternative is only possible programatically
-                    (alternator/layout ()
-                      "John"
-                      "Mary"
-                      "Steve"
-                      "Kate"))
-                  (replace-target-demo/widget "Vertical List"
-                    (vertical-list/layout ()
-                      "John"
-                      "Mary"
-                      "Steve"
-                      "Kate"))
-                  (replace-target-demo/widget "Horizontal List"
-                    (horizontal-list/layout ()
-                      "John"
-                      "Mary"
-                      "Steve"
-                      "Kate"))
-                  (replace-target-demo/widget "Flow"
-                    (flow/layout ()
-                      "John "
-                      "Mary "
-                      "Steve "
-                      "Kate "
-                      "Fred "
-                      "Susanne "
-                      "George "
-                      "Jenna "))
-                  (replace-target-demo/widget "Container"
-                    ;; see style.css #container
-                    (container/layout (:id "container")
-                      "John "
-                      "Mary "
-                      "Steve "
-                      "Kate "
-                      "Fred "))
-                  (replace-target-demo/widget "Table"
-                    (table/layout ()
-                      (row/layout ()
-                        (cell/layout ()
-                          "John")
-                        (cell/layout ()
-                          "Mary"))
-                      (row/layout ()
-                        (cell/layout ()
-                          "Steve")
-                        (cell/layout ()
-                          "Kate"))))
-                  (replace-target-demo/widget "Tree"
-                    (tree/layout ()
-                      (node/layout ()
-                          "Males"
-                        (node/layout ()
-                            "John")
-                        (node/layout ()
-                            "Steve"))
-                      (node/layout ()
-                          "Females"
-                        (node/layout ()
-                            "Mary")
-                        (node/layout ()
-                            "Kate"))))
-                  (replace-target-demo/widget "Treeble"
-                    (treeble/layout ()
-                      (row/layout ()
-                        (cell/layout ()
-                          "John")
-                        (cell/layout ()
-                          "Mary"))
-                      (row/layout ()
-                        (cell/layout ()
-                          "Steve")
-                        (cell/layout ()
-                          "Kate"))))
-                  (replace-target-demo/widget "XY"
-                    (xy/layout (:width 200 :height 200)
-                      (parent-relative-position/layout (:x 100 :y 100)
+                             (make-debug-menu)))
+      (make-demo-content initial-content-component))))
+
+(def function make-demo-content (&optional initial-content-component)
+  (bind ((content (content/widget ()
+                    (or initial-content-component
+                        (empty/layout)))))
+    (target-place/widget (:target-place (make-slot-value-place content 'hu.dwim.wui::content))
+      (horizontal-list/layout ()
+        (tree/widget ()
+          (node/widget ()
+              "Component"
+            (node/widget (:expanded #f)
+                "Immediate"
+              (replace-target-demo/widget "Number"
+                42)
+              (replace-target-demo/widget "String"
+                "Hello World"))
+            (node/widget (:expanded #f)
+                "Layout"
+              (replace-target-demo/widget "Empty"
+                (empty/layout))
+              (replace-target-demo/widget "Alternator"
+                ;; a layout does not have behavior, so switching between alternative is only possible programatically
+                (alternator/layout ()
+                  "John"
+                  "Mary"
+                  "Steve"
+                  "Kate"))
+              (replace-target-demo/widget "Vertical List"
+                (vertical-list/layout ()
+                  "John"
+                  "Mary"
+                  "Steve"
+                  "Kate"))
+              (replace-target-demo/widget "Horizontal List"
+                (horizontal-list/layout ()
+                  "John"
+                  "Mary"
+                  "Steve"
+                  "Kate"))
+              (replace-target-demo/widget "Flow"
+                (flow/layout ()
+                  "John "
+                  "Mary "
+                  "Steve "
+                  "Kate "
+                  "Fred "
+                  "Susanne "
+                  "George "
+                  "Jenna "))
+              (replace-target-demo/widget "Container"
+                ;; see style.css #container
+                (container/layout (:id "container")
+                  "John "
+                  "Mary "
+                  "Steve "
+                  "Kate "
+                  "Fred "))
+              (replace-target-demo/widget "Table"
+                (table/layout ()
+                  (row/layout ()
+                    (cell/layout ()
+                      "John")
+                    (cell/layout ()
+                      "Mary"))
+                  (row/layout ()
+                    (cell/layout ()
+                      "Steve")
+                    (cell/layout ()
+                      "Kate"))))
+              (replace-target-demo/widget "Tree"
+                (tree/layout ()
+                  (node/layout ()
+                      "Males"
+                    (node/layout ()
                         "John")
-                      (parent-relative-position/layout (:x 50 :y 150)
+                    (node/layout ()
+                        "Steve"))
+                  (node/layout ()
+                      "Females"
+                    (node/layout ()
                         "Mary")
-                      (parent-relative-position/layout (:x 120 :y 70)
-                        "Steve")
-                      (parent-relative-position/layout (:x 80 :y 50)
+                    (node/layout ()
                         "Kate"))))
-                (node/widget (:expanded #t)
-                    "Widget"
-                  (replace-target-demo/widget "Inline render XHTML"
-                    (inline-render-xhtml/widget ()
-                      <div <span (:style "color: blue") "John">
-                           <span (:style "color: red") "Mary">>))
-                  (replace-target-demo/widget "Wrap render XHTML"
-                    (wrap-render-xhtml/widget ()
-                        "The wrapped component is now a simple string"
-                      <span ">>> "
+              (replace-target-demo/widget "Treeble"
+                (treeble/layout ()
+                  (row/layout ()
+                    (cell/layout ()
+                      "John")
+                    (cell/layout ()
+                      "Mary"))
+                  (row/layout ()
+                    (cell/layout ()
+                      "Steve")
+                    (cell/layout ()
+                      "Kate"))))
+              (replace-target-demo/widget "XY"
+                (xy/layout (:width 200 :height 200)
+                  (parent-relative-position/layout (:x 100 :y 100)
+                    "John")
+                  (parent-relative-position/layout (:x 50 :y 150)
+                    "Mary")
+                  (parent-relative-position/layout (:x 120 :y 70)
+                    "Steve")
+                  (parent-relative-position/layout (:x 80 :y 50)
+                    "Kate"))))
+            (node/widget (:expanded #t)
+                "Widget"
+              (replace-target-demo/widget "Inline render XHTML"
+                (inline-render-xhtml/widget ()
+                  <div <span (:style "color: blue") "John">
+                       <span (:style "color: red") "Mary">>))
+              (replace-target-demo/widget "Wrap render XHTML"
+                (wrap-render-xhtml/widget ()
+                    "The wrapped component is now a simple string"
+                  <span ">>> "
                         <span (:style "color: blue")
-                          ,(-body-)>
+                              ,(-body-)>
                         " <<<">))
-                  (replace-target-demo/widget "Inline XHTML string content"
-                    (inline-xhtml-string-content/widget ()
-                      "<div><span style=\"color: blue\">John</span><span style=\"color: red\">Mary</span></div>"))
-                  (replace-target-demo/widget "Quote XML string content"
-                    (quote-xml-string-content/widget ()
-                      "<div><span style=\"color: blue\">John</span><span style=\"color: red\">Mary</span></div>"))
-                  (replace-target-demo/widget "Quote XML form"
-                    (quote-xml-form/widget ()
-                      <div <span (:style ,(string+ "color:" " blue")) "John">
-                           <span (:style "color: red") "Mary">>))
-                  (replace-target-demo/widget "Collapsible"
-                    (collapsible/widget ()
-                      "SICP"
-                      "Structure and Interpretation of Computer Programs"))
-                  (replace-target-demo/widget "Alternator"
-                    (alternator/widget ()
+              (replace-target-demo/widget "Inline XHTML string content"
+                (inline-xhtml-string-content/widget ()
+                  "<div><span style=\"color: blue\">John</span><span style=\"color: red\">Mary</span></div>"))
+              (replace-target-demo/widget "Quote XML string content"
+                (quote-xml-string-content/widget ()
+                  "<div><span style=\"color: blue\">John</span><span style=\"color: red\">Mary</span></div>"))
+              (replace-target-demo/widget "Quote XML form"
+                (quote-xml-form/widget ()
+                  <div <span (:style ,(string+ "color:" " blue")) "John">
+                       <span (:style "color: red") "Mary">>))
+              (replace-target-demo/widget "Collapsible"
+                (collapsible/widget ()
+                  "SICP"
+                  "Structure and Interpretation of Computer Programs"))
+              (replace-target-demo/widget "Alternator"
+                (alternator/widget ()
+                  "John"
+                  "Mary"
+                  "Steve"
+                  "Kate"))
+              (replace-target-demo/widget "Tab container"
+                (tab-container ()
+                  (tab-page (:selector (icon switch-to-tab-page :label "Male"))
+                    "John")
+                  (tab-page (:selector (icon switch-to-tab-page :label "Female"))
+                    "Mary")))
+              (replace-target-demo/widget "Menu bar"
+                (menu-bar/widget ()
+                  (menu-item/widget ()
                       "John"
-                      "Mary"
-                      "Steve"
-                      "Kate"))
-                  (replace-target-demo/widget "Tab container"
-                    (tab-container ()
-                      (tab-page (:selector (icon switch-to-tab-page :label "Male"))
-                        "John")
-                      (tab-page (:selector (icon switch-to-tab-page :label "Female"))
-                        "Mary")))
-                  (replace-target-demo/widget "Menu bar"
-                    (menu-bar/widget ()
-                      (menu-item/widget ()
-                          "John"
-                        (menu-item/widget ()
-                            "Mary")
-                        (menu-item-separator/widget)
-                        (menu-item/widget ()
-                            "Steve"
-                          (menu-item/widget ()
-                              "Kate")
-                          (menu-item/widget ()
-                              "Fred")))
-                      (menu-item/widget ()
-                          "Susanne "
-                        (menu-item/widget ()
-                            "George ")
-                        (menu-item/widget ()
-                            "Jenna "))))
-                  (replace-target-demo/widget "Popup menu"
-                    (popup-menu/widget ()
-                        "Right click for popup menu"
-                      (menu-item/widget ()
-                          "John"
-                        (menu-item/widget ()
-                            "Mary")
-                        (menu-item-separator/widget)
-                        (menu-item/widget ()
-                            "Steve"
-                          (menu-item/widget ()
-                              "Kate")
-                          (menu-item/widget ()
-                              "Fred")))
-                      (menu-item/widget ()
-                          "Susanne "
-                        (menu-item/widget ()
-                            "George ")
-                        (menu-item/widget ()
-                            "Jenna "))))
-                  (replace-target-demo/widget "Context menu"
-                    (content/widget (:context-menu (context-menu/widget ()
-                                                     (menu-item/widget ()
-                                                         "John"
-                                                       (menu-item/widget ()
-                                                           "Mary")
-                                                       (menu-item-separator/widget)
-                                                       (menu-item/widget ()
-                                                           "Steve"
-                                                         (menu-item/widget ()
-                                                             "Kate")
-                                                         (menu-item/widget ()
-                                                             "Fred")))
-                                                     (menu-item/widget ()
-                                                         "Susanne "
-                                                       (menu-item/widget ()
-                                                           "George ")
-                                                       (menu-item/widget ()
-                                                           "Jenna "))))
-                      "Right click for context menu"))
-                  (replace-target-demo/widget "Command"
-                    (bind ((c 0))
-                      (vertical-list ()
-                        (command/widget ()
-                          "Click me"
-                          (make-action
-                            (incf c)))
-                        (inline-render-xhtml/widget ()
-                          <span "Click counter: " ,c>))))
-                  (replace-target-demo/widget "Command bar"
-                    (bind ((s nil))
-                      (vertical-list ()
-                        (command-bar/widget ()
-                          (command/widget ()
-                            (icon refresh-component)
-                            (make-action
-                              (setf s "refresh")))
-                          (command/widget ()
-                            (icon select-component)
-                            (make-action
-                              (setf s "select"))))
-                        (inline-render-xhtml/widget ()
-                          <span "Last command: " ,s>))))
-                  (replace-target-demo/widget "Push button"
-                    (push-button/widget ()
-                      (command ()
-                        (icon refresh-component)
-                        (make-action))))
-                  (replace-target-demo/widget "Toggle button"
-                    (toggle-button/widget ()
-                      (command ()
-                        (icon refresh-component)
-                        (make-action))))
-                  (replace-target-demo/widget "Drop down button"
-                    (drop-down-button/widget ()
-                      (command ()
-                        (icon refresh-component)
-                        (make-action))))
-                  (replace-target-demo/widget "List"
-                    (list/widget ()
-                      (element/widget ()
-                        "John")
-                      (element/widget ()
+                    (menu-item/widget ()
                         "Mary")
-                      (element/widget ()
+                    (menu-item-separator/widget)
+                    (menu-item/widget ()
+                        "Steve"
+                      (menu-item/widget ()
+                          "Kate")
+                      (menu-item/widget ()
+                          "Fred")))
+                  (menu-item/widget ()
+                      "Susanne "
+                    (menu-item/widget ()
+                        "George ")
+                    (menu-item/widget ()
+                        "Jenna "))))
+              (replace-target-demo/widget "Popup menu"
+                (popup-menu/widget ()
+                    "Right click for popup menu"
+                  (menu-item/widget ()
+                      "John"
+                    (menu-item/widget ()
+                        "Mary")
+                    (menu-item-separator/widget)
+                    (menu-item/widget ()
+                        "Steve"
+                      (menu-item/widget ()
+                          "Kate")
+                      (menu-item/widget ()
+                          "Fred")))
+                  (menu-item/widget ()
+                      "Susanne "
+                    (menu-item/widget ()
+                        "George ")
+                    (menu-item/widget ()
+                        "Jenna "))))
+              (replace-target-demo/widget "Context menu"
+                (content/widget (:context-menu (context-menu/widget ()
+                                                 (menu-item/widget ()
+                                                     "John"
+                                                   (menu-item/widget ()
+                                                       "Mary")
+                                                   (menu-item-separator/widget)
+                                                   (menu-item/widget ()
+                                                       "Steve"
+                                                     (menu-item/widget ()
+                                                         "Kate")
+                                                     (menu-item/widget ()
+                                                         "Fred")))
+                                                 (menu-item/widget ()
+                                                     "Susanne "
+                                                   (menu-item/widget ()
+                                                       "George ")
+                                                   (menu-item/widget ()
+                                                       "Jenna "))))
+                  "Right click for context menu"))
+              (replace-target-demo/widget "Command"
+                (bind ((c 0))
+                  (vertical-list ()
+                    (command/widget ()
+                      "Click me"
+                      (make-action
+                        (incf c)))
+                    (inline-render-xhtml/widget ()
+                      <span "Click counter: " ,c>))))
+              (replace-target-demo/widget "Command bar"
+                (bind ((s nil))
+                  (vertical-list ()
+                    (command-bar/widget ()
+                      (command/widget ()
+                        (icon refresh-component)
+                        (make-action
+                          (setf s "refresh")))
+                      (command/widget ()
+                        (icon select-component)
+                        (make-action
+                          (setf s "select"))))
+                    (inline-render-xhtml/widget ()
+                      <span "Last command: " ,s>))))
+              (replace-target-demo/widget "Push button"
+                (push-button/widget ()
+                  (command ()
+                    (icon refresh-component)
+                    (make-action))))
+              (replace-target-demo/widget "Toggle button"
+                (toggle-button/widget ()
+                  (command ()
+                    (icon refresh-component)
+                    (make-action))))
+              (replace-target-demo/widget "Drop down button"
+                (drop-down-button/widget ()
+                  (command ()
+                    (icon refresh-component)
+                    (make-action))))
+              (replace-target-demo/widget "List"
+                (list/widget ()
+                  (element/widget ()
+                    "John")
+                  (element/widget ()
+                    "Mary")
+                  (element/widget ()
+                    "Steve")
+                  (element/widget ()
+                    "Kate")))
+              (replace-target-demo/widget "Name value list"
+                (name-value-list/widget ()
+                  (name-value-group/widget (:title "Name")
+                    (name-value-pair/widget ()
+                      "First Name"
+                      "John")
+                    (name-value-pair/widget ()
+                      "Last Name"
+                      "Doe"))
+                  (name-value-group/widget (:title "Other")
+                    (name-value-pair/widget ()
+                      "Sex"
+                      "Male")
+                    (name-value-pair/widget ()
+                      "Age"
+                      "34"))))
+              (replace-target-demo/widget "Panel"
+                (panel/widget (:title-bar (title-bar/widget ()
+                                            "The panel's title")
+                                          :command-bar (command-bar/widget ()
+                                                         (command/widget ()
+                                                           (icon refresh-component)
+                                                           (make-action))))
+                  "John"))
+              (replace-target-demo/widget "Information message"
+                (component-message/widget (:category :information)
+                  "John has been added to the list of males"))
+              (replace-target-demo/widget "Warning message"
+                (component-message/widget (:category :warning)
+                  "John has been alreay added to the list of males"))
+              (replace-target-demo/widget "Error message"
+                (component-message/widget (:category :error)
+                  "Cannot add John to the list of females, he is a male"))
+              (replace-target-demo/widget "Component messages"
+                (component-messages/widget ()
+                  (component-message/widget (:permanent #t :category :information)
+                    "John has been added to the list of males")
+                  (component-message/widget (:permanent #t :category :warning)
+                    "John has been alreay added to the list of males")
+                  (component-message/widget (:permanent #t :category :error)
+                    "Cannot add John to the list of females, he is a male")
+                  (component-message/widget (:permanent #t :category :information)
+                    "Mary has been added to the list of females")
+                  (component-message/widget (:permanent #t :category :warning)
+                    "Mary has been alreay added to the list of females")
+                  (component-message/widget (:permanent #t :category :error)
+                    "Cannot add Mary to the list of males, she is a female")))
+              (replace-target-demo/widget "Table"
+                (table/widget (:columns (list (column/widget ()
+                                                "Male")
+                                              (column/widget ()
+                                                "Female")))
+                  (row/widget (:header "1")
+                    (cell/widget ()
+                      "John")
+                    (cell/widget ()
+                      "Mary"))
+                  (entire-row/widget (:header "2")
+                    "Entire row")
+                  (row/widget (:header "3")
+                    (cell/widget ()
+                      "Steve")
+                    (cell/widget ()
+                      "Kate"))))
+              (replace-target-demo/widget "Tree"
+                (tree/widget ()
+                  (node/widget ()
+                      "John"
+                    (node/widget ()
+                        "Mary")
+                    (node/widget ()
                         "Steve")
-                      (element/widget ()
-                        "Kate")))
-                  (replace-target-demo/widget "Name value list"
-                    (name-value-list/widget ()
-                      (name-value-group/widget (:title "Name")
-                        (name-value-pair/widget ()
-                          "First Name"
-                          "John")
-                        (name-value-pair/widget ()
-                          "Last Name"
-                          "Doe"))
-                      (name-value-group/widget (:title "Other")
-                        (name-value-pair/widget ()
-                          "Sex"
-                          "Male")
-                        (name-value-pair/widget ()
-                          "Age"
-                          "34"))))
-                  (replace-target-demo/widget "Panel"
-                    (panel/widget (:title-bar (title-bar/widget ()
-                                                "The panel's title")
-                                   :command-bar (command-bar/widget ()
-                                                  (command/widget ()
-                                                    (icon refresh-component)
-                                                    (make-action))))
-                      "John"))
-                  (replace-target-demo/widget "Information message"
-                    (component-message/widget (:category :information)
-                      "John has been added to the list of males"))
-                  (replace-target-demo/widget "Warning message"
-                    (component-message/widget (:category :warning)
-                      "John has been alreay added to the list of males"))
-                  (replace-target-demo/widget "Error message"
-                    (component-message/widget (:category :error)
-                      "Cannot add John to the list of females, he is a male"))
-                  (replace-target-demo/widget "Component messages"
-                    (component-messages/widget ()
-                      (component-message/widget (:permanent #t :category :information)
-                        "John has been added to the list of males")
-                      (component-message/widget (:permanent #t :category :warning)
-                        "John has been alreay added to the list of males")
-                      (component-message/widget (:permanent #t :category :error)
-                        "Cannot add John to the list of females, he is a male")
-                      (component-message/widget (:permanent #t :category :information)
-                        "Mary has been added to the list of females")
-                      (component-message/widget (:permanent #t :category :warning)
-                        "Mary has been alreay added to the list of females")
-                      (component-message/widget (:permanent #t :category :error)
-                        "Cannot add Mary to the list of males, she is a female")))
-                  (replace-target-demo/widget "Table"
-                    (table/widget (:columns (list (column/widget ()
-                                                    "Male")
-                                                  (column/widget ()
-                                                    "Female")))
-                      (row/widget (:header "1")
-                        (cell/widget ()
-                          "John")
-                        (cell/widget ()
-                          "Mary"))
-                      (entire-row/widget (:header "2")
-                        "Entire row")
-                      (row/widget (:header "3")
-                        (cell/widget ()
-                          "Steve")
-                        (cell/widget ()
-                          "Kate"))))
-                  (replace-target-demo/widget "Tree"
-                    (tree/widget ()
+                    (node/widget ()
+                        "Kate"
                       (node/widget ()
-                          "John"
-                        (node/widget ()
-                            "Mary")
-                        (node/widget ()
-                            "Steve")
-                        (node/widget ()
-                            "Kate"
-                          (node/widget ()
-                              "Fred")
-                          (node/widget ()
-                              "Susanne")))))
-                  (replace-target-demo/widget "Treeble"
-                    (treeble/widget (:columns (list (column/widget ()
-                                                      "Male")
-                                                    (column/widget ()
-                                                      "Female")))
-                      (nodrow/widget (:cells (list (cell/widget ()
-                                                     "John")
-                                                   (cell/widget ()
-                                                     "Mary")))
-                        (nodrow/widget (:cells (list (cell/widget ()
-                                                       "Steve")
-                                                     (cell/widget ()
-                                                       "Kate")))))))
-                  (replace-target-demo/widget "Tree navigator"
-                    (make-instance 'tree-level/widget
-                                   :path (path/widget () "Magyarország" "Dél-dunántúli régió")
-                                   :previous-sibling "Észak-magyarországi régió"
-                                   :next-sibling "Közép-magyarországi régió"
-                                   :descendants (tree/widget ()
-                                                  (node/widget ()
-                                                      "Pest megye"
-                                                    (node/widget ()
-                                                        "Budapest")
-                                                    (node/widget ()
-                                                        "Érd"))
-                                                  (node/widget ()
-                                                      "Zala megye"
-                                                    (node/widget ()
-                                                        "Zala"))
-                                                  (node/widget ()
-                                                      "Fejér megye"
-                                                    (node/widget ()
-                                                        "Székesfehérvár")
-                                                    (node/widget ()
-                                                        "Agárd")))
-                                   :node "Dél-magyarországi régió"))
-                  (replace-target-demo/widget "Graph"
-                    (graph/widget ()
-                      (vertex/widget (:vertex-id 0)
-                        "John")
-                      (vertex/widget (:vertex-id 1)
-                        "Mary")
-                      (vertex/widget (:vertex-id 2)
-                        "Steve")
-                      (vertex/widget (:vertex-id 3)
-                        "Kate")
-                      (edge/widget (:vertex-1 0 :vertex-2 1)
-                        "Likes")
-                      (edge/widget (:vertex-1 1 :vertex-2 2)
-                        "Dislikes")
-                      (edge/widget (:vertex-1 2 :vertex-2 3)
-                        "Friendly")
-                      (edge/widget (:vertex-1 3 :vertex-2 0)
-                        "Unfriendly"))))
-                (node/widget (:expanded #f)
-                    "Chart"
-                  (replace-target-demo/widget "Column"
-                    (column/chart (:title "Salary"
+                          "Fred")
+                      (node/widget ()
+                          "Susanne")))))
+              (replace-target-demo/widget "Treeble"
+                (treeble/widget (:columns (list (column/widget ()
+                                                  "Male")
+                                                (column/widget ()
+                                                  "Female")))
+                  (nodrow/widget (:cells (list (cell/widget ()
+                                                 "John")
+                                               (cell/widget ()
+                                                 "Mary")))
+                    (nodrow/widget (:cells (list (cell/widget ()
+                                                   "Steve")
+                                                 (cell/widget ()
+                                                   "Kate")))))))
+              (replace-target-demo/widget "Tree navigator"
+                (make-instance 'tree-level/widget
+                               :path (path/widget () "Magyarország" "Dél-dunántúli régió")
+                               :previous-sibling "Észak-magyarországi régió"
+                               :next-sibling "Közép-magyarországi régió"
+                               :descendants (tree/widget ()
+                                              (node/widget ()
+                                                  "Pest megye"
+                                                (node/widget ()
+                                                    "Budapest")
+                                                (node/widget ()
+                                                    "Érd"))
+                                              (node/widget ()
+                                                  "Zala megye"
+                                                (node/widget ()
+                                                    "Zala"))
+                                              (node/widget ()
+                                                  "Fejér megye"
+                                                (node/widget ()
+                                                    "Székesfehérvár")
+                                                (node/widget ()
+                                                    "Agárd")))
+                               :node "Dél-magyarországi régió"))
+              (replace-target-demo/widget "Graph"
+                (graph/widget ()
+                  (vertex/widget (:vertex-id 0)
+                    "John")
+                  (vertex/widget (:vertex-id 1)
+                    "Mary")
+                  (vertex/widget (:vertex-id 2)
+                    "Steve")
+                  (vertex/widget (:vertex-id 3)
+                    "Kate")
+                  (edge/widget (:vertex-1 0 :vertex-2 1)
+                    "Likes")
+                  (edge/widget (:vertex-1 1 :vertex-2 2)
+                    "Dislikes")
+                  (edge/widget (:vertex-1 2 :vertex-2 3)
+                    "Friendly")
+                  (edge/widget (:vertex-1 3 :vertex-2 0)
+                    "Unfriendly"))))
+            (node/widget (:expanded #f)
+                "Chart"
+              (replace-target-demo/widget "Column"
+                (column/chart (:title "Salary"
+                                      :width 400
+                                      :height 400)
+                  ("John" 12500)
+                  ("Mary" 14300)
+                  ("Steve" 9800)
+                  ("Kate" 13700)))
+              (replace-target-demo/widget "Flow"
+                "TODO")
+              (replace-target-demo/widget "Line"
+                "TODO")
+              (replace-target-demo/widget "Pie"
+                (pie/chart (:title "Salary"
                                    :width 400
                                    :height 400)
-                      ("John" 12500)
-                      ("Mary" 14300)
-                      ("Steve" 9800)
-                      ("Kate" 13700)))
-                  (replace-target-demo/widget "Flow"
-                    "TODO")
-                  (replace-target-demo/widget "Line"
-                    "TODO")
-                  (replace-target-demo/widget "Pie"
-                    (pie/chart (:title "Salary"
-                                :width 400
-                                :height 400)
-                      ("John" 12500)
-                      ("Mary" 14300)
-                      ("Steve" 9800)
-                      ("Kate" 13700)))
-                  (replace-target-demo/widget "Radar"
-                    "TODO")
-                  (replace-target-demo/widget "Scatter"
-                    "TODO")
-                  (replace-target-demo/widget "Stock"
-                    "TODO")
-                  (replace-target-demo/widget "Structure"
-                    "TODO"))
-                (node/widget (:expanded #f)
-                    "Book"
-                  (replace-target-demo/widget "Book"
-                    "TODO")
-                  (replace-target-demo/widget "Chapter"
-                    "TODO")
-                  (replace-target-demo/widget "Glossary"
-                    "TODO")
-                  (replace-target-demo/widget "Paragraph"
-                    "TODO")
-                  (replace-target-demo/widget "Toc"
-                    "TODO"))
-                (node/widget (:expanded #t)
-                    "Model"
-                  (replace-target-demo/widget "System"
-                    (make-value-inspector (asdf:find-system :hu.dwim.wui)))
-                  (replace-target-demo/widget "Module"
-                    (make-value-inspector (reduce 'asdf:find-component (list "src" "component") :initial-value (asdf:find-system :hu.dwim.wui.component))))
-                  (replace-target-demo/widget "Source file"
-                    (make-value-inspector (reduce 'asdf:find-component (list "src" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
-                  (replace-target-demo/widget "Text file"
-                    (pathname/text-file/inspector (asdf:system-relative-pathname :hu.dwim.wui "README")))
-                  (replace-target-demo/widget "Pathname"
-                    (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "src/component/api/api.lisp")))
-                  (replace-target-demo/widget "Package"
-                    (make-value-inspector (find-package :hu.dwim.wui)))
-                  (replace-target-demo/widget "Dictionary"
-                    (make-value-inspector (find-dictionary 'render-dictionary)))
-                  (replace-target-demo/widget "Defintion name"
-                    (symbol/definition-name/inspector ()
-                      'render-component))
-                  (replace-target-demo/widget "Special variable name"
-                    (symbol/special-variable-name/inspector ()
-                      '*xml-stream*))
-                  (replace-target-demo/widget "Type name"
-                    (symbol/type-name/inspector ()
-                      'components))
-                  (replace-target-demo/widget "Structure Class"
-                    (make-value-inspector (find-class 'package)))
-                  (replace-target-demo/widget "Structure direct slot definition"
-                    (make-value-inspector (first (class-direct-slots (find-class 'package)))))
-                  (replace-target-demo/widget "Structure effective slot definition"
-                    (make-value-inspector (first (class-slots (find-class 'package)))))
-                  (replace-target-demo/widget "Standard Class"
-                    (make-value-inspector (find-class 'parent/mixin)))
-                  (replace-target-demo/widget "Standard direct slot definition"
-                    (make-value-inspector (first (class-direct-slots (find-class 'parent/mixin)))))
-                  (replace-target-demo/widget "Standard effective slot definition"
-                    (make-value-inspector (first (class-slots (find-class 'parent/mixin)))))
-                  (replace-target-demo/widget "Lisp form"
-                    (t/lisp-form/inspector ()
-                      ｢;; a simple example
- (defun foo ()
-   (print `(#f #t 42 3.14 #\a "Hello World" #(1 2) :foo bar #'list ,42)))｣))
-                  (replace-target-demo/widget "Function"
-                    (make-value-inspector (fdefinition 'make-value-inspector)))
-                  (replace-target-demo/widget "Standard generic function"
-                    (make-value-inspector (fdefinition 'make-instance)))
-                  (replace-target-demo/widget "Standard method"
-                    (make-value-inspector (second (generic-function-methods (fdefinition 'handle-request)))))
-                  (replace-target-demo/widget "Test"
-                    (make-value-inspector (hu.dwim.stefil::find-test 'test)))) ;; TODO: make a simple test
-                (node/widget (:expanded #t)
-                    "Meta"
-                  (node/widget (:expanded #f)
-                      "Primitive"
-                    (replace-target-demo/widget "String"
-                      "TODO")
-                    (replace-target-demo/widget "Member"
-                      "TODO")
-                    (replace-target-demo/widget "Integer"
-                      "TODO")
-                    (replace-target-demo/widget "Float"
-                      "TODO"))
-                  (node/widget (:expanded #f)
-                      "Place"
-                    (replace-target-demo/widget "Lexical"
-                      "TODO")
-                    (replace-target-demo/widget "Special"
-                      "TODO")
-                    (replace-target-demo/widget "Slot"
-                      "TODO"))
-                  (node/widget (:expanded #t)
-                      "Object"
-                    (replace-target-demo/widget "Object"
-                      (make-value-inspector *server*))
-                    (replace-target-demo/widget "Object list"
-                      (make-value-inspector (list *server* *application* *session* *frame*)))
-                    (replace-target-demo/widget "Object tree"
-                      (make-value-inspector (list "John" "Mary" (list *server* *application* *session* *frame*) "Steve" "Kate")
-                                            :initial-alternative-type 'sequence/tree/inspector))
-                    ;; TODO: move these?
-                    (replace-target-demo/widget "Lisp form invoker"
-                      (vertical-list ()
-                        (t/lisp-form/invoker ()
-                          ｢(def function dwim (text &rest args &key (baz 0) &allow-other-keys)
-  (let* ((foo (sqrt baz))
-         (bar (1+ foo)))
-    (if (string= text "Hello World")
-        (length args)
-        (+ foo bar baz))))｣)
-                        (t/lisp-form/invoker (:evaluation-mode :multiple)
-                          (print "Hello World"))))
-                    (replace-target-demo/widget "Standard class tree viewer"
-                      (standard-class/tree/viewer ()
-                        (find-class 'component)))
-                    (replace-target-demo/widget "Standard class tree level viewer"
-                      (standard-class/tree-level/viewer ()
-                        (find-class 'tree-level/widget)))
-                    (replace-target-demo/widget "Book tree level viewer"
-                      (book/tree-level/viewer ()
-                        (find-book 'wui)))))
-                ;; TODO: delete this stuff
-                (node/widget (:expanded #f)
-                    "RANDOM"
-                  (replace-target-demo/widget "Lisp form list repl inspector"
-                    (lisp-form-list/repl/inspector ())))))
-            content))))))
+                  ("John" 12500)
+                  ("Mary" 14300)
+                  ("Steve" 9800)
+                  ("Kate" 13700)))
+              (replace-target-demo/widget "Radar"
+                "TODO")
+              (replace-target-demo/widget "Scatter"
+                "TODO")
+              (replace-target-demo/widget "Stock"
+                "TODO")
+              (replace-target-demo/widget "Structure"
+                "TODO"))
+            (node/widget (:expanded #f)
+                "Book"
+              (replace-target-demo/widget "Book"
+                "TODO")
+              (replace-target-demo/widget "Chapter"
+                "TODO")
+              (replace-target-demo/widget "Glossary"
+                "TODO")
+              (replace-target-demo/widget "Paragraph"
+                "TODO")
+              (replace-target-demo/widget "Toc"
+                "TODO"))
+            (node/widget (:expanded #t)
+                "Model"
+              (replace-target-demo/widget "System"
+                (make-value-inspector (asdf:find-system :hu.dwim.wui)))
+              (replace-target-demo/widget "Module"
+                (make-value-inspector (reduce 'asdf:find-component (list "src" "component") :initial-value (asdf:find-system :hu.dwim.wui.component))))
+              (replace-target-demo/widget "Source file"
+                (make-value-inspector (reduce 'asdf:find-component (list "src" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
+              (replace-target-demo/widget "Text file"
+                (pathname/text-file/inspector (asdf:system-relative-pathname :hu.dwim.wui "README")))
+              (replace-target-demo/widget "Pathname"
+                (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "src/component/api/api.lisp")))
+              (replace-target-demo/widget "Package"
+                (make-value-inspector (find-package :hu.dwim.wui)))
+              (replace-target-demo/widget "Dictionary"
+                (make-value-inspector (find-dictionary 'render-dictionary)))
+              (replace-target-demo/widget "Defintion name"
+                (symbol/definition-name/inspector ()
+                  'render-component))
+              (replace-target-demo/widget "Special variable name"
+                (symbol/special-variable-name/inspector ()
+                  '*xml-stream*))
+              (replace-target-demo/widget "Type name"
+                (symbol/type-name/inspector ()
+                  'components))
+              (replace-target-demo/widget "Structure Class"
+                (make-value-inspector (find-class 'package)))
+              (replace-target-demo/widget "Structure direct slot definition"
+                (make-value-inspector (first (class-direct-slots (find-class 'package)))))
+              (replace-target-demo/widget "Structure effective slot definition"
+                (make-value-inspector (first (class-slots (find-class 'package)))))
+              (replace-target-demo/widget "Standard Class"
+                (make-value-inspector (find-class 'parent/mixin)))
+              (replace-target-demo/widget "Standard direct slot definition"
+                (make-value-inspector (first (class-direct-slots (find-class 'parent/mixin)))))
+              (replace-target-demo/widget "Standard effective slot definition"
+                (make-value-inspector (first (class-slots (find-class 'parent/mixin)))))
+              (replace-target-demo/widget "Lisp form"
+                (t/lisp-form/inspector ()
+                  ｢ ;; a simple example
+                   (defun foo ()
+                     (print `(#f #t 42 3.14 #\a "Hello World" #(1 2) :foo bar #'list ,42)))｣))
+              (replace-target-demo/widget "Function"
+                (make-value-inspector (fdefinition 'make-value-inspector)))
+              (replace-target-demo/widget "Standard generic function"
+                (make-value-inspector (fdefinition 'make-instance)))
+              (replace-target-demo/widget "Standard method"
+                (make-value-inspector (second (generic-function-methods (fdefinition 'handle-request)))))
+              (replace-target-demo/widget "Test"
+                (make-value-inspector (hu.dwim.stefil::find-test 'test)))) ;; TODO: make a simple test
+            (node/widget (:expanded #t)
+                "Meta"
+              (node/widget (:expanded #f)
+                  "Primitive"
+                (replace-target-demo/widget "String"
+                  "TODO")
+                (replace-target-demo/widget "Member"
+                  "TODO")
+                (replace-target-demo/widget "Integer"
+                  "TODO")
+                (replace-target-demo/widget "Float"
+                  "TODO"))
+              (node/widget (:expanded #f)
+                  "Place"
+                (replace-target-demo/widget "Lexical"
+                  "TODO")
+                (replace-target-demo/widget "Special"
+                  "TODO")
+                (replace-target-demo/widget "Slot"
+                  "TODO"))
+              (node/widget (:expanded #t)
+                  "Object"
+                (replace-target-demo/widget "Object"
+                  (make-value-inspector *server*))
+                (replace-target-demo/widget "Object list"
+                  (make-value-inspector (list *server* *application* *session* *frame*)))
+                (replace-target-demo/widget "Object tree"
+                  (make-value-inspector (list "John" "Mary" (list *server* *application* *session* *frame*) "Steve" "Kate")
+                                        :initial-alternative-type 'sequence/tree/inspector))
+                ;; TODO: move these?
+                (replace-target-demo/widget "Lisp form invoker"
+                  (vertical-list ()
+                    (t/lisp-form/invoker ()
+                      ｢(def function dwim (text &rest args &key (baz 0) &allow-other-keys)
+                         (let* ((foo (sqrt baz))
+                                (bar (1+ foo)))
+                           (if (string= text "Hello World")
+                               (length args)
+                               (+ foo bar baz))))｣)
+                    (t/lisp-form/invoker (:evaluation-mode :multiple)
+                      (print "Hello World"))))
+                (replace-target-demo/widget "Standard class tree viewer"
+                  (standard-class/tree/viewer ()
+                                              (find-class 'component)))
+                (replace-target-demo/widget "Standard class tree level viewer"
+                  (standard-class/tree-level/viewer ()
+                                                    (find-class 'tree-level/widget)))
+                (replace-target-demo/widget "Book tree level viewer"
+                  (book/tree-level/viewer ()
+                                          (find-book 'wui)))))
+            ;; TODO: delete this stuff
+            (node/widget (:expanded #f)
+                "RANDOM"
+              (replace-target-demo/widget "Lisp form list repl inspector"
+                (lisp-form-list/repl/inspector ())))))
+        content))))
 
 #|
 ;; TODO: this must not be a widget
