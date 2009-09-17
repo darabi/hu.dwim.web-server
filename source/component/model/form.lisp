@@ -209,10 +209,10 @@
   `(make-instance 't/lisp-form/invoker ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
 
 (def render-xhtml t/lisp-form/invoker
-  <div (:class "lisp-form invoker")
-    ,(call-next-method)
-    ,(render-command-bar-for -self-)
-    <div (:class "result") ,(render-component (result-of -self-))>>)
+  (with-render-style/abstract (-self-)
+    (call-next-method)
+    (render-command-bar-for -self-)
+    <div (:class "result") ,(render-component (result-of -self-))>))
 
 (def (icon e) evaluate-form)
 

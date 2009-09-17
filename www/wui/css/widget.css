@@ -101,15 +101,15 @@ a.external-link
   border: 1px darkgray solid;
 }
 
-.lisp-form .line-number.first {
+.t.lisp-form.inspector .line-number.first {
   padding-top: 12px;
 }
 
-.lisp-form .line-number.last {
+.t.lisp-form.inspector .line-number.last {
   padding-bottom: 12px;
 }
 
-.lisp-form .line-number {
+.t.lisp-form.inspector .line-number {
   color: black;
   background-color: #dddddd;
   padding-left: 6px;
@@ -118,86 +118,86 @@ a.external-link
   margin-right: 6px;
 }
 
-.lisp-form .token {
+.t.lisp-form.inspector .token {
   font-style: italic;
 }
 
-.lisp-form .comment {
+.t.lisp-form.inspector .comment {
   color: darkgray;
 }
 
-.lisp-form .function {
+.t.lisp-form.inspector .function {
   color: black;
   font-weight: bold;
 }
 
-.lisp-form .quote {
+.t.lisp-form.inspector .quote {
   color: black;
   font-weight: bold;
 }
 
-.lisp-form .unquote {
+.t.lisp-form.inspector .unquote {
   color: black;
   font-weight: bold;
 }
 
-.lisp-form .backquote {
+.t.lisp-form.inspector .backquote {
   color: black;
   font-weight: bold;
 }
 
-.lisp-form .unqoute-splicing {
+.t.lisp-form.inspector .unqoute-splicing {
   color: black;
   font-weight: bold;
 }
 
-.lisp-form .lexical-error {
+.t.lisp-form.inspector .lexical-error {
   color: red;
   font-weight: bold;
 }
 
-.lisp-form .boolean {
+.t.lisp-form.inspector .boolean {
   color: darkgreen;
 }
 
-.lisp-form .character {
+.t.lisp-form.inspector .character {
   color: darkgreen;
 }
 
-.lisp-form .string {
+.t.lisp-form.inspector .string {
   color: darkgreen;
 }
 
-.lisp-form .number {
+.t.lisp-form.inspector .number {
   color: darkgreen;
 }
 
-.lisp-form .keyword {
+.t.lisp-form.inspector .keyword {
   color: darkred;
 }
 
-.lisp-form .common-lisp {
+.t.lisp-form.inspector .common-lisp {
   color: darkred;
 }
 
-.lisp-form .lambda-list-keyword {
+.t.lisp-form.inspector .lambda-list-keyword {
   color: darkblue;
 }
 
-.lisp-form .special-form {
+.t.lisp-form.inspector .special-form {
   color: darkred;
 }
 
-.lisp-form .definition .def {
+.t.lisp-form.inspector .definition .def {
   color: darkred;
 }
 
-.lisp-form .definition .kind {
+.t.lisp-form.inspector .definition .kind {
   color: darkblue;
   font-weight: bold;
 }
 
-.lisp-form .definition .name {
+.t.lisp-form.inspector .definition .name {
   color: darkred;
   font-weight: bold;
 }
