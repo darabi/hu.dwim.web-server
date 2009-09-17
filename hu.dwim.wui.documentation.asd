@@ -18,4 +18,5 @@
   :depends-on (:hu.dwim.wui.test
                :hu.dwim.wui)
   :components ((:module "documentation"
-                :components ((:file "package")))))
+                :components ((:file "package")
+                             (:file "wui" :depends-on ("package"))))))
