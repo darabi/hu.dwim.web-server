@@ -523,6 +523,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
                       (write-char #\Space)
                       (pprint-newline :fill)
                       (if (and (stringp value)
+                               *print-length*
                                (> (length value) *print-length*))
                           (progn
                             (prin1 (subseq value 0 *print-length*))
