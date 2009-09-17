@@ -31,10 +31,17 @@
   "The generic COMPONENT type, including supported primitive COMPONENT types: NUMBER and STRING."
   '(or number string component))
 
+(def (function e) component? (object)
+  (typep object 'component*))
+
 (def (type e) components (&optional element-type)
   "A polimorph type for a SEQUENCE of COMPONENTs."
   (declare (ignore element-type))
-  'sequence)
+  '(and sequence
+        (satisfies component-sequence?)))
+
+(def (function e) component-sequence? (sequence)
+  (every #'component? sequence))
 
 (def (component e) component ()
   ()
@@ -490,6 +497,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   (print-component self))
 
 (def method print-component ((self component) &optional (*standard-output* *standard-output*))
+  (declare (optimize debug))
   (if (and *print-level*
            (>= *component-print-level* *print-level*))
       (write-char #\#)
