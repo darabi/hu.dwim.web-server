@@ -68,7 +68,7 @@
     'boolean/inspector)
 
   (:method ((type (eql 'components)))
-    `(standard-object-list/inspector :the-class ,(find-class 'component)))
+    `(sequence/inspector :the-class ,(find-class 'component)))
 
   (:method ((type symbol))
     (find-inspector-type-for-type (find-type-by-name type)))
