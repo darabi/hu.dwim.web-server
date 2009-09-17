@@ -32,7 +32,7 @@
 (def (function e) reset-root-component (&optional (frame *frame*))
   (setf (root-component-of frame) nil))
 
-(def (function e) make-debug-menu-item ()
+(def (function e) make-debug-menu ()
   (menu-item/widget ()
       "Debug"
     (menu-item/widget ()
