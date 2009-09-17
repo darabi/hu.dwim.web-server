@@ -25,14 +25,16 @@
 ;;;;;;
 ;;; chapter/text/inspector
 
-(def (component e) chapter/text/inspector (t/text/inspector title/mixin)
+(def (component e) chapter/text/inspector (t/text/inspector collapsible/abstract title/mixin)
   ())
 
 
 (def render-xhtml chapter/text/inspector
   (with-render-style/abstract (-self-)
+    (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
-    (render-contents-for -self-)))
+    (when (expanded-component? -self-)
+      (render-contents-for -self-))))
 
 (def render-text chapter/text/inspector
   (write-text-line-begin)
