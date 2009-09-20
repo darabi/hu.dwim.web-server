@@ -204,7 +204,7 @@
     (typecase parent-component
       (place-inspector
        (bind ((place (place-of parent-component)))
-         (when (typep place 'slot-value-place)
+         (when (typep place 'instance-slot-place)
            (bind ((instance (instance-of place)))
              (values (class-of instance) instance (slot-of place))))))
       (t
@@ -853,8 +853,8 @@
 (def (macro e) make-lexical-variable-place-inspector (name type)
   `(make-place-inspector ,type :place (make-lexical-variable-place ,name ,type)))
 
-(def (function e) make-standard-object-slot-value-place-inspector (instance slot)
-  (bind ((place (make-slot-value-place instance slot)))
+(def (function e) make-standard-object-instance-slot-place-inspector (instance slot)
+  (bind ((place (make-instance-slot-place instance slot)))
     (make-place-inspector (place-type place) :place place)))
 
 (def (generic e) find-place-inspector-type-for-type (type)

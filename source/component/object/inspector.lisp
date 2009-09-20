@@ -147,8 +147,8 @@
         (setf label nil))
     (if instance
         (if value
-            (setf (place-of value) (make-slot-value-place instance slot))
-            (setf value (make-standard-object-slot-value-place-inspector instance slot)))
+            (setf (place-of value) (make-instance-slot-place instance slot))
+            (setf value (make-standard-object-instance-slot-place-inspector instance slot)))
         (setf value nil))))
 
 ;;;;;;

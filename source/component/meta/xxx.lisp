@@ -50,7 +50,7 @@
          (prototype (component-dispatch-prototype -self-))
          (slots (collect-slot-value-list/slots -self- class prototype component-value))
          (content-value (if slots
-                            (make-slot-value-place-list component-value slots)
+                            (make-place-group nil (mapcar [make-instance-slot-place component-value !1] slots))
                             component-value)))
     (if content
         (setf (component-value-of content) content-value)
@@ -63,12 +63,12 @@
 (def (layered-function e) make-slot-value-list/content (component class prototype value))
 
 ;;;;;;
-;;; slot-value-place-list/name-value-list/presentation
+;;; place-group/name-value-list/presentation
 
-(def (component e) slot-value-place-list/name-value-list/presentation (name-value-list/widget)
+(def (component e) place-group/name-value-list/presentation (name-value-list/widget)
   ())
 
-(def refresh-component slot-value-place-list/name-value-list/presentation
+(def refresh-component place-group/name-value-list/presentation
   (bind (((:slots component-value contents) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
@@ -85,18 +85,18 @@
 (def (layered-function e) collect-slot-value-group/slots (component class prototype value))
 
 ;;;;;;
-;;; slot-value-place-list/name-value-group/presentation
+;;; place-group/name-value-group/presentation
 
-(def (component e) slot-value-place-list/name-value-group/presentation (name-value-group/widget)
+(def (component e) place-group/name-value-group/presentation (name-value-group/widget)
   ())
 
-(def refresh-component slot-value-place-list/name-value-group/presentation
+(def refresh-component place-group/name-value-group/presentation
   (bind (((:slots component-value contents title) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
          (instance (instance-of component-value))
          (content-values (mapcar (lambda (slot)
-                                   (make-slot-value-place instance slot))
+                                   (make-instance-slot-place instance slot))
                                  (slots-of component-value))))
     (setf title (name-of component-value)
           contents (iter (for place :in content-values)
@@ -109,12 +109,12 @@
 (def (layered-function e) make-slot-value-group/content (component class prototype value))
 
 ;;;;;;
-;;; slot-value-place/name-value-pair/presentation
+;;; instance-slot-place/name-value-pair/presentation
 
-(def (component e) slot-value-place/name-value-pair/presentation (name-value-pair/widget)
+(def (component e) instance-slot-place/name-value-pair/presentation (name-value-pair/widget)
   ())
 
-(def refresh-component slot-value-place/name-value-pair/presentation
+(def refresh-component instance-slot-place/name-value-pair/presentation
   (bind (((:slots component-value name value) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
@@ -124,27 +124,27 @@
         (progn
           (setf name (make-slot-value-pair/name -self- class prototype component-value))
           (if value
-              (setf (component-value-of value) (make-slot-value-place instance slot))
+              (setf (component-value-of value) (make-instance-slot-place instance slot))
               (setf value (make-slot-value-pair/value -self- class prototype component-value))))
         (setf name nil
               value nil))))
 
 (def (layered-function e) make-slot-value-pair/name (component class prototype value)
-  (:method ((component slot-value-place/name-value-pair/presentation) class prototype value)
+  (:method ((component instance-slot-place/name-value-pair/presentation) class prototype value)
     (localized-slot-name (slot-of value)))
 
-  (:method :in raw-names-layer ((component slot-value-place/name-value-pair/presentation) class prototype value)
+  (:method :in raw-names-layer ((component instance-slot-place/name-value-pair/presentation) class prototype value)
     (qualified-symbol-name (slot-definition-name (slot-of value)))))
 
 (def (layered-function e) make-slot-value-pair/value (component class prototype value))
 
 ;;;;;;
-;;; slot-value-place/content/presentation
+;;; instance-slot-place/content/presentation
 
-(def (component e) slot-value-place/content/presentation (content/widget)
+(def (component e) instance-slot-place/content/presentation (content/widget)
   ())
 
-(def refresh-component slot-value-place/content/presentation
+(def refresh-component instance-slot-place/content/presentation
   (bind (((:slots component-value content) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
@@ -189,8 +189,8 @@
 
 ;; TODO: rename
 (def layered-methods make-slot-value-list/content
-  (:method ((component t/slot-value-list/inspector) class prototype (value slot-value-place-list))
-    (make-instance 'slot-value-place-list/name-value-list/inspector :component-value value))
+  (:method ((component t/slot-value-list/inspector) class prototype (value place-group))
+    (make-instance 'place-group/name-value-list/inspector :component-value value))
 
   (:method ((component t/slot-value-list/inspector) class prototype (value sequence))
     (make-instance 'sequence/list/inspector :component-value value))
@@ -205,52 +205,52 @@
     (make-instance 't/reference/inspector :component-value value :action nil :enabled #f)))
 
 ;;;;;;
-;;; slot-value-place-list/name-value-list/inspector
+;;; place-group/name-value-list/inspector
 
-(def (component e) slot-value-place-list/name-value-list/inspector (inspector/basic slot-value-place-list/name-value-list/presentation)
+(def (component e) place-group/name-value-list/inspector (inspector/basic place-group/name-value-list/presentation)
   ())
 
-(def layered-method collect-slot-value-group/slots ((component slot-value-place-list/name-value-list/inspector) class prototype (value slot-value-place-list))
+(def layered-method collect-slot-value-group/slots ((component place-group/name-value-list/inspector) class prototype (value place-group))
   (list value))
 
-(def layered-method make-slot-value-list/content ((component slot-value-place-list/name-value-list/inspector) class prototype (value slot-value-place-list))
-  (make-instance 'slot-value-place-list/name-value-group/inspector :component-value value))
+(def layered-method make-slot-value-list/content ((component place-group/name-value-list/inspector) class prototype (value place-group))
+  (make-instance 'place-group/name-value-group/inspector :component-value value))
 
 ;;;;;;
-;;; slot-value-place-list/name-value-group/inspector
+;;; place-group/name-value-group/inspector
 
-(def (component e) slot-value-place-list/name-value-group/inspector (inspector/basic slot-value-place-list/name-value-group/presentation)
+(def (component e) place-group/name-value-group/inspector (inspector/basic place-group/name-value-group/presentation)
   ())
 
-(def layered-method make-slot-value-group/content ((component slot-value-place-list/name-value-group/inspector) class prototype (value slot-value-place))
-  (make-instance 'slot-value-place/name-value-pair/inspector :component-value value))
+(def layered-method make-slot-value-group/content ((component place-group/name-value-group/inspector) class prototype (value instance-slot-place))
+  (make-instance 'instance-slot-place/name-value-pair/inspector :component-value value))
 
 ;;;;;;
-;;; slot-value-place/name-value-pair/inspector
+;;; instance-slot-place/name-value-pair/inspector
 
-(def (component e) slot-value-place/name-value-pair/inspector (inspector/basic slot-value-place/name-value-pair/presentation)
+(def (component e) instance-slot-place/name-value-pair/inspector (inspector/basic instance-slot-place/name-value-pair/presentation)
   ())
 
-(def layered-method make-slot-value-pair/value ((component slot-value-place/name-value-pair/inspector) class prototype value)
-  ;; TODO: add extra level of indirection called slot-value-place/content/inspector
-  (make-instance 'slot-value-place/content/inspector :component-value value))
+(def layered-method make-slot-value-pair/value ((component instance-slot-place/name-value-pair/inspector) class prototype value)
+  ;; TODO: add extra level of indirection called instance-slot-place/content/inspector?
+  (make-instance 'instance-slot-place/content/inspector :component-value value))
 
 ;;;;;;
-;;; slot-value-place/content/inspector
+;;; instance-slot-place/content/inspector
 
 ;; TODO:
-(def (component e) slot-value-place/content/inspector (inspector/basic slot-value-place/content/presentation)
+(def (component e) instance-slot-place/content/inspector (inspector/basic instance-slot-place/content/presentation)
   ())
 
-(def layered-method make-slot-value/content ((component slot-value-place/content/inspector) class prototype value)
+(def layered-method make-slot-value/content ((component instance-slot-place/content/inspector) class prototype value)
   (make-inspector (place-type value)
                   ;; TODO: handle unbound in a better way
                   (if (place-bound? value)
                       (value-at-place value)
                       "<unbound>")))
 
-(def layered-method find-inspector-type-for-prototype ((type slot-value-place))
-  'slot-value-place/content/inspector)
+(def layered-method find-inspector-type-for-prototype ((type instance-slot-place))
+  'instance-slot-place/content/inspector)
 
 
 

@@ -29,7 +29,7 @@
           (unless (edited? content)
             (revert-place-inspector-content self))
           content)
-        (if (typep place 'slot-value-place)
+        (if (typep place 'instance-slot-place)
             (bind ((instance (instance-of place)))
               (make-place-inspector-content self (class-of instance) instance (slot-of place)))
             (make-place-inspector-content self nil nil nil)))))

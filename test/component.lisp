@@ -377,7 +377,7 @@
   (bind ((content (content/widget ()
                     (or initial-content-component
                         (empty/layout)))))
-    (target-place/widget (:target-place (make-slot-value-place content 'hu.dwim.wui::content))
+    (target-place/widget (:target-place (make-instance-slot-place content 'hu.dwim.wui::content))
       (horizontal-list/layout ()
         (tree/widget ()
           (node/widget ()

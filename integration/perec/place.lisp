@@ -15,8 +15,8 @@
         (hu.dwim.perec::canonical-type-of slot)
         specified-type)))
 
-(def method slot-value-place-editable? ((place slot-value-place) (class hu.dwim.meta-model::entity) (instance hu.dwim.perec::persistent-object) (slot hu.dwim.meta-model::effective-property))
+(def method instance-slot-place-editable? ((place instance-slot-place) (class hu.dwim.meta-model::entity) (instance hu.dwim.perec::persistent-object) (slot hu.dwim.meta-model::effective-property))
   (hu.dwim.meta-model::editable-p slot))
 
-(def method slot-value-place-editable? ((place slot-value-place) (class computed-class) (instance computed-object) (slot computed-effective-slot-definition))
+(def method instance-slot-place-editable? ((place instance-slot-place) (class computed-class) (instance computed-object) (slot computed-effective-slot-definition))
   #f)

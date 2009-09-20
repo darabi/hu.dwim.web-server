@@ -34,6 +34,6 @@
 
 (def method join-editing ((self place-inspector))
   (bind ((place (place-of self)))
-    (when (or (not (typep place 'slot-value-place))
+    (when (or (not (typep place 'instance-slot-place))
               (hu.dwim.meta-model::authorize-operation 'hu.dwim.meta-model::write-entity-property-operation :-entity- (class-of (instance-of place)) :-property- (slot-of place)))
       (call-next-method))))
