@@ -34,7 +34,9 @@
   (:shadow #:class-prototype
            #:class-slots
            #:class-precedence-list
-           #:|defun|)
+           #:|defun|
+           #:build-backtrace-string
+           )
 
   (:shadowing-import-from :trivial-garbage
                           #:make-hash-table)

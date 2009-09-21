@@ -35,7 +35,7 @@
   (if (and *session*
            *inside-user-code*)
       (progn
-        (log-error-with-backtrace error)
+        (app.error (build-backtrace-string error))
         (bind ((request-uri (raw-uri-of *request*)))
           (if (or (not *response*)
                   (not (headers-are-sent-p *response*)))

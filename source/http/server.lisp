@@ -316,9 +316,7 @@
                             (first *brokers*))))
              ;; no need to handle (nested) errors here, see CALL-WITH-SERVER-ERROR-HANDLER.
              (handle-toplevel-error broker condition))
-           (server.dribble "HANDLE-TOPLEVEL-ERROR returned, worker continues..."))
-         (abort-unit-of-work-callback (error &key message &allow-other-keys)
-           (abort-server-request (or message error))))
+           (server.dribble "HANDLE-TOPLEVEL-ERROR returned, worker continues...")))
     (debug-only (assert (notany #'boundp '(*server* *brokers* *request* *response* *request-remote-host* *request-id*))))
     (bind ((*server* server)
            (*brokers* (list server))
@@ -331,7 +329,7 @@
             (unwind-protect-case (interrupted)
                 (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
                   (with-layered-error-handlers (#'handle-request-error
-                                                #'abort-unit-of-work-callback
+                                                'abort-server-request
                                                 :ignore-condition-callback (lambda (error)
                                                                              (is-error-from-client-stream? error stream-socket)))
                     (serve-one-request))
@@ -339,9 +337,9 @@
               (:always
                (block closing
                  (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
-                                                 (log-error-with-backtrace error :message (list "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block." (if interrupted "unwinding" "normally exiting")))
+                                                 (server.error (build-backtrace-string error :message (format nil "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block." (if interrupted "unwinding" "normally exiting"))))
                                                  (return-from closing))
-                                               #'abort-unit-of-work-callback)
+                                               'abort-server-request)
                    (server.dribble "Closing the socket")
                    (close stream-socket)))))
           (abort-server-request ()

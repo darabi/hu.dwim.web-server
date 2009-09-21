@@ -6,6 +6,9 @@
 
 (in-package :hu.dwim.wui)
 
+(def function build-backtrace-string (error &key message)
+  (hu.dwim.util:build-backtrace-string error :message message :timestamp (local-time:now)))
+
 (def (generic e) handle-toplevel-error (context error)
   (:method :before (context (condition serious-condition))
     (maybe-invoke-debugger condition :context context))
@@ -28,7 +31,7 @@
   (maybe-invoke-debugger condition :context broker))
 
 (def method handle-toplevel-error (broker (error serious-condition))
-  (log-error-with-backtrace error)
+  (server.error (build-backtrace-string error))
   (cond
     ((null *request*)
      (server.info "Internal server error while the request it not yet parsed, so closing the socket as-is without sending any useful error message.")
@@ -59,23 +62,3 @@
         (server.info "Access denied for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
   (abort-server-request "HANDLE-TOPLEVEL-ERROR succesfully handled the access denied error by sending an error page"))
 
-(def (function e) log-error-with-backtrace (error &key (logger (find-logger 'server)) (level +error+) message)
-  (handler-bind ((serious-condition
-                  (lambda (nested-error)
-                    (handler-bind ((serious-condition
-                                    (lambda (nested-error2)
-                                      (declare (ignore nested-error2))
-                                      (ignore-errors
-                                        (hu.dwim.logger:handle-log-message logger
-                                                                           (list "Failed to log backtrace due to another nested error...")
-                                                                           '+error+)))))
-                      (hu.dwim.logger:handle-log-message logger
-                                                         (list (format nil "Failed to log backtrace due to: ~A. The orignal error is: ~A" nested-error error))
-                                                         '+error+)))))
-    (setf logger (find-logger logger))
-    (when (hu.dwim.logger::enabled-p logger level)
-      (bind ((log-line (build-backtrace-string error
-                                               :message (when message
-                                                          (apply #'format t (ensure-list message)))
-                                               :timestamp (local-time:now))))
-        (hu.dwim.logger:handle-log-message logger log-line (elt hu.dwim.logger::+log-level-names+ level))))))

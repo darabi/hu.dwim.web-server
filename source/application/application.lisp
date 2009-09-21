@@ -505,33 +505,27 @@ Custom implementations should look something like this:
       (iter (for (session-id session) :in-hashtable (session-id->session-of application))
             (if (is-session-alive? session)
                 (push session live-sessions)
-                (block deleting-a-session
-                  (handler-bind ((serious-condition
-                                  (lambda (error)
-                                    (log-error-with-backtrace error :logger (find-logger 'app) :level +warn+
-                                                              :message (list "Could not delete expired/invalid session ~A of application ~A, got error ~A"
-                                                                             session application error))
-                                    (return-from deleting-a-session))))
+                (block deleting-session
+                  (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
+                                                  (app.error "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error))
+                                                (lambda (&key &allow-other-keys)
+                                                  (return-from deleting-session)))
                     (delete-session application session)
                     (push session deleted-sessions))))))
     (dolist (session deleted-sessions)
-      (block noifying-a-session
-        (handler-bind ((serious-condition
-                        (lambda (error)
-                          (log-error-with-backtrace error :logger (find-logger 'app) :level +warn+
-                                                    :message (list "Error happened while notifying session ~A of application ~A about its exiration, got error ~A"
-                                                                   session application error))
-                          (return-from noifying-a-session))))
+      (block noifying-session
+        (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
+                                        (app.error "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error))
+                                      (lambda (&key &allow-other-keys)
+                                        (return-from noifying-session)))
           (with-lock-held-on-session (session)
             (notify-session-expiration application session)))))
     (dolist (session live-sessions)
-      (block purging-a-session
-        (handler-bind ((serious-condition
-                        (lambda (error)
-                          (log-error-with-backtrace error :logger (find-logger 'app) :level +warn+
-                                                    :message (list "Error happened while purging frames of ~A of application ~A. Got error ~A"
-                                                                   session application error))
-                          (return-from purging-a-session))))
+      (block purging-session-frames
+        (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
+                                        (app.error "Error happened while purging frames of ~A of application ~A. Got error ~A" session application error))
+                                      (lambda (&key &allow-other-keys)
+                                        (return-from purging-session-frames)))
           (with-lock-held-on-session (session)
             (purge-frames application session)))))
     (values)))
