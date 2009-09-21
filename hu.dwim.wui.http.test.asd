@@ -18,7 +18,11 @@
   :licence "BSD / Public domain (sans advertising clause)"
   :depends-on (:drakma
                :hu.dwim.def+hu.dwim.stefil
-               :hu.dwim.wui.http)
+               :hu.dwim.wui.http
+               ;; let's enforce loading a few swank integrations for convenient development
+               :hu.dwim.util+swank
+               :hu.dwim.syntax-sugar+swank
+               )
   :components ((:module "test"
                 :components ((:file "package")
                              (:file "environment" :depends-on ("package"))
