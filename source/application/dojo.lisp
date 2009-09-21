@@ -39,13 +39,15 @@
    ))
 
 (def (function e) find-latest-dojo-directory-name (www-directory)
-  (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
-                                           (mapcar [last-elt (pathname-directory !1)]
-                                                   (cl-fad:list-directory www-directory)))
-                                #'string>=))))
-    (unless dojo-dir
-      (cerror "Ignore" "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" www-directory))
-    (string+ dojo-dir "/")))
+  (loop
+     (with-simple-restart (retry "Try searching for dojo directories again in ~A" www-directory)
+       (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
+                                                (mapcar [last-elt (pathname-directory !1)]
+                                                        (cl-fad:list-directory www-directory)))
+                                     #'string>=))))
+         (if dojo-dir
+             (return (string+ dojo-dir "/"))
+             (cerror "Ignore" "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" www-directory))))))
 
 (def with-macro with-dojo-widget-collector ()
   (bind ((*dojo-widget-ids* nil))
