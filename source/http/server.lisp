@@ -509,7 +509,7 @@
                                                          content-disposition-filename
                                                          content-disposition-size
                                                          (stream (client-stream-of *request*))
-                                                         (seconds-until-expires #.(* 24 60 60)))
+                                                         (seconds-until-expires #.(* 1 60 60)))
     (:last-modified-at last-modified-at
      :seconds-until-expires seconds-until-expires
      :headers headers
