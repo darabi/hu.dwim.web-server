@@ -207,12 +207,12 @@
   (icon-label.ponated "Ponált")
   (icon-tooltip.ponated "Ponált feltétel")
 
-  (predicate.= "Egyenlő")
-  (predicate.~ "Hasonló")
-  (predicate.< "Kisebb")
-  (predicate.≤ "Kisebb vagy egyenlő")
-  (predicate.> "Nagyobb")
-  (predicate.≥ "Nagyobb vagy egyenlő"))
+  (predicate.equal "Egyenlő")
+  (predicate.like "Hasonló")
+  (predicate.less-than "Kisebb")
+  (predicate.less-than-or-equal "Kisebb vagy egyenlő")
+  (predicate.greater-than "Nagyobb")
+  (predicate.greater-than-or-equal "Nagyobb vagy egyenlő"))
 
 ;;;;;;
 ;;; Movable

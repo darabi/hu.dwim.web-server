@@ -207,12 +207,12 @@
   (icon-label.ponated "Ponated")
   (icon-tooltip.ponated "Ponate condition")
 
-  (predicate.= "Equal")
-  (predicate.~ "Like")
-  (predicate.< "Smaller than")
-  (predicate.≤ "Smaller than or equal")
-  (predicate.> "Greater than")
-  (predicate.≥ "Greater than or equal"))
+  (predicate.equal "Equal")
+  (predicate.like "Like")
+  (predicate.less-than "Less than")
+  (predicate.less-than-or-equal "Less than or equal")
+  (predicate.greater-than "Greater than")
+  (predicate.greater-than-or-equal "Greater than or equal"))
 
 ;;;;;;
 ;;; Movable
