@@ -7,9 +7,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; abstract-place
+;;; place
 
-(def (class* e) abstract-place ()
+(def (class* e) place ()
   ()
   (:documentation "PLACE is a location where data can be stored at and retrieved from."))
 
@@ -43,11 +43,11 @@
 ;;;;;;
 ;;; basic-place
 
-(def (class* e) basic-place (abstract-place)
+(def (class* e) basic-place (place)
   ((name :type symbol)
    (initform :type t)
-   (the-type :type t))
-  (:documentation "An abstract basic PLACE with a few properties."))
+   (the-type t :type t))
+  (:documentation "An abstract basic PLACE."))
 
 (def method place-name ((self basic-place))
   (name-of self))
@@ -74,29 +74,51 @@
 ;;; functional-place
 
 (def (class* e) functional-place (basic-place)
-  ((argument :type t)
-   (getter :type function)
+  ((getter :type function)
    (setter :type function))
-  (:documentation "A PLACE that is get and set by using lambda functions called with its argument."))
+  (:documentation "A PLACE that is get and set by using lambda functions."))
 
 (def method value-at-place ((self functional-place))
-  (funcall (getter-of self) (argument-of self)))
+  (funcall (getter-of self)))
 
 (def method (setf value-at-place) (new-value (self functional-place))
+  (funcall (setter-of self) new-value))
+
+(def (function e) make-functional-place (name getter setter &key (type t))
+  (make-instance 'functional-place
+                 :name name
+                 :getter getter
+                 :setter setter
+                 :the-type type))
+
+
+;;;;;;
+;;; simple-functional-place
+
+(def (class* e) simple-functional-place (functional-place)
+  ((argument :type t))
+  (:documentation "A PLACE that is get and set by using lambda functions on a single argument."))
+
+(def method value-at-place ((self simple-functional-place))
+  (funcall (getter-of self) (argument-of self)))
+
+(def method (setf value-at-place) (new-value (self simple-functional-place))
   (funcall (setter-of self) new-value (argument-of self)))
 
-(def (function e) make-functional-place (argument name)
-  (make-instance 'functional-place
+(def (function e) make-simple-functional-place (argument name &key (type t))
+  (make-instance 'simple-functional-place
                  :argument argument
                  :name name
                  :getter (fdefinition name)
-                 :setter (fdefinition `(setf ,name))))
+                 :setter (fdefinition `(setf ,name))
+                 :the-type type))
 
 ;;;;;;
 ;;; variable-place
 
 (def (class*) variable-place (basic-place)
-  ())
+  ()
+  (:documentation "An abstract PLACE for a variable."))
 
 ;;;;;;
 ;;; special-variable-place
@@ -120,26 +142,19 @@
 (def method (setf value-at-place) (new-value (self special-variable-place))
   (setf (symbol-value (name-of self)) new-value))
 
-(def (function e) make-special-variable-place (name type)
+(def (function e) make-special-variable-place (name &key (type t))
   (make-instance 'special-variable-place :name name :the-type type))
 
 ;;;;;;
 ;;; lexical-variable-place
 
-(def class* lexical-variable-place (variable-place)
-  ((getter :type function)
-   (setter :type function))
+(def (class* e) lexical-variable-place (variable-place functional-place)
+  ()
   (:documentation "A PLACE for a lexical variable."))
 
-(def method value-at-place ((self lexical-variable-place))
-  (funcall (getter-of self)))
-
-(def method (setf value-at-place) (new-value (self lexical-variable-place))
-  (funcall (setter-of self) new-value))
-
-(def (macro e) make-lexical-variable-place (name type)
+(def (macro e) make-lexical-variable-place (name &key (type t))
   `(make-instance 'lexical-variable-place
-                  :name ,name
+                  :name ',name
                   :the-type ,type
                   :getter (lambda ()
                             ,name)
@@ -147,35 +162,43 @@
                             (setf ,name value))))
 
 ;;;;;;
-;;; sequence-place
+;;; sequence-element-place
 
-(def class* sequence-place (basic-place)
+(def (class* e) sequence-element-place (basic-place)
   ((sequence :type sequence)
-   (index :type integer)))
+   (index :type integer))
+  (:documentation "A PLACE for an element of a sequence."))
 
-(def method value-at-place ((self basic-place))
+(def method place-type ((self sequence-element-place))
+  (bind ((sequence (sequence-of self)))
+    (if (consp sequence)
+        t
+        (array-element-type sequence))))
+
+(def method value-at-place ((self sequence-element-place))
   (elt (sequence-of self) (index-of self)))
 
-(def method (setf value-at-place) (new-value (self basic-place))
+(def method (setf value-at-place) (new-value (self sequence-element-place))
   (setf (elt (sequence-of self) (index-of self)) new-value))
 
-(def (function e) make-sequence-place (sequence index)
-  (make-instance 'sequence-place
+(def (function e) make-sequence-element-place (sequence index)
+  (make-instance 'sequence-element-place
                  :sequence sequence
-                 :index index))
+                 :index index
+                 :name index))
 
 ;;;;;;
-;;; instance-slot-place
+;;; object-slot-place
 
-(def class* instance-slot-place (abstract-place)
+(def (class* e) object-slot-place (place)
   ((instance :type standard-object)
    (slot :type standard-effective-slot-definition))
-  (:documentation "A PLACE for a particular slot of a STANDARD-OBJECT instance."))
+  (:documentation "A PLACE for a particular slot of an object instance."))
 
-(def (generic e) instance-slot-place-editable? (place class instance slot)
+(def (generic e) object-slot-place-editable? (place class instance slot)
   (:documentation "TRUE means the PLACE can be edited and set to other values, otherwise FALSE.")
 
-  (:method  ((place instance-slot-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
+  (:method  ((place object-slot-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
     #t))
 
 (def generic slot-type (slot)
@@ -188,49 +211,49 @@
   (:method ((slot sb-pcl::structure-slot-definition))
     (slot-definition-type slot)))
 
-(def method place-name ((self instance-slot-place))
+(def method place-name ((self object-slot-place))
   (slot-definition-name (slot-of self)))
 
-(def method place-documentation ((self instance-slot-place))
+(def method place-documentation ((self object-slot-place))
   (documentation (slot-of self) t))
 
-(def method place-type ((self instance-slot-place))
+(def method place-type ((self object-slot-place))
   (slot-type (slot-of self)))
 
-(def method place-editable? ((self instance-slot-place))
+(def method place-editable? ((self object-slot-place))
   (bind ((instance (instance-of self))
          (class (class-of instance)))
-    (instance-slot-place-editable? self class instance (slot-of self))))
+    (object-slot-place-editable? self class instance (slot-of self))))
 
-(def method place-bound? ((self instance-slot-place))
+(def method place-bound? ((self object-slot-place))
   (bind ((instance (instance-of self))
          (class (class-of instance)))
     (slot-boundp-using-class class (instance-of self) (slot-of self))))
 
-(def method make-place-unbound ((self instance-slot-place))
+(def method make-place-unbound ((self object-slot-place))
   (bind ((instance (instance-of self))
          (class (class-of instance)))
     (slot-makunbound-using-class class (instance-of self) (slot-of self))))
 
-(def method value-at-place ((self instance-slot-place))
+(def method value-at-place ((self object-slot-place))
   (bind ((instance (instance-of self))
          (class (class-of instance)))
     (slot-value-using-class class (instance-of self) (slot-of self))))
 
-(def method (setf value-at-place) (new-value (self instance-slot-place))
+(def method (setf value-at-place) (new-value (self object-slot-place))
   (bind ((instance (instance-of self))
          (class (class-of instance)))
     (setf (slot-value-using-class class (instance-of self) (slot-of self)) new-value)))
 
-(def (function e) make-instance-slot-place (instance slot)
+(def (function e) make-object-slot-place (instance slot)
   (when (symbolp slot)
     (setf slot (find-slot (class-of instance) slot)))
-  (make-instance 'instance-slot-place :instance instance :slot slot))
+  (make-instance 'object-slot-place :instance instance :slot slot))
 
 ;;;;;;
 ;;; place-group
 
-(def class* place-group ()
+(def (class* e) place-group ()
   ((name :type string)
    (places :type list))
   (:documentation "A list of PLACEs with a given name."))
