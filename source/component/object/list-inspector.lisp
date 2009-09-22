@@ -215,7 +215,7 @@
 (def refresh-component standard-object-slot-value-cell-component
   (bind (((:slots instance slot content) -self-))
     (if slot
-        (setf content (make-instance 'place-inspector :place (make-instance-slot-place instance slot)))
+        (setf content (make-instance 'place-inspector :place (make-object-slot-place instance slot)))
         (setf content nil))))
 
 ;;;;;;

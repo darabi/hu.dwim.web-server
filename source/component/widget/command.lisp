@@ -34,6 +34,7 @@
     :type t)))
 
 ;; TODO: don't generate such a big code if possible
+;; TODO: refactor this macro so that subclasses can reuse the code here
 (def (macro e) command/widget ((&key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path application-relative-path
                                      (delayed-content nil delayed-content-provided?)
                                      (send-client-state #t send-client-state-provided?))

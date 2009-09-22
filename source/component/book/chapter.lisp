@@ -33,6 +33,7 @@
   (with-render-style/abstract (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
+    <br>
     (when (expanded-component? -self-)
       (render-contents-for -self-))))
 

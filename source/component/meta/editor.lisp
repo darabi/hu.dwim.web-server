@@ -39,5 +39,8 @@
 ;;;;;;
 ;;; Editor factory
 
+(def layered-method make-value-editor (value &rest args)
+  (apply #'make-editor (class-of value) value args))
+
 (def layered-method make-editor (type value &rest args &key &allow-other-keys)
   (apply #'make-inspector type value :editable #f :edited #t args))

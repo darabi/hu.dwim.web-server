@@ -74,10 +74,10 @@
     (render-component cell))
 
   (:method :in xhtml-layer ((table table/widget) (row row/widget) (column column/widget) (cell component))
-    <td ,(render-component cell)>)
+    <td (:class "cell widget") ,(render-component cell)>)
 
   (:method :in xhtml-layer ((table table/widget) (row row/widget) (column column/widget) (cell string))
-    <td ,(render-component cell)>)
+    <td (:class "cell widget") ,(render-component cell)>)
 
   (:method :in ods-layer ((table table/widget) (row row/widget) (column column/widget) (cell component))
     <table:table-cell ,(render-component cell)>)

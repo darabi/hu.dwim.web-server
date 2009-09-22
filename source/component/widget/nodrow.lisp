@@ -74,7 +74,7 @@
 
 (def (function e) render-nodrow-expander-cell (nodrow)
   (bind ((expander-cell (elt (cells-of nodrow) (expander-column-index-of *tree*))))
-    <td (:class "expander")
+    <td (:class "expander cell widget")
         ,(render-nodrow-expander nodrow)
         ,(if (stringp expander-cell)
              (render-component expander-cell)
@@ -93,7 +93,7 @@
                 (render-nodrow-expander-cell self)
                 (render-table-row-cell *tree* self column cell))))))
 
-;; TODO: rename and factor into mixin/abstract classes
+;; TODO: rename and factor into mixin/abstract classes and with the one found in cell.lisp
 (def layered-methods render-table-row-cell
   (:method :before ((table treeble/widget) (row nodrow/widget) (column column/widget) (cell cell/widget))
     (ensure-refreshed cell))
@@ -102,10 +102,10 @@
     (render-component cell))
 
   (:method :in xhtml-layer ((table treeble/widget) (row nodrow/widget) (column column/widget) (cell component))
-    <td ,(render-component cell)>)
+    <td (:class "cell widget") ,(render-component cell)>)
 
   (:method :in xhtml-layer ((table treeble/widget) (row nodrow/widget) (column column/widget) (cell string))
-    <td ,(render-component cell)>)
+    <td (:class "cell widget") ,(render-component cell)>)
 
   (:method :in ods-layer ((table treeble/widget) (row nodrow/widget) (column column/widget) (cell component))
     <table:table-cell ,(render-component cell)>)

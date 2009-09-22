@@ -71,21 +71,21 @@
   (render-null-component))
 
 ;;;;;;
-;;; t/abstract
+;;; t/print-eval/abstract
 
-(def (component e) t/abstract (primitive/abstract)
+(def (component e) t/print-eval/abstract (primitive/abstract)
   ())
 
 (def function render-t-component (component)
   (render-string-field "text" (print-component-value component) (client-state-sink-of component)))
 
-(def method print-component-value ((component t/abstract))
+(def method print-component-value ((component t/print-eval/abstract))
   (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
     (if has-component-value?
         (format nil "~S" component-value)
         #"value.unbound")))
 
-(def method parse-component-value ((component t/abstract) client-value)
+(def method parse-component-value ((component t/print-eval/abstract) client-value)
   (if (zerop (length client-value))
       (values nil #t)
       (bind ((*read-eval* #f))
@@ -104,14 +104,35 @@
       (string-to-lisp-boolean client-value)))
 
 ;;;;;;
+;;; character/abstract
+
+(def (component e) character/abstract (primitive/abstract)
+  ())
+
+(def method string-field-type ((self primitive/abstract))
+  "text")
+
+(def method print-component-value ((component primitive/abstract))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        (princ-to-string component-value))))
+
+(def method parse-component-value ((component character/abstract) client-value)
+  (if (string= client-value "")
+      nil
+      ;; KLUDGE: fix this
+      (name-char (string+ "LATIN_CAPITAL_LETTER_" client-value))))
+
+;;;;;;
 ;;; string/abstract
 
 (def (component e) string/abstract (primitive/abstract)
   ())
 
-(def generic string-field-type (component)
-  (:method ((self string/abstract))
-    "text"))
+(def method string-field-type ((self string/abstract))
+  "text")
 
 (def function render-string-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-down on-key-up)
   (render-string-field (string-field-type component)
@@ -329,7 +350,7 @@
 
 (def (component e) member/abstract (primitive/abstract)
   ((possible-values)
-   (comparator #'equal)
+   (predicate #'equal)
    (key #'identity)
    (client-name-generator 'localized-member-component)))
 

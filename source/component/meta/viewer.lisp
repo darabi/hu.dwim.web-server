@@ -39,5 +39,8 @@
 ;;;;;;
 ;;; Viewer factory
 
+(def layered-method make-value-viewer (value &rest args)
+  (apply #'make-viewer (class-of value) value args))
+
 (def layered-method make-viewer (type value &rest args &key &allow-other-keys)
   (apply #'make-inspector type value :editable #f :edited #f args))

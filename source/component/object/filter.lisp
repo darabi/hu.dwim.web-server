@@ -160,7 +160,7 @@
                                                     (make-set-place-to-find-instance-command self))))
 
 (def method collect-possible-filter-predicates ((self standard-object-place-filter))
-  '(=))
+  '(equal))
 
 ;;;;;;
 ;;; Filter

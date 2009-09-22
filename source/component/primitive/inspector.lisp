@@ -17,17 +17,10 @@
     (ensure-client-state-sink -self-)))
 
 ;;;;;;
-;;; t/inspector
+;;; unbound/inspector
 
-#+nil
-(def (component e) t/inspector (t/abstract primitive/inspector)
+(def (component e) unbound/inspector (unbound/abstract primitive/inspector)
   ())
-
-#+nil
-(def render-xhtml t/inspector
-  (if (edited-component? -self-)
-      (render-t-component -self-)
-      `xml,(print-component-value -self-)))
 
 ;;;;;;
 ;;; boolean/inspector
@@ -66,9 +59,21 @@
                       ,#"boolean.false">) >))>))
 
 ;;;;;;
+;;; character/inspector
+
+(def (component e) character/inspector (character/abstract primitive/inspector)
+  ())
+
+(def render-xhtml character/inspector
+  (bind (((:read-only-slots edited-component) -self-))
+    (if edited-component
+        (render-string-component -self-)
+        `xml,(print-component-value -self-))))
+
+;;;;;;
 ;;; string/inspector
 
-(def (component e) string/inspector (string/abstract primitive/inspector inspector/basic)
+(def (component e) string/inspector (string/abstract primitive/inspector)
   ())
 
 (def render-xhtml string/inspector

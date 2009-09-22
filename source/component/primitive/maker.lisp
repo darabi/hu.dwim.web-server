@@ -25,15 +25,6 @@
     <span ,#"value.defaults-to" ,(princ-to-string (initform-of component))>))
 
 ;;;;;;
-;;; t/maker
-
-(def (component e) t/maker (t/abstract primitive/maker)
-  ())
-
-(def render-xhtml t/maker
-  (render-t-component -self-))
-
-;;;;;;
 ;;; boolean/maker
 
 (def (component e) boolean/maker (boolean/abstract primitive/maker)
@@ -71,6 +62,12 @@
                               "yes")))
                  <option (:selected ,selected)
                          ,#"boolean.false">) >)))
+
+;;;;;;
+;;; character/maker
+
+(def (component e) character/maker (character/abstract primitive/maker)
+  ())
 
 ;;;;;;
 ;;; string/maker

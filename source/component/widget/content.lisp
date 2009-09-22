@@ -28,8 +28,8 @@
   ()
   (:documentation "A COMPONENT with style, remote setup, context menu and several COMPONENTs inside."))
 
-(def (macro e) contents/widget ((&rest args &key &allow-other-keys) &body content)
-  `(make-instance 'contents/widget ,@args :content ,(the-only-element content)))
+(def (macro e) contents/widget ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'contents/widget ,@args :contents (list ,@contents)))
 
 (def render-xhtml contents/widget
   (with-render-style/abstract (-self-)

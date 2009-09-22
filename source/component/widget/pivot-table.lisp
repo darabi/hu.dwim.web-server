@@ -104,6 +104,7 @@
       (command ()
         (find-icon icon)
         (make-action
+          ;; TODO: revive
           (remove-place (make-component-place axis))
           (appendf (slot-value pivot-table slot-name) (list axis))
           (mark-to-be-refreshed-component pivot-table))))))

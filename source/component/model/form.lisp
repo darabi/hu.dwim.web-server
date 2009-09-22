@@ -298,7 +298,6 @@
     (source-text::enable-sharp-boolean-syntax readtable)
     (source-text::enable-shebang-syntax readtable)))
 
-
 ;;;;;;
 ;;; TODO: Move to reader? or kill this code fragment
 

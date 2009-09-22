@@ -83,4 +83,4 @@
     (with-render-to-xhtml-string-context
       (call-in-rendering-environment *application* *session*
                                      (lambda ()
-                                       (ajax-aware-render component))))))
+                                       (ajax-aware-render (force component)))))))

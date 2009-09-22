@@ -86,7 +86,7 @@
   (bind (((:slots component-value) -self-))
     (if (probe-file (merge-pathnames "_darcs" (path-of component-value)))
         <iframe (:width "100%" :height "600px" :style "border: none;"
-                 :src `str("/cgi-bin/darcsweb.cgi?r=LIVE " ,(name-of component-value) ";a=summary"))>
+                 :src `str("/darcsweb?r=LIVE " ,(name-of component-value) ";a=summary"))>
         <span "Unknown or no repository for " ,(name-of component-value)>)))
 
 ;;;;;;

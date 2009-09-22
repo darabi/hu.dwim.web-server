@@ -16,16 +16,6 @@
   `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of component) #t))
 
 ;;;;;;
-;;; t/filter
-
-(def (component e) t/filter (t/abstract primitive/filter)
-  ())
-
-(def render-xhtml t/filter
-  (ensure-client-state-sink -self-)
-  (render-t-component -self-))
-
-;;;;;;
 ;;; boolean/filter
 
 (def (component e) boolean/filter (boolean/abstract primitive/filter)
@@ -63,13 +53,19 @@
                          ,#"boolean.false">)>)))
 
 ;;;;;;
+;;; character/filter
+
+(def (component e) character/filter (character/abstract primitive/filter)
+  ())
+
+;;;;;;
 ;;; string/filter
 
 (def (component e) string/filter (string/abstract primitive/filter)
   ((component-value nil)))
 
 (def method collect-possible-filter-predicates ((self string/filter))
-  '(~ = < ≤ > ≥))
+  '(like equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml string/filter
   (ensure-client-state-sink -self-)
@@ -96,7 +92,7 @@
   ())
 
 (def method collect-possible-filter-predicates ((self number/filter))
-  '(= < ≤ > ≥))
+  '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml number/filter
   (ensure-client-state-sink -self-)
@@ -127,7 +123,7 @@
   (render-date-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 (def method collect-possible-filter-predicates ((self date/filter))
-  '(= < ≤ > ≥))
+  '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
 ;;; time/filter
@@ -140,7 +136,7 @@
   (render-time-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 (def method collect-possible-filter-predicates ((self time/filter))
-  '(= < ≤ > ≥))
+  '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
 ;;; timestamp/filter
@@ -153,7 +149,7 @@
   (render-timestamp-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 (def method collect-possible-filter-predicates ((self timestamp/filter))
-  '(= < ≤ > ≥))
+  '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
 ;;; member/filter
@@ -162,7 +158,7 @@
   ())
 
 (def method collect-possible-filter-predicates ((self member/filter))
-  '(=))
+  '(equal))
 
 (def render-xhtml member/filter
   (ensure-client-state-sink -self-)

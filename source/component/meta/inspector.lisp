@@ -39,13 +39,16 @@
 ;;;;;;
 ;;; Inspector factory
 
+(def layered-method make-value-inspector (value &rest args)
+  (apply #'make-inspector (class-of value) value args))
+
 (def layered-method make-inspector (type value &rest args &key &allow-other-keys)
   "A TYPE specifier is either
-     - a primitive type name such as boolean, integer, string
-     - a parameterized type specifier such as (integer 100 200) 
-     - a compound type specifier such as (or null string)
-     - a type alias refering to a parameterized or compound type such as standard-text
-     - a CLOS class name such as standard-object or audited-object
+     - a primitive type name such as BOOLEAN, INTEGER, STRING
+     - a parameterized type specifier such as (INTEGER 100 200) 
+     - a compound type specifier such as (OR NULL STRING)
+     - a type alias refering to a parameterized or compound type such as STANDARD-TEXT
+     - a CLOS class name such as STANDARD-OBJECT
      - a CLOS type instance parsed from a compound type specifier such as #<INTEGER-TYPE 0x1232112>"
   (bind (((component-type &rest additional-args)
           (ensure-list (find-inspector-type-for-type type))))
@@ -66,6 +69,15 @@
 
   (:method ((type (eql 'boolean)))
     'boolean/inspector)
+
+  (:method ((type (eql 'character)))
+    'character/inspector)
+
+  (:method ((type (eql 'base-char)))
+    'character/inspector)
+
+  (:method ((type (eql 'password)))
+    'password/inspector)
 
   (:method ((type (eql 'components)))
     `(sequence/inspector :the-class ,(find-class 'component)))
@@ -126,6 +138,9 @@
 (def (layered-function e) find-inspector-type-for-prototype (prototype)
   (:method ((prototype t))
     't/inspector)
+
+  (:method ((prototype character))
+    'character/inspector)
 
   (:method ((prototype string))
     'string/inspector)

@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; primitive/abstract
 
-(def (component e) primitive/abstract (component-value/mixin)
+(def (component e) primitive/abstract (component/minimal component-value/mixin)
   ((name nil :type (or null symbol))
    (the-type nil)
    (client-state-sink nil)))
@@ -31,6 +31,8 @@
 
 (def generic print-component-value (component)
   (:documentation "Prints the COMPONENT-VALUE of COMPONENT into a STRING."))
+
+(def generic string-field-type (component))
 
 ;;;;;;
 ;;; primitive/minimal

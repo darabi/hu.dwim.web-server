@@ -57,10 +57,6 @@
                 (typecase slot-value
                   (component
                    (when (eq component slot-value)
-                     (return-from make-component-place (make-instance-slot-place parent slot))))
+                     (return-from make-component-place (make-object-slot-place parent slot))))
                   (sequence
-                   (iter (for index :from 0)
-                         (for element :in-sequence slot-value)
-                         (when (and (typep element 'component)
-                                    (eq component element))
-                           (return-from make-component-place (make-instance-slot-place/sequence-element parent slot index))))))))))))
+                   (return-from make-component-place (make-sequence-element-place slot-value (position component slot-value)))))))))))

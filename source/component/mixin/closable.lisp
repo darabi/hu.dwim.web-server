@@ -17,4 +17,5 @@
   (optional-list* (make-close-component-command component class prototype value) (call-next-method)))
 
 (def layered-method close-component ((component closable/abstract) class prototype value)
+  ;; TODO: revive
   (remove-place (make-component-place component)))

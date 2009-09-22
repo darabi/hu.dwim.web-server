@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; node/layout
 
-(def (component e) node/layout (node/abstract layout/minimal content/abstract child-nodes/mixin)
+(def (component e) node/layout (layout/minimal node/abstract content/abstract child-nodes/mixin)
   ())
 
 (def (macro e) node/layout ((&rest args &key &allow-other-keys) content &body child-nodes)

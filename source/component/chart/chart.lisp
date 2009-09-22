@@ -31,7 +31,7 @@
 
 (def function render-chart (component kind)
   ;; TODO: move this to frame or something higher?
-  (bind ((path (concatenate 'string "static/amCharts/" kind "/")))
+  (bind ((path (concatenate 'string "/static/amCharts/" kind "/")))
     <script (:type "text/javascript" :src ,(concatenate 'string path "swfobject.js")) "">
     (bind ((id (generate-frame-unique-string))
            (data-provider (data-provider-of component)))

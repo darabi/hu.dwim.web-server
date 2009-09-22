@@ -35,17 +35,14 @@
 ;;;;;;
 ;;; Component factories for values
 
-(def (function e) make-value-viewer (value &rest args)
-  "Creates a COMPONENT that displays VALUE and other values of its TYPE."
-  (apply #'make-viewer (class-of value) value args))
+(def (layered-function e) make-value-viewer (value &rest args)
+  (:documentation "Creates a COMPONENT that displays VALUE and other values of its TYPE."))
 
-(def (function e) make-value-editor (value &rest args)
-  "Creates a COMPONENT that edits VALUE and other values of its TYPE."
-  (apply #'make-editor (class-of value) value args))
+(def (layered-function e) make-value-editor (value &rest args)
+  (:documentation "Creates a COMPONENT that edits VALUE and other values of its TYPE."))
 
-(def (function e) make-value-inspector (value &rest args)
-  "Creates a COMPONENT that displays or edits VALUE and other values of its TYPE. The user can switch between the two modes."
-  (apply #'make-inspector (class-of value) value args))
+(def (layered-function e) make-value-inspector (value &rest args)
+  (:documentation "Creates a COMPONENT that displays or edits VALUE and other values of its TYPE. The user can switch between the two modes."))
 
 ;;;;;;
 ;;; Component factories for types at a place

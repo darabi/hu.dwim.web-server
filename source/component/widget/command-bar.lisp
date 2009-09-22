@@ -28,15 +28,15 @@
 ;;;;;;
 ;;; command-bar/widget
 
-(def (component e) command-bar/widget (command-bar/abstract widget/basic)
+(def (component e) command-bar/widget (command-bar/abstract widget/style)
   ())
 
 (def (macro e) command-bar/widget ((&rest args &key &allow-other-keys) &body commands)
   `(make-instance 'command-bar/widget ,@args :commands (optional-list ,@commands)))
 
 (def render-xhtml command-bar/widget
-  <div (:class "command-bar")
-    ,(foreach #'render-component (commands-of -self-))>)
+  (with-render-style/abstract (-self-)
+    (foreach #'render-component (commands-of -self-))))
 
 (def render-csv command-bar/widget
   (write-csv-separated-elements #\Space (commands-of -self-)))

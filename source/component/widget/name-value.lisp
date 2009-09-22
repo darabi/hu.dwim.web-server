@@ -63,6 +63,11 @@
                   :value ,(second name-and-value)))
 
 (def render-xhtml name-value-pair/widget
-  (bind (((:read-only-slots name value) -self-))
-    <td (:class "name") ,(render-component name)>
-    <td (:class "value") ,(render-component value)>))
+  (render-name-for -self-)
+  (render-value-for -self-))
+
+(def function render-name-for (component)
+  <td (:class "name") ,(render-component (name-of component))>)
+
+(def function render-value-for (component)
+  <td (:class "value") ,(render-component (value-of component))>)

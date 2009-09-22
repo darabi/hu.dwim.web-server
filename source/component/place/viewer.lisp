@@ -6,5 +6,5 @@
 
 (in-package :hu.dwim.wui)
 
-(def layered-method make-place-maker (type &rest args &key &allow-other-keys)
-  (apply #'make-instance 'place/maker :component-value type args))
+(def layered-method make-place-viewer (type &rest args &key &allow-other-keys)
+  (apply #'make-place-inspector type :edited #f :editable #f args))

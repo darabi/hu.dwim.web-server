@@ -118,12 +118,12 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Component place
 
-(def method component-at-place ((place abstract-place))
+(def method component-at-place ((place place))
   (prog1-bind value
       (value-at-place place)
     (assert (typep value '(or null component)))))
 
-(def method (setf component-at-place) ((replacement-component component) (place abstract-place))
+(def method (setf component-at-place) ((replacement-component component) (place place))
   (when-bind replacement-place (make-component-place replacement-component)
     (setf (value-at-place replacement-place) nil))
   (when-bind original-component (value-at-place place)
