@@ -92,6 +92,7 @@
                                                          (:file "layout")
                                                          (:file "list" :depends-on ("layout"))
                                                          (:file "node" :depends-on ("layout"))
+                                                         (:file "nodrow" :depends-on ("layout"))
                                                          (:file "row" :depends-on ("cell"))
                                                          (:file "table" :depends-on ("row"))
                                                          (:file "tree" :depends-on ("node"))
@@ -109,7 +110,6 @@
                                                          (:file "command-bar" :depends-on ("command"))
                                                          (:file "content")
                                                          (:file "debug" :depends-on ("menu" "frame" "inline" "replace-target"))
-                                                         (:file "demo" :depends-on ("tab-container" "content"))
                                                          (:file "element" :depends-on ("command"))
                                                          (:file "external-link")
                                                          (:file "field")
@@ -186,6 +186,7 @@
                                            (:module "model"
                                             :depends-on ("widget" "meta")
                                             :components ((:file "class")
+                                                         (:file "demo")
                                                          (:file "dictionary")
                                                          (:file "file")
                                                          (:file "function")
@@ -215,11 +216,12 @@
                                                          (:file "viewer" :depends-on ("primitive"))))
                                            (:module "place"
                                             :depends-on ("widget" "meta")
-                                            :components (#+nil
-                                                         ((:file "place")
-                                                          (:file "filter" :depends-on ("place"))
-                                                          (:file "inspector" :depends-on ("place"))
-                                                          (:file "maker" :depends-on ("place")))))
+                                            :components ((:file "place")
+                                                         (:file "editor" :depends-on ("place"))
+                                                         (:file "filter" :depends-on ("place"))
+                                                         (:file "inspector" :depends-on ("place"))
+                                                         (:file "maker" :depends-on ("place"))
+                                                         (:file "viewer" :depends-on ("place"))))
                                            (:module "object"
                                             :depends-on ("primitive" "place")
                                             :components ((:file "xxx")

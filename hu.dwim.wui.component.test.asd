@@ -16,9 +16,10 @@
            "Levente Mészáros <levente.meszaros@gmail.com>"
            "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD / Public domain (sans advertising clause)"
-  :depends-on (:hu.dwim.reader
+  :depends-on (:hu.dwim.graphviz
                :hu.dwim.wui.application.test
                :hu.dwim.wui.component
-               :hu.dwim.wui+cl-graph+cl-typesetting)
+               :hu.dwim.wui+cl-graph+cl-typesetting
+               :hu.dwim.wui+hu.dwim.reader+hu.dwim.syntax-sugar)
   :components ((:module "test"
                 :components ((:file "component")))))
