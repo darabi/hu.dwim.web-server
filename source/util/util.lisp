@@ -103,7 +103,7 @@
   (error "A mandatory argument was not specified"))
 
 (def function find-type-by-name (name)
-  (find-class name #f))
+  (find-class name))
 
 (def (function i) class-prototype (class)
   (cond
