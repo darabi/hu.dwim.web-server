@@ -60,17 +60,17 @@
 
 (def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "www/"))
 
-(def file-serving-entry-point *demo-application* "/darcs/" #P"/home/levy/workspace/")
+(def file-serving-entry-point *demo-application* "/darcs/" *workspace-directory*)
 
-(def file-serving-entry-point *demo-application* "/static/darcsweb/" #P"/home/levy/workspace/darcsweb/")
+(def file-serving-entry-point *demo-application* "/darcsweb/" (merge-pathnames "darcsweb/" *workspace-directory*))
 
 (def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
 (def js-component-hierarchy-serving-entry-point *demo-application* "wui/js/component-hierarchy.js")
 
-(def entry-point (*demo-application* :path "cgi-bin/darcsweb.cgi" :with-session-logic #f) ()
+(def entry-point (*demo-application* :path "darcsweb" :with-session-logic #f) ()
   (make-raw-functional-response ()
-    (handle-cgi-request #P"/home/levy/workspace/darcsweb/darcsweb.cgi")))
+    (handle-cgi-request (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*))))
 
 (def entry-point (*demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
   (assert (and (boundp '*session*) *session*))
