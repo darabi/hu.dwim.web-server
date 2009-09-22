@@ -14,8 +14,6 @@
 (dojo.get-object "wui.field" #t)
 (dojo.get-object "wui.help" #t)
 
-,(serve-js-component-class-hierarchy)
-
 (defun wui.shallow-copy (object)
   (return (dojo.mixin (create) object)))
 

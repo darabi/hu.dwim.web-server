@@ -173,3 +173,6 @@
 
 (def (definer e) js-file-serving-entry-point (application path-prefix root-directory &key priority)
   `(ensure-entry-point ,application (make-js-directory-serving-broker ,path-prefix ,root-directory :priority ,priority)))
+
+(def (definer e) js-component-hierarchy-serving-entry-point (application path-prefix &key priority)
+  `(ensure-entry-point ,application (make-js-component-hierarchy-serving-broker ,path-prefix :priority ,priority)))

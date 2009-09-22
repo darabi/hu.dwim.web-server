@@ -6,6 +6,9 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;;
+;;; js-directory-serving-broker
+
 (def class* js-directory-serving-broker (directory-serving-broker)
   ()
   (:metaclass funcallable-standard-class))
@@ -81,14 +84,36 @@
                                          (bind ((forms (read-from-string body-as-string)))
                                            (eval forms)))))))))
 
+;;;;;;
+;;; js-component-hierarchy-broker
+
+(def special-variable *js-component-hierarchy-buffer* nil)
+
+(def class* js-component-hierarchy-serving-broker (path-prefix-entry-point)
+  ()
+  (:metaclass funcallable-standard-class))
+
+(def (function e) make-js-component-hierarchy-serving-broker (path-prefix &key priority)
+  (make-instance 'js-component-hierarchy-serving-broker :path-prefix path-prefix :priority priority
+                 :handler (lambda (&rest args)
+                            (declare (ignore args))
+                            (make-byte-vector-response* (or *js-component-hierarchy-buffer*
+                                                            (setf *js-component-hierarchy-buffer*
+                                                                  (emit-into-js-stream-buffer
+                                                                    (serve-js-component-hierarchy))))
+                                                        :last-modified-at (local-time:now)
+                                                        :seconds-until-expires (* 60 60)
+                                                        :content-type (content-type-for +javascript-mime-type+ :utf-8)))))
+
 ;; FIXME: this generates a quite big list which is redundant like hell
 ;;        but it is cached and compressed, so we don't care about it right now
-(def function serve-js-component-class-hierarchy ()
+(def (function e) serve-js-component-hierarchy ()
   (bind ((component-class (find-class 'component)))
-    `js (setf wui.component-class-precedence-lists (create))
+    `js(setf wui.component-class-precedence-lists (create))
     (dolist (subclass (subclasses component-class))
       (bind ((subclass-name (class-name-as-string subclass))
              (class-precedence-list (class-precedence-list subclass))
              (index (position component-class class-precedence-list))
              (class-name-precedence-list (mapcar #'class-name-as-string (subseq class-precedence-list 0 (1+ index)))))
-        `js(setf (slot-value wui.component-class-precedence-lists ,subclass-name) (array ,@class-name-precedence-list))))))
+        `js(setf (slot-value wui.component-class-precedence-lists ,subclass-name) (array ,@class-name-precedence-list))))
+    +void+))
