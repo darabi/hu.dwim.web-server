@@ -145,16 +145,6 @@
   background-image: url("/static/wui/icon/24x24/page-last-disabled.png");
 }
 
-/* filter */
-
-.use-in-filter {
-  background-image: url("/static/wui/icon/20x20/checkmark.png");
-}
-
-.ignore-in-filter {
-  background-image: url("/static/wui/icon/20x20/checkmark.png");
-}
-
 .filter-icon {
   background-image: url("/static/wui/icon/20x20/binocular.png");
 }
@@ -173,38 +163,6 @@
 
 .select-component-icon {
   background-image: url("/static/wui/icon/20x20/checkmark.png");
-}
-
-.equal-icon {
-  background-image: url("/static/wui/icon/20x20/equal-sign.png");
-}
-
-.like-icon {
-  background-image: url("/static/wui/icon/20x20/tilde.png");
-}
-
-.<-icon {
-  background-image: url("/static/wui/icon/20x20/less-than-sign.png");
-}
-
-.<=-icon {
-  background-image: url("/static/wui/icon/20x20/less-than-or-equal-sign.png");
-}
-
-.>-icon {
-  background-image: url("/static/wui/icon/20x20/greater-than-sign.png");
-}
-
-.>=-icon {
-  background-image: url("/static/wui/icon/20x20/greater-than-or-equal-sign.png");
-}
-
-.negated-icon {
-  background-image: url("/static/wui/icon/20x20/thumb-down.png");
-}
-
-.ponated-icon {
-  background-image: url("/static/wui/icon/20x20/thumb-up.png");
 }
 
 .view-icon {
@@ -315,42 +273,76 @@
   background-image: url("/static/wui/icon/20x20/vcr-play.png");
 }
 
-/*
-  filter predicate
-*/
+/* filter */
 
-.predicate-equal {
-  background-image: url("/static/wui/icon/17x17/operator-equal.png");
+.use-in-filter-icon {
+  width: 17px;
+  padding-left: 17px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  background-image: url("/static/wui/icon/17x17/use-in-filter.png");
+}
+
+.ignore-in-filter-icon {
+  opacity: 0.5;
+  width: 17px;
+  padding-left: 17px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  background-image: url("/static/wui/icon/17x17/ignore-in-filter.png");
+}
+
+.negated-predicate-icon {
+  width: 29px;
+  padding-left: 29px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  background-image: url("/static/wui/icon/17x17/negated-predicate.png");
+}
+
+.ponated-predicate-icon {
+  opacity: 0.5;
+  width: 29px;
+  padding-left: 29px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  background-image: url("/static/wui/icon/17x17/ponated-predicate.png");
+}
+
+/* filter predicate */
+
+.equal-predicate-icon {
+  background-image: url("/static/wui/icon/17x17/equal-predicate.png");
   width: 17px;
   height: 17px;
 }
 
-.predicate-like {
-  background-image: url("/static/wui/icon/17x17/operator-similar.png");
+.like-predicate-icon {
+  background-image: url("/static/wui/icon/17x17/like-predicate.png");
   width: 17px;
   height: 17px;
 }
 
-.predicate-less-than {
-  background-image: url("/static/wui/icon/17x17/operator-less.png");
+.less-than-predicate-icon {
+  background-image: url("/static/wui/icon/17x17/less-than-predicate.png");
   width: 17px;
   height: 17px;
 }
 
-.predicate-less-than-or-equal {
-  background-image: url("/static/wui/icon/17x17/operator-less-equal.png");
+.less-than-or-equal-predicate-icon {
+  background-image: url("/static/wui/icon/17x17/less-than-or-equal-predicate.png");
   width: 17px;
   height: 17px;
 }
 
-.predicate-greater-than {
-  background-image: url("/static/wui/icon/17x17/operator-greater.png");
+.greater-than-predicate-icon {
+  background-image: url("/static/wui/icon/17x17/greater-than-predicate.png");
   width: 17px;
   height: 17px;
 }
 
-.predicate-greater-than-or-equal {
-  background-image: url("/static/wui/icon/17x17/operator-greater-equal.png");
+.greater-than-or-equal-predicate-icon {
+  background-image: url("/static/wui/icon/17x17/greater-than-or-equal-predicate.png");
   width: 17px;
   height: 17px;
 }
