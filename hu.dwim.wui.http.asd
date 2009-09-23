@@ -52,6 +52,7 @@
                               :depends-on ("logger" "util")
                               :components ((:file "accept-headers" :depends-on ("variables"))
                                            (:file "brokers" :depends-on ("server"))
+                                           (:file "cgi" :depends-on ("brokers"))
                                            (:file "conditions" :depends-on ("variables"))
                                            (:file "error-handling" :depends-on ("variables" "util"))
                                            (:file "request-parsing" :depends-on ("request-response" "uri"))

@@ -605,37 +605,3 @@
                     (list :content-disposition nil))
                   args))
           (values #t nil #f))))))
-
-;;;;;;
-;;; CGI
-
-;; TODO: error handling, etc.
-(def (function e) handle-cgi-request (pathname)
-  (bind ((stream (client-stream-of *request*))
-         (filename (namestring pathname))
-         (tmp (filename-for-temporary-file)))
-    (write-sequence #.(string-to-us-ascii-octets "HTTP/1.1 ") stream)
-    (write-sequence (string-to-us-ascii-octets "200 OK") stream)
-    (write-byte +space+ stream)
-    (sb-ext:run-program filename nil
-                        :wait #t
-                        ;; TODO: revise according to http://hoohoo.ncsa.illinois.edu/cgi/env.html
-                        :environment (list "GATEWAY_INTERFACE=CGI/1.1"
-                                           "SERVER_SOFTWARE=hu.dwim.wui"
-                                           (string+ "SERVER_NAME=" (machine-instance))
-                                           (string+ "SERVER_PROTOCOL=" (http-version-string-of *request*))
-                                           (string+ "SERVER_PORT=" "8080")
-                                           (string+ "REQUEST_METHOD=" (http-method-of *request*))
-                                           (string+ "PATH_INFO=" (path-of (uri-of *request*)))
-                                           (string+ "PATH_TRANSLATED=")
-                                           (string+ "SCRIPT_NAME=" filename)
-                                           (string+ "QUERY_STRING=" (query-of (uri-of *request*)))
-                                           (string+ "REMOTE_HOST=")
-                                           (string+ "REMOTE_ADDR=")
-                                           (string+ "REMOTE_USER=")
-                                           (string+ "REMOTE_IDENT=")
-                                           (string+ "AUTH_TYPE=")
-                                           (string+ "CONTENT_TYPE=")
-                                           (string+ "CONTENT_LENGTH="))
-                        :output tmp)
-    (write-sequence (read-file-into-byte-vector tmp) stream)))
