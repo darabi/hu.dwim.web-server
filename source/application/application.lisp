@@ -57,12 +57,19 @@
    (sessions-last-purged-at (get-monotonic-time))
    (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
    (session-id->session (make-hash-table :test 'equal) :export :accessor)
+   (frame-root-component-factory 'default-frame-root-component-factory :documentation "A funcallable with (body-content &key &allow-other-keys) lambda-list, which is invoked to make the toplevel components for new frames. By default calls MAKE-FRAME-COMPONENT-WITH-CONTENT.")
    (administrator-email-address nil)
    (lock)
    (running-in-test-mode #f :type boolean :accessor running-in-test-mode? :export :accessor)
    (compile-time-debug-client-side *default-compile-time-debug-client-side* :type boolean :accessor compile-time-debug-client-side? :export :accessor)
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:metaclass funcallable-standard-class))
+
+(def function default-frame-root-component-factory (content)
+  (make-frame-component-with-content *application* *session* *frame* content))
+
+(def function call-frame-root-component-factory (content)
+  (funcall (frame-root-component-factory-of *application*) content))
 
 (def method debug-on-error? ((application application) error)
   (cond

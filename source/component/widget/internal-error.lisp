@@ -44,8 +44,7 @@
                 (server.info "Sending an internal server error page for request ~S coming to application ~A" request-uri application)
                 (send-response
                  (make-component-rendering-response
-                  (make-frame-component-with-content
-                   application *session* *frame*
+                  (call-frame-root-component-factory
                    (aprog1
                        (make-instance 'internal-error-message/widget
                                       :rendering-phase-reached rendering-phase-reached
