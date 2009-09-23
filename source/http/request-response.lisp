@@ -8,7 +8,7 @@
 
 (def (generic e) header-value (message header-name))
 (def (generic e) (setf header-value) (value message header-name))
-(def generic send-response (response))
+(def (generic e) send-response (response))
 (def generic send-headers (response))
 (def generic close-request (request))
 
@@ -348,7 +348,6 @@
 (def (macro e) make-raw-functional-response ((&optional headers-as-plist cookie-list) &body body)
   (expand-make-functional-response #t headers-as-plist cookie-list body))
 
-;; TODO delme?
 (def (macro e) make-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
   `(make-functional-response ((+header/content-type+ (content-type-for +html-mime-type+ +default-encoding+)
                                ,@headers-as-plist)
@@ -369,6 +368,9 @@
          (setf (cookies-of ,response) (list ,@cookie-list))
          (setf (body-of ,response) buffer)
          ,response))))
+
+(def (macro e) send-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
+  `(send-response (make-functional-html-response (,headers-as-plist ,cookie-list) ,@body)))
 
 
 ;;;;;;
@@ -445,6 +447,9 @@
 
 (def (function e) make-request-echo-response ()
   (make-instance 'request-echo-response))
+
+(def (function e) send-request-echo-response ()
+  (send-response (make-request-echo-response)))
 
 (def method send-response ((self request-echo-response))
   (emit-http-response ((+header/content-type+ +html-mime-type+))
