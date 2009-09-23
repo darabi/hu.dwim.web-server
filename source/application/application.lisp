@@ -39,9 +39,6 @@
 
 (register-locale-loaded-listener 'wui-resource-loader/application)
 
-(def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
-  (apply #'make-instance 'application :path-prefix path-prefix args))
-
 (def (class* e) standard-application (application-with-home-package
                                       application-with-dojo-support)
   ()
@@ -68,7 +65,8 @@
    (running-in-test-mode #f :type boolean :accessor running-in-test-mode? :export :accessor)
    (compile-time-debug-client-side *default-compile-time-debug-client-side* :type boolean :accessor compile-time-debug-client-side? :export :accessor)
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
-  (:metaclass funcallable-standard-class))
+  (:metaclass funcallable-standard-class)
+  (:default-initargs :path-prefix "/"))
 
 (def function default-frame-root-component-factory (content)
   (make-frame-component-with-content *application* *session* *frame* content))
