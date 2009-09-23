@@ -42,6 +42,11 @@
 (def (function e) make-application (&rest args &key (path-prefix "/") &allow-other-keys)
   (apply #'make-instance 'application :path-prefix path-prefix args))
 
+(def (class* e) standard-application (application-with-home-package
+                                      application-with-dojo-support)
+  ()
+  (:metaclass funcallable-standard-class))
+
 (def (class* e) application (broker-with-path-prefix
                              request-counter-mixin
                              debug-context-mixin)
