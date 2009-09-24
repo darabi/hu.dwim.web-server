@@ -42,6 +42,9 @@
 (def layered-method make-value-inspector (value &rest args)
   (apply #'make-inspector (class-of value) value args))
 
+(def layered-method make-value-inspector ((value component) &key &allow-other-keys)
+  value)
+
 (def layered-method make-inspector (type value &rest args &key &allow-other-keys)
   "A TYPE specifier is either
      - a primitive type name such as BOOLEAN, INTEGER, STRING

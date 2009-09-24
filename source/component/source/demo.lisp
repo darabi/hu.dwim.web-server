@@ -28,7 +28,7 @@
                       (quote-xml-string-content/widget ()
                         (render-to-xhtml-string component)))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Switch to the inspector of the live demo component"))
-                      (make-value-inspector component))
+                      (make-inspector (class-of component) component))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation" :tooltip "Switch to the documentation of the component class"))
                       (or (documentation (class-of component) 'type)
                           "There is no documentation available"))))))
