@@ -9,70 +9,38 @@
 ;;;;;;
 ;;; This is a simple example application with various components
 
-(setf *dojo-directory-name* (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui.test "www/")))
+(def function stylesheet-list-entry (path)
+  (list (string+ "static/" path)
+        (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (string+ "www/" path)))))
 
-(def (constant :test #'equal) +demo-stylesheet-uris+ (append (flet ((entry (path)
-                                                                      (list (string+ "static/" path)
-                                                                            (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (string+ "www/" path)))))
-                                                                    (dojo-relative-path (path)
-                                                                      (string+ *dojo-directory-name* path)))
-                                                               (list (entry "wui/css/wui.css")
-                                                                     (entry "wui/css/icon.css")
-                                                                     (entry "wui/css/widget.css")
-                                                                     (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
-                                                                     (entry (dojo-relative-path "dojo/resources/dojo.css"))))))
+(def special-variable *demo-static-stylesheet-uris*
+  (list (stylesheet-list-entry "wui/css/wui.css")
+        (stylesheet-list-entry "wui/css/icon.css")
+        (stylesheet-list-entry "wui/css/widget.css")))
 
 (def (constant :test #'equal) +demo-script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
 
 (def (constant :test #'equal) +demo-page-icon+ "static/favicon.ico")
 
-(def class* demo-application (application-with-home-package
-                              application-with-dojo-support)
-  ()
-  (:metaclass funcallable-standard-class))
-
-(def class* demo-session ()
-  ((authenticated-subject nil)
-   (example-inline-edit-box-value "initial value of the example inline edit box")))
-
-(def function current-authenticated-subject ()
-  (and *session*
-       (authenticated-subject-of *session*)))
-
-(def function is-authenticated? ()
-  (not (null (current-authenticated-subject))))
-
-(def method session-class list ((application demo-application))
-  'demo-session)
-
-(def special-variable *demo-application*
-  (make-instance 'demo-application
+(def special-variable *component-demo-application*
+  (make-instance 'test-application
                  :path-prefix "/"
                  :home-package (find-package :hu.dwim.wui.test)
                  :default-locale "en"
+                 :frame-root-component-factory 'make-demo-frame-component-with-content
+                 :dojo-directory-name (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui "www/"))
                  :ajax-enabled #t))
-
-(def layered-method make-frame-component-with-content ((application demo-application) session frame content)
-  (make-demo-frame-component-with-content content))
 
 ;;;;;;
 ;;; Entry point
 
-(def file-serving-entry-point *demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "www/"))
+(def file-serving-entry-point *component-demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "www/"))
 
-(def file-serving-entry-point *demo-application* "/darcs/" *workspace-directory*)
+(def js-file-serving-entry-point *component-demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
-(def file-serving-entry-point *demo-application* "/darcsweb/" (merge-pathnames "darcsweb/" *workspace-directory*))
+(def js-component-hierarchy-serving-entry-point *component-demo-application* "wui/js/component-hierarchy.js")
 
-(def js-file-serving-entry-point *demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
-
-(def js-component-hierarchy-serving-entry-point *demo-application* "wui/js/component-hierarchy.js")
-
-(def entry-point (*demo-application* :path "darcsweb" :with-session-logic #f) ()
-  (make-raw-functional-response ()
-    (handle-cgi-request (merge-pathnames "darcsweb/darcsweb.cgi" *workspace-directory*))))
-
-(def entry-point (*demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
+(def entry-point (*component-demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
   (assert (and (boundp '*session*) *session*))
   (assert (and (boundp '*frame*) *frame*))
   (if (root-component-of *frame*)
@@ -81,9 +49,9 @@
         (setf (root-component-of *frame*) (make-demo-frame-component))
         (make-redirect-response-for-current-application))))
 
-(def function start-test-server-with-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
+(def function start-test-server-with-component-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)
-  (start-test-server-with-brokers (list *demo-application*
+  (start-test-server-with-brokers (list *component-demo-application*
                                         (make-redirect-broker "" "/"))
                                   :host host
                                   :port port
@@ -105,7 +73,10 @@
 
 (def function make-demo-frame-component-with-content (&optional initial-content-component)
   (frame/widget (:title "demo"
-                 :stylesheet-uris +demo-stylesheet-uris+
+                 :stylesheet-uris (append
+                                   *demo-static-stylesheet-uris*
+                                   (list (stylesheet-list-entry (string+ *dojo-directory-name* "dijit/themes/tundra/tundra.css"))
+                                         (stylesheet-list-entry (string+ *dojo-directory-name* "dojo/resources/dojo.css"))))
                  :script-uris +demo-script-uris+
                  :page-icon +demo-page-icon+)
     (top/widget (:menu-bar (menu-bar/widget ()

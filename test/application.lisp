@@ -9,7 +9,13 @@
 ;;;;;;
 ;;; Test application for basic app features
 
-(def special-variable *test-application* (make-application :path-prefix "/test/"))
+(def class test-application (standard-application)
+  ()
+  (:metaclass funcallable-standard-class)
+  (:default-initargs
+     :dojo-directory-name (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui "www/"))))
+
+(def special-variable *test-application* (make-instance 'test-application :path-prefix "/test/"))
 
 (def entry-point (*test-application* :path "performance" :with-session-logic #f)
     (name)
@@ -75,7 +81,7 @@
 ;;;;;;
 ;;; Echo application to echo back the request
 
-(def special-variable *echo-application* (make-application :path-prefix "/echo/"))
+(def special-variable *echo-application* (make-instance 'standard-application :path-prefix "/echo/"))
 
 (def entry-point (*echo-application* :path-prefix "" :with-session-logic #f) ()
   (make-request-echo-response))
@@ -83,7 +89,7 @@
 ;;;;;;
 ;;; Session application
 
-(def special-variable *session-application* (make-application :path-prefix "/session/"))
+(def special-variable *session-application* (make-instance 'standard-application :path-prefix "/session/"))
 
 (def entry-point (*session-application* :path "" :requires-valid-session #f :ensure-session #f :requires-valid-frame #f :ensure-frame #t) ()
   (if *session*
