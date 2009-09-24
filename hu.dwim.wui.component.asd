@@ -164,7 +164,7 @@
                                                          (:file "scatter" :depends-on ("chart"))
                                                          (:file "stock" :depends-on ("chart"))
                                                          (:file "structure" :depends-on ("chart"))))
-                                           (:module "meta"
+                                           (:module "presentation"
                                             :depends-on ("api")
                                             :components ((:file "editor")
                                                          (:file "filter")
@@ -175,16 +175,17 @@
                                                          (:file "selector")
                                                          (:file "viewer")
                                                          (:file "xxx")))
-                                           (:module "book"
-                                            :depends-on ("widget" "meta")
-                                            :components ((:file "book")
-                                                         (:file "chapter" :depends-on ("paragraph"))
-                                                         (:file "glossary" :depends-on ("book"))
-                                                         (:file "index" :depends-on ("book"))
-                                                         (:file "paragraph" :depends-on ("book"))
-                                                         (:file "toc" :depends-on ("book"))))
-                                           (:module "model"
-                                            :depends-on ("widget" "meta")
+                                           (:module "text"
+                                            :depends-on ("widget" "presentation")
+                                            :components ((:file "text")
+                                                         (:file "book" :depends-on ("text"))
+                                                         (:file "chapter" :depends-on ("text"))
+                                                         (:file "glossary" :depends-on ("text"))
+                                                         (:file "index" :depends-on ("text"))
+                                                         (:file "paragraph" :depends-on ("text"))
+                                                         (:file "toc" :depends-on ("text"))))
+                                           (:module "source"
+                                            :depends-on ("widget" "presentation")
                                             :components ((:file "class")
                                                          (:file "demo")
                                                          (:file "dictionary")
@@ -206,7 +207,7 @@
                                                          (:file "uri")
                                                          (:file "variable")))
                                            (:module "primitive"
-                                            :depends-on ("widget" "meta")
+                                            :depends-on ("widget" "presentation")
                                             :components ((:file "abstract" :depends-on ("primitive"))
                                                          (:file "editor" :depends-on ("primitive"))
                                                          (:file "filter" :depends-on ("primitive"))
@@ -215,7 +216,7 @@
                                                          (:file "primitive")
                                                          (:file "viewer" :depends-on ("primitive"))))
                                            (:module "place"
-                                            :depends-on ("widget" "meta")
+                                            :depends-on ("widget" "presentation")
                                             :components ((:file "place")
                                                          (:file "editor" :depends-on ("place"))
                                                          (:file "filter" :depends-on ("place"))

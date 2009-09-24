@@ -19,5 +19,5 @@
                :hu.dwim.wui)
   :components ((:module "source"
                 :components ((:module "component"
-                              :components ((:module "model"
+                              :components ((:module "source"
                                             :components ((:file "test")))))))))
