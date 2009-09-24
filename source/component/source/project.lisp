@@ -43,7 +43,7 @@
             (make-instance 'project/content/inspector :component-value project))
           (tab-page/widget (:selector "Repository")
             (make-instance 'project/repository/inspector :component-value project))
-          (tab-page/widget (:selector "Test")
+          (tab-page/widget (:selector "Test Suite")
             (make-instance 'project/test/inspector :component-value project))
           (tab-page/widget (:selector "Licence")
             (make-instance 'project/licence/inspector :component-value project)))))
@@ -82,12 +82,16 @@
   ())
 
 (def render-xhtml project/repository/inspector
-  ;; TODO:
   (bind (((:slots component-value) -self-))
-    (if (probe-file (merge-pathnames "_darcs" (path-of component-value)))
-        <iframe (:width "100%" :height "600px" :style "border: none;"
-                 :src `str("/darcsweb?r=LIVE " ,(name-of component-value) ";a=summary"))>
-        <span "Unknown or no repository for " ,(name-of component-value)>)))
+    (cond ((probe-file (merge-pathnames "_darcs" (path-of component-value)))
+           ;; TODO: how do we get the repository entry point?
+           <iframe (:width "100%" :height "600px" :style "border: none;"
+                    :src `str("/darcsweb/darcsweb.cgi?r=LIVE " ,(name-of component-value) ";a=summary"))>)
+          ((probe-file (merge-pathnames ".git" (path-of component-value)))
+           ;; TODO: how do we get the repository entry point?
+           <iframe (:width "100%" :height "600px" :style "border: none;"
+                    :src `str("/gitweb/gitweb.cgi?p=" ,(name-of component-value) "/.git;a=summary"))>)
+          (t <span "Unknown or no repository for " ,(name-of component-value)>))))
 
 ;;;;;;
 ;;; project/test/inspector

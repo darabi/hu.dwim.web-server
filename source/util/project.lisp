@@ -14,7 +14,8 @@
 
 (def (class* e) project ()
   ((name nil :type string)
-   (path :type pathname)))
+   (path :type pathname)
+   (description)))
 
 (def constructor project
   (bind (((:slots name path) -self-))

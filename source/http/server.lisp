@@ -392,6 +392,7 @@
 ;;;;;;
 ;;; Serving stuff
 
+;; TODO: remove all these definer/macro stuff and use with-macro
 (def definer content-serving-function (name args (&key headers cookies (stream '(client-stream-of *request*))
                                                        last-modified-at seconds-until-expires content-length)
                                             &body body)

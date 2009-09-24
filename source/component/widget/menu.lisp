@@ -69,11 +69,11 @@
     (when menu-items
       (render-dojo-widget (id)
         <div (:id ,id
-                  :class ,style-class
-                  :style `str("display: none;" ,custom-style)
-                  :dojoType #.+dijit/menu+
-                  :targetNodeIds ,(id-of (parent-component-of -self-)))
-             ,(foreach #'render-component menu-items)>))))
+              :class ,style-class
+              :style `str("display: none;" ,custom-style)
+              :dojoType #.+dijit/menu+
+              :targetNodeIds ,(id-of (parent-component-of -self-)))
+          ,(foreach #'render-component menu-items)>))))
 
 ;;;;;;
 ;;; menu-item/widget

@@ -538,7 +538,7 @@
 ;;;;;;
 ;;; Server status
 
-(def function make-server-status-response ()
+(def (function e) make-server-status-response ()
   (disallow-response-caching
    (bind ((*print-pretty* #f)
           (start (local-time:now)))

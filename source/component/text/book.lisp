@@ -23,26 +23,6 @@
          (call-next-method)))
 
 ;;;;;;
-;;; t/text/inspector
-
-(def (component e) t/text/inspector (inspector/style contents/widget)
-  ())
-
-(def refresh-component t/text/inspector
-  (bind (((:slots contents component-value) -self-))
-    (setf contents (mapcar [make-value-inspector !1 :initial-alternative-type 't/text/inspector]
-                           (contents-of component-value)))))
-
-(def render-text t/text/inspector
-  (iter (for content :in (contents-of -self-))
-        (write-text-line-begin)
-        (render-component content)
-        (write-text-line-separator)))
-
-(def method render-command-bar-for-alternative? ((component t/text/inspector))
-  #f)
-
-;;;;;;
 ;;; book/text/inspector
 
 (def (component e) book/text/inspector (t/text/inspector collapsible/abstract title/mixin)
