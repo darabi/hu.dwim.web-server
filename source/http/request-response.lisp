@@ -210,7 +210,7 @@
     ;; the w3c spec requires a maximum age of 1 year
     ;; Firefox 3+ needs 'public' to cache this resource when received via SSL
     (header-alist-value ,headers +header/cache-control+) "public max-age=31536000"
-    (header-alist-value ,headers +header/expires+) (local-time:to-http-timestring
+    (header-alist-value ,headers +header/expires+) (local-time:to-rfc1123-timestring
                                                     (local-time:adjust-timestamp (local-time:now) (offset :year 1)))))
 
 (def (function e) disallow-response-caching (response)
@@ -240,7 +240,7 @@
         (when value
           (write-header-line name value)))
       (unless date-header-seen?
-        (write-header-line +header/date+ (local-time:to-http-timestring (local-time:now))))
+        (write-header-line +header/date+ (local-time:to-rfc1123-timestring (local-time:now))))
       (dolist (cookie cookies)
         (write-header-line "Set-Cookie"
                            (if (rfc2109:cookie-p cookie)
@@ -388,7 +388,7 @@
                                 :last-modified-at last-modified-at
                                 :external-format nil)))
     (when seconds-until-expires
-      (setf (header-value result +header/expires+) (local-time:to-http-timestring
+      (setf (header-value result +header/expires+) (local-time:to-rfc1123-timestring
                                                     (local-time:adjust-timestamp (local-time:now) (offset :sec seconds-until-expires)))))
     (when content-type
       (setf (header-value result +header/content-type+) content-type))

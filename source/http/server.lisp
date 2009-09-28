@@ -421,13 +421,13 @@
                  (disallow-response-caching-in-header-alist ,headers)
                  (progn
                    (setf (header-alist-value ,headers +header/expires+)
-                         (local-time:to-http-timestring
+                         (local-time:to-rfc1123-timestring
                           (local-time:adjust-timestamp (local-time:now) (offset :sec ,seconds-until-expires))))
                    (setf (header-alist-value ,headers +header/cache-control+) (string+ "max-age=" (integer-to-string ,seconds-until-expires))))))
            (when ,last-modified-at
              (setf (header-alist-value ,headers +header/last-modified+)
-                   (local-time:to-http-timestring ,last-modified-at)))
-           (setf (header-alist-value ,headers +header/date+) (local-time:to-http-timestring (local-time:now)))
+                   (local-time:to-rfc1123-timestring ,last-modified-at)))
+           (setf (header-alist-value ,headers +header/date+) (local-time:to-rfc1123-timestring (local-time:now)))
            (server.dribble "~A: if-modified-since is ~S, last-modified-at is ~A, if-modified-since-value is ~A" ',name ,if-modified-since ,last-modified-at ,if-modified-since-value)
            (if (and ,last-modified-at
                     ,if-modified-since-value
