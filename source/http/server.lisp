@@ -409,13 +409,13 @@
                 (,seconds-until-expires ,%seconds-until-expires)
                 (,content-length ,%content-length)
                 (,if-modified-since (header-value *request* +header/if-modified-since+))
-                ;; TODO get rid of this final net.telent.date dependency
                 (,if-modified-since-value (when ,if-modified-since
-                                            (bind ((http-date-string (subseq ,if-modified-since 0 (position #\; ,if-modified-since :test #'char=))) ; IE sends junk with the date (but sends it after a semicolon)
-                                                   (universal (net.telent.date:parse-time http-date-string)))
-                                              (if universal
-                                                  (local-time:universal-to-timestamp universal)
-                                                  (server.error "Failed to parse If-Modified-Since header value ~S" ,if-modified-since))))))
+                                            ;; IE sends junk with the date (but sends it after a semicolon)
+                                            ;; TODO maybe it's obsolete? we don't support ie6 anyway...
+                                            (bind ((http-date-string (subseq ,if-modified-since 0 (position #\; ,if-modified-since :test #'char=))))
+                                              (parse-http-timestring http-date-string
+                                                                     :otherwise (lambda ()
+                                                                                  (server.error "Failed to parse If-Modified-Since header value ~S" ,if-modified-since)))))))
            (when ,seconds-until-expires
              (if (<= ,seconds-until-expires 0)
                  (disallow-response-caching-in-header-alist ,headers)

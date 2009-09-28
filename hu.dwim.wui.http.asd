@@ -33,7 +33,6 @@
                :hu.dwim.util
                :iolib
                :local-time
-               :net-telent-date ; TODO: remove this dependency
                :parse-number
                :rfc2109
                :rfc2388-binary)
