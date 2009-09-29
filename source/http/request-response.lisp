@@ -8,7 +8,7 @@
 
 (def (generic e) header-value (message header-name))
 (def (generic e) (setf header-value) (value message header-name))
-(def (generic e) send-response (response))
+(def generic send-response (response))
 (def generic send-headers (response))
 (def generic close-request (request))
 
@@ -368,9 +368,6 @@
          (setf (cookies-of ,response) (list ,@cookie-list))
          (setf (body-of ,response) buffer)
          ,response))))
-
-(def (macro e) send-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
-  `(send-response (make-functional-html-response (,headers-as-plist ,cookie-list) ,@body)))
 
 
 ;;;;;;
