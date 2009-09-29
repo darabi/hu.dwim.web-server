@@ -392,164 +392,149 @@
 ;;;;;;
 ;;; Serving stuff
 
-;; TODO: remove all these definer/macro stuff and use with-macro
-(def definer content-serving-function (name args (&key headers cookies (stream '(client-stream-of *request*))
-                                                       last-modified-at seconds-until-expires content-length)
-                                            &body body)
-  (bind (((:values body declarations documentation) (parse-body body :documentation #t))
-         (%last-modified-at last-modified-at)
-         (%seconds-until-expires seconds-until-expires)
-         (%content-length content-length))
-    (with-unique-names (if-modified-since if-modified-since-value seconds-until-expires last-modified-at content-length)
-      `(def function ,name ,args
-         ,@(awhen documentation (list it))
-         ,@declarations
-         (setf ,headers (copy-alist ,headers))
-         (bind ((,last-modified-at ,%last-modified-at)
-                (,seconds-until-expires ,%seconds-until-expires)
-                (,content-length ,%content-length)
-                (,if-modified-since (header-value *request* +header/if-modified-since+))
-                (,if-modified-since-value (when ,if-modified-since
-                                            ;; IE sends junk with the date (but sends it after a semicolon)
-                                            ;; TODO maybe it's obsolete? we don't support ie6 anyway...
-                                            (bind ((http-date-string (subseq ,if-modified-since 0 (position #\; ,if-modified-since :test #'char=))))
-                                              (parse-http-timestring http-date-string
-                                                                     :otherwise (lambda ()
-                                                                                  (server.error "Failed to parse If-Modified-Since header value ~S" ,if-modified-since)))))))
-           (when ,seconds-until-expires
-             (if (<= ,seconds-until-expires 0)
-                 (disallow-response-caching-in-header-alist ,headers)
-                 (progn
-                   (setf (header-alist-value ,headers +header/expires+)
-                         (local-time:to-rfc1123-timestring
-                          (local-time:adjust-timestamp (local-time:now) (offset :sec ,seconds-until-expires))))
-                   (setf (header-alist-value ,headers +header/cache-control+) (string+ "max-age=" (integer-to-string ,seconds-until-expires))))))
-           (when ,last-modified-at
-             (setf (header-alist-value ,headers +header/last-modified+)
-                   (local-time:to-rfc1123-timestring ,last-modified-at)))
-           (setf (header-alist-value ,headers +header/date+) (local-time:to-rfc1123-timestring (local-time:now)))
-           (server.dribble "~A: if-modified-since is ~S, last-modified-at is ~A, if-modified-since-value is ~A" ',name ,if-modified-since ,last-modified-at ,if-modified-since-value)
-           (if (and ,last-modified-at
-                    ,if-modified-since-value
-                    (local-time:timestamp<= ,last-modified-at ,if-modified-since-value))
-               (progn
-                 (server.debug "~A: Sending 304 not modified. if-modified-since is ~S, last-modified-at is ~S" ',name ,if-modified-since ,last-modified-at)
-                 (setf (header-alist-value ,headers +header/status+) +http-not-modified+)
-                 (setf (header-alist-value ,headers +header/content-length+) "0")
-                 (send-http-headers ,headers ,cookies :stream ,stream))
-               (progn
-                 (setf (header-alist-value ,headers +header/status+) +http-ok+)
-                 (when ,content-length
-                   (setf (header-alist-value ,headers +header/content-length+)
-                         (integer-to-string ,content-length)))
-                 ,@body)))))))
-
-(def content-serving-function serve-sequence (body &key
-                                                   (last-modified-at (local-time:now))
-                                                   content-type
-                                                   content-encoding
-                                                   headers
-                                                   cookies
-                                                   content-disposition
-                                                   (stream (client-stream-of *request*))
-                                                   (encoding (encoding-name-of (iolib:external-format-of stream)))
-                                                   seconds-until-expires)
-    (:last-modified-at last-modified-at
-     :seconds-until-expires seconds-until-expires
-     :headers headers
-     :cookies cookies
-     :stream stream)
-  "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
-  (assert (or (null content-encoding)
-              (string= content-encoding +content-encoding/deflate+)))
-  (check-type body (or list (vector (unsigned-byte 8) *) string))
-  (server.debug "SERVE-SEQUENCE: body type: ~A, length: ~A, content-encoding: ~A" (type-of body) (length body) content-encoding)
-  (with-thread-name " / SERVE-SEQUENCE"
-    (bind ((length 0)
-           (body (iter (for piece :in (ensure-list body))
-                       (when (stringp piece)
-                         (setf piece (string-to-octets piece :encoding encoding)))
-                       (incf length (length piece))
-                       (collect piece))))
-      (awhen content-type
-        (setf (header-alist-value headers +header/content-type+) it))
-      (awhen content-disposition
-        (setf (header-alist-value headers +header/content-disposition+) it))
-      (if content-encoding
-          (switch (content-encoding :test #'equal)
-            (+content-encoding/deflate+
-             (setf (header-alist-value headers +header/content-encoding+) +content-encoding/deflate+)
-             (bind ((bytes (if (and (length= 1 body)
-                                    (typep (first body) 'simple-ub8-vector))
-                               (first body)
-                               (aprog1
-                                   (make-array length :element-type '(unsigned-byte 8))
-                                 (iter (for piece :in body)
-                                       (for previous-piece :previous piece)
-                                       (for start :first 0 :then (+ start (length previous-piece)))
-                                       (replace it piece :start1 start))))))
-               (bind ((compressed-bytes (hu.dwim.wui.zlib:allocate-compress-buffer bytes))
-                      (compressed-bytes-length (hu.dwim.wui.zlib:compress bytes compressed-bytes)))
-                 (server.debug "SERVE-SEQUENCE: compressed response, original-size ~A, compressed-size ~A, ratio: ~,3F" length compressed-bytes-length (/ compressed-bytes-length length))
-                 (setf (header-alist-value headers +header/content-length+) (integer-to-string compressed-bytes-length))
-                 (send-http-headers headers cookies :stream stream)
-                 (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length)))))
+(def with-macro* with-content-serving-logic (name &key headers cookies (stream '(client-stream-of *request*))
+                                                  last-modified-at seconds-until-expires content-length)
+  (bind ((if-modified-since (header-value *request* +header/if-modified-since+))
+         (if-modified-since/parsed (when if-modified-since
+                                     ;; IE sends junk with the date (but sends it after a semicolon)
+                                     ;; TODO maybe it's obsolete? we don't support ie6 anyway...
+                                     (bind ((http-date-string (subseq if-modified-since 0 (position #\; if-modified-since :test #'char=))))
+                                       (parse-http-timestring http-date-string
+                                                              :otherwise (lambda ()
+                                                                           (server.error "Failed to parse If-Modified-Since header value ~S" if-modified-since)))))))
+    (when seconds-until-expires
+      (server.dribble "~A: setting up cache control according to seconds-until-expires ~S" name seconds-until-expires)
+      (if (<= seconds-until-expires 0)
+          (disallow-response-caching-in-header-alist headers)
           (progn
-            (setf (header-alist-value headers +header/content-length+) (integer-to-string length))
-            (send-http-headers headers cookies :stream stream)
-            (dolist (piece body)
-              (write-sequence piece stream)))))))
+            (setf (header-alist-value headers +header/expires+)
+                  (local-time:to-rfc1123-timestring
+                   (local-time:adjust-timestamp (local-time:now) (offset :sec seconds-until-expires))))
+            (setf (header-alist-value headers +header/cache-control+) (string+ "max-age=" (integer-to-string seconds-until-expires))))))
+    (when last-modified-at
+      (setf (header-alist-value headers +header/last-modified+)
+            (local-time:to-rfc1123-timestring last-modified-at)))
+    (setf (header-alist-value headers +header/date+) (local-time:to-rfc1123-timestring (local-time:now)))
+    (server.dribble "~A: if-modified-since is ~S, last-modified-at is ~A, if-modified-since/parsed is ~A" name if-modified-since last-modified-at if-modified-since/parsed)
+    (if (and last-modified-at
+             if-modified-since/parsed
+             (local-time:timestamp<= last-modified-at if-modified-since/parsed))
+        (progn
+          (server.debug "~A: Sending 304 not modified. if-modified-since is ~S, last-modified-at is ~S" name if-modified-since last-modified-at)
+          (setf (header-alist-value headers +header/status+) +http-not-modified+)
+          (setf (header-alist-value headers +header/content-length+) "0")
+          (send-http-headers headers cookies :stream stream))
+        (progn
+          (setf (header-alist-value headers +header/status+) +http-ok+)
+          (when content-length
+            (setf (header-alist-value headers +header/content-length+)
+                  (integer-to-string content-length)))
+          ;; we are changig the value of HEADERS and COOKIES here, so we must make the new values visible in the with-macro body hiding their initial values
+          (-body- headers cookies)))))
 
-(def content-serving-function serve-stream (input-stream &key
-                                                         (last-modified-at (local-time:now))
-                                                         content-type
-                                                         content-length
-                                                         (content-disposition "attachment" content-disposition-p)
-                                                         headers
-                                                         cookies
-                                                         content-disposition-filename
-                                                         content-disposition-size
-                                                         (stream (client-stream-of *request*))
-                                                         (seconds-until-expires #.(* 1 60 60)))
-    (:last-modified-at last-modified-at
-     :seconds-until-expires seconds-until-expires
-     :headers headers
-     :cookies cookies
-     :stream stream)
-  (with-thread-name " / SERVE-STREAM"
-    (awhen content-type
-      (setf (header-alist-value headers +header/content-type+) it))
-    (when (and (not content-length)
-               (typep input-stream 'file-stream))
-      (setf content-length (integer-to-string (file-length input-stream))))
-    (unless (stringp content-length)
-      (setf content-length (integer-to-string content-length)))
-    (awhen content-length
-      (setf (header-alist-value headers +header/content-length+) it))
-    (unless content-disposition-p
-      ;; this ugliness here is to give a chance for the caller to pass NIL directly
-      ;; to disable the default content disposition parts.
-      (when (and (not content-disposition-size)
-                 content-length)
-        (setf content-disposition-size content-length))
-      (awhen content-disposition-size
-        (setf content-disposition (concatenate 'string content-disposition ";size=" it))) ;
-      (awhen content-disposition-filename
-        (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
-    (awhen content-disposition
-      (setf (header-alist-value headers +header/content-disposition+) it))
-    ;; TODO set socket buffering option?
-    (send-http-headers headers cookies)
-    (server.debug "SERVE-STREAM starts to copy input stream ~A to the network stream ~A" input-stream stream)
-    (loop
-       :with buffer = (make-array 8192 :element-type '(unsigned-byte 8))
-       :for end-pos = (read-sequence buffer input-stream)
-       :until (zerop end-pos)
-       :do
-       (progn
-         (server.dribble "SERVE-STREAM will write ~A bytes to the network stream ~A" end-pos stream)
-         (write-sequence buffer stream :end end-pos)))
-    (server.debug "SERVE-STREAM finished copying input stream ~A to the network stream ~A" input-stream stream)))
+(def function serve-sequence (body &key
+                                   (last-modified-at (local-time:now))
+                                   content-type
+                                   content-encoding
+                                   headers
+                                   cookies
+                                   content-disposition
+                                   (stream (client-stream-of *request*))
+                                   (encoding (encoding-name-of (iolib:external-format-of stream)))
+                                   seconds-until-expires)
+  "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
+  (check-type body (or list (vector (unsigned-byte 8) *) string))
+  (server.debug "SERVE-SEQUENCE: body type: ~A, body-length: ~A, content-encoding: ~A" (type-of body) (length body) content-encoding)
+  (with-content-serving-logic ('serve-sequence :last-modified-at last-modified-at
+                                               :seconds-until-expires seconds-until-expires
+                                               :headers headers
+                                               :cookies cookies
+                                               :stream stream)
+    (with-thread-name " / SERVE-SEQUENCE"
+      (bind ((length 0)
+             (body (iter (for piece :in (ensure-list body))
+                         (when (stringp piece)
+                           (setf piece (string-to-octets piece :encoding encoding)))
+                         (incf length (length piece))
+                         (collect piece))))
+        (awhen content-type
+          (setf (header-alist-value headers +header/content-type+) it))
+        (awhen content-disposition
+          (setf (header-alist-value headers +header/content-disposition+) it))
+        (eswitch (content-encoding :test #'equal)
+          (nil
+           (setf (header-alist-value headers +header/content-length+) (integer-to-string length))
+           (send-http-headers headers cookies :stream stream)
+           (dolist (piece body)
+             (write-sequence piece stream)))
+          (+content-encoding/deflate+
+           (setf (header-alist-value headers +header/content-encoding+) +content-encoding/deflate+)
+           (bind ((bytes (if (and (length= 1 body)
+                                  (typep (first body) 'simple-ub8-vector))
+                             (first body)
+                             (aprog1
+                                 (make-array length :element-type '(unsigned-byte 8))
+                               (iter (for piece :in body)
+                                     (for previous-piece :previous piece)
+                                     (for start :first 0 :then (+ start (length previous-piece)))
+                                     (replace it piece :start1 start))))))
+             (bind ((compressed-bytes (hu.dwim.wui.zlib:allocate-compress-buffer bytes))
+                    (compressed-bytes-length (hu.dwim.wui.zlib:compress bytes compressed-bytes)))
+               (server.debug "SERVE-SEQUENCE: compressed response, original-size ~A, compressed-size ~A, ratio: ~,3F" length compressed-bytes-length (/ compressed-bytes-length length))
+               (setf (header-alist-value headers +header/content-length+) (integer-to-string compressed-bytes-length))
+               (send-http-headers headers cookies :stream stream)
+               (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length)))))))))
+
+(def function serve-stream (input-stream &key
+                                         (last-modified-at (local-time:now))
+                                         content-type
+                                         content-length
+                                         (content-disposition "attachment" content-disposition-p)
+                                         headers
+                                         cookies
+                                         content-disposition-filename
+                                         content-disposition-size
+                                         (stream (client-stream-of *request*))
+                                         (seconds-until-expires #.(* 1 60 60)))
+    (with-content-serving-logic ('serve-stream :last-modified-at last-modified-at
+                                               :seconds-until-expires seconds-until-expires
+                                               :headers headers
+                                               :cookies cookies
+                                               :stream stream)
+      (with-thread-name " / SERVE-STREAM"
+        (awhen content-type
+          (setf (header-alist-value headers +header/content-type+) it))
+        (when (and (not content-length)
+                   (typep input-stream 'file-stream))
+          (setf content-length (integer-to-string (file-length input-stream))))
+        (unless (stringp content-length)
+          (setf content-length (integer-to-string content-length)))
+        (awhen content-length
+          (setf (header-alist-value headers +header/content-length+) it))
+        (unless content-disposition-p
+          ;; this ugliness here is to give a chance for the caller to pass NIL directly
+          ;; to disable the default content disposition parts.
+          (when (and (not content-disposition-size)
+                     content-length)
+            (setf content-disposition-size content-length))
+          (awhen content-disposition-size
+            (setf content-disposition (concatenate 'string content-disposition ";size=" it))) ;
+          (awhen content-disposition-filename
+            (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
+        (awhen content-disposition
+          (setf (header-alist-value headers +header/content-disposition+) it))
+        ;; TODO set socket buffering option?
+        (send-http-headers headers cookies)
+        (server.debug "SERVE-STREAM starts to copy input stream ~A to the network stream ~A" input-stream stream)
+        (loop
+           :with buffer = (make-array 8192 :element-type '(unsigned-byte 8))
+           :for end-pos = (read-sequence buffer input-stream)
+           :until (zerop end-pos)
+           :do
+           (progn
+             (server.dribble "SERVE-STREAM will write ~A bytes to the network stream ~A" end-pos stream)
+             (write-sequence buffer stream :end end-pos)))
+        (server.debug "SERVE-STREAM finished copying input stream ~A to the network stream ~A" input-stream stream))))
 
 (def function serve-file (file-name &rest args &key
                                     (last-modified-at (local-time:universal-to-timestamp
