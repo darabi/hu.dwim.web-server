@@ -11,8 +11,6 @@
 
 (def special-variable *lisp-form*)
 
-(def special-variable *line-number*)
-
 (def (component e) t/lisp-form/inspector (inspector/style)
   ((source-objects :type list)
    (line-count :type integer)))
@@ -43,12 +41,17 @@
                             0
                             1)))))
 
-(def render-component t/lisp-form/inspector
-  (bind ((*lisp-form* -self-)
-         (*line-number* 0))
-    (with-render-style/abstract (-self- :element-name "pre")
-      (render-line-number)
-      (foreach #'render-source-object (source-objects-of -self-)))))
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
+  (def render-component t/lisp-form/inspector
+    (bind (((:read-only-slots line-count) -self-)
+           (*lisp-form* -self-))
+      (with-render-style/abstract (-self-)
+        <pre (:class "gutter")
+             ,(iter (for line-number :from 1 :to line-count)
+                    <span (:class `str("line-number " ,(element-style-class (1- line-number) line-count)))
+                          ,(format nil "~3,' ',D~%" line-number)>)>
+        <pre (:class "content")
+             ,(foreach #'render-source-object (source-objects-of -self-))>)))}
 
 ;;;;;;
 ;;; Render lisp form
@@ -182,21 +185,7 @@
                          id)))))}
 
 (def function render-source-object-text (source-object)
-  (render-lines-with-line-numbers (source-text:source-object-text source-object)))
-
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
-  (def function render-lines-with-line-numbers (lines)
-    (iter (for line :in (split-sequence:split-sequence #\Newline lines))
-          (unless (first-iteration-p)
-            (terpri *xml-stream*)
-            (render-line-number))
-          (unless (string= line "")
-            `xml,line)))}
-
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
-  (def function render-line-number ()
-    <span (:class `str("line-number " ,(element-style-class *line-number* (line-count-of *lisp-form*))))
-      ,(format nil "~3,' ',D" (incf *line-number*))>)}
+  `xml,(source-text:source-object-text source-object))
 
 ;;;;;;
 ;;; t/lisp-form/invoker

@@ -96,22 +96,43 @@ a.external-link
   font-family: Courier New;
   color: black;
   background-color: lightyellow;
-  padding: 12px;
-  padding-left: 0px;
   border: 1px darkgray solid;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.t.lisp-form.inspector .gutter {
+  display: block;
+  float: left;
+  font-family: Courier New;
+  color: inherit;
+  background-color: lightyellow;
+  border: none;
+  padding: 0px;
+}
+
+.t.lisp-form.inspector .content {
+  display: block;
+  font-family: Courier New;
+  color: inherit;
+  background-color: inherit;
+  border: none;
+  padding: 0px;
 }
 
 .t.lisp-form.inspector .line-number.first {
-  padding-top: 12px;
+  padding-top: 6px;
 }
 
 .t.lisp-form.inspector .line-number.last {
-  padding-bottom: 12px;
+  padding-bottom: 6px;
 }
 
 .t.lisp-form.inspector .line-number {
   color: black;
   background-color: #dddddd;
+  padding-top: 0px;
+  padding-bottom: 0px;
   padding-left: 6px;
   padding-right: 6px;
   border-right: 3px darkgray solid;
