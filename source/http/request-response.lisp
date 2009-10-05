@@ -241,6 +241,9 @@
           (write-header-line name value)))
       (unless date-header-seen?
         (write-header-line +header/date+ (local-time:to-rfc1123-timestring (local-time:now))))
+      ;; TODO: connection keep-alive handling
+      (write-sequence "Connection: Close" stream)
+      (write-crlf stream)
       (dolist (cookie cookies)
         (write-header-line "Set-Cookie"
                            (if (rfc2109:cookie-p cookie)
