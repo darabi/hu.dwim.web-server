@@ -285,8 +285,8 @@
   (cond
     (dojo.isMozilla
      (return node))
-    ((or dojo.isOpera dojo.isSafari)
-     (return (document.import-node node true)))
+    ((or dojo.isChrome dojo.isOpera dojo.isSafari)
+     (return (document.importNode node true)))
     (dojo.isIE
      ;; ie is randomly dropping the script tags (m$ is as lame as usual...)
      ;; i couldn't find anything that affects the behaviour, my best guess is that it may depend
@@ -332,7 +332,7 @@
        (log.debug "Succesfully imported answer node, returning")
        (return result))))
   (log.warn "Unknown browser in import-ajax-received-xhtml-node, this will probably cause some troubles later. Browser is " navigator.userAgent)
-  (return node))
+  (return (document.importNode node true)))
 
 ;; Return a lambda that when passed a root node, will call the visitor with each of those children
 ;; that have the given tag-name.
