@@ -16,6 +16,7 @@
            #:allocate-compress-buffer
            #:uncompress
            #:deflate
+           #:deflate-sequence
            #:inflate))
 
 (in-package :hu.dwim.wui.zlib)
@@ -231,6 +232,22 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
    input-fn
    output-fn
    :buffer-size buffer-size))
+
+(def function deflate-sequence (bytes &rest args &key &allow-other-keys)
+  (bind ((compressed-bytes (allocate-compress-buffer bytes)))
+    (values compressed-bytes
+            (apply #'deflate
+                   (bind ((position 0))
+                     (lambda (buffer start size)
+                       (bind ((size (min size (- (length bytes) position))))
+                         (replace buffer bytes :start1 start :end1 size :start2 position)
+                         (incf position size)
+                         size)))
+                   (bind ((position 0))
+                     (lambda (buffer start size)
+                       (replace compressed-bytes buffer :start1 position :start2 start :end2 size)
+                       (incf position size)))
+                   args))))
 
 (def function make-inflate-z-stream (&key (window-bits 15))
   (let ((stream (cffi:foreign-alloc 'z-stream))
