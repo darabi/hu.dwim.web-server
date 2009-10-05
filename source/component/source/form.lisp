@@ -57,7 +57,8 @@
         <pre (:class "gutter")
              ,(iter (for line-number :from 1 :to line-count)
                     <span (:class `str("line-number " ,(element-style-class (1- line-number) line-count)))
-                          ,(format nil "~3,' ',D~%" line-number)>)>
+                          ,(format nil "~3,' ',D" line-number)>
+                    <span (:class "new-line") ,(format nil "~%")>)>
         <pre (:class "content")
              ,(foreach #'render-source-object (source-objects-of -self-))>)))}
 
