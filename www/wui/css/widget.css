@@ -34,7 +34,7 @@ a.external-link
 /* shell script */
 
 .shell-script.text.inspector {
-  font-family: Courier New;
+  font-family: monospace;
   color: black;
   background-color: lightyellow;
   border: 1px darkgray solid;
@@ -45,7 +45,7 @@ a.external-link
 .shell-script .gutter {
   display: block;
   float: left;
-  font-family: Courier New;
+  font-family: monospace;
   color: inherit;
   background-color: lightyellow;
   border: none;
@@ -54,7 +54,7 @@ a.external-link
 
 .shell-script .content {
   display: block;
-  font-family: Courier New;
+  font-family: monospace;
   color: inherit;
   background-color: inherit;
   border: none;
@@ -93,7 +93,7 @@ a.external-link
 /* lisp form */
 
 .t.lisp-form.inspector {
-  font-family: Courier New;
+  font-family: monospace;
   color: black;
   background-color: lightyellow;
   border: 1px darkgray solid;
@@ -104,7 +104,7 @@ a.external-link
 .t.lisp-form.inspector .gutter {
   display: block;
   float: left;
-  font-family: Courier New;
+  font-family: monospace;
   color: inherit;
   background-color: lightyellow;
   border: none;
@@ -113,7 +113,7 @@ a.external-link
 
 .t.lisp-form.inspector .content {
   display: block;
-  font-family: Courier New;
+  font-family: monospace;
   color: inherit;
   background-color: inherit;
   border: none;
