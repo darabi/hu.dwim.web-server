@@ -41,6 +41,14 @@
                             0
                             1)))))
 
+;;;;;;
+;;; Render lisp form
+
+(eval-always
+  (def function with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form ()
+    "Unconditionally turns off XML indent to keep original whitespaces for the XHTML pre element."
+    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)))
+
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
   (def render-component t/lisp-form/inspector
     (bind (((:read-only-slots line-count) -self-)
@@ -52,14 +60,6 @@
                           ,(format nil "~3,' ',D~%" line-number)>)>
         <pre (:class "content")
              ,(foreach #'render-source-object (source-objects-of -self-))>)))}
-
-;;;;;;
-;;; Render lisp form
-
-(eval-always
-  (def function with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form ()
-    "Unconditionally turns off XML indent to keep original whitespaces for the XHTML pre element."
-    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)))
 
 ;; TODO: some factoring could make this code shorter
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
