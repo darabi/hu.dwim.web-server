@@ -58,6 +58,8 @@
              ,(iter (for line-number :from 1 :to line-count)
                     <span (:class `str("line-number " ,(element-style-class (1- line-number) line-count)))
                           ,(format nil "~3,' ',D" line-number)>
+                    ;; NOTE: this has to be separate to workaround an Opera browser issue related to
+                    ;;       newline handling in pre elements
                     <span (:class "new-line") ,(format nil "~%")>)>
         <pre (:class "content")
              ,(foreach #'render-source-object (source-objects-of -self-))>)))}
