@@ -272,7 +272,8 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
          (output-buffer-size (floor buffer-size 2))
          (stream (funcall make-stream-fn))
          (lisp-input-buffer (cffi:make-shareable-byte-vector input-buffer-size))
-         (lisp-output-buffer (cffi:make-shareable-byte-vector output-buffer-size)))
+         (lisp-output-buffer (cffi:make-shareable-byte-vector output-buffer-size))
+         (total-output-bytes 0))
     (macrolet ((debug (message &rest args)
                  `(progn
                     (format *debug-io* ,message ,@args)
@@ -306,6 +307,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
                             (debug "outputting ~A bytes while avail-out is ~A and output-buffer-size is ~A" bytes avail-out output-buffer-size)
                             (unless (zerop bytes)
                               (funcall output-fn lisp-output-buffer 0 bytes)
+                              (incf total-output-bytes bytes)
                               (reset-output-buffer)))))
                  (reset-output-buffer)
                  ;; this is some idiotic code mimiced from http://www.zlib.net/zlib_how.html
@@ -329,7 +331,8 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
                                    (update-output)
                                    (unless output-buffer-full?
                                      (return-from inner)))))))))))
-        (funcall free-stream-fn stream)))))
+        (funcall free-stream-fn stream)))
+    total-output-bytes))
 
 #|
 
