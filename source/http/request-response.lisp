@@ -129,7 +129,19 @@
    (http-minor-version)
    (raw-uri)
    (uri)
-   (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")))
+   (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")
+   (accept-encodings :documentation "Used as a cache by ")))
+
+(def method accept-encodings-of :around ((request request))
+  (if (slot-boundp request 'accept-encodings)
+      (call-next-method)
+      (setf (accept-encodings-of request)
+            (aprog1
+                (parse-accept-header-value (or (header-value request +header/accept-encoding+) ""))
+              (http.dribble "Parsed the accept-encoding field for the request: ~A" it)))))
+
+(def function accepts-encoding? (encoding-name)
+  (assoc encoding-name (accept-encodings-of *request*) :test #'string=))
 
 (def method cookies-of :around ((request request))
   (if (slot-boundp request 'cookies)

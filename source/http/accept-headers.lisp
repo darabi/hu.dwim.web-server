@@ -99,8 +99,3 @@
                (return-from parse-accept-header-value
                  (sort entries #'> :key #'cdr))))
       (parse-key))))
-
-(def function accepts-encoding? (encoding-name)
-  (bind ((accept-encodings (awhen (header-value *request* +header/accept-encoding+)
-                             (parse-accept-header-value it))))
-    (assoc encoding-name accept-encodings :test #'string=)))
