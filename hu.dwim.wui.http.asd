@@ -55,7 +55,7 @@
                                            (:file "cgi" :depends-on ("brokers"))
                                            (:file "conditions" :depends-on ("variables"))
                                            (:file "error-handling" :depends-on ("variables" "util"))
-                                           (:file "request-parsing" :depends-on ("request-response" "uri"))
+                                           (:file "request-parsing" :depends-on ("request-response" "accept-headers" "uri"))
                                            (:file "request-response" :depends-on ("variables" "util"))
                                            (:file "server" :depends-on ("request-parsing"))
                                            (:file "uri" :depends-on ("variables"))
