@@ -55,14 +55,17 @@
                      result)))
              (parse-key ()
                (setf score nil)
-               (setf key (make-string-buffer))
+               (setf key nil)
                (iter (for char = (read-next-char))
                      (case char
                        (#\; (parse-score))
                        (#\, (emit-entry))
                        ((nil) (emit-entry)
                               (emit-result))
-                       (t (vector-push-extend char key)))))
+                       (t
+                        (unless key
+                          (setf key (make-string-buffer)))
+                        (vector-push-extend char key)))))
              (parse-score ()
                (unless (char= #\q (read-next-char))
                  (fail))
@@ -84,11 +87,12 @@
                             (fail))))))
              (emit-entry ()
                ;; (break "emitting ~S" (cons key score))
-               (push (cons key
-                           (if score
-                               (parse-number:parse-number score)
-                               1))
-                     entries)
+               (when key
+                 (push (cons key
+                             (if score
+                                 (parse-number:parse-number score)
+                                 1))
+                       entries))
                (when (next-char)
                  (parse-key)))
              (emit-result ()
