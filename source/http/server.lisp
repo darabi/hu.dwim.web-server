@@ -433,57 +433,70 @@
           ;; we are changig the value of HEADERS and COOKIES here, so we must make the new values visible in the with-macro body hiding their initial values
           (-body- headers cookies)))))
 
-(def function serve-sequence (body &key
-                                   (last-modified-at (local-time:now))
-                                   content-type
-                                   content-encoding
-                                   headers
-                                   cookies
-                                   content-disposition
-                                   (stream (client-stream-of *request*))
-                                   (encoding (encoding-name-of (iolib:external-format-of stream)))
-                                   seconds-until-expires)
+(def function compress-content-default-value ()
+  (when (and (not *disable-response-compression*)
+             (accepts-encoding? +content-encoding/deflate+))
+    :deflate))
+
+(def function serve-sequence (input &key
+                                    (compress-content (compress-content-default-value))
+                                    (last-modified-at (local-time:now))
+                                    content-type
+                                    content-encoding
+                                    headers
+                                    cookies
+                                    content-disposition
+                                    (stream (client-stream-of *request*))
+                                    (encoding (encoding-name-of (iolib:external-format-of stream)))
+                                    seconds-until-expires)
   "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
-  (check-type body (or list (vector (unsigned-byte 8) *) string))
-  (server.debug "SERVE-SEQUENCE: body type: ~A, body-length: ~A, content-encoding: ~A" (type-of body) (length body) content-encoding)
+  (check-type input (or list (vector (unsigned-byte 8) *) string))
+  (check-type compress-content (member nil :deflate))
+  (server.debug "SERVE-SEQUENCE: input type: ~A, input-length: ~A, content-encoding: ~A" (type-of input) (length input) content-encoding)
   (with-content-serving-logic ('serve-sequence :last-modified-at last-modified-at
                                                :seconds-until-expires seconds-until-expires
                                                :headers headers
                                                :cookies cookies
                                                :stream stream)
     (with-thread-name " / SERVE-SEQUENCE"
-      (bind ((length 0)
-             (body (iter (for piece :in (ensure-list body))
-                         (when (stringp piece)
-                           (setf piece (string-to-octets piece :encoding encoding)))
-                         (incf length (length piece))
-                         (collect piece))))
-        (awhen content-type
-          (setf (header-alist-value headers +header/content-type+) it))
-        (awhen content-disposition
-          (setf (header-alist-value headers +header/content-disposition+) it))
-        (eswitch (content-encoding :test #'equal)
-          (nil
-           (setf (header-alist-value headers +header/content-length+) (integer-to-string length))
-           (send-http-headers headers cookies :stream stream)
-           (dolist (piece body)
-             (write-sequence piece stream)))
-          (+content-encoding/deflate+
-           (setf (header-alist-value headers +header/content-encoding+) +content-encoding/deflate+)
-           (bind ((bytes (if (and (length= 1 body)
-                                  (typep (first body) 'simple-ub8-vector))
-                             (first body)
-                             (aprog1
-                                 (make-array length :element-type '(unsigned-byte 8))
-                               (iter (for piece :in body)
-                                     (for previous-piece :previous piece)
-                                     (for start :first 0 :then (+ start (length previous-piece)))
-                                     (replace it piece :start1 start))))))
-             (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.wui.zlib:deflate-sequence bytes :window-bits -15)))
-               (server.debug "SERVE-SEQUENCE: compressed response, original-size ~A, compressed-size ~A, ratio: ~,3F" length compressed-bytes-length (/ compressed-bytes-length length))
-               (setf (header-alist-value headers +header/content-length+) (integer-to-string compressed-bytes-length))
-               (send-http-headers headers cookies :stream stream)
-               (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length)))))))))
+      (flet ((send-http-headers (length)
+               (awhen content-type
+                 (setf (header-alist-value headers +header/content-type+) it))
+               (awhen content-disposition
+                 (setf (header-alist-value headers +header/content-disposition+) it))
+               (awhen content-encoding
+                 (setf (header-alist-value headers +header/content-encoding+) it))
+               (setf (header-alist-value headers +header/content-length+) (integer-to-string length))
+               (send-http-headers headers cookies :stream stream)))
+        (bind ((input-byte-size 0)
+               (input (iter (for piece :in (ensure-list input))
+                            (when (stringp piece)
+                              (setf piece (string-to-octets piece :encoding encoding)))
+                            (incf input-byte-size (length piece))
+                            (collect piece))))
+          (ecase compress-content
+            ((nil)
+             (send-http-headers input-byte-size)
+             (dolist (piece input)
+               (write-sequence piece stream)))
+            (:deflate
+             (when content-encoding
+               (error "SERVE-SEQUENCE was called with COMPRESS-CONTENT ~S, but CONTENT-ENCODING was not nil but ~S" compress-content content-encoding))
+             (setf content-encoding +content-encoding/deflate+)
+             ;; convert INPUT to a single, continuous byte vector
+             (bind ((input (if (and (length= 1 input)
+                                    (typep (first input) 'simple-ub8-vector))
+                               (first input)
+                               (aprog1
+                                   (make-array input-byte-size :element-type '(unsigned-byte 8))
+                                 (iter (for piece :in input)
+                                       (for previous-piece :previous piece)
+                                       (for start :first 0 :then (+ start (length previous-piece)))
+                                       (replace it piece :start1 start))))))
+               (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.wui.zlib:deflate-sequence input :window-bits -15)))
+                 (server.debug "SERVE-SEQUENCE: compressed response, original-size ~A, compressed-size ~A, ratio: ~,3F" input-byte-size compressed-bytes-length (/ compressed-bytes-length input-byte-size))
+                 (send-http-headers compressed-bytes-length)
+                 (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length))))))))))
 
 (def function serve-stream (input-stream &key
                                          (last-modified-at (local-time:now))

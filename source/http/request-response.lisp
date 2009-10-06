@@ -421,10 +421,8 @@
 
 (def method send-response ((response byte-vector-response))
   (serve-sequence (body-of response)
-                  :content-encoding (when (and (not *disable-response-compression*)
-                                               (not (header-value response +header/content-encoding+))
-                                               (accepts-encoding? +content-encoding/deflate+))
-                                      +content-encoding/deflate+)
+                  :compress-content (unless (header-value response +header/content-encoding+)
+                                      (compress-content-default-value))
                   :headers (headers-of response)
                   :cookies (cookies-of response)
                   :last-modified-at (last-modified-at-of response)))
