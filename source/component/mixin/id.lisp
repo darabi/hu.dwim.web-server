@@ -26,7 +26,7 @@
 
 (def function ensure-frame-unique-id (component)
   (or (id-of component)
-      (setf (id-of component) (generate-frame-unique-string "c"))))
+      (setf (id-of component) (generate-frame-unique-string))))
 
 (def layered-method refresh-component :before ((self frame-unique-id/mixin))
   (ensure-frame-unique-id self))

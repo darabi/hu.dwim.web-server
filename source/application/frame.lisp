@@ -52,7 +52,7 @@
 
 (def (function ei) generate-response-unique-string (&optional prefix context)
   (unless prefix
-    (setf prefix "_u"))
+    (setf prefix "r"))
   (unless context
     (setf context (or *frame* *response*)))
   (bind ((*print-pretty* #f))
@@ -62,7 +62,7 @@
 
 (def (function ei) generate-frame-unique-string (&optional prefix frame)
   (unless prefix
-    (setf prefix "_u"))
+    (setf prefix "f"))
   (unless frame
     (setf frame *frame*))
   (generate-response-unique-string prefix frame))
