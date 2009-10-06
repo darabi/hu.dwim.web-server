@@ -9,6 +9,7 @@
   padding-bottom: 4px;
   background-repeat: no-repeat;
   background-position: left center;
+  white-space: pre;
 }
 
 /* authentication */
