@@ -10,6 +10,10 @@
 ;;; internal-error-message/widget
 
 ;; TODO inherit from panel/widget instead of these (currently title is not rendered)
+;; TODO this is broken as is: if RENDERING-PHASE-REACHED is true then it means that the frame contains
+;; something that fails to render, potentially the first topmost component. it means that currently the browser
+;; window is useless until the frame-id is deleted from the url by hand...
+;; TODO is this missing a render method? its command bar is not rendered...
 (def (component e) internal-error-message/widget (component-messages/widget
                                                   content/widget
                                                   title/mixin
@@ -35,6 +39,7 @@
   (if (and *session*
            *inside-user-code*)
       (progn
+        (app.debug "HANDLE-TOPLEVEL-ERROR for application with a valid *SESSION* and *INSIDE-USER-CODE*")
         (app.error (build-backtrace-string error))
         (bind ((request-uri (raw-uri-of *request*)))
           (if (or (not *response*)

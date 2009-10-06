@@ -348,6 +348,7 @@
             (values)))))))
 
 (def function store-response (response)
+  ;; TODO i'm not too happy with this store-response. this is probably here because something is not clear around how responses are constructed and piped for sending...
   (assert (boundp '*response*))
   (unless (typep response 'do-nothing-response)
     (assert (or (null *response*)
@@ -535,6 +536,8 @@
              (write-sequence buffer stream :end end-pos)))
         (server.debug "SERVE-STREAM finished copying input stream ~A to the network stream ~A" input-stream stream))))
 
+;; TODO use sendfile somehow?
+;; TODO how about wget -c, aka seeking http requests?
 (def function serve-file (file-name &rest args &key
                                     (last-modified-at (local-time:universal-to-timestamp
                                                        (file-write-date file-name)))

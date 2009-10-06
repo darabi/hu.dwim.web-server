@@ -125,6 +125,7 @@
             (render-command-onclick-handler content id))))))
 
 (def function render-show-context-menu-command-for (component)
+  (declare (ignore component))
   ;; TODO: add js to really show the menu
   (render-component (icon show-context-menu :label nil)))
 
