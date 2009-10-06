@@ -15,7 +15,7 @@
 (def class* http-message ()
   ((headers nil)
    ;; left unbound, which is a marker for the lazy request cookie parser to do the parsing
-   (cookies)))
+   (cookies :documentation "An alist cache of the parsed Cookie header value. Its accessor lazily initializes the slot.")))
 
 (def (function io) header-alist-value (alist header-name)
   (cdr (assoc header-name alist :test #'string=)))
@@ -130,7 +130,7 @@
    (raw-uri)
    (uri)
    (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")
-   (accept-encodings :documentation "Used as a cache by ")))
+   (accept-encodings :documentation "An alist cache of the parsed ACCEPT-ENDODINGS header value. Its accessor lazily initializes the slot.")))
 
 (def method accept-encodings-of :around ((request request))
   (if (slot-boundp request 'accept-encodings)
@@ -141,7 +141,7 @@
               (http.dribble "Parsed the accept-encoding field for the request: ~A" it)))))
 
 (def function accepts-encoding? (encoding-name)
-  (assoc encoding-name (accept-encodings-of *request*) :test #'string=))
+  (not (null (assoc encoding-name (accept-encodings-of *request*) :test #'string=))))
 
 (def method cookies-of :around ((request request))
   (if (slot-boundp request 'cookies)

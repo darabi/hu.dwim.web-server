@@ -438,6 +438,7 @@
              (accepts-encoding? +content-encoding/deflate+))
     :deflate))
 
+;; details on the deflate bug in IE and Konqueror: https://bugs.kde.org/show_bug.cgi?id=117683
 (def function serve-sequence (input &key
                                     (compress-content (compress-content-default-value))
                                     (last-modified-at (local-time:now))
