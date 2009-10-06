@@ -179,11 +179,7 @@
                 <td
                   <a (:href ,(escape-as-uri (string+ path-prefix relative-path name)))
                     ,name>>
-                <td ;; TODO iolib pending bug, replace when fixed... ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))
-                    ,(integer-to-string
-                      (with-open-file (file-stream file)
-                        (file-length file-stream)))
-                    >>))>)
+                <td ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))>>))>)
 
 ;;;;;;
 ;;; MIME stuff for serving static files
