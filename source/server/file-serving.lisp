@@ -77,11 +77,9 @@
                   ;; TODO use iolib for file-write-date?
                   (<= (file-write-date truename)
                       (file-write-date compressed-file)))
-             (aprog1
-                 (make-file-serving-response compressed-file)
-               (files.debug "Serving file from the compressed file cache: ~A" compressed-file)
-               (setf (header-value it +header/content-encoding+) +content-encoding/deflate+))
+             (files.debug "Serving file from the compressed file cache: ~A" compressed-file)
              (progn
+               (files.dribble "Updating compressed file cache for ~S, into compressed file ~S" truename compressed-file)
                (with-open-file (input truename :direction :input :element-type '(unsigned-byte 8))
                  (with-open-file (output compressed-file :direction :output :element-type '(unsigned-byte 8) :if-exists :supersede)
                    (hu.dwim.wui.zlib:deflate
@@ -93,10 +91,10 @@
                    (bind ((input-length (file-length input))
                           (output-length (file-length output)))
                      (assert output-length)
-                     (files.debug "Updated compressed file cache for ~S, cache entry ~S. Old size ~A, new size ~A, ratio ~,3F" truename compressed-file input-length output-length (/ output-length input-length)))))
-               (aprog1
-                   (make-file-serving-response compressed-file)
-                 (setf (header-value it +header/content-encoding+) +content-encoding/deflate+))))))
+                     (files.debug "Updated compressed file cache for ~S, the compressed file is ~S. Old size ~A, new size ~A, ratio ~,3F" truename compressed-file input-length output-length (/ output-length input-length)))))))
+         (aprog1
+             (make-file-serving-response compressed-file)
+           (setf (header-value it +header/content-encoding+) +content-encoding/deflate+))))
       (t
        (make-file-serving-response truename)))))
 
