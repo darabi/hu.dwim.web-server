@@ -10,46 +10,46 @@
   (:documentation "A CFFI based zlib")
 
   (:use :hu.dwim.common-lisp
-        :hu.dwim.def)
-
-  (:export #:compress
-           #:allocate-compress-buffer
-           #:uncompress
-           #:deflate
-           #:deflate-sequence
-           #:inflate))
+        :hu.dwim.def))
 
 (in-package :hu.dwim.wui.zlib)
 
-(def constant +default-buffer-size+ 4096)
+(macrolet ((frob (&body defs)
+               `(progn
+                  ,@(loop
+                       :for (name value) :on defs :by #'cddr
+                       :collect `(def (constant e) ,name ,value)))))
 
-(def constant +max-window-bits+ 15) ; MAX_WBITS
+ (frob
+  +default-buffer-size+ 4096
 
-(def constant +z-no-flush+   0)
-(def constant +z-sync-flush+ 2)
-(def constant +z-full-flush+ 3)
-(def constant +z-finish+     4)
+  +max-window-bits+ 15                  ; MAX_WBITS
 
-(def constant +z-ok+            0)
-(def constant +z-stream-end+    1)
-(def constant +z-need-dict+     2)
-(def constant +z-errno+         -1)
-(def constant +z-stream-error+  -2)
-(def constant +z-data-error+    -3)
-(def constant +z-mem-error+     -4)
-(def constant +z-buf-error+     -5)
-(def constant +z-version-error+ -6)
+  +z-no-flush+   0
+  +z-sync-flush+ 2
+  +z-full-flush+ 3
+  +z-finish+     4
 
-(def constant +z-no-compression+      0)
-(def constant +z-best-speed+          1)
-(def constant +z-best-compression+    9)
-(def constant +z-default-compression+ -1)
+  +z-ok+            0
+  +z-stream-end+    1
+  +z-need-dict+     2
+  +z-errno+         -1
+  +z-stream-error+  -2
+  +z-data-error+    -3
+  +z-mem-error+     -4
+  +z-buf-error+     -5
+  +z-version-error+ -6
 
-(def constant +z-deflated+ 8)
+  +z-no-compression+      0
+  +z-best-speed+          1
+  +z-best-compression+    9
+  +z-default-compression+ -1
 
-(def constant +z-filtered+         1)
-(def constant +z-huffman-only+     2)
-(def constant +z-default-strategy+ 0)
+  +z-deflated+ 8
+
+  +z-filtered+         1
+  +z-huffman-only+     2
+  +z-default-strategy+ 0))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (def special-variable *zlib-search-paths*
@@ -145,7 +145,7 @@
 ;;;
 ;;; Lisp part
 ;;;
-(def function allocate-compress-buffer (source &key (source-start 0) (source-end (length source)))
+(def (function e) allocate-compress-buffer (source &key (source-start 0) (source-end (length source)))
   (cffi:make-shareable-byte-vector (ceiling (* (+ (- source-end source-start) 12) 1.01))))
 
 (def function zlib-error (code)
@@ -160,11 +160,11 @@
              ,@body
              ,result)))))
 
-(def function compress (source destination &key
-                 (source-start 0)
-                 (source-end (length source))
-                 (destination-start 0)
-                 (level +z-default-compression+))
+(def (function e) compress (source destination &key
+                                   (source-start 0)
+                                   (source-end (length source))
+                                   (destination-start 0)
+                                   (level +z-default-compression+))
   "Compress the first SOURCE-START bytes of SOURCE into DESTINATION. DESTINATION should be an array of (unsigned-byte 8), and should be large enough to hold the compressed contents. ALLOCATE-COMPRESS-BUFFER can be used to allocate a proper buffer.
 
 Note that the size of the DESTINATION array should be at least 0.1% more than the souce plus 12 bytes, but the actual number of array elements filled in by the compression algorithm will usually be smaller (depending on how 'predictable' the input data is)."
@@ -182,10 +182,10 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
         (let ((destination-end (+ destination-start (cffi:mem-ref compressed-length :long))))
           destination-end)))))
 
-(def function uncompress (source destination &key
-                   (source-start 0)
-                   (source-end (length source))
-                   (destination-start 0))
+(def (function e) uncompress (source destination &key
+                                     (source-start 0)
+                                     (source-end (length source))
+                                     (destination-start 0))
   "DESTINATION must be long enough to hold the uncompressed contents, otherwise errors out. Returns (values DESTINATION destination-end)."
   (check-type source (simple-array (unsigned-byte 8) (*)))
   (check-type destination (simple-array (unsigned-byte 8) (*)))
@@ -201,7 +201,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
           destination-end)))))
 
 (def function make-deflate-z-stream (&key (level +z-default-compression+) (method +z-deflated+)
-                      (window-bits +max-window-bits+) (memory-level 8) (strategy +z-default-strategy+))
+                                          (window-bits +max-window-bits+) (memory-level 8) (strategy +z-default-strategy+))
   (let ((stream (cffi:foreign-alloc 'z-stream))
         (ok nil))
     (unwind-protect
@@ -223,8 +223,8 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
   (cffi:foreign-free stream)
   (values))
 
-(def function deflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (level +z-default-compression+)
-                (method +z-deflated+) (window-bits +max-window-bits+) (memory-level 8) (strategy +z-default-strategy+))
+(def (function e) deflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (level +z-default-compression+)
+                                    (method +z-deflated+) (window-bits +max-window-bits+) (memory-level 8) (strategy +z-default-strategy+))
   (%inflate-or-deflate
    :deflate
    (lambda ()
@@ -235,7 +235,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
    output-fn
    :buffer-size buffer-size))
 
-(def function deflate-sequence (bytes &rest args &key &allow-other-keys)
+(def (function e) deflate-sequence (bytes &rest args &key &allow-other-keys)
   (bind ((compressed-bytes (allocate-compress-buffer bytes)))
     (values compressed-bytes
             (apply #'deflate
@@ -273,7 +273,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
   (cffi:foreign-free stream)
   (values))
 
-(def function inflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (window-bits +max-window-bits+))
+(def (function e) inflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (window-bits +max-window-bits+))
   (%inflate-or-deflate
    :inflate
    (lambda ()
@@ -284,7 +284,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
    :buffer-size buffer-size))
 
 (def function %inflate-or-deflate (operation make-stream-fn free-stream-fn input-fn output-fn &key
-                            (buffer-size +default-buffer-size+))
+                                             (buffer-size +default-buffer-size+))
   (check-type operation (member :deflate :inflate))
   (assert (> buffer-size 256))
   (let* ((input-buffer-size (floor buffer-size 2))
