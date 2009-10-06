@@ -44,12 +44,7 @@
 ;;;;;;
 ;;; Render lisp form
 
-(eval-always
-  (def function with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form ()
-    "Unconditionally turns off XML indent to keep original whitespaces for the XHTML pre element."
-    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)))
-
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
   (def render-component t/lisp-form/inspector
     (bind (((:read-only-slots line-count) -self-)
            (*lisp-form* -self-))
@@ -65,7 +60,7 @@
              ,(foreach #'render-source-object (source-objects-of -self-))>)))}
 
 ;; TODO: some factoring could make this code shorter
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
  (def layered-function render-source-object (instance)
    (:method :in xhtml-layer ((instance source-text:source-token))
      <span (:class "token") ,(render-source-object-text instance)>)
@@ -140,7 +135,7 @@
      <span (:class "lexical-error") ,(princ-to-string (source-text:source-lexical-error-error instance))>
      (render-source-object-text instance)))}
 
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
  (def layered-function render-source-list (first instance)
    (:method :in xhtml-layer (first (instance source-text:source-list))
      <span (:class "list") "(" ,(foreach #'render-source-object (source-text:source-sequence-elements instance)) ")">)
@@ -160,7 +155,7 @@
              ,(foreach #'render-source-object elements)
              ")">)))}
 
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/lisp-form
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
  (def layered-function render-source-symbol (value instance)
    (:method :in xhtml-layer (value (instance source-text:source-symbol))
      (bind ((id (generate-response-unique-string))

@@ -40,12 +40,7 @@
 (def (macro e) shell-script/text/inspector ((&rest args &key &allow-other-keys) &body shell-script)
   `(make-instance 'shell-script/text/inspector ,@args :component-value ,(the-only-element shell-script)))
 
-(eval-always
-  (def function with-quasi-quoted-xml-to-binary-emitting-form-syntax/shell-script ()
-    "Unconditionally turns off XML indent to keep original whitespaces for the XHTML pre element."
-    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t)))
-
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/shell-script
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
   (def render-xhtml shell-script/text/inspector
     (bind (((:read-only-slots component-value) -self-))
       (with-render-style/abstract (-self-)

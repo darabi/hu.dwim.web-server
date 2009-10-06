@@ -79,11 +79,12 @@
     ;; render the `js first, so the return value contract of qq is kept.
     (when tooltip
       (render-tooltip tooltip id))
-    <span (:id ,id :class ,style-class)
-      ,(when image-path
-         <img (:src ,(string+ (path-prefix-of *application*) image-path))>)
-      ,(awhen (force label)
-         (render-icon-label icon it))>))
+    {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
+      <span (:id ,id :class ,style-class)
+        ,(when image-path
+           <img (:src ,(string+ (path-prefix-of *application*) image-path))>)
+        ,(awhen (force label)
+           (render-icon-label icon it))>}))
 
 (def function icon-style-class (name)
   (string+ "icon " (string-downcase (symbol-name name)) "-icon widget"))
