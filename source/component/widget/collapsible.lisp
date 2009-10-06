@@ -7,6 +7,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Icon
+
+(def (icon e) expand-component)
+
+(def (icon e) collapse-component)
+
+;;;;;;
 ;;; collapsible/abstract
 
 (def (component e) collapsible/abstract (widget/abstract collapsible/mixin)
@@ -79,10 +86,3 @@
   (if (expanded-component? component)
       (render-expanded-content-for component)
       (render-collapsed-content-for component)))
-
-;;;;;;
-;;; Icon
-
-(def (icon e) expand-component)
-
-(def (icon e) collapse-component)
