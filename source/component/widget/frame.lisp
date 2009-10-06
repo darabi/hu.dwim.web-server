@@ -143,15 +143,3 @@
 (def (generic e) application-relative-path-for-no-javascript-support-error (application)
   (:method ((application application))
     "/help/"))
-
-(def (generic e) supported-user-agent? (application request)
-  (:method ((application application) (request request))
-    (bind ((http-agent (header-value request +header/user-agent+)))
-      (flet ((check (version-scanner minimum-version)
-               (bind (((:values success? version) (cl-ppcre:scan-to-strings version-scanner http-agent)))
-                 (and success?
-                      (<= minimum-version (parse-number:parse-number (first-elt version)))))))
-        (or (check +mozilla-version-scanner+ 5)
-            (check +opera-version-scanner+ 9.6)
-            (check +msie-version-scanner+ 7)
-            (check +drakma-version-scanner+ 0))))))

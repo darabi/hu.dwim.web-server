@@ -74,7 +74,7 @@
 (def render-xhtml usage-help/widget
   (when (parameter-value +no-javascript-error-parameter-name+)
     (add-component-error-message -self- "Nincs engedélyezve az internet böngészőjében a JavaScript programok futtatása, így az alkalmazás sajnos nem használható. Kérjük engedélyezze a JavaScript futtatását a beállításokban!"))
-  (unless (supported-user-agent? *application* *request*)
+  (unless (supported? (determine-user-agent *request*))
     (add-component-error-message -self- "Ezt az internet böngészőt vagy annak az éppen használt verzióját az alkalmazás nem támogatja. Az alábbi oldalon olvashatja a támogatott böngészők listáját és a letöltésükhöz szükséges információkat. A kellemetlenségért elnézését kérjük!"))
   <div (:class "usage-help widget")
     ,(render-title-for -self-)

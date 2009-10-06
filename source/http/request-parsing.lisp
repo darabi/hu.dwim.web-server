@@ -256,3 +256,46 @@
               (t (abort-server-request "Invalid request content type"))))))))
   (http.debug "Skipped parsing request body, raw Content-Type is [~S], raw Content-Length is [~S]" raw-content-type raw-content-length)
   initial-parameter-alist)
+
+;;;;;;
+;;; user-agent
+
+(def class* user-agent ()
+  ((kind :type keyword)
+   (version :type number)
+   (supported :type boolean :accessor supported?)))
+
+(def print-object user-agent
+  (format t "~A : ~A (~A)"
+          (kind-of -self-) (version-of -self-)
+          (if (supported? -self-)
+              "supported"
+              "unsupported")))
+
+(def function make-generic-user-agent ()
+  (make-instance 'user-agent
+                 :kind :generic
+                 :version 0
+                 :supported #f))
+
+(def function determine-user-agent (request)
+  (bind ((http-agent (header-value request +header/user-agent+)))
+    (flet ((check-user-agent (version-scanner user-agent minimum-version)
+             (bind (((:values success? version-string) (cl-ppcre:scan-to-strings version-scanner http-agent)))
+               (when success?
+                 (bind ((version (or (ignore-errors
+                                       (parse-number:parse-number (first-elt version-string)))
+                                     0)))
+                   (make-instance 'user-agent
+                                  :kind user-agent
+                                  :version version
+                                  :supported (>= version minimum-version)))))))
+      (aprog1 (or (check-user-agent +chrome-version-scanner+ :chrome 4)
+                  (check-user-agent +opera-version-scanner+ :opera 9.6)
+                  (check-user-agent +konqueror-version-scanner+ :konqueror 4.2)
+                  (check-user-agent +safari-version-scanner+ :safari 4)
+                  (check-user-agent +msie-version-scanner+ :msie 7)
+                  (check-user-agent +mozilla-version-scanner+ :mozilla 5)
+                  (check-user-agent +drakma-version-scanner+ :drakma 0)
+                  (make-generic-user-agent))
+        (http.info "Determined user agent is ~A" it)))))
