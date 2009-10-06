@@ -88,31 +88,32 @@
 ;;; Ajax aware render
 
 (def function ajax-aware-render (component)
+  (assert (boundp '*rendering-phase-reached*))
   (app.debug "Inside AJAX-AWARE-RENDER; is this an ajax-aware-request? ~A" *ajax-aware-request*)
-  (if (and *ajax-aware-request*
-           (ajax-enabled? *application*))
-      (bind ((to-be-rendered-components
-              ;; KLUDGE: finding top/abstract and going down from there
-              (bind ((top (find-descendant-component-with-type component 'top/abstract)))
-                (assert top nil "There is no TOP component below ~A, AJAX cannot be used in this situation at the moment" component)
-                (collect-covering-to-be-rendered-descendant-components top))))
-        (setf (header-value *response* +header/content-type+) +xml-mime-type+)
-        ;; FF does not like proper xml prologue, probably the other browsers even more so...
-        ;; (emit-xml-prologue)
-        <ajax-response
-         ,@(with-collapsed-js-scripts
-             (with-dojo-widget-collector
-               <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
-                 ,(foreach (lambda (to-be-rendered-component)
-                             (with-restored-component-environment (parent-component-of to-be-rendered-component)
-                               (bind ((*inside-user-code* #t))
-                                 (setf *rendering-phase-reached* #t)
-                                 (render-xhtml to-be-rendered-component))))
-                           to-be-rendered-components)>))
-         <result "success">>)
-      (bind ((*inside-user-code* #t))
-        (setf *rendering-phase-reached* #t)
-        (render-xhtml component))))
+  (flet ((call-render-xhtml (component)
+           (bind ((*inside-user-code* #t))
+             (setf *rendering-phase-reached* #t)
+             (render-xhtml component))))
+    (if (and *ajax-aware-request*
+             (ajax-enabled? *application*))
+        (bind ((to-be-rendered-components
+                ;; KLUDGE: finding top/abstract and going down from there
+                (bind ((top (find-descendant-component-with-type component 'top/abstract)))
+                  (assert top nil "There is no TOP component below ~A, AJAX cannot be used in this situation at the moment" component)
+                  (collect-covering-to-be-rendered-descendant-components top))))
+          (setf (header-value *response* +header/content-type+) +xml-mime-type+)
+          ;; FF does not like proper xml prologue, probably the other browsers even more so...
+          ;; (emit-xml-prologue)
+          <ajax-response
+           ,@(with-collapsed-js-scripts
+               (with-dojo-widget-collector
+                 <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
+                   ,(foreach (lambda (to-be-rendered-component)
+                               (with-restored-component-environment (parent-component-of to-be-rendered-component)
+                                 (call-render-xhtml to-be-rendered-component)))
+                             to-be-rendered-components)>))
+           <result "success">>)
+        (call-render-xhtml component))))
 
 (def function collect-covering-to-be-rendered-descendant-components (component)
   (prog1-bind covering-components nil
