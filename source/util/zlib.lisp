@@ -23,6 +23,8 @@
 
 (def constant +default-buffer-size+ 4096)
 
+(def constant +max-window-bits+ 15) ; MAX_WBITS
+
 (def constant +z-no-flush+   0)
 (def constant +z-sync-flush+ 2)
 (def constant +z-full-flush+ 3)
@@ -199,7 +201,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
           destination-end)))))
 
 (def function make-deflate-z-stream (&key (level +z-default-compression+) (method +z-deflated+)
-                      (window-bits 15) (memory-level 8) (strategy +z-default-strategy+))
+                      (window-bits +max-window-bits+) (memory-level 8) (strategy +z-default-strategy+))
   (let ((stream (cffi:foreign-alloc 'z-stream))
         (ok nil))
     (unwind-protect
@@ -222,7 +224,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
   (values))
 
 (def function deflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (level +z-default-compression+)
-                (method +z-deflated+) (window-bits 15) (memory-level 8) (strategy +z-default-strategy+))
+                (method +z-deflated+) (window-bits +max-window-bits+) (memory-level 8) (strategy +z-default-strategy+))
   (%inflate-or-deflate
    :deflate
    (lambda ()
@@ -249,7 +251,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
                        (incf position size)))
                    args))))
 
-(def function make-inflate-z-stream (&key (window-bits 15))
+(def function make-inflate-z-stream (&key (window-bits +max-window-bits+))
   (let ((stream (cffi:foreign-alloc 'z-stream))
         (ok nil))
     (unwind-protect
@@ -271,7 +273,7 @@ Note that the size of the DESTINATION array should be at least 0.1% more than th
   (cffi:foreign-free stream)
   (values))
 
-(def function inflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (window-bits 15))
+(def function inflate (input-fn output-fn &key (buffer-size +default-buffer-size+) (window-bits +max-window-bits+))
   (%inflate-or-deflate
    :inflate
    (lambda ()
