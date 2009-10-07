@@ -31,6 +31,11 @@
       (when (render-command-bar-for-alternative? content)
         (render-command-bar-for -self-)))))
 
+(def method visible-child-component-slots ((component alternator/widget))
+  (remove-slots (unless (render-command-bar-for-alternative? (content-of component))
+                  '(command-bar))
+                (call-next-method)))
+
 (def generic render-command-bar-for-alternative? (component)
   (:method (component)
     #t)

@@ -27,4 +27,5 @@
 (def render-xhtml tree/widget
   (bind (((:read-only-slots root-nodes) -self-))
     (with-render-style/abstract (-self-)
-      (foreach #'render-component root-nodes))))
+      (foreach #'render-component root-nodes)
+      (render-command-bar-for -self-))))

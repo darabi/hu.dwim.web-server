@@ -64,7 +64,7 @@
 ;;;;;;
 ;;; collapsible/widget
 
-(def (component e) collapsible/widget (widget/basic collapsible/abstract)
+(def (component e) collapsible/widget (widget/style collapsible/abstract)
   ((collapsed-content :type component)
    (expanded-content :type component)))
 
@@ -72,9 +72,9 @@
   `(make-instance 'collapsible/widget ,@args :collapsed-content ,(first content) :expanded-content ,(second content)))
 
 (def render-component collapsible/widget
-  <span (:class "collapsible")
-    ,(render-collapse-or-expand-command-for -self-)
-    ,(render-collapsed-or-expanded-content-for -self-)>)
+  (with-render-style/abstract (-self-)
+    (render-collapse-or-expand-command-for -self-)
+    (render-collapsed-or-expanded-content-for -self-)))
 
 (def (function e) render-collapsed-content-for (component)
   (render-component (collapsed-content-of component)))

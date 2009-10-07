@@ -37,7 +37,8 @@
         ,(render-content-for -self-)>
       ,(when (expanded-component? -self-)
          (foreach #'render-component child-nodes))>
-    (render-command-onclick-handler (find-command -self- 'select-component) id)))
+    (when-bind select-command (find-command -self- 'select-component)
+      (render-command-onclick-handler select-command id))))
 
 (def method visible-child-component-slots ((self node/widget))
   (remove-slots (append (unless (expanded-component? self)

@@ -63,8 +63,6 @@
   `(make-instance 'context-menu/widget ,@args :menu-items (list ,@menu-items)))
 
 (def render-xhtml context-menu/widget
-  ;; TODO: revive this, but make it lazy by default on the client side
-  #+nil
   (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
     (when menu-items
       (render-dojo-widget (id)

@@ -26,7 +26,8 @@
           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)
       ,(render-content-for -self-)>
-    (render-command-onclick-handler (find-command -self- 'select-component) id)))
+    (when-bind select-command (find-command -self- 'select-component)
+      (render-command-onclick-handler select-command id))))
 
 (def (function e) element-style-class (index total)
   (string+ (when (zerop index)
