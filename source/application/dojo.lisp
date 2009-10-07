@@ -72,7 +72,7 @@
        (push ,id *dojo-widget-ids*)
        (values))))
 
-(def (macro e) render-dojo-dialog ((id-var &key title (width "400px") (attach-point '`js-piece(slot-value document.body ,(generate-response-unique-string))))
+(def (macro e) render-dojo-dialog ((id-var &key title (width "400px") (attach-point '`js-piece(slot-value document.body ,(generate-frame-unique-string))))
                                     &body body)
   (once-only (width attach-point)
     `(bind ((,id-var (generate-frame-unique-string)))

@@ -40,7 +40,7 @@
             ,(render-title-for -self-)>>
     ,(when (expanded-component? -self-)
        (foreach (lambda (content)
-                  (bind ((id (generate-response-unique-string)))
+                  (bind ((id (generate-frame-unique-string)))
                     <tr (:id ,id
                          :class "name-value-pair widget"
                          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)

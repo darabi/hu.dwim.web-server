@@ -72,7 +72,7 @@
     (unless tooltip?
       (setf tooltip (tooltip-of icon))))
   (bind ((tooltip (force tooltip))
-         (id (generate-response-unique-string))
+         (id (generate-frame-unique-string))
          (style-class (if style-class?
                           style-class
                           (icon-style-class name))))

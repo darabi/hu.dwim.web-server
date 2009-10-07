@@ -94,7 +94,7 @@
 
 (def (function e) render-command (content action &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
   (if (force enabled)
-      (bind ((id (generate-response-unique-string))
+      (bind ((id (generate-frame-unique-string))
              ((:values href send-client-state?) (href-for-command action action-arguments))
              (onclick-js (or js
                              (lambda (href)
@@ -115,7 +115,7 @@
             (wui.setup-component ,id "command/widget"))
         ;; TODO: use dojo.connect for keyboard events
         (when default
-          (bind ((submit-id (generate-response-unique-string)))
+          (bind ((submit-id (generate-frame-unique-string)))
             <input (:id ,submit-id :type "submit" :style "display: none;")>
             `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
       <span (:class "command widget disabled") ,(render-component content)>))

@@ -50,24 +50,23 @@
   (write-string ", actions: ")
   (princ (hash-table-count (action-id->action-of -self-))))
 
-(def (function ei) generate-response-unique-string (&optional prefix context)
-  (unless prefix
-    (setf prefix "r"))
-  (unless context
-    (setf context (or *frame* *response*)))
+(def (function ei) generate-unique-string (prefix context)
   (bind ((*print-pretty* #f))
     (with-output-to-string (str)
-      (princ prefix str)
+      (when prefix
+        (princ prefix str))
       (princ (incf (unique-counter-of context)) str))))
 
-(def (function ei) generate-frame-unique-string (&optional prefix frame)
-  (unless prefix
-    (setf prefix "f"))
-  (unless frame
-    (setf frame *frame*))
-  (generate-response-unique-string prefix frame))
+;;;;;;
+;;; NOTE: this should not be used with ajax renderable parts, because there is no guarantee
+;;; that it will not generate the same string that is already present in the page
+(def (function ei) generate-response-unique-string (&optional prefix response)
+  (generate-unique-string (or prefix "r") (or response *response*)))
 
-(def function %expand-with-frame-unique-strings (generator names body)
+(def (function ei) generate-frame-unique-string (&optional prefix frame)
+  (generate-unique-string (or prefix "f") (or frame *frame*)))
+
+(def function %expand-with-unique-strings (generator names body)
   `(let ,(mapcar (lambda (name)
                    (bind (((:values symbol string) (etypecase name
                                                      (symbol
@@ -78,11 +77,11 @@
                  names)
      ,@body))
 
-(def (macro e) with-frame-unique-strings ((&rest names) &body body)
-  (%expand-with-frame-unique-strings 'generate-frame-unique-string names body))
-
 (def (macro e) with-response-unique-strings ((&rest names) &body body)
-  (%expand-with-frame-unique-strings 'generate-response-unique-string names body))
+  (%expand-with-unique-strings 'generate-response-unique-string names body))
+
+(def (macro e) with-frame-unique-strings ((&rest names) &body body)
+  (%expand-with-unique-strings 'generate-frame-unique-string names body))
 
 #+nil ;; TODO this should be a generic if needed at all
 (def function invalidate-frame (frame)
