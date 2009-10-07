@@ -19,7 +19,7 @@
     (with-thread-name " / PURGE-SESSIONS"
       (call-next-method))))
 
-(def (special-variable e) *maximum-number-of-sessions-per-application* most-positive-fixnum
+(def (special-variable e) *maximum-sessions-per-application-count* most-positive-fixnum
   "The default for the same slot in applications.")
 
 (def (special-variable e) *default-session-timeout* (* 30 60)
@@ -47,7 +47,7 @@
 (def (class* e) application (broker-with-path-prefix
                              request-counter-mixin
                              debug-context-mixin)
-  ((number-of-requests-to-sessions 0 :export :accessor)
+  ((requests-to-sessions-count 0 :export :accessor)
    (entry-points nil)
    (default-uri-scheme "http")
    (default-locale "en")
@@ -57,7 +57,7 @@
    (session-timeout *default-session-timeout*)
    (frame-timeout *default-frame-timeout*)
    (sessions-last-purged-at (get-monotonic-time))
-   (maximum-number-of-sessions *maximum-number-of-sessions-per-application*)
+   (maximum-sessions-count *maximum-sessions-per-application-count*)
    (session-id->session (make-hash-table :test 'equal) :export :accessor)
    (frame-root-component-factory 'default-frame-root-component-factory :documentation "A funcallable with (body-content &key &allow-other-keys) lambda-list, which is invoked to make the toplevel components for new frames. By default calls MAKE-FRAME-COMPONENT-WITH-CONTENT.")
    (administrator-email-address nil)
@@ -209,7 +209,7 @@
     (setf *session* session)
     (if session
         (bind ((local-time:*default-timezone* (client-timezone-of session)))
-          (incf (number-of-requests-to-sessions-of application))
+          (incf (requests-to-sessions-count-of application))
           (restart-case
               (bind ((response (if lock-session
                                    (progn
@@ -488,7 +488,7 @@ Custom implementations should look something like this:
               (eq *session* session)))
   (bind ((session-id->session (session-id->session-of application)))
     (when (> (hash-table-count session-id->session)
-             (maximum-number-of-sessions-of application))
+             (maximum-sessions-count-of application))
       (too-many-sessions application))
     (bind ((session-id (insert-with-new-random-hash-table-key session-id->session session +session-id-length+)))
       (setf (id-of session) session-id)
