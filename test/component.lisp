@@ -79,6 +79,12 @@
                                          (stylesheet-list-entry (string+ *dojo-directory-name* "dojo/resources/dojo.css"))))
                  :script-uris +demo-script-uris+
                  :page-icon +demo-page-icon+)
+    #+nil
+    (top/widget (:menu-bar (menu-bar/widget ()
+                             (make-debug-menu)))
+      (collapsible/widget ()
+        "SICP"
+        "Structure and Interpretation of Computer Programs"))
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu)))
       (make-demo-content initial-content-component))))
@@ -491,67 +497,106 @@
 ;;;;;;
 ;;; Primitive
 
+(def function make-primitive-node ()
+  (node/widget (:expanded #f)
+      "Primitive"
+    (make-primitive-makers-node)
+    (make-primitive-viewers-node)
+    (make-primitive-editors-node)
+    (make-primitive-inspectors-node)
+    (make-primitive-filters-node)))
+
+;; NOTE: all this hassle is to have a reasonable code shown by component-demo/widget
+(def macro make-primitive-presentations-node (name factory)
+  (flet ((make (type value)
+           `(,factory ',type ,value)))
+    `(node/widget (:expanded #f)
+         ,name
+       (component-demo/widget "Boolean"
+         ,(make 'boolean #f))
+       (component-demo/widget "Character"
+         ,(make 'character  #\J))
+       (component-demo/widget "String"
+         ,(make 'string  "John"))
+       (component-demo/widget "Password"
+         ,(make 'hu.dwim.wui::password "Mary"))
+       (component-demo/widget "Symbol"
+         ,(make 'symbol ''John))
+       (component-demo/widget "Number"
+         ,(make 'number 12345678901234567890/10000000000))
+       (component-demo/widget "Integer"
+         ,(make 'integer 42))
+       (component-demo/widget "Float"
+         ,(make 'float 42.42))
+       (component-demo/widget "Date"
+         ,(make 'date (local-time:now)))
+       (component-demo/widget "Time"
+         ,(make 'time (local-time:now)))
+       (component-demo/widget "Timestamp"
+         ,(make 'timestamp (local-time:now)))
+       (component-demo/widget "Member"
+         ,(make '(member John Mary Steve Kate) ''John))
+       (component-demo/widget "HTML"
+         ,(make 'html "John <b>Mary</b> <h1>Steve</h1> <i>Kate</i>"))
+       (component-demo/widget "IP address"
+         ;; TODO: component-value
+         ,(make 'ip-address nil))
+       (component-demo/widget "File"
+         ;; TODO: component-value
+         ,(make 'file (system-relative-pathname :hu.dwim.wui "test/component.lisp"))))))
+
 (def function make-primitive-makers-node ()
-  (make-primitive-presentations-node "Maker" 'make-maker))
+  (make-primitive-presentations-node "Maker" make-maker))
 
 (def function make-primitive-viewers-node ()
-  (make-primitive-presentations-node "Viewer" 'make-viewer))
+  (make-primitive-presentations-node "Viewer" make-viewer))
 
 (def function make-primitive-editors-node ()
-  (make-primitive-presentations-node "Editor" 'make-editor))
+  (make-primitive-presentations-node "Editor" make-editor))
 
 (def function make-primitive-inspectors-node ()
-  (make-primitive-presentations-node "Inspector" 'make-inspector))
+  (make-primitive-presentations-node "Inspector" make-inspector))
 
 (def function make-primitive-filters-node ()
-  (make-primitive-presentations-node "Filter" 'make-filter))
-
-(def function make-primitive-presentations-node (name factory)
-  (flet ((make (type value &rest args)
-           (apply factory type value :initial-alternative-type 't/detail/presentation args)))
-    (node/widget (:expanded #f)
-        name
-      (component-demo/widget "Boolean"
-        (make 'boolean #f))
-      (component-demo/widget "Character"
-        (make 'character  #\J))
-      (component-demo/widget "String"
-        (make 'string  "John"))
-      (component-demo/widget "Password"
-        (make 'hu.dwim.wui::password "Mary"))
-      (component-demo/widget "Symbol"
-        (make 'symbol 'John))
-      (component-demo/widget "Number"
-        (make 'number 12345678901234567890/10000000000))
-      (component-demo/widget "Integer"
-        (make 'integer 42))
-      (component-demo/widget "Float"
-        (make 'float 42.42))
-      (component-demo/widget "Date"
-        (make 'date (local-time:now)))
-      (component-demo/widget "Time"
-        (make 'time (local-time:now)))
-      (component-demo/widget "Timestamp"
-        (make 'timestamp (local-time:now)))
-      (component-demo/widget "Member"
-        (make 'member 'John :possible-values '(John Mary Steve Kate)))
-      (component-demo/widget "HTML"
-        (make 'html "John <b>Mary</b> <h1>Steve</h1> <i>Kate</i>"))
-      (component-demo/widget "IP address"
-        ;; TODO: component-value
-        (make 'ip-address nil))
-      (component-demo/widget "File"
-        ;; TODO: component-value
-        (make 'file nil)))))
+  (make-primitive-presentations-node "Filter" make-filter))
 
 ;;;;;;
 ;;; Place
+
+(def function make-place-node ()
+  (node/widget (:expanded #f)
+      "Place"
+    (make-place-makers-node)
+    (make-place-viewers-node)
+    (make-place-editors-node)
+    (make-place-inspectors-node)
+    (make-place-filters-node)))
 
 (def function make-place-makers-node ()
   (make-place-presentations-node "Maker" 'make-place-maker))
 
 (def function make-place-viewers-node ()
-  (make-place-presentations-node "Viewer" 'make-place-viewer))
+  (node/widget (:expanded #f)
+      "Viewer"
+    (component-demo/widget "Special variable"
+      (make-value-viewer (make-special-variable-place '*person-name* :type 'string)))
+    (component-demo/widget "Lexical variable"
+      (bind ((person-name "Kate"))
+        (make-value-viewer (make-lexical-variable-place person-name :type 'string))))
+    (component-demo/widget "Functional"
+      (bind ((person-name "Mary"))
+        (make-value-viewer (make-functional-place 'person-name
+                                                  (lambda ()
+                                                    person-name)
+                                                  (lambda (new-value)
+                                                    (setf person-name new-value))
+                                                  :type 'string))))
+    (component-demo/widget "Simple functional"
+      (make-value-viewer (make-simple-functional-place (cons "Steve" "Kate") 'car :type 'string)))
+    (component-demo/widget "Sequence element"
+      (make-value-viewer (make-sequence-element-place *person-name* 0)))
+    (component-demo/widget "Instance slot"
+      (make-value-viewer (make-object-slot-place (make-instance 'action :id "George") 'hu.dwim.wui::id)))))
 
 (def function make-place-editors-node ()
   (make-place-presentations-node "Editor" 'make-place-editor))
@@ -592,28 +637,146 @@
 ;;;;;;
 ;;; Object
 
+(def function make-object-node ()
+  (node/widget (:expanded #f)
+      "Object"
+    (make-object-makers-node)
+    (make-object-viewers-node)
+    (make-object-editors-node)
+    (make-object-inspectors-node)
+    (make-object-filters-node)))
+
 (def function make-object-makers-node ()
-  (make-object-presentations-node "Maker" 'make-maker))
+  (node/widget (:expanded #f)
+      "Maker"
+    (component-demo/widget "Standard object"
+      (make-maker 'standard-object))
+    (component-demo/widget "Server"
+      (make-maker 'server))
+    (component-demo/widget "Application"
+      (make-maker 'application))
+    (component-demo/widget "Session"
+      (make-maker 'session))
+    (component-demo/widget "Frame"
+      (make-maker 'frame))
+    (component-demo/widget "Request"
+      (make-maker 'request))
+    (component-demo/widget "Response"
+      (make-maker 'response))))
 
 (def function make-object-viewers-node ()
-  (make-object-presentations-node "Viewer" 'make-viewer))
+  (node/widget (:expanded #f)
+      "Viewer"
+    (node/widget (:expanded #f)
+        "By type"
+      (component-demo/widget "Null or Standard object"
+        (make-viewer '(or null standard-object) nil))
+      (component-demo/widget "Standard object"
+        (make-viewer 'standard-object *server*))
+      (component-demo/widget "Server"
+        (make-viewer 'server *server*)))
+    (node/widget (:expanded #f)
+        "By value"
+      (component-demo/widget "Standard object"
+        (make-value-viewer (make-instance 'standard-object)))
+      (component-demo/widget "Server"
+        (make-value-viewer *server*))
+      (component-demo/widget "Application"
+        (make-value-viewer *application*))
+      (component-demo/widget "Session"
+        (make-value-viewer *session*))
+      (component-demo/widget "Frame"
+        (make-value-viewer *frame*))
+      (component-demo/widget "Request"
+        (make-value-viewer *request*))
+      (component-demo/widget "Response"
+        (make-value-viewer *response*)))))
 
 (def function make-object-editors-node ()
-  (make-object-presentations-node "Editor" 'make-editor))
+  (node/widget (:expanded #f)
+      "Editor"
+    (node/widget (:expanded #f)
+        "By type"
+      (component-demo/widget "Null or Standard object"
+        (make-editor '(or null standard-object) nil))
+      (component-demo/widget "Standard object"
+        (make-editor 'standard-object *server*))
+      (component-demo/widget "Server"
+        (make-editor 'server *server*)))
+    (node/widget (:expanded #f)
+        "By value"
+      (component-demo/widget "Standard object"
+        (make-value-editor (make-instance 'standard-object)))
+      (component-demo/widget "Server"
+        (make-value-editor *server*))
+      (component-demo/widget "Application"
+        (make-value-editor *application*))
+      (component-demo/widget "Session"
+        (make-value-editor *session*))
+      (component-demo/widget "Frame"
+        (make-value-editor *frame*))
+      (component-demo/widget "Request"
+        (make-value-editor *request*))
+      (component-demo/widget "Response"
+        (make-value-editor *response*)))))
 
 (def function make-object-inspectors-node ()
-  (make-object-presentations-node "Inspector" 'make-inspector))
+  (node/widget (:expanded #f)
+      "Inspector"
+    (node/widget (:expanded #f)
+        "By type"
+      (component-demo/widget "Null or Standard object"
+        (make-inspector '(or null standard-object) nil))
+      (component-demo/widget "Standard object"
+        (make-inspector 'standard-object *server*))
+      (component-demo/widget "Server"
+        (make-inspector 'server *server*)))
+    (node/widget (:expanded #f)
+        "By value"
+      (component-demo/widget "Standard object"
+        (make-value-inspector (make-instance 'standard-object)))
+      (component-demo/widget "Server"
+        (make-value-inspector *server*))
+      (component-demo/widget "Application"
+        (make-value-inspector *application*))
+      (component-demo/widget "Session"
+        (make-value-inspector *session*))
+      (component-demo/widget "Frame"
+        (make-value-inspector *frame*))
+      (component-demo/widget "Request"
+        (make-value-inspector *request*))
+      (component-demo/widget "Response"
+        (make-value-inspector *response*)))))
 
 (def function make-object-filters-node ()
-  (make-object-presentations-node "Filter" 'make-filter))
-
-(def function make-object-presentations-node (name factory)
   (node/widget (:expanded #f)
-      name
-    ))
+        "Filter"
+      (component-demo/widget "Standard object"
+        (make-filter 'standard-object))
+      (component-demo/widget "Server"
+        (make-filter 'server))
+      (component-demo/widget "Application"
+        (make-filter 'application))
+      (component-demo/widget "Session"
+        (make-filter 'session))
+      (component-demo/widget "Frame"
+        (make-filter 'frame))
+      (component-demo/widget "Request"
+        (make-filter 'request))
+      (component-demo/widget "Response"
+        (make-filter 'response))))
 
 ;;;;;;
 ;;; Object sequence
+
+(def function make-object-sequence-node ()
+  (node/widget (:expanded #f)
+      "Object sequence"
+    (make-object-sequence-makers-node)
+    (make-object-sequence-viewers-node)
+    (make-object-sequence-editors-node)
+    (make-object-sequence-inspectors-node)
+    (make-object-sequence-filters-node)))
 
 (def function make-object-sequence-makers-node ()
   (make-object-sequence-presentations-node "Maker" 'make-maker))
@@ -637,6 +800,15 @@
 
 ;;;;;;
 ;;; Object tree
+
+(def function make-object-tree-node ()
+  (node/widget (:expanded #f)
+      "Object tree"
+    (make-object-tree-makers-node)
+    (make-object-tree-viewers-node)
+    (make-object-tree-editors-node)
+    (make-object-tree-inspectors-node)
+    (make-object-tree-filters-node)))
 
 (def function make-object-tree-makers-node ()
   (make-object-tree-presentations-node "Maker" 'make-maker))
@@ -779,6 +951,19 @@
       "TODO")))
 
 ;;;;;;
+;;; Customizations
+
+(def function make-customization-node ()
+  (node/widget (:expanded #f)
+      "Customization"
+    (component-demo/widget "Inspector"
+      "TODO")
+    (component-demo/widget "Filter"
+      "TODO")
+    (component-demo/widget "Complex form"
+      "TODO")))
+
+;;;;;;
 ;;; Demo
 
 (def function make-demo-content (&optional initial-content-component)
@@ -793,42 +978,13 @@
             (make-immediates-node)
             (make-layouts-node)
             (make-widgets-node)
-            (node/widget (:expanded #f)
-                "Primitive"
-              (make-primitive-makers-node)
-              (make-primitive-viewers-node)
-              (make-primitive-editors-node)
-              (make-primitive-inspectors-node)
-              (make-primitive-filters-node))
-            (node/widget (:expanded #f)
-                "Place"
-              (make-place-makers-node)
-              (make-place-viewers-node)
-              (make-place-editors-node)
-              (make-place-inspectors-node)
-              (make-place-filters-node))
-            (node/widget (:expanded #f)
-                "Object"
-              (make-object-makers-node)
-              (make-object-viewers-node)
-              (make-object-editors-node)
-              (make-object-inspectors-node)
-              (make-object-filters-node))
-            (node/widget (:expanded #f)
-                "Object sequence"
-              (make-object-sequence-makers-node)
-              (make-object-sequence-viewers-node)
-              (make-object-sequence-editors-node)
-              (make-object-sequence-inspectors-node)
-              (make-object-sequence-filters-node))
-            (node/widget (:expanded #f)
-                "Object tree"
-              (make-object-tree-makers-node)
-              (make-object-tree-viewers-node)
-              (make-object-tree-editors-node)
-              (make-object-tree-inspectors-node)
-              (make-object-tree-filters-node))
+            (make-primitive-node)
+            (make-place-node)
+            (make-object-node)
+            (make-object-sequence-node)
+            (make-object-tree-node)
             (make-book-elements-node)
             (make-source-elements-node)
-            (make-charts-node)))
+            (make-charts-node)
+            (make-customization-node)))
         content))))

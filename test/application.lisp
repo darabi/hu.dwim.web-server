@@ -12,8 +12,7 @@
 (def class test-application (standard-application)
   ()
   (:metaclass funcallable-standard-class)
-  (:default-initargs
-     :dojo-directory-name (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui "www/"))))
+  (:default-initargs :dojo-directory-name (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui "www/"))))
 
 (def special-variable *test-application* (make-instance 'test-application :path-prefix "/test/"))
 
