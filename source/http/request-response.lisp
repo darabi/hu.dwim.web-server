@@ -122,13 +122,13 @@
 
 (def (class* e) request (http-message)
   ((client-stream)
-   (keep-alive :initform #t :accessor keep-alive?)
-   (http-method)
-   (http-version-string)
-   (http-major-version)
-   (http-minor-version)
-   (raw-uri)
-   (uri)
+   (keep-alive :initform #t :accessor keep-alive? :type boolean)
+   (http-method :type string)
+   (http-version-string :type string)
+   (http-major-version :type string)
+   (http-minor-version :type string)
+   (raw-uri :type string)
+   (uri :type uri)
    (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")
    (accept-encodings :documentation "An alist cache of the parsed ACCEPT-ENDODINGS header value. Its accessor lazily initializes the slot.")))
 
@@ -193,7 +193,7 @@
 
 (def (class* e) response (http-message)
   ((headers-are-sent #f :type boolean)
-   (external-format +default-external-format+ :documentation "May or may not be used by some higher level functionalities")))
+   (external-format +default-external-format+ :documentation "May or may not be used by some higher level functionalities" :type external-format)))
 
 (def (class* e) primitive-response (response)
   ()
@@ -572,7 +572,7 @@
     (terpri)
     (when (boundp '*application*)
       (format stream "Application:                                ~A~%" *application*)
-      (format stream "Number of requests to valid sessions:       ~A~%" (number-of-requests-to-sessions-of *application*))
+      (format stream "Number of requests to valid sessions:       ~A~%" (requests-to-sessions-count-of *application*))
       (format stream "Sessions last purged since:                 ~A seconds~%" (coerce (sessions-last-purged-at-of *application*) 'float))
       (terpri))
     (format stream "Heap usage:                                 ~,2F MBytes~%" (/ (sb-kernel::dynamic-usage) 1024d0 1024d0))

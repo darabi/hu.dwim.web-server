@@ -7,9 +7,9 @@
 (in-package :hu.dwim.wui)
 
 (def class* activity-monitor-mixin ()
-  ((last-activity-at (get-monotonic-time))
-   (last-activity-timestamp (local-time:now))
-   (time-to-live)))
+  ((last-activity-at (get-monotonic-time) :type number)
+   (last-activity-timestamp (local-time:now) :type local-time:timestamp)
+   (time-to-live :type number)))
 
 (def (generic e) notify-activity (thing)
   (:method ((self activity-monitor-mixin))
@@ -57,13 +57,12 @@
                      activity-monitor-mixin
                      debug-context-mixin)
   ((user-agent (determine-user-agent *request*) :type user-agent)
-   (application nil)
+   (application nil :type application)
    (client-timezone (default-timezone-of *application*))
-   (unique-dom-id-counter 0)
-   (frame-id->frame (make-hash-table :test 'equal))
+   (frame-id->frame (make-hash-table :test 'equal) :type hash-table)
    (lock nil)
    (computed-universe nil)
-   (valid #t :accessor is-session-valid? :export :accessor)))
+   (valid #t :accessor is-session-valid? :export :accessor :type boolean)))
 
 (def method debug-on-error? ((session session) error)
   (if (slot-boundp session 'debug-on-error)

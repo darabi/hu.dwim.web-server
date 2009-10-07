@@ -9,7 +9,7 @@
 (def (generic e) handle-request (thing request))
 
 (def (class* e) request-counter-mixin ()
-  ((processed-request-count 0 :export :accessor)))
+  ((processed-request-count 0 :export :accessor :type integer)))
 
 (def class* server-listen-entry ()
   ((host)
@@ -24,9 +24,9 @@
 
 (def (class* e) server (request-counter-mixin
                         debug-context-mixin)
-  ((administrator-email-address nil)
-   (gracefully-aborted-request-count 0 :export :accessor)
-   (failed-request-count 0 :export :accessor)
+  ((administrator-email-address nil :type (or null string))
+   (gracefully-aborted-request-count 0 :export :accessor :type integer)
+   (failed-request-count 0 :export :accessor :type integer)
    (client-connection-reset-count 0 :export :accessor)
    (listen-entries ())
    (connection-multiplexer nil)
@@ -34,10 +34,10 @@
    (request-content-length-limit *request-content-length-limit*)
    (lock (make-recursive-lock "WUI server lock"))
    (shutdown-initiated #f :type boolean)
-   (workers (make-adjustable-vector 16))
-   (maximum-worker-count 16 :export :accessor)
-   (occupied-worker-count 0)
-   (started-at nil)
+   (workers (make-adjustable-vector 16) :type sequence)
+   (maximum-worker-count 16 :export :accessor :type integer)
+   (occupied-worker-count 0 :type integer)
+   (started-at nil :type local-time:timestamp)
    (timer nil)
    (profile-request-processing? #f :type boolean :export :accessor)))
 

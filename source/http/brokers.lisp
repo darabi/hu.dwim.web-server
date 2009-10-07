@@ -82,7 +82,7 @@
 (def generic produce-response (broker request))
 
 (def class* broker (closer-mop:funcallable-standard-object request-counter-mixin)
-  ((priority 0))
+  ((priority 0 :type number))
   (:metaclass funcallable-standard-class))
 
 (def constructor broker
@@ -114,7 +114,7 @@
     (string= path query-path)))
 
 (def class* broker-with-path-prefix (broker)
-  ((path-prefix))
+  ((path-prefix :type string))
   (:metaclass funcallable-standard-class))
 
 (def print-object broker-with-path-prefix
