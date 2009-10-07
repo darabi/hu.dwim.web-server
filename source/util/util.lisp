@@ -102,8 +102,9 @@
 (def function mandatory-argument ()
   (error "A mandatory argument was not specified"))
 
-(def function find-type-by-name (name)
-  (find-class name))
+(def function find-type-by-name (name &key (otherwise :error))
+  (or (find-class name #f)
+      (handle-otherwise otherwise)))
 
 (def (function i) class-prototype (class)
   (cond
