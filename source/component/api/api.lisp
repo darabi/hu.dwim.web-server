@@ -12,37 +12,37 @@
 ;;; Component factories for types
 
 (def (layered-function e) make-maker (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that creates new values of TYPE."))
+  (:documentation "Creates a COMPONENT that creates new values of TYPE. Other ARGS are passed to the COMPONENT being created."))
 
 (def (layered-function e) make-viewer (type value &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays existing values of TYPE, initialized to VALUE."))
+  (:documentation "Creates a COMPONENT that displays existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE. "))
 
 (def (layered-function e) make-editor (type value &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that edits existing values of TYPE, initialized to VALUE."))
+  (:documentation "Creates a COMPONENT that edits existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE."))
 
 (def (layered-function e) make-inspector (type value &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays or edits existing values of TYPE, initialized to VALUE. The user can switch between the two modes."))
+  (:documentation "Creates a COMPONENT that displays or edits existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE. The inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes."))
 
 (def (layered-function e) make-filter (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that filters the set of existing values of TYPE based on some filter criteria provided by the user."))
+  (:documentation "Creates a COMPONENT that filters the set of existing values of TYPE based on a filter criteria provided by the user. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the TYPE."))
 
 (def (layered-function e) make-finder (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that searches for a particular existing value of TYPE based on some filter criteria provided by the user."))
+  (:documentation "Creates a COMPONENT that searches for a particular existing value of TYPE based on a filter criteria provided by the user. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the TYPE."))
 
 (def (layered-function e) make-selector (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays all existing values of TYPE to select exactly one of them."))
+  (:documentation "Creates a COMPONENT that displays all existing values of TYPE to select exactly one VALUE of them. Other ARGS are passed to the COMPONENT being created."))
 
 ;;;;;;
 ;;; Component factories for values
 
 (def (layered-function e) make-value-viewer (value &rest args)
-  (:documentation "Creates a COMPONENT that displays VALUE and other values of its TYPE."))
+  (:documentation "Creates a COMPONENT that displays VALUE and other similar values of the VALUE's type. Other ARGS are passed to the COMPONENT being created. This function calls MAKE-VIEWER at some point."))
 
 (def (layered-function e) make-value-editor (value &rest args)
-  (:documentation "Creates a COMPONENT that edits VALUE and other values of its TYPE."))
+  (:documentation "Creates a COMPONENT that edits VALUE and other similar values of the VALUE's type. Other ARGS are passed to the COMPONENT being created. This function calls MAKE-EDITOR at some point."))
 
 (def (layered-function e) make-value-inspector (value &rest args)
-  (:documentation "Creates a COMPONENT that displays or edits VALUE and other values of its TYPE. The user can switch between the two modes."))
+  (:documentation "Creates a COMPONENT that displays or edits VALUE and other similar values of the VALUE's TYPE. Other ARGS are passed to the COMPONENT being created. The inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes. This function calls MAKE-INSPECTOR at some point."))
 
 ;;;;;;
 ;;; Component factories for types at a place
@@ -60,7 +60,7 @@
   (:documentation "Creates a COMPONENT that displays or edits values of TYPE at a PLACE."))
 
 (def (layered-function e) make-place-filter (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that filters the set of existing values based on some filter criteria at a PLACE."))
+  (:documentation "Creates a COMPONENT that filters the set of existing values based on a filter criteria at a PLACE."))
 
 ;;;;;;
 ;;; Component factories
