@@ -334,33 +334,47 @@
   (log.warn "Unknown browser in import-ajax-received-xhtml-node, this will probably cause some troubles later. Browser is " navigator.userAgent)
   (return (document.importNode node true)))
 
+(defun wui.map-child-nodes (node visitor)
+  (let ((child node.firstChild))
+    (while child
+      (visitor child)
+      (setf child child.nextSibling))))
+
 ;; Return a lambda that when passed a root node, will call the visitor with each of those children
 ;; that have the given tag-name.
 (defun wui.io.make-node-walker (tag-name visitor (import-node-p true) (toplevel-p false))
   (return
     (lambda (root)
-      (dolist (toplevel-node root.child-nodes)
-        (log.debug "Walking at node " toplevel-node.tag-name)
-        ;; node.get-elements-by-tag-name returns recursively all nodes of a document node, so that won't work here
-        (when (= toplevel-node.tag-name tag-name)
-          (if toplevel-p
-              (let ((node toplevel-node)
-                    (original-node node)
-                    (id (.getAttribute node "id")))
-                (log.debug "Processing " tag-name " node with id " id)
-                (when import-node-p
-                  (setf node (wui.io.import-ajax-received-xhtml-node node)))
-                (visitor node original-node))
-              (progn
-                (log.debug "Will process " toplevel-node.child-nodes.length " node(s) of type '" tag-name "'")
-                (dolist (node (dojo._toArray toplevel-node.child-nodes)) ; create a copy and iterate on that
-                  (when (slot-value node 'getAttribute)
-                    (let ((original-node node)
-                          (id (.getAttribute node "id")))
-                      (log.debug "Processing " tag-name " node with id " id)
-                      (when import-node-p
-                        (setf node (wui.io.import-ajax-received-xhtml-node node)))
-                      (visitor node original-node)))))))))))
+      ;; NOTE: it used to be a dolist but root.childNodes does not work in IE by some weird reason
+      (wui.map-child-nodes
+       root
+       (lambda (toplevel-node)
+         (log.debug "Walking at node " toplevel-node.tag-name)
+         ;; node.get-elements-by-tag-name returns recursively all nodes of a document node, so that won't work here
+         (when (= toplevel-node.tag-name tag-name)
+           (if toplevel-p
+               (let ((node toplevel-node)
+                     (original-node node)
+                     (id (.getAttribute node "id")))
+                 (log.debug "Processing " tag-name " node with id " id)
+                 (when import-node-p
+                   (setf node (wui.io.import-ajax-received-xhtml-node node)))
+                 (visitor node original-node))
+               (progn
+                 (log.debug "Will process " toplevel-node.child-nodes.length " node(s) of type '" tag-name "'")
+                 ;; NOTE: it used to be a dolist but root.childNodes does not work in IE by some weird reason
+                 (wui.map-child-nodes
+                  toplevel-node ; create a copy and iterate on that
+                  (lambda (node)
+                    (when (if dojo.isIE
+                              (.getAttribute node "id")
+                              (slot-value node 'getAttribute))
+                      (let ((original-node node)
+                            (id (.getAttribute node "id")))
+                        (log.debug "Processing " tag-name " node with id " id)
+                        (when import-node-p
+                          (setf node (wui.io.import-ajax-received-xhtml-node node)))
+                        (visitor node original-node)))))))))))))
 
 ;; Returns a lambda that can be used as a dojo :load handler.  Will do some sanity checks
 ;; on the ajax answer, report any possible server errors, then walk the nodes with the given
