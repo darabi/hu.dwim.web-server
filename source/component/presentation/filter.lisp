@@ -45,7 +45,9 @@
     (unless (subtypep component-type 'alternator/widget)
       (remove-from-plistf args :initial-alternative-type))
     (prog1-bind component (apply #'make-instance component-type
-                                 :component-value type
+                                 :component-value (if (symbolp type)
+                                                      (find-type-by-name type :otherwise type)
+                                                      type)
                                  (append args additional-args
                                          (when (subtypep component-type 'primitive-component)
                                            (list :the-type type))))
@@ -75,10 +77,7 @@
   (:method ((type cons))
     (find-filter-type-for-compound-type type))
 
-  (:method ((class structure-class))
-    (find-filter-type-for-prototype (class-prototype class)))
-
-  (:method ((class standard-class))
+  (:method ((class class))
     (find-filter-type-for-prototype (class-prototype class))))
 
 (def function find-filter-type-for-compound-type (type)
