@@ -166,4 +166,4 @@
 
 (def (function e) with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace ()
     "Unconditionally turns off XML indent to keep original whitespaces in the resulting XML."
-    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting #t))
+    (with-quasi-quoted-xml-to-binary-emitting-form-syntax '*xml-stream* :with-inline-emitting t))
