@@ -422,7 +422,7 @@
 (def method send-response ((response byte-vector-response))
   (serve-sequence (body-of response)
                   :compress-content (unless (header-value response +header/content-encoding+)
-                                      (compress-content-default-value))
+                                      (default-response-compression))
                   :headers (headers-of response)
                   :cookies (cookies-of response)
                   :last-modified-at (last-modified-at-of response)))

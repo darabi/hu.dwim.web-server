@@ -433,14 +433,19 @@
           ;; we are changig the value of HEADERS and COOKIES here, so we must make the new values visible in the with-macro body hiding their initial values
           (-body- headers cookies)))))
 
-(def function compress-content-default-value ()
+(def function default-response-compression ()
   (when (and (not *disable-response-compression*)
-             (accepts-encoding? +content-encoding/deflate+))
+             (accepts-encoding? +content-encoding/deflate+)
+             (member (kind-of (if (and (boundp '*session*)
+                                       *session*)
+                                  (user-agent-of *session*)
+                                  (determine-user-agent *request*)))
+                     '(:chrome :mozilla :opera)))
     :deflate))
 
 ;; details on the deflate bug in IE and Konqueror: https://bugs.kde.org/show_bug.cgi?id=117683
 (def function serve-sequence (input &key
-                                    (compress-content (compress-content-default-value))
+                                    (compress-content (default-response-compression))
                                     (last-modified-at (local-time:now))
                                     content-type
                                     content-encoding

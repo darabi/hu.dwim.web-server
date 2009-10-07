@@ -35,8 +35,7 @@
       (namestring truename)))
 
 (def method make-file-serving-response-for-directory-entry ((broker js-directory-serving-broker) truename path-prefix relative-path root-directory)
-  (bind ((compress? (and (not *disable-response-compression*)
-                         (accepts-encoding? +content-encoding/deflate+)))
+  (bind ((compress? (default-response-compression))
          (key (js-directory-serving-broker/make-cache-key truename (when compress? :deflate)))
          (cache (file-path->cache-entry-of broker))
          (cache-entry (gethash key cache))
