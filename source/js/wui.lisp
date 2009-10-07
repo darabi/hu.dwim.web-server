@@ -335,10 +335,14 @@
   (return (document.importNode node true)))
 
 (defun wui.map-child-nodes (node visitor)
-  (let ((child node.firstChild))
+  (let ((children (array))
+        (child node.firstChild))
+    ;; NOTE: copy the children so that destructive operations can be mapped
     (while child
-      (visitor child)
-      (setf child child.nextSibling))))
+      (children.push child)
+      (setf child child.nextSibling))
+    (dolist (child children)
+      (visitor child))))
 
 ;; Return a lambda that when passed a root node, will call the visitor with each of those children
 ;; that have the given tag-name.
