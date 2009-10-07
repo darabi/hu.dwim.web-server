@@ -60,8 +60,9 @@
                                                                    file-name))>))
                   (stylesheet-uris-of -self-))
         <script (:type #.+javascript-mime-type+)
-          ,(format nil "djConfig = { parseOnLoad: ~A, isDebug: ~A, locale: ~A }"
+          ,(format nil "djConfig = { parseOnLoad: ~A, isDebug: ~A, debugAtAllCosts: ~A, locale: ~A }"
                    (to-js-boolean (parse-dojo-widgets-on-load? -self-))
+                   (to-js-boolean debug-client-side?)
                    (to-js-boolean debug-client-side?)
                    (to-js-literal (default-locale-of application)))>
         <script (:type         #.+javascript-mime-type+
