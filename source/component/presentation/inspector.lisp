@@ -79,6 +79,9 @@
   (:method ((type (eql 'base-char)))
     'character/inspector)
 
+  (:method ((type (eql 'keyword)))
+    'keyword/inspector)
+
   (:method ((type (eql 'password)))
     'password/inspector)
 

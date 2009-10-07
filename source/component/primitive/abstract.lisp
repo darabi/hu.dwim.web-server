@@ -178,6 +178,19 @@
         (qualified-symbol-name component-value))))
 
 ;;;;;;
+;;; keyword/abstract
+
+(def (component e) keyword/abstract (string/abstract)
+  ())
+
+(def method print-component-value ((component keyword/abstract))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        (string+ ":" (symbol-name component-value)))))
+
+;;;;;;
 ;;; number/abstract
 
 (def (component e) number/abstract (primitive/abstract)

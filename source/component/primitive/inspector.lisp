@@ -103,6 +103,12 @@
   ())
 
 ;;;;;;
+;;; keyword/inspector
+
+(def (component e) keyword/inspector (keyword/abstract string/inspector)
+  ())
+
+;;;;;;
 ;;; number/inspector
 
 (def (component e) number/inspector (number/abstract primitive/inspector)
