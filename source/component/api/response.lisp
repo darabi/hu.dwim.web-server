@@ -123,6 +123,8 @@
                    (if (to-be-rendered-component? component)
                        (bind ((new-covering-component (find-ancestor-component-with-type component 'id/mixin)))
                          (assert new-covering-component nil "There is no covering ancestor component with id for ~A" component)
+                         (let ((*print-level* 1))
+                           (app.debug "Found to be rendered component ~A covered by component ~A" component new-covering-component))
                          (setf covering-components
                                (cons new-covering-component
                                      (remove-if (lambda (covering-component)
