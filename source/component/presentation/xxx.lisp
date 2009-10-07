@@ -590,7 +590,9 @@
 
 (def function render-filter-predicate-for (self)
   (bind (((:slots negated selected-predicate) self)
-         (possible-predicates (collect-possible-filter-predicates self)))
+         ;; TODO: KLUDGE: don't look down this deep
+         (possible-predicates (collect-possible-filter-predicates (content-of (aprog1 (value-of self)
+                                                                                (ensure-refreshed it))))))
     (if possible-predicates
         (progn
           (unless selected-predicate

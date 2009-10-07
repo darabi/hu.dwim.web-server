@@ -198,20 +198,15 @@
     (make-component-action component
       (refresh-component component))))
 
-#|
 (def function extract-primitive-component-place (component)
   (bind ((parent-component (parent-component-of component)))
-    (typecase parent-component
-      (place-inspector
-       (bind ((place (place-of parent-component)))
-         (when (typep place 'object-slot-place)
-           (bind ((instance (instance-of place)))
-             (values (class-of instance) instance (slot-of place))))))
-      (t
-       (setf parent-component (parent-component-of parent-component))
-       (when (typep parent-component 'standard-slot-definition/mixin)
-         (values (the-class-of parent-component) nil (slot-of parent-component)))))))
+    (when (typep parent-component 'inspector/abstract)
+      (bind ((component-value (component-value-of parent-component)))
+        (when (typep component-value 'object-slot-place)
+          (bind ((instance (instance-of component-value)))
+            (values (class-of instance) instance (slot-of component-value))))))))
 
+#|
 
 ;;;;;;
 ;;; Command

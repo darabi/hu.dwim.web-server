@@ -45,9 +45,11 @@
     (unless (subtypep component-type 'alternator/widget)
       (remove-from-plistf args :initial-alternative-type))
     (prog1-bind component (apply #'make-instance component-type
-                                 :component-value (if (symbolp type)
-                                                      (find-type-by-name type :otherwise type)
-                                                      type)
+                                 ;; KLUDGE: TODO: there are both component-value and type in a filter, so which one is which?
+                                 :component-value (unless (subtypep component-type 'primitive/filter)
+                                                    (if (symbolp type)
+                                                        (find-type-by-name type :otherwise type)
+                                                        type))
                                  (append args additional-args
                                          (when (subtypep component-type 'primitive-component)
                                            (list :the-type type))))
