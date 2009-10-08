@@ -7,18 +7,18 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Standard object manager
+;;; t/manager
 
-(def (component e) standard-object-manager (standard-class/mixin tab-container-component)
+(def (component e) t/manager (t/presentation tab-container-component)
   ())
 
-(def (macro e) standard-object-manager (class &body pages)
-  `(make-instance 'standard-object-manager :the-class (find-class ,class) :pages (list ,@pages)))
+(def (macro e) t/manager (type &body pages)
+  `(make-instance 't/manager :component-value type :pages (list ,@pages)))
 
-(def layered-method refresh-component :before ((self standard-object-manager))
-     (bind (((:slots the-class pages) self))
-       (setf pages (list* (tab-page (icon switch-to-tab-page :label "Keresés")
-                            (make-filter the-class))
-                          (tab-page (icon switch-to-tab-page :label "Létrehozás")
-                            (make-maker the-class))
-                          pages))))
+(def layered-method refresh-component :before ((self t/manager))
+  (bind (((:slots component-value the-class pages) self))
+    (setf pages (list* (tab-page (icon switch-to-tab-page :label "Search")
+                         (make-filter component-value))
+                       (tab-page (icon switch-to-tab-page :label "Create")
+                         (make-maker component-value))
+                       pages))))
