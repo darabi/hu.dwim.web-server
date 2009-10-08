@@ -445,7 +445,7 @@
 
 ;; details on the deflate bug in IE and Konqueror: https://bugs.kde.org/show_bug.cgi?id=117683
 (def function serve-sequence (input &key
-                                    (compress-content (default-response-compression))
+                                    (compress-content-with (default-response-compression))
                                     (last-modified-at (local-time:now))
                                     content-type
                                     content-encoding
@@ -457,7 +457,7 @@
                                     seconds-until-expires)
   "Write SEQUENCE into the network stream. SEQUENCE may be a string or a byte vector. When it's a string it will be encoded using the current external-format of the network stream."
   (check-type input (or list (vector (unsigned-byte 8) *) string))
-  (check-type compress-content (member nil :deflate))
+  (check-type compress-content-with (member nil :deflate :gzip))
   (server.debug "SERVE-SEQUENCE: input type: ~A, input-length: ~A, content-encoding: ~A" (type-of input) (length input) content-encoding)
   (with-content-serving-logic ('serve-sequence :last-modified-at last-modified-at
                                                :seconds-until-expires seconds-until-expires
@@ -466,12 +466,14 @@
                                                :stream stream)
     (with-thread-name " / SERVE-SEQUENCE"
       (flet ((send-http-headers (length)
-               (awhen content-type
-                 (setf (header-alist-value headers +header/content-type+) it))
-               (awhen content-disposition
-                 (setf (header-alist-value headers +header/content-disposition+) it))
-               (awhen content-encoding
-                 (setf (header-alist-value headers +header/content-encoding+) it))
+               (when content-type
+                 (setf (header-alist-value headers +header/content-type+) content-type))
+               (when content-disposition
+                 (setf (header-alist-value headers +header/content-disposition+) content-disposition))
+               (when content-encoding
+                 (awhen (header-alist-value headers +header/content-encoding+)
+                   (error "SERVE-SEQUENCE wants to set the content-encoding header to ~S but the headers provided by the caller already contains a content-encoding entry ~S" content-encoding it))
+                 (setf (header-alist-value headers +header/content-encoding+) content-encoding))
                (setf (header-alist-value headers +header/content-length+) (integer-to-string length))
                (send-http-headers headers cookies :stream stream)))
         (bind ((input-byte-size 0)
@@ -480,14 +482,14 @@
                               (setf piece (string-to-octets piece :encoding encoding)))
                             (incf input-byte-size (length piece))
                             (collect piece))))
-          (ecase compress-content
+          (ecase compress-content-with
             ((nil)
              (send-http-headers input-byte-size)
              (dolist (piece input)
                (write-sequence piece stream)))
             (:deflate
              (when content-encoding
-               (error "SERVE-SEQUENCE was called with COMPRESS-CONTENT ~S, but CONTENT-ENCODING was not nil but ~S" compress-content content-encoding))
+               (error "SERVE-SEQUENCE was called with COMPRESS-CONTENT-WITH ~S, but CONTENT-ENCODING is ~S (not NIL)" compress-content-with content-encoding))
              (setf content-encoding +content-encoding/deflate+)
              ;; convert INPUT to a single, continuous byte vector
              (bind ((input (if (and (length= 1 input)
@@ -502,7 +504,9 @@
                (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.wui.zlib:deflate-sequence input :window-bits -15)))
                  (server.debug "SERVE-SEQUENCE: compressed response, original-size ~A, compressed-size ~A, ratio: ~,3F" input-byte-size compressed-bytes-length (/ compressed-bytes-length input-byte-size))
                  (send-http-headers compressed-bytes-length)
-                 (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length))))))))))
+                 (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length))))
+            (:gzip
+             (not-yet-implemented))))))))
 
 (def function serve-stream (input-stream &key
                                          (last-modified-at (local-time:now))
