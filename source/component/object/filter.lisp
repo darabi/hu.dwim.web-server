@@ -7,189 +7,86 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Standard object filter
+;;; t/filter
 
-(def (component e) standard-object-filter (standard-class/mixin
-                                          filter/abstract
-                                          alternator/basic
-                                          initargs/mixin
-                                          layer-context-capturing/mixin)
-  ((result (empty) :type component)
-   (result-component-factory #'make-standard-object-filter-result-inspector :type function))
-  (:documentation "Filter for instances of STANDARD-OBJECT in various alternative views."))
+(def (component e) t/filter (filter/basic t/presentation)
+  ((result (empty/widget) :type component)
+   (result-component-factory #'make-filter-result-inspector :type function))
+  (:documentation "
+;; generic version (all components are available)
+(t/filter                                         ; filter for something (alternator)
+ (t/slot-list/filter                              ; filter for a list of slots of something
+  (slot-list/filter                               ; filter for a list of slots (alternator)
+   (slot-list/slot-group-list/filter              ; filter for a grouping of a list of slots
+    (slot-group-list/filter                       ; filter for a list of slot groups (alternator)
+     (slot-group-list/name-value-list/filter      ; filter for a list of slot groups, display as a name value list
+      (slot-group/filter                          ; filter for a group of slots (alternator)
+       (slot-group/name-value-group/filter        ; filter for a group of slots, display as a name value group
+        (slot/filter                              ; filter for a slot (alternator)
+         (slot/name-value-pair/filter             ; filter for a slot, display as a name value pair
+          (slot/name/inspector                    ; inspect the name of a slot
+           (string/inspect                        ; inspect a string (alternator)
+            (string/string/inspect                ; inspect a string, display as a string
+             string)))                            ; immediate
+          (slot/value/filter                      ; filter for the value of a slot
+           (t/filter))))                          ; filter for something (alternator)
+        ...))
+      ...))))))
 
-;; TODO: is this really what we want?
-(def render-component standard-object-filter
+;; optimized version (default factory configuration)
+(t/filter                                         ; filter for something (alternator)
+ (slot-group-list/name-value-list/filter          ; filter for a list of slot groups, display as a name value list
+  (slot-group/name-value-group/filter             ; filter for a group of slots, display as a name value group
+   (slot/name-value-pair/filter                   ; filter for a slot, display as a name value pair
+    string                                        ; immediate
+    (slot/value/filter                            ; filter for the value of a slot
+     (t/filter)))                                 ; filter for something (alternator)
+   ...)
+  ...))
+"))
+
+(def layered-method make-alternatives ((component t/filter) class prototype value)
+  (list (delay-alternative-reference 't/reference/filter value)
+        (delay-alternative-component-with-initargs 't/name-value-list/filter :component-value value)))
+
+(def render-component t/filter
   <div ,(call-next-method)
        ,(render-component (result-of -self-))>)
 
-(def (macro e) standard-object-filter (the-class)
-  `(make-instance 'standard-object-filter :the-class ,the-class))
+(def layered-method make-command-bar-commands ((component t/filter) class prototype value)
+  (optional-list* (make-execute-filter-command component class prototype value)
+                  (call-next-method)))
 
-(def layered-method make-title ((self standard-object-filter))
-  (title (standard-object-filter.title (localized-class-name (the-class-of self)))))
+(def (icon e) execute-filter)
 
-(def layered-method make-alternatives ((component standard-object-filter) (class standard-class) (prototype standard-object) value)
-  (list (delay-alternative-component-with-initargs 'standard-object-detail-filter :the-class class)
-        (delay-alternative-reference-component 'standard-object-filter-reference class)))
-
-(def layered-method make-context-menu-items ((component standard-object-filter) (class standard-class) (prototype standard-object) (instance standard-object))
-  (optional-list* (make-filter-instances-command component (delay (result-of component))) (call-next-method)))
-
-(def layered-method make-command-bar-commands ((component standard-object-filter) (class standard-class) (prototype standard-object) (instance standard-object))
-  (optional-list* (make-filter-instances-command component (delay (result-of component))) (call-next-method)))
-
-;;;;;;
-;;; Standard object detail filter
-
-(def (component e) standard-object-detail-filter (standard-object-detail-component
-                                                 standard-class/mixin
-                                                 filter/abstract)
-  ((class-selector nil :type component)
-   (ordering-specifier nil :type component)))
-
-(def (macro e) standard-object-detail-filter (class)
-  `(make-instance 'standard-object-detail-filter :the-class ,class))
-
-(def (layered-function e) collect-standard-object-detail-filter-classes (component class prototype)
-  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
-    (list* class (subclasses class))))
-
-(def refresh-component standard-object-detail-filter
-  (bind (((:slots class-selector ordering-specifier the-class slot-value-groups command-bar) -self-)
-         (selectable-classes (collect-standard-object-detail-filter-classes -self- the-class (class-prototype the-class))))
-    (if (length= selectable-classes 1)
-        (setf class-selector nil)
-        (if class-selector
-            (setf (possible-values-of class-selector) selectable-classes)
-            (setf class-selector (make-class-selector selectable-classes))))
-    (bind ((selected-class (if class-selector
-                               (component-value-of class-selector)
-                               (first selectable-classes)))
-           (prototype (class-prototype selected-class))
-           (slots (collect-standard-object-detail-filter-slots -self- selected-class prototype)))
-      (setf ordering-specifier (when slots (make-slot-selector slots))
-            slot-value-groups (bind ((slot-groups (collect-standard-object-detail-slot-groups -self- selected-class prototype slots)))
-                                (iter (for (name . slot-group) :in slot-groups)
-                                      (when slot-group
-                                        (for slot-value-group = (find-slot-value-group-component slot-group slot-value-groups))
-                                        (if slot-value-group
-                                            (setf (component-value-of slot-value-group) slot-group
-                                                  (the-class-of slot-value-group) selected-class
-                                                  (name-of slot-value-group) name)
-                                            (setf slot-value-group (make-instance 'standard-object-slot-value-group-filter
-                                                                                  :slots slot-group
-                                                                                  :the-class selected-class
-                                                                                  :name name)))
-                                        (collect slot-value-group))))))))
-
-(def (layered-function e) collect-standard-object-detail-filter-slots (component class prototype)
-  (:method ((component standard-object-detail-filter) (class standard-class) (prototype standard-object))
-    (class-slots class)))
-
-(def render-xhtml standard-object-detail-filter
-  (bind (((:read-only-slots class-selector ordering-specifier slot-value-groups id) -self-))
-    <div (:id ,id)
-         <table (:class "slot-table")
-           ,(when (or class-selector ordering-specifier)
-                  <tbody ,(when class-selector
-                                <tr <td ,#"standard-object-detail-filter.class-selector-label">
-                                    <td (:colspan 3)>
-                                    <td ,(render-component class-selector)>>)
-                         ,(when ordering-specifier
-                                <tr <td ,#"standard-object-detail-filter.ordering-specifier-label">
-                                    <td (:colspan 3)>
-                                    <td ,(render-component ordering-specifier)>>) >)
-           ,(foreach #'render-component slot-value-groups)>>))
-
-;;;;;;
-;;; Standard object slot value group filter
-
-(def (component e) standard-object-slot-value-group-filter (standard-object-slot-value-group-component filter/abstract)
-  ())
-
-(def refresh-component standard-object-slot-value-group-filter
-  (bind (((:slots the-class slots slot-values) -self-))
-    (setf slot-values
-          (iter (for slot :in slots)
-                (for slot-value = (find-slot-value-component slot slot-values))
-                (if slot-value
-                    (setf (component-value-of slot-value) slot)
-                    (setf slot-value (make-instance 'standard-object-slot-value-filter :the-class the-class :slot slot)))
-                (collect slot-value)))))
-
-(def method standard-object-slot-value-group-column-count ((self standard-object-slot-value-group-filter))
-  5)
-
-;;;;;;
-;;; Standard object slot value filter
-
-(def (component e) standard-object-slot-value-filter (standard-object-slot-value/inspector filter/abstract)
-  ()
-  (:documentation "Filter for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
-
-(def refresh-component standard-object-slot-value-filter
-  (bind (((:slots slot label value) -self-)
-         (type (slot-type slot))
-         (name (slot-definition-name slot)))
-    (setf label (localized-slot-name slot))
-    (unless (and value
-                 (type= (the-type-of value) type)
-                 (eq (name-of value) name))
-      (setf value (make-place-filter type :name name)))))
-
-(def render-xhtml standard-object-slot-value-filter
-  (bind (((:read-only-slots label value id) -self-))
-    <tr (:id ,id :class ,(element-style-class -self- (slot-values-of (parent-component-of -self-))))
-        <td (:class "slot-value-label")
-            ,(render-component label)>
-        ;; NOTE: the value component is resposible to render the cells
-        ,(render-component value)>))
-
-;;;;;;
-;;; Standard object place filter
-
-(def (component e) standard-object-place-filter (place-filter)
-  ())
-
-(def method make-place-component-content ((self standard-object-place-filter))
-  (make-inspector (the-type-of self) :initial-alternative-type 'reference-component))
-
-(def method make-place-component-command-bar ((self standard-object-place-filter))
-  (make-instance 'command-bar/basic :commands (list (make-set-place-to-nil-command self)
-                                                    (make-set-place-to-find-instance-command self))))
-
-(def method collect-possible-filter-predicates ((self standard-object-place-filter))
-  '(equal))
-
-;;;;;;
-;;; Filter
-
-(def (layered-function e) make-filter-instances-command (component result)
-  (:method ((component filter/abstract) result)
-    (make-replace-and-push-back-command result (delay (with-restored-component-environment component
-                                                        (funcall (result-component-factory-of component) component
-                                                                 (filter-instances component (the-class-of component)))))
-                                        (list :content (icon filter) :default #t)
+(def (layered-function e) make-execute-filter-command (component class prototype value)
+  (:method ((component t/filter) class prototype value)
+    (make-replace-and-push-back-command (result-of component)
+                                        (delay (with-restored-component-environment component
+                                                 (funcall (result-component-factory-of component) component class prototype
+                                                          (execute-filter component class prototype value))))
+                                        (list :content (icon execute-filter) :default #t)
                                         (list :content (icon back)))))
 
-(def (layered-function e) make-standard-object-filter-result-inspector (filter result)
-  (:method ((filter standard-object-filter) (instances list))
-    (make-viewer instances :type `(list ,(class-name (the-class-of filter)))))
+(def (layered-function e) make-filter-result-inspector (component class prototype value)
+  (:method ((filter t/filter) class prototype (value list))
+    (make-viewer value :type `(list ,(class-name (the-class-of filter)))))
 
-  (:method :around ((filter standard-object-filter) (instances list))
+  (:method :around ((filter t/filter) class prototype  value)
     (prog1-bind component
         (call-next-method)
-      (unless instances
+      (unless value
         (add-component-warning-message component #"no-matches-were-found")))))
 
-(def (layered-function e) filter-instances (component class)
-  (:method ((component standard-object-filter) (class standard-class))
-    (filter-instances (content-of component) class))
+(def (layered-function e) execute-filter (component class prototype value)
+  (:method ((component t/filter) class prototype value)
+    (execute-filter (content-of component) class prototype value))
 
   #+sbcl
-  (:method ((component standard-object-detail-filter) (class standard-class))
-    (bind ((slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
+  (:method ((component t/name-value-list/filter) class prototype value)
+    (bind (#+nil
+           (slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
+           #+nil
            (predicates (iter (for slot-value :in slot-values)
                              (for predicate = (bind ((slot-name (slot-definition-name (slot-of slot-value)))
                                                      (place-filter (value-of slot-value))
@@ -208,13 +105,14 @@
                                                                     (component-value-of value-component))))))))
                              (when predicate
                                (collect predicate)))))
-      (bind ((instances ()))
+      (bind ((instances nil))
         (sb-vm::map-allocated-objects
          (lambda (instance type size)
            (declare (ignore type size))
-           (bind ((instance-class (class-of instance)))
+           (bind ((instance-class (find-class 'standard-class) #+nil(class-of instance)))
              (when (and (typep instance class)
                         (not (eq instance (class-prototype instance-class)))
+                        #+nil
                         (every (lambda (predicate)
                                  (funcall predicate instance))
                                predicates))
@@ -222,3 +120,166 @@
          :dynamic
          t)
         instances))))
+
+
+;; TODO: to list classes
+#+nil
+(let ((classes nil))
+  (maphash-keys (lambda (key)
+                  (awhen (find-class key #f)
+                    (push it classes)))
+                sb-kernel::*classoid-cells*)
+  classes)
+
+;;;;;;
+;;; t/reference/filter
+
+(def (component e) t/reference/filter (filter/basic t/reference/presentation)
+  ())
+
+;;;;;;
+;;; t/name-value-list/filter
+
+(def (component e) t/name-value-list/filter (filter/basic t/name-value-list/presentation)
+  ())
+
+(def layered-method collect-slot-value-list/slots ((component t/name-value-list/filter) class prototype value)
+  (class-slots value))
+
+;; TODO: rename
+(def layered-methods make-slot-value-list/content
+  (:method ((component t/name-value-list/filter) class prototype (value place-group))
+    (make-instance 'place-group-list/name-value-list/filter :component-value value))
+
+  (:method ((component t/name-value-list/filter) class prototype (value sequence))
+    (make-instance 'sequence/list/filter :component-value value))
+
+  (:method ((component t/name-value-list/filter) class prototype (value number))
+    value)
+
+  (:method ((component t/name-value-list/filter) class prototype (value string))
+    value)
+
+  (:method ((component t/name-value-list/filter) class prototype value)
+    (make-instance 't/reference/filter :component-value value :action nil :enabled #f)))
+
+;;;;;;
+;;; place-group-list/name-value-list/filter
+
+(def (component e) place-group-list/name-value-list/filter (filter/basic place-group-list/name-value-list/presentation)
+  ())
+
+(def layered-method collect-slot-value-group/slots ((component place-group-list/name-value-list/filter) class prototype (value place-group))
+  (list value))
+
+(def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/filter) class prototype (value place-group))
+  (make-instance 'place-group/name-value-group/filter :component-value value))
+
+;;;;;;
+;;; place-group/name-value-group/filter
+
+(def (component e) place-group/name-value-group/filter (filter/basic place-group/name-value-group/presentation)
+  ())
+
+(def layered-method make-slot-value-group/content ((component place-group/name-value-group/filter) class prototype (value object-slot-place))
+  (make-instance 'place/name-value-pair/filter :component-value value))
+
+;;;;;;
+;;; place/name-value-pair/filter
+
+;; TODO: move these slots down one level?
+(def (component e) place/name-value-pair/filter (filter/basic place/name-value-pair/presentation)
+  ((use-in-filter #f :type boolean)
+   (use-in-filter-id)
+   (negated #f :type boolean)
+   (selected-predicate nil :type symbol)))
+
+(def layered-method make-slot-value-pair/value ((component place/name-value-pair/filter) class prototype value)
+  (make-instance 'place/value/filter :component-value value))
+
+;; TODO: do we need this parentism
+(def method use-in-filter? ((self parent/mixin))
+  (use-in-filter? (parent-component-of self)))
+
+;; TODO: do we need this parentism
+(def method use-in-filter-id-of ((self parent/mixin))
+  (use-in-filter-id-of (parent-component-of self)))
+
+(def method use-in-filter-id-of ((self place/name-value-pair/filter))
+  (generate-frame-unique-string))
+
+;; TODO: move this to a component?
+(def render-component place/name-value-pair/filter
+  (render-name-for -self-)
+  (render-filter-predicate-for -self-)
+  (render-use-in-filter-marker-for -self-)
+  (render-value-for -self-))
+
+;;;;;;
+;;; Icon
+
+(def (icon e) equal-predicate)
+
+(def (icon e) like-predicate)
+
+(def (icon e) less-than-predicate)
+
+(def (icon e) less-than-or-equal-predicate)
+
+(def (icon e) greater-than-predicate)
+
+(def (icon e) greater-than-or-equal-predicate)
+
+(def (icon e) negated-predicate)
+
+(def (icon e) ponated-predicate)
+
+;;;;;;
+;;; Util
+
+(def generic collect-possible-filter-predicates (component)
+  (:method ((self filter/abstract))
+    nil))
+
+(def function localize-predicate (predicate)
+  (lookup-resource (string+ "predicate." (symbol-name predicate))))
+
+(def function predicate-icon-style-class (predicate)
+  (ecase predicate
+    (equal "equal-predicate-icon")
+    (like "like-predicate-icon")
+    (less-than "less-than-predicate-icon")
+    (less-than-or-equal "less-than-or-equal-predicate-icon")
+    (greater-than "greater-than-predicate-icon")
+    (greater-than-or-equal "greater-than-or-equal-predicate-icon")))
+
+(def function render-filter-predicate-for (self)
+  (bind (((:slots negated selected-predicate) self)
+         ;; TODO: KLUDGE: don't look down this deep
+         (possible-predicates (collect-possible-filter-predicates (content-of (aprog1 (value-of self)
+                                                                                (ensure-refreshed it))))))
+    (if possible-predicates
+        (progn
+          (unless selected-predicate
+            (setf selected-predicate (first possible-predicates)))
+          <td ,(render-checkbox-field negated
+                                      :value-sink (lambda (value) (setf negated value))
+                                      :checked-class "icon negated-predicate-icon"
+                                      :unchecked-class "icon ponated-predicate-icon")>
+          <td ,(if (length= 1 possible-predicates)
+                   <div (:class ,(predicate-icon-style-class (first possible-predicates)))>
+                   (render-popup-menu-select-field (localize-predicate selected-predicate)
+                                                   (mapcar #'localize-predicate possible-predicates)
+                                                   :value-sink (lambda (value)
+                                                                 (setf selected-predicate (find value possible-predicates :key #'localize-predicate :test #'string=)))
+                                                   :classes (mapcar #'predicate-icon-style-class possible-predicates)))>)
+        <td (:colspan 2)>)))
+
+(def function render-use-in-filter-marker-for (self)
+  (bind ((id (generate-frame-unique-string)))
+    (setf (use-in-filter-id-of self) id)
+    <td ,(render-checkbox-field (use-in-filter? self)
+                                :id id
+                                :value-sink (lambda (value) (setf (use-in-filter? self) value))
+                                :checked-class "icon use-in-filter-icon"
+                                :unchecked-class "icon ignore-in-filter-icon")>))

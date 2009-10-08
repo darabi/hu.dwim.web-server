@@ -47,6 +47,7 @@
 
 
 
+(def (icon e) back)
 
 
 
@@ -421,8 +422,6 @@
 (def (icon e) delete)
 
 (def (icon e) close)
-
-(def (icon e) back)
 
 (def (icon e) expand)
 

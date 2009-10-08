@@ -37,8 +37,8 @@
   (icon-label.collapse-to-reference "Collapse")
   (icon-tooltip.collapse-to-reference "Collapse to reference")
 
-  (icon-label.filter "Filter")
-  (icon-tooltip.filter "Execute the filter")
+  (icon-label.execute-filter "Filter")
+  (icon-tooltip.execute-filter "Execute the filter")
 
   (icon-label.find "Find")
   (icon-tooltip.find "Find an object")

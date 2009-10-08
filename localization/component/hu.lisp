@@ -37,8 +37,8 @@
   (icon-label.collapse-to-reference "Összecsukás")
   (icon-tooltip.collapse-to-reference "Részletek elrejtése")
 
-  (icon-label.filter "Keresés")
-  (icon-tooltip.filter "A keresés végrehajtása")
+  (icon-label.execute-filter "Keresés")
+  (icon-tooltip.execute-filter "A keresés végrehajtása")
 
   (icon-label.find "Keresés")
   (icon-tooltip.find "Egy objektum keresése")

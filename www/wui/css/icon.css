@@ -146,10 +146,6 @@
   background-image: url("/static/wui/icon/24x24/page-last-disabled.png");
 }
 
-.filter-icon {
-  background-image: url("/static/wui/icon/20x20/binocular.png");
-}
-
 .find-icon {
   background-image: url("/static/wui/icon/20x20/binocular.png");
 }
@@ -275,6 +271,10 @@
 }
 
 /* filter */
+
+.execute-filter-icon {
+  background-image: url("/static/wui/icon/24x24/search.png");
+}
 
 .use-in-filter-icon {
   width: 17px;

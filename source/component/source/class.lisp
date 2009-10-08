@@ -77,3 +77,72 @@
 
 (def layered-method collect-tree/children ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
   (sort (class-direct-superclasses value) #'string< :key (compose #'qualified-symbol-name #'class-name)))
+
+;;;;;;
+;;; class/tree-level/inspector
+
+(def (component e) class/tree-level/inspector (standard-object/tree-level/inspector)
+  ())
+
+(def (macro e) class/tree-level/inspector ((&rest args &key &allow-other-keys) &body class)
+  `(make-instance 'class/tree-level/inspector ,@args :component-value ,(the-only-element class)))
+
+(def layered-method make-tree-level/path ((component class/tree-level/inspector) (class class) (prototype class) (value list))
+  (make-instance 'class/tree-level/path/inspector :component-value value))
+
+(def layered-method make-tree-level/previous-sibling ((component class/tree-level/inspector) (class class) (prototype class) value)
+  (make-instance 'class/tree-level/reference/inspector :component-value value))
+
+(def layered-method make-tree-level/next-sibling ((component class/tree-level/inspector) (class class) (prototype class) value)
+  (make-instance 'class/tree-level/reference/inspector :component-value value))
+
+(def layered-method make-tree-level/descendants ((component class/tree-level/inspector) (class class) (prototype class) (value class))
+  (make-instance 'class/tree-level/tree/inspector :component-value value))
+
+(def layered-method make-tree-level/node ((component class/tree-level/inspector) (class class) (prototype class) (value class))
+  (make-instance 'class/tree-level/reference/inspector :component-value value))
+
+;;;;;;
+;;; class/tree-level/reference/inspector
+
+(def (component e) class/tree-level/reference/inspector (t/reference/inspector)
+  ())
+
+(def refresh-component class/tree-level/reference/inspector
+  (bind (((:slots content action component-value) -self-))
+    (setf content (qualified-symbol-name (class-name component-value)))
+    (setf action (make-action
+                   (setf (component-value-of (find-ancestor-component-with-type -self- 'class/tree-level/inspector)) component-value)))))
+
+;;;;;;
+;;; class/tree-level/path/inspector
+
+(def (component e) class/tree-level/path/inspector (standard-object/tree-level/path/inspector)
+  ())
+
+(def method component-dispatch-class ((self class/tree-level/path/inspector))
+  (class-of (first (component-value-of self))))
+
+(def layered-method make-path/content ((component class/tree-level/path/inspector) (class class) (prototype class) (value class))
+  (make-instance 'class/tree-level/reference/inspector :component-value value))
+
+;;;;;;
+;;; class/tree-level/tree/inspector
+
+(def (component e) class/tree-level/tree/inspector (class/tree/inspector)
+  ())
+
+(def layered-method make-tree/root-node ((component class/tree-level/tree/inspector) (class class) (prototype class) (value class))
+  (make-instance 'class/tree-level/node/inspector :component-value value))
+
+;;;;;;
+;;; class/tree-level/node/inspector
+
+(def (component e) class/tree-level/node/inspector (class/node/inspector)
+  ())
+
+(def layered-method make-node/child-node ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
+  (make-instance 'class/tree-level/node/inspector :component-value value))
+
+(def layered-method make-node/content ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
+  (make-instance 'class/tree-level/reference/inspector :component-value value))

@@ -7,159 +7,110 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Standard object inspector
+;;; t/inspector
 
-(def (component e) standard-object/inspector (standard-object/mixin
-                                              inspector/abstract
-                                              editable/mixin
-                                              exportable/abstract
-                                              alternator/basic
-                                              initargs/mixin
-                                              layer-context-capturing/mixin)
+(def (component e) t/inspector (inspector/basic t/presentation)
   ()
-  (:documentation "Inspector for an instance of STANDARD-OBJECT in various alternative views."))
+  (:documentation "
+;; generic version (all components are available)
+(t/inspector                                      ; inspect something (alternator)
+ (t/place-list/inspector                          ; inspect a list of places of something
+  (place-list/inspector                           ; inspect a list of places (alternator)
+   (place-list/place-group-list/inspector         ; inspect a grouping of a list of places
+    (place-group-list/inspector                   ; inspect a list of place groups (alternator)
+     (place-group-list/name-value-list/inspector  ; inspect a list of place groups, display as a name value list
+      (place-group/inspector                      ; inspect a group of places (alternator)
+       (place-group/name-value-group/inspector    ; inspect a group of places, display as a name value group
+        (place/inspector                          ; inspect a place (alternator)
+         (place/name-value-pair/inspector         ; inspect a place, display as a name value pair
+          (place/name/inspector                   ; inspect the name of a place
+           (string/inspector                      ; inspect a string (alternator)
+            (string/string/inspector              ; inspect a string, display as a string
+             string)))                            ; immediate
+          (place/value/inspector                  ; inspect the value of a place
+           (t/inspector))))                       ; inspect something (alternator)
+        ...))
+      ...))))))
 
-(def (macro e) standard-object/inspector (instance)
-  `(make-instance 'standard-object/inspector :instance ,instance))
+;; optimized version (default factory configuration)
+(t/inspector                                      ; inspect something (alternator)
+ (place-group-list/name-value-list/inspector      ; inspect a list of place groups, display as a name value list
+  (place-group/name-value-group/inspector         ; inspect a group of places, display as a name value group
+   (place/name-value-pair/inspector               ; inspect a place, display as a name value pair
+    string                                        ; immediate
+    (place/value/inspector                        ; inspect the value of a place
+     (t/inspector)))                              ; inspect something (alternator)
+   ...)
+  ...))
 
-(def layered-method make-title ((self standard-object/inspector))
-  (title (standard-object-inspector.title (localized-class-name (component-dispatch-class self)))))
+(string/inspector
+ (string/string/inspector)
+ (string/character-vector/inspector)
+ ...)
+"))
 
-(def layered-methods make-alternatives
-  (:method ((component standard-object-inspector) (class standard-class) (prototype standard-object) (instance standard-object))
-    (list (delay-alternative-component-with-initargs 'standard-object-detail-inspector :instance instance)
-          (delay-alternative-reference-component 'standard-object-inspector-reference instance)))
-
-  (:method ((component standard-object-inspector) (class built-in-class) (prototype null) (instance null))
-    (list (delay-alternative-component-with-initargs 'null-component))))
-
-(def (layered-function e) make-delete-instance-command (component class instance)
-  (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
-    (command (:visible (delay (not (edited? component)))
-              :js (lambda (href)
-                    (render-dojo-dialog (dialog-id :title #"delete-instance.dialog.title")
-                      <div
-                       ,(bind ((instance (instance-of component)))
-                              (funcall-resource-function 'delete-instance.dialog.body :class (class-of instance) :instance instance))
-                       ,(render-dojo-dialog/buttons
-                         (#"Icon-label.cancel" `js-inline(.hide (dijit.byId ,dialog-id)))
-                         (#"Icon-label.delete" `js-inline(wui.io.action ,href :ajax #f)))>)))
-      (icon delete)
-      (make-action
-        (bind ((instance (instance-of component)))
-          (delete-instance component (class-of instance) instance))))))
-
-(def (layered-function e) delete-instance (component class instance)
-  (:method ((component standard-object-inspector) (class standard-class) (instance standard-object))
-    (setf (component-value-of component) nil)))
-
-(def layered-method render-onclick-handler ((self standard-object-inspector) (button (eql :left)))
-  #+nil ;; TODO: this prevents clicking into edit fields in edit mode, because collapses the component
-  (when-bind collapse-command (find-command self 'collapse)
-    (render-command-onclick-handler collapse-command (id-of self))))
+(def layered-method make-alternatives ((component t/inspector) class prototype value)
+  (list (delay-alternative-reference 't/reference/inspector value)
+        (delay-alternative-component-with-initargs 't/name-value-list/inspector :component-value value)))
 
 ;;;;;;
-;;; Standard object detail inspector
+;;; t/reference/inspector
 
-(def (component e) standard-object-detail-inspector (standard-object/mixin
-                                                    standard-object-detail-component
-                                                    inspector/abstract
-                                                    editable/mixin)
-  ()
-  (:documentation "Inspector for an instance of STANDARD-OBJECT in detail."))
-
-(def refresh-component standard-object-detail-inspector
-  (bind (((:slots instance slot-value-groups) -self-)
-         (the-class (when instance (class-of instance))))
-    ;; TODO: factor this out into a base class throughout this directory
-    (if instance
-        (bind ((slots (collect-standard-object-detail-inspector-slots -self- the-class instance))
-               (slot-groups (collect-standard-object-detail-slot-groups -self- the-class instance slots)))
-          (setf slot-value-groups
-                (iter (for (name . slot-group) :in slot-groups)
-                      (when slot-group
-                        (bind ((slot-value-group (find-slot-value-group-component slot-group slot-value-groups)))
-                          (if slot-value-group
-                              (setf (component-value-of slot-value-group) slot-group
-                                    (instance-of slot-value-group) instance
-                                    (the-class-of slot-value-group) the-class
-                                    (name-of slot-value-group) name)
-                              (setf slot-value-group (make-instance 'standard-object-slot-value-group-inspector
-                                                                    :instance instance
-                                                                    :slots slot-group
-                                                                    :name name)))
-                          (collect slot-value-group))))))
-        (setf slot-value-groups nil))))
-
-(def (layered-function e) collect-standard-object-detail-inspector-slots (component class instance)
-  (:method ((component standard-object-detail-inspector) (class standard-class) (instance standard-object))
-    (class-slots class)))
-
-(def render-xhtml standard-object-detail-inspector
-  (bind (((:read-only-slots slot-value-groups id) -self-))
-    <div (:id ,id :class "standard-object")
-         <table (:class "slot-table") ,(foreach #'render-component slot-value-groups)>>
-    (render-onclick-handler (parent-component-of -self-) :left)))
+(def (component e) t/reference/inspector (inspector/basic t/reference/presentation)
+  ())
 
 ;;;;;;
-;;; Standard object slot value group inspector
+;;; t/name-value-list/inspector
 
-(def (component e) standard-object-slot-value-group-inspector (standard-object-slot-value-group-component
-                                                              standard-object/mixin
-                                                              inspector/abstract
-                                                              editable/mixin)
-  ()
-  (:documentation "Inspector for an instance of STANDARD-OBJECT and a list of STANDARD-SLOT-DEFINITION instances."))
+(def (component e) t/name-value-list/inspector (inspector/basic t/name-value-list/presentation)
+  ())
 
-(def refresh-component standard-object-slot-value-group-inspector
-  (bind (((:slots instance slots slot-values) -self-))
-    (if instance
-        (setf slot-values
-              (iter (for slot :in slots)
-                    (for slot-value-component = (find-slot-value-component slot slot-values))
-                    (if slot-value-component
-                        (setf (component-value-of slot-value-component) slot
-                              (instance-of slot-value-component) instance)
-                        (setf slot-value-component (make-standard-object-slot-value-inspector -self- (class-of instance) instance slot)))
-                    (collect slot-value-component)))
-        (setf slot-values nil))))
+(def layered-method collect-slot-value-list/slots ((component t/name-value-list/inspector) class prototype value)
+  (class-slots class))
 
-(def (layered-function e) make-standard-object-slot-value-inspector (component class instance slot)
-  (:method ((component standard-object-slot-value-group-inspector) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
-    (make-instance 'standard-object-slot-value-inspector :the-class class :instance instance :slot slot)))
+;; TODO: rename
+(def layered-methods make-slot-value-list/content
+  (:method ((component t/name-value-list/inspector) class prototype (value place-group))
+    (make-instance 'place-group-list/name-value-list/inspector :component-value value))
 
-;;;;;;
-;;; Standard object slot value inspector
+  (:method ((component t/name-value-list/inspector) class prototype (value sequence))
+    (make-instance 'sequence/list/inspector :component-value value))
 
-(def (component e) standard-object-slot-value-inspector (standard-object-slot-value/inspector
-                                                        standard-object/mixin
-                                                        inspector/abstract
-                                                        editable/mixin)
-  ()
-  (:documentation "Inspector for an instance of STANDARD-OBJECT and an instance of STANDARD-SLOT-DEFINITION."))
+  (:method ((component t/name-value-list/inspector) class prototype (value number))
+    value)
 
-(def refresh-component standard-object-slot-value-inspector
-  (bind (((:slots instance slot label value) -self-))
-    (if slot
-        (if (typep label 'component)
-            (setf (component-value-of label) (localized-slot-name slot))
-            (setf label (localized-slot-name slot)))
-        (setf label nil))
-    (if instance
-        (if value
-            (setf (place-of value) (make-object-slot-place instance slot))
-            (setf value (make-standard-object-object-slot-place-inspector instance slot)))
-        (setf value nil))))
+  (:method ((component t/name-value-list/inspector) class prototype (value string))
+    value)
+
+  (:method ((component t/name-value-list/inspector) class prototype value)
+    (make-instance 't/reference/inspector :component-value value :action nil :enabled #f)))
 
 ;;;;;;
-;;; Standard object place inspector
+;;; place-group-list/name-value-list/inspector
 
-(def (component e) standard-object-place-inspector (place-inspector)
-  ()
-  (:documentation "Inspector for a place of an instance of STANDARD-OBJECT and unit types."))
+(def (component e) place-group-list/name-value-list/inspector (inspector/basic place-group-list/name-value-list/presentation)
+  ())
 
-(def method make-place-component-command-bar ((self standard-object-place-inspector))
-  (make-instance 'command-bar/basic :commands (list (make-revert-place-command self)
-                                                    (make-set-place-to-nil-command self)
-                                                    (make-set-place-to-find-instance-command self)
-                                                    (make-set-place-to-new-instance-command self))))
+(def layered-method collect-slot-value-group/slots ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
+  (list value))
+
+(def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
+  (make-instance 'place-group/name-value-group/inspector :component-value value))
+
+;;;;;;
+;;; place-group/name-value-group/inspector
+
+(def (component e) place-group/name-value-group/inspector (inspector/basic place-group/name-value-group/presentation)
+  ())
+
+(def layered-method make-slot-value-group/content ((component place-group/name-value-group/inspector) class prototype (value object-slot-place))
+  (make-instance 'place/name-value-pair/inspector :component-value value))
+
+;;;;;;
+;;; place/name-value-pair/inspector
+
+(def (component e) place/name-value-pair/inspector (inspector/basic place/name-value-pair/presentation)
+  ())
+
+(def layered-method make-slot-value-pair/value ((component place/name-value-pair/inspector) class prototype value)
+  (make-instance 'place/value/inspector :component-value value))

@@ -192,7 +192,7 @@
 (def (layered-function e) make-select-instance-command (component class prototype instance)
   (:documentation "TODO"))
 
-(def (layered-function e) make-filter-instances-command (filter result)
+(def (layered-function e) make-execute-filter-command (filter result)
   (:documentation "TODO"))
 
 (def (layered-function e) make-begin-editing-new-instance-command (component class prototype)
@@ -540,16 +540,3 @@
 
 (def (generic e) print-component (component &optional stream)
   (:documentation "Prints a string representation of COMPONENT into STREAM, this is the default behaviour for the PRINT-OBJECT method of COMPONENT."))
-
-;;;;;;
-;;; Shortcut
-
-(def (definer e) macro-shortcut (original-name shortcut-name)
-  `(progn
-     (setf (macro-function ',shortcut-name) (macro-function ',original-name))
-     (export ',shortcut-name)))
-
-(def (definer e) macro-shortcuts (&body original-shortcut-name-pairs)
-  `(progn
-     ,@(iter (for (original-name shortcut-name) :in original-shortcut-name-pairs)
-             (collect `(def macro-shortcut ,original-name ,shortcut-name)))))

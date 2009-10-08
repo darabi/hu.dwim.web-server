@@ -21,7 +21,6 @@
         :hu.dwim.syntax-sugar
         :hu.dwim.util
         :hu.dwim.wui
-        :hu.dwim.wui.shortcut
         :iolib)
 
   (:shadowing-import-from :hu.dwim.syntax-sugar

@@ -59,3 +59,39 @@
 
   (:method ((self component))
     (render-component self)))
+
+;;;;;;
+;;; book/tree-level/inspector
+
+(def (component e) book/tree-level/inspector (standard-object/tree-level/inspector)
+  ())
+
+(def (macro e) book/tree-level/inspector ((&rest args &key &allow-other-keys) &body book)
+  `(make-instance 'book/tree-level/inspector ,@args :component-value ,(the-only-element book)))
+
+(def layered-method make-tree-level/path ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value list))
+  (make-instance 'standard-object/tree-level/path/inspector :component-value value))
+
+(def layered-method make-path/content ((component standard-object/tree-level/path/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
+  (make-instance 'standard-object/tree-level/reference/inspector :component-value value))
+
+(def layered-method make-tree-level/previous-sibling ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) value)
+  (make-instance 'standard-object/tree-level/reference/inspector :component-value value))
+
+(def layered-method make-tree-level/next-sibling ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) value)
+  (make-instance 'standard-object/tree-level/reference/inspector :component-value value))
+
+(def layered-method make-tree-level/descendants ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
+  (make-instance 'standard-object/tree-level/tree/inspector :component-value value))
+
+(def layered-method make-tree-level/node ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
+  (make-instance 'standard-object/tree-level/reference/inspector :component-value value))
+
+(def layered-method collect-tree/children ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
+  (filter-if (of-type 'title-mixin) (contents-of value)))
+
+(def layered-method collect-tree/children ((component standard-object/node/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
+  (filter-if (of-type 'title-mixin) (contents-of value)))
+
+(def layered-method make-reference/content ((component standard-object/tree-level/reference/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
+  (title-of value))
