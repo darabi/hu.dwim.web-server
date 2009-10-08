@@ -87,7 +87,7 @@
         "Structure and Interpretation of Computer Programs"))
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu)))
-      (make-demo-content initial-content-component))))
+      (make-component-demo-content initial-content-component))))
 
 ;;;;;;
 ;;; Immediate
@@ -966,7 +966,7 @@
 ;;;;;;
 ;;; Demo
 
-(def function make-demo-content (&optional initial-content-component)
+(def (function e) make-component-demo-content (&optional initial-content-component)
   (bind ((content (content/widget ()
                     (or initial-content-component
                         (empty/layout)))))
