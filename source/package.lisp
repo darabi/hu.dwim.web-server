@@ -6,10 +6,6 @@
 
 (in-package :common-lisp-user)
 
-(defpackage :hu.dwim.wui.shortcut
-  (:use :hu.dwim.common-lisp
-        :hu.dwim.def))
-
 (defpackage :hu.dwim.wui
   (:use :babel
         :babel-streams
@@ -43,5 +39,3 @@
 
   (:shadowing-import-from :hu.dwim.syntax-sugar
                           #:define-syntax))
-
-(use-package :hu.dwim.wui :hu.dwim.wui.shortcut)
