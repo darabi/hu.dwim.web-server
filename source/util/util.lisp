@@ -373,18 +373,18 @@
 ;;;;;;
 ;;; Integer to string
 
-(def constant +integer-strings-to-cache-size+ 128)
+(def constant +integer-to-string-cache-size+ 128)
 
 (def (constant :test 'equalp) +cached-integer-names+
-    (coerce (iter (for idx :from 0 :below +integer-strings-to-cache-size+)
+    (coerce (iter (for idx :from 0 :below +integer-to-string-cache-size+)
                   (collect (coerce (princ-to-string idx) 'simple-base-string)))
-            `(simple-array string (,+integer-strings-to-cache-size+))))
+            `(simple-array string (,+integer-to-string-cache-size+))))
 
 (def (function io) %integer-to-string (integer &key minimum-column-count (maximum-digit-count most-positive-fixnum) (divisor 10))
   (declare (type integer integer)
            (type (or null fixnum) minimum-column-count)
            (type fixnum maximum-digit-count))
-  (if (< integer +integer-strings-to-cache-size+)
+  (if (< integer +integer-to-string-cache-size+)
       (aref +cached-integer-names+ integer)
       (bind ((remainder integer)
              (digit 0)
