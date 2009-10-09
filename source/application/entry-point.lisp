@@ -177,5 +177,5 @@
 (def (definer e) js-component-hierarchy-serving-entry-point (application path-prefix &key priority)
   `(ensure-entry-point ,application (make-js-component-hierarchy-serving-broker ,path-prefix :priority ,priority)))
 
-(def (definer e) cgi-serving-entry-point (application path-prefix filename &key priority)
-  `(ensure-entry-point ,application (make-cgi-serving-broker ,path-prefix ,filename :priority ,priority)))
+(def (definer e) cgi-serving-entry-point (application path-prefix filename &key priority environment)
+  `(ensure-entry-point ,application (make-cgi-serving-broker ,path-prefix ,filename :priority ,priority :environment ,environment)))
