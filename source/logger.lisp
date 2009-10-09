@@ -7,9 +7,9 @@
 (in-package :hu.dwim.wui)
 
 (def logger wui ()
-  :level (if *load-as-production?* +info+ +debug+)
+  :runtime-level (if *load-as-production?* +info+ +debug+)
   :compile-time-level (if *load-as-production?* +debug+ +dribble+)
-  :appender (make-instance 'brief-stream-log-appender :stream *debug-io*))
+  :appender (make-instance 'brief-stream-appender :stream *debug-io*))
 
 (def logger rerl (wui))
 
