@@ -165,7 +165,7 @@
               (for name = (lastcar (pathname-directory directory)))
               <tr
                 <td
-                  <a (:href ,(string+ path-prefix relative-path name "/"))
+                  <a (:href ,(escape-as-uri (string+ path-prefix relative-path name "/")))
                     ,name "/">>>)
         (iter (for file :in files)
               (for name = (apply 'string+
