@@ -181,12 +181,12 @@
 ;;;;;;
 ;;; MIME stuff for serving static files
 
-(def special-variable *mime-type->extensions* nil)
-(def special-variable *extension->mime-types* nil)
+(def special-variable *mime-type->extensions* (make-hash-table :test #'equal))
+(def special-variable *extension->mime-types* (make-hash-table :test #'equal))
 (def (constant :test 'equal) +mime-types-file+ #P"/etc/mime.types")
 
 (def function ensure-mime-types-are-read ()
-  (when (and (null *mime-type->extensions*)
+  (when (and (zerop (hash-table-count *mime-type->extensions*))
              (probe-file +mime-types-file+))
     (read-mime-types-file +mime-types-file+)))
 
@@ -199,14 +199,14 @@
       (next-iteration))
     (for pieces = (remove-if (lambda (piece)
                                (zerop (length piece)))
-                             (cl-ppcre:split "( |        )" line)))
+                             (cl-ppcre:split #.(format nil "( |~A)" #\Tab) line))) ; make that tab char survive tab killing zealots
     (unless (null pieces)
       (funcall visitor pieces))))
 
 (def function read-mime-types-file (mime-types-file)
   "Read in /etc/mime.types file."
-  (setf *mime-type->extensions* (make-hash-table :test #'equal))
-  (setf *extension->mime-types* (make-hash-table :test #'equal))
+  (clrhash *mime-type->extensions*)
+  (clrhash *extension->mime-types*)
   (parse-mime-types-file
    mime-types-file
    (lambda (pieces)
