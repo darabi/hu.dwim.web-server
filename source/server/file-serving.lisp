@@ -50,13 +50,11 @@
 
 (def generic make-file-serving-response-for-query-path (broker path-prefix relative-path root-directory)
   (:method ((broker directory-serving-broker) path-prefix relative-path root-directory)
-    (when (or (zerop (length relative-path))
-              (alphanumericp (elt relative-path 0)))
-      (bind ((pathname (merge-pathnames relative-path root-directory))
-             (truename (ignore-errors
-                         (probe-file pathname))))
-        (when truename
-          (make-file-serving-response-for-directory-entry broker truename path-prefix relative-path root-directory))))))
+    (bind ((pathname (merge-pathnames relative-path root-directory))
+           (truename (ignore-errors
+                       (probe-file pathname))))
+      (when truename
+        (make-file-serving-response-for-directory-entry broker truename path-prefix relative-path root-directory)))))
 
 (def generic make-file-serving-response-for-directory-entry (broker truename path-prefix relative-path root-directory)
   (:method ((broker directory-serving-broker) truename path-prefix relative-path root-directory)
@@ -152,31 +150,37 @@
                                 :headers (headers-of self)
                                 :cookies (cookies-of self))))
 
-(def function render-directory-as-html (directory path-prefix relative-path)
+(def function render-directory-as-html (directory path-prefix relative-path &key
+                                                  (filter (lambda (&key pathname &allow-other-keys)
+                                                            ;; filter out .foo
+                                                            (not (null (pathname-name pathname))))))
   <table
-    ,@(bind ((elements (cl-fad:list-directory directory))
-             ((:values directories files)
-              (iter (for element :in elements)
-                    (if (cl-fad:directory-pathname-p element)
-                        (collect element :into dirs)
-                        (collect element :into files))
-                    (finally (return (values dirs files))))))
-        (iter (for directory :in directories)
-              (for name = (lastcar (pathname-directory directory)))
-              <tr
-                <td
-                  <a (:href ,(escape-as-uri (string+ path-prefix relative-path name "/")))
-                    ,name "/">>>)
-        (iter (for file :in files)
-              (for name = (apply 'string+
-                                 (pathname-name file)
-                                 (awhen (pathname-type file)
-                                   (list "." it))))
-              <tr
-                <td
-                  <a (:href ,(escape-as-uri (string+ path-prefix relative-path name)))
-                    ,name>>
-                <td ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))>>))>)
+    ,@(labels ((render-link (path name)
+                 <a (:href ,(escape-as-uri (string+ path-prefix path)))
+                    ,name>)
+               (render-file (file)
+                 (bind ((name (apply 'string+ (pathname-name file)
+                                     (awhen (pathname-type file)
+                                       (list "." it)))))
+                   <tr <td ,(render-link (string+ relative-path name) name)>
+                       <td ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))>>))
+               (render-directory (directory &key
+                                            (path (string+ (lastcar (pathname-directory directory)) "/"))
+                                            (name path))
+                 <tr <td ,(render-link (string+ relative-path path) name)>
+                     <td>>))
+        (bind ((elements (cl-fad:list-directory directory))
+               ((:values directories files)
+                (iter (for element :in elements)
+                      (when (funcall filter :pathname element)
+                        (if (cl-fad:directory-pathname-p element)
+                            (collect element :into dirs)
+                            (collect element :into files)))
+                      (finally (return (values dirs files))))))
+          <tr <td ,(render-link (string+ relative-path "../") "[parent directory]")>
+              <td>>
+          (foreach #'render-directory directories)
+          (foreach #'render-file files)))>)
 
 ;;;;;;
 ;;; MIME stuff for serving static files
