@@ -185,7 +185,7 @@
                             (when (typep value 'rfc2388-binary:mime-part)
                               (delete-file (rfc2388-binary:content value))))
                           request)
-  request)
+  (values))
 
 
 ;;;;;;
@@ -322,7 +322,8 @@
 ;;; Functional response
 
 (def (class* e) functional-response (primitive-response)
-  ((thunk :type (or symbol function)))
+  ((thunk :type (or symbol function))
+   (cleanup-thunk nil :type (or symbol function)))
   (:documentation "A primitive-response that sends the headers and then calling its thunk. Keep in mind that it will not do any buffering, so it uses up a worker thread while sending the response through the network."))
 
 (def method send-response ((response functional-response))
@@ -336,14 +337,20 @@
 (def method send-response ((response raw-functional-response))
   (funcall (thunk-of response)))
 
-(def (function e) make-functional-response* (thunk &key headers cookies (raw #f))
+(def method close-request ((self functional-response))
+  (awhen (cleanup-thunk-of self)
+    (funcall it)))
+
+(def (function e) make-functional-response* (thunk &key headers cookies (raw #f) cleanup-thunk)
   (if raw
       (make-instance 'raw-functional-response
                      :thunk thunk
+                     :cleanup-thunk cleanup-thunk
                      :headers headers
                      :cookies cookies)
       (make-instance 'functional-response
                      :thunk thunk
+                     :cleanup-thunk cleanup-thunk
                      :headers headers
                      :cookies cookies)))
 

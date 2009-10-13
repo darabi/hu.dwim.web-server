@@ -109,7 +109,8 @@
 ;;; File serving response
 
 (def class* file-serving-response (response)
-  ((file-name)))
+  ((file-name)
+   (delete-file-when-finished #f :type boolean :accessor delete-file-when-finished?)))
 
 (def (function e) make-file-serving-response (file-name)
   (make-instance 'file-serving-response :file-name file-name))
@@ -119,6 +120,10 @@
   (serve-file (file-name-of self)
               :headers (headers-of self)
               :cookies (cookies-of self)))
+
+(def method close-request ((self file-serving-response))
+  (when (delete-file-when-finished? self)
+    (delete-file (file-name-of self))))
 
 (def method convert-to-primitive-response ((response file-serving-response))
   response)
