@@ -85,7 +85,10 @@
 (def function start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-logger-level wui log-level
     (start-test-server-with-handler (lambda ()
-                                      (send-response (make-request-echo-response)))
+                                      (bind ((response (make-request-echo-response)))
+                                        (unwind-protect
+                                             (send-response response)
+                                          (close-response response))))
                                     :maximum-worker-count maximum-worker-count)))
 
 (def function start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))

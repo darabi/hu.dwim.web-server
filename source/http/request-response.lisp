@@ -99,7 +99,8 @@
                  (local-address-p physical-remote-address)))
         ;; check if we are in a proxy setup and extract the real remote address if provided.
         ;; but do so only if the physical remote address is coming from a machine from the local net.
-        ;; please note that this is not a realiable source for ip addresses!
+        ;; please note that X-Forwarded-For is not a realiable source for ip addresses!
+        ;; that's why we only process them when the physical remote address is on the local net
         (let ((ip-as-string (header-value message "X-Forwarded-For")))
           (when ip-as-string
             (let* ((real-remote-address (first (cl-ppcre:split "," ip-as-string :sharedp t)))
