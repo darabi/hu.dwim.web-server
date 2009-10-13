@@ -121,7 +121,7 @@
               :headers (headers-of self)
               :cookies (cookies-of self)))
 
-(def method close-request ((self file-serving-response))
+(def method close-response :after ((self file-serving-response))
   (when (delete-file-when-finished? self)
     (delete-file (file-name-of self))))
 

@@ -25,7 +25,9 @@
                       (make-no-handler-response))))
          (response (first result)))
     (assert (typep response 'response))
-    (send-response response)
+    (unwind-protect
+         (send-response response)
+      (close-response response))
     (values-list result)))
 
 (def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise [make-no-handler-response]))

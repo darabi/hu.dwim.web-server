@@ -440,8 +440,11 @@
           (app.debug "~A matched with *application-relative-path* ~S, querying entry-points for response" application *application-relative-path*)
           (bind ((response (query-brokers-for-response request (entry-points-of application))))
             (when response
-              (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of the HANDLE-REQUEST method of application" response)
-              (send-response response)
+              (unwind-protect
+                   (progn
+                     (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of the HANDLE-REQUEST method of application" response)
+                     (send-response response))
+                (close-response response))
               (make-do-nothing-response))))))))
 
 (def (generic e) session-class (application)

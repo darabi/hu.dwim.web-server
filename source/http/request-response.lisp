@@ -9,6 +9,7 @@
 (def (generic e) header-value (message header-name))
 (def (generic e) (setf header-value) (value message header-name))
 (def generic send-response (response))
+(def generic close-response (response))
 (def generic send-headers (response))
 (def generic close-request (request))
 
@@ -195,6 +196,9 @@
   ((headers-are-sent #f :type boolean)
    (external-format +default-external-format+ :documentation "May or may not be used by some higher level functionalities" :type external-format)))
 
+(def method close-response ((self response))
+  (values))
+
 (def (class* e) primitive-response (response)
   ()
   (:documentation "Primitive responses are the ones that are ready to be serialized into the network stream and transferred to the client."))
@@ -337,7 +341,7 @@
 (def method send-response ((response raw-functional-response))
   (funcall (thunk-of response)))
 
-(def method close-request ((self functional-response))
+(def method close-response :after ((self functional-response))
   (awhen (cleanup-thunk-of self)
     (funcall it)))
 

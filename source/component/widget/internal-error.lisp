@@ -44,19 +44,22 @@
         (bind ((request-uri (raw-uri-of *request*)))
           (if (or (not *response*)
                   (not (headers-are-sent-p *response*)))
-              (bind ((*response* nil) ; leave alone the original value, and keep an assert from firing
-                     (rendering-phase-reached *rendering-phase-reached*))
+              (progn
                 (server.info "Sending an internal server error page for request ~S coming to application ~A" request-uri application)
-                (send-response
-                 (make-component-rendering-response
-                  (call-frame-root-component-factory
-                   (aprog1
-                       (make-instance 'internal-error-message/widget
-                                      :rendering-phase-reached rendering-phase-reached
-                                      :content (inline-render-component/widget ()
-                                                 (apply-resource-function 'render-application-internal-error-page
-                                                                          (list :administrator-email-address (administrator-email-address-of application)))))
-                     (add-component-error-message it #"error.internal-server-error.message"))))))
+                (bind ((*response* nil) ; leave alone the original value, and keep an assert from firing
+                       (rendering-phase-reached *rendering-phase-reached*)
+                       (response (make-component-rendering-response
+                                  (call-frame-root-component-factory
+                                   (aprog1
+                                       (make-instance 'internal-error-message/widget
+                                                      :rendering-phase-reached rendering-phase-reached
+                                                      :content (inline-render-component/widget ()
+                                                                 (apply-resource-function 'render-application-internal-error-page
+                                                                                          (list :administrator-email-address (administrator-email-address-of application)))))
+                                     (add-component-error-message it #"error.internal-server-error.message"))))))
+                  (unwind-protect
+                       (send-response response)
+                    (close-response response))))
               (server.info "Internal server error for request ~S to application ~A and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri application)))
         (abort-server-request error))
       (call-next-method)))
