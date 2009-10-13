@@ -528,11 +528,15 @@
 (def (special-variable e) *directory-for-temporary-files* "/tmp/wui/"
   "Used for file uploads among other things.")
 
+(def function directory-for-temporary-files ()
+  (ensure-directories-exist
+   (string+ *directory-for-temporary-files*
+            "/"
+            (integer-to-string (isys:%sys-getpid))
+            "/")))
+
 (def function filename-for-temporary-file (&optional prefix)
-  (string+ *directory-for-temporary-files*
-           "/"
-           (integer-to-string (isys:%sys-getpid))
-           "/"
+  (string+ (directory-for-temporary-files)
            prefix
            "-"
            ;; TODO atomic-incf
@@ -546,7 +550,7 @@
                                          name-prefix)
   (remove-from-plistf args :name-prefix)
   (iter
-    (for file-name = (ensure-directories-exist (filename-for-temporary-file name-prefix)))
+    (for file-name = (filename-for-temporary-file name-prefix))
     (for file = (apply #'open
                        file-name
                        :if-exists nil
