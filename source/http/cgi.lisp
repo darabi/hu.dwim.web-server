@@ -9,6 +9,7 @@
 ;;;;;;
 ;;; cgi-serving-broker
 
+;; TODO no, it's not an entry point, only a broker-with-path-prefix
 (def class* cgi-serving-broker (path-prefix-entry-point)
   ((filename :type pathname)
    (environment nil))
@@ -25,9 +26,13 @@
 (def method produce-response ((self cgi-serving-broker) request)
   (funcall (handler-of self) (filename-of self) (path-prefix-of self) :environment (environment-of self)))
 
-(def (function e) handle-cgi-request (filename path-prefix &key environment)
+;; TODO maybe this environment arg should be an alist instead of a list of "FOO=value" strings? or a hashtable?
+;; TODO get rid of *application* usage, should work without applications
+(def (function ed) handle-cgi-request (filename path-prefix &key environment)
+  ;; TODO (assert (starts-with-subseq path-prefix (path-of (uri-of *request*))))
+  ;; almost: "darcsweb/darcsweb.cgi" "/darcsweb/darcsweb.cgi"
   (bind ((filename (namestring filename))
-         (tmp (filename-for-temporary-file)))
+         (temporary-file (filename-for-temporary-file "cgi")))
     (sb-ext:run-program filename nil
                         :wait #t
                         ;; TODO: revise according to http://hoohoo.ncsa.illinois.edu/cgi/env.html
@@ -35,25 +40,37 @@
                                       environment
                                       (list "GATEWAY_INTERFACE=CGI/1.1"
                                             "SERVER_SOFTWARE=hu.dwim.wui"
-                                            (string+ "SERVER_NAME=" (machine-instance))
+                                            (string+ "SERVER_NAME=" (host-of (uri-of *request*)))
                                             (string+ "SERVER_PROTOCOL=" (http-version-string-of *request*))
-                                            (string+ "SERVER_PORT=" "8080")
+                                            (string+ "SERVER_PORT=" (or (port-of (uri-of *request*)) "80"))
                                             (string+ "REQUEST_METHOD=" (http-method-of *request*))
-                                            (string+ "PATH_INFO=")
+                                            (string+ "PATH_INFO=" (subseq (path-of (uri-of *request*)) (length path-prefix)))
                                             (string+ "PATH_TRANSLATED=")
-                                            (string+ "SCRIPT_NAME=" (string+ (hu.dwim.wui::path-prefix-of *application*) path-prefix))
+                                            (string+ "SCRIPT_NAME=" (string+ (path-prefix-of *application*) path-prefix))
                                             (string+ "QUERY_STRING=" (query-of (uri-of *request*)))
                                             (string+ "REMOTE_HOST=")
-                                            (string+ "REMOTE_ADDR=")
+                                            (string+ "REMOTE_ADDR=" (iolib:address-to-string *request-remote-host*))
                                             (string+ "REMOTE_USER=")
                                             (string+ "REMOTE_IDENT=")
                                             (string+ "AUTH_TYPE=")
+                                            ;; TODO hrm, we parse the entire request unconditionally... what about the next two?
                                             (string+ "CONTENT_TYPE=")
-                                            (string+ "CONTENT_LENGTH=")))
-                        :output tmp)
-    (make-raw-functional-response ()
-      (bind ((stream (client-stream-of *request*)))
-        (write-sequence #.(string-to-us-ascii-octets "HTTP/1.1 ") stream)
-        (write-sequence (string-to-us-ascii-octets "200 OK") stream)
-        (write-byte +space+ stream)
-        (write-sequence (read-file-into-byte-vector tmp) stream)))))
+                                            (string+ "CONTENT_LENGTH="))
+                                      (iter (for (name . value) :in (headers-of *request*))
+                                            (unless (member name '#.(list +header/content-length+
+                                                                          +header/content-type+
+                                                                          +header/authorization+
+                                                                          +header/proxy-authorization+)
+                                                            :test #'string=)
+                                              (collect (string+ "HTTP_" (nstring-upcase (substitute #\_ #\- name)) "="
+                                                                value)))))
+                        :output temporary-file)
+    (aprog1
+        (make-raw-functional-response ()
+          (bind ((stream (client-stream-of *request*)))
+            (write-sequence #.(string-to-us-ascii-octets "HTTP/1.1 ") stream)
+            (write-sequence (string-to-us-ascii-octets "200 OK") stream)
+            (write-byte +space+ stream)
+            (write-sequence (read-file-into-byte-vector temporary-file) stream)))
+      (setf (cleanup-thunk-of it) (lambda ()
+                                    (delete-file temporary-file))))))
