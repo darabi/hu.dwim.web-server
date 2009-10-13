@@ -155,10 +155,12 @@
                                 :headers (headers-of self)
                                 :cookies (cookies-of self))))
 
-(def function render-directory-as-html (directory path-prefix relative-path &key
-                                                  (filter (lambda (&key pathname &allow-other-keys)
-                                                            ;; filter out .foo
-                                                            (not (null (pathname-name pathname))))))
+(def function render-directory-as-html/default-filter (&key pathname &allow-other-keys)
+  ;; by default exclude .foo, both files and dirs
+  (or (not (null (pathname-name pathname)))
+      (not (starts-with #\. (lastcar (pathname-directory pathname))))))
+
+(def function render-directory-as-html (directory path-prefix relative-path &key (filter 'render-directory-as-html/default-filter))
   <table
     ,@(labels ((render-link (path name)
                  <a (:href ,(escape-as-uri (string+ path-prefix path)))
