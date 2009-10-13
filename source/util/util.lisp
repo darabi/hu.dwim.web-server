@@ -530,8 +530,10 @@
 
 (def function filename-for-temporary-file (&optional prefix)
   (string+ *directory-for-temporary-files*
-           prefix
+           "/"
            (integer-to-string (isys:%sys-getpid))
+           "/"
+           prefix
            "-"
            ;; TODO atomic-incf
            (integer-to-string (incf *temporary-file-unique-number*))
