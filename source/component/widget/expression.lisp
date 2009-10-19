@@ -115,13 +115,13 @@
 ;;; Commands
 
 (def function make-edit-expression-command (component)
-  (command ()
+  (command/widget ()
     (icon edit)
     (make-component-action component
       (join-editing component))))
 
 (def function make-accept-expression-command (component)
-  (command (:default #t)
+  (command/widget (:default #t)
     (icon store)
     (make-component-action component
       (map-descendant-components component
@@ -133,7 +133,7 @@
 (def (icon e) add-expression-argument)
 
 (def function make-add-expression-argument-command (component type)
-  (command ()
+  (command/widget ()
     (icon add-expression-argument)
     (make-component-action component
       (setf (arguments-of component)
@@ -143,7 +143,7 @@
 (def (icon e) remove-expression-argument)
 
 (def function make-remove-expression-argument-command (component)
-  (command ()
+  (command/widget ()
     (icon remove-expression-argument)
     (make-component-action component
       (bind ((parent (parent-component-of component)))

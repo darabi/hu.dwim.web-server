@@ -45,13 +45,13 @@
     (render-horizontal-list-layout (list first-command previous-command next-command last-command finish-command cancel-command))))
 
 (def (function e) make-finish-wizard-command (wizard)
-  (command ()
+  (command/widget ()
     (icon finish)
     (make-component-action wizard
       (finish-wizard wizard))))
 
 (def (function e) make-cancel-wizard-command (wizard)
-  (command ()
+  (command/widget ()
     (icon cancel)
     (make-component-action wizard
       (cancel-wizard wizard))))

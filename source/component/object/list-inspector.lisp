@@ -37,7 +37,7 @@
 
 (def (layered-function e) make-begin-editing-new-instance-command (component class instance)
   (:method ((component standard-object-list-inspector) (class standard-class) (instance standard-object))
-    (command ()
+    (command/widget ()
       (icon new)
       (make-action
         (begin-editing-new-instance component class instance)))))
@@ -272,7 +272,7 @@
          (instance (instance-of component))
          (position (position instance instances)))
     (unless (= position 0)
-      (command ()
+      (command/widget ()
         (icon move-backward)
         (make-action
           (unless (= position 0)
@@ -285,7 +285,7 @@
          (instance (instance-of component))
          (position (position instance instances)))
     (unless (= position (1- (length instances)))
-      (command ()
+      (command/widget ()
         (icon move-forward)
         (make-action
           (unless (= position (1- (length instances)))

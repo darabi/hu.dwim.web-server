@@ -101,7 +101,7 @@
   (bind ((axis (instance-of component))
          (pivot-table (parent-component-of axis)))
     (unless (find axis (slot-value (parent-component-of axis) slot-name))
-      (command ()
+      (command/widget ()
         (find-icon icon)
         (make-action
           ;; TODO: revive

@@ -226,7 +226,7 @@
                                         (declare (ignore list-component class))
                                         (make-instance 'standard-object-inspector-reference
                                                        :target instance
-                                                       :expand-command (command ()
+                                                       :expand-command (command/widget ()
                                                                          (icon expand)
                                                                          (make-action
                                                                            (setf (current-instance-of component) instance)

@@ -134,21 +134,21 @@
                                       (list :content (icon back))))
 
 (def (function e) make-cancel-persistent-process-command (component)
-  (command (icon cancel-process)
-           (make-component-action component
-             (rdbms::with-transaction
-               (hu.dwim.perec::revive-instance (process-of component))
-               (hu.dwim.meta-model::cancel-persistent-process (process-of component))
-               (clear-process-component component)))
-           :visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (process-of component))
-                               (hu.dwim.meta-model::persistent-process-in-progress-p (process-of component))))))
+  (command/widget (icon cancel-process)
+    (make-component-action component
+      (rdbms::with-transaction
+          (hu.dwim.perec::revive-instance (process-of component))
+        (hu.dwim.meta-model::cancel-persistent-process (process-of component))
+        (clear-process-component component)))
+    :visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (process-of component))
+                        (hu.dwim.meta-model::persistent-process-in-progress-p (process-of component))))))
 
 (def (function e) make-pause-persistent-process-command (component)
-  (command (icon pause-process)
-           (make-component-action component
-             (rdbms::with-transaction
-               (hu.dwim.perec::revive-instance (process-of component))
-               (hu.dwim.meta-model::pause-persistent-process (process-of component))
-               (clear-process-component component)))
-           :visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (process-of component))
-                               (hu.dwim.meta-model::persistent-process-in-progress-p (process-of component))))))
+  (command/widget (icon pause-process)
+    (make-component-action component
+      (rdbms::with-transaction
+          (hu.dwim.perec::revive-instance (process-of component))
+        (hu.dwim.meta-model::pause-persistent-process (process-of component))
+        (clear-process-component component)))
+    :visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (process-of component))
+                        (hu.dwim.meta-model::persistent-process-in-progress-p (process-of component))))))

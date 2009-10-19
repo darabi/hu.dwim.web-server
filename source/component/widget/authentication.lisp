@@ -40,7 +40,7 @@
   (:default-initargs :title (title #"login.title")))
 
 (def function make-default-identifier-and-password-login-command ()
-  (command (:default #t)
+  (command/widget (:default #t)
     (icon login)
     (bind ((uri (make-application-relative-uri +login-entry-point-path+)))
       (setf (uri-query-parameter-value uri +user-action-query-parameter-name+) t)
@@ -86,7 +86,7 @@
 
 (def (generic e) make-logout-command (application)
   (:method ((application application))
-    (command (:send-client-state #f)
+    (command/widget (:send-client-state #f)
       (icon logout)
       (make-action
         (execute-logout application *session*)

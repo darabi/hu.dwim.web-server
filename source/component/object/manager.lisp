@@ -17,8 +17,8 @@
 
 (def layered-method refresh-component :before ((self t/manager))
   (bind (((:slots component-value the-class pages) self))
-    (setf pages (list* (tab-page (icon switch-to-tab-page :label "Search")
+    (setf pages (list* (tab-page/widget (icon switch-to-tab-page :label "Search")
                          (make-filter component-value))
-                       (tab-page (icon switch-to-tab-page :label "Create")
+                       (tab-page/widget (icon switch-to-tab-page :label "Create")
                          (make-maker component-value))
                        pages))))

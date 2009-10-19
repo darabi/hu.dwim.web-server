@@ -234,10 +234,10 @@
         "Steve"
         "Kate"))
     (component-demo/widget "Tab container"
-      (tab-container ()
-        (tab-page (:selector (icon switch-to-tab-page :label "Male"))
+      (tab-container/widget ()
+        (tab-page/widget (:selector (icon switch-to-tab-page :label "Male"))
           "John")
-        (tab-page (:selector (icon switch-to-tab-page :label "Female"))
+        (tab-page/widget (:selector (icon switch-to-tab-page :label "Female"))
           "Mary")))
     (component-demo/widget "Menu bar"
       (menu-bar/widget ()
@@ -331,17 +331,17 @@
             <span "Last command: " ,string>))))
     (component-demo/widget "Push button"
       (push-button/widget ()
-        (command ()
+        (command/widget ()
           (icon refresh-component)
           (make-action))))
     (component-demo/widget "Toggle button"
       (toggle-button/widget ()
-        (command ()
+        (command/widget ()
           (icon refresh-component)
           (make-action))))
     (component-demo/widget "Drop down button"
       (drop-down-button/widget ()
-        (command ()
+        (command/widget ()
           (icon refresh-component)
           (make-action))))
     (component-demo/widget "List"
