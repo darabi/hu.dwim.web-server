@@ -104,6 +104,9 @@
 (def (layered-function e) make-alternatives (component class prototype value)
   (:documentation "Creates a list of alternative views for COMPONENT, each being another COMPONENT."))
 
+(def (layered-function e) make-reference-content (component class prototype value)
+  (:documentation "Creates a COMPONENT to be the content of a reference to VALUE."))
+
 ;;;;;;
 ;;; Command factories
 
@@ -192,7 +195,7 @@
 (def (layered-function e) make-select-instance-command (component class prototype instance)
   (:documentation "TODO"))
 
-(def (layered-function e) make-execute-filter-command (filter result)
+(def (layered-function e) make-execute-filter-command (component class prototype value)
   (:documentation "TODO"))
 
 (def (layered-function e) make-begin-editing-new-instance-command (component class prototype)

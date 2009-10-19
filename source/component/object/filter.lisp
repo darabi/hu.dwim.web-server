@@ -59,14 +59,13 @@
 
 (def (icon e) execute-filter)
 
-(def (layered-function e) make-execute-filter-command (component class prototype value)
-  (:method ((component t/filter) class prototype value)
-    (make-replace-and-push-back-command (result-of component)
-                                        (delay (with-restored-component-environment component
-                                                 (funcall (result-component-factory-of component) component class prototype
-                                                          (execute-filter component class prototype value))))
-                                        (list :content (icon execute-filter) :default #t)
-                                        (list :content (icon back)))))
+(def layered-method make-execute-filter-command ((component t/filter) class prototype value)
+  (make-replace-and-push-back-command (result-of component)
+                                      (delay (with-restored-component-environment component
+                                               (funcall (result-component-factory-of component) component class prototype
+                                                        (execute-filter component class prototype value))))
+                                      (list :content (icon execute-filter) :default #t)
+                                      (list :content (icon back))))
 
 (def (layered-function e) make-filter-result-inspector (component class prototype value)
   (:method ((filter t/filter) class prototype (value list))
@@ -80,46 +79,7 @@
 
 (def (layered-function e) execute-filter (component class prototype value)
   (:method ((component t/filter) class prototype value)
-    (execute-filter (content-of component) class prototype value))
-
-  #+sbcl
-  (:method ((component t/name-value-list/filter) class prototype value)
-    (bind (#+nil
-           (slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
-           #+nil
-           (predicates (iter (for slot-value :in slot-values)
-                             (for predicate = (bind ((slot-name (slot-definition-name (slot-of slot-value)))
-                                                     (place-filter (value-of slot-value))
-                                                     (value-component (content-of place-filter))
-                                                     (predicate-function (bind ((function (ensure-function (predicate-function place-filter class (selected-predicate-of place-filter)))))
-                                                                           (if (negated-p place-filter)
-                                                                               (complement function)
-                                                                               function))))
-                                                (when (use-in-filter? place-filter)
-                                                  (lambda (instance)
-                                                    (bind ((instance-class (class-of instance))
-                                                           (slot (find-slot instance-class slot-name)))
-                                                      (and (slot-boundp-using-class instance-class instance slot)
-                                                           (funcall predicate-function
-                                                                    (slot-value-using-class instance-class instance slot)
-                                                                    (component-value-of value-component))))))))
-                             (when predicate
-                               (collect predicate)))))
-      (bind ((instances nil))
-        (sb-vm::map-allocated-objects
-         (lambda (instance type size)
-           (declare (ignore type size))
-           (bind ((instance-class (find-class 'standard-class) #+nil(class-of instance)))
-             (when (and (typep instance class)
-                        (not (eq instance (class-prototype instance-class)))
-                        #+nil
-                        (every (lambda (predicate)
-                                 (funcall predicate instance))
-                               predicates))
-               (push instance instances))))
-         :dynamic
-         t)
-        instances))))
+    (execute-filter (content-of component) class prototype value)))
 
 
 ;; TODO: to list classes
@@ -145,6 +105,45 @@
 
 (def layered-method collect-slot-value-list/slots ((component t/name-value-list/filter) class prototype value)
   (class-slots value))
+
+#+sbcl
+(def layered-method execute-filter ((component t/name-value-list/filter) class prototype value)
+  (bind (#+nil
+         (slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
+         #+nil
+         (predicates (iter (for slot-value :in slot-values)
+                           (for predicate = (bind ((slot-name (slot-definition-name (slot-of slot-value)))
+                                                   (place-filter (value-of slot-value))
+                                                   (value-component (content-of place-filter))
+                                                   (predicate-function (bind ((function (ensure-function (predicate-function place-filter class (selected-predicate-of place-filter)))))
+                                                                         (if (negated-p place-filter)
+                                                                             (complement function)
+                                                                             function))))
+                                              (when (use-in-filter? place-filter)
+                                                (lambda (instance)
+                                                  (bind ((instance-class (class-of instance))
+                                                         (slot (find-slot instance-class slot-name)))
+                                                    (and (slot-boundp-using-class instance-class instance slot)
+                                                         (funcall predicate-function
+                                                                  (slot-value-using-class instance-class instance slot)
+                                                                  (component-value-of value-component))))))))
+                           (when predicate
+                             (collect predicate)))))
+    (bind ((instances nil))
+      (sb-vm::map-allocated-objects
+       (lambda (instance type size)
+         (declare (ignore type size))
+         (bind ((instance-class (find-class 'standard-class) #+nil(class-of instance)))
+           (when (and (typep instance class)
+                      (not (eq instance (class-prototype instance-class)))
+                      #+nil
+                      (every (lambda (predicate)
+                               (funcall predicate instance))
+                             predicates))
+             (push instance instances))))
+       :dynamic
+       t)
+      instances)))
 
 ;; TODO: rename
 (def layered-methods make-slot-value-list/content

@@ -81,7 +81,7 @@
 ;;;;;;
 ;;; class/tree-level/inspector
 
-(def (component e) class/tree-level/inspector (standard-object/tree-level/inspector)
+(def (component e) class/tree-level/inspector (t/tree-level/inspector)
   ())
 
 (def (macro e) class/tree-level/inspector ((&rest args &key &allow-other-keys) &body class)
@@ -117,7 +117,7 @@
 ;;;;;;
 ;;; class/tree-level/path/inspector
 
-(def (component e) class/tree-level/path/inspector (standard-object/tree-level/path/inspector)
+(def (component e) class/tree-level/path/inspector (t/tree-level/path/inspector)
   ())
 
 (def method component-dispatch-class ((self class/tree-level/path/inspector))
@@ -129,7 +129,7 @@
 ;;;;;;
 ;;; class/tree-level/tree/inspector
 
-(def (component e) class/tree-level/tree/inspector (class/tree/inspector)
+(def (component e) class/tree-level/tree/inspector (class/subclass-hierarchy/tree/inspector)
   ())
 
 (def layered-method make-tree/root-node ((component class/tree-level/tree/inspector) (class class) (prototype class) (value class))
@@ -138,7 +138,7 @@
 ;;;;;;
 ;;; class/tree-level/node/inspector
 
-(def (component e) class/tree-level/node/inspector (class/node/inspector)
+(def (component e) class/tree-level/node/inspector (class/subclass-hierarchy/node/inspector)
   ())
 
 (def layered-method make-node/child-node ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))

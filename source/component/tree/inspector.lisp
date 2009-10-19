@@ -111,3 +111,25 @@
 
 (def layered-method make-node/content ((component t/tree-level/node/inspector) class prototype value)
   (make-instance 't/tree-level/reference/inspector :component-value value))
+
+;;;;;;
+;;; sequence/tree/inspector
+
+(def (component e) sequence/tree/inspector (t/tree/inspector)
+  ())
+
+(def layered-method make-tree/root-node ((component sequence/tree/inspector) class prototype value)
+  (if (typep value 'sequence)
+      (make-instance 't/node/inspector :component-value value)
+      (make-value-inspector value)))
+
+;;;;;;
+;;; sequence/node/inspector
+
+(def (component e) sequence/node/inspector (t/node/inspector)
+  ())
+
+(def layered-method make-node/child-node ((component sequence/node/inspector) class prototype value)
+  (if (typep value 'sequence)
+      (make-instance 'sequence/node/inspector :component-value value)
+      (make-value-inspector value)))

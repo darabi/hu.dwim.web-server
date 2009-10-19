@@ -18,7 +18,7 @@
 (def (component e) place/reference/presentation (t/reference/presentation)
   ())
 
-(def layered-method make-reference/content ((component place/reference/presentation) class prototype (value place))
+(def layered-method make-reference-content ((component place/reference/presentation) class prototype (value place))
   (format nil "~A: ~A" (capitalize-first-letter (substitute #\Space #\- (string-downcase (symbol-name (class-name class))))) (place-name value)))
 
 ;;;;;;

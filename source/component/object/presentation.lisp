@@ -27,11 +27,10 @@
   (bind (((:slots component-value content) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf content (make-reference/content -self- class prototype component-value))))
+    (setf content (make-reference-content -self- class prototype component-value))))
 
-(def (layered-function e) make-reference/content (component class prototype value)
-  (:method ((component t/reference/presentation) class prototype value)
-    (localized-instance-name value)))
+(def layered-method make-reference-content (component class prototype value)
+  (localized-instance-name value))
 
 ;;;;;;
 ;;; t/detail/presentation

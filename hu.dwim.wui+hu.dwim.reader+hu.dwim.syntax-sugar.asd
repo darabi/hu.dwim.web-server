@@ -20,4 +20,5 @@
   :components ((:module "source"
                 :components ((:module "component"
                               :components ((:module "source"
-                                            :components ((:file "form")))))))))
+                                            :components ((:file "form")
+                                                         (:file "repl" :depends-on ("form"))))))))))

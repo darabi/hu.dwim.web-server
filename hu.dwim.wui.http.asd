@@ -27,6 +27,7 @@
                :hu.dwim.def+contextl
                :hu.dwim.defclass-star+hu.dwim.computed-class
                :hu.dwim.delico
+               :hu.dwim.logger
                :hu.dwim.quasi-quote.xml+hu.dwim.quasi-quote.js
                :hu.dwim.syntax-sugar
                :hu.dwim.util

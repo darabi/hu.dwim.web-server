@@ -563,6 +563,8 @@
 ;;;;;;
 ;;; Place
 
+(def special-variable *person-name* "John")
+
 (def function make-place-node ()
   (node/widget (:expanded #f)
       "Place"
@@ -606,8 +608,6 @@
 
 (def function make-place-filters-node ()
   (make-place-presentations-node "Filter" 'make-place-filter))
-
-(def special-variable *person-name* "John")
 
 (def function make-place-presentations-node (name factory)
   (flet ((make (place)
