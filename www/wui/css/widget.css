@@ -30,7 +30,7 @@ a.external-link
 
 /* xhml string */
 
-.quote-xml-string-content {
+.component.render-xhtml-output.inspector {
   font-family: monospace;
   color: black;
   background-color: lightgray;

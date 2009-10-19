@@ -13,7 +13,7 @@
   ())
 
 (def (macro e) class/inspector (class &rest args &key &allow-other-keys)
-  `(make-instance 'class/inspector ,class ,@args))
+  `(make-instance 'class/inspector ,@args :component-value ,class))
 
 (def layered-method find-inspector-type-for-prototype ((prototype class))
   'class/inspector)

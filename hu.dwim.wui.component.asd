@@ -219,6 +219,7 @@
                                            (:module "source"
                                             :depends-on ("tree" "sequence")
                                             :components ((:file "class")
+                                                         (:file "component")
                                                          (:file "demo")
                                                          (:file "dictionary")
                                                          (:file "file")

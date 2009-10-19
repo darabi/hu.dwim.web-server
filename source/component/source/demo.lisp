@@ -19,17 +19,15 @@
   (bind (((:slots component component-value content) -self-)
          (component (force component)))
     (setf content (tab-container/widget ()
-                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Demo" :tooltip "Switch to the live demo component"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Demo" :tooltip "Running live demo component"))
                       component)
-                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Source" :tooltip "Switch to the original lisp source"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Source" :tooltip "Original lisp source code that was used to create the component"))
                       (make-instance 't/lisp-form/inspector :component-value (make-lisp-form-component-value component-value)))
-                    (tab-page/widget (:selector (icon switch-to-tab-page :label "XHTML" :tooltip "Switch to the generated XHTML output"))
-                      ;; TODO: make a component/xhtml-source/inspector
-                      (quote-xml-string-content/widget ()
-                        (render-to-xhtml-string component)))
-                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Switch to the inspector of the live demo component"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "XHTML" :tooltip "Generated XHTML output"))
+                      (make-instance 'component/inspector :component-value component :initial-alternative-type 'component/render-xhtml-output/inspector))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Live demo component internal state inspector"))
                       (make-inspector (class-of component) component))
-                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation" :tooltip "Switch to the documentation of the component class"))
+                    (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation" :tooltip "Component class documentation"))
                       (component-documentation component))))))
 
 (def render-xhtml lisp-form/component-demo/inspector
