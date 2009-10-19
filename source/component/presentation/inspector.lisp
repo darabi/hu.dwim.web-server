@@ -86,7 +86,7 @@
     'password/inspector)
 
   (:method ((type (eql 'components)))
-    `(sequence/inspector :the-class ,(find-class 'component)))
+    `(sequence/inspector :component-value ,(find-class 'component)))
 
   (:method ((type symbol))
     (find-inspector-type-for-type (find-type-by-name type)))
@@ -128,13 +128,13 @@
   (:method ((first (eql 'list)) (type cons))
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
-          `(standard-object-list/inspector :the-class ,(find-type-by-name main-type))
+          `(sequence/inspector :component-value ,(find-type-by-name main-type))
           'sequence/inspector)))
 
   (:method ((first (eql 'components)) (type cons))
     (bind ((main-type (second type)))
       (if (subtypep main-type 'standard-object)
-          `(standard-object-list/inspector :the-class ,(find-type-by-name main-type))
+          `(sequence/inspector :component-value ,(find-type-by-name main-type))
           'sequence/inspector))))
 
 (def (function e) make-inspector-for-prototype (prototype &rest args &key &allow-other-keys)

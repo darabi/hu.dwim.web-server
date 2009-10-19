@@ -68,7 +68,7 @@
 (def (generic e) make-replace-with-alternative-command (component alternative)
   (:method ((component alternator/widget) alternative)
     (bind ((prototype (class-prototype (if (computation? alternative)
-                                           (the-class-of alternative)
+                                           (component-class-of alternative)
                                            (class-of alternative))))
            (reference? (typep prototype 'reference/widget)))
       (make-instance 'command/widget
@@ -78,7 +78,7 @@
                      :content (make-replace-with-alternative-command-content alternative prototype)
                      :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
                                           (not (eq (if (computation? alternative)
-                                                       (the-class-of alternative)
+                                                       (component-class-of alternative)
                                                        (class-of alternative))
                                                    (class-of (content-of component))))
                                           (or (not reference?)
@@ -105,7 +105,7 @@
 
 ;; TODO: factor it with one-time-computation
 (def class* alternative-factory (computation)
-  ((the-class :type standard-class :documentation "The class of the component that this factory produces.")
+  ((component-class :type standard-class :documentation "The class of the component that this factory produces.")
    (component nil :documentation "The component instance or NIL if not yet produced."))
   (:metaclass funcallable-standard-class))
 
@@ -114,7 +114,7 @@
     (or (some (lambda (class)
                 (awhen (find-if (lambda (alternative)
                                   (subtypep (if (computation? alternative)
-                                                (the-class-of alternative)
+                                                (component-class-of alternative)
                                                 (class-of alternative))
                                             class))
                                 alternatives)
@@ -135,7 +135,7 @@
   (find-alternative-component component (default-alternative-type-of component)))
 
 (def (macro e) delay-alternative-component (type &body forms)
-  `(aprog1 (make-instance 'alternative-factory :the-class (find-class ,type))
+  `(aprog1 (make-instance 'alternative-factory :component-class (find-class ,type))
      (set-funcallable-instance-function it (delay (or (component-of it)
                                                       (setf (component-of it) (progn ,@forms)))))))
 

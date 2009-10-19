@@ -69,7 +69,7 @@
 
 (def (layered-function e) make-filter-result-inspector (component class prototype value)
   (:method ((filter t/filter) class prototype (value list))
-    (make-viewer value :type `(list ,(class-name (the-class-of filter)))))
+    (make-viewer value :type `(list ,(class-name (component-value-of filter)))))
 
   (:method :around ((filter t/filter) class prototype  value)
     (prog1-bind component
