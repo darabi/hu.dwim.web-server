@@ -250,7 +250,7 @@
                         (for element = (source-text:source-read stream #f stream #f #t))
                         (until (eq element stream))
                         (when (typep element 'source-text:source-lexical-error)
-                          (return (format nil ";; error ~A during reading ~A for ~A" element pathname definition)))
+                          (return (format nil ";; error ~A during reading source of ~A" element definition)))
                         (when (typep element 'source-text:source-list)
                           (bind ((first-element (first (source-text:source-sequence-elements element))))
                             (when (and (typep first-element 'source-text:source-symbol)
