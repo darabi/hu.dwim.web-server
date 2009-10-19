@@ -246,6 +246,13 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
     (class-prototype it)))
 
 ;;;;;;
+;;; Component documentation
+
+(def method component-documentation ((self component))
+  (or (documentation (class-of self) 'type)
+      "No documentation"))
+
+;;;;;;
 ;;; Component value
 
 (def method component-value-of ((self component))

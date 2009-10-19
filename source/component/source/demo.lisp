@@ -30,8 +30,7 @@
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Switch to the inspector of the live demo component"))
                       (make-inspector (class-of component) component))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation" :tooltip "Switch to the documentation of the component class"))
-                      (or (documentation (class-of component) 'type)
-                          "There is no documentation available"))))))
+                      (component-documentation component))))))
 
 (def render-xhtml lisp-form/component-demo/inspector
   (with-render-style/abstract (-self-)

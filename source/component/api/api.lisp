@@ -349,6 +349,12 @@
   (:documentation "Returns a STANDARD-OBJECT instance for COMPONENT, factory methods use it as a dispatch argument to support customization."))
 
 ;;;;;;
+;;; Component documentation
+
+(def (generic e) component-documentation (component)
+  (:documentation "Returns a COMPONENT that documents the received COMPONENT."))
+
+;;;;;;
 ;;; Component value
 
 (def (generic e) component-value-of (component)

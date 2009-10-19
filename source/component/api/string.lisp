@@ -34,6 +34,12 @@
   "42")
 
 ;;;;;;
+;;; Component documentation
+
+(def method component-documentation ((self string))
+  "A string is a valid component on its own")
+
+;;;;;;
 ;;; Component value
 
 (def method component-value-of ((self string))
