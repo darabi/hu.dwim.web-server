@@ -37,9 +37,9 @@
    (next-frame-index (generate-frame-index 0) :type integer)
    (client-state-sink-id->client-state-sink (make-hash-table :test 'equal) :type hash-table)
    (action-id->action (make-hash-table :test 'equal) :type hash-table)
-   (root-component nil :export #t)
-   (debug-component-hierarchy #f :accessor debug-component-hierarchy? :type boolean)
-   (valid #t :accessor is-frame-valid? :export :accessor :type valid)))
+   (root-component nil :type component :export #t)
+   (debug-component-hierarchy #f :type boolean :accessor debug-component-hierarchy?)
+   (valid #t :type boolean :accessor is-frame-valid? :export :accessor)))
 
 (def print-object (frame :identity #t :type #f)
   (print-object-for-string-id-mixin -self-)

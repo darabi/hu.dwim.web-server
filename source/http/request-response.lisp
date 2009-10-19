@@ -123,16 +123,16 @@
 ;;; Request
 
 (def (class* e) request (http-message)
-  ((client-stream)
-   (keep-alive :initform #t :accessor keep-alive? :type boolean)
+  ((client-stream :type stream)
+   (keep-alive :initform #t :type boolean :accessor keep-alive?)
    (http-method :type string)
    (http-version-string :type string)
    (http-major-version :type integer)
    (http-minor-version :type integer)
    (raw-uri :type string)
    (uri :type uri)
-   (query-parameters :documentation "Holds all the query parameters from the uri and/or the request body")
-   (accept-encodings :documentation "An alist cache of the parsed ACCEPT-ENDODINGS header value. Its accessor lazily initializes the slot.")))
+   (query-parameters :type list :documentation "Holds all the query parameters from the uri and/or the request body")
+   (accept-encodings :type list :documentation "An alist cache of the parsed ACCEPT-ENDODINGS header value. Its accessor lazily initializes the slot.")))
 
 (def method accept-encodings-of :around ((request request))
   (if (slot-boundp request 'accept-encodings)
@@ -195,7 +195,7 @@
 
 (def (class* e) response (http-message)
   ((headers-are-sent #f :type boolean)
-   (external-format +default-external-format+ :documentation "May or may not be used by some higher level functionalities" :type external-format)))
+   (external-format +default-external-format+ :type external-format :documentation "May or may not be used by some higher level functionalities")))
 
 (def method close-response ((self response))
   (values))

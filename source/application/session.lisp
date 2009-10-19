@@ -58,11 +58,11 @@
                      debug-context-mixin)
   ((user-agent (determine-user-agent *request*) :type user-agent)
    (application nil :type application)
-   (client-timezone (default-timezone-of *application*))
+   (client-timezone (default-timezone-of *application*) :type local-time::timezone)
    (frame-id->frame (make-hash-table :test 'equal) :type hash-table)
    (lock nil)
    (computed-universe nil)
-   (valid #t :accessor is-session-valid? :export :accessor :type boolean)))
+   (valid #t :type boolean :accessor is-session-valid? :export :accessor)))
 
 (def method debug-on-error? ((session session) error)
   (if (slot-boundp session 'debug-on-error)
