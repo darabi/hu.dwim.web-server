@@ -28,6 +28,16 @@ a.external-link
   text-decoration: underline;
 }
 
+/* xhml string */
+
+.quote-xml-string-content {
+  font-family: monospace;
+  color: black;
+  background-color: lightgray;
+  border: 1px darkgray solid;
+  padding: 6px;
+}
+
 /* shell script */
 
 .shell-script.text.inspector {

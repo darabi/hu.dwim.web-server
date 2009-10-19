@@ -19,9 +19,10 @@
   `(make-instance 't/lisp-form/inspector ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
 
 (def function make-lisp-form-component-value (form)
-  (bind ((*print-case* :downcase))
+  (bind ((*print-case* :downcase)
+         (*print-pretty* #t))
     (with-output-to-string (*standard-output*)
-      (pprint form))))
+      (prin1 form))))
 
 (def function make-lisp-form-component-value* (form)
   (if (stringp form)
