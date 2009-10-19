@@ -239,7 +239,8 @@
          (*package* *package*)
          (source-text:*source-readtable* (make-source-readtable)))
     (values (if pathname
-                (with-input-from-file (stream (translate-logical-pathname pathname))
+                ;; KLUDGE: external-format must be explicitly set, neither :default nor omitting helps even though (sb-impl::default-external-format) returns :utf-8 which is what we want
+                (with-input-from-file (stream (translate-logical-pathname pathname) :external-format (sb-impl::default-external-format))
                   ;; TODO: handle form path? (probably not needed with swank)
                   (iter (with index = (first (aprog1 (sb-introspect:definition-source-form-path definition-source)
                                                ;; FIXME:
