@@ -44,8 +44,7 @@
     (awhen (or swank::*emacs-connection*
                (swank::default-connection))
       (swank::with-connection (it)
-        (swank::present-in-emacs component)
-        (swank::present-in-emacs #.(string #\Newline))))))
+        (swank::present-repl-results (list component))))))
 
 ;;;;;;
 ;;; Render to string
