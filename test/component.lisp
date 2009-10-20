@@ -879,10 +879,10 @@
     (component-demo/widget "Package"
       (make-value-inspector (find-package :hu.dwim.wui)))
     (component-demo/widget "Dictionary"
-      (make-value-inspector (find-dictionary 'render-dictionary)))
+      (make-value-inspector (make-instance 'dictionary :names '(editable/mixin editable-component? edited-component? begin-editing save-editing cancel-editing store-editing revert-editing join-editing leave-editing))))
     (component-demo/widget "Defintion name"
       (symbol/definition-name/inspector ()
-        'render-component))
+        'list))
     (component-demo/widget "Special variable name"
       (symbol/special-variable-name/inspector ()
         '*xml-stream*))
