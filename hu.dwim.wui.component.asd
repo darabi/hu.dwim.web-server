@@ -223,6 +223,7 @@
                                                          (:file "component")
                                                          (:file "component-class")
                                                          (:file "demo")
+                                                         (:file "definition")
                                                          (:file "dictionary")
                                                          (:file "file")
                                                          (:file "function")
