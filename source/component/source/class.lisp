@@ -22,7 +22,14 @@
   (list* (delay-alternative-component-with-initargs 'class/subclass-hierarchy/tree/inspector :component-value value)
          (delay-alternative-component-with-initargs 'class/superclass-hierarchy/tree/inspector :component-value value)
          (delay-alternative-component-with-initargs 't/lisp-form/inspector :component-value (read-definition-lisp-source value))
+         (delay-alternative-component-with-initargs 'class/documentation/inspector :component-value value)
          (call-next-method)))
+
+;;;;;;
+;;; class/documentation/inspector
+
+(def (component e) class/documentation/inspector (t/documentation/inspector)
+  ())
 
 ;;;;;;
 ;;; class/subclass-hierarchy/tree/inspector

@@ -59,6 +59,21 @@
 (def (component e) t/reference/inspector (inspector/basic t/reference/presentation)
   ())
 
+;;;;;
+;;; t/documentation/inspector
+
+(def (component e) t/documentation/inspector (inspector/basic content/widget)
+  ())
+
+(def refresh-component t/documentation/inspector
+  (bind (((:slots content component-value) -self-))
+    (setf content (make-documentation -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value))))
+
+(def generic make-documentation (component class prototype value)
+  (:method ((component t/documentation/inspector) class prototype value)
+    (documentation value t)))
+
+
 ;;;;;;
 ;;; t/name-value-list/inspector
 
