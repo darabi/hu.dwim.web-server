@@ -508,12 +508,6 @@
 (def (render-component-layer e) raw-names () "Rendering without localizing names.")
 
 ;;;;;;
-;;; Render dictionary
-
-(def (dictionary e) render-dictionary ()
-  to-be-rendered-component? mark-to-be-rendered-component mark-rendered-component render-component render-component-layer)
-
-;;;;;;
 ;;; Refresh component
 
 (def (layered-function e) refresh-component (component)
