@@ -11,7 +11,7 @@
         :babel-streams
         :cl-l10n
         :hu.dwim.asdf
-        :hu.dwim.common-lisp
+        :hu.dwim.common
         :hu.dwim.def
         :hu.dwim.logger
         :hu.dwim.quasi-quote

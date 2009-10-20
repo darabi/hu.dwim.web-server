@@ -9,7 +9,7 @@
 (defpackage :hu.dwim.wui.zlib
   (:documentation "A CFFI based zlib")
 
-  (:use :hu.dwim.common-lisp
+  (:use :hu.dwim.common
         :hu.dwim.def))
 
 (in-package :hu.dwim.wui.zlib)

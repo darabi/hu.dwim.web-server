@@ -14,7 +14,7 @@
         :cl-l10n.lang
         :contextl
         :hu.dwim.asdf
-        :hu.dwim.common-lisp
+        :hu.dwim.common
         :hu.dwim.computed-class
         :hu.dwim.def
         :hu.dwim.defclass-star
@@ -31,8 +31,7 @@
            #:class-slots
            #:class-precedence-list
            #:|defun|
-           #:build-backtrace-string
-           )
+           #:build-backtrace-string)
 
   (:shadowing-import-from :trivial-garbage
                           #:make-hash-table)
