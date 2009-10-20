@@ -13,5 +13,4 @@
         :hu.dwim.defclass-star
         :hu.dwim.syntax-sugar
         :hu.dwim.util
-        :hu.dwim.wui
-        :hu.dwim.wui.test))
+        :hu.dwim.wui))

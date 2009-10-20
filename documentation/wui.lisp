@@ -15,7 +15,7 @@
                 (tab-page/widget (:selector "Documentation")
                   (make-value-inspector (find-book 'user-guide) :initial-alternative-type 'book/text/inspector)))))
 
-(def book user-guide (:title "hu.dwim.wui")
+(def book user-guide (:title "User guide")
   (chapter (:title "Introduction")
     (chapter (:title "What is hu.dwim.wui?")
       (paragraph ()
