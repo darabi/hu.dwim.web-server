@@ -125,3 +125,8 @@
 
   (:method ((prototype standard-object))
     `(t/filter :component-value ,(class-of prototype))))
+
+;;;;;;
+;;; Filter interface
+
+(def generic collect-possible-filter-predicates (component))

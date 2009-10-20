@@ -236,9 +236,8 @@
 ;;;;;;
 ;;; Util
 
-(def generic collect-possible-filter-predicates (component)
-  (:method ((self filter/abstract))
-    nil))
+(def method collect-possible-filter-predicates ((self filter/abstract))
+  nil)
 
 (def function localize-predicate (predicate)
   (lookup-resource (string+ "predicate." (symbol-name predicate))))
