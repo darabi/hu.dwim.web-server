@@ -231,12 +231,15 @@
 
 #+sbcl
 (def function read-definition-lisp-source (definition)
+  (read-definition-source-lisp-source (sb-introspect:find-definition-source definition) definition))
+
+#+sbcl
+(def function read-definition-source-lisp-source (definition-source &optional definition)
   ;; TODO: use swank?
   ;; TODO: find a portable way?!
   ;; TODO: bind, setf *package* to intern symbols in the right package, etc.
   ;; TODO: cache, reuse, share result
-  (bind ((definition-source (sb-introspect:find-definition-source definition))
-         (pathname (sb-introspect:definition-source-pathname definition-source))
+  (bind ((pathname (sb-introspect:definition-source-pathname definition-source))
          (*package* *package*)
          (source-text:*source-readtable* (make-source-readtable)))
     (values (if pathname
@@ -246,7 +249,7 @@
                   (iter (with index = (first (aprog1 (sb-introspect:definition-source-form-path definition-source)
                                                ;; FIXME:
                                                (unless (length= 1 it)
-                                                 (return-from read-definition-lisp-source
+                                                 (return-from read-definition-source-lisp-source
                                                    (format nil ";; source form path ~A in source file ~A is too complex for ~A" it pathname definition))))))
                         (for element = (source-text:source-read stream #f stream #f #t))
                         (until (eq element stream))

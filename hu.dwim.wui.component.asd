@@ -23,6 +23,7 @@
                 :components ((:module "util"
                               :components ((:file "book")
                                            (:file "csv")
+                                           (:file "definition")
                                            (:file "dictionary")
                                            (:file "project")
                                            #+sbcl(:file "object-size")
@@ -236,6 +237,7 @@
                                                          (:file "slot")
                                                          (:file "shell-script")
                                                          (:file "system")
+                                                         #+sbcl(:file "source")
                                                          (:file "type")
                                                          (:file "uri")
                                                          (:file "variable")))
