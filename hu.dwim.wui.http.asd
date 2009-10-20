@@ -22,7 +22,7 @@
                :bordeaux-threads
                :cffi
                :cl-fad
-               :hu.dwim.common-lisp
+               :hu.dwim.common
                :hu.dwim.def+cl-l10n
                :hu.dwim.def+contextl
                :hu.dwim.defclass-star+hu.dwim.computed-class
