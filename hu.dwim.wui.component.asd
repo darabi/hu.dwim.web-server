@@ -220,6 +220,7 @@
                                             :depends-on ("tree" "sequence")
                                             :components ((:file "class")
                                                          (:file "component")
+                                                         (:file "component-class")
                                                          (:file "demo")
                                                          (:file "dictionary")
                                                          (:file "file")

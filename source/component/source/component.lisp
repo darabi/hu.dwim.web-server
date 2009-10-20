@@ -23,6 +23,12 @@
          (call-next-method)))
 
 ;;;;;;
+;;; component/documentation/inspector
+
+(def (component e) component/documentation/inspector (t/documentation/inspector)
+  ())
+
+;;;;;;
 ;;; component/render-xhtml-output/inspector
 
 (def (component e) component/render-xhtml-output/inspector (inspector/basic quote-xml-string-content/widget)
