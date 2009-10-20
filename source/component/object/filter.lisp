@@ -15,31 +15,31 @@
   (:documentation "
 ;; generic version (all components are available)
 (t/filter                                         ; filter for something (alternator)
- (t/slot-list/filter                              ; filter for a list of slots of something
-  (slot-list/filter                               ; filter for a list of slots (alternator)
-   (slot-list/slot-group-list/filter              ; filter for a grouping of a list of slots
-    (slot-group-list/filter                       ; filter for a list of slot groups (alternator)
-     (slot-group-list/name-value-list/filter      ; filter for a list of slot groups, display as a name value list
-      (slot-group/filter                          ; filter for a group of slots (alternator)
-       (slot-group/name-value-group/filter        ; filter for a group of slots, display as a name value group
-        (slot/filter                              ; filter for a slot (alternator)
-         (slot/name-value-pair/filter             ; filter for a slot, display as a name value pair
-          (slot/name/inspector                    ; inspect the name of a slot
+ (t/place-list/filter                             ; filter for a list of places of something
+  (place-list/filter                              ; filter for a list of places (alternator)
+   (place-list/place-group-list/filter            ; filter for a grouping of a list of places
+    (place-group-list/filter                      ; filter for a list of place groups (alternator)
+     (place-group-list/name-value-list/filter     ; filter for a list of place groups, display as a name value list
+      (place-group/filter                         ; filter for a group of places (alternator)
+       (place-group/name-value-group/filter       ; filter for a group of places, display as a name value group
+        (place/filter                             ; filter for a place (alternator)
+         (place/name-value-pair/filter            ; filter for a place, display as a name value pair
+          (place/name/inspector                   ; inspect the name of a place
            (string/inspect                        ; inspect a string (alternator)
             (string/string/inspect                ; inspect a string, display as a string
              string)))                            ; immediate
-          (slot/value/filter                      ; filter for the value of a slot
+          (place/value/filter                     ; filter for the value of a place
            (t/filter))))                          ; filter for something (alternator)
         ...))
       ...))))))
 
 ;; optimized version (default factory configuration)
 (t/filter                                         ; filter for something (alternator)
- (slot-group-list/name-value-list/filter          ; filter for a list of slot groups, display as a name value list
-  (slot-group/name-value-group/filter             ; filter for a group of slots, display as a name value group
-   (slot/name-value-pair/filter                   ; filter for a slot, display as a name value pair
+ (place-group-list/name-value-list/filter         ; filter for a list of place groups, display as a name value list
+  (place-group/name-value-group/filter            ; filter for a group of places, display as a name value group
+   (place/name-value-pair/filter                  ; filter for a place, display as a name value pair
     string                                        ; immediate
-    (slot/value/filter                            ; filter for the value of a slot
+    (place/value/filter                           ; filter for the value of a place
      (t/filter)))                                 ; filter for something (alternator)
    ...)
   ...))
