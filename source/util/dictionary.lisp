@@ -24,7 +24,7 @@
 
 (def class* dictionary ()
   ((names :type list)
-   (documentation :type string))
+   (documentation nil :type string))
   (:documentation "A DICTIONARY is a list of names referring to the related definitions."))
 
 ;;;;;;
