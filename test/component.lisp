@@ -974,7 +974,11 @@
       (horizontal-list/layout ()
         (tree/widget ()
           (node/widget ()
-              "Component"
+              (replace-target-place/widget ()
+                  "Component"
+                ;; TODO: component/documentation/inspector
+                (content/widget ()
+                  (component-documentation 'component)))
             (make-immediates-node)
             (make-layouts-node)
             (make-widgets-node)
