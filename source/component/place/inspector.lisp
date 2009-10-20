@@ -29,11 +29,11 @@
   ())
 
 (def layered-method make-slot-value/content ((component place/value/inspector) class prototype value)
-  (make-inspector (place-type value)
-                  ;; TODO: handle unbound in a better way
-                  (if (place-bound? value)
-                      (value-at-place value)
-                      (make-instance 'unbound/inspector))))
+  (if (place-bound? value)
+      (make-inspector (place-type value)
+                      ;; TODO: handle unbound in a better way
+                      (value-at-place value))
+      (make-instance 'unbound/inspector)))
 
 ;;;;;;
 ;;; Factory
