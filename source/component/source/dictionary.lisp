@@ -19,7 +19,8 @@
   'dictionary/inspector)
 
 (def layered-method make-alternatives ((component dictionary/inspector) class prototype value)
-  (list* (delay-alternative-component-with-initargs 'dictionary/documentation/inspector :component-value value)
+  (list* (delay-alternative-component-with-initargs 'dictionary/name-list/inspector :component-value value)
+         (delay-alternative-component-with-initargs 'dictionary/documentation/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;
@@ -27,3 +28,25 @@
 
 (def (component e) dictionary/documentation/inspector (t/documentation/inspector)
   ())
+
+(def method make-documentation ((component dictionary/documentation/inspector) class prototype (value dictionary))
+  (documentation-of value))
+
+;;;;;;
+;;; dictionary/name-list/inspector
+
+(def (component e) dictionary/name-list/inspector (inspector/basic contents/widget)
+  ())
+
+(def refresh-component dictionary/name-list/inspector
+  (bind (((:slots contents component-value) -self-)
+         (dispatch-class (component-dispatch-class -self-))
+         (dispatch-prototype (component-dispatch-prototype -self-)))
+    (setf contents (mapcar (lambda (name)
+                             (make-dictionary/name-content -self- dispatch-class dispatch-prototype name))
+                           (names-of component-value)))))
+
+
+(def generic make-dictionary/name-content (component class prototype value)
+  (:method ((component dictionary/name-list/inspector) class prototype value)
+    (make-instance 'symbol/definition-name/inspector :component-value value)))

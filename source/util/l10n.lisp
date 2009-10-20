@@ -293,7 +293,9 @@
 
 (def (generic e) localized-instance-name (value)
   (:method (value)
-    (princ-to-string value))
+    (bind ((*print-level* 3)
+           (*print-length* 100))
+      (princ-to-string value)))
 
   (:method ((value number))
     value)

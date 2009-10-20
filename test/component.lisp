@@ -611,7 +611,7 @@
 
 (def function make-place-presentations-node (name factory)
   (flet ((make (place)
-           (funcall factory place :initial-alternative-type 't/detail/presentation)))
+           (funcall factory place)))
     (node/widget (:expanded #f)
         name
       (component-demo/widget "Special variable"

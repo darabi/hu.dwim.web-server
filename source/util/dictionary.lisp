@@ -23,7 +23,8 @@
 ;;; Dictionary
 
 (def class* dictionary ()
-  ((names :type list :documentation "Names are symbols."))
+  ((names :type list)
+   (documentation :type string))
   (:documentation "A DICTIONARY is a list of names referring to the related definitions."))
 
 ;;;;;;
