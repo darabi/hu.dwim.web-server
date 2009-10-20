@@ -26,8 +26,10 @@
     (iter (for specification :in (swank-backend:find-definitions value))
           (awhen (case (caar specification)
                    (defclass (make-value-inspector (find-class value)))
-                   (defun (make-value-inspector (fdefinition value)))
-                   (defmacro (make-value-inspector (fdefinition value)))
-                   (defgeneric (make-value-inspector (fdefinition value)))
+                   (defun (make-value-inspector (symbol-function value)))
+                   (defmacro (make-value-inspector (macro-function value)))
+                   (defgeneric (make-value-inspector (symbol-function value)))
+                   ;; TODO:
+                   (defvar nil)
                    (t nil))
             (collect it)))))

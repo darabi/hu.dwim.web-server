@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; component-class/inspector
 
-(def (component e) component-class/inspector (t/inspector)
+(def (component e) component-class/inspector (class/inspector)
   ())
 
 (def (macro e) component-class/inspector (component-class &rest args &key &allow-other-keys)
@@ -17,13 +17,3 @@
 
 (def layered-method find-inspector-type-for-prototype ((prototype component-class))
   'component-class/inspector)
-
-(def layered-method make-alternatives ((component component-class/inspector) class prototype value)
-  (list* (delay-alternative-component-with-initargs 'component-class/documentation/inspector :component-value value)
-         (call-next-method)))
-
-;;;;;;
-;;; component-class/documentation/inspector
-
-(def (component e) component-class/documentation/inspector (class/documentation/inspector)
-  ())

@@ -27,11 +27,11 @@ The generic commands BEGIN-EDITING, SAVE-EDITING, CANCEL-EDITING,
 STORE-EDITING, REVERT-EDITING do their job recursively within the
 scope of the component for which they are created.
 
-Components which are edited should not be made invisible not to
-confuse the user. For example collapsing a detail to a reference
+Components, which are edited, should not be made invisible, not to
+confuse the user. For example, collapsing a detail to a reference
 is not allowed when the detail is being edited. The user must
 first do a SAVE-EDITING or CANCEL-EDITING before being able to
-collapse or hide by any other means.
+collapse or hide or make the component invisible by any other means.
 
 Components may be created immediately being edited, moreover
 STORE-EDITING and REVERT-EDITING can be used instead of SAVE-EDITING

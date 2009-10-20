@@ -123,10 +123,10 @@
       (chapter (:title "Authorization")
           ))))
 
-(def dictionary render-dictionary ()
+(def dictionary render ()
   to-be-rendered-component? mark-to-be-rendered-component mark-rendered-component render-component render-component-layer)
 
-(def dictionary editing-dictionary ()
+(def dictionary editing ()
   editable/mixin editable-component? edited-component? begin-editing save-editing cancel-editing store-editing revert-editing join-editing leave-editing)
 
 #|

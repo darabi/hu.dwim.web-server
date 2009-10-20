@@ -24,6 +24,12 @@
          (call-next-method)))
 
 ;;;;;;
+;;; t/reference/inspector
+
+(def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) prototype (value dictionary))
+  (string+ "Dictionary: " (call-next-method)))
+
+;;;;;;
 ;;; dictionary/documentation/inspector
 
 (def (component e) dictionary/documentation/inspector (t/documentation/inspector)
@@ -35,7 +41,7 @@
 ;;;;;;
 ;;; dictionary/name-list/inspector
 
-(def (component e) dictionary/name-list/inspector (inspector/basic t/detail/presentation contents/widget)
+(def (component e) dictionary/name-list/inspector (inspector/basic t/detail/presentation contents/widget title/mixin)
   ())
 
 (def refresh-component dictionary/name-list/inspector
@@ -44,8 +50,15 @@
          (dispatch-prototype (component-dispatch-prototype -self-)))
     (setf contents (mapcar (lambda (name)
                              (make-dictionary/name-content -self- dispatch-class dispatch-prototype name))
-                           (names-of component-value)))))
+                           (definition-names-of component-value)))))
 
+(def render-xhtml dictionary/name-list/inspector
+  (with-render-style/abstract (-self-)
+    (render-title-for -self-)
+    (render-contents-for -self-)))
+
+(def layered-method make-title ((self dictionary/name-list/inspector) class prototype (value dictionary))
+  (string+ "Dictionary: " (localized-instance-name value)))
 
 (def generic make-dictionary/name-content (component class prototype value)
   (:method ((component dictionary/name-list/inspector) class prototype value)

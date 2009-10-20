@@ -23,24 +23,24 @@
 ;;; Dictionary
 
 (def class* dictionary ()
-  ((names :type list)
+  ((name :type symbol)
+   (definition-names :type list)
    (documentation nil :type string))
-  (:documentation "A DICTIONARY is a list of names referring to the related definitions."))
+  (:documentation "A DICTIONARY is a list of definition names referring to the related definitions."))
 
 ;;;;;;
 ;;; Definer
 
-(def (definer e :available-flags "e") dictionary (name args &body names)
-  (bind ((quoted-names (mapcar [list 'quote !1] names)))
+(def (definer e :available-flags "e") dictionary (name args &body definition-names)
+  (bind ((quoted-definition-names (mapcar [list 'quote !1] definition-names)))
     `(progn
-       (setf (find-dictionary ',name) (make-instance 'dictionary ,@args :names (list ,@quoted-names)))
+       (setf (find-dictionary ',name) (make-instance 'dictionary ,@args
+                                                     :name ',name
+                                                     :definition-names (list ,@quoted-definition-names)))
        ,@(when (getf -options- :export)
                    `((eval-when (:compile-toplevel :load-toplevel :execute)
                        (export ',name)))))))
 
-;; TODO: move to hu.dwim.def or what?
-(def (function e) collect-definitions (name)
-  ;; TODO: this must be extensible with respect to new definition kinds
-  #+nil
-  (swank::find-definitions name)
-  (not-yet-implemented))
+;; TODO: move?
+(def method localized-instance-name ((dictionary dictionary))
+  (lookup-resource (string+ "dictionary-name." (string-downcase (name-of dictionary)))))

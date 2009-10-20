@@ -21,9 +21,25 @@
 (def layered-method make-alternatives ((component class/inspector) class prototype value)
   (list* (delay-alternative-component-with-initargs 'class/subclass-hierarchy/tree/inspector :component-value value)
          (delay-alternative-component-with-initargs 'class/superclass-hierarchy/tree/inspector :component-value value)
-         (delay-alternative-component-with-initargs 't/lisp-form/inspector :component-value (read-definition-lisp-source value))
+         (delay-alternative-component-with-initargs 'class/lisp-form/inspector :component-value value)
          (delay-alternative-component-with-initargs 'class/documentation/inspector :component-value value)
          (call-next-method)))
+
+;;;;;;
+;;; t/reference/inspector
+
+(def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) prototype (value class))
+  (string+ (localized-class-name class :capitalize-first-letter #t) ": " (call-next-method)))
+
+;;;;;;
+;;; class/lisp-form/inspector
+
+(def (component e) class/lisp-form/inspector (inspector/basic t/detail/presentation content/widget)
+  ())
+
+(def refresh-component class/lisp-form/inspector
+  (bind (((:slots component-value content) -self-))
+    (setf content (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source component-value)))))
 
 ;;;;;;
 ;;; class/documentation/inspector

@@ -31,7 +31,7 @@
 
 (def refresh-component test/lisp-form/inspector
   (bind (((:slots content component-value) -self-))
-    (setf content (make-instance 'function/lisp-form/inspector :component-value (fdefinition (hu.dwim.stefil::name-of component-value))))))
+    (setf content (make-instance 'function/lisp-form/inspector :component-value (symbol-function (hu.dwim.stefil::name-of component-value))))))
 
 ;;;;;;
 ;;; test/hierarchy/tree/inspector

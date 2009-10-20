@@ -102,6 +102,11 @@
 (def function mandatory-argument ()
   (error "A mandatory argument was not specified"))
 
+(def function function-name (function)
+  (etypecase function
+    (generic-function (generic-function-name function))
+    (function (sb-impl::%fun-name function))))
+
 (def function find-type-by-name (name &key (otherwise :error))
   (or (find-class name #f)
       (handle-otherwise otherwise)))

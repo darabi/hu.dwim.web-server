@@ -879,7 +879,9 @@
     (component-demo/widget "Package"
       (make-value-inspector (find-package :hu.dwim.wui)))
     (component-demo/widget "Dictionary"
-      (make-value-inspector (make-instance 'dictionary :names '(editable/mixin editable-component? edited-component? begin-editing save-editing cancel-editing store-editing revert-editing join-editing leave-editing))))
+      (make-value-inspector (make-instance 'dictionary
+                                           :name 'editing
+                                           :definition-names '(editable/mixin begin-editing save-editing cancel-editing store-editing revert-editing join-editing leave-editing))))
     (component-demo/widget "Defintion name"
       (symbol/definition-name/inspector ()
         'list))
@@ -907,11 +909,13 @@
          (defun foo ()
            (print `(#f #t 42 3.14 #\a "Hello World" #(1 2) :foo bar #'list ,42)))｣))
     (component-demo/widget "Function"
-      (make-value-inspector (fdefinition 'make-value-inspector)))
+      (make-value-inspector (symbol-function 'make-value-inspector)))
     (component-demo/widget "Standard generic function"
-      (make-value-inspector (fdefinition 'make-instance)))
+      (make-value-inspector (symbol-function 'make-instance)))
     (component-demo/widget "Standard method"
-      (make-value-inspector (second (generic-function-methods (fdefinition 'handle-request)))))
+      (make-value-inspector (second (generic-function-methods (symbol-function 'handle-request)))))
+    (component-demo/widget "Macro"
+      (make-value-inspector (symbol-function 'with-lock-held-on-application)))
     (component-demo/widget "Test"
       (make-value-inspector (hu.dwim.stefil::find-test 'test)))))
 

@@ -373,3 +373,25 @@
        <br>
        ;; TODO replace with a reference renderer
        ,(princ-to-string instance)>))
+
+;;;;;;
+;;; Class
+
+(def localization en
+  (class-name.structure-class "structure class")
+  (class-name.standard-class "standard class")
+  (class-name.component-class "component class")
+  (class-name.function "function")
+  (class-name.standard-generic-function "standard generic function"))
+
+;;;;;;
+;;; Component
+
+(def localization en
+  (class-name.component "component"))
+
+;;;;;;
+;;; Dictionary
+
+(def localization en
+  (dictionary-name.editing "Editing"))

@@ -172,7 +172,7 @@
                                              "symbol")))
        <span (:id ,id :class ,style-class)
          ,(render-source-object-text instance)>
-       (awhen (ignore-errors (fdefinition value))
+       (awhen (ignore-errors (symbol-function value))
          (render-tooltip (make-action
                            (make-component-rendering-response
                             (tooltip/widget ()

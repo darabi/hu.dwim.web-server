@@ -107,6 +107,7 @@
                             ))
           ,str>))
 
+;; TODO: what is special about this function to classes? could be easily generalized to functions, etc.
 (def function localized-class-name (class &key capitalize-first-letter with-article plural)
   (assert (typep class 'class))
   (bind (((:values class-name found?) (localize class)))
@@ -121,6 +122,7 @@
                 class-name)
             found?)))
 
+;; TODO: what is special about this function to classes? could be easily generalized to functions, etc.
 (def function localized-class-name<> (class &key capitalize-first-letter with-indefinite-article)
   (assert (typep class 'class))
   (bind (((:values class-name found?) (localize class)))
@@ -291,6 +293,7 @@
         (setf (slot-value ($ ,id) 'value)
               (dojo.date.to-rfc-3339 (new *date))))))
 
+;; TODO: resolve this duality among localize and localized-instance-name, why do we have both? 
 (def (generic e) localized-instance-name (value)
   (:method (value)
     (bind ((*print-level* 3)
@@ -322,7 +325,16 @@
                               (call-next-method)))))
 
   (:method ((class standard-class))
-    (localized-class-name class)))
+    (localized-class-name class))
+
+  (:method ((function function))
+    (bind ((name (function-name function)))
+      (cond ((symbolp name)
+             (lookup-resource (string+ "function-name." (string-downcase name))))
+            ((and (consp name)
+                  (eq (first name) 'macro-function))
+             (lookup-resource (string+ "macro-name." (string-downcase (second name)))))
+            (t "unknown function")))))
 
 (def function funcall-resource-function (name &rest args)
   (apply-resource-function name args))

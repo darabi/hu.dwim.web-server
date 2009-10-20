@@ -25,6 +25,19 @@
          (call-next-method)))
 
 ;;;;;;
+;;; t/reference/inspector
+
+(def layered-method make-reference-content ((component t/reference/inspector) class prototype (value function))
+  (bind ((name (function-name value)))
+    (string+ (cond ((symbolp name)
+                    (localized-class-name class :capitalize-first-letter #t))
+                   ((and (consp name)
+                         (eq (first name) 'macro-function))
+                    "Macro")
+                   (t (not-yet-implemented)))
+             ": " (call-next-method))))
+
+;;;;;;
 ;;; function/lisp-form/inspector
 
 (def (component e) function/lisp-form/inspector (inspector/basic t/detail/presentation content/widget)
