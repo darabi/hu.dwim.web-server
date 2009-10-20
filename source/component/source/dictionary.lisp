@@ -35,7 +35,7 @@
 ;;;;;;
 ;;; dictionary/name-list/inspector
 
-(def (component e) dictionary/name-list/inspector (inspector/basic contents/widget)
+(def (component e) dictionary/name-list/inspector (inspector/basic t/detail/presentation contents/widget)
   ())
 
 (def refresh-component dictionary/name-list/inspector

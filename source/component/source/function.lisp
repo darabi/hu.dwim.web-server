@@ -27,7 +27,7 @@
 ;;;;;;
 ;;; function/lisp-form/inspector
 
-(def (component e) function/lisp-form/inspector (inspector/basic content/widget)
+(def (component e) function/lisp-form/inspector (inspector/basic t/detail/presentation content/widget)
   ())
 
 (def refresh-component function/lisp-form/inspector

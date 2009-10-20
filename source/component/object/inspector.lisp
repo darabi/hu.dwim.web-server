@@ -62,7 +62,7 @@
 ;;;;;
 ;;; t/documentation/inspector
 
-(def (component e) t/documentation/inspector (inspector/basic content/widget)
+(def (component e) t/documentation/inspector (inspector/basic t/detail/presentation content/widget)
   ())
 
 (def refresh-component t/documentation/inspector
