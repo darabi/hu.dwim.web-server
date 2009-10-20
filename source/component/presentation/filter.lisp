@@ -129,4 +129,4 @@
 ;;;;;;
 ;;; Filter interface
 
-(def generic collect-possible-filter-predicates (component))
+(def (generic e) collect-filter-predicates (component))

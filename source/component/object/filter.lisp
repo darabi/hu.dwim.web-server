@@ -236,7 +236,7 @@
 ;;;;;;
 ;;; Util
 
-(def method collect-possible-filter-predicates ((self filter/abstract))
+(def method collect-filter-predicates ((self filter/abstract))
   nil)
 
 (def function localize-predicate (predicate)
@@ -254,8 +254,8 @@
 (def function render-filter-predicate-for (self)
   (bind (((:slots negated selected-predicate) self)
          ;; TODO: KLUDGE: don't look down this deep
-         (possible-predicates (collect-possible-filter-predicates (content-of (aprog1 (value-of self)
-                                                                                (ensure-refreshed it))))))
+         (possible-predicates (collect-filter-predicates (content-of (aprog1 (value-of self)
+                                                                       (ensure-refreshed it))))))
     (if possible-predicates
         (progn
           (unless selected-predicate

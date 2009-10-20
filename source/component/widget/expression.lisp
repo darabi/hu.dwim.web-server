@@ -34,7 +34,7 @@
          <div (:style "margin-left: 20px;")
               ,(foreach #'render-component arguments)>>))
 
-(def method collect-possible-filter-predicates ((self expression-component))
+(def method collect-filter-predicates ((self expression-component))
   nil)
 
 (def type any ()

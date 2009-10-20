@@ -64,7 +64,7 @@
 (def (component e) string/filter (string/abstract primitive/filter)
   ((component-value nil)))
 
-(def method collect-possible-filter-predicates ((self string/filter))
+(def method collect-filter-predicates ((self string/filter))
   '(like equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml string/filter
@@ -91,7 +91,7 @@
 (def (component e) number/filter (number/abstract primitive/filter)
   ())
 
-(def method collect-possible-filter-predicates ((self number/filter))
+(def method collect-filter-predicates ((self number/filter))
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml number/filter
@@ -122,7 +122,7 @@
   (ensure-client-state-sink -self-)
   (render-date-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
-(def method collect-possible-filter-predicates ((self date/filter))
+(def method collect-filter-predicates ((self date/filter))
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
@@ -135,7 +135,7 @@
   (ensure-client-state-sink -self-)
   (render-time-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
-(def method collect-possible-filter-predicates ((self time/filter))
+(def method collect-filter-predicates ((self time/filter))
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
@@ -148,7 +148,7 @@
   (ensure-client-state-sink -self-)
   (render-timestamp-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
-(def method collect-possible-filter-predicates ((self timestamp/filter))
+(def method collect-filter-predicates ((self timestamp/filter))
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
@@ -157,7 +157,7 @@
 (def (component e) member/filter (member/abstract primitive/filter)
   ())
 
-(def method collect-possible-filter-predicates ((self member/filter))
+(def method collect-filter-predicates ((self member/filter))
   '(equal))
 
 (def render-xhtml member/filter
