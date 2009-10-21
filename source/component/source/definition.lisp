@@ -57,7 +57,4 @@
     (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source (symbol-function (name-of value)))))
 
   (:method ((component definition/lisp-form/inspector) class prototype (value generic-function-definition))
-    (bind ((function (symbol-function (name-of value))))
-      (vertical-list/layout ()
-        (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source function))
-        (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods function))))))
+    (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods (symbol-function (name-of value))))))
