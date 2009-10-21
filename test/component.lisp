@@ -767,21 +767,21 @@
         (make-filter 'response))))
 
 ;;;;;;
-;;; Object sequence
+;;; Sequence
 
-(def function make-object-sequence-node ()
+(def function make-sequence-node ()
   (node/widget (:expanded #f)
-      "Object sequence"
-    (make-object-sequence-makers-node)
-    (make-object-sequence-viewers-node)
-    (make-object-sequence-editors-node)
-    (make-object-sequence-inspectors-node)
-    (make-object-sequence-filters-node)))
+      "Sequence"
+    (make-sequence-makers-node)
+    (make-sequence-viewers-node)
+    (make-sequence-editors-node)
+    (make-sequence-inspectors-node)
+    (make-sequence-filters-node)))
 
-(def function make-object-sequence-makers-node ()
-  (make-object-sequence-presentations-node "Maker" 'make-maker))
+(def function make-sequence-makers-node ()
+  (make-sequence-presentations-node "Maker" 'make-maker))
 
-(def function make-object-sequence-viewers-node ()
+(def function make-sequence-viewers-node ()
   (node/widget (:expanded #f)
       "Viewer"
     (component-demo/widget "Nil"
@@ -791,7 +791,7 @@
     (component-demo/widget "Vector"
       (make-value-viewer #("John" "Mary" "Steve" "Kate")))))
 
-(def function make-object-sequence-editors-node ()
+(def function make-sequence-editors-node ()
   (node/widget (:expanded #f)
       "Editor"
     (component-demo/widget "Nil"
@@ -801,7 +801,7 @@
     (component-demo/widget "Vector"
       (make-value-editor #("John" "Mary" "Steve" "Kate")))))
 
-(def function make-object-sequence-inspectors-node ()
+(def function make-sequence-inspectors-node ()
   (node/widget (:expanded #f)
       "Inspector"
     (component-demo/widget "Nil"
@@ -811,42 +811,42 @@
     (component-demo/widget "Vector"
       (make-value-inspector #("John" "Mary" "Steve" "Kate")))))
 
-(def function make-object-sequence-filters-node ()
-  (make-object-sequence-presentations-node "Filter" 'make-filter))
+(def function make-sequence-filters-node ()
+  (make-sequence-presentations-node "Filter" 'make-filter))
 
-(def function make-object-sequence-presentations-node (name factory)
+(def function make-sequence-presentations-node (name factory)
   (node/widget (:expanded #f)
       name
     ))
 
 ;;;;;;
-;;; Object tree
+;;; Tree
 
-(def function make-object-tree-node ()
+(def function make-tree-node ()
   (node/widget (:expanded #f)
-      "Object tree"
-    (make-object-tree-makers-node)
-    (make-object-tree-viewers-node)
-    (make-object-tree-editors-node)
-    (make-object-tree-inspectors-node)
-    (make-object-tree-filters-node)))
+      "Tree"
+    (make-tree-makers-node)
+    (make-tree-viewers-node)
+    (make-tree-editors-node)
+    (make-tree-inspectors-node)
+    (make-tree-filters-node)))
 
-(def function make-object-tree-makers-node ()
-  (make-object-tree-presentations-node "Maker" 'make-maker))
+(def function make-tree-makers-node ()
+  (make-tree-presentations-node "Maker" 'make-maker))
 
-(def function make-object-tree-viewers-node ()
-  (make-object-tree-presentations-node "Viewer" 'make-viewer))
+(def function make-tree-viewers-node ()
+  (make-tree-presentations-node "Viewer" 'make-viewer))
 
-(def function make-object-tree-editors-node ()
-  (make-object-tree-presentations-node "Editor" 'make-editor))
+(def function make-tree-editors-node ()
+  (make-tree-presentations-node "Editor" 'make-editor))
 
-(def function make-object-tree-inspectors-node ()
-  (make-object-tree-presentations-node "Inspector" 'make-inspector))
+(def function make-tree-inspectors-node ()
+  (make-tree-presentations-node "Inspector" 'make-inspector))
 
-(def function make-object-tree-filters-node ()
-  (make-object-tree-presentations-node "Filter" 'make-filter))
+(def function make-tree-filters-node ()
+  (make-tree-presentations-node "Filter" 'make-filter))
 
-(def function make-object-tree-presentations-node (name factory)
+(def function make-tree-presentations-node (name factory)
   (node/widget (:expanded #f)
       name
     ))
@@ -1010,8 +1010,8 @@
             (make-primitive-node)
             (make-place-node)
             (make-object-node)
-            (make-object-sequence-node)
-            (make-object-tree-node)
+            (make-sequence-node)
+            (make-tree-node)
             (make-book-elements-node)
             (make-source-elements-node)
             (make-charts-node)
