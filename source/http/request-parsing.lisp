@@ -73,7 +73,7 @@
           (bind ((parameters (read-http-request-body stream
                                                      raw-content-length
                                                      (header-value "Content-Type")
-                                                     uri-parameters)))
+                                                     (copy-alist uri-parameters))))
             (http.dribble "All the request query parameters: ~S" parameters)
             (make-instance 'request
                            :raw-uri raw-uri
@@ -243,7 +243,6 @@
                    (return-from read-http-request-body (parse-query-parameters buffer-as-string initial-parameter-alist)))))
               ("multipart/form-data"
                (http.dribble "Parsing multipart/form-data body. Attributes: ~S." attributes)
-               (setf initial-parameter-alist (copy-alist initial-parameter-alist)) ; we will modify initial-parameter-alist, so make sure we don't sideffect our input
                (bind ((boundary (cdr (assoc "boundary" attributes :test #'string=))))
                  ;; TODO DOS prevention: add support for rfc2388-binary to limit parsing length if the ContentLength header is fake, pass in *request-content-length-limit*
                  (rfc2388-binary:read-mime stream boundary
