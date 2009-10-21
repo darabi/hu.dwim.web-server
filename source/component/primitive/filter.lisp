@@ -85,6 +85,15 @@
 (def (component e) symbol/filter (symbol/abstract string/filter)
   ())
 
+(def method print-component-value ((self symbol/filter))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound-p self)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        (if (stringp component-value)
+            component-value
+            (qualified-symbol-name component-value)))))
+
 ;;;;;;
 ;;; number/filter
 

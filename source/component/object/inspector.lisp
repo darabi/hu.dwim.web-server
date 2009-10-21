@@ -83,6 +83,9 @@
 (def layered-method collect-slot-value-list/slots ((component t/name-value-list/inspector) class prototype value)
   (class-slots class))
 
+(def layered-method make-slot-value-list/place-group ((component t/name-value-list/inspector) class prototype value)
+  (make-place-group nil (mapcar [make-object-slot-place (component-value-of component) !1] value)))
+
 ;; TODO: rename
 (def layered-methods make-slot-value-list/content
   (:method ((component t/name-value-list/inspector) class prototype (value place-group))

@@ -79,7 +79,25 @@
 
 (def (layered-function e) execute-filter (component class prototype value)
   (:method ((component t/filter) class prototype value)
-    (execute-filter (content-of component) class prototype value)))
+    (bind ((result nil)
+           (predicate (make-filter-predicate component class prototype value)))
+      (map-filter-input component class prototype value
+                        (lambda (candidate)
+                          (when (funcall predicate candidate)
+                            (push candidate result))))
+      result)))
+
+(def (layered-function e) make-filter-predicate (component class prototype value)
+  (:method ((component content/mixin) class prototype value)
+    (make-filter-predicate (content-of component) class prototype value)))
+
+(def (layered-function e) map-filter-input (component class prototype value function)
+  (:method ((component t/filter) class prototype value function)
+    (sb-vm::map-allocated-objects
+     (lambda (instance type size)
+       (declare (ignore type size))
+       (funcall function instance))
+     :dynamic #t)))
 
 ;;;;;;
 ;;; t/reference/filter
@@ -96,49 +114,8 @@
 (def layered-method collect-slot-value-list/slots ((component t/name-value-list/filter) class prototype value)
   (class-slots value))
 
-#+sbcl
-(def layered-method execute-filter ((component t/name-value-list/filter) class prototype value)
-  (bind (#+nil
-         (slot-values (mappend #'slot-values-of (slot-value-groups-of component)))
-         #+nil
-         (predicates (iter (for slot-value :in slot-values)
-                           (for predicate = (bind ((slot-name (slot-definition-name (slot-of slot-value)))
-                                                   (place-filter (value-of slot-value))
-                                                   (value-component (content-of place-filter))
-                                                   (predicate-function (bind ((function (ensure-function (predicate-function place-filter class (selected-predicate-of place-filter)))))
-                                                                         (if (negated-p place-filter)
-                                                                             (complement function)
-                                                                             function))))
-                                              (when (use-in-filter? place-filter)
-                                                (lambda (instance)
-                                                  (bind ((instance-class (class-of instance))
-                                                         (slot (find-slot instance-class slot-name)))
-                                                    (and (slot-boundp-using-class instance-class instance slot)
-                                                         (funcall predicate-function
-                                                                  (slot-value-using-class instance-class instance slot)
-                                                                  (component-value-of value-component))))))))
-                           (when predicate
-                             (collect predicate)))))
-    (bind ((instances nil))
-      (map-filter-input component class prototype value
-                        (lambda (instance)
-                          (bind ((instance-class (class-of instance)))
-                            (when (and (typep instance value)
-                                       (not (eq instance (class-prototype instance-class)))
-                                       #+nil
-                                       (every (lambda (predicate)
-                                                (funcall predicate instance))
-                                              predicates))
-                              (push instance instances)))))
-      instances)))
-
-(def (layered-function e) map-filter-input (component class prototype value function)
-  (:method ((component t/name-value-list/filter) class prototype value function)
-    (sb-vm::map-allocated-objects
-     (lambda (instance type size)
-       (declare (ignore type size))
-       (funcall function instance))
-     :dynamic #t)))
+(def layered-method make-slot-value-list/place-group ((component t/name-value-list/filter) class prototype value)
+  (make-place-group nil (mapcar [make-object-slot-place (class-prototype (component-value-of component)) !1] value)))
 
 ;; TODO: rename
 (def layered-methods make-slot-value-list/content
@@ -169,6 +146,15 @@
 (def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/filter) class prototype (value place-group))
   (make-instance 'place-group/name-value-group/filter :component-value value))
 
+(def layered-method make-filter-predicate ((component contents/mixin) class prototype value)
+  (bind ((predicates (iter (for content :in (contents-of component))
+                           (awhen (make-filter-predicate content class prototype value)
+                             (collect it)))))
+    (lambda (candidate)
+      (every (lambda (predicate)
+               (funcall predicate candidate))
+             predicates))))
+
 ;;;;;;
 ;;; place-group/name-value-group/filter
 
@@ -190,6 +176,17 @@
 
 (def layered-method make-slot-value-pair/value ((component place/name-value-pair/filter) class prototype value)
   (make-instance 'place/value/filter :component-value value))
+
+(def layered-method make-filter-predicate ((component place/name-value-pair/filter) class prototype value)
+  (bind ((place (component-value-of component))
+         (predicate (selected-predicate-of component)))
+    (when (use-in-filter? component)
+      (lambda (candidate)
+        (bind ((result (funcall #+nil predicate 'like (slot-value candidate (slot-definition-name (slot-of place)))
+                                (component-value-of (content-of (value-of component))))))
+          (if (negated? component)
+              (not result)
+              result))))))
 
 ;; TODO: do we need this parentism
 (def method use-in-filter? ((self parent/mixin))
@@ -246,26 +243,30 @@
     (greater-than "greater-than-predicate-icon")
     (greater-than-or-equal "greater-than-or-equal-predicate-icon")))
 
+(def function like (value pattern)
+  ;; TODO: 
+  (search pattern (string value) :test #'equalp))
+
 (def function render-filter-predicate-for (self)
   (bind (((:slots negated selected-predicate) self)
          ;; TODO: KLUDGE: don't look down this deep
-         (possible-predicates (collect-filter-predicates (content-of (aprog1 (value-of self)
+         (filter-predicates (collect-filter-predicates (content-of (aprog1 (value-of self)
                                                                        (ensure-refreshed it))))))
-    (if possible-predicates
+    (if filter-predicates
         (progn
           (unless selected-predicate
-            (setf selected-predicate (first possible-predicates)))
+            (setf selected-predicate (first filter-predicates)))
           <td ,(render-checkbox-field negated
                                       :value-sink (lambda (value) (setf negated value))
                                       :checked-class "icon negated-predicate-icon"
                                       :unchecked-class "icon ponated-predicate-icon")>
-          <td ,(if (length= 1 possible-predicates)
-                   <div (:class ,(predicate-icon-style-class (first possible-predicates)))>
+          <td ,(if (length= 1 filter-predicates)
+                   <div (:class ,(predicate-icon-style-class (first filter-predicates)))>
                    (render-popup-menu-select-field (localize-predicate selected-predicate)
-                                                   (mapcar #'localize-predicate possible-predicates)
+                                                   (mapcar #'localize-predicate filter-predicates)
                                                    :value-sink (lambda (value)
-                                                                 (setf selected-predicate (find value possible-predicates :key #'localize-predicate :test #'string=)))
-                                                   :classes (mapcar #'predicate-icon-style-class possible-predicates)))>)
+                                                                 (setf selected-predicate (find value filter-predicates :key #'localize-predicate :test #'string=)))
+                                                   :classes (mapcar #'predicate-icon-style-class filter-predicates)))>)
         <td (:colspan 2)>)))
 
 (def function render-use-in-filter-marker-for (self)

@@ -49,9 +49,7 @@
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
          (slots (collect-slot-value-list/slots -self- class prototype component-value))
-         (content-value (if slots
-                            (make-place-group nil (mapcar [make-object-slot-place component-value !1] slots))
-                            component-value)))
+         (content-value (make-slot-value-list/place-group -self- class prototype slots)))
     (if content
         (setf (component-value-of content) content-value)
         (setf content (make-slot-value-list/content -self- class prototype content-value)))))
@@ -61,6 +59,8 @@
 
 ;; TODO: rename
 (def (layered-function e) make-slot-value-list/content (component class prototype value))
+
+(def (layered-function e) make-slot-value-list/place-group (component class prototype value))
 
 ;;;;;;
 ;;; place-group-list/name-value-list/presentation
