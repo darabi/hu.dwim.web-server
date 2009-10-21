@@ -861,7 +861,7 @@
       "Book"
     (component-demo/widget "Book"
       (make-value-inspector
-       (book (:title "The Guide")
+       (book (:title "The Guide" :authors '("Levente Mészáros"))
          +lorem-ipsum+)
        :initial-alternative-type 't/text/inspector))
     (component-demo/widget "Chapter"

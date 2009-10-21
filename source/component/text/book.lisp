@@ -32,6 +32,7 @@
   (with-render-style/abstract (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
+    (foreach #'render-author (authors-of (component-value-of -self-)))
     <div (:class "title-separator") <br>>
     (when (expanded-component? -self-)
       (render-contents-for -self-))))
@@ -39,6 +40,8 @@
 (def render-text book/text/inspector
   (write-text-line-begin)
   (render-title-for -self-)
+  (write-text-line-begin)
+  (foreach #'render-author (authors-of (component-value-of -self-)))
   (write-text-line-separator)
   (call-next-method))
 

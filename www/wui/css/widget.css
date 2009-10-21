@@ -28,6 +28,12 @@ a.external-link
   text-decoration: underline;
 }
 
+.author
+{
+  font-family: Times New Roman;
+  padding-left: 12px;
+}
+
 /* xhml string */
 
 .component.render-xhtml-output.inspector {
