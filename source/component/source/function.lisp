@@ -34,7 +34,7 @@
                    ((and (consp name)
                          (eq (first name) 'macro-function))
                     "Macro")
-                   (t (not-yet-implemented)))
+                   (t "Unknown"))
              ": " (call-next-method))))
 
 ;;;;;;

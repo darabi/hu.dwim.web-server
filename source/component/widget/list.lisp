@@ -30,7 +30,7 @@
 
 (def render-xhtml list/widget
   (bind (((:read-only-slots id style-class custom-style) -self-))
-    <div (:id ,id :class `str("list widget" ,style-class) :style ,custom-style
+    <div (:id ,id :class `str("list widget " ,style-class) :style ,custom-style
           :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)

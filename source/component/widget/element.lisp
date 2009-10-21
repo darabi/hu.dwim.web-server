@@ -14,7 +14,7 @@
                                    content/abstract
                                    selectable/mixin)
   ()
-  (:documentation "An ELEMENT/WIDGET has a single COMPONENT inside. It supports selection, highlight and commands."))
+  (:documentation "An ELEMENT/WIDGET has a single COMPONENT inside. It supports selection, highlight and commands within a LIST/WIDGET."))
 
 (def (macro e) element/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'element/widget ,@args :content ,(the-only-element content)))
@@ -31,9 +31,9 @@
 
 (def (function e) element-style-class (index total)
   (string+ (when (zerop index)
-                        "first ")
-                      (when (= total (1+ index))
-                        "last ")
-                      (if (zerop (mod index 2))
-                       "even"
-                       "odd")))
+             "first ")
+           (when (= total (1+ index))
+             "last ")
+           (if (zerop (mod index 2))
+               "even"
+               "odd")))

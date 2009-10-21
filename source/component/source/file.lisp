@@ -25,7 +25,7 @@
 ;;;;;;
 ;;; source-file/lisp-form-list/inspector
 
-(def (component e) source-file/lisp-form-list/inspector (inspector/basic content/widget)
+(def (component e) source-file/lisp-form-list/inspector (inspector/basic t/detail/presentation content/widget)
   ())
 
 (def (macro e) source-file/lisp-form-list/inspector ((&rest args &key &allow-other-keys) &body file)
