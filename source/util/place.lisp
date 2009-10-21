@@ -74,8 +74,8 @@
 ;;; functional-place
 
 (def (class* e) functional-place (basic-place)
-  ((getter :type function)
-   (setter :type function))
+  ((getter :type (or symbol function))
+   (setter :type (or symbol function)))
   (:documentation "A PLACE that is get and set by using lambda functions."))
 
 (def method value-at-place ((self functional-place))
@@ -85,12 +85,12 @@
   (funcall (setter-of self) new-value))
 
 (def (function e) make-functional-place (name getter setter &key (type t))
+  (check-type name symbol)
   (make-instance 'functional-place
                  :name name
                  :getter getter
                  :setter setter
                  :the-type type))
-
 
 ;;;;;;
 ;;; simple-functional-place
@@ -106,6 +106,7 @@
   (funcall (setter-of self) new-value (argument-of self)))
 
 (def (function e) make-simple-functional-place (argument name &key (type t))
+  (check-type name symbol)
   (make-instance 'simple-functional-place
                  :argument argument
                  :name name
@@ -143,6 +144,7 @@
   (setf (symbol-value (name-of self)) new-value))
 
 (def (function e) make-special-variable-place (name &key (type t))
+  (check-type name symbol)
   (make-instance 'special-variable-place :name name :the-type type))
 
 ;;;;;;
@@ -153,6 +155,7 @@
   (:documentation "A PLACE for a lexical variable."))
 
 (def (macro e) make-lexical-variable-place (name &key (type t))
+  (check-type name symbol)
   `(make-instance 'lexical-variable-place
                   :name ',name
                   :the-type ,type
@@ -182,6 +185,8 @@
   (setf (elt (sequence-of self) (index-of self)) new-value))
 
 (def (function e) make-sequence-element-place (sequence index)
+  (check-type sequence sequence)
+  (check-type index integer)
   (make-instance 'sequence-element-place
                  :sequence sequence
                  :index index
@@ -246,6 +251,8 @@
     (setf (slot-value-using-class class (instance-of self) (slot-of self)) new-value)))
 
 (def (function e) make-object-slot-place (instance slot)
+  (check-type instance (or structure-object standard-object))
+  (check-type slot (or symbol effective-slot-definition))
   (when (symbolp slot)
     (setf slot (find-slot (class-of instance) slot)))
   (make-instance 'object-slot-place :instance instance :slot slot))
@@ -259,4 +266,6 @@
   (:documentation "A list of PLACEs with a given name."))
 
 (def (function e) make-place-group (name places)
+  (check-type name symbol)
+  (check-type places sequence)
   (make-instance 'place-group :name name :places places))
