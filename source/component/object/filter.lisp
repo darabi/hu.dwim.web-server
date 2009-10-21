@@ -93,10 +93,12 @@
 
 (def (layered-function e) map-filter-input (component class prototype value function)
   (:method ((component t/filter) class prototype value function)
+    (sb-ext::gc :full #t)
     (sb-vm::map-allocated-objects
-     (lambda (instance type size)
-       (declare (ignore type size))
-       (funcall function instance))
+     (lambda (candidate type size)
+       (declare (ignore type size)
+                (optimize (debug 0) (speed 3)))
+       (funcall function candidate))
      :dynamic #t)))
 
 ;;;;;;
