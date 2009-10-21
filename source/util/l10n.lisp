@@ -324,7 +324,7 @@
                               " "
                               (call-next-method)))))
 
-  (:method ((class standard-class))
+  (:method ((class class))
     (localized-class-name class))
 
   (:method ((function function))
