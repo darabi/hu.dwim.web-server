@@ -10,7 +10,7 @@
 ;;; t/filter
 
 (def (component e) t/filter (filter/basic t/presentation)
-  ((result (empty/widget) :type component)
+  ((result (empty/layout) :type component)
    (result-component-factory #'make-filter-result-inspector :type function))
   (:documentation "
 ;; generic version (all components are available)
@@ -69,7 +69,7 @@
 
 (def (layered-function e) make-filter-result-inspector (component class prototype value)
   (:method ((filter t/filter) class prototype (value list))
-    (make-viewer value :type `(list ,(class-name (component-value-of filter)))))
+    (make-viewer `(list ,(class-name (component-value-of filter))) value))
 
   (:method :around ((filter t/filter) class prototype  value)
     (prog1-bind component
@@ -80,16 +80,6 @@
 (def (layered-function e) execute-filter (component class prototype value)
   (:method ((component t/filter) class prototype value)
     (execute-filter (content-of component) class prototype value)))
-
-
-;; TODO: to list classes
-#+nil
-(let ((classes nil))
-  (maphash-keys (lambda (key)
-                  (awhen (find-class key #f)
-                    (push it classes)))
-                sb-kernel::*classoid-cells*)
-  classes)
 
 ;;;;;;
 ;;; t/reference/filter
@@ -130,20 +120,32 @@
                            (when predicate
                              (collect predicate)))))
     (bind ((instances nil))
-      (sb-vm::map-allocated-objects
-       (lambda (instance type size)
-         (declare (ignore type size))
-         (bind ((instance-class (find-class 'standard-class) #+nil(class-of instance)))
-           (when (and (typep instance class)
-                      (not (eq instance (class-prototype instance-class)))
-                      #+nil
-                      (every (lambda (predicate)
-                               (funcall predicate instance))
-                             predicates))
-             (push instance instances))))
-       :dynamic
-       t)
+      (map-filter-input component class prototype value
+                        (lambda (instance)
+                          (bind ((instance-class (find-class 'standard-class) #+nil(class-of instance)))
+                            (when (and (typep instance class)
+                                       (not (eq instance (class-prototype instance-class)))
+                                       #+nil
+                                       (every (lambda (predicate)
+                                                (funcall predicate instance))
+                                              predicates))
+                              (push instance instances)))))
       instances)))
+
+(def (layered-function e) map-filter-input (component class prototype value function)
+  (:method ((component t/name-value-list/filter) class prototype value function)
+    (break)
+    (sb-vm::map-allocated-objects
+     (lambda (instance type size)
+       (declare (ignore type size))
+       (funcall function instance))
+     :dynamic #t))
+
+  (:method ((component t/name-value-list/filter) (class class) prototype (value class) function)
+    (maphash-keys (lambda (key)
+                    (awhen (find-class key #f)
+                      (funcall function it)))
+                  sb-kernel::*classoid-cells*)))
 
 ;; TODO: rename
 (def layered-methods make-slot-value-list/content
