@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; sequence/presentation
 
-(def (component e) sequence/presentation (presentation/basic tree/widget)
+(def (component e) sequence/presentation (t/presentation)
   ())

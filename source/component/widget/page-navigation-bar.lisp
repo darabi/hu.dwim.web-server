@@ -24,7 +24,7 @@
 ;;; page-navigation-bar/widget
 
 ;; TODO: clickable pages: first, 4, 5, previous, (jumper 7), next, 9, 10, last
-(def (component e) page-navigation-bar/widget (widget/basic)
+(def (component e) page-navigation-bar/widget (widget/style)
   ((position 0 :type integer)
    (total-count :type integer)
    (first-command :type component)
@@ -49,14 +49,18 @@
           page-size-selector (make-instance 'page-size-selector/widget :component-value page-size))))
 
 (def render-xhtml page-navigation-bar/widget
-  (bind (((:read-only-slots total-count first-command previous-command next-command last-command jumper page-size-selector) -self-))
-    (unless (zerop total-count)
-      <span (:class "page-navigation-bar")
+  (bind (((:read-only-slots total-count first-command previous-command next-command last-command jumper page-size page-size-selector) -self-))
+    (when (< page-size total-count)
+      (with-render-style/abstract (-self-)
         ;; TODO: revive page-size-selector (does not work with ajax)
-        ,(foreach #'render-component (list first-command previous-command jumper #+nil page-size-selector next-command last-command))>)))
+        (foreach #'render-component (list first-command previous-command jumper #+nil page-size-selector next-command last-command))))))
 
 (def layered-method render-component :in passive-layer ((self page-navigation-bar/widget))
   (values))
+
+(def function make-page-navigation-contents (component sequence)
+  (bind (((:read-only-slots position page-size total-count) component))
+    (subseq sequence position (min total-count (+ position page-size)))))
 
 ;;;;;;
 ;;; Icon
@@ -73,33 +77,37 @@
 ;;; Command factory
 
 (def layered-method make-go-to-first-page-command ((component page-navigation-bar/widget))
-  (bind (((:slots position page-size total-count jumper) component))
+  (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (> position 0))
-                     :ajax (ajax-of (parent-component-of component)))
+                     :ajax (ajax-of parent-component))
       (icon go-to-first-page)
       (make-action
-        (setf (component-value-of jumper) (setf position 0))))))
+        (setf (component-value-of jumper) (setf position 0))
+        (mark-to-be-rendered-component parent-component)))))
 
 (def layered-method make-go-to-previous-page-command ((component page-navigation-bar/widget))
-  (bind (((:slots position page-size total-count jumper) component))
+  (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (> position 0))
-                     :ajax (ajax-of (parent-component-of component)))
+                     :ajax (ajax-of parent-component))
       (icon go-to-previous-page)
       (make-action
-        (setf (component-value-of jumper) (decf position (min position page-size)))))))
+        (setf (component-value-of jumper) (decf position (min position page-size)))
+        (mark-to-be-rendered-component parent-component)))))
 
 (def layered-method make-go-to-next-page-command ((component page-navigation-bar/widget))
-  (bind (((:slots position page-size total-count jumper) component))
+  (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (< position (- total-count page-size)))
-                     :ajax (ajax-of (parent-component-of component)))
+                     :ajax (ajax-of parent-component))
       (icon go-to-next-page)
       (make-action
-        (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size))))))))
+        (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size))))
+        (mark-to-be-rendered-component parent-component)))))
 
 (def layered-method make-go-to-last-page-command ((component page-navigation-bar/widget))
-  (bind (((:slots position page-size total-count jumper) component))
+  (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (< position (- total-count page-size)))
-                     :ajax (ajax-of (parent-component-of component)))
+                     :ajax (ajax-of parent-component))
       (icon go-to-last-page)
       (make-action
-        (setf (component-value-of jumper) (setf position (- total-count page-size)))))))
+        (setf (component-value-of jumper) (setf position (- total-count page-size)))
+        (mark-to-be-rendered-component parent-component)))))

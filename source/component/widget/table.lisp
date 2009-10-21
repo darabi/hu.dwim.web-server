@@ -26,13 +26,6 @@
 (def (macro e) table/widget ((&rest args &key &allow-other-keys) &body rows)
   `(make-instance 'table/widget ,@args :rows (list ,@rows)))
 
-(def refresh-component table/widget
-  (bind (((:slots rows page-navigation-bar) -self-))
-    (setf page-navigation-bar (make-instance 'page-navigation-bar/widget :total-count (length rows)))
-    #+nil ;; TODO:
-    (when (< (page-size-of page-navigation-bar) (total-count-of page-navigation-bar))
-      (setf (total-count-of page-navigation-bar) (length rows)))))
-
 (def render-xhtml table/widget
   (bind (((:read-only-slots rows page-navigation-bar id) -self-)
          (position (position-of page-navigation-bar))
@@ -50,3 +43,6 @@
                          (for row :in-sequence visible-rows)
                          (render-component row))>>
          ,(render-page-navigation-bar-for -self-)>))
+
+(def layered-method make-page-navigation-bar ((component table/widget) class prototype value)
+  (make-instance 'page-navigation-bar/widget :total-count (length (rows-of component))))

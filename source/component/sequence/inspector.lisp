@@ -33,10 +33,14 @@
   (bind (((:slots component-value contents) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf contents (iter (for content-value :in-sequence component-value)
-                         (collect (make-list/element -self- class prototype content-value))))))
+    (setf contents (iter (for element-value :in-sequence component-value)
+                         (collect (make-list/element -self- class prototype element-value))))))
 
-(def layered-function make-list/element (component class prototype value)
+
+(def layered-method make-page-navigation-bar ((component sequence/list/inspector) class prototype value)
+  (make-instance 'page-navigation-bar/widget :total-count (length value)))
+
+(def (layered-function e) make-list/element (component class prototype value)
   (:method ((component sequence/list/inspector) class prototype value)
     (make-instance 't/element/inspector :component-value value)))
 
