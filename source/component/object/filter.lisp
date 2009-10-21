@@ -60,16 +60,16 @@
 (def (icon e) execute-filter)
 
 (def layered-method make-execute-filter-command ((component t/filter) class prototype value)
-  (make-replace-and-push-back-command (result-of component)
+  (make-replace-and-push-back-command (delay (result-of component))
                                       (delay (with-restored-component-environment component
                                                (funcall (result-component-factory-of component) component class prototype
                                                         (execute-filter component class prototype value))))
-                                      (list :content (icon execute-filter) :default #t)
+                                      (list :content (icon execute-filter) :default #t #+nil :ajax #+nil (ajax-of component))
                                       (list :content (icon back))))
 
 (def (layered-function e) make-filter-result-inspector (component class prototype value)
   (:method ((filter t/filter) class prototype (value list))
-    (make-viewer `(list ,(class-name (component-value-of filter))) value))
+    (make-inspector `(list ,(class-name (component-value-of filter))) value :initial-alternative-type 't/detail/presentation))
 
   (:method :around ((filter t/filter) class prototype  value)
     (prog1-bind component
@@ -122,8 +122,8 @@
     (bind ((instances nil))
       (map-filter-input component class prototype value
                         (lambda (instance)
-                          (bind ((instance-class (find-class 'standard-class) #+nil(class-of instance)))
-                            (when (and (typep instance class)
+                          (bind ((instance-class (class-of instance)))
+                            (when (and (typep instance value)
                                        (not (eq instance (class-prototype instance-class)))
                                        #+nil
                                        (every (lambda (predicate)
@@ -134,18 +134,11 @@
 
 (def (layered-function e) map-filter-input (component class prototype value function)
   (:method ((component t/name-value-list/filter) class prototype value function)
-    (break)
     (sb-vm::map-allocated-objects
      (lambda (instance type size)
        (declare (ignore type size))
        (funcall function instance))
-     :dynamic #t))
-
-  (:method ((component t/name-value-list/filter) (class class) prototype (value class) function)
-    (maphash-keys (lambda (key)
-                    (awhen (find-class key #f)
-                      (funcall function it)))
-                  sb-kernel::*classoid-cells*)))
+     :dynamic #t)))
 
 ;; TODO: rename
 (def layered-methods make-slot-value-list/content
