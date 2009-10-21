@@ -59,4 +59,5 @@
                    (when (eq component slot-value)
                      (return-from make-component-place (make-object-slot-place parent slot))))
                   (sequence
-                   (return-from make-component-place (make-sequence-element-place slot-value (position component slot-value)))))))))))
+                   (when (find component slot-value)
+                     (return-from make-component-place (make-sequence-element-place slot-value (position component slot-value))))))))))))
