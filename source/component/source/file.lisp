@@ -37,9 +37,14 @@
                                  :component-value (read-lisp-source (asdf:component-pathname component-value))))))
 
 ;;;;;;
-;;; t/name-value-list/filter
+;;; t/filter
 
-(def layered-method map-filter-input ((component t/name-value-list/filter) (class standard-class) (prototype standard-class) (value (eql (find-class 'asdf:source-file))) function)
+(def method slot-type (class (prototype asdf:component) slot)
+  (case (slot-definition-name slot)
+    (asdf::name 'string)
+    (t (call-next-method))))
+
+(def layered-method map-filter-input ((component t/filter) (class standard-class) (prototype standard-class) (value (eql (find-class 'asdf:source-file))) function)
   (labels ((recurse (module)
              (iter (for component :in (asdf:module-components module))
                    (typecase component

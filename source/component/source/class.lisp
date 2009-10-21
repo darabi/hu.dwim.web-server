@@ -171,9 +171,15 @@
   (make-instance 'class/tree-level/reference/inspector :component-value value))
 
 ;;;;;;
-;;; t/name-value-list/filter
+;;; t/filter
 
-(def layered-method map-filter-input ((component t/name-value-list/filter) (class class) (prototype class) (value class) function)
+(def method slot-type (class (prototype class) slot)
+  (case (slot-definition-name slot)
+    (sb-pcl::name 'symbol)
+    (sb-pcl::%documentation '(or null string))
+    (t (call-next-method))))
+
+(def layered-method map-filter-input ((component t/filter) (class class) (prototype class) (value class) function)
   (maphash-keys (lambda (key)
                   (awhen (find-class key #f)
                     (funcall function it)))
