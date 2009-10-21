@@ -112,7 +112,6 @@
                                                          (:file "content")
                                                          (:file "debug" :depends-on ("menu" "frame" "inline" "replace-target"))
                                                          (:file "element" :depends-on ("command"))
-                                                         (:file "empty")
                                                          (:file "external-link")
                                                          (:file "field")
                                                          (:file "frame" :depends-on ("top"))
