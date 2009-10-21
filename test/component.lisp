@@ -782,13 +782,34 @@
   (make-object-sequence-presentations-node "Maker" 'make-maker))
 
 (def function make-object-sequence-viewers-node ()
-  (make-object-sequence-presentations-node "Viewer" 'make-viewer))
+  (node/widget (:expanded #f)
+      "Viewer"
+    (component-demo/widget "Nil"
+      (make-viewer 'list nil))
+    (component-demo/widget "List"
+      (make-value-viewer '("John" "Mary" "Steve" "Kate")))
+    (component-demo/widget "Vector"
+      (make-value-viewer #("John" "Mary" "Steve" "Kate")))))
 
 (def function make-object-sequence-editors-node ()
-  (make-object-sequence-presentations-node "Editor" 'make-editor))
+  (node/widget (:expanded #f)
+      "Editor"
+    (component-demo/widget "Nil"
+      (make-editor 'list nil))
+    (component-demo/widget "List"
+      (make-value-editor '("John" "Mary" "Steve" "Kate")))
+    (component-demo/widget "Vector"
+      (make-value-editor #("John" "Mary" "Steve" "Kate")))))
 
 (def function make-object-sequence-inspectors-node ()
-  (make-object-sequence-presentations-node "Inspector" 'make-inspector))
+  (node/widget (:expanded #f)
+      "Inspector"
+    (component-demo/widget "Nil"
+      (make-inspector 'list nil))
+    (component-demo/widget "List"
+      (make-value-inspector '("John" "Mary" "Steve" "Kate")))
+    (component-demo/widget "Vector"
+      (make-value-inspector #("John" "Mary" "Steve" "Kate")))))
 
 (def function make-object-sequence-filters-node ()
   (make-object-sequence-presentations-node "Filter" 'make-filter))
