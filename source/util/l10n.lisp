@@ -330,10 +330,14 @@
   (:method ((function function))
     (bind ((name (function-name function)))
       (cond ((symbolp name)
-             (lookup-resource (string+ "function-name." (string-downcase name))))
+             (lookup-first-matching-resource
+               ("function-name" (string-downcase (qualified-symbol-name name)))
+               ("function-name" (string-downcase name))))
             ((and (consp name)
                   (eq (first name) 'macro-function))
-             (lookup-resource (string+ "macro-name." (string-downcase (second name)))))
+             (lookup-first-matching-resource
+               ("macro-name" (string-downcase (qualified-symbol-name (second name))))
+               ("macro-name" (string-downcase (second name)))))
             (t "unknown function")))))
 
 (def function funcall-resource-function (name &rest args)
