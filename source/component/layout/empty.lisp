@@ -12,7 +12,7 @@
 (eval-always
   (def (component e) empty/abstract (layout/abstract)
     ()
-    (:documentation "An EMPTY/ABSTRACT is completely empty, it is practically INVISIBLE. The reason to use EMPTY/ABSTRACT instead of NIL, is to be able to make NIL an invalid COMPONENT for debugging purposes. The base component EMPTY/ABSTRACT does not have any state.")))
+    (:documentation "An EMPTY/ABSTRACT COMPONENT is rendered completely empty, thus it is practically INVISIBLE. The reason to use EMPTY/ABSTRACT instead of NIL is to be able to make NIL an invalid COMPONENT. This approach helps debugging by popping up errors earlier. The base COMPONENT EMPTY/ABSTRACT does not have any state.")))
 
 (def render-component empty/abstract
   (values))
@@ -26,7 +26,7 @@
   ;; The number of effective slots in this class supposed to be zero.
   (def (component e) empty/layout/singleton (empty/abstract)
     ()
-    (:documentation "To save memory an EMPTY/LAYOUT/SINGLETON is used as a singleton, and it does not support PARENT-COMPONENT-OF.")))
+    (:documentation "To decrease memory footprint the EMPTY/LAYOUT/SINGLETON is used as a singleton class. It does not support PARENT-COMPONENT-OF and it does not have any state.")))
 
 (def load-time-constant +empty-layout-singleton-instance+ (make-instance 'empty/layout/singleton))
 
@@ -40,9 +40,13 @@
 ;;;;;;
 ;;; empty/layout
 
-(def (component e) empty/layout (empty/abstract parent/mixin)
+(def (component e) empty/layout (empty/abstract parent/mixin frame-unique-id/mixin)
   ()
-  (:documentation "An EMPTY/LAYOUT may be used as part of the COMPONENT hierarchy, that is it supports PARENT-COMPONENT-OF."))
+  (:documentation "An EMPTY/LAYOUT may be used as part of the COMPONENT hierarchy. It supports PARENT-COMPONENT-OF, because it is often used as a placeholder by replacing it with another COMPONENT."))
 
 (def (macro e) empty/layout ()
   '(make-instance 'empty/layout))
+
+(def render-component empty/layout
+  ;; NOTE: we do need the empty string in the body to workaround a bug in firefox
+  <div (:id ,(id-of -self-)) "">)
