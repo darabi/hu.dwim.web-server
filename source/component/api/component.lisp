@@ -431,12 +431,13 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   (:method ((self component))
     (class-slots (class-of self))))
 
-(def (function e) map-visible-child-components (component function)
-  (ensure-functionf function)
-  (map-child-components component (lambda (child)
-                                    (when (visible-component? child)
-                                      (funcall function child)))
-                        #'visible-child-component-slots))
+(def (generic e) map-visible-child-components (component function)
+  (:method ((component component) function)
+    (ensure-functionf function)
+    (map-child-components component (lambda (child)
+                                      (when (visible-component? child)
+                                        (funcall function child)))
+                          #'visible-child-component-slots)))
 
 ;;;;;;
 ;;; Enable/disable component
