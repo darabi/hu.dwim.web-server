@@ -206,14 +206,14 @@
   (:method  ((place object-slot-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
     #t))
 
-(def generic slot-type (slot)
+(def generic slot-type (class prototype slot)
   (:documentation "Returns a lisp type specifier for SLOT.")
 
-  (:method ((slot slot-definition))
+  (:method (class prototype (slot slot-definition))
     (slot-definition-type slot))
 
   #+sbcl
-  (:method ((slot sb-pcl::structure-slot-definition))
+  (:method (class prototype (slot sb-pcl::structure-slot-definition))
     (slot-definition-type slot)))
 
 (def method place-name ((self object-slot-place))
@@ -223,7 +223,8 @@
   (documentation (slot-of self) t))
 
 (def method place-type ((self object-slot-place))
-  (slot-type (slot-of self)))
+  (bind ((class (class-of (instance-of self))))
+    (slot-type class (class-prototype class) (slot-of self))))
 
 (def method place-editable? ((self object-slot-place))
   (bind ((instance (instance-of self))
