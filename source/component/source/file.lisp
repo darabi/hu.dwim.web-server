@@ -35,3 +35,15 @@
   (bind (((:slots component-value content) -self-))
     (setf content (make-instance 't/lisp-form/inspector
                                  :component-value (read-lisp-source (asdf:component-pathname component-value))))))
+
+;;;;;;
+;;; t/name-value-list/filter
+
+(def layered-method map-filter-input ((component t/name-value-list/filter) (class standard-class) (prototype standard-class) (value (eql (find-class 'asdf:source-file))) function)
+  (labels ((recurse (module)
+             (iter (for component :in (asdf:module-components module))
+                   (typecase component
+                     (asdf:module (recurse component))
+                     (asdf:source-file (funcall function component))))))
+    (iter (for (system-name (version . system)) :in-hashtable asdf::*defined-systems*)
+          (recurse system))))

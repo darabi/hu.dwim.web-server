@@ -169,3 +169,12 @@
 
 (def layered-method make-node/content ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/reference/inspector :component-value value))
+
+;;;;;;
+;;; t/name-value-list/filter
+
+(def layered-method map-filter-input ((component t/name-value-list/filter) (class class) (prototype class) (value class) function)
+  (maphash-keys (lambda (key)
+                  (awhen (find-class key #f)
+                    (funcall function it)))
+                sb-kernel::*classoid-cells*))

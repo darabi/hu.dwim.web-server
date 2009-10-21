@@ -46,3 +46,11 @@
 (def refresh-component function/lisp-form/inspector
   (bind (((:slots component-value content) -self-))
     (setf content (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source component-value)))))
+
+;;;;;;
+;;; t/name-value-list/filter
+
+(def layered-method map-filter-input ((component t/name-value-list/filter) (class standard-class) (prototype built-in-class) (value (eql (find-class 'function))) function)
+  (do-all-symbols (name)
+    (when (fboundp name)
+      (funcall function (symbol-function name)))))
