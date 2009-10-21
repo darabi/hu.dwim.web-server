@@ -29,7 +29,7 @@
   (eq 'to-be-rendered-component (slot-definition-name slot)))
 
 (def method (setf slot-value-using-class) (new-value (class component-class) (instance renderable/mixin) (slot standard-effective-slot-definition))
-  (unless (eq (standard-instance-access instance (slot-definition-location slot)) new-value)
+  (unless (eql (standard-instance-access instance (slot-definition-location slot)) new-value)
     (call-next-method)
     (unless (to-be-rendered-component-slot? slot)
       (mark-to-be-rendered-component instance))))
