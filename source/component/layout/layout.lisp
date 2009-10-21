@@ -18,3 +18,21 @@
 
 (def (component e) layout/minimal (layout/abstract component/minimal)
   ())
+
+;;;;;;
+;;; layout/basic
+
+(def (component e) layout/basic (layout/minimal component/basic)
+  ())
+
+;;;;;;
+;;; layout/style
+
+(def (component e) layout/style (layout/basic component/style)
+  ())
+
+;;;;;;
+;;; layout/full
+
+(def (component e) layout/full (layout/style component/full)
+  ())
