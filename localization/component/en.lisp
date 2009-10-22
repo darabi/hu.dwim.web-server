@@ -382,7 +382,10 @@
   (class-name.standard-class "standard class")
   (class-name.component-class "component class")
   (class-name.function "function")
-  (class-name.standard-generic-function "standard generic function"))
+  (class-name.standard-generic-function "standard generic function")
+
+  (slot-name.documentation "documentation")
+  (slot-name.%documentation "documentation"))
 
 ;;;;;;
 ;;; Component
