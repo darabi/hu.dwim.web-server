@@ -188,7 +188,8 @@
         ;; TODO: use place API instead of slot API
         (bind ((slot-name (slot-definition-name (slot-of place))))
           (when (slot-boundp candidate slot-name)
-            (bind ((result (funcall #+nil predicate 'like (slot-value candidate slot-name)
+            (bind ((result (funcall predicate
+                                    (slot-value candidate slot-name)
                                     (component-value-of (content-of (value-of component))))))
               (if (negated? component)
                   (not result)
