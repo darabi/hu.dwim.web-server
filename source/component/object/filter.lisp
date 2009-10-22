@@ -74,8 +74,9 @@
   (:method :around ((filter t/filter) class prototype  value)
     (prog1-bind component
         (call-next-method)
-      (unless value
-        (add-component-warning-message component #"no-matches-were-found")))))
+      (if value
+          (add-component-information-message component (matches-were-found (length value)))
+          (add-component-warning-message component #"no-matches-were-found")))))
 
 (def (layered-function e) execute-filter (component class prototype value)
   (:method ((component t/filter) class prototype value)

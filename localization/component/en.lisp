@@ -182,6 +182,7 @@
 
 (def localization en
   (no-matches-were-found "No matching objects were found")
+  (matches-were-found (count) (format nil "~A matching objects were found" count))
 
   (icon-label.equal "Equal")
   (icon-tooltip.equal "Compare for equality")
