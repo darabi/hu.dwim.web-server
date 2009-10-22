@@ -1,12 +1,11 @@
-/* for all icons */
+/* icons in general */
 
 .icon {
   width: 24px;
   height: 24px;
   line-height: 24px;
   padding-left: 24px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-right: 0px;
   background-repeat: no-repeat;
   background-position: left center;
   white-space: pre;
@@ -14,340 +13,324 @@
 
 /* authentication */
 
-.login-icon {
+.login.icon {
   background-image: url("/static/wui/icon/20x20/green-checkmark.png");
 }
 
-.logout-icon {
+.logout.icon {
   background-image: url("/static/wui/icon/20x20/red-arrow-on-door.png");
 }
 
-.impersonalize-icon {
+.impersonalize.icon {
   background-image: url("/static/wui/icon/20x20/vcr-play-with-people.png");
 }
 
-.cancel-impersonalization-icon {
+.cancel-impersonalization.icon {
   background-image: url("/static/wui/icon/20x20/vcr-backward-with-people.png");
 }
 
-.change-password-icon {
+.change-password.icon {
   background-image: url("/static/wui/icon/20x20/green-checkmark.png");
 }
 
-.refresh-component-icon {
+.refresh-component.icon {
   background-image: url("/static/wui/icon/20x20/ying-yang-arrows.png");
 }
 
 /* editable */
 
-.begin-editing-icon {
+.begin-editing.icon {
   background-image: url("/static/wui/icon/20x20/pen-on-document.png");
 }
 
-.save-editing-icon {
+.save-editing.icon {
   background-image: url("/static/wui/icon/20x20/disc-on-document.png");
 }
 
-.cancel-editing-icon {
+.cancel-editing.icon {
   background-image: url("/static/wui/icon/20x20/yellow-x.png");
 }
 
-.store-editing-icon {
+.store-editing.icon {
   background-image: url("/static/wui/icon/20x20/disc-on-document.png");
 }
 
-.revert-editing-icon {
+.revert-editing.icon {
   background-image: url("/static/wui/icon/20x20/yellow-x.png");
 }
 
-.new-icon {
+.new.icon {
   background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.create-icon {
+.create.icon {
   background-image: url("/static/wui/icon/20x20/disc-on-document.png");
 }
 
-.delete-icon {
+.delete.icon {
   background-image: url("/static/wui/icon/20x20/red-x.png");
 }
 
-.close-icon {
+.close.icon {
   background-image: url("/static/wui/icon/20x20/red-x.png");
 }
 
-.focus-in-icon {
+.focus-in.icon {
   background-image: url("/static/wui/icon/20x20/blue-all-direction-arrows.png");
 }
 
-.focus-out-icon {
+.focus-out.icon {
   background-image: url("/static/wui/icon/20x20/green-double-left-arrow.png");
 }
 
-.open-in-new-frame-icon {
+.open-in-new-frame.icon {
   background-image: url("/static/wui/icon/20x20/split-vertically.png");
 }
 
-.back-icon {
+.back.icon {
   background-image: url("/static/wui/icon/24x24/page-backward.png");
 }
 
-.expand-reference-icon {
+.expand-reference.icon {
   background-image: url("/static/wui/icon/20x20/magnifier-plus.png");
 }
 
-.collapse-to-reference-icon {
+.collapse-to-reference.icon {
   background-image: url("/static/wui/icon/20x20/magnifier-minus.png");
 }
 
 /* collapsible */
 
-.collapse-component-icon {
+.collapse-component.icon {
   background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
   padding-left: 1em;
 }
 
-.expand-component-icon {
+.expand-component.icon {
   background-image: url("/static/wui/icon/20x20/arrowhead-right.png");
   padding-left: 1em;
 }
 
 /* page-navigation-bar */
 
-.go-to-first-page-icon {
+.go-to-first-page.icon {
   background-image: url("/static/wui/icon/24x24/page-first.png");
 }
 
-.disabled .go-to-first-page-icon {
+.disabled .go-to-first-page.icon {
   background-image: url("/static/wui/icon/24x24/page-first-disabled.png");
 }
 
-.go-to-previous-page-icon {
+.go-to-previous-page.icon {
   background-image: url("/static/wui/icon/24x24/page-previous.png");
 }
 
-.disabled .go-to-previous-page-icon {
+.disabled .go-to-previous-page.icon {
   background-image: url("/static/wui/icon/24x24/page-previous-disabled.png");
 }
 
-.go-to-next-page-icon {
+.go-to-next-page.icon {
   background-image: url("/static/wui/icon/24x24/page-next.png");
 }
 
-.disabled .go-to-next-page-icon {
+.disabled .go-to-next-page.icon {
   background-image: url("/static/wui/icon/24x24/page-next-disabled.png");
 }
 
-.go-to-last-page-icon {
+.go-to-last-page.icon {
   background-image: url("/static/wui/icon/24x24/page-last.png");
 }
 
-.disabled .go-to-last-page-icon {
+.disabled .go-to-last-page.icon {
   background-image: url("/static/wui/icon/24x24/page-last-disabled.png");
 }
 
-.find-icon {
+.find.icon {
   background-image: url("/static/wui/icon/20x20/binocular.png");
 }
 
-.set-to-nil-icon {
+.set-to-nil.icon {
   background-image: url("/static/wui/icon/20x20/unplug.png");
 }
 
-.set-to-unbound-icon {
+.set-to-unbound.icon {
   background-image: url("/static/wui/icon/20x20/unplug.png");
 }
 
-.select-component-icon {
+.select-component.icon {
   background-image: url("/static/wui/icon/20x20/checkmark.png");
 }
 
-.view-icon {
+.view.icon {
   background-image: url("/static/wui/icon/20x20/eye.png");
 }
 
-.finish-icon {
+.finish.icon {
   background-image: url("/static/wui/icon/20x20/checkmark.png");
 }
 
-.download-icon {
+.download.icon {
   background-image: url("/static/wui/icon/20x20/file-download.png");
 }
 
-.upload-icon {
+.upload.icon {
   background-image: url("/static/wui/icon/20x20/file-upload.png");
 }
 
-.diagram-icon {
+.diagram.icon {
   background-image: url("/static/wui/icon/20x20/eye.png");
 }
 
-.export-csv-icon {
+.export-csv.icon {
   background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.export-pdf-icon {
+.export-pdf.icon {
   background-image: url("/static/wui/icon/20x20/pdf-document.png");
 }
 
-.export-odf-icon {
+.export-odf.icon {
   background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.switch-to-tab-page-icon {
+.switch-to-tab-page.icon {
   background-image: url("/static/wui/icon/20x20/eye.png");
 }
 
-.rotate-clockwise-icon {
+.rotate-clockwise.icon {
   background-image: url("/static/wui/icon/20x20/clockwise-arrow.png");
 }
 
-.rotate-counter-clockwise-icon {
+.rotate-counter-clockwise.icon {
   background-image: url("/static/wui/icon/20x20/counter-clockwise-arrow.png");
 }
 
-.move-up-icon {
+.move-up.icon {
   background-image: url("/static/wui/icon/20x20/up-arrow.png");
 }
 
-.move-down-icon {
+.move-down.icon {
   background-image: url("/static/wui/icon/20x20/down-arrow.png");
 }
 
-.move-left-icon {
+.move-left.icon {
   background-image: url("/static/wui/icon/20x20/left-arrow.png");
 }
 
-.move-right-icon {
+.move-right.icon {
   background-image: url("/static/wui/icon/20x20/right-arrow.png");
 }
 
-.show-submenu-icon {
+.show-submenu.icon {
   background-image: url("/static/wui/icon/20x20/open-folder.png");
 }
 
-.show-context-menu-icon {
+.show-context-menu.icon {
   background-image: url("/static/wui/icon/20x20/open-folder.png");
 }
 
-.hide-component-icon {
+.hide-component.icon {
   background-image: url("/static/wui/icon/20x20/yellow-x.png");
 }
 
-.start-process-icon {
+.start-process.icon {
   background-image: url("/static/wui/icon/20x20/vcr-play.png");
 }
 
-.continue-process-icon {
+.continue-process.icon {
   background-image: url("/static/wui/icon/20x20/vcr-play.png");
 }
 
-.cancel-process-icon {
+.cancel-process.icon {
   background-image: url("/static/wui/icon/20x20/red-x.png");
 }
 
-.pause-process-icon {
+.pause-process.icon {
   background-image: url("/static/wui/icon/20x20/stop-sign.png");
 }
 
-.restart-cluster-node-icon {
+.restart-cluster-node.icon {
   background-image: url("/static/wui/icon/20x20/vcr-play.png");
 }
 
-.startup-cluster-node-icon {
+.startup-cluster-node.icon {
   background-image: url("/static/wui/icon/20x20/vcr-play.png");
 }
 
-.shutdown-cluster-node-icon {
+.shutdown-cluster-node.icon {
   background-image: url("/static/wui/icon/20x20/stop-sign.png");
 }
 
-.generate-new-password-icon {
+.generate-new-password.icon {
   background-image: url("/static/wui/icon/20x20/pen-on-document.png");
 }
 
-.evaluate-form-icon {
+.evaluate-form.icon {
   background-image: url("/static/wui/icon/20x20/vcr-play.png");
 }
 
 /* filter */
 
-.execute-filter-icon {
+.execute-filter.icon {
   background-image: url("/static/wui/icon/24x24/search.png");
 }
 
-.use-in-filter-icon {
+.predicate.icon {
   width: 17px;
-  padding-left: 17px;
-  padding-top: 1px;
-  padding-bottom: 1px;
+  height: 17px;
+  line-height: 17px;
+  padding-left: 1px;
+  padding-right: 1px;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.use.predicate.icon {
   background-image: url("/static/wui/icon/17x17/use-in-filter.png");
 }
 
-.ignore-in-filter-icon {
-  opacity: 0.5;
-  width: 17px;
-  padding-left: 17px;
-  padding-top: 1px;
-  padding-bottom: 1px;
+.ignore.predicate.icon {
   background-image: url("/static/wui/icon/17x17/ignore-in-filter.png");
-}
-
-.negated-predicate-icon {
-  width: 29px;
-  padding-left: 29px;
-  padding-top: 1px;
-  padding-bottom: 1px;
-  background-image: url("/static/wui/icon/17x17/negated-predicate.png");
-}
-
-.ponated-predicate-icon {
   opacity: 0.5;
+}
+
+.negated.predicate.icon {
+  background-image: url("/static/wui/icon/17x17/negated-predicate.png");
   width: 29px;
-  padding-left: 29px;
-  padding-top: 1px;
-  padding-bottom: 1px;
+}
+
+.ponated.predicate.icon {
   background-image: url("/static/wui/icon/17x17/ponated-predicate.png");
+  width: 29px;
+  opacity: 0.5;
 }
 
 /* filter predicate */
 
-.equal-predicate-icon {
+.equal.predicate.icon {
   background-image: url("/static/wui/icon/17x17/equal-predicate.png");
-  width: 17px;
-  height: 17px;
 }
 
-.like-predicate-icon {
+.like.predicate.icon {
   background-image: url("/static/wui/icon/17x17/like-predicate.png");
-  width: 17px;
-  height: 17px;
 }
 
-.less-than-predicate-icon {
+.less-than.predicate.icon {
   background-image: url("/static/wui/icon/17x17/less-than-predicate.png");
-  width: 17px;
-  height: 17px;
 }
 
-.less-than-or-equal-predicate-icon {
+.less-than-or-equal.predicate.icon {
   background-image: url("/static/wui/icon/17x17/less-than-or-equal-predicate.png");
-  width: 17px;
-  height: 17px;
 }
 
-.greater-than-predicate-icon {
+.greater-than.predicate.icon {
   background-image: url("/static/wui/icon/17x17/greater-than-predicate.png");
-  width: 17px;
-  height: 17px;
 }
 
-.greater-than-or-equal-predicate-icon {
+.greater-than-or-equal.predicate.icon {
   background-image: url("/static/wui/icon/17x17/greater-than-or-equal-predicate.png");
-  width: 17px;
-  height: 17px;
 }
 
 .dijitMenuItemIcon {
-  padding-left: 5px;
+  padding: 1px;
 }

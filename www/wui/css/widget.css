@@ -572,13 +572,6 @@ table.extended-table > tbody > tr > td.total
   border-width: 1px;
 }
 
-/* command bar */
-
-.command-bar a
-{
-  margin-right: 1em;
-}
-
 /*
   frame size breakdown
 */
@@ -1184,6 +1177,17 @@ table.frame-size-breakdown > tbody > tr > td.delta
 }
 
 /* command-bar */
+
+.command-bar a
+{
+  margin-right: 1em;
+}
+
+.command .icon
+{
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
 
 .command-bar .command
 {
