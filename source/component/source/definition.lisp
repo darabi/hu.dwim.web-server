@@ -69,8 +69,11 @@
 ;;; t/filter
 
 (def layered-method map-filter-input ((component t/filter) (class standard-class) (prototype standard-class) (value (eql (find-class 'definition))) function)
-  (do-all-symbols (name)
-    (foreach function (make-definitions name))))
+  (bind ((seen-set (make-hash-table :test #'eq)))
+    (do-all-symbols (name)
+      (unless (gethash name seen-set)
+        (foreach function (make-definitions name))
+        (setf (gethash name seen-set) #t)))))
 
 ;;;;;;
 ;;; Util
