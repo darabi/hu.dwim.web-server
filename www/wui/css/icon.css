@@ -283,6 +283,7 @@
   padding-right: 1px;
   margin-left: 1px;
   margin-right: 1px;
+  cursor: pointer;
 }
 
 .use.predicate.icon {
