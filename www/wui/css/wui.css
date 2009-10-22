@@ -74,26 +74,6 @@ div.list.vertical > div
 }
 
 /*
-  standard object
-*/
-
-.standard-object-inspector > table.list
-{
-  /* this is needed when used in tooltips */
-  width: auto;
-}
-
-/*
-  standard object list
-*/
-
-.standard-object-list > table.list
-{
-  /* this is needed when used in tooltips */
-  width: auto;
-}
-
-/*
   command bar
 */
 

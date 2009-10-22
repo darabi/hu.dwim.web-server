@@ -6,6 +6,11 @@ body.tundra
   font-size: 12px;
 }
 
+table
+{
+  font-size: 12px;
+}
+
 #container
 {
   float: left;
