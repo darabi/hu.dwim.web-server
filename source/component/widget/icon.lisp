@@ -79,6 +79,7 @@
     ;; render the `js first, so the return value contract of qq is kept.
     (when tooltip
       (render-tooltip tooltip id))
+    ;; NOTE: this preserve-whitespace is needed from chrome when there's no label and no image and the icon is setup from css
     {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
       <span (:id ,id :class ,style-class)
         ,(when image-path

@@ -109,7 +109,9 @@
                          (princ-to-string content)))))
         ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
         ;; TODO: when rendering a span, tab navigation skips the commands
-        <span (:id ,id :class "command widget" :name ,name) ,(render-component content)>
+        <span (:id ,id :class "command widget" :name ,name)
+          #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
+          ,(render-component content)>
         `js(on-load
             (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
             (wui.setup-component ,id "command/widget"))
@@ -118,7 +120,9 @@
           (bind ((submit-id (generate-frame-unique-string)))
             <input (:id ,submit-id :type "submit" :style "display: none;")>
             `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
-      <span (:class "command widget disabled") ,(render-component content)>))
+      <span (:class "command widget disabled")
+        #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
+        ,(render-component content)>))
 
 (def (function e) render-command-onclick-handler (command id)
   (bind ((action (action-of command))
