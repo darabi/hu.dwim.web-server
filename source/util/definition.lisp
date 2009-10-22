@@ -9,17 +9,21 @@
 ;;;;;;
 ;;; Definition
 
-(def class* definition ()
-  ((name :type symbol)))
+(def (class* e) definition ()
+  ((name :type symbol)
+   (documentation :type string)))
 
-(def class* special-variable-definition (definition)
+(def (class* e) special-variable-definition (definition)
   ())
 
-(def class* macro-definition (definition)
+(def (class* e) macro-definition (definition)
   ())
 
-(def class* function-definition (definition)
+(def (class* e) function-definition (definition)
   ())
 
-(def class* generic-function-definition (definition)
+(def (class* e) generic-function-definition (definition)
+  ())
+
+(def (class* e) class-definition (definition)
   ())

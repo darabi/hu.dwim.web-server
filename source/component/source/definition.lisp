@@ -34,6 +34,9 @@
 (def layered-method make-reference-content ((component t/reference/inspector) class prototype (value generic-function-definition))
   (string+ "Generic function: " (string-upcase (name-of value))))
 
+(def layered-method make-reference-content ((component t/reference/inspector) class prototype (value class-definition))
+  (string+ (localized-class-name (class-of value) :capitalize-first-letter #t) ": " (string-upcase (name-of value))))
+
 ;;;;;;
 ;;; definition/lisp-form/inspector
 
@@ -57,4 +60,40 @@
     (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source (symbol-function (name-of value)))))
 
   (:method ((component definition/lisp-form/inspector) class prototype (value generic-function-definition))
-    (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods (symbol-function (name-of value))))))
+    (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods (symbol-function (name-of value)))))
+
+  (:method ((component definition/lisp-form/inspector) class prototype (value class-definition))
+    (make-instance 'class/lisp-form/inspector :component-value (find-class (name-of value)))))
+
+;;;;;;
+;;; t/filter
+
+(def layered-method map-filter-input ((component t/filter) (class standard-class) (prototype standard-class) (value (eql (find-class 'definition))) function)
+  (do-all-symbols (name)
+    (foreach function (make-definitions name))))
+
+;;;;;;
+;;; Util
+
+(def function make-definitions (name)
+  (iter outer (for type :in swank-backend::*definition-types* :by #'cddr)
+        ;; KLUDGE: remove ignore-errors as soon as this does not error out (sb-introspect:find-definition-sources-by-name 'common-lisp:structure-object :structure)
+        (iter (for specification :in (ignore-errors (sb-introspect:find-definition-sources-by-name name type)))
+              (awhen (case type
+                       (:variable (make-instance 'special-variable-definition
+                                                 :name name
+                                                 :documentation (documentation name 'variable)))
+                       (:function (make-instance 'function-definition
+                                                 :name name
+                                                 :documentation (documentation (symbol-function name) 'function)))
+                       (:macro (make-instance 'macro-definition
+                                              :name name
+                                              :documentation (documentation (macro-function name) 'function)))
+                       (:generic-function (make-instance 'generic-function-definition
+                                                         :name name
+                                                         :documentation (documentation (symbol-function name) 'function)))
+                       (:class (make-instance 'class-definition
+                                              :name name
+                                              :documentation (documentation (find-class name) t)))
+                       (t nil))
+                (in outer (collect it))))))

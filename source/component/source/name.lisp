@@ -23,12 +23,4 @@
 
 (def generic make-definition-name/contents (component class prototype value)
   (:method ((component symbol/definition-name/inspector) class prototype value)
-    (iter (for specification :in (swank-backend:find-definitions value))
-          (awhen (case (caar specification)
-                   (defclass (make-value-inspector (find-class value)))
-                   (defun (make-value-inspector (make-instance 'function-definition :name value)))
-                   (defmacro (make-value-inspector (make-instance 'macro-definition :name value)))
-                   (defgeneric (make-value-inspector (make-instance 'generic-function-definition :name value)))
-                   (defvar (make-value-inspector (make-instance 'special-variable-definition :name value)))
-                   (t nil))
-            (collect it)))))
+    (mapcar #'make-value-inspector (make-definitions value))))
