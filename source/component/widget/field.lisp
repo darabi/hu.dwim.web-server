@@ -38,7 +38,7 @@
         (progn
           ;; TODO :tabindex (tabindex field)
           ;; :class (style-class field)
-          <a (:id ,id)
+          <div (:id ,id)
             ,(if (and checked-image
                       unchecked-image)
                  <img>)>
