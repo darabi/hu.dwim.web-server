@@ -27,6 +27,7 @@
                                                           "span"
                                                           "div"))
       (render-context-menu-for -self-)
+      (render-component-messages-for -self-)
       (render-content-for -self-)
       (when (render-command-bar-for-alternative? content)
         (render-command-bar-for -self-)))))
