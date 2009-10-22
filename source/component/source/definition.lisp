@@ -35,7 +35,7 @@
   (string+ "Generic function: " (string-upcase (name-of value))))
 
 (def layered-method make-reference-content ((component t/reference/inspector) class prototype (value class-definition))
-  (string+ (localized-class-name (class-of value) :capitalize-first-letter #t) ": " (string-upcase (name-of value))))
+  (string+ (localized-class-name (class-of (find-class (name-of value))) :capitalize-first-letter #t) ": " (string-upcase (name-of value))))
 
 ;;;;;;
 ;;; definition/lisp-form/inspector
