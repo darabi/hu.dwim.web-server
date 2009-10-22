@@ -184,11 +184,14 @@
          (predicate (selected-predicate-of component)))
     (when (use-in-filter? component)
       (lambda (candidate)
-        (bind ((result (funcall #+nil predicate 'like (slot-value candidate (slot-definition-name (slot-of place)))
-                                (component-value-of (content-of (value-of component))))))
-          (if (negated? component)
-              (not result)
-              result))))))
+        ;; TODO: use place API instead of slot API
+        (bind ((slot-name (slot-definition-name (slot-of place))))
+          (when (slot-boundp candidate slot-name)
+            (bind ((result (funcall #+nil predicate 'like (slot-value candidate slot-name)
+                                    (component-value-of (content-of (value-of component))))))
+              (if (negated? component)
+                  (not result)
+                  result))))))))
 
 ;; TODO: do we need this parentism
 (def method use-in-filter? ((self parent/mixin))
@@ -247,7 +250,7 @@
 
 (def function like (value pattern)
   ;; TODO: 
-  (search pattern (string value) :test #'equalp))
+  (search pattern (string value) :test #'char-equal))
 
 (def function render-filter-predicate-for (self)
   (bind (((:slots negated selected-predicate) self)
