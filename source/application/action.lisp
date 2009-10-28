@@ -95,7 +95,7 @@
 
 ;; TODO this is broken
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
-  (bind ((walked-body (hu.dwim.walker:walk-form `(progn ,@body) nil (hu.dwim.walker:make-walk-environment env)))
+  (bind ((walked-body (hu.dwim.walker:walk-form `(progn ,@body) :environment (hu.dwim.walker:make-walk-environment env)))
          (free-variable-references (hu.dwim.walker:collect-variable-references walked-body :type 'hu.dwim.walker:free-variable-reference-form))
          (variable-names (remove-duplicates (mapcar [hu.dwim.walker:name-of !1]
                                                     free-variable-references)))
