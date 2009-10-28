@@ -182,7 +182,7 @@
 
 (def localization hu
   (no-matches-were-found "Nincs a keresésnek megfelelő objektum")
-  (matches-were-found (count) (format nil "~A a keresésnek megfelelő objektum" count))
+  (matches-were-found (count) (format nil "A keresési feltételeknek ~A objektum felelt meg" count))
 
   (icon-label.equal "Egyenlő")
   (icon-tooltip.equal "Ellenőrzes egyenlőségre")
