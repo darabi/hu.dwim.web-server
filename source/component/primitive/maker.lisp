@@ -69,6 +69,10 @@
 (def (component e) character/maker (character/abstract primitive/maker)
   ())
 
+(def render-xhtml character/maker
+    (render-string-component -self-))
+
+
 ;;;;;;
 ;;; string/maker
 
