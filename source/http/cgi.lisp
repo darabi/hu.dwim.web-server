@@ -44,7 +44,9 @@
                                             (string+ "SERVER_PROTOCOL=" (http-version-string-of *request*))
                                             (string+ "SERVER_PORT=" (or (port-of (uri-of *request*)) "80"))
                                             (string+ "REQUEST_METHOD=" (http-method-of *request*))
-                                            (string+ "PATH_INFO=" (subseq (path-of (uri-of *request*)) (length path-prefix)))
+                                            (string+ "PATH_INFO=" (subseq (path-of (uri-of *request*))
+                                                                          ;; TODO this 1+ is a serious KLUDGE until it's turned into a broker and cleaned up
+                                                                          (1+ (length path-prefix))))
                                             (string+ "PATH_TRANSLATED=")
                                             (string+ "SCRIPT_NAME=" (aif (and (boundp '*application*)
                                                                               (symbol-value '*application*))
