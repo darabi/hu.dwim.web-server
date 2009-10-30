@@ -85,6 +85,18 @@
   (:method ((type (eql 'password)))
     'password/inspector)
 
+  (:method ((type (eql 'date)))
+    'date/inspector)
+
+  (:method ((type (eql 'time)))
+    'time/inspector)
+
+  (:method ((type (eql 'timestamp)))
+    'timestamp/inspector)
+
+  (:method ((type (eql 'html)))
+    'html/inspector)
+
   (:method ((type (eql 'components)))
     `(sequence/inspector :component-value ,(find-class 'component)))
 
