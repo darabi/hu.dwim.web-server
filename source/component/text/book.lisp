@@ -35,7 +35,8 @@
     (foreach #'render-author (authors-of (component-value-of -self-)))
     <div (:class "title-separator") <br>>
     (when (expanded-component? -self-)
-      (render-contents-for -self-))))
+      <div (:class "content")
+        ,(render-contents-for -self-)>)))
 
 (def render-text book/text/inspector
   (write-text-line-begin)

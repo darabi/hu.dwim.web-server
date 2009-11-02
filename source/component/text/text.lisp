@@ -7,6 +7,12 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; text/inspector
+
+(def (component e) text/inspector (t/inspector)
+  ())
+
+;;;;;;
 ;;; t/text/inspector
 
 (def (component e) t/text/inspector (inspector/style contents/widget)

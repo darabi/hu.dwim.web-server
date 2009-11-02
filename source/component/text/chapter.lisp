@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; chapter/inspector
 
-(def (component e) chapter/inspector (t/inspector exportable/abstract)
+(def (component e) chapter/inspector (text/inspector exportable/abstract)
   ())
 
 (def (macro e) chapter/inspector ((&rest args &key &allow-other-keys) &body contents)
@@ -35,7 +35,8 @@
     (render-title-for -self-)
     <div (:class "title-separator") <br>>
     (when (expanded-component? -self-)
-      (render-contents-for -self-))))
+      <div (:class "content")
+        ,(render-contents-for -self-)>)))
 
 (def render-text chapter/text/inspector
   (write-text-line-begin)

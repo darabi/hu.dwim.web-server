@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; paragraph/inspector
 
-(def (component e) paragraph/inspector (t/inspector)
+(def (component e) paragraph/inspector (text/inspector)
   ())
 
 (def (macro e) paragraph/inspector ((&rest args &key &allow-other-keys) &body contents)
@@ -31,7 +31,7 @@
 (def refresh-component paragraph/text/inspector)
 
 (def render-xhtml paragraph/text/inspector
-  (with-render-style/mixin (-self- :element-name "p")
+  (with-render-style/abstract (-self- :element-name "p")
     (render-contents-for -self-)))
 
 (def layered-function render-paragraph (component)
