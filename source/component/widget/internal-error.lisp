@@ -54,8 +54,8 @@
                                        (make-instance 'internal-error-message/widget
                                                       :rendering-phase-reached rendering-phase-reached
                                                       :content (inline-render-component/widget ()
-                                                                 (apply-resource-function 'render-application-internal-error-page
-                                                                                          (list :administrator-email-address (administrator-email-address-of application)))))
+                                                                 (apply-localization-function 'render-application-internal-error-page
+                                                                                              (list :administrator-email-address (administrator-email-address-of application)))))
                                      (add-component-error-message it #"error.internal-server-error.message"))))))
                   (unwind-protect
                        (send-response response)

@@ -127,7 +127,7 @@
   (values))
 
 ;;;;;;
-;;; File upload
+;;; Upload file
 
 (def function render-upload-file-field (&key (id (generate-frame-unique-string)) access-key tooltip tab-index
                                              class style client-state-sink (name (awhen client-state-sink (id-of it))))

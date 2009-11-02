@@ -68,11 +68,11 @@
         <script (:type         #.+javascript-mime-type+
                  :src          ,(bind ((dojo-release-uri (dojo-release-uri-of -self-)))
                                   (string+ (unless (host-of dojo-release-uri)
-                                                        path-prefix)
-                                                      (print-uri-to-string dojo-release-uri)
-                                                      (dojo-file-name-of -self-)
-                                                      (when debug-client-side?
-                                                        ".uncompressed.js"))))
+                                             path-prefix)
+                                           (print-uri-to-string dojo-release-uri)
+                                           (dojo-file-name-of -self-)
+                                           (when debug-client-side?
+                                             ".uncompressed.js"))))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">
         ,(foreach (lambda (el)
@@ -89,11 +89,11 @@
         ,(when javascript-supported?
            <noscript <meta (:http-equiv #.+header/refresh+
                             :content ,(string+ "0; URL="
-                                                          (application-relative-path-for-no-javascript-support-error *application*)
-                                                          "?"
-                                                          +no-javascript-error-parameter-name+
-                                                          "=t"))>>
-           (apply-resource-function 'render-failed-to-load-page)
+                                               (application-relative-path-for-no-javascript-support-error *application*)
+                                               "?"
+                                               +no-javascript-error-parameter-name+
+                                               "=t"))>>
+           (apply-localization-function 'render-failed-to-load-page)
            `js-xml(progn
                     ;; don't use any non-standard js stuff for the failed-to-load machinery, because if things go wrong then nothing is guaranteed to be loaded...
                     (defun _wui_handleFailedToLoad ()
@@ -101,14 +101,14 @@
                       (return false))
                     (bind ((failed-page (document.getElementById ,+page-failed-to-load-id+)))
                       (setf failed-page.style.display "none")
-                      (setf document._wui_failed-to-load-timer (setTimeout (lambda ()
-                                                                             ;; if things go wrong, at least have a timer that brings stuff back in the view
-                                                                             (setf document.body.style.margin "0px")
-                                                                             (dolist (child document.body.childNodes)
-                                                                               (when child.style
-                                                                                 (setf child.style.display "none")))
-                                                                             (setf failed-page.style.display ""))
-                                                                           ,+page-failed-to-load-grace-period-in-millisecs+)))
+                      (setf document.wui-failed-to-load-timer (setTimeout (lambda ()
+                                                                            ;; if things go wrong, at least have a timer that brings stuff back in the view
+                                                                            (setf document.body.style.margin "0px")
+                                                                            (dolist (child document.body.childNodes)
+                                                                              (when child.style
+                                                                                (setf child.style.display "none")))
+                                                                            (setf failed-page.style.display ""))
+                                                                          ,+page-failed-to-load-grace-period-in-millisecs+)))
                     (on-load
                      ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
                      (wui.reset-scroll-position "content")
@@ -133,7 +133,7 @@
                (render-content-for -self-))
              `js(on-load
                  (log.debug "Clearing the failed to load timer")
-                 (clearTimeout document._wui_failed-to-load-timer)
+                 (clearTimeout document.wui-failed-to-load-timer)
                  ;; KLUDGE: this should be done after, not only the page, but all widgets are loaded
                  (log.debug "Clearing the margin -10000px hackery")
                  (dojo.style document.body "margin" "0px")))>>>))

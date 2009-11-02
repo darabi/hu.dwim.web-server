@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; external-link/widget
 
-;; TODO: rename this to a url/uri viewer/inspector/etc. it's not a widget if we have a value
+;; TODO: make this a subclass of command/widget and forget about this url stuff, that will be part of uri/external-link/inspector
 (def (component e) external-link/widget (widget/basic content/abstract)
   ((url :type string)))
 
