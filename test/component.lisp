@@ -335,6 +335,8 @@
                 (setf string "select"))))
           (inline-render-xhtml/widget ()
             <span "Last command: " ,string>))))
+    (component-demo/widget "Page navigation bar"
+      (page-navigation-bar/widget))
     (component-demo/widget "Push button"
       (push-button/widget ()
         (command/widget ()
@@ -350,6 +352,10 @@
         (command/widget ()
           (icon refresh-component)
           (make-action))))
+    (component-demo/widget "File download"
+      (download-file/widget :file-name (system-relative-pathname :hu.dwim.wui "source/test/component.lisp")))
+    (component-demo/widget "File upload"
+      (upload-file/widget))
     (component-demo/widget "List"
       (list/widget ()
         (element/widget ()
@@ -498,7 +504,13 @@
         (edge/widget (:vertex-1 2 :vertex-2 3)
           "Friendly")
         (edge/widget (:vertex-1 3 :vertex-2 0)
-          "Unfriendly")))))
+          "Unfriendly")))
+    (component-demo/widget "Wizard"
+      (wizard/widget ()
+        "John"
+        "Mary"
+        "Steve"
+        "Kage"))))
 
 ;;;;;;
 ;;; Primitive
