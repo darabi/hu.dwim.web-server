@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; sequence/list/inspector
 
-(def (component e) sequence/list/inspector (inspector/basic t/detail/presentation list/widget)
+(def (component e) sequence/list/inspector (inspector/style t/detail/presentation list/widget)
   ())
 
 (def refresh-component sequence/list/inspector
@@ -35,7 +35,6 @@
          (prototype (component-dispatch-prototype -self-)))
     (setf contents (iter (for element-value :in-sequence component-value)
                          (collect (make-list/element -self- class prototype element-value))))))
-
 
 (def layered-method make-page-navigation-bar ((component sequence/list/inspector) class prototype value)
   (make-instance 'page-navigation-bar/widget :total-count (length value)))
@@ -47,7 +46,7 @@
 ;;;;;;
 ;;; t/element/inspector
 
-(def (component e) t/element/inspector (inspector/basic element/widget)
+(def (component e) t/element/inspector (inspector/style element/widget)
   ())
 
 (def refresh-component t/element/inspector
@@ -61,3 +60,21 @@
 (def layered-function make-element/content (component class prototype value)
   (:method ((component t/element/inspector) class prototype value)
     (make-value-inspector value)))
+
+;;;;;;
+;;; sequence/table/inspector
+
+(def (component e) sequence/table/inspector (inspector/style t/detail/presentation table/widget)
+  ())
+
+;;;;;;
+;;; t/row/inspector
+
+(def (component e) t/row/inspector (inspector/style t/detail/presentation row/widget)
+  ())
+
+;;;;;;
+;;; t/cell/inspector
+
+(def (component e) t/cell/inspector (inspector/style t/detail/presentation cell/widget)
+  ())
