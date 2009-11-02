@@ -95,11 +95,15 @@
     (icon switch-to-alternative :label alternative :tooltip alternative))
 
   (:method (alternative (prototype reference/widget))
-    (icon collapse-component)))
+    (icon collapse-to-reference)))
 
 (def method join-editing ((alternator alternator/widget))
   (unless (typep (content-of alternator) 'reference/widget)
     (call-next-method)))
+
+(def (icon e) expand-from-reference)
+
+(def (icon e) collapse-to-reference)
 
 ;;;;;;
 ;;; Alternative factory

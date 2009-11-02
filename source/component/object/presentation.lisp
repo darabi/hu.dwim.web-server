@@ -27,7 +27,7 @@
   (bind (((:slots component-value content) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf content (icon expand-reference :label (make-reference-content -self- class prototype component-value)))))
+    (setf content (icon expand-from-reference :label (make-reference-content -self- class prototype component-value)))))
 
 (def layered-method make-reference-content (component class prototype value)
   (localized-instance-name value))

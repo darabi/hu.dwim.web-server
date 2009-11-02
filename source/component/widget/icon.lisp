@@ -60,7 +60,7 @@
   (:method (icon label)
     `xml,label))
 
-(def (function e) render-icon (&key icon (name nil name?) (label nil label?) (image-path nil image-path?) (tooltip nil tooltip?))
+(def (function e) render-icon (&key icon (name nil name?) (label nil label?) (image-path nil image-path?) (tooltip nil tooltip?) (style-class nil style-class?))
   (when (and icon
              (not (stringp icon)))
     (unless name?
@@ -70,7 +70,9 @@
     (unless image-path?
       (setf image-path (image-path-of icon)))
     (unless tooltip?
-      (setf tooltip (tooltip-of icon))))
+      (setf tooltip (tooltip-of icon)))
+    (unless style-class?
+      (setf style-class (style-class-of icon))))
   (bind ((tooltip (force tooltip))
          (id (generate-frame-unique-string)))
     ;; render the `js first, so the return value contract of qq is kept.
@@ -78,21 +80,20 @@
       (render-tooltip tooltip id))
     ;; NOTE: this preserve-whitespace is needed from chrome when there's no label and no image and the icon is setup from css
     {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
-      (with-render-style/mixin (icon :element-name "span")
-        (when image-path
+      <span (:id ,id :class ,style-class)
+        ,(when image-path
           <img (:src ,(string+ (path-prefix-of *application*) image-path))>)
-        (awhen (force label)
-          (render-icon-label icon it)))}))
+        ,(awhen (force label)
+          (render-icon-label icon it))>}))
 
-(def method make-style-class ((self icon/widget))
+(def method component-style-class ((self icon/widget))
   (string+ "widget icon " (string-downcase (symbol-name (name-of self)))))
 
 (def method command-position ((self icon/widget))
   ;; TODO: can't we make it faster/better (what about a generic method or something?)
   (or (position (name-of self)
                 ;; TODO: this name thingie is quite fragile
-                '(answer back focus-out open-in-new-frame focus-in collapse-component refresh-component begin-editing save-editing cancel-editing store-editing revert-editing
-                  new-instance delete-instance))
+                '(answer navigate-back focus-out open-in-new-frame focus-in collapse-component refresh-component begin-editing save-editing cancel-editing store-editing revert-editing new-instance delete-instance))
       most-positive-fixnum))
 
 ;;;;;;

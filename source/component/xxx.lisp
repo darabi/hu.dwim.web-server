@@ -11,8 +11,6 @@
 
 (def (icon e) external-link)
 
-(def (icon e) expand-reference)
-
 ;;;;;;
 ;;; Icon
 
