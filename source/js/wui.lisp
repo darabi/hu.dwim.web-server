@@ -693,16 +693,21 @@
       (setf wui.help.timer nil))))
 
 ;;;;;;
-;;; border & style
+;;; Border
 
-(defun wui.attach-border ((element :by-id) css-class)
+(defun wui.attach-border ((element :by-id) style-class element-name)
   (bind ((parent-element element.parentNode)
          (next-sibling element.nextSibling)
          (table-element (create-dom-node "table")))
-    (if (dojo.isArray css-class)
-        (dolist (one-class css-class)
+    (if (or (not style-class)
+            (not element-name)
+            (and (not (= element-name true))
+                 (not (= element-name element.tagName))))
+        (return element))
+    (if (dojo.isArray style-class)
+        (dolist (one-class style-class)
           (dojo.addClass table-element one-class))
-        (dojo.addClass table-element css-class))
+        (dojo.addClass table-element style-class))
     (progn
       ;; KLUDGE: we copy the id on the border not to confuse ajax what should be replaced
       (setf table-element.id element.id)
@@ -742,19 +747,24 @@
 
 ;; TODO: move this to the test directory since it is specific to the demo
 (wui.register-component-setup "component-message/widget" (lambda (id)
-                                                           (wui.attach-border id (slot-value (dojo.byId id) 'className))))
+                                                           (wui.attach-border id (+ (slot-value (dojo.byId id) 'className) "-border") true)))
 
-(dolist (entry #(#("title-bar/widget"                       "title-border")
-                 #("column/widget"                          "table-header-border")
-                 #("switch-to-tab-page/widget"              "tab-border")))
+(dolist (entry #(#("title/widget"                           "title-border"             true)
+                 #("title-bar/widget"                       "title-border"             true)
+                 #("column/widget"                          "table-header-border"      true)
+                 #("push-button/widget"                     "button-border"            true)
+                 #("switch-to-tab-page/widget"              "tab-border"               true)
+                 #("usage-help/widget"                      "content-border"           true)
+                 #("t/presentation"                         "content-border"           "DIV")
+                 #("uri/inspector"                          false                      false)
+                 #("text/inspector"                         false                      false)
+                 #("book/inspector"                         "content-border"           "DIV")))
   (bind ((type (first entry))
-         (css-class (second entry)))
-    (unless (dojo.isArray css-class)
-      (setf css-class (array css-class)))
-    (rebind (css-class)
+         (style-class (second entry))
+         (element-name (third entry)))
+    (rebind (style-class element-name)
       (log.debug "Registering component setup callback for type " type)
-      (wui.register-component-setup type (lambda (id)
-                                           (wui.attach-border id css-class))))))
+      (wui.register-component-setup type (lambda (id) (wui.attach-border id style-class element-name))))))
 
 ;;;;;;
 ;;; End of story
