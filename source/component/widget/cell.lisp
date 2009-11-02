@@ -35,27 +35,27 @@
 (def (macro e) cell/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'cell/widget ,@args :content ,(the-only-element content)))
 
-(def with-macro* render-cell/widget (cell &key css-class)
-  (setf css-class (ensure-list css-class))
+(def with-macro* render-cell/widget (cell &key style-class)
+  (setf style-class (ensure-list style-class))
   (if (typep cell 'cell/widget)
       (bind (((:read-only-slots column-span row-span horizontal-alignment vertical-alignment) cell))
         (ecase horizontal-alignment
-          (:right (push +table-cell-horizontal-alignment-css-class/right+ css-class))
-          (:center (push +table-cell-horizontal-alignment-css-class/center+ css-class))
+          (:right (push +table-cell-horizontal-alignment-style-class/right+ style-class))
+          (:center (push +table-cell-horizontal-alignment-style-class/center+ style-class))
           ((:left nil) nil))
         (ecase vertical-alignment
-          (:top (push +table-cell-vertical-alignment-css-class/top+ css-class))
-          (:bottom (push +table-cell-vertical-alignment-css-class/bottom+ css-class))
+          (:top (push +table-cell-vertical-alignment-style-class/top+ style-class))
+          (:bottom (push +table-cell-vertical-alignment-style-class/bottom+ style-class))
           ((:center nil) nil))
         (when (slot-boundp cell 'word-wrap)
           (ecase (slot-value cell 'word-wrap)
-            ((#f) (push +table-cell-nowrap-css-class+ css-class))
+            ((#f) (push +table-cell-nowrap-style-class+ style-class))
             ((#t) nil)))
-        <td (:class ,(join-strings css-class)
+        <td (:class ,(join-strings style-class)
              :colspan ,column-span
              :rowspan ,row-span)
             ,(-body-)>)
-      <td (:class ,(join-strings css-class))
+      <td (:class ,(join-strings style-class))
         ,(-body-)>))
 
 (def render-xhtml cell/widget
