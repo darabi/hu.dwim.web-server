@@ -370,7 +370,7 @@
           (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
           (emit-simple-html-document-http-response (:status +http-not-acceptable+
                                                     :headers '#.+disallow-response-caching-header-values+)
-            (apply-resource-function 'render-frame-out-of-sync-error args))
+            (apply-localization-function 'render-frame-out-of-sync-error args))
           (make-do-nothing-response))
         (progn
           (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
@@ -411,7 +411,7 @@
   (assert (not (boundp '*inside-user-code*)))
   (bind ((*application* application)
          (*debug-client-side* (compile-time-debug-client-side? application))
-         (*fallback-locale-for-functional-resources* (default-locale-of application))
+         (*fallback-locale-for-functional-localizations* (default-locale-of application))
          (*brokers* (cons application *brokers*))
          ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can freely setf it
          (*session* nil)

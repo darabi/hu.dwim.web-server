@@ -14,7 +14,7 @@
 (macrolet ((x (&body entries)
              `(progn
                 ,@(iter (for (name dojo-name) :on entries :by #'cddr)
-                        (collect `(def (constant e :test 'string=) ,name ,dojo-name))))))
+                        (collect `(def (constant e) ,name ,dojo-name))))))
   (x
    +dijit/button+                "dijit.form.Button"
    +dijit/drop-down-button+      "dijit.form.DropDownButton"

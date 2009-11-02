@@ -44,31 +44,31 @@
 (def constant +frame-index-length+ 4)
 (def constant +session-id-length+  40)
 
-(def (constant :test 'string=) +action-id-parameter-name+       "_a")
-(def (constant :test 'string=) +frame-id-parameter-name+        "_f")
-(def (constant :test 'string=) +frame-index-parameter-name+     "_x")
-(def (constant :test 'string=) +ajax-aware-parameter-name+      "_j")
-(def (constant :test 'string=) +delayed-content-parameter-name+ "_d")
+(def constant +action-id-parameter-name+       "_a")
+(def constant +frame-id-parameter-name+        "_f")
+(def constant +frame-index-parameter-name+     "_x")
+(def constant +ajax-aware-parameter-name+      "_j")
+(def constant +delayed-content-parameter-name+ "_d")
 
 (pushnew +ajax-aware-parameter-name+ *clone-request-uri/default-strip-query-parameters*)
 (pushnew +delayed-content-parameter-name+ *clone-request-uri/default-strip-query-parameters*)
 
-(def (constant :test 'equal) +frame-query-parameter-names+ (list +frame-id-parameter-name+
-                                                                 +frame-index-parameter-name+
-                                                                 +action-id-parameter-name+))
+(def constant +frame-query-parameter-names+ (list +frame-id-parameter-name+
+                                                  +frame-index-parameter-name+
+                                                  +action-id-parameter-name+))
 
-(def (constant :test 'string=) +session-cookie-name+ "sid")
+(def constant +session-cookie-name+ "sid")
 
 (def constant +epoch-start+ (encode-universal-time 0 0 0 1 1 1970 0))
 
 ;;;;;;
 ;;; Stuff needed for applications and components
 
-(def (constant e :test 'string=) +scroll-x-parameter-name+ "_sx")
-(def (constant e :test 'string=) +scroll-y-parameter-name+ "_sy")
-(def (constant e :test 'string=) +no-javascript-error-parameter-name+ "_njs")
+(def (constant e) +scroll-x-parameter-name+ "_sx")
+(def (constant e) +scroll-y-parameter-name+ "_sy")
+(def (constant e) +no-javascript-error-parameter-name+ "_njs")
 
-(def (constant e :test 'string=) +page-failed-to-load-id+ "_failed-to-load")
+(def (constant e) +page-failed-to-load-id+ "page-failed-to-load")
 (def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 10000)
 
 (def (special-variable e) *dojo-skin-name* "tundra")
