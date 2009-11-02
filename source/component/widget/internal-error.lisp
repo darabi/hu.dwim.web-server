@@ -23,7 +23,7 @@
 
 (def layered-method make-command-bar-commands ((self internal-error-message/widget) class prototype value)
   (list* (make-instance 'command/widget
-                        :content (icon back)
+                        :content (icon navigate-back)
                         :action (if (rendering-phase-reached? self)
                                     (make-uri-for-new-frame)
                                     (make-uri-for-current-frame)))

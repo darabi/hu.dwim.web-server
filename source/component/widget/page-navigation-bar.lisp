@@ -53,7 +53,9 @@
     (when (< page-size total-count)
       (with-render-style/abstract (-self-)
         ;; TODO: revive page-size-selector (does not work with ajax)
-        (foreach #'render-component (list first-command previous-command jumper #+nil page-size-selector next-command last-command))))))
+        (foreach (lambda (component)
+                   <span ,(render-component component)>)
+                 (list first-command previous-command " #" jumper "/" total-count #+nil page-size-selector next-command last-command))))))
 
 (def layered-method render-component :in passive-layer ((self page-navigation-bar/widget))
   (values))

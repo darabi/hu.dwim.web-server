@@ -7,7 +7,11 @@
 
 (in-package :hu.dwim.wui)
 
-(def (icon e) back)
+(def (icon e) navigate-back)
+
+(def (icon e) external-link)
+
+(def (icon e) expand-reference)
 
 ;;;;;;
 ;;; Icon

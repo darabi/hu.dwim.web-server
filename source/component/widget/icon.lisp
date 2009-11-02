@@ -88,7 +88,7 @@
            (render-icon-label icon it))>}))
 
 (def function icon-style-class (name)
-  (string+ (string-downcase (symbol-name name)) " icon widget"))
+  (string+ "widget icon " (string-downcase (symbol-name name))))
 
 (def method command-position ((self icon/widget))
   ;; TODO: can't we make it faster/better (what about a generic method or something?)

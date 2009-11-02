@@ -41,7 +41,7 @@
   (:method :in xhtml-layer ((table table/widget) (row row/widget))
     (bind (((:read-only-slots id) row)
            (onclick-handler? (render-onclick-handler row :left)))
-      <tr (:id ,id :class `str(,(table-row-style-class table row)
+      <tr (:id ,id :class `str("row " ,(table-row-style-class table row)
                                ,(when onclick-handler? " selectable")
                                ,(selectable-component-style-class row))
            :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
