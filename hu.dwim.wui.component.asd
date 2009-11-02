@@ -117,7 +117,7 @@
                                                          (:file "file-up-and-download" :depends-on ("icon"))
                                                          (:file "frame" :depends-on ("top"))
                                                          (:file "help" :depends-on ("icon"))
-                                                         (:file "icon")
+                                                         (:file "icon" :depends-on ("widget"))
                                                          (:file "image")
                                                          (:file "inline")
                                                          (:file "internal-error" :depends-on ("message" "command-bar" "command"))

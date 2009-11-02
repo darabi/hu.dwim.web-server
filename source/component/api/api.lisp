@@ -331,16 +331,16 @@
 ;;; Component message
 
 (def (generic e) add-component-information-message (component message &rest message-args)
-  (:documentation "Adds an information MESSAGE to COMPONENT similar to a FORMAT string with arguments."))
+  (:documentation "Adds an information message to COMPONENT similar to a FORMAT string with arguments."))
 
 (def (generic e) add-component-warning-message (component message &rest message-args)
-  (:documentation "Adds a warning MESSAGE to COMPONENT similar to a FORMAT string with arguments."))
+  (:documentation "Adds a warning message to COMPONENT similar to a FORMAT string with arguments."))
 
 (def (generic e) add-component-error-message (component message &rest message-args)
-  (:documentation "Adds an error MESSAGE to COMPONENT similar to a FORMAT string with arguments."))
+  (:documentation "Adds an error message to COMPONENT similar to a FORMAT string with arguments."))
 
 (def (generic e) add-component-message (component message message-args &key category &allow-other-keys)
-  (:documentation "Adds a generic MESSAGE to COMPONENT similar to a FORMAT string with arguments."))
+  (:documentation "Adds a generic message to COMPONENT similar to a FORMAT string with arguments."))
 
 ;;;;;;
 ;;; Component dispatch class/prototype
@@ -355,7 +355,7 @@
 ;;; Component documentation
 
 (def (generic e) component-documentation (component)
-  (:documentation "Returns a COMPONENT that documents the received COMPONENT."))
+  (:documentation "Returns a COMPONENT that documents the received COMPONENT, often it is just a STRING."))
 
 ;;;;;;
 ;;; Component style class
