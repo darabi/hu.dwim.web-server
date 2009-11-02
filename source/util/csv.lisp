@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; CSV format
 
-(def (constant :test #'equal) +whitespace-chars+ '(#\Space #\Tab #\Linefeed #\Return #\Page))
+(def constant +whitespace-chars+ '(#\Space #\Tab #\Linefeed #\Return #\Page))
 
 (def constant +csv-quote-char+ #\")
 

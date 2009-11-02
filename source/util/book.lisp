@@ -18,23 +18,10 @@
   (setf (gethash name *books*) new-value))
 
 ;;;;;;
-;;; Book element
+;;; Text
 
-(def class* book-element ()
-  ((parent-book-element nil :type book-element)
-   (contents nil :type list)))
-
-(def function setf-parent-book-elements (book)
-  (labels ((recurse (parent)
-             (dolist (slot (class-slots (class-of parent)))
-               (bind ((value (slot-value-using-class (class-of parent) parent slot)))
-                 (typecase value
-                   (list (dolist (child value)
-                           (when (typep child 'book-element)
-                             (setf (parent-book-element-of child) parent)
-                             (recurse child)))))))))
-    (recurse book))
-  book)
+(def class* text ()
+  ((contents nil :type list)))
 
 ;;;;;;
 ;;; Title mixin
@@ -45,7 +32,7 @@
 ;;;;;;
 ;;; Book
 
-(def class* book (book-element title-mixin)
+(def class* book (text title-mixin)
   ((authors nil :type list))
   (:documentation "A BOOK is a mostly textual description of something."))
 
@@ -55,7 +42,7 @@
 ;;;;;;
 ;;; Chapter
 
-(def class* chapter (book-element title-mixin)
+(def class* chapter (text title-mixin)
   ())
 
 (def (macro e) chapter ((&rest args &key &allow-other-keys) &body contents)
@@ -64,7 +51,7 @@
 ;;;;;;
 ;;; Paragraph
 
-(def class* paragraph (book-element)
+(def class* paragraph (text)
   ())
 
 (def (macro e) paragraph ((&rest args &key &allow-other-keys) &body contents)
@@ -74,4 +61,4 @@
 ;;; Definer
 
 (def (definer e :available-flags "e") book (name (&rest args &key &allow-other-keys) &body contents)
-  `(setf (find-book ',name) (setf-parent-book-elements (book ,args ,@contents))))
+  `(setf (find-book ',name) (book ,args ,@contents)))

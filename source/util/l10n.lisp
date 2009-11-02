@@ -14,23 +14,23 @@
   (with-standard-definer-options name
     (once-only (setup-readtable-function asdf-system base-directory log-discriminator)
       `(def function ,name (locale-name)
-         (l10n.debug "Loading ~A resources for locale ~S" ,log-discriminator locale-name)
+         (l10n.debug "Loading ~A localizations for locale ~S" ,log-discriminator locale-name)
          (bind ((file (merge-pathnames (string+ locale-name ".lisp") (system-relative-pathname ,asdf-system ,base-directory))))
            (when (probe-file file)
              (bind ((*readtable* (copy-readtable nil)))
                (awhen ,setup-readtable-function
                  (funcall it))
                (cl-l10n::load-resource-file :hu.dwim.wui file)
-               (l10n.info "Loaded ~A resources for locale ~S from ~A" ,log-discriminator locale-name file))))))))
+               (l10n.info "Loaded ~A localizations for locale ~S from ~A" ,log-discriminator locale-name file))))))))
 
-(def localization-loading-locale-loaded-listener wui-resource-loader :hu.dwim.wui "localization/"
+(def localization-loading-locale-loaded-listener wui-localization-loader :hu.dwim.wui "localization/"
   :log-discriminator "WUI")
-(register-locale-loaded-listener 'wui-resource-loader)
+(register-locale-loaded-listener 'wui-localization-loader)
 
 ;;;;;;
 ;;; Localized string reader
 
-(def (constant e :test 'string=) +missing-resource-css-class+ (coerce "missing-resource" 'simple-base-string))
+(def (constant e) +missing-localization-style-class+ (coerce "missing-localization" 'simple-base-string))
 
 (def function localized-string-reader (stream c1 c2)
   (declare (ignore c2))
@@ -48,7 +48,7 @@
       (setf str (capitalize-first-letter str)))
     (if found?
         `xml,str
-        <span (:class #.+missing-resource-css-class+)
+        <span (:class #.+missing-localization-style-class+)
           ,str>)))
 
 (def function %localized-string-reader/impl (key capitalize?)
@@ -67,10 +67,8 @@
 
 (def (function e) localized-mime-type-description<> (mime-type)
   (bind (((:values str found) (localized-mime-type-description mime-type)))
-    <span (:class ,@(string+ "slot-name "
-                                        (unless found
-                                          +missing-resource-css-class+)))
-          ,str>))
+    <span (:class ,(string+ "slot-name " (unless found +missing-localization-style-class+)))
+      ,str>))
 
 (def method localize ((class class))
   (lookup-first-matching-resource
@@ -97,15 +95,13 @@
 
 (def function localized-slot-name<> (slot &rest args)
   (bind (((:values str found) (apply #'localized-slot-name slot args)))
-    <span (:class ,(string+ "slot-name "
-                                       (unless found
-                                         +missing-resource-css-class+)
+    <span (:class ,(string+ "slot-name " (unless found +missing-localization-style-class+)
                             ;; TODO this is fragile here, should use a public api in dmm
                             ;; something like associationp
                             ;;(when (typep slot 'hu.dwim.meta-model:effective-association-end)
                             ;;  "association")
                             ))
-          ,str>))
+      ,str>))
 
 ;; TODO: what is special about this function to classes? could be easily generalized to functions, etc.
 (def function localized-class-name (class &key capitalize-first-letter with-article plural)
@@ -133,9 +129,7 @@
                    article)
                :stream *xml-stream*)
         (write-char #\Space *xml-stream*)))
-    <span (:class ,(string+ "class-name "
-                                       (unless found?
-                                         +missing-resource-css-class+)))
+    <span (:class ,(string+ "class-name " (unless found? +missing-localization-style-class+)))
           ,(if (and capitalize-first-letter
                     (not with-indefinite-article))
                (capitalize-first-letter class-name)
@@ -147,10 +141,7 @@
 
 (def function localized-boolean-value<> (value)
   (bind (((:values str found?) (localized-boolean-value value)))
-    <span (:class ,(append
-                    (unless found?
-                      +missing-resource-css-class+)
-                    (list "boolean")))
+    <span (:class ,(string+ "boolean " (unless found? +missing-localization-style-class+)))
       ,str>))
 
 (def function member-value-name (value)
@@ -193,11 +184,11 @@
 (def function localized-enumeration-member<> (member-value &key class slot capitalize-first-letter)
   (bind (((:values str found?) (localized-enumeration-member member-value :class class :slot slot
                                                              :capitalize-first-letter capitalize-first-letter)))
-    <span (:class ,(unless found? +missing-resource-css-class+))
+    <span (:class ,(unless found? +missing-localization-style-class+))
       ,str>))
 
-(def (constant :test 'equal) +timestamp-format+ '((:year 4) #\- (:month 2) #\- (:day 2) #\ 
-                                                  (:hour 2) #\: (:min 2) #\: (:sec 2)))
+(def constant +timestamp-format+ '((:year 4) #\- (:month 2) #\- (:day 2) #\ 
+                                   (:hour 2) #\: (:min 2) #\: (:sec 2)))
 
 (def (function e) localized-timestamp (timestamp &key verbosity (relative-mode #f) display-day-of-week)
   (declare (ignore verbosity relative-mode display-day-of-week))
@@ -340,18 +331,18 @@
                ("macro-name" (string-downcase (second name)))))
             (t "unknown function")))))
 
-(def function funcall-resource-function (name &rest args)
-  (apply-resource-function name args))
+(def function funcall-localization-function (name &rest args)
+  (apply-localization-function name args))
 
 ;;;;;
 ;;; Initialized to "en" in l10n.lisp
 
-(def special-variable *fallback-locale-for-functional-resources* "en"
-  "This is used as a fallback locale if a functional resource can not be found and there's no *application* that would provide a default locale. It's not possible to use the usual name fallback strategy for functional resources, so make sure that the default locale has a 100% coverage for them, otherwise it may effect the behavior of the application in certain situations.")
+(def special-variable *fallback-locale-for-functional-localizations* "en"
+  "Used as a fallback locale if a functional localization can not be found and there's no *application* that would provide a default locale. It's not possible to use the usual name fallback strategy for functional localizations, so make sure that the default locale has a 100% coverage for them, otherwise it may effect the behavior of the application in certain situations.")
 
-(def function apply-resource-function (name &optional args)
+(def function apply-localization-function (name &optional args)
   (lookup-resource name :arguments args
                    :otherwise (lambda ()
-                                (with-locale (locale *fallback-locale-for-functional-resources*)
+                                (with-locale (locale *fallback-locale-for-functional-localizations*)
                                   (lookup-resource name :arguments args
-                                                   :otherwise [error "Functional resource ~S is missing even for the fallback locale ~A" name (current-locale)])))))
+                                                   :otherwise [error "Functional localization ~S is missing even for the fallback locale ~A" name (current-locale)])))))

@@ -332,11 +332,11 @@
 ;;;;;;
 ;;; String utils
 
-(def (constant :test 'string=) +lower-case-ascii-alphabet+ (coerce "abcdefghijklmnopqrstuvwxyz" 'simple-base-string))
-(def (constant :test 'string=) +upper-case-ascii-alphabet+ (coerce "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 'simple-base-string))
-(def (constant :test 'string=) +ascii-alphabet+ (coerce (concatenate 'string +upper-case-ascii-alphabet+ +lower-case-ascii-alphabet+) 'simple-base-string))
-(def (constant :test 'string=) +alphanumeric-ascii-alphabet+ (coerce (concatenate 'string +ascii-alphabet+ "0123456789") 'simple-base-string))
-(def (constant :test 'string=) +base64-alphabet+ (coerce (concatenate 'string +alphanumeric-ascii-alphabet+ "+/") 'simple-base-string))
+(def constant +lower-case-ascii-alphabet+ (coerce "abcdefghijklmnopqrstuvwxyz" 'simple-base-string))
+(def constant +upper-case-ascii-alphabet+ (coerce "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 'simple-base-string))
+(def constant +ascii-alphabet+ (coerce (concatenate 'string +upper-case-ascii-alphabet+ +lower-case-ascii-alphabet+) 'simple-base-string))
+(def constant +alphanumeric-ascii-alphabet+ (coerce (concatenate 'string +ascii-alphabet+ "0123456789") 'simple-base-string))
+(def constant +base64-alphabet+ (coerce (concatenate 'string +alphanumeric-ascii-alphabet+ "+/") 'simple-base-string))
 
 (def (function o) random-string (&optional (length 32) (alphabet +ascii-alphabet+))
   (etypecase alphabet
@@ -471,7 +471,7 @@
 (def special-variable *temporary-file-unique-number* 0)
 
 (def (special-variable e) *directory-for-temporary-files* "/tmp/wui/"
-  "Used for file uploads among other things.")
+  "Used for uploading files among other things.")
 
 (def function directory-for-temporary-files ()
   (ensure-directories-exist
