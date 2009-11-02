@@ -55,12 +55,12 @@
 
 /* collapsible */
 
-.collapse-component.icon {
-  background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
-}
-
 .expand-component.icon {
   background-image: url("/static/wui/icon/20x20/arrowhead-right.png");
+}
+
+.collapse-component.icon {
+  background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
 }
 
 /* selectable */
@@ -306,13 +306,13 @@
 
 /* reference */
 
-.expand-reference.icon {
+.expand-from-reference.icon {
   background-image: url("/static/wui/icon/14x14/expand-reference.png");
   padding-left: 14px;
 }
 
 .collapse-to-reference.icon {
-  background-image: url("/static/wui/icon/20x20/magnifier-minus.png");
+  background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
 }
 
 /* authentication */

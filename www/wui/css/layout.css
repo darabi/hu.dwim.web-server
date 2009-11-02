@@ -1,3 +1,37 @@
+/**
+ * Layout styles.
+ */
+
+/* cell alignment */
+
+td._hla {
+  text-align: left;
+}
+
+td._hca {
+  text-align: center;
+}
+
+td._hra {
+  text-align: right;
+}
+
+td._vta {
+  vertical-align: top;
+}
+
+td._vca {
+  vertical-align: middle;
+}
+
+td._vba {
+  vertical-align: bottom;
+}
+
+td._nw {
+  white-space: nowrap;
+}
+
 /* list */
 
 table.list.vertical {
