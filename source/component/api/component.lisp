@@ -260,6 +260,12 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
         "No documentation")))
 
 ;;;;;;
+;;; Component style
+
+(def method component-style-class ((self component))
+  (string-downcase (substitute #\Space #\/ (symbol-name (class-name (class-of self))))))
+
+;;;;;;
 ;;; Component value
 
 (def method component-value-of ((self component))

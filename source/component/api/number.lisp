@@ -37,7 +37,13 @@
 ;;; Component documentation
 
 (def method component-documentation ((self number))
-  "A number is a valid component on its own")
+  "A number is a valid component on its own.")
+
+;;;;;;
+;;; Component style
+
+(def method component-style-class ((self number))
+  nil)
 
 ;;;;;;
 ;;; Component value

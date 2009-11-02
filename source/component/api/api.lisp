@@ -358,6 +358,12 @@
   (:documentation "Returns a COMPONENT that documents the received COMPONENT."))
 
 ;;;;;;
+;;; Component style class
+
+(def (generic e) component-style-class (component)
+  (:documentation "Returns a string designating the appropriate style for the COMPONENT."))
+
+;;;;;;
 ;;; Component value
 
 (def (generic e) component-value-of (component)

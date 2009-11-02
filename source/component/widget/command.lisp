@@ -73,8 +73,38 @@
                             :action-arguments ,action-arguments)))))))
 
 (def render-xhtml command/widget
-  (bind (((:read-only-slots content action enabled-component default ajax js action-arguments) -self-))
-    (render-command content action :enabled enabled-component :default default :ajax ajax :js js :action-arguments action-arguments)))
+  (bind (((:read-only-slots content action enabled-component default ajax js action-arguments) -self-)
+         (style-class (component-style-class -self-)))
+    (if (force enabled-component)
+        (bind ((id (generate-frame-unique-string))
+               ((:values href send-client-state?) (href-for-command action action-arguments))
+               (onclick-js (or js
+                               (lambda (href)
+                                 `js(wui.io.action ,href
+                                                   :event event
+                                                   :ajax ,(when (ajax-enabled? *application*)
+                                                                (force ajax))
+                                                   :send-client-state ,send-client-state?))))
+               (name (when (running-in-test-mode? *application*)
+                       (if (typep content 'icon/widget)
+                           (symbol-name (name-of content))
+                           (princ-to-string content)))))
+          ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
+          ;; TODO: when rendering a span, tab navigation skips the commands
+          <span (:id ,id :class ,style-class :name ,name)
+                #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
+                ,(render-component content)>
+          `js(on-load
+              (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
+              (wui.setup-component ,id "command/widget"))
+          ;; TODO: use dojo.connect for keyboard events
+          (when default
+            (bind ((submit-id (generate-frame-unique-string)))
+              <input (:id ,submit-id :type "submit" :style "display: none;")>
+              `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
+        <span (:class "command widget disabled")
+              #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
+              ,(render-component content)>)))
 
 (def render-text command/widget
   (render-component (content-of -self-)))
@@ -91,38 +121,6 @@
                  ;; TODO: wastes resources. store back the printed uri? see below also...
                  (uri (print-uri-to-string action)))))
     (values href send-client-state?)))
-
-(def (function e) render-command (content action &key (enabled #t) (default #f) (ajax (not (null *frame*))) js action-arguments)
-  (if (force enabled)
-      (bind ((id (generate-frame-unique-string))
-             ((:values href send-client-state?) (href-for-command action action-arguments))
-             (onclick-js (or js
-                             (lambda (href)
-                               `js(wui.io.action ,href
-                                                 :event event
-                                                 :ajax ,(when (ajax-enabled? *application*)
-                                                          (force ajax))
-                                                 :send-client-state ,send-client-state?))))
-             (name (when (running-in-test-mode? *application*)
-                     (if (typep content 'icon/widget)
-                         (symbol-name (name-of content))
-                         (princ-to-string content)))))
-        ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
-        ;; TODO: when rendering a span, tab navigation skips the commands
-        <span (:id ,id :class "command widget" :name ,name)
-          #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
-          ,(render-component content)>
-        `js(on-load
-            (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
-            (wui.setup-component ,id "command/widget"))
-        ;; TODO: use dojo.connect for keyboard events
-        (when default
-          (bind ((submit-id (generate-frame-unique-string)))
-            <input (:id ,submit-id :type "submit" :style "display: none;")>
-            `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
-      <span (:class "command widget disabled")
-        #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
-        ,(render-component content)>))
 
 (def (function e) render-command-onclick-handler (command id)
   (bind ((action (action-of command))

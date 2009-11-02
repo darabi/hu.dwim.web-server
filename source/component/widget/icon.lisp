@@ -22,7 +22,7 @@
 ;;;;;;
 ;;; icon/widget
 
-(def (component e) icon/widget (tooltip/mixin)
+(def (component e) icon/widget (widget/abstract style/mixin tooltip/mixin)
   ((name :type symbol)
    (label :type (or null component))
    (image-path nil :type (or null string))))
@@ -60,7 +60,7 @@
   (:method (icon label)
     `xml,label))
 
-(def (function e) render-icon (&key icon (name nil name?) (label nil label?) (image-path nil image-path?) (tooltip nil tooltip?) (style-class nil style-class?))
+(def (function e) render-icon (&key icon (name nil name?) (label nil label?) (image-path nil image-path?) (tooltip nil tooltip?))
   (when (and icon
              (not (stringp icon)))
     (unless name?
@@ -72,23 +72,20 @@
     (unless tooltip?
       (setf tooltip (tooltip-of icon))))
   (bind ((tooltip (force tooltip))
-         (id (generate-frame-unique-string))
-         (style-class (if style-class?
-                          style-class
-                          (icon-style-class name))))
+         (id (generate-frame-unique-string)))
     ;; render the `js first, so the return value contract of qq is kept.
     (when tooltip
       (render-tooltip tooltip id))
     ;; NOTE: this preserve-whitespace is needed from chrome when there's no label and no image and the icon is setup from css
     {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
-      <span (:id ,id :class ,style-class)
-        ,(when image-path
-           <img (:src ,(string+ (path-prefix-of *application*) image-path))>)
-        ,(awhen (force label)
-           (render-icon-label icon it))>}))
+      (with-render-style/mixin (icon :element-name "span")
+        (when image-path
+          <img (:src ,(string+ (path-prefix-of *application*) image-path))>)
+        (awhen (force label)
+          (render-icon-label icon it)))}))
 
-(def function icon-style-class (name)
-  (string+ "widget icon " (string-downcase (symbol-name name))))
+(def method make-style-class ((self icon/widget))
+  (string+ "widget icon " (string-downcase (symbol-name (name-of self)))))
 
 (def method command-position ((self icon/widget))
   ;; TODO: can't we make it faster/better (what about a generic method or something?)

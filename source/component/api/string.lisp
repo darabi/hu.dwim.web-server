@@ -37,7 +37,13 @@
 ;;; Component documentation
 
 (def method component-documentation ((self string))
-  "A string is a valid component on its own")
+  "A string is a valid component on its own.")
+
+;;;;;;
+;;; Component style
+
+(def method component-style-class ((self string))
+  nil)
 
 ;;;;;;
 ;;; Component value

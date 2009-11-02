@@ -14,7 +14,7 @@
 (def constructor style-class/mixin
   (bind (((:slots style-class) -self-))
     (unless style-class
-      (setf style-class (string-downcase (substitute #\Space #\/ (symbol-name (class-name (class-of -self-)))))))))
+      (setf style-class (component-style-class -self-)))))
 
 ;;;;;;
 ;;; custom-style/mixin
