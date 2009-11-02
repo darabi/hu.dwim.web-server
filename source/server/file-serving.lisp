@@ -194,7 +194,7 @@
 
 (def special-variable *mime-type->extensions* (make-hash-table :test #'equal))
 (def special-variable *extension->mime-types* (make-hash-table :test #'equal))
-(def (constant :test 'equal) +mime-types-file+ #P"/etc/mime.types")
+(def constant +mime-types-file+ #P"/etc/mime.types")
 
 (def function ensure-mime-types-are-read ()
   (when (and (zerop (hash-table-count *mime-type->extensions*))

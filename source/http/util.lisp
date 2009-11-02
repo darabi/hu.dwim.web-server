@@ -50,10 +50,10 @@
                              (+javascript-mime-type+ +iso-8859-1-javascript-content-type+))))))
         (concatenate 'string mime-type "; charset=" (string-downcase encoding)))))
 
-(def (constant e :test 'string=) +html-content-type+         (content-type-for +html-mime-type+         +default-encoding+))
-(def (constant e :test 'string=) +xhtml-content-type+        (content-type-for +xhtml-mime-type+        +default-encoding+))
-(def (constant e :test 'string=) +xml-content-type+          (content-type-for +xml-mime-type+          +default-encoding+))
-(def (constant e :test 'string=) +javascript-content-type+   (content-type-for +javascript-mime-type+   +default-encoding+))
+(def (constant e) +html-content-type+         (content-type-for +html-mime-type+         +default-encoding+))
+(def (constant e) +xhtml-content-type+        (content-type-for +xhtml-mime-type+        +default-encoding+))
+(def (constant e) +xml-content-type+          (content-type-for +xml-mime-type+          +default-encoding+))
+(def (constant e) +javascript-content-type+   (content-type-for +javascript-mime-type+   +default-encoding+))
 
 (def function emit-xml-prologue (&key (encoding (guess-encoding-for-http-response)) (stream *xml-stream*) (version "1.1"))
   (macrolet ((emit (string)

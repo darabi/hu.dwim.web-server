@@ -54,7 +54,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (macrolet ((x (&body entries)
              `(progn
                 ,@(iter (for (name value) :on entries :by #'cddr)
-                        (collect `(def (constant :test #'string=) ,name ,value))
+                        (collect `(def constant ,name ,value))
                         (collect `(export ',name))))))
   (x
    +header/accept+              "Accept"
@@ -94,7 +94,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (macrolet ((x (&body entries)
              `(progn
                 ,@(iter (for (name value) :on entries :by #'cddr)
-                        (collect `(def (constant :test #'string=) ,name (coerce ,value 'simple-base-string)))
+                        (collect `(def constant ,name (coerce ,value 'simple-base-string)))
                         (collect `(export ',name))))))
   (x
    +content-encoding/deflate+   "deflate"
@@ -104,7 +104,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (macrolet ((x (&rest pairs)
              `(progn
                 ,@(iter (for (name value) :on pairs :by #'cddr)
-                        (collect `(def (constant e :test #'string=) ,name (coerce ,value 'simple-base-string)))))))
+                        (collect `(def (constant e) ,name (coerce ,value 'simple-base-string)))))))
   ;; constants for optimization
   (x
    +utf-8-html-content-type+            "text/html; charset=utf-8"
@@ -157,18 +157,18 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 ;;;;;;
 ;;; HTTP
 
-(def (constant :test 'equal) +disallow-response-caching-header-values+
+(def constant +disallow-response-caching-header-values+
   (list (cons +header/expires+ "Wed, 01 Mar 2000 00:00:00 GMT")
         (cons +header/cache-control+ "no-cache no-store must-revalidate")))
 
 (def symbol-macro +default-external-format+ (load-time-value (ensure-external-format +default-encoding+)))
 
-(def (constant e :test 'string=) +xml-namespace-uri/xhtml+ "http://www.w3.org/1999/xhtml")
-(def (constant e :test 'string=) +xml-namespace-uri/dojo+  "http://www.dojotoolkit.org/2004/dojoml")
-(def (constant e :test 'string=) +xml-namespace-uri/atom+  "http://www.w3.org/2005/Atom")
+(def (constant e) +xml-namespace-uri/xhtml+ "http://www.w3.org/1999/xhtml")
+(def (constant e) +xml-namespace-uri/dojo+  "http://www.dojotoolkit.org/2004/dojoml")
+(def (constant e) +xml-namespace-uri/atom+  "http://www.w3.org/2005/Atom")
 
-(def (constant e :test 'string=) +form-encoding/multipart-form-data+  "multipart/form-data")
-(def (constant e :test 'string=) +form-encoding/url-encoded+  "application/x-www-form-urlencoded")
+(def (constant e) +form-encoding/multipart-form-data+  "multipart/form-data")
+(def (constant e) +form-encoding/url-encoded+  "application/x-www-form-urlencoded")
 
 (def constant +space+           #.(char-code #\Space))
 (def constant +tab+             #.(char-code #\Tab))
@@ -185,7 +185,7 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
                                                                 (subseq (string name) 0
                                                                         (1- (length (string name)))))
                                       ,value))
-                        (collect `(def (constant :test #'string=) ,name
+                        (collect `(def constant ,name
                                       ,(format nil "~A ~A" value reason-phrase)))))))
   (x
     +http-continue+                        100 "Continue"
