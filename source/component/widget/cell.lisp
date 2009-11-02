@@ -9,15 +9,15 @@
 ;;;;;;
 ;;; Constants
 
-(def (constant e :test 'string=) +table-cell-horizontal-alignment-css-class/left+ "_hla")
-(def (constant e :test 'string=) +table-cell-horizontal-alignment-css-class/center+ "_hca")
-(def (constant e :test 'string=) +table-cell-horizontal-alignment-css-class/right+ "_hra")
+(def (constant e) +table-cell-horizontal-alignment-style-class/left+ "_hla")
+(def (constant e) +table-cell-horizontal-alignment-style-class/center+ "_hca")
+(def (constant e) +table-cell-horizontal-alignment-style-class/right+ "_hra")
 
-(def (constant e :test 'string=) +table-cell-vertical-alignment-css-class/top+ "_vta")
-(def (constant e :test 'string=) +table-cell-vertical-alignment-css-class/center+ "_vca")
-(def (constant e :test 'string=) +table-cell-vertical-alignment-css-class/bottom+ "_vba")
+(def (constant e) +table-cell-vertical-alignment-style-class/top+ "_vta")
+(def (constant e) +table-cell-vertical-alignment-style-class/center+ "_vca")
+(def (constant e) +table-cell-vertical-alignment-style-class/bottom+ "_vba")
 
-(def (constant e :test 'string=) +table-cell-nowrap-css-class+ "_nw")
+(def (constant e) +table-cell-nowrap-style-class+ "_nw")
 
 ;;;;;;
 ;;; cell/widget
