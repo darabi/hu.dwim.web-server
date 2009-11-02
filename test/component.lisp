@@ -9,18 +9,25 @@
 ;;;;;;
 ;;; This is a simple example application with various components
 
-(def function stylesheet-list-entry (path)
-  (list (string+ "static/" path)
-        (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (string+ "www/" path)))))
+(eval-always
+  (def function make-stylesheet-uri (path)
+    (list (string+ "static/" path)
+          (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (string+ "www/" path))))))
 
-(def special-variable *demo-static-stylesheet-uris*
-  (list (stylesheet-list-entry "wui/css/wui.css")
-        (stylesheet-list-entry "wui/css/icon.css")
-        (stylesheet-list-entry "wui/css/widget.css")))
+(def constant +demo-static-stylesheet-uris+ (list (make-stylesheet-uri "wui/css/wui.css")
+                                                  (make-stylesheet-uri "wui/css/icon.css")
+                                                  (make-stylesheet-uri "wui/css/border.css")
+                                                  (make-stylesheet-uri "wui/css/layout.css")
+                                                  (make-stylesheet-uri "wui/css/widget.css")
+                                                  (make-stylesheet-uri "wui/css/text.css")
+                                                  (make-stylesheet-uri "wui/css/lisp-form.css")
+                                                  (make-stylesheet-uri "wui/css/shell-script.css")
+                                                  (make-stylesheet-uri "wui/css/presentation.css")
+                                                  (make-stylesheet-uri "wui/css/test.css")))
 
-(def (constant :test #'equal) +demo-script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
+(def constant +demo-script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
 
-(def (constant :test #'equal) +demo-page-icon+ "static/favicon.ico")
+(def constant +demo-page-icon+ "static/favicon.ico")
 
 (def special-variable *component-demo-application*
   (make-instance 'test-application
@@ -73,10 +80,9 @@
 
 (def function make-demo-frame-component-with-content (&optional initial-content-component)
   (frame/widget (:title "demo"
-                 :stylesheet-uris (append
-                                   *demo-static-stylesheet-uris*
-                                   (list (stylesheet-list-entry (string+ *dojo-directory-name* "dijit/themes/tundra/tundra.css"))
-                                         (stylesheet-list-entry (string+ *dojo-directory-name* "dojo/resources/dojo.css"))))
+                 :stylesheet-uris (append (list (make-stylesheet-uri (string+ *dojo-directory-name* "dojo/resources/dojo.css"))
+                                                (make-stylesheet-uri (string+ *dojo-directory-name* "dijit/themes/tundra/tundra.css")))
+                                          +demo-static-stylesheet-uris+)
                  :script-uris +demo-script-uris+
                  :page-icon +demo-page-icon+)
     #+nil
@@ -138,7 +144,7 @@
         "George "
         "Jenna "))
     (component-demo/widget "Container"
-      ;; NOTE: see #container in style.css
+      ;; NOTE: see #container in test.css
       (container/layout (:id "container")
         "John "
         "Mary "
