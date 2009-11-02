@@ -21,14 +21,14 @@
 (def method (setf slot-value-using-class) :after (child (class component-class) (parent component) (slot component-effective-slot-definition))
   (setf (parent-component-references parent) child))
 
-(def (function o) (setf parent-component-references) (child parent &optional parent-component-slot-index)
+(def (function o) (setf parent-component-references) (child new-parent &optional parent-component-slot-index)
   (flet (((setf parent-component) (child)
            (bind ((current-parent (parent-component-of child)))
              (assert (or (not current-parent)
-                         (eq current-parent parent)) nil "The child ~A is already under another parent" child current-parent))
+                         (eq current-parent new-parent)) nil "Cannot set ~A~%as new parent to child ~A~%while it is already under another parent ~A" new-parent child current-parent))
            (if parent-component-slot-index
-               (setf (standard-instance-access child parent-component-slot-index) parent)
-               (setf (parent-component-of child) parent))))
+               (setf (standard-instance-access child parent-component-slot-index) new-parent)
+               (setf (parent-component-of child) new-parent))))
     (typecase child
       (parent/mixin
        (setf (parent-component) child))
