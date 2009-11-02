@@ -243,12 +243,12 @@
 
 (def function predicate-icon-style-class (predicate)
   (ecase predicate
-    (equal "equal predicate icon")
-    (like "like predicate icon")
-    (less-than "less-than predicate icon")
-    (less-than-or-equal "less-than-or-equal predicate icon")
-    (greater-than "greater-than predicate icon")
-    (greater-than-or-equal "greater-than-or-equal predicate icon")))
+    (equal "icon predicate equal")
+    (like "icon predicate like")
+    (less-than "icon predicate less-than")
+    (less-than-or-equal "icon predicate less-than-or-equal")
+    (greater-than "icon predicate greater-than")
+    (greater-than-or-equal "icon predicate greater-than-or-equal")))
 
 (def function like (value pattern)
   ;; TODO: 
@@ -265,8 +265,8 @@
             (setf selected-predicate (first filter-predicates)))
           <td ,(render-checkbox-field negated
                                       :value-sink (lambda (value) (setf negated value))
-                                      :checked-class "negated predicate icon"
-                                      :unchecked-class "ponated predicate icon")>
+                                      :checked-class "icon predicate negated"
+                                      :unchecked-class "icon predicate ponated")>
           <td ,(if (length= 1 filter-predicates)
                    <div (:class ,(predicate-icon-style-class (first filter-predicates)))>
                    (render-popup-menu-select-field (localize-predicate selected-predicate)
@@ -282,5 +282,5 @@
     <td ,(render-checkbox-field (use-in-filter? self)
                                 :id id
                                 :value-sink (lambda (value) (setf (use-in-filter? self) value))
-                                :checked-class "use predicate icon"
-                                :unchecked-class "ignore predicate icon")>))
+                                :checked-class "icon predicate use"
+                                :unchecked-class "icon predicate ignore")>))
