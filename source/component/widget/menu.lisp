@@ -145,7 +145,7 @@
 (def render-xhtml menu-item-separator/widget
   (bind (((:read-only-slots id) -self-))
     (render-dojo-widget (id)
-      <div (:id ,id
-            :dojoType #.+dijit/menu-separator+)
-        ;; NOTE: firefox messes up divs without content
+      <div (:id ,id :dojoType #.+dijit/menu-separator+)
+        ;; NOTE: we do need the empty string in the body to workaround a bug in firefox
+        ;;       that occurs when the element is rendered without an explicit closing tag
         "">)))

@@ -48,5 +48,7 @@
   '(make-instance 'empty/layout))
 
 (def render-component empty/layout
-  ;; NOTE: we do need the empty string in the body to workaround a bug in firefox
-  <div (:id ,(id-of -self-)) "">)
+  <div (:id ,(id-of -self-))
+    ;; NOTE: we do need the empty string in the body to workaround a bug in firefox
+    ;;       that occurs when the element is rendered without an explicit closing tag
+    "">)
