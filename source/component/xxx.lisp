@@ -163,6 +163,95 @@
           (bind ((instance (instance-of component-value)))
             (values (class-of instance) instance (slot-of component-value))))))))
 
+;;;;;
+;;; Exportable
+
+(def layered-method make-context-menu-items ((component exportable/abstract) class prototype instance)
+  (optional-list* (make-menu-item (icon menu :label "Export") (make-export-commands component class prototype instance))
+                  (call-next-method)))
+
+(def (icon e) export-text)
+
+(def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype instance)
+  (command/widget (:delayed-content #t :path (export-file-name format component))
+    (icon export-text)
+    (make-component-action component
+      (export-text component))))
+
+(def (icon e) export-csv)
+
+(def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype instance)
+  (command/widget (:delayed-content #t :path (export-file-name format component))
+    (icon export-csv)
+    (make-component-action component
+      (export-csv component))))
+
+(def (icon e) export-pdf)
+
+(def special-variable *pdf-stream*)
+
+(def layered-method make-export-command ((format (eql :pdf)) (component exportable/abstract) class prototype instance)
+  (command/widget (:delayed-content #t :path (export-file-name format component))
+    (icon export-pdf)
+    (make-component-action component
+      (export-pdf component))))
+
+(def (icon e) export-odt)
+
+(def layered-method make-export-command ((format (eql :odt)) (component exportable/abstract) class prototype instance)
+  (command/widget (:delayed-content #t :path (export-file-name format component))
+    (icon export-odt)
+    (make-component-action component
+      (export-odt component))))
+
+(def (icon e) export-ods)
+
+(def layered-method make-export-command ((format (eql :ods)) (component exportable/abstract) class prototype instance)
+  (command/widget (:delayed-content #t :path (export-file-name format component))
+    (icon export-ods)
+    (make-component-action component
+      (export-ods component))))
+
+(def (icon e) export-sh)
+
+(def layered-method make-export-command ((format (eql :sh)) component class prototype value)
+  (command/widget (:delayed-content #t :path (export-file-name format component))
+    (icon export-sh)
+    (make-component-action component
+      (export-sh component))))
+
+;;;;;;
+;;; Cloneable
+
+(def (icon e) open-in-new-frame)
+
+(def layered-method make-open-in-new-frame-command ((component component) class prototype value)
+  (command/widget (:delayed-content #t :js (lambda (href) `js(window.open ,href)))
+    (icon open-in-new-frame)
+    (make-component-action component
+      (open-in-new-frame component class prototype value))))
+
+(def (icon e) focus-in)
+
+(def (icon e) focus-out)
+
+(def layered-method make-focus-command ((component component) class prototype value)
+  (bind ((original-component (delay (find-top-component-content component))))
+    (make-replace-and-push-back-command original-component component
+                                        (list :content (icon focus-in) :visible (delay (not (top-component-content? component))))
+                                        (list :content (icon focus-out)))))
+
+;;;;;
+;;; Closeable
+
+(def (icon e) close-component)
+
+(def layered-method make-close-component-command ((component closable/abstract) class prototype value)
+  (command/widget ()
+    (icon close-component)
+    (make-component-action component
+      (close-component component class prototype value))))
+
 #|
 
 ;;;;;;
@@ -223,88 +312,6 @@
            (make-hide-command component class prototype value)
            (make-show-component-recursively-command component class prototype value))
          (call-next-method)))
-
-;;;;;
-;;; Closeable
-
-(def (icon e) close-component)
-
-(def layered-method make-close-component-command ((component closable/abstract) class prototype value)
-  (command/widget ()
-    (icon close-component)
-    (make-component-action component
-      (close-component component class prototype value))))
-
-;;;;;;
-;;; Cloneable
-
-(def (icon e) open-in-new-frame)
-
-(def layered-method make-open-in-new-frame-command ((component component) class prototype value)
-  (command/widget (:delayed-content #t
-            :js (lambda (href) `js(window.open ,href)))
-    (icon open-in-new-frame)
-    (make-component-action component
-      (open-in-new-frame component class prototype value))))
-
-;;;;;
-;;; Exportable
-
-(def layered-method make-context-menu-items ((component exportable/abstract) class prototype instance)
-  (optional-list* (make-menu-item (icon menu :label "Export") (make-export-commands component class prototype instance))
-                  (call-next-method)))
-
-(def (icon e) export-text)
-
-(def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
-    (icon export-text)
-    (make-component-action component
-      (export-text component))))
-
-(def (icon e) export-csv)
-
-(def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
-    (icon export-csv)
-    (make-component-action component
-      (export-csv component))))
-
-(def (icon e) export-pdf)
-
-(def special-variable *pdf-stream*)
-
-(def layered-method make-export-command ((format (eql :pdf)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
-    (icon export-pdf)
-    (make-component-action component
-      (export-pdf component))))
-
-(def (icon e) export-odt)
-
-(def layered-method make-export-command ((format (eql :odt)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
-    (icon export-odt)
-    (make-component-action component
-      (export-odt component))))
-
-(def (icon e) export-ods)
-
-(def layered-method make-export-command ((format (eql :ods)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
-    (icon export-ods)
-    (make-component-action component
-      (export-ods component))))
-
-(def (icon e) focus-in)
-
-(def (icon e) focus-out)
-
-(def layered-method make-focus-command ((component component) (class standard-class) (prototype standard-object) value)
-  (bind ((original-component (delay (find-top-component-content component))))
-    (make-replace-and-push-back-command original-component component
-                                        (list :content (icon focus-in) :visible (delay (not (top-component-content? component))))
-                                        (list :content (icon focus-out)))))
 
 ;;;;;;
 ;;; Default icons
