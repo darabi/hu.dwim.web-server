@@ -63,29 +63,10 @@
         (render-component content)
         (write-text-line-separator)))
 
-(def render-shell-script shell-script/text/inspector
+(def render-sh shell-script/text/inspector
   (iter (for content :in (contents-of -self-))
         (render-component content)
         (write-text-line-separator)))
 
-(def layered-method write-text-line-begin :in shell-script-layer  ()
+(def layered-method write-text-line-begin :in sh-layer  ()
   (write-string "# " *text-stream*))
-
-;;;;;;
-;;; Render shell-script
-
-(def (icon e) export-shell-script)
-
-(def (layered-function e) export-shell-script (component)
-  (:documentation "Export COMPONENT into shell script.")
-
-  (:method (component)
-    (render-shell-script component)))
-
-(def layered-method make-export-command ((format (eql :sh)) component class prototype value)
-  (command/widget (:delayed-content #t
-                   :path (export-file-name format component))
-    (icon export-shell-script)
-    (make-component-action component
-      (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
-        (export-shell-script component)))))

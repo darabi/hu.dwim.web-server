@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; book/inspector
 
-(def (component e) book/inspector (t/inspector exportable/abstract)
+(def (component e) book/inspector (text/inspector exportable/abstract)
   ())
 
 (def (macro e) book/inspector ((&rest args &key &allow-other-keys) &body book)

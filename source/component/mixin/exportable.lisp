@@ -77,3 +77,10 @@
       <office:body
         <office:spreadsheet
           ,(render-ods component)>>>))
+
+;;;;;;
+;;; SH format
+
+(def (layered-method e) export-sh (component)
+  (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
+    (render-sh component)))

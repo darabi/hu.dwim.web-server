@@ -301,7 +301,7 @@
 ;;; Export component
 
 (def (layered-function e) export-text (component)
-  (:documentation "Export COMPONENT into pure text."))
+  (:documentation "Export COMPONENT into pure Text."))
 
 (def (layered-function e) export-csv (component)
   (:documentation "Export COMPONENT into Comma Separated Values."))
@@ -310,10 +310,13 @@
   (:documentation "Export COMPONENT into Portable Document Format."))
 
 (def (layered-function e) export-odt (component)
-  (:documentation "Export COMPONENT into Open Office Document."))
+  (:documentation "Export COMPONENT into Open Office Text Document."))
 
 (def (layered-function e) export-ods (component)
-  (:documentation "Export COMPONENT into Open Office Document."))
+  (:documentation "Export COMPONENT into Open Office Spreadsheet Document."))
+
+(def (layered-function e) export-sh (component)
+  (:documentation "Export COMPONENT into Shell Script."))
 
 ;;;;;;
 ;;; Serialize/deserialize component
@@ -483,9 +486,9 @@
 
 (def (special-variable e :documentation "The output stream for rendering components in text format.") *text-stream*)
 
-(def (render-component-layer e) text () "Rendering into pure text.")
+(def (render-component-layer e) text () "Rendering into pure Text.")
 
-(def (render-component-layer e) shell-script (text) "Rendering into shell script.")
+(def (render-component-layer e) sh (text) "Rendering into Shell Script.")
 
 (def (render-component-layer e) xhtml () "Rendering into XHTML with JavaScript.")
 
@@ -501,9 +504,9 @@
 
 (def (render-component-layer e) pdf () "Rendering into Portable Document Format.")
 
-(def (render-component-layer e) ods () "Rendering into Open Office Spreadsheet.")
+(def (render-component-layer e) ods () "Rendering into Open Office Spreadsheet Document.")
 
-(def (render-component-layer e) odt () "Rendering into Open Office Document.")
+(def (render-component-layer e) odt () "Rendering into Open Office Text Document.")
 
 (def (render-component-layer e) raw-names () "Rendering without localizing names.")
 
