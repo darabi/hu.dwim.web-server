@@ -65,7 +65,7 @@
                                                (funcall (result-component-factory-of component) component class prototype
                                                         (execute-filter component class prototype value))))
                                       (list :content (icon execute-filter) :default #t #+nil :ajax #+nil (ajax-of component))
-                                      (list :content (icon back))))
+                                      (list :content (icon navigate-back))))
 
 (def (layered-function e) make-filter-result-inspector (component class prototype value)
   (:method ((filter t/filter) class prototype (value list))

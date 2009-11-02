@@ -22,8 +22,8 @@
   (icon-label.close "Bezárás")
   (icon-tooltip.close "A komponens bezárása")
 
-  (icon-label.back "Vissza")
-  (icon-tooltip.back "Vissza a helyére")
+  (icon-label.navigate-back "Vissza")
+  (icon-tooltip.navigate-back "Vissza a helyére")
 
   (icon-label.expand-component "Kinyitás")
   (icon-tooltip.expand-component "Részletek megjelenítése")
@@ -68,7 +68,10 @@
   (icon-tooltip.remove-list-element "Az lista elem eltávolítása")
 
   (icon-label.hide-component "Elrejtés")
-  (icon-tooltip.hide-component "Objektum elrejtése"))
+  (icon-tooltip.hide-component "Objektum elrejtése")
+
+  (icon-label.external-link nil)
+  (icon-tooltip.external-link "Külső hivatkozás"))
 
 ;;;;;;
 ;;; Error handling

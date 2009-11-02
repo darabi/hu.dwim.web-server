@@ -22,8 +22,8 @@
   (icon-label.close "Close")
   (icon-tooltip.close "Close the component")
 
-  (icon-label.back "Back")
-  (icon-tooltip.back "Move back")
+  (icon-label.navigate-back "Back")
+  (icon-tooltip.navigate-back "Move back")
 
   (icon-label.expand-component "Expand")
   (icon-tooltip.expand-component "Show details")
@@ -68,7 +68,10 @@
   (icon-tooltip.remove-list-element "Remove element from list")
 
   (icon-label.hide-component "Hide")
-  (icon-tooltip.hide-component "Hide object"))
+  (icon-tooltip.hide-component "Hide object")
+
+  (icon-label.external-link nil)
+  (icon-tooltip.external-link "External link"))
 
 ;;;;;;
 ;;; Error handling
