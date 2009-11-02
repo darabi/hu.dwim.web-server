@@ -1,130 +1,107 @@
-a:link,
-a:visited
-{
+/* general */
+
+a:link, a:visited {
   color: inherit;
 }
 
-td._hra
-{
-  text-align: right;
+body.tundra {
+  color: black;
+  background-color: white;
+  font-family: Tahoma;
+  font-size: 12px;
 }
 
-td._hca
-{
+/* alignment */
+
+td._hla {
+  text-align: left;
+}
+
+td._hca {
   text-align: center;
 }
 
-td._vba
-{
-  vertical-align: bottom;
+td._hra {
+  text-align: right;
 }
 
-td._vta
-{
+td._vta {
   vertical-align: top;
 }
 
-td._nw
-{
+td._vca {
+  vertical-align: middle;
+}
+
+td._vba {
+  vertical-align: bottom;
+}
+
+td._nw {
   white-space: nowrap;
 }
 
-.debug-component-hierarchy
-{
+/* debug */
+
+.debug-component-hierarchy {
   padding: 1px;
   border-color: lightgray;
   border-width: 1px;
   border-style: solid;
 }
 
-.debug-component-hierarchy .class-name
-{
+.debug-component-hierarchy .class-name {
   font-size: 10px;
   color: purple;
 }
 
-.missing-resource
-{
+/* localization */
+
+.missing-localization {
   color: #ff0000;
 }
 
-/*
-   list container
-*/
+/* page failed to load help */
 
-table.list.vertical
-{
-  width: 100%;
-}
-
-table.list > tbody > tr > td
-{
-  padding: 0px;
-}
-
-div.list.horizontal > div
-{
-  display: block;
-  float: left;
-}
-
-div.list.vertical > div
-{
-  display: block;
-}
-
-/*
-  command bar
-*/
-
-.command-bar td
-{
-  white-space: nowrap;
-}
-
-/*
-  command
-*/
-
-.command
-{
-  cursor: pointer;
-  color: darkblue;
-}
-
-.command.disabled
-{
-  cursor: default;
-  color: inherit;
-}
-
-.command:hover span
-{
-  text-decoration: underline;
-}
-
-.command.disabled:hover span
-{
-  text-decoration: none;
-}
-
-/*
-  failed to load help
-*/
-
-/* KLUDGE: _failed-to-load is the value of +page-failed-to-load-id+ */
-#_failed-to-load
-{
+#page-failed-to-load {
   margin: 1em;
 }
 
-#_failed-to-load a
-{
+#page-failed-to-load a {
   font-size: x-large;
   text-decoration: underline;
 }
 
-#_failed-to-load h1
-{
+#page-failed-to-load h1 {
   margin: 1em;
+}
+
+/* ajax */
+
+.ajax-target {
+  opacity: 0.5;
+}
+
+.reference.ajax-target {
+  background-image: url("/static/wui/image/ajax-request-in-progress.gif");
+  background-repeat: no-repeat;
+  background-position: left center;
+  position: relative;
+  left: -22px;
+  padding-left: 22px;
+  cursor: wait;
+}
+
+.ajax-request-in-progress {
+  background-image: url("/static/wui/image/ajax-request-in-progress.gif");
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: 0.5;
+  position: absolute;
+  z-index: 1000;
+  cursor: wait;
+}
+
+span .ajax-request-in-progress {
+  background-image: none;
 }

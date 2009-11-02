@@ -1,4 +1,4 @@
-/* icons in general */
+/* general */
 
 .icon {
   width: 24px;
@@ -11,30 +11,62 @@
   white-space: pre;
 }
 
-/* authentication */
-
-.login.icon {
-  background-image: url("/static/wui/icon/20x20/green-checkmark.png");
+.dijitMenuItemIcon {
+  padding: 1px;
 }
 
-.logout.icon {
-  background-image: url("/static/wui/icon/20x20/red-arrow-on-door.png");
+/* component */
+
+.navigate-back.icon {
+  background-image: url("/static/wui/icon/24x24/page-backward.png");
 }
 
-.impersonalize.icon {
-  background-image: url("/static/wui/icon/20x20/vcr-play-with-people.png");
-}
-
-.cancel-impersonalization.icon {
-  background-image: url("/static/wui/icon/20x20/vcr-backward-with-people.png");
-}
-
-.change-password.icon {
-  background-image: url("/static/wui/icon/20x20/green-checkmark.png");
-}
+/* refreshable */
 
 .refresh-component.icon {
   background-image: url("/static/wui/icon/20x20/ying-yang-arrows.png");
+}
+
+/* hideable */
+
+.hide-component.icon {
+  background-image: url("/static/wui/icon/20x20/yellow-x.png");
+}
+
+/* closable */
+
+.close-component.icon {
+  background-image: url("/static/wui/icon/20x20/red-x.png");
+}
+
+/* cloneable */
+
+.focus-in.icon {
+  background-image: url("/static/wui/icon/20x20/blue-all-direction-arrows.png");
+}
+
+.focus-out.icon {
+  background-image: url("/static/wui/icon/20x20/green-double-left-arrow.png");
+}
+
+.open-in-new-frame.icon {
+  background-image: url("/static/wui/icon/20x20/split-vertically.png");
+}
+
+/* collapsible */
+
+.collapse-component.icon {
+  background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
+}
+
+.expand-component.icon {
+  background-image: url("/static/wui/icon/20x20/arrowhead-right.png");
+}
+
+/* selectable */
+
+.select-component.icon {
+  background-image: url("/static/wui/icon/20x20/checkmark.png");
 }
 
 /* editable */
@@ -59,59 +91,63 @@
   background-image: url("/static/wui/icon/20x20/yellow-x.png");
 }
 
-.new.icon {
+/* exportable */
+
+.export-text.icon {
   background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.create.icon {
-  background-image: url("/static/wui/icon/20x20/disc-on-document.png");
+.export-csv.icon {
+  background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.delete.icon {
-  background-image: url("/static/wui/icon/20x20/red-x.png");
+.export-pdf.icon {
+  background-image: url("/static/wui/icon/20x20/pdf-document.png");
 }
 
-.close.icon {
-  background-image: url("/static/wui/icon/20x20/red-x.png");
+.export-odt.icon {
+  background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.focus-in.icon {
-  background-image: url("/static/wui/icon/20x20/blue-all-direction-arrows.png");
+.export-ods.icon {
+  background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.focus-out.icon {
-  background-image: url("/static/wui/icon/20x20/green-double-left-arrow.png");
+.export-sh.icon {
+  background-image: url("/static/wui/icon/20x20/document.png");
 }
 
-.open-in-new-frame.icon {
-  background-image: url("/static/wui/icon/20x20/split-vertically.png");
+/* menu */
+
+.show-submenu.icon {
+  background-image: url("/static/wui/icon/20x20/open-folder.png");
 }
 
-.back.icon {
-  background-image: url("/static/wui/icon/24x24/page-backward.png");
+.show-context-menu.icon {
+  background-image: url("/static/wui/icon/20x20/open-folder.png");
 }
 
-.expand-reference.icon {
-  background-image: url("/static/wui/icon/20x20/magnifier-plus.png");
+/* external-link */
+
+.external-link.icon {
+  background-image: url("/static/wui/icon/10x10/arrow-out.png");
+  padding-left: 10px;
+  margin-left: 3px;
 }
 
-.collapse-to-reference.icon {
-  background-image: url("/static/wui/icon/20x20/magnifier-minus.png");
+/* alternator */
+
+.switch-to-alternative.icon {
+  background-image: url("/static/wui/icon/20x20/eye.png");
 }
 
-/* collapsible */
+/* tab page */
 
-.collapse-component.icon {
-  background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
-  padding-left: 1em;
+.switch-to-tab-page.icon {
+  background-image: url("/static/wui/icon/20x20/eye.png");
 }
 
-.expand-component.icon {
-  background-image: url("/static/wui/icon/20x20/arrowhead-right.png");
-  padding-left: 1em;
-}
-
-/* page-navigation-bar */
+/* page navigation */
 
 .go-to-first-page.icon {
   background-image: url("/static/wui/icon/24x24/page-first.png");
@@ -145,65 +181,7 @@
   background-image: url("/static/wui/icon/24x24/page-last-disabled.png");
 }
 
-.find.icon {
-  background-image: url("/static/wui/icon/20x20/binocular.png");
-}
-
-.set-to-nil.icon {
-  background-image: url("/static/wui/icon/20x20/unplug.png");
-}
-
-.set-to-unbound.icon {
-  background-image: url("/static/wui/icon/20x20/unplug.png");
-}
-
-.select-component.icon {
-  background-image: url("/static/wui/icon/20x20/checkmark.png");
-}
-
-.view.icon {
-  background-image: url("/static/wui/icon/20x20/eye.png");
-}
-
-.finish.icon {
-  background-image: url("/static/wui/icon/20x20/checkmark.png");
-}
-
-.download.icon {
-  background-image: url("/static/wui/icon/20x20/file-download.png");
-}
-
-.upload.icon {
-  background-image: url("/static/wui/icon/20x20/file-upload.png");
-}
-
-.diagram.icon {
-  background-image: url("/static/wui/icon/20x20/eye.png");
-}
-
-.export-csv.icon {
-  background-image: url("/static/wui/icon/20x20/document.png");
-}
-
-.export-pdf.icon {
-  background-image: url("/static/wui/icon/20x20/pdf-document.png");
-}
-
-.export-odf.icon {
-  background-image: url("/static/wui/icon/20x20/document.png");
-}
-
-.switch-to-tab-page.icon {
-  background-image: url("/static/wui/icon/20x20/eye.png");
-}
-
-.rotate-clockwise.icon {
-  background-image: url("/static/wui/icon/20x20/clockwise-arrow.png");
-}
-
-.rotate-counter-clockwise.icon {
-  background-image: url("/static/wui/icon/20x20/counter-clockwise-arrow.png");
-}
+/* list */
 
 .move-up.icon {
   background-image: url("/static/wui/icon/20x20/up-arrow.png");
@@ -221,52 +199,24 @@
   background-image: url("/static/wui/icon/20x20/right-arrow.png");
 }
 
-.show-submenu.icon {
-  background-image: url("/static/wui/icon/20x20/open-folder.png");
+/* pivot */
+
+.rotate-clockwise.icon {
+  background-image: url("/static/wui/icon/20x20/clockwise-arrow.png");
 }
 
-.show-context-menu.icon {
-  background-image: url("/static/wui/icon/20x20/open-folder.png");
+.rotate-counter-clockwise.icon {
+  background-image: url("/static/wui/icon/20x20/counter-clockwise-arrow.png");
 }
 
-.hide-component.icon {
-  background-image: url("/static/wui/icon/20x20/yellow-x.png");
+/* file */
+
+.download-file.icon {
+  background-image: url("/static/wui/icon/20x20/file-download.png");
 }
 
-.start-process.icon {
-  background-image: url("/static/wui/icon/20x20/vcr-play.png");
-}
-
-.continue-process.icon {
-  background-image: url("/static/wui/icon/20x20/vcr-play.png");
-}
-
-.cancel-process.icon {
-  background-image: url("/static/wui/icon/20x20/red-x.png");
-}
-
-.pause-process.icon {
-  background-image: url("/static/wui/icon/20x20/stop-sign.png");
-}
-
-.restart-cluster-node.icon {
-  background-image: url("/static/wui/icon/20x20/vcr-play.png");
-}
-
-.startup-cluster-node.icon {
-  background-image: url("/static/wui/icon/20x20/vcr-play.png");
-}
-
-.shutdown-cluster-node.icon {
-  background-image: url("/static/wui/icon/20x20/stop-sign.png");
-}
-
-.generate-new-password.icon {
-  background-image: url("/static/wui/icon/20x20/pen-on-document.png");
-}
-
-.evaluate-form.icon {
-  background-image: url("/static/wui/icon/20x20/vcr-play.png");
+.upload-file.icon {
+  background-image: url("/static/wui/icon/20x20/file-upload.png");
 }
 
 /* filter */
@@ -279,10 +229,8 @@
   width: 17px;
   height: 17px;
   line-height: 17px;
-  padding-left: 1px;
-  padding-right: 1px;
-  margin-left: 1px;
-  margin-right: 1px;
+  padding-left: 2px;
+  padding-right: 2px;
   cursor: pointer;
 }
 
@@ -306,7 +254,7 @@
   opacity: 0.5;
 }
 
-/* filter predicate */
+/* predicate */
 
 .equal.predicate.icon {
   background-image: url("/static/wui/icon/17x17/equal-predicate.png");
@@ -332,6 +280,67 @@
   background-image: url("/static/wui/icon/17x17/greater-than-or-equal-predicate.png");
 }
 
-.dijitMenuItemIcon {
-  padding: 1px;
+/* form */
+
+.evaluate-form.icon {
+  background-image: url("/static/wui/icon/20x20/vcr-play.png");
+}
+
+/* process */
+
+.start-process.icon {
+  background-image: url("/static/wui/icon/20x20/vcr-play.png");
+}
+
+.continue-process.icon {
+  background-image: url("/static/wui/icon/20x20/vcr-play.png");
+}
+
+.cancel-process.icon {
+  background-image: url("/static/wui/icon/20x20/red-x.png");
+}
+
+.pause-process.icon {
+  background-image: url("/static/wui/icon/20x20/stop-sign.png");
+}
+
+/* reference */
+
+.expand-reference.icon {
+  background-image: url("/static/wui/icon/14x14/expand-reference.png");
+  padding-left: 14px;
+}
+
+.collapse-to-reference.icon {
+  background-image: url("/static/wui/icon/20x20/magnifier-minus.png");
+}
+
+/* authentication */
+
+.login.icon {
+  background-image: url("/static/wui/icon/20x20/green-checkmark.png");
+}
+
+.logout.icon {
+  background-image: url("/static/wui/icon/20x20/red-arrow-on-door.png");
+}
+
+/* impersonalization */
+
+.impersonalize.icon {
+  background-image: url("/static/wui/icon/20x20/vcr-play-with-people.png");
+}
+
+.cancel-impersonalization.icon {
+  background-image: url("/static/wui/icon/20x20/vcr-backward-with-people.png");
+}
+
+/* password */
+
+.change-password.icon {
+  background-image: url("/static/wui/icon/20x20/green-checkmark.png");
+}
+
+.generate-new-password.icon {
+  background-image: url("/static/wui/icon/20x20/pen-on-document.png");
 }

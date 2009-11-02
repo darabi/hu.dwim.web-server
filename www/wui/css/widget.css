@@ -1,42 +1,122 @@
-body.tundra
-{
-  color: black;
-  background-color: white;
-  font-family: Tahoma;
-  font-size: 12px;
+/* command */
+
+.command {
+  cursor: pointer;
+  color: darkblue;
 }
 
-table
-{
-  font-size: 12px;
+.command.disabled {
+  cursor: default;
+  color: darkgray;
 }
 
-#container
-{
-  float: left;
-  width: 100px;
+.command:hover span {
+  text-decoration: underline;
+}
+
+.command.disabled:hover span {
+  text-decoration: none;
+}
+
+.command .icon {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* command bar */
+
+.command-bar {
+  margin-top: 6px;
+}
+
+.command-bar td {
+  white-space: nowrap;
+}
+
+.command-bar .command {
+  margin-right: 3px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tr.name-value-pair {
+  background-image: url( "/static/wui/image/table-row/background.png" );
+  background-repeat: repeat-x;
+  background-color: #fafafa;
+}
+
+tr.name-value-pair > td {
+  vertical-align: middle;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-bottom: 1px dotted #c5def0;
+}
+
+tr.row {
+  background-image: url( "/static/wui/image/table-row/background.png" );
+  background-repeat: repeat-x;
+  background-color: #fafafa;
+}
+
+tr.row > td {
+  vertical-align: middle;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-bottom: 1px dotted #c5def0;
+}
+
+div.element {
+  background-image: url( "/static/wui/image/table-row/background.png" );
+  background-repeat: repeat-x;
+  background-color: #fafafa;
+  border-bottom: 1px dotted #c5def0;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 
 /* external link */
 
-a.external-link
-{
+a.external-link {
   padding-right: 12px;
-  background-image: url('/static/wui/icon/10x10/arrow-out.png');
+  background-image: url("/static/wui/icon/10x10/arrow-out.png");
   background-repeat: no-repeat;
   background-position: right center;
   color: darkblue;
 }
 
-.external-link:hover
-{
+.external-link:hover {
   text-decoration: underline;
-}
-
-.author
-{
-  font-family: Times New Roman;
-  padding-left: 12px;
 }
 
 /* xhml string */
@@ -47,318 +127,6 @@ a.external-link
   background-color: lightgray;
   border: 1px darkgray solid;
   padding: 6px;
-}
-
-/* shell script */
-
-.shell-script.text.inspector {
-  font-family: monospace;
-  color: black;
-  background-color: lightyellow;
-  border: 1px darkgray solid;
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-
-.shell-script .gutter {
-  display: block;
-  float: left;
-  font-family: monospace;
-  color: inherit;
-  background-color: lightyellow;
-  border: none;
-  padding: 0px;
-}
-
-.shell-script .content {
-  display: block;
-  font-family: monospace;
-  color: inherit;
-  background-color: inherit;
-  border: none;
-  padding: 0px;
-}
-
-.shell-script .line-number.first {
-  padding-top: 6px;
-}
-
-.shell-script .line-number.last {
-  padding-bottom: 6px;
-}
-
-.shell-script .line-number {
-  color: black;
-  background-color: lightgray;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  padding-left: 6px;
-  padding-right: 6px;
-  border-right: 3px darkgray solid;
-  margin-right: 6px;
-}
-
-.shell-script .prompt {
-  font-weight: bold;
-  color: darkgray;
-}
-
-.shell-script .command {
-  color: black;
-  cursor: default;
-}
-
-/* lisp form */
-
-.t.lisp-form.inspector {
-  font-family: monospace;
-  color: black;
-  background-color: lightyellow;
-  border: 1px darkgray solid;
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-
-.t.lisp-form.inspector .gutter {
-  display: block;
-  float: left;
-  font-family: monospace;
-  color: inherit;
-  background-color: lightyellow;
-  border: none;
-  padding: 0px;
-}
-
-.t.lisp-form.inspector .content {
-  display: block;
-  font-family: monospace;
-  color: inherit;
-  background-color: inherit;
-  border: none;
-  padding: 0px;
-}
-
-.t.lisp-form.inspector .line-number.first {
-  padding-top: 6px;
-}
-
-.t.lisp-form.inspector .line-number.last {
-  padding-bottom: 6px;
-}
-
-.t.lisp-form.inspector .line-number {
-  color: black;
-  background-color: #dddddd;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  padding-left: 6px;
-  padding-right: 6px;
-  border-right: 3px darkgray solid;
-  margin-right: 6px;
-}
-
-.t.lisp-form.inspector .token {
-  font-style: italic;
-}
-
-.t.lisp-form.inspector .comment {
-  color: darkgray;
-}
-
-.t.lisp-form.inspector .function {
-  color: black;
-  font-weight: bold;
-}
-
-.t.lisp-form.inspector .quote {
-  color: black;
-  font-weight: bold;
-}
-
-.t.lisp-form.inspector .unquote {
-  color: black;
-  font-weight: bold;
-}
-
-.t.lisp-form.inspector .backquote {
-  color: black;
-  font-weight: bold;
-}
-
-.t.lisp-form.inspector .unqoute-splicing {
-  color: black;
-  font-weight: bold;
-}
-
-.t.lisp-form.inspector .lexical-error {
-  color: red;
-  font-weight: bold;
-}
-
-.t.lisp-form.inspector .boolean {
-  color: darkgreen;
-}
-
-.t.lisp-form.inspector .character {
-  color: darkgreen;
-}
-
-.t.lisp-form.inspector .string {
-  color: darkgreen;
-}
-
-.t.lisp-form.inspector .number {
-  color: darkgreen;
-}
-
-.t.lisp-form.inspector .keyword {
-  color: darkred;
-}
-
-.t.lisp-form.inspector .common-lisp {
-  color: darkred;
-}
-
-.t.lisp-form.inspector .lambda-list-keyword {
-  color: darkblue;
-}
-
-.t.lisp-form.inspector .special-form {
-  color: darkred;
-}
-
-.t.lisp-form.inspector .definition .def {
-  color: darkred;
-}
-
-.t.lisp-form.inspector .definition .kind {
-  color: darkblue;
-  font-weight: bold;
-}
-
-.t.lisp-form.inspector .definition .name {
-  color: darkred;
-  font-weight: bold;
-}
-
-/* book */
-
-.book .title {
-  font-size: 24px;
-}
-
-.chapter .title {
-  font-size: 18px;
-}
-
-/* tree */
-
-.node .content.leaf
-{
-  padding-left: 1em;
-}
-
-.node.level-0
-{
-  padding-left: 0em;
-}
-
-/* NOTE: the 1em values all the way down is not an accident, they are divs, so they are nested */
-.node.level-1
-{
-  padding-left: 1em;
-}
-
-.node.level-2
-{
-  padding-left: 1em;
-}
-
-.node.level-3
-{
-  padding-left: 1em;
-}
-
-.node.level-4
-{
-  padding-left: 1em;
-}
-
-.node.level-5
-{
-  padding-left: 1em;
-}
-
-.node.level-6
-{
-  padding-left: 1em;
-}
-
-.node.level-7
-{
-  padding-left: 1em;
-}
-
-.node.level-8
-{
-  padding-left: 1em;
-}
-
-.node.level-9
-{
-  padding-left: 1em;
-}
-
-/* treeble */
-
-.nodrow.level-0 .cell
-{
-  padding-left: 0em;
-}
-
-.nodrow.level-1 .cell
-{
-  padding-left: 1em;
-}
-
-.nodrow.level-2 .cell
-{
-  padding-left: 2em;
-}
-
-.nodrow.level-3 .cell
-{
-  padding-left: 3em;
-}
-
-.nodrow.level-4 .cell
-{
-  padding-left: 4em;
-}
-
-.nodrow.level-5 .cell
-{
-  padding-left: 5em;
-}
-
-.nodrow.level-6 .cell
-{
-  padding-left: 6em;
-}
-
-.nodrow.level-7 .cell
-{
-  padding-left: 7em;
-}
-
-.nodrow.level-8 .cell
-{
-  padding-left: 8em;
-}
-
-.nodrow.level-9 .cell
-{
-  padding-left: 9em;
 }
 
 /* odd even */
@@ -377,261 +145,54 @@ a.external-link
   cursor: pointer;
 }
 
-.selected
-{
-  background-image: url('/static/wui/image/table-row/background-selected.png');
+.selected {
+  background-image: url("/static/wui/image/table-row/background-selected.png");
   background-repeat: repeat-x;
   background-color: #d1f4fc;
 }
 
-.filter-result
-{
-  background-image: url('/static/wui/image/table-row/background-filtered.png');
+.filter-result {
+  background-image: url("/static/wui/image/table-row/background-filtered.png");
   background-repeat: repeat-x;
   background-color: #cbf6c1;
 }
 
-.highlighted
-{
-  background-image: url('/static/wui/image/table-row/background-highlighted.png');
+.highlighted {
+  background-image: url("/static/wui/image/table-row/background-highlighted.png");
   background-repeat: repeat-x;
   background-color: #fdfac8;
 }
 
 /* table */
 
-table
-{
+table {
   border-collapse: collapse;
 }
 
-td
-{
+td {
   vertical-align: top;
 }
 
-/* tree */
+/* frame size breakdown */
 
-table.tree > tbody > tr > td.expander img
-{
-  padding-right: 6px;
-}
-
-table.tree > tbody > tr > td > .non-expandable
-{
-  padding-left: 17px; /* 11px missing img + 6px right padding */
-}
-
-table.tree > tbody > tr.level-0 > td.expander
-{
-  padding-left: 0em;
-}
-
-table.tree > tbody > tr.level-1 > td.expander
-{
-  padding-left: 1em;
-}
-
-table.tree > tbody > tr.level-2 > td.expander
-{
-  padding-left: 2em;
-}
-
-table.tree > tbody > tr.level-3 > td.expander
-{
-  padding-left: 3em;
-}
-
-table.tree > tbody > tr.level-4 > td.expander
-{
-  padding-left: 4em;
-}
-
-table.tree > tbody > tr.level-5 > td.expander
-{
-  padding-left: 5em;
-}
-
-table.tree > tbody > tr.level-6 > td.expander
-{
-  padding-left: 6em;
-}
-
-table.tree > tbody > tr.level-7 > td.expander
-{
-  padding-left: 7em;
-}
-
-table.tree > tbody > tr.level-8 > td.expander
-{
-  padding-left: 8em;
-}
-
-table.tree > tbody > tr.level-9 > td.expander
-{
-  padding-left: 9em;
-}
-
-/*
-  extended-table
-*/
-
-table.extended-table
-{
-  border-style: solid;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td
-{
-  vertical-align: middle;
-  text-align: center;
-}
-
-table.extended-table > tbody> tr > td.header
-{
-  background-color: lightgreen;
-  padding: 3px;
-  border-style: dotted;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.axis
-{
-  background-color: lightgreen;
-}
-
-table.extended-table > tbody > tr > td.separator
-{
-  background-color: yellow;
-}
-
-table.extended-table > tbody > tr > td.row-tooltip
-{
-  background-color: yellow;
-  height: 5px;
-  border-style: solid;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.column-tooltip
-{
-  background-color: yellow;
-  width: 5px;
-  border-style: solid;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.data
-{
-  padding: 3px;
-  border-style: dotted;
-  border-width: 1px;
-}
-
-table.extended-table > tbody > tr > td.hidden
-{
-  background-color: lightgray;
-}
-
-table.extended-table > tbody > tr > td.total
-{
-  font-weight: bold;
-  padding: 3px;
-  background-color: yellow;
-  border-style: solid;
-  border-width: 1px;
-}
-
-/*
-  frame size breakdown
-*/
-
-table.frame-size-breakdown
-{
+table.frame-size-breakdown {
   margin: 10px;
 }
 
-table.frame-size-breakdown > tbody > tr.total-row
-{
+table.frame-size-breakdown > tbody > tr.total-row {
   font-weight: bold;
 }
 
-table.frame-size-breakdown > tbody > tr > td.last
-{
+table.frame-size-breakdown > tbody > tr > td.last {
   color: gray;
 }
 
-table.frame-size-breakdown > tbody > tr > td.delta
-{
+table.frame-size-breakdown > tbody > tr > td.delta {
   color: gray;
 }
 
-/*
-  file download
-*/
+/* file download */
 
-.file-download .missing-file
-{
+.file-download .missing-file {
   color: red;
-}
-
-/*
-  filter
-*/
-.ignore-in-filter
-{
-  opacity: 0.3;
-}
-
-/* command-bar */
-
-.command-bar a
-{
-  margin-right: 1em;
-}
-
-.command .icon
-{
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-.command-bar .command
-{
-  margin-right: 3px;
-}
-
-/* ajax */
-
-.ajax-target
-{
-  opacity: 0.5;
-}
-
-.reference.ajax-target
-{
-  position: relative;
-  left: -22px;
-  padding-left: 22px;
-  background-image: url('/static/wui/image/ajax-request-in-progress.gif');
-  background-repeat: no-repeat;
-  background-position: left center;
-  cursor: wait;
-}
-
-.ajax-request-in-progress
-{
-  opacity: 0.5;
-  position: absolute;
-  background-image: url('/static/wui/image/ajax-request-in-progress.gif');
-  background-repeat: no-repeat;
-  background-position: center center;
-  z-index: 1000;
-  cursor: wait;
-}
-
-span .ajax-request-in-progress
-{
-  background-image: none;
 }
