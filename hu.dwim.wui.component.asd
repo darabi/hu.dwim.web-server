@@ -116,7 +116,7 @@
                                                          (:file "field")
                                                          (:file "file-up-and-download" :depends-on ("icon"))
                                                          (:file "frame" :depends-on ("top"))
-                                                         (:file "help" :depends-on ("icon"))
+                                                         (:file "help" :depends-on ("title" "icon"))
                                                          (:file "icon" :depends-on ("widget"))
                                                          (:file "image")
                                                          (:file "inline")
