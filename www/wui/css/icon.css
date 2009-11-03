@@ -57,10 +57,14 @@
 
 .expand-component.icon {
   background-image: url("/static/wui/icon/20x20/arrowhead-right.png");
+  width: 14px;
+  padding-left: 14px;
 }
 
 .collapse-component.icon {
   background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
+  width: 14px;
+  padding-left: 14px;
 }
 
 /* selectable */
@@ -131,6 +135,7 @@
 
 .external-link.icon {
   background-image: url("/static/wui/icon/10x10/arrow-out.png");
+  width: 10px;
   padding-left: 10px;
   margin-left: 3px;
 }
@@ -308,11 +313,14 @@
 
 .expand-from-reference.icon {
   background-image: url("/static/wui/icon/14x14/expand-reference.png");
+  width: 14px;
   padding-left: 14px;
 }
 
 .collapse-to-reference.icon {
   background-image: url("/static/wui/icon/20x20/arrowhead-down.png");
+  width: 14px;
+  padding-left: 14px;
 }
 
 /* authentication */

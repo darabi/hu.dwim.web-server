@@ -2,7 +2,7 @@
  * Common Lisp syntax hightlight.
  */
 
-.lisp-form.inspector {
+.t.lisp-form.inspector {
   font-family: monospace;
   color: black;
   background-color: lightyellow;

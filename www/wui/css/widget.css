@@ -27,7 +27,7 @@
   padding-bottom: 4px;
 }
 
-/* command bar */
+/* command-bar */
 
 .command-bar {
   margin-top: 6px;
@@ -41,72 +41,86 @@
   margin-right: 3px;
 }
 
+.command-bar .odd {
+  background-color: inherit;
+}
 
+.command-bar .even {
+  background-color: inherit;
+}
 
+/* tab-page-selector-bar */
 
+.tab-page-selector-bar .odd {
+  background-color: inherit;
+}
 
+.tab-page-selector-bar .even {
+  background-color: inherit;
+}
 
+/* name-value-pair */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-tr.name-value-pair {
+.name-value-pair {
   background-image: url( "/static/wui/image/table-row/background.png" );
   background-repeat: repeat-x;
   background-color: #fafafa;
 }
 
-tr.name-value-pair > td {
+.name-value-pair > td {
   vertical-align: middle;
   padding-top: 2px;
   padding-bottom: 2px;
   border-bottom: 1px dotted #c5def0;
 }
 
-tr.row {
+.name-value-pair > .name {
+  padding-right: 32px;
+}
+
+
+/* list */
+
+.element {
+  background-image: url( "/static/wui/image/table-row/background.png" );
+  background-repeat: repeat-x;
+  background-color: #fafafa;
+  border-bottom: 1px dotted #c5def0;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+
+/* table */
+
+.row {
   background-image: url( "/static/wui/image/table-row/background.png" );
   background-repeat: repeat-x;
   background-color: #fafafa;
 }
 
-tr.row > td {
+.row > td {
   vertical-align: middle;
   padding-top: 2px;
   padding-bottom: 2px;
   border-bottom: 1px dotted #c5def0;
 }
 
-div.element {
+/* tree */
+
+/* treeble */
+
+.nodrow {
   background-image: url( "/static/wui/image/table-row/background.png" );
   background-repeat: repeat-x;
   background-color: #fafafa;
-  border-bottom: 1px dotted #c5def0;
+}
+
+.nodrow > td {
+  vertical-align: middle;
   padding-top: 2px;
   padding-bottom: 2px;
+  border-bottom: 1px dotted #c5def0;
 }
 
 /* external link */
@@ -131,40 +145,6 @@ a.external-link {
   background-color: lightgray;
   border: 1px darkgray solid;
   padding: 6px;
-}
-
-/* odd even */
-
-.odd {
-  background-color: #ddffdd;
-}
-
-.even {
-  background-color: #ffffff;
-}
-
-/* selection, highlight */
-
-.selectable {
-  cursor: pointer;
-}
-
-.selected {
-  background-image: url("/static/wui/image/table-row/background-selected.png");
-  background-repeat: repeat-x;
-  background-color: #d1f4fc;
-}
-
-.filter-result {
-  background-image: url("/static/wui/image/table-row/background-filtered.png");
-  background-repeat: repeat-x;
-  background-color: #cbf6c1;
-}
-
-.highlighted {
-  background-image: url("/static/wui/image/table-row/background-highlighted.png");
-  background-repeat: repeat-x;
-  background-color: #fdfac8;
 }
 
 /* table */
@@ -199,4 +179,38 @@ table.frame-size-breakdown > tbody > tr > td.delta {
 
 .file-download .missing-file {
   color: red;
+}
+
+/* odd even */
+
+.odd {
+  background-color: #ddffdd;
+}
+
+.even {
+  background-color: #ffffff;
+}
+
+/* selection, highlight */
+
+.selectable {
+  cursor: pointer;
+}
+
+.selected {
+  background-image: url("/static/wui/image/table-row/background-selected.png");
+  background-repeat: repeat-x;
+  background-color: #d1f4fc;
+}
+
+.highlighted {
+  background-image: url("/static/wui/image/table-row/background-highlighted.png");
+  background-repeat: repeat-x;
+  background-color: #fdfac8;
+}
+
+.filter-result {
+  background-image: url("/static/wui/image/table-row/background-filtered.png");
+  background-repeat: repeat-x;
+  background-color: #cbf6c1;
 }
