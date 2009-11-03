@@ -9,6 +9,26 @@
 ;;;;;;
 ;;; Kludges
 
+;; KLUDGE:
+
+(def method convert-to-primitive-response :around ((self component-rendering-response))
+  (hu.dwim.rdbms::with-readonly-transaction
+    (call-next-method)))
+
+;; TODO: KLUDGE: move
+(def method reuse-component-value ((component component) (class standard-class) (prototype object-slot-place) (value object-slot-place))
+  (bind ((instance (instance-of value))
+         (class (class-of instance))
+         (reused-value (reuse-component-value component class (class-prototype class) instance)))
+    (unless (eq value reused-value)
+      (setf (instance-of value) reused-value))
+    value))
+
+;; TODO: KLUDGE: move
+(def method reuse-component-value ((component component) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) (value hu.dwim.perec::persistent-object))
+  (unless (eq value (class-prototype class))
+    (hu.dwim.perec::load-instance value)))
+
 ;; TODO: KLUDGE: this redefines, but we are practical for now
 (def function find-main-type-in-or-type (type)
   (remove-if (lambda (element)
