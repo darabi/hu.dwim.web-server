@@ -13,8 +13,8 @@
   ())
 
 (def layered-method make-alternatives ((component t/maker) class prototype value)
-  (list (delay-alternative-reference 't/reference/maker value)
-        (delay-alternative-component-with-initargs 't/name-value-list/maker :component-value value)))
+  (list (delay-alternative-component-with-initargs 't/name-value-list/maker :component-value value)
+        (delay-alternative-reference 't/reference/maker value)))
 
 ;;;;;;
 ;;; t/reference/maker

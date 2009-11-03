@@ -46,8 +46,8 @@
 "))
 
 (def layered-method make-alternatives ((component t/filter) class prototype value)
-  (list (delay-alternative-reference 't/reference/filter value)
-        (delay-alternative-component-with-initargs 't/name-value-list/filter :component-value value)))
+  (list (delay-alternative-component-with-initargs 't/name-value-list/filter :component-value value)
+        (delay-alternative-reference 't/reference/filter value)))
 
 (def render-component t/filter
   <div ,(call-next-method)

@@ -13,8 +13,8 @@
   ())
 
 (def layered-method make-alternatives ((component place/inspector) class prototype value)
-  (list (delay-alternative-reference 'place/reference/inspector value)
-        (delay-alternative-component-with-initargs 'place/value/inspector :component-value value)))
+  (list (delay-alternative-component-with-initargs 'place/value/inspector :component-value value)
+        (delay-alternative-reference 'place/reference/inspector value)))
 
 ;;;;;;
 ;;; place/reference/inspector
@@ -32,7 +32,8 @@
   (if (place-bound? value)
       (make-inspector (place-type value)
                       ;; TODO: handle unbound in a better way
-                      (value-at-place value))
+                      (value-at-place value)
+                      :initial-alternative-type 't/reference/inspector)
       (make-instance 'unbound/inspector)))
 
 ;;;;;;

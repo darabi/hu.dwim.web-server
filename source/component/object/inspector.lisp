@@ -50,8 +50,8 @@
 "))
 
 (def layered-method make-alternatives ((component t/inspector) class prototype value)
-  (list (delay-alternative-reference 't/reference/inspector value)
-        (delay-alternative-component-with-initargs 't/name-value-list/inspector :component-value value)))
+  (list (delay-alternative-component-with-initargs 't/name-value-list/inspector :component-value value)
+        (delay-alternative-reference 't/reference/inspector value)))
 
 ;;;;;;
 ;;; t/reference/inspector

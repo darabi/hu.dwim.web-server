@@ -13,9 +13,9 @@
   ())
 
 (def layered-method make-alternatives ((component sequence/inspector) class prototype value)
-  (list (delay-alternative-reference 'sequence/reference/inspector value)
-        (delay-alternative-component-with-initargs 'sequence/list/inspector :component-value value)
-        (delay-alternative-component-with-initargs 'sequence/tree/inspector :component-value value)))
+  (list (delay-alternative-component-with-initargs 'sequence/list/inspector :component-value value)
+        (delay-alternative-component-with-initargs 'sequence/tree/inspector :component-value value)
+        (delay-alternative-reference 'sequence/reference/inspector value)))
 
 ;;;;;;
 ;;; sequence/reference/inspector
