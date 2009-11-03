@@ -12,6 +12,9 @@
 (def (component e) sequence/inspector (t/inspector)
   ())
 
+(def layered-method find-inspector-type-for-prototype ((prototype sequence))
+  'sequence/inspector)
+
 (def layered-method make-alternatives ((component sequence/inspector) class prototype value)
   (list (delay-alternative-component-with-initargs 'sequence/list/inspector :component-value value)
         (delay-alternative-component-with-initargs 'sequence/tree/inspector :component-value value)

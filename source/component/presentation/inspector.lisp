@@ -101,7 +101,9 @@
     `(sequence/inspector :component-value ,(find-class 'component)))
 
   (:method ((type symbol))
-    (find-inspector-type-for-type (find-type-by-name type)))
+    (aif (find-type-by-name type :otherwise nil)
+         (find-inspector-type-for-type it)
+         (call-next-method)))
 
   (:method ((class (eql (find-class t))))
     't/inspector)
@@ -125,6 +127,9 @@
   (find-inspector-type-for-compound-type* (first type) type))
 
 (def (layered-function e) find-inspector-type-for-compound-type* (first type)
+  (:method (first (type cons))
+    't/inspector)
+
   (:method ((first (eql 'member)) (type cons))
     `(member/inspector :possible-values ,(rest type)))
 
@@ -179,9 +184,6 @@
 
   (:method ((prototype local-time:timestamp))
     'timestamp/inspector)
-
-  (:method ((prototype list))
-    'sequence/inspector)
 
   (:method ((prototype standard-slot-definition))
     'standard-slot-definition/inspector)

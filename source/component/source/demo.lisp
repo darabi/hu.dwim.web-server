@@ -26,9 +26,9 @@
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "XHTML" :tooltip "Generated XHTML output"))
                       (make-instance 'component/inspector :component-value component :initial-alternative-type 'component/render-xhtml-output/inspector))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Live demo component internal state inspector"))
-                      (make-inspector (class-of component) component))
+                      (make-inspector (class-of component) component :initial-alternative-type 't/detail/presentation))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation" :tooltip "Component class documentation"))
-                      (component-documentation component))))))
+                      (make-value-inspector (component-documentation component) :initial-alternative-type 't/detail/presentation))))))
 
 (def render-xhtml lisp-form/component-demo/inspector
   (with-render-style/abstract (-self-)

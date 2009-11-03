@@ -86,6 +86,9 @@
   (find-filter-type-for-compound-type* (first type) type))
 
 (def (layered-function e) find-filter-type-for-compound-type* (first type)
+  (:method (first (type cons))
+    't/filter)
+
   (:method ((first (eql 'member)) (type cons))
     `(member/filter :possible-values ,(rest type)))
 
