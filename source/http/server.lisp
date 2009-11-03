@@ -34,7 +34,7 @@
    (request-content-length-limit *request-content-length-limit* :type integer)
    (lock (make-recursive-lock "WUI server lock"))
    (shutdown-initiated #f :type boolean)
-   (workers (make-adjustable-vector 16))
+   (workers (make-adjustable-vector 16) :type sequence)
    (maximum-worker-count 16 :type integer :export :accessor)
    (occupied-worker-count 0 :type integer)
    (started-at nil :type local-time:timestamp)

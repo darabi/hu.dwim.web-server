@@ -7,7 +7,7 @@
 (in-package :hu.dwim.wui)
 
 (def (class* e) broker-based-server (server)
-  ((brokers :export :accessor))
+  ((brokers :export :accessor :type sequence))
   (:default-initargs :handler 'broker-based-server-handler))
 
 (def print-object broker-based-server
