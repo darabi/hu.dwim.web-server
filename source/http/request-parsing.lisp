@@ -304,7 +304,7 @@
                                             :version version
                                             :supported (>= version minimum-version)
                                             :http-header http-agent))))))
-                (aprog1 (or (check-user-agent +chrome-version-scanner+ :chrome 4)
+                (aprog1 (or (check-user-agent +chrome-version-scanner+ :chrome 3)
                             (check-user-agent +opera-version-scanner+ :opera 9.6)
                             (check-user-agent +konqueror-version-scanner+ :konqueror 4.2)
                             (check-user-agent +safari-version-scanner+ :safari 4)
