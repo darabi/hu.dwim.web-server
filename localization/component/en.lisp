@@ -292,7 +292,7 @@
   (icon-tooltip.go-to-previous-page "Go to previous page")
 
   (icon-label.go-to-next-page "Next")
-  (icon-tooltip.go-to-next-page "go to next page")
+  (icon-tooltip.go-to-next-page "Go to next page")
 
   (icon-label.go-to-last-page "Last")
   (icon-tooltip.go-to-last-page "Jump to last page")
