@@ -30,7 +30,7 @@
   (with-render-style/abstract (-self- :element-name "span")
     (bind ((uri (print-uri-to-string (component-value-of -self-))))
       ;; TODO: refactor this to use the external-link/widget
-      <a (:href ,uri :target "_new")
+      <a (:href ,uri :target "_blank")
         ,uri
         ,(render-component (icon external-link))>)))
 

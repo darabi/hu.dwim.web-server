@@ -125,15 +125,15 @@
 
 /* external link */
 
-a.external-link {
-  padding-right: 12px;
-  background-image: url("/static/wui/icon/10x10/arrow-out.png");
-  background-repeat: no-repeat;
-  background-position: right center;
+.external-link a {
   color: darkblue;
 }
 
-.external-link:hover {
+.external-link a {
+  text-decoration: none;
+}
+
+.external-link:hover a {
   text-decoration: underline;
 }
 

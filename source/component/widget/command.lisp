@@ -150,7 +150,9 @@
   (command-position (content-of self)))
 
 (def method component-style-class ((self command/widget))
-  (string+ (call-next-method) " command"))
+  (if (eq 'command/widget (class-name (class-of self)))
+      (call-next-method)
+      (string+ (call-next-method) " command")))
 
 ;;;;;;
 ;;; Generic commands
