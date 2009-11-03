@@ -54,8 +54,8 @@
 (def method (setf component-value-of) (new-value (self string))
   (values))
 
-(def method reuse-component-value ((self string) class prototype value)
-  (values))
+(def method reuse-component-value ((component string) class prototype value)
+  value)
 
 ;;;;;;
 ;;; Render component

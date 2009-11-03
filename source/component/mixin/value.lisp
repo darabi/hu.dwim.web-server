@@ -21,3 +21,11 @@
 
 (def method (setf component-value-of) (new-value (self component-value/mixin))
   (setf (slot-value self 'component-value) new-value))
+
+(def layered-method refresh-component :before ((self component-value/mixin))
+  (bind ((value (component-value-of self))
+         (class (component-dispatch-class self))
+         (prototype (component-dispatch-prototype self))
+         (reused-value (reuse-component-value self class prototype value)))
+    (unless (eq value reused-value)
+      (setf (component-value-of self) reused-value))))

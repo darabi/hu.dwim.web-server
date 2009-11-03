@@ -275,7 +275,7 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
   (values))
 
 (def method reuse-component-value ((self component) class prototype value)
-  (values))
+  value)
 
 ;;;;;;
 ;;; Component editing
