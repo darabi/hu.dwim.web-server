@@ -93,7 +93,7 @@
   ;; TODO: can't we make it faster/better (what about a generic method or something?)
   (or (position (name-of self)
                 ;; TODO: this name thingie is quite fragile
-                '(answer navigate-back focus-out open-in-new-frame focus-in collapse-component refresh-component begin-editing save-editing cancel-editing store-editing revert-editing new-instance delete-instance))
+                '(answer navigate-back focus-out open-in-new-frame focus-in collapse-component collapse-to-reference refresh-component begin-editing save-editing cancel-editing store-editing revert-editing new-instance delete-instance))
       most-positive-fixnum))
 
 ;;;;;;

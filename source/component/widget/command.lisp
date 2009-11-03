@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; command/widget
 
-(def (component e) command/widget (widget/basic content/mixin disableable/mixin)
+(def (component e) command/widget (widget/style content/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in hu.dwim.perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available
@@ -73,11 +73,10 @@
                             :action-arguments ,action-arguments)))))))
 
 (def render-xhtml command/widget
-  (bind (((:read-only-slots content action enabled-component default ajax js action-arguments) -self-)
+  (bind (((:read-only-slots content action enabled-component default ajax js action-arguments id) -self-)
          (style-class (component-style-class -self-)))
     (if (force enabled-component)
-        (bind ((id (generate-frame-unique-string))
-               ((:values href send-client-state?) (href-for-command action action-arguments))
+        (bind (((:values href send-client-state?) (href-for-command action action-arguments))
                (onclick-js (or js
                                (lambda (href)
                                  `js(wui.io.action ,href
@@ -102,7 +101,7 @@
             (bind ((submit-id (generate-frame-unique-string)))
               <input (:id ,submit-id :type "submit" :style "display: none;")>
               `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
-        <span (:class "command widget disabled")
+        <span (:id ,id :class "command widget disabled")
               #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
               ,(render-component content)>)))
 
@@ -149,6 +148,9 @@
 
 (def method command-position ((self command/widget))
   (command-position (content-of self)))
+
+(def method component-style-class ((self command/widget))
+  (string+ (call-next-method) " command"))
 
 ;;;;;;
 ;;; Generic commands

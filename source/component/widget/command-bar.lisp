@@ -36,7 +36,12 @@
 
 (def render-xhtml command-bar/widget
   (with-render-style/abstract (-self-)
-    (foreach #'render-component (commands-of -self-))))
+    (iter (with commands = (commands-of -self-))
+          (with length = (length commands))
+          (for index :from 0)
+          (for command :in commands)
+          <span (:class ,(element-style-class index length))
+            ,(render-component command)>)))
 
 (def render-csv command-bar/widget
   (write-csv-separated-elements #\Space (commands-of -self-)))

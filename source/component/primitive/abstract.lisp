@@ -380,6 +380,8 @@
     (bind (((:values nil nil slot) (extract-primitive-component-place component)))
       (when slot
         (bind ((slot-name (slot-definition-name slot)))
+          ;; TODO: revive
+          #+nil
           (find-icon (format-symbol (symbol-package slot-name)
                                     "~A-~A"
                                     slot-name
