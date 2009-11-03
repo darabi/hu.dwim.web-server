@@ -16,11 +16,12 @@
              type))
 
 ;; TODO: KLUDGE: this redefines, but we are practical for now
-(def function find-type-by-name (name)
+(def function find-type-by-name (name &key otherwise)
   (or (find-class name #f)
-      (hu.dwim.perec:find-type name)))
+      (hu.dwim.perec:find-type name :otherwise otherwise)))
 
 ;; KLUDGE: TODO: redefined for now
+#+nil
 (def function update-component-value-from-place (place component)
   (when (place-bound? place)
     (bind ((value (value-at-place place)))
@@ -31,6 +32,7 @@
                 value)))))
 
 ;; KLUDGE: TODO: redefined for now
+#+nil
 (def layered-function render-icon-label (icon label)
   (:method (icon label)
     ;; TODO: use a flag in the component to mark the label as important (so cannot be hidden) and forget about typep here
@@ -50,6 +52,7 @@
     label))
 
 ;; KLUDGE: TODO: redefined for now
+#+nil
 (def (function e) save-editing (editable &key (leave-editing #t))
   (assert (typep editable 'editable/mixin))
   ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
@@ -68,6 +71,7 @@
             (add-user-information editable "A változtatások elmentése sikerült"))))))
 
 ;; KLUDGE: TODO: redefined for now
+#+nil
 (def method make-place-component-command-bar ((self standard-object-place-maker))
   (bind ((type (the-type-of self)))
     (make-instance 'command-bar/basic :commands (optional-list (when (hu.dwim.perec::null-subtype-p type)

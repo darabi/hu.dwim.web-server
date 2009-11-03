@@ -9,204 +9,177 @@
 ;;;;;;
 ;;; Inspector
 
-(def methods find-inspector-type-for-type
+(def layered-methods find-inspector-type-for-type
   (:method ((type hu.dwim.perec:persistent-type))
     (error "Unknown type ~A" type))
 
   (:method ((type hu.dwim.perec:boolean-type))
-    'boolean-inspector)
+    'boolean/inspector)
 
   (:method ((type hu.dwim.perec:integer-type))
-    'integer-inspector)
+    'integer/inspector)
 
   (:method ((type hu.dwim.perec:float-type))
-    'float-inspector)
+    'float/inspector)
 
   (:method ((type hu.dwim.perec:float-32-type))
-    'float-inspector)
+    'float/inspector)
 
   (:method ((type hu.dwim.perec:float-64-type))
-    'float-inspector)
+    'float/inspector)
 
   (:method ((type hu.dwim.perec:number-type))
-    'number-inspector)
+    'number/inspector)
 
   (:method ((type hu.dwim.perec:string-type))
-    'string-inspector)
+    'string/inspector)
 
   (:method ((type hu.dwim.meta-model:html-text-type))
-    'html-inspector)
+    'html/inspector)
 
   (:method ((type hu.dwim.perec:date-type))
-    'date-inspector)
+    'date/inspector)
 
   (:method ((type hu.dwim.perec:time-type))
-    'time-inspector)
+    'time/inspector)
 
   (:method ((type hu.dwim.perec:timestamp-type))
-    'timestamp-inspector)
+    'timestamp/inspector)
 
   (:method ((type hu.dwim.perec:member-type))
-    (list 'member-inspector :possible-values (hu.dwim.perec:members-of type)))
+    `(member/inspector :possible-values ,(hu.dwim.perec:members-of type)))
 
   (:method ((type hu.dwim.perec:form-type))
-    'expression-inspector)
+    'expression/inspector)
 
   (:method ((type hu.dwim.perec:serialized-type))
-    't-inspector)
+    't/inspector)
 
   (:method ((type hu.dwim.perec:set-type))
-    `(standard-object-list-inspector :the-class ,(hu.dwim.perec::element-type-of type)))
+    `(sequence/inspector :the-class ,(hu.dwim.perec::element-type-of type)))
 
   (:method ((type hu.dwim.perec:ip-address-type))
-    'ip-address-inspector))
+    'ip-address/inspector))
 
-(def method find-inspector-type-for-compound-type* (first type)
+(def layered-method find-inspector-type-for-compound-type* (first type)
   (find-inspector-type-for-type (hu.dwim.perec:parse-type type)))
 
-(def method find-inspector-type-for-prototype ((prototype hu.dwim.perec::d-value))
-  'd-value-inspector)
+(def layered-method find-inspector-type-for-prototype ((prototype hu.dwim.perec::d-value))
+  'd-value/inspector)
 
 ;;;;;;
 ;;; Filter
 
-(def methods find-filter-type-for-type
+(def layered-methods find-filter-type-for-type
   (:method ((type hu.dwim.perec:persistent-type))
     (error "Unknown type ~A" type))
 
   (:method ((type hu.dwim.perec:boolean-type))
-    'boolean-filter)
+    'boolean/filter)
 
   (:method ((type hu.dwim.perec:integer-type))
-    'integer-filter)
+    'integer/filter)
 
   (:method ((type hu.dwim.perec:float-type))
-    'float-filter)
+    'float/filter)
 
   (:method ((type hu.dwim.perec:float-32-type))
-    'float-filter)
+    'float/filter)
 
   (:method ((type hu.dwim.perec:float-64-type))
-    'float-filter)
+    'float/filter)
 
   (:method ((type hu.dwim.perec:number-type))
-    'number-filter)
+    'number/filter)
 
   (:method ((type hu.dwim.perec:string-type))
-    'string-filter)
+    'string/filter)
 
   (:method ((type hu.dwim.meta-model:html-text-type))
-    'html-filter)
+    'html/filter)
 
   (:method ((type hu.dwim.perec:date-type))
-    'date-filter)
+    'date/filter)
 
   (:method ((type hu.dwim.perec:time-type))
-    'time-filter)
+    'time/filter)
 
   (:method ((type hu.dwim.perec:timestamp-type))
-    'timestamp-filter)
+    'timestamp/filter)
 
   (:method ((type hu.dwim.perec:member-type))
-    (list 'member-filter :possible-values (hu.dwim.perec:members-of type)))
+    (list 'member/filter :possible-values (hu.dwim.perec:members-of type)))
 
   (:method ((type hu.dwim.perec:form-type))
-    'expression-filter)
+    'expression/filter)
 
   (:method ((type hu.dwim.perec:serialized-type))
-    't-filter)
+    't/filter)
 
   (:method ((type hu.dwim.perec:ip-address-type))
-    'ip-address-filter)
+    'ip-address/filter)
 
   (:method ((type hu.dwim.perec:set-type))
     ;; TODO:
-    't-filter))
+    't/filter))
 
-(def method find-filter-type-for-compound-type* (first type)
+(def layered-method find-filter-type-for-compound-type* (first (type cons))
   (find-filter-type-for-type (hu.dwim.perec:parse-type type)))
 
 ;;;;;;
 ;;; Maker
 
-(def methods find-maker-type-for-type
+(def layered-methods find-maker-type-for-type
   (:method ((type hu.dwim.perec:persistent-type))
     (error "Unknown type ~A" type))
 
   (:method ((type hu.dwim.perec:boolean-type))
-    'boolean-maker)
+    'boolean/maker)
 
   (:method ((type hu.dwim.perec:integer-type))
-    'integer-maker)
+    'integer/maker)
 
   (:method ((type hu.dwim.perec:float-type))
-    'float-maker)
+    'float/maker)
 
   (:method ((type hu.dwim.perec:float-32-type))
-    'float-maker)
+    'float/maker)
 
   (:method ((type hu.dwim.perec:float-64-type))
-    'float-maker)
+    'float/maker)
 
   (:method ((type hu.dwim.perec:number-type))
-    'number-maker)
+    'number/maker)
 
   (:method ((type hu.dwim.perec:string-type))
-    'string-maker)
+    'string/maker)
 
   (:method ((type hu.dwim.meta-model:html-text-type))
-    'html-maker)
+    'html/maker)
 
   (:method ((type hu.dwim.perec:date-type))
-    'date-maker)
+    'date/maker)
 
   (:method ((type hu.dwim.perec:time-type))
-    'time-maker)
+    'time/maker)
 
   (:method ((type hu.dwim.perec:timestamp-type))
-    'timestamp-maker)
+    'timestamp/maker)
 
   (:method ((type hu.dwim.perec:member-type))
-    (list 'member-maker :possible-values (hu.dwim.perec:members-of type)))
+    `(member/maker :possible-values ,(hu.dwim.perec:members-of type)))
 
   (:method ((type hu.dwim.perec:form-type))
-    'expression-maker)
+    'expression/maker)
 
   (:method ((type hu.dwim.perec:serialized-type))
-    't-maker)
+    't/maker)
 
   (:method ((type hu.dwim.perec:ip-address-type))
-    'ip-address-maker)
+    'ip-address/maker)
 
   (:method ((type hu.dwim.perec:set-type))
-    `(standard-object-list-inspector :the-class ,(hu.dwim.perec::element-type-of type))))
+    `(sequence/maker :the-class ,(hu.dwim.perec::element-type-of type))))
 
-(def method find-maker-type-for-compound-type* (first type)
+(def layered-method find-maker-type-for-compound-type* (first type)
   (find-maker-type-for-type (hu.dwim.perec:parse-type type)))
-
-;;;;;;
-;;; Place inspector
-
-(def method find-place-inspector-type-for-compound-type* (first type)
-  (find-place-inspector-type-for-type (hu.dwim.perec:parse-type type)))
-
-(def method find-place-inspector-type-for-type ((type (eql 'hu.dwim.perec::timestamp)))
-  'place-inspector)
-
-;;;;;;
-;;; Place maker
-
-(def method find-place-maker-type-for-compound-type* (first type)
-  (find-place-maker-type-for-type (hu.dwim.perec:parse-type type)))
-
-(def method find-place-maker-type-for-type ((type (eql 'hu.dwim.perec::timestamp)))
-  'place-maker)
-
-;;;;;;
-;;; Place filter
-
-(def method find-place-filter-type-for-compound-type* (first type)
-  (find-place-filter-type-for-type (hu.dwim.perec:parse-type type)))
-
-(def method find-place-filter-type-for-type ((type (eql 'hu.dwim.perec::timestamp)))
-  'place-filter)

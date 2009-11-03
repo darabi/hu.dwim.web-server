@@ -53,6 +53,9 @@
   <div ,(call-next-method)
        ,(render-component (result-of -self-))>)
 
+(def method component-dispatch-class ((self t/filter))
+  (component-value-of self))
+
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
   (optional-list* (make-execute-filter-command component class prototype value)
                   (call-next-method)))
@@ -182,7 +185,7 @@
 
 (def layered-method make-filter-predicate ((component place/name-value-pair/filter) class prototype value)
   (bind ((place (component-value-of component))
-         (predicate (selected-predicate-of component)))
+         (predicate (predicate-function (content-of (value-of component)) prototype (selected-predicate-of component))))
     (when (use-in-filter? component)
       (lambda (candidate)
         ;; TODO: use place API instead of slot API
@@ -253,6 +256,50 @@
 (def function like (value pattern)
   ;; TODO: 
   (search pattern (string value) :test #'char-equal))
+
+(def generic predicate-function (component class predicate)
+  (:method ((component t/filter) class predicate)
+    'eq)
+
+  (:method ((component primitive/filter) class (predicate null))
+    'equal)
+
+  (:method ((component primitive/filter) class (predicate (eql 'equal)))
+    'equal)
+
+  (:method ((component string/filter) class (predicate (eql 'like)))
+    (bind ((scanner nil)
+           (previous-regexp nil))
+      (lambda (value regexp)
+        (unless (equal regexp previous-regexp)
+          (setf scanner (cl-ppcre:create-scanner regexp :case-insensitive-mode #t)))
+        (and (stringp value)
+             (cl-ppcre:do-matches (match-start match-end scanner value nil)
+               (return #t))))))
+
+  (:method ((component string/filter) class (predicate (eql 'less-than)))
+    'string<)
+
+  (:method ((component string/filter) class (predicate (eql 'less-than-or-equal)))
+    'string<=)
+
+  (:method ((component string/filter) class (predicate (eql 'greater-than)))
+    'string>)
+
+  (:method ((component string/filter) class (predicate (eql 'greater-than-or-equal)))
+    'string>=)
+
+  (:method ((component number/filter) class (predicate (eql 'less-than)))
+    '<)
+
+  (:method ((component number/filter) class (predicate (eql 'less-than-or-equal)))
+    '<=)
+
+  (:method ((component number/filter) class (predicate (eql 'greater-than)))
+    '>)
+
+  (:method ((component number/filter) class (predicate (eql 'greater-than-or-equal)))
+    '>=))
 
 (def function render-filter-predicate-for (self)
   (bind (((:slots negated selected-predicate) self)
