@@ -34,7 +34,7 @@
   ((session nil :type session)
    (unique-counter 0 :type integer)
    (frame-index (generate-frame-index) :type string)
-   (next-frame-index (generate-frame-index 0) :type integer)
+   (next-frame-index (generate-frame-index 0) :type string)
    (client-state-sink-id->client-state-sink (make-hash-table :test 'equal) :type hash-table)
    (action-id->action (make-hash-table :test 'equal) :type hash-table)
    (root-component nil :type component :export #t)
