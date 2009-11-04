@@ -56,12 +56,13 @@
     't/inspector)
 
   (:method ((type hu.dwim.perec:set-type))
-    `(sequence/inspector :the-class ,(hu.dwim.perec::element-type-of type)))
+    `(sequence/inspector :component-value ,(hu.dwim.perec::element-type-of type)))
 
   (:method ((type hu.dwim.perec:ip-address-type))
     'ip-address/inspector))
 
-(def layered-method find-inspector-type-for-compound-type* (first type)
+;; KLUDGE: overwrites method
+(def layered-method find-inspector-type-for-compound-type* (first (type cons))
   (find-inspector-type-for-type (hu.dwim.perec:parse-type type)))
 
 (def layered-method find-inspector-type-for-prototype ((prototype hu.dwim.perec::d-value))
@@ -179,7 +180,7 @@
     'ip-address/maker)
 
   (:method ((type hu.dwim.perec:set-type))
-    `(sequence/maker :the-class ,(hu.dwim.perec::element-type-of type))))
+    `(sequence/maker :component-value ,(hu.dwim.perec::element-type-of type))))
 
 (def layered-method find-maker-type-for-compound-type* (first type)
   (find-maker-type-for-type (hu.dwim.perec:parse-type type)))
