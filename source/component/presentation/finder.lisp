@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; finder/abstract
 
-(def (component e) finder/abstract (component-value/mixin)
+(def (component e) finder/abstract (presentation/abstract)
   ())
 
 ;;;;;;
 ;;; finder/minimal
 
-(def (component e) finder/minimal (finder/abstract component/minimal)
+(def (component e) finder/minimal (finder/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; finder/basic
 
-(def (component e) finder/basic (finder/minimal component/basic)
+(def (component e) finder/basic (finder/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; finder/style
 
-(def (component e) finder/style (finder/basic component/style)
+(def (component e) finder/style (finder/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; finder/full
 
-(def (component e) finder/full (finder/style component/full)
+(def (component e) finder/full (finder/style presentation/full)
   ())
 
 ;;;;;;

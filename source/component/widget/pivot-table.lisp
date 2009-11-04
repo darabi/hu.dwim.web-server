@@ -66,7 +66,7 @@
         (make-instance 'pivot-sheet-table-component
                        :row-headers (make-axes-headers row-axes)
                        :column-headers (make-axes-headers column-axes)
-                       :header-cell (make-viewer self :initial-alternative-type 'reference-component))))))
+                       :header-cell (make-viewer self :initial-alternative-type 't/reference/presentation))))))
 
 (def layered-method make-title :in pivot-table-layer :around ((self component))
   (unless (pivot-sheet-table-cell? self)

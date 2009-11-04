@@ -9,8 +9,8 @@
 ;;;;;;
 ;;; t/presentation
 
-(def (component e) t/presentation (alternator/widget)
-  ((initial-alternative-type 't/reference/presentation)
+(def (component e) t/presentation (presentation/abstract alternator/widget)
+  ((initial-alternative-type 't/detail/presentation)
    (default-alternative-type 't/detail/presentation)))
 
 (def layered-method refresh-component :before ((-self- t/presentation))
@@ -20,7 +20,7 @@
 ;;;;;;
 ;;; t/reference/presentation
 
-(def (component e) t/reference/presentation (reference/widget)
+(def (component e) t/reference/presentation (presentation/abstract reference/widget)
   ())
 
 (def refresh-component t/reference/presentation
@@ -35,7 +35,7 @@
 ;;;;;;
 ;;; t/detail/presentation
 
-(def (component e) t/detail/presentation ()
+(def (component e) t/detail/presentation (presentation/abstract)
   ())
 
 ;;;;;;
@@ -65,7 +65,7 @@
 ;;;;;;
 ;;; place-group-list/name-value-list/presentation
 
-(def (component e) place-group-list/name-value-list/presentation (name-value-list/widget)
+(def (component e) place-group-list/name-value-list/presentation (t/detail/presentation name-value-list/widget)
   ())
 
 (def refresh-component place-group-list/name-value-list/presentation
@@ -87,7 +87,7 @@
 ;;;;;;
 ;;; place-group/name-value-group/presentation
 
-(def (component e) place-group/name-value-group/presentation (name-value-group/widget)
+(def (component e) place-group/name-value-group/presentation (t/detail/presentation name-value-group/widget)
   ())
 
 (def refresh-component place-group/name-value-group/presentation
@@ -108,7 +108,7 @@
 ;;;;;;
 ;;; place/name-value-pair/presentation
 
-(def (component e) place/name-value-pair/presentation (name-value-pair/widget)
+(def (component e) place/name-value-pair/presentation (t/detail/presentation name-value-pair/widget)
   ())
 
 (def refresh-component place/name-value-pair/presentation

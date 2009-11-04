@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; selector/abstract
 
-(def (component e) selector/abstract (component-value/mixin)
+(def (component e) selector/abstract (presentation/abstract)
   ())
 
 ;;;;;;
 ;;; selector/minimal
 
-(def (component e) selector/minimal (selector/abstract component/minimal)
+(def (component e) selector/minimal (selector/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; selector/basic
 
-(def (component e) selector/basic (selector/minimal component/basic)
+(def (component e) selector/basic (selector/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; selector/style
 
-(def (component e) selector/style (selector/basic component/style)
+(def (component e) selector/style (selector/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; selector/full
 
-(def (component e) selector/full (selector/style component/full)
+(def (component e) selector/full (selector/style presentation/full)
   ())
 
 ;;;;;;

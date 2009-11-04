@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; maker/abstract
 
-(def (component e) maker/abstract (component-value/mixin)
+(def (component e) maker/abstract (presentation/abstract)
   ())
 
 ;;;;;;
 ;;; maker/minimal
 
-(def (component e) maker/minimal (maker/abstract component/minimal)
+(def (component e) maker/minimal (maker/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; maker/basic
 
-(def (component e) maker/basic (maker/minimal component/basic)
+(def (component e) maker/basic (maker/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; maker/style
 
-(def (component e) maker/style (maker/basic component/style)
+(def (component e) maker/style (maker/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; maker/full
 
-(def (component e) maker/full (maker/style component/full)
+(def (component e) maker/full (maker/style presentation/full)
   ())
 
 ;;;;;;

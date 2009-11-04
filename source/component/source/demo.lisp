@@ -22,13 +22,13 @@
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Demo" :tooltip "Running live demo component"))
                       component)
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Source" :tooltip "Original lisp source code that was used to create the component"))
-                      (make-instance 't/lisp-form/inspector :component-value (make-lisp-form-component-value component-value)))
+                      (make-value-instance (make-lisp-form-component-value component-value) :initial-alternative-type 't/lisp-form/inspector))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "XHTML" :tooltip "Generated XHTML output"))
-                      (make-instance 'component/inspector :component-value component :initial-alternative-type 'component/render-xhtml-output/inspector))
+                      (make-value-inspector component :initial-alternative-type 'component/render-xhtml-output/inspector))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Live demo component internal state inspector"))
-                      (make-inspector (class-of component) component :initial-alternative-type 't/detail/presentation))
+                      (make-value-inspector component :initial-alternative-type 't/name-value-list/inspector))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation" :tooltip "Component class documentation"))
-                      (make-value-inspector (component-documentation component) :initial-alternative-type 't/detail/presentation))))))
+                      (make-value-inspector (component-documentation component) :initial-alternative-type 't/text/inspector))))))
 
 (def render-xhtml lisp-form/component-demo/inspector
   (with-render-style/abstract (-self-)

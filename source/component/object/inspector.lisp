@@ -56,7 +56,13 @@
 ;;;;;;
 ;;; t/reference/inspector
 
-(def (component e) t/reference/inspector (inspector/basic t/reference/presentation)
+(def (component e) t/reference/inspector (inspector/abstract t/reference/presentation)
+  ())
+
+;;;;;;
+;;; t/detail/inspector
+
+(def (component e) t/detail/inspector (inspector/abstract t/detail/presentation)
   ())
 
 ;;;;;

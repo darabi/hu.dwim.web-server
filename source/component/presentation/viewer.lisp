@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; viewer/abstract
 
-(def (component e) viewer/abstract (component-value/mixin)
+(def (component e) viewer/abstract (presentation/abstract)
   ())
 
 ;;;;;;
 ;;; viewer/minimal
 
-(def (component e) viewer/minimal (viewer/abstract component/minimal)
+(def (component e) viewer/minimal (viewer/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; viewer/basic
 
-(def (component e) viewer/basic (viewer/minimal component/basic)
+(def (component e) viewer/basic (viewer/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; viewer/style
 
-(def (component e) viewer/style (viewer/basic component/style)
+(def (component e) viewer/style (viewer/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; viewer/full
 
-(def (component e) viewer/full (viewer/style component/full)
+(def (component e) viewer/full (viewer/style presentation/full)
   ())
 
 ;;;;;;

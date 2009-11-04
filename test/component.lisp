@@ -883,13 +883,11 @@
     (component-demo/widget "Book"
       (make-value-inspector
        (book (:title "The Guide" :authors '("Levente Mészáros"))
-         +lorem-ipsum+)
-       :initial-alternative-type 't/text/inspector))
+         +lorem-ipsum+)))
     (component-demo/widget "Chapter"
       (make-value-inspector
        (chapter (:title "Lorem ipsum")
-         +lorem-ipsum+)
-       :initial-alternative-type 't/text/inspector))
+         +lorem-ipsum+)))
     (component-demo/widget "Glossary"
       "TODO")
     (component-demo/widget "Index"
@@ -897,8 +895,7 @@
     (component-demo/widget "Paragraph"
       (make-value-inspector
        (paragraph ()
-         +lorem-ipsum+)
-       :initial-alternative-type 't/text/inspector))
+         +lorem-ipsum+)))
     (component-demo/widget "Toc"
       "TODO")))
 

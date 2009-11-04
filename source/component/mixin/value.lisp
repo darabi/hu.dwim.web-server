@@ -13,8 +13,8 @@
   ((component-value
     :type t
     :computed-in compute-as
-    :documentation "The current COMPONENT-VALUE that is handled by this COMPONENT."))
-  (:documentation "A COMPONENT that handles a single COMPONENT-VALUE."))
+    :documentation "The current COMPONENT-VALUE that is presented by this COMPONENT."))
+  (:documentation "A COMPONENT that presents a single COMPONENT-VALUE."))
 
 (def method component-value-of ((self component-value/mixin))
   (slot-value self 'component-value))

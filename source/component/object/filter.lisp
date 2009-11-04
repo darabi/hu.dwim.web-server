@@ -54,7 +54,13 @@
        ,(render-component (result-of -self-))>)
 
 (def method component-dispatch-class ((self t/filter))
-  (component-value-of self))
+  (bind ((component-value (component-value-of self)))
+    (if (consp component-value)
+        (bind ((main-type (find-main-type-in-or-type component-value)))
+          (if (= 1 (length main-type))
+              (find-class (first main-type))
+              (find-class t)))
+        component-value)))
 
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
   (optional-list* (make-execute-filter-command component class prototype value)
@@ -72,7 +78,7 @@
 
 (def (layered-function e) make-filter-result-inspector (component class prototype value)
   (:method ((filter t/filter) class prototype (value list))
-    (make-inspector `(list ,(class-name (component-value-of filter))) value :initial-alternative-type 't/detail/presentation))
+    (make-inspector `(list ,(class-name (component-value-of filter))) value))
 
   (:method :around ((filter t/filter) class prototype  value)
     (prog1-bind component
@@ -108,7 +114,13 @@
 ;;;;;;
 ;;; t/reference/filter
 
-(def (component e) t/reference/filter (filter/basic t/reference/presentation)
+(def (component e) t/reference/filter (filter/abstract t/reference/presentation)
+  ())
+
+;;;;;;
+;;; t/detail/filter
+
+(def (component e) t/detail/filter (filter/abstract t/detail/presentation)
   ())
 
 ;;;;;;

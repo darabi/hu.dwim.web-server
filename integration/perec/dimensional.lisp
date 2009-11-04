@@ -210,10 +210,10 @@
   (:method ((component component) (dimension hu.dwim.perec::dimension) coordinate)
     (if (typep dimension 'hu.dwim.perec::ordering-dimension)
         (make-coordinate-range-inspector coordinate)
-        (make-viewer (if (length= 1 coordinate)
-                         (first coordinate)
-                         coordinate)
-                     :initial-alternative-type 'reference-component))))
+        (make-inspector (if (length= 1 coordinate)
+                            (first coordinate)
+                            coordinate)
+                        :initial-alternative-type 't/reference/inspector))))
 
 (def function make-coordinate-range-inspector (coordinate)
   ;; TODO: KLUDGE: this is really much more complex than this

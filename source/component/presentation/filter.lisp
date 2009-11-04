@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; filter/abstract
 
-(def (component e) filter/abstract (component-value/mixin)
+(def (component e) filter/abstract (presentation/abstract)
   ())
 
 ;;;;;;
 ;;; filter/minimal
 
-(def (component e) filter/minimal (filter/abstract component/minimal)
+(def (component e) filter/minimal (filter/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; filter/basic
 
-(def (component e) filter/basic (filter/minimal component/basic)
+(def (component e) filter/basic (filter/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; filter/style
 
-(def (component e) filter/style (filter/basic component/style)
+(def (component e) filter/style (filter/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; filter/full
 
-(def (component e) filter/full (filter/style component/full)
+(def (component e) filter/full (filter/style presentation/full)
   ())
 
 ;;;;;;
@@ -44,17 +44,15 @@
           (ensure-list (find-filter-type-for-type type))))
     (unless (subtypep component-type 'alternator/widget)
       (remove-from-plistf args :initial-alternative-type))
-    (prog1-bind component (apply #'make-instance component-type
-                                 ;; KLUDGE: TODO: there are both component-value and type in a filter, so which one is which?
-                                 :component-value (unless (subtypep component-type 'primitive/filter)
-                                                    (if (symbolp type)
-                                                        (find-type-by-name type :otherwise type)
-                                                        type))
-                                 (append args additional-args
-                                         (when (subtypep component-type 'primitive-component)
-                                           (list :the-type type))))
-      (when (typep component 'editable/mixin)
-        (begin-editing component)))))
+    (apply #'make-instance component-type
+           ;; KLUDGE: TODO: there are both component-value and type in a filter, so which one is which?
+           :component-value (unless (subtypep component-type 'primitive/filter)
+                              (if (symbolp type)
+                                  (find-type-by-name type :otherwise type)
+                                  type))
+           (append args additional-args
+                   (when (subtypep component-type 'primitive-component)
+                     (list :the-type type))))))
 
 (def (layered-function e) find-filter-type-for-type (type)
   (:method ((type null))
@@ -70,11 +68,7 @@
     (find-filter-type-for-type (find-type-by-name type)))
 
   (:method ((class built-in-class))
-    (find-filter-type-for-prototype
-     (case (class-name class)
-       (string "42")
-       (list nil)
-       (t (class-prototype class)))))
+    (find-filter-type-for-prototype (class-prototype class)))
 
   (:method ((type cons))
     (find-filter-type-for-compound-type type))

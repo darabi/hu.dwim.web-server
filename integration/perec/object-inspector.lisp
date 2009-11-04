@@ -22,11 +22,6 @@
                (hu.dwim.meta-model::authorize-operation 'hu.dwim.meta-model::read-entity-property-operation :-entity- class :-property- slot))
              (call-next-method)))
 
-(def layered-method make-standard-class-presentation ((component component) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object))
-  (if (hu.dwim.meta-model::developer-p (hu.dwim.meta-model::current-effective-subject))
-      (make-viewer class :initial-alternative-type 'reference-component)
-      (call-next-method)))
-
 (def layered-method delete-instance ((component standard-object-inspector) (class hu.dwim.perec::persistent-class) (instance hu.dwim.perec::persistent-object))
   (rdbms::with-transaction
     (hu.dwim.perec::purge-instance instance)

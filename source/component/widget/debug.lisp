@@ -74,27 +74,27 @@
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Server"
-            (make-value-inspector *server* :initial-alternative-type 't/detail/presentation)))
+            (make-value-inspector *server*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Application"
-            (make-value-inspector *application* :initial-alternative-type 't/detail/presentation)))
+            (make-value-inspector *application*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Session"
-            (make-value-inspector *session* :initial-alternative-type 't/detail/presentation)))
+            (make-value-inspector *session*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Frame"
-            (make-value-inspector *frame* :initial-alternative-type 't/detail/presentation)))
+            (make-value-inspector *frame*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Request"
-            (make-value-inspector *request* :initial-alternative-type 't/detail/presentation)))
+            (make-value-inspector *request*)))
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Response"
-            (make-value-inspector *response* :initial-alternative-type 't/detail/presentation))))
+            (make-value-inspector *response*))))
     (menu-item/widget ()
         "Miscellaneous"
       (menu-item/widget ()

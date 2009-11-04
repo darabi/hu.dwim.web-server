@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; inspector/abstract
 
-(def (component e) inspector/abstract (editable/mixin component-value/mixin)
+(def (component e) inspector/abstract (presentation/abstract editable/mixin)
   ())
 
 ;;;;;;
 ;;; inspector/minimal
 
-(def (component e) inspector/minimal (inspector/abstract component/minimal)
+(def (component e) inspector/minimal (inspector/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; inspector/basic
 
-(def (component e) inspector/basic (inspector/minimal component/basic)
+(def (component e) inspector/basic (inspector/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; inspector/style
 
-(def (component e) inspector/style (inspector/basic component/style)
+(def (component e) inspector/style (inspector/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; inspector/full
 
-(def (component e) inspector/full (inspector/style component/full)
+(def (component e) inspector/full (inspector/style presentation/full)
   ())
 
 ;;;;;;

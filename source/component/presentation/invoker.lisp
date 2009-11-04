@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; invoker/abstract
 
-(def (component e) invoker/abstract (component-value/mixin)
+(def (component e) invoker/abstract (presentation/abstract)
   ())
 
 ;;;;;;
 ;;; invoker/minimal
 
-(def (component e) invoker/minimal (invoker/abstract component/minimal)
+(def (component e) invoker/minimal (invoker/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; invoker/basic
 
-(def (component e) invoker/basic (invoker/minimal component/basic)
+(def (component e) invoker/basic (invoker/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; invoker/style
 
-(def (component e) invoker/style (invoker/basic component/style)
+(def (component e) invoker/style (invoker/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; invoker/full
 
-(def (component e) invoker/full (invoker/style component/full)
+(def (component e) invoker/full (invoker/style presentation/full)
   ())
 
 ;;;;;;

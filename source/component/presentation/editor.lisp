@@ -9,31 +9,31 @@
 ;;;;;;
 ;;; editor/abstract
 
-(def (component e) editor/abstract (component-value/mixin)
+(def (component e) editor/abstract (presentation/abstract)
   ())
 
 ;;;;;;
 ;;; editor/minimal
 
-(def (component e) editor/minimal (editor/abstract component/minimal)
+(def (component e) editor/minimal (editor/abstract presentation/minimal)
   ())
 
 ;;;;;;
 ;;; editor/basic
 
-(def (component e) editor/basic (editor/minimal component/basic)
+(def (component e) editor/basic (editor/minimal presentation/basic)
   ())
 
 ;;;;;;
 ;;; editor/style
 
-(def (component e) editor/style (editor/basic component/style)
+(def (component e) editor/style (editor/basic presentation/style)
   ())
 
 ;;;;;;
 ;;; editor/full
 
-(def (component e) editor/full (editor/style component/full)
+(def (component e) editor/full (editor/style presentation/full)
   ())
 
 ;;;;;;

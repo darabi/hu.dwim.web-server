@@ -13,7 +13,7 @@
           (list (tab-page/widget (:selector "Demo")
                   (make-component-demo-content))
                 (tab-page/widget (:selector "Documentation")
-                  (make-value-inspector (find-book 'user-guide) :initial-alternative-type 'book/text/inspector)))))
+                  (make-value-inspector (find-book 'user-guide))))))
 
 (def book user-guide (:title "User guide")
   (chapter (:title "Introduction")

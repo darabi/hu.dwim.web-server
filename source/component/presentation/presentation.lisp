@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; presentation/abstract
 
-(def (component e) presentation/abstract ()
+(def (component e) presentation/abstract (component-value/mixin)
   ())
 
 ;;;;;;
