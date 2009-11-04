@@ -12,8 +12,9 @@
 ;; KLUDGE:
 
 (def method convert-to-primitive-response :around ((self component-rendering-response))
-  (hu.dwim.rdbms::with-readonly-transaction
-    (call-next-method)))
+  (hu.dwim.meta-model::with-model-database
+    (hu.dwim.rdbms::with-readonly-transaction
+      (call-next-method))))
 
 ;; TODO: KLUDGE: move
 (def method reuse-component-value ((component component) (class standard-class) (prototype object-slot-place) (value object-slot-place))
