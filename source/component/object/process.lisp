@@ -22,7 +22,9 @@
                                                commands/mixin)
   ((form)
    (closure/cc nil)
-   (answer-continuation nil)))
+   (answer-continuation nil)
+   ;; TODO: is this really?
+   (command-bar (make-instance 'command-bar/widget :commands nil))))
 
 (def (macro e) standard-process (&body forms)
   `(make-instance 'standard-process-component :form '(progn ,@forms)))
@@ -79,7 +81,7 @@
 ;;;;;;
 ;;; Answer command
 
-(def (component e) answer-command-component (command/basic)
+(def (component e) answer-command-component (command/widget)
   ((icon (icon answer :label "Answer")) ;; TODO localize
    (action nil)
    (value nil)))
