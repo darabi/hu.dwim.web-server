@@ -9,8 +9,10 @@
 ;;;;;;
 ;;; Kludges
 
-;; KLUDGE:
+(def localization-loading-locale-loaded-listener wui-resource-loader/perec :hu.dwim.wui "localization/integration/perec"
+  :log-discriminator "WUI")
 
+;; KLUDGE:
 (def method convert-to-primitive-response :around ((self component-rendering-response))
   (hu.dwim.meta-model::with-model-database
     (hu.dwim.rdbms::with-readonly-transaction

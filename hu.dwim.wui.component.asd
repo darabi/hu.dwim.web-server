@@ -188,7 +188,8 @@
                                             :components ((:file "filter" :depends-on ("presentation"))
                                                          (:file "inspector" :depends-on ("presentation"))
                                                          (:file "maker" :depends-on ("presentation"))
-                                                         (:file "presentation")))
+                                                         (:file "presentation")
+                                                         (:file "process")))
                                            (:module "sequence"
                                             :depends-on ("primitive" "place")
                                             :components ((:file "inspector" :depends-on ("presentation"))

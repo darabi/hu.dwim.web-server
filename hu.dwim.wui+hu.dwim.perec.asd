@@ -24,6 +24,7 @@
                               :components ((:file "kludge")
                                            (:file "factory")
                                            (:file "object-filter")
+                                           (:file "process")
                                            #+nil
                                            ((:file "l10n")
                                             (:file "menu")
@@ -39,6 +40,5 @@
                                             (:file "object-tree-inspector")
                                             (:file "object-maker")
                                             (:file "object-filter")
-                                            (:file "process")
                                             (:file "dimensional")
                                             (:file "query-expression"))))))))

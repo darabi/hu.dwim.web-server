@@ -6,14 +6,19 @@
 
 (in-package :hu.dwim.wui)
 
+;; TODO:
+(eval-always
+  (asdf:load-system :hu.dwim.def+hu.dwim.delico))
+
 ;;;;;;
 ;;; Process
 
 ;; TODO: try to kill this variable, if possible?!
 (def (special-variable e) *standard-process-component*)
 
-(def (component e) standard-process-component (content/mixin
-                                               component-messages/basic
+(def (component e) standard-process-component (inspector/basic
+                                               component-messages/widget
+                                               content/mixin
                                                commands/mixin)
   ((form)
    (closure/cc nil)
@@ -35,7 +40,7 @@
                 (funcall closure/cc)))))
     (unless (and content answer-continuation)
       (setf content "Process finished"))
-    <div ,(render-component-messages -self-)
+    <div ,(render-component-messages-for -self-)
          ,(render-component content)
          ,(render-component command-bar)>))
 
@@ -44,7 +49,7 @@
   `(make-instance 'standard-process-component :form ',form ,@args))
 
 (def function clear-process-component (component)
-  (setf (content-of component) (empty))
+  (setf (content-of component) (empty/layout))
   (replace-answer-commands component nil))
 
 (def function replace-answer-commands (component answer-commands)

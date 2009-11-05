@@ -18,20 +18,20 @@
                          (make-pause-persistent-process-command component))))
 
 (def render-xhtml persistent-process-component ()
-  (bind (((:slots process command-bar answer-continuation content)) -self-)
+  (bind (((:slots process command-bar answer-continuation content) -self-))
     (hu.dwim.perec::revive-instance process)
-    (when (typep content 'empty-component)
-      (add-user-information -self- (process.message.report-process-state process)))
-    <div ,(render-component-messages -self-)
+    (when (empty-layout? content)
+      (add-component-information-message -self- (process.message.report-process-state process)))
+    <div ,(render-component-messages-for -self-)
          ,(render-component content)
          ,(render-component command-bar) >))
 
 (def function roll-persistent-process (component thunk)
   (setf (content-of component) nil)
   (bind ((*standard-process-component* component)
-         (process (process-of component)))
+         (process (component-value-of component)))
     (setf (answer-continuation-of component)
-          (rdbms::with-transaction
+          (hu.dwim.rdbms::with-transaction
             (hu.dwim.perec::with-revived-instance process
               (bind ((hu.dwim.meta-model::*process* process))
                 (funcall thunk process)))))
@@ -90,21 +90,32 @@
 
 (def icon pause-process)
 
-(def layered-method make-context-menu-items ((component standard-object-inspector) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
+(def function make-persistent-process-commands (component instance)
   ;; TODO: move hu.dwim.perec::with-revived-instance?
   (hu.dwim.perec::with-revived-instance instance
     (optional-list #+nil
                    (make-new-instance-command component)
+                   #+nil
                    (make-delete-instance-command component class instance)
                    (when (hu.dwim.meta-model::persistent-process-initializing-p instance)
                      (make-start-persistent-process-command component instance))
                    (when (hu.dwim.meta-model::persistent-process-in-progress-p instance)
                      (make-continue-persistent-process-command component instance)))))
 
-(def layered-method make-context-menu-items ((component standard-object-maker) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
+(def layered-method make-context-menu-items ((component t/inspector) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
+  (append (make-persistent-process-commands component instance)
+          (call-next-method)))
+
+(def layered-method make-command-bar-commands ((component t/inspector) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
+  (append (make-persistent-process-commands component instance)
+          (call-next-method)))
+
+#+nil
+(def layered-method make-context-menu-items ((component t/maker) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
   (list (make-start-persistent-process-command component
                                                (delay (create-instance component (the-class-of component))))))
 
+#+nil
 (def layered-method make-context-menu-items ((component standard-object-row-inspector) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
   (hu.dwim.perec::with-revived-instance instance
     (optional-list (make-expand-command component class prototype instance)
@@ -116,39 +127,39 @@
                                                                  (make-instance 'entire-row-component :content process-component)))))))
 
 (def (function e) make-start-persistent-process-command (component process)
-  (make-replace-and-push-back-command component (delay (prog1-bind process-component (make-instance 'persistent-process-component :process (force process))
+  (make-replace-and-push-back-command component (delay (prog1-bind process-component (make-instance 'persistent-process-component :component-value (force process))
                                                          (roll-persistent-process process-component
                                                                                   (lambda (process)
                                                                                     (nth-value 1 (hu.dwim.meta-model::start-persistent-process process))))))
                                       (list :content (icon start-process))
-                                      (list :content (icon back))))
+                                      (list :content (icon navigate-back))))
 
 (def (function e) make-continue-persistent-process-command (component process &optional (wrapper-thunk #'identity))
-  (make-replace-and-push-back-command component (delay (bind ((process-component (make-instance 'persistent-process-component :process process)))
+  (make-replace-and-push-back-command component (delay (bind ((process-component (make-instance 'persistent-process-component :component-value process)))
                                                          (roll-persistent-process process-component
                                                                                   (lambda (process)
                                                                                     (nth-value 1 (hu.dwim.meta-model::continue-persistent-process process))))
                                                          (funcall wrapper-thunk process-component)))
                                       (list :content (icon continue-process) :visible (delay (hu.dwim.perec::revive-instance process)
                                                                                              (hu.dwim.meta-model::persistent-process-in-progress-p process)))
-                                      (list :content (icon back))))
+                                      (list :content (icon navigate-back))))
 
 (def (function e) make-cancel-persistent-process-command (component)
-  (command/widget (icon cancel-process)
+  (command/widget (:visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (component-value-of component))
+                                       (hu.dwim.meta-model::persistent-process-in-progress-p (component-value-of component)))))
+    (icon cancel-process)
     (make-component-action component
-      (rdbms::with-transaction
-          (hu.dwim.perec::revive-instance (process-of component))
-        (hu.dwim.meta-model::cancel-persistent-process (process-of component))
-        (clear-process-component component)))
-    :visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (process-of component))
-                        (hu.dwim.meta-model::persistent-process-in-progress-p (process-of component))))))
+      (hu.dwim.rdbms::with-transaction
+        (hu.dwim.perec::revive-instance (component-value-of component))
+        (hu.dwim.meta-model::cancel-persistent-process (component-value-of component))
+        (clear-process-component component)))))
 
 (def (function e) make-pause-persistent-process-command (component)
-  (command/widget (icon pause-process)
+  (command/widget (:visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (component-value-of component))
+                                       (hu.dwim.meta-model::persistent-process-in-progress-p (component-value-of component)))))
+    (icon pause-process)
     (make-component-action component
-      (rdbms::with-transaction
-          (hu.dwim.perec::revive-instance (process-of component))
-        (hu.dwim.meta-model::pause-persistent-process (process-of component))
-        (clear-process-component component)))
-    :visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (process-of component))
-                        (hu.dwim.meta-model::persistent-process-in-progress-p (process-of component))))))
+      (hu.dwim.rdbms::with-transaction
+        (hu.dwim.perec::revive-instance (component-value-of component))
+        (hu.dwim.meta-model::pause-persistent-process (component-value-of component))
+        (clear-process-component component)))))
