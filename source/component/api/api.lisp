@@ -15,7 +15,7 @@
   (:documentation "Creates a COMPONENT that creates new values of TYPE. Other ARGS are passed to the COMPONENT being created."))
 
 (def (layered-function e) make-viewer (type value &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE. "))
+  (:documentation "Creates a COMPONENT that displays existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE."))
 
 (def (layered-function e) make-editor (type value &rest args &key &allow-other-keys)
   (:documentation "Creates a COMPONENT that edits existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE."))

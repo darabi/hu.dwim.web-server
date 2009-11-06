@@ -26,7 +26,8 @@
     (skip-rendering-component ()
       :report (lambda (stream)
                 (format stream "Skip rendering ~A and put an error marker in place" -self-))
-      <div (:class "rendering-error") "Error during rendering "
+      <div (:class "rendering-error")
+        "Error during rendering "
         ,(bind ((*print-level* 1))
            (princ-to-string -self-))>)))
 

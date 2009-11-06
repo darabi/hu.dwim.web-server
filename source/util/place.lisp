@@ -13,6 +13,8 @@
   ()
   (:documentation "PLACE is a location where data can be stored at and retrieved from."))
 
+;; TODO: how do we know whether a place can be made unbound
+
 (def (generic e) place-name (place)
   (:documentation "Returns a symbolic name for PLACE."))
 
