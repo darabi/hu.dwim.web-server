@@ -128,7 +128,7 @@
                               (lambda (event)
                                 (wui.io.action ,href
                                                :event event
-                                               :ajax,(when (ajax-enabled? *application*) (ajax-of command))
+                                               :ajax ,(when (ajax-enabled? *application*) (force (ajax-of command)))
                                                :send-client-state ,send-client-state?))))))
 
 (def (function e) execute-command (command)

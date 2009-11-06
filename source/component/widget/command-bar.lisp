@@ -48,15 +48,19 @@
 
 (def generic find-command-bar (component)
   (:method ((self component))
+    ;; FIXME: TODO: KLUDGE: command-bar is usually created from refresh and is not available after make-instance
+    (ensure-refreshed self)
     (map-child-components self
                           (lambda (child)
                             (when (typep child 'command-bar/widget)
-                              (return-from find-command-bar child))))))
+                              (return-from find-command-bar child)))))
+
+  (:method ((self content/mixin))
+    (or (call-next-method)
+        (find-command-bar (content-of self)))))
 
 (def (function e) push-command (command component)
   "Push a new COMMAND into the COMMAND-BAR of COMPONENT."
-  ;; FIXME: TODO: KLUDGE: command-bar is usually created from refresh and is not available after make-instance
-  (ensure-refreshed component)
   (bind ((command-bar (find-command-bar component)))
     (assert command-bar nil "No command bar found, no place to push ~A in ~A" command component)
     (setf (commands-of command-bar) (cons command (commands-of command-bar)))))
