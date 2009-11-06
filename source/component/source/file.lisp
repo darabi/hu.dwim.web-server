@@ -44,7 +44,7 @@
     (asdf::name 'string)
     (t (call-next-method))))
 
-(def layered-method map-filter-input ((component t/filter) (class standard-class) (prototype standard-class) (value (eql (find-class 'asdf:source-file))) function)
+(def layered-method map-filter-input ((component t/filter) (class standard-class) (prototype asdf:source-file) (value standard-class) function)
   (labels ((recurse (module)
              (iter (for component :in (asdf:module-components module))
                    (typecase component

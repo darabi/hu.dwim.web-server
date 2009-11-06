@@ -265,10 +265,6 @@
     (greater-than "icon predicate greater-than")
     (greater-than-or-equal "icon predicate greater-than-or-equal")))
 
-(def function like (value pattern)
-  ;; TODO: 
-  (search pattern (string value) :test #'char-equal))
-
 (def generic predicate-function (component class predicate)
   (:method ((component t/filter) class predicate)
     'eq)
@@ -285,8 +281,9 @@
       (lambda (value regexp)
         (unless (equal regexp previous-regexp)
           (setf scanner (cl-ppcre:create-scanner regexp :case-insensitive-mode #t)))
-        (and (stringp value)
-             (cl-ppcre:do-matches (match-start match-end scanner value nil)
+        (and (or (symbolp value)
+                 (stringp value))
+             (cl-ppcre:do-matches (match-start match-end scanner (string value) nil)
                (return #t))))))
 
   (:method ((component string/filter) class (predicate (eql 'less-than)))

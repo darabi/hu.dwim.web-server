@@ -179,7 +179,7 @@
     (sb-pcl::%documentation '(or null string))
     (t (call-next-method))))
 
-(def layered-method map-filter-input ((component t/filter) (class class) (prototype class) (value (eql (find-class 'class))) function)
+(def layered-method map-filter-input ((component t/filter) (class class) (prototype class) (value class) function)
   (maphash-keys (lambda (key)
                   (awhen (find-class key #f)
                     (funcall function it)))
