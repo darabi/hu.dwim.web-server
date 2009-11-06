@@ -19,10 +19,10 @@
   'pathname/inspector)
 
 (def layered-method make-alternatives ((component pathname/inspector) class prototype value)
-  (bind ((file? (pathname-name value))
-         (file-type (when file?
-                      (guess-file-type value))))
-    (optional-list* (unless file?
+  (bind ((file? (when value (pathname-name value)))
+         (file-type (when file? (guess-file-type value))))
+    (optional-list* (when (and value
+                               (not file?))
                       (delay-alternative-component-with-initargs 'pathname/directory/tree/inspector :component-value value))
                     (when (eq file-type :text)
                       (delay-alternative-component-with-initargs 'pathname/text-file/inspector :component-value value))
