@@ -22,7 +22,7 @@
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Demo" :tooltip "Running live demo component"))
                       component)
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Source" :tooltip "Original lisp source code that was used to create the component"))
-                      (make-value-instance (make-lisp-form-component-value component-value) :initial-alternative-type 't/lisp-form/inspector))
+                      (make-instance 't/lisp-form/inspector :component-value (make-lisp-form-component-value component-value)))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "XHTML" :tooltip "Generated XHTML output"))
                       (make-value-inspector component :initial-alternative-type 'component/render-xhtml-output/inspector))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Live demo component internal state inspector"))
