@@ -54,6 +54,8 @@
 ;;; io
 
 (defun wui.io.action (url &key event (ajax true) (send-client-state true))
+  (when event
+    (dojo.stop-event event))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if ajax "t" "")))
@@ -91,9 +93,7 @@
             (progn
               (setf (slot-value form 'action) decorated-url)
               (form.submit))
-            (setf window.location.href decorated-url))))
-  (when event
-    (dojo.stop-event event)))
+            (setf window.location.href decorated-url)))))
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)
@@ -696,6 +696,7 @@
 ;;; Border
 
 (defun wui.attach-border ((element :by-id) style-class element-name)
+  (assert element)
   (bind ((parent-element element.parentNode)
          (next-sibling element.nextSibling)
          (table-element (create-dom-node "table")))
