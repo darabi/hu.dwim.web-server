@@ -75,6 +75,7 @@
   ())
 
 (def method component-dispatch-class ((component sequence/table/inspector))
+  ;; TODO: KLUDGE: this should be an argument
   (class-of (first (component-value-of component))))
 
 (def refresh-component sequence/table/inspector
@@ -123,8 +124,8 @@
                    (push (cons slot-name slot) slot-name->slot-map)))))
         (when class
           (mapc #'register-slot (collect-slot-value-list/slots component class (class-prototype class) component-value)))
-        (dolist (instance component-value)
-          (mapc #'register-slot (collect-slot-value-list/slots component (class-of instance) instance component-value))))
+        (dolist (value component-value)
+          (mapc #'register-slot (collect-slot-value-list/slots component (class-of value) value component-value))))
       (mapcar (lambda (slot-name->slot)
                 (make-instance 'place/column/inspector
                                :component-value "BLAH" ;; TODO:
@@ -171,22 +172,42 @@
                        (lambda ()
                          (render-component-messages-for row)))))
 
-(def layered-method make-context-menu-items ((component t/row/inspector) class prototype instance)
-  (append (optional-list (make-expand-command component class prototype instance)) (call-next-method)))
+(def layered-method render-onclick-handler ((row t/row/inspector) button)
+  (when-bind expand-command (find-command row 'expand-component)
+    (render-command-onclick-handler expand-command (id-of row))))
 
-(def layered-method make-command-bar-commands ((component t/row/inspector) class prototype instance)
+(def layered-method make-context-menu-items ((component t/row/inspector) class prototype value)
+  (append (optional-list (make-expand-command component class prototype value)) (call-next-method)))
+
+(def layered-method make-command-bar-commands ((component t/row/inspector) class prototype value)
   nil)
 
-(def layered-method make-move-commands ((component t/row/inspector) class prototype instance)
+(def layered-method make-move-commands ((component t/row/inspector) class prototype value)
   nil)
 
-(def layered-method make-expand-command ((component t/row/inspector) class prototype instance)
+(def layered-method make-expand-command ((component t/row/inspector) class prototype value)
   (bind ((replacement-component nil))
     (make-replace-and-push-back-command component
                                         (delay (setf replacement-component
-                                                     (make-instance '(editable/mixin entire-row-component) :content (make-viewer instance))))
-                                        (list :content (icon expand) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
-                                        (list :content (icon collapse) :ajax (delay (id-of replacement-component))))))
+                                                     (make-instance 't/entire-row/inspector :component-value value)))
+                                        (list :content (icon expand-component) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
+                                        (list :content (icon collapse-component) :ajax (delay (id-of replacement-component))))))
+
+;;;;;;
+;;; t/entire-row/inspector
+
+(def (component e) t/entire-row/inspector (inspector/style
+                                           t/detail/presentation
+                                           entire-row/widget
+                                           component-messages/widget)
+  ())
+
+(def refresh-component t/entire-row/inspector
+  (bind (((:slots component-value content) -self-))
+    (setf content
+          (if component-value
+              (make-value-inspector component-value)
+              (empty/layout)))))
 
 ;;;;;;
 ;;; place/cell/inspector
