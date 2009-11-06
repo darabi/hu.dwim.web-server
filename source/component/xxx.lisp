@@ -7,6 +7,16 @@
 
 (in-package :hu.dwim.wui)
 
+(def function make-copy-to-repl-command (component)
+  (command/widget (:ajax #t)
+    "COPY"
+    (make-action (copy-to-repl component))))
+
+(def function make-inspect-in-repl-command (component)
+  (command/widget (:ajax #t)
+    "INSPECT"
+    (make-action (inspect-in-repl component))))
+
 (def (icon e) navigate-back)
 
 (def (icon e) external-link)
@@ -336,7 +346,6 @@
 (def (icon e) set-to-unbound)
 
 (def (icon e) select)
-
 
 (def (icon e) finish)
 

@@ -18,9 +18,9 @@
                (supports-debug-component-hierarchy? -self-))
           <div (:class "debug-component-hierarchy")
             <span (:class "class-name") ,(instance-class-name-as-string -self-)>
-            <span <a (:href ,(register-action/href (make-copy-to-repl-action -self-))) "COPY">
-                  " "
-                  <a (:href ,(register-action/href (make-inspect-in-repl-action -self-))) "INSPECT">>
+            ,(bind ((*debug-component-hierarchy* #f))
+               (render-component (make-copy-to-repl-command -self-))
+               (render-component (make-inspect-in-repl-command -self-)))
             ,(call-next-method)>
           (call-next-method))
     (skip-rendering-component ()
@@ -31,21 +31,19 @@
         ,(bind ((*print-level* 1))
            (princ-to-string -self-))>)))
 
-(def function make-inspect-in-repl-action (component)
-  (make-action
-    (awhen (or swank::*emacs-connection*
-               (swank::default-connection))
-      (swank::with-connection (it)
-        (bind ((swank::*buffer-package* *package*)
-               (swank::*buffer-readtable* *readtable*))
-          (swank::inspect-in-emacs component))))))
+(def function inspect-in-repl (component)
+  (awhen (or swank::*emacs-connection*
+             (swank::default-connection))
+    (swank::with-connection (it)
+      (bind ((swank::*buffer-package* *package*)
+             (swank::*buffer-readtable* *readtable*))
+        (swank::inspect-in-emacs component)))))
 
-(def function make-copy-to-repl-action (component)
-  (make-action
-    (awhen (or swank::*emacs-connection*
-               (swank::default-connection))
-      (swank::with-connection (it)
-        (swank::present-repl-results (list component))))))
+(def function copy-to-repl (component)
+  (awhen (or swank::*emacs-connection*
+             (swank::default-connection))
+    (swank::with-connection (it)
+      (swank::present-repl-results (list component)))))
 
 ;;;;;;
 ;;; Render to string
