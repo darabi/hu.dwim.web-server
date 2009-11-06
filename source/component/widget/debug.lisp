@@ -109,11 +109,11 @@
               (error "This is a demo error for testing purposes. It was signalled from the render method of a component."))))
       (menu-item/widget ()
           ;; from http://turtle.dojotoolkit.org/~david/recss.html
-          (inline-render-component/widget ()
-            <a (:href "#"
-                :class "command"
-                :onClick `js-inline(wui.reload-css))
-               "Reload CSS">))
+          (command/widget (:js (lambda (href)
+                                 (declare (ignore href))
+                                 `js(wui.reload-css)))
+            "Reload CSS"
+            (make-action)))
       #+sbcl
       (menu-item/widget ()
           (replace-target-place/widget ()
