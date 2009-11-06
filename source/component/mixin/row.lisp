@@ -21,7 +21,7 @@
 ;;; rows/mixin
 
 (def (component e) rows/mixin ()
-  ((rows :type components))
+  ((rows nil :type components))
   (:documentation "A COMPONENT with a SEQUENCE of ROWs."))
 
 (def (function e) render-rows-for (component)

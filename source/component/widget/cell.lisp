@@ -38,7 +38,7 @@
 (def with-macro* render-cell/widget (cell &key style-class)
   (setf style-class (ensure-list style-class))
   (if (typep cell 'cell/widget)
-      (bind (((:read-only-slots column-span row-span horizontal-alignment vertical-alignment) cell))
+      (bind (((:read-only-slots column-span row-span horizontal-alignment vertical-alignment id) cell))
         (ecase horizontal-alignment
           (:right (push +table-cell-horizontal-alignment-style-class/right+ style-class))
           (:center (push +table-cell-horizontal-alignment-style-class/center+ style-class))
@@ -51,11 +51,13 @@
           (ecase (slot-value cell 'word-wrap)
             ((#f) (push +table-cell-nowrap-style-class+ style-class))
             ((#t) nil)))
-        <td (:class ,(join-strings style-class)
+        <td (:id ,id
+             :class ,(join-strings style-class)
              :colspan ,column-span
              :rowspan ,row-span)
             ,(-body-)>)
-      <td (:class ,(join-strings style-class))
+      <td (:id ,(id-of cell)
+           :class ,(join-strings style-class))
         ,(-body-)>))
 
 (def render-xhtml cell/widget
