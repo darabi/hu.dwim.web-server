@@ -41,24 +41,6 @@
   margin-right: 3px;
 }
 
-.command-bar .odd {
-  background-color: inherit;
-}
-
-.command-bar .even {
-  background-color: inherit;
-}
-
-/* tab-page-selector-bar */
-
-.tab-page-selector-bar .odd {
-  background-color: inherit;
-}
-
-.tab-page-selector-bar .even {
-  background-color: inherit;
-}
-
 /* name-value-pair */
 
 .name-value-pair {
@@ -179,16 +161,6 @@ table.frame-size-breakdown > tbody > tr > td.delta {
 
 .file-download .missing-file {
   color: red;
-}
-
-/* odd even */
-
-.odd {
-  background-color: #ddffdd;
-}
-
-.even {
-  background-color: #ffffff;
 }
 
 /* selection, highlight */
