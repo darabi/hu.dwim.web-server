@@ -23,8 +23,8 @@
                (cl-l10n::load-resource-file :hu.dwim.wui file)
                (l10n.info "Loaded ~A localizations for locale ~S from ~A" ,log-discriminator locale-name file))))))))
 
-(def localization-loading-locale-loaded-listener wui-localization-loader :hu.dwim.wui "localization/"
-  :log-discriminator "WUI")
+(def localization-loading-locale-loaded-listener wui-localization-loader :hu.dwim.wui "localization/" :log-discriminator "WUI")
+
 (register-locale-loaded-listener 'wui-localization-loader)
 
 ;;;;;;

@@ -9,8 +9,7 @@
 ;;;;;;
 ;;; Kludges
 
-(def localization-loading-locale-loaded-listener wui-resource-loader/perec :hu.dwim.wui "localization/integration/perec"
-  :log-discriminator "WUI")
+(def localization-loading-locale-loaded-listener wui-resource-loader/perec :hu.dwim.wui "localization/integration/perec" :log-discriminator "WUI")
 
 ;; KLUDGE:
 (def method convert-to-primitive-response :around ((self component-rendering-response))

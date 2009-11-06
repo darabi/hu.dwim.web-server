@@ -6,8 +6,8 @@
 
 (in-package :hu.dwim.wui)
 
-(def localization-loading-locale-loaded-listener wui-resource-loader/hu.dwim.perec :wui "localization/integration/hu.dwim.perec/"
-  :log-discriminator "WUI")
+(def localization-loading-locale-loaded-listener wui-resource-loader/hu.dwim.perec :wui "localization/integration/hu.dwim.perec/" :log-discriminator "WUI")
+
 (register-locale-loaded-listener 'wui-resource-loader/hu.dwim.perec)
 
 (def method localized-instance-name ((instance hu.dwim.perec::persistent-object))
