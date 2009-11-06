@@ -94,8 +94,7 @@
                 #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
                 ,(render-component content)>
           `js(on-load
-              (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href)))
-              (wui.setup-component ,id "command/widget"))
+              (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href))))
           ;; TODO: use dojo.connect for keyboard events
           (when default
             (bind ((submit-id (generate-frame-unique-string)))
