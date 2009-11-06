@@ -11,7 +11,9 @@
 
 (def (class* e) definition ()
   ((name :type symbol)
-   (documentation :type string)))
+   (package :type package)
+   (documentation :type (or null string))
+   (source-file :type (or null pathname))))
 
 (def (class* e) special-variable-definition (definition)
   ())

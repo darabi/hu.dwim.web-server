@@ -79,24 +79,37 @@
 ;;; Util
 
 (def function make-definitions (name)
-  (iter outer (for type :in swank-backend::*definition-types* :by #'cddr)
+  (iter outer
+        (with package = (symbol-package name))
+        (for type :in swank-backend::*definition-types* :by #'cddr)
         ;; KLUDGE: remove ignore-errors as soon as this does not error out (sb-introspect:find-definition-sources-by-name 'common-lisp:structure-object :structure)
         (iter (for specification :in (ignore-errors (sb-introspect:find-definition-sources-by-name name type)))
+              (for pathname = (sb-introspect::definition-source-pathname specification))
               (awhen (case type
                        (:variable (make-instance 'special-variable-definition
                                                  :name name
-                                                 :documentation (documentation name 'variable)))
+                                                 :package package
+                                                 :documentation (documentation name 'variable)
+                                                 :source-file pathname))
                        (:function (make-instance 'function-definition
                                                  :name name
-                                                 :documentation (documentation (symbol-function name) 'function)))
+                                                 :package package
+                                                 :documentation (documentation (symbol-function name) 'function)
+                                                 :source-file pathname))
                        (:macro (make-instance 'macro-definition
                                               :name name
-                                              :documentation (documentation (macro-function name) 'function)))
+                                              :package package
+                                              :documentation (documentation (macro-function name) 'function)
+                                              :source-file pathname))
                        (:generic-function (make-instance 'generic-function-definition
                                                          :name name
-                                                         :documentation (documentation (symbol-function name) 'function)))
+                                                         :package package
+                                                         :documentation (documentation (symbol-function name) 'function)
+                                                         :source-file pathname))
                        (:class (make-instance 'class-definition
                                               :name name
-                                              :documentation (documentation (find-class name) t)))
+                                              :package package
+                                              :documentation (documentation (find-class name) t)
+                                              :source-file pathname))
                        (t nil))
                 (in outer (collect it))))))
