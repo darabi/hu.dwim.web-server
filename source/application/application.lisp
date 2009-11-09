@@ -6,8 +6,8 @@
 
 (in-package :hu.dwim.wui)
 
-(def constant +session-purge-time-interval+ 30)
-(def constant +session-purge-request-interval+ (if *load-as-production?* 100 1))
+(def constant +session-purge/time-interval+ 30)
+(def constant +session-purge/check-at-request-interval+ (if *load-as-production?* 100 1))
 
 (def (generic e) make-new-session (application))
 (def (generic e) make-new-frame (application session))
@@ -419,10 +419,10 @@
          (*inside-user-code* #f)
          ;; the request counter is not critical, so just ignore locking...
          (request-counter (incf (processed-request-count-of application))))
-    (when (and (zerop (mod request-counter +session-purge-request-interval+)) ; get time less often
+    (when (and (zerop (mod request-counter +session-purge/check-at-request-interval+)) ; get time less often
                (> (- (get-monotonic-time)
                      (sessions-last-purged-at-of application))
-                  +session-purge-time-interval+))
+                  +session-purge/time-interval+))
       (purge-sessions application))
     (handle-request application request)))
 
