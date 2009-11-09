@@ -73,6 +73,6 @@
 
 (def (special-variable e) *dojo-skin-name* "tundra")
 (def (special-variable e) *dojo-file-name* "dojo.js")
-(def (special-variable e) *dojo-directory-name* "dojo/")
+(def (special-variable e) *dojo-directory-name*)
 
 (def (constant e) +export-uri-path+ "export/")

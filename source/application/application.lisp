@@ -662,11 +662,15 @@ Custom implementations should look something like this:
     (iter (for (key session) :in-hashtable (session-id->session-of application))
           (mark-expired session))))
 
-(def (class* e) application-with-dojo-support (application)
+(def (class* ea) application-with-dojo-support (application)
   ((dojo-skin-name nil)
    (dojo-file-name nil)
    (dojo-directory-name nil))
   (:metaclass funcallable-standard-class))
+
+(def method startup-broker :after ((self application-with-dojo-support))
+  (unless (dojo-directory-name-of self)
+    (error "The DOJO-DIRECTORY-NAME slot of application ~A is not initialized by the time the server was started! Please refer to the install guide (e.g. on http://dwim.hu) or the sources for details on how to build dojo." self)))
 
 (def method call-in-application-environment :around ((application application-with-dojo-support) session thunk)
   (bind ((*dojo-skin-name* (or (dojo-skin-name-of application)
@@ -674,5 +678,7 @@ Custom implementations should look something like this:
          (*dojo-file-name* (or (dojo-file-name-of application)
                                *dojo-file-name*))
          (*dojo-directory-name* (or (dojo-directory-name-of application)
-                                    *dojo-directory-name*)))
+                                    (when (boundp '*dojo-directory-name*)
+                                      ;; it's not advised to have a global value, but when testing it can be handy, so handle it
+                                      *dojo-directory-name*))))
     (call-next-method)))
