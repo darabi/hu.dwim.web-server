@@ -73,7 +73,7 @@
           (bind ((parameters (read-http-request-body stream
                                                      raw-content-length
                                                      (header-value "Content-Type")
-                                                     (copy-alist uri-parameters))))
+                                                     uri-parameters)))
             (http.dribble "All the request query parameters: ~S" parameters)
             (make-instance 'request
                            :raw-uri raw-uri
@@ -224,6 +224,7 @@
           (when (> content-length *request-content-length-limit*)
             (request-content-length-limit-reached content-length))
           (bind (((:values content-type attributes) (rfc2388-binary:parse-header-value raw-content-type)))
+            (setf initial-parameter-alist (copy-alist initial-parameter-alist)) ; later on we may sideffect this alist
             (switch (content-type :test #'string=)
               ("application/x-www-form-urlencoded"
                ;; TODO dos prevention, lower limit here than *request-content-length-limit*, or separate for files
@@ -240,7 +241,9 @@
                    (http.dribble "Parsing application/x-www-form-urlencoded body. Attributes: ~S, value: ~S" attributes buffer-as-string)
                    ;; TODO buffer-as-string should never be non-ascii... read up on the standard, do something about that coerce...
                    (setf buffer-as-string (coerce buffer-as-string 'simple-base-string))
-                   (return-from read-http-request-body (parse-query-parameters buffer-as-string initial-parameter-alist)))))
+                   (return-from read-http-request-body (parse-query-parameters buffer-as-string
+                                                                               :initial-parameters initial-parameter-alist
+                                                                               :sideffect-initial-parameters #t)))))
               ("multipart/form-data"
                (http.dribble "Parsing multipart/form-data body. Attributes: ~S." attributes)
                (bind ((boundary (cdr (assoc "boundary" attributes :test #'string=))))

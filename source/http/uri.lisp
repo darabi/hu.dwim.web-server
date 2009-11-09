@@ -326,8 +326,8 @@
            (push ,param ,params))
        ,params)))
 
-(def (function o) parse-query-parameters (param-string &optional (initial-parameters (list)))
-  "Parse PARAM-STRING into an alist. Contains a list as value when the given parameter was found more than once."
+(def (function o) parse-query-parameters (param-string &key initial-parameters (sideffect-initial-parameters #f))
+  "Parse PARAM-STRING into an alist. The value part is a list when the given parameter was found multiple times."
   (declare (type simple-base-string param-string))
   (flet ((grab-param (start separator-position end)
            (declare (type array-index start end)
@@ -351,7 +351,9 @@
       (iter
         (with start = 0)
         (with separator-position = nil)
-        (with result = initial-parameters)
+        (with result = (if sideffect-initial-parameters
+                           initial-parameters
+                           (copy-alist initial-parameters)))
         (for char :in-vector param-string)
         (for index :upfrom 0)
         (switch (char :test #'char=)
