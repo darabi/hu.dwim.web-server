@@ -124,33 +124,31 @@
                                    (setf (socket-of listen-entry) socket))
                                (:abort (close socket)))
                              (return-from binding))))))
-                  (setf (connection-multiplexer-of server) mux))
-              (:abort (dolist (listen-entry (listen-entries-of server))
-                        (awhen (socket-of listen-entry)
-                          (close it)
-                          (setf (socket-of listen-entry) nil)))
-                      (iolib.multiplex::close-multiplexer mux)
-                      (setf (connection-multiplexer-of server) nil))))
-          (if (zerop (maximum-worker-count-of server))
-              (unwind-protect
-                   ;; run in single-threaded mode (for debugging and profiling)
-                   (progn
-                     (server.info "Starting server in the current thread, use C-c C-c to break out...")
-                     (worker-loop server #f))
-                (shutdown-server server))
-              (unwind-protect-case ()
-                  (progn
-                    (server.debug "Setting up the timer")
-                    (assert (null (timer-of server)))
-                    (setf (timer-of server) (make-instance 'timer))
-                    (server.debug "Spawning the initial workers")
-                    (iter (for n :from 0 :below initial-worker-count)
-                          (make-worker server))
-                    (setf (started-at-of server) (local-time:now))
-                    (server.debug "Server successfully started"))
-                (:abort
-                 (server.debug "Cleaning up after a failed server start")
-                 (shutdown-server server :force #t)))))
+                  (setf (connection-multiplexer-of server) mux)
+                  ;; notify the brokers about the startup
+                  (dolist (broker (brokers-of server))
+                    (startup-broker broker))
+                  ;; fire up the worker-loop, either in this thread or in several worker threads
+                  (if (zerop (maximum-worker-count-of server))
+                      (unwind-protect
+                           (progn
+                             ;; this is the single-threaded mode using the caller thread (for debugging and profiling)
+                             (server.info "Starting server in the current thread, use C-c C-c and restarts to break out...")
+                             (worker-loop server #f))
+                        ;; when a restart was selected, then shut the server down...
+                        (shutdown-server server))
+                      (progn
+                        (server.debug "Setting up the timer")
+                        (assert (null (timer-of server)))
+                        (setf (timer-of server) (make-instance 'timer))
+                        (server.debug "Spawning the initial workers")
+                        (iter (for n :from 0 :below initial-worker-count)
+                              (make-worker server))
+                        (setf (started-at-of server) (local-time:now))
+                        (server.debug "Server successfully started"))))
+              (:abort
+               (server.debug "Cleaning up after a failed server start")
+               (shutdown-server server :force #t)))))
         server)
     (abort ()
       :report (lambda (stream)
@@ -174,12 +172,13 @@
                  (setf (socket-of listen-entry) nil)
                  (server.dribble "Closing socket ~A" it)
                  (close it :abort force)))
-             (iolib.multiplex::close-multiplexer (connection-multiplexer-of server))
-             (setf (connection-multiplexer-of server) nil)
+             (awhen (connection-multiplexer-of server)
+               (iolib.multiplex::close-multiplexer it)
+               (setf (connection-multiplexer-of server) nil))
              (setf (started-at-of server) nil)))
       (server.dribble "Shutting down server ~A, force? ~A" server force)
       (bind ((threaded? (not (zerop (maximum-worker-count-of server)))))
-        (when threaded?
+        (when (timer-of server)
           (shutdown-timer (timer-of server) :wait (not force))
           (setf (timer-of server) nil))
         (if force
@@ -202,7 +201,9 @@
                             (return-from waiting-for-workers))))
                       (sleep 1))
                 (assert (zerop (occupied-worker-count-of server))))
-              (close-sockets)))))))
+              (close-sockets)))
+        (dolist (broker (brokers-of server))
+          (shutdown-broker broker))))))
 
 (def class* worker ()
   ((thread)))
