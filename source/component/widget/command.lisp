@@ -129,15 +129,11 @@
                            `js(wui.io.action ,href
                                              :event event
                                              :ajax ,(when (ajax-enabled? *application*)
-                                                          (force (ajax-p command)))
+                                                      (force (ajax-of command)))
                                              :send-client-state ,send-client-state?)))))
     `js(on-load (dojo.connect (dojo.by-id ,id) "onclick"
                               (lambda (event)
-                                (wui.io.action ,href
-                                               :event event
-                                               :ajax,(when (ajax-enabled? *application*)
-                                                      (force (ajax-p command)))
-                                               :send-client-state ,send-client-state?))))))
+                                ,(funcall onclick-js href))))))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))
