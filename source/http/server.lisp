@@ -278,7 +278,7 @@
 (def function worker-loop/serve-one-request (threaded? server worker stream-socket)
   (flet ((serve-one-request ()
            (server.dribble "Worker ~A is processing a request" worker)
-           (setf (iolib:socket-option stream-socket :receive-timeout) 5) ;; TODO is this a constant or depends on server network load?
+           (setf (iolib:socket-option stream-socket :receive-timeout) 15) ;; TODO is this a constant or depends on server network load?
            (setf *request-remote-host* (iolib:remote-host stream-socket))
            (unwind-protect
                 (progn
