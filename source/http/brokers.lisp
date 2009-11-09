@@ -77,11 +77,6 @@
 ;;;;;;
 ;;; Brokers
 
-(def generic matches-request? (broker request)
-  (:method (broker request)
-    #f))
-
-(def generic produce-response (broker request))
 
 (def class* broker (closer-mop:funcallable-standard-object request-counter-mixin)
   ((priority 0 :type number))

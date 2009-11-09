@@ -6,8 +6,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (generic e) handle-request (thing request))
-
 (def (class* e) request-counter-mixin ()
   ((processed-request-count 0 :export :accessor :type integer)))
 
@@ -80,9 +78,6 @@
         (with-recursive-lock-held ((lock-of server))
           (-body-)))
     (threads.dribble "Leaving with-lock-held-on-server for server ~S in thread ~S" server (current-thread))))
-
-(def (generic e) startup-server (server &key &allow-other-keys))
-(def (generic e) shutdown-server (server &key &allow-other-keys))
 
 (def method startup-server ((server server) &key (initial-worker-count 2) &allow-other-keys)
   (server.debug "STARTUP-SERVER of ~A" server)

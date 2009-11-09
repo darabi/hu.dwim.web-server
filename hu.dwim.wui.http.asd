@@ -50,7 +50,8 @@
                                            (:file "zlib")))
                              (:module "http"
                               :depends-on ("logger" "util")
-                              :components ((:file "accept-headers" :depends-on ("variables"))
+                              :components ((:file "api")
+                                           (:file "accept-headers" :depends-on ("variables"))
                                            (:file "brokers" :depends-on ("server"))
                                            (:file "cgi" :depends-on ("brokers"))
                                            (:file "conditions" :depends-on ("variables"))
@@ -61,7 +62,7 @@
                                            (:file "server" :depends-on ("request-parsing"))
                                            (:file "uri" :depends-on ("variables"))
                                            (:file "util" :depends-on ("variables"))
-                                           (:file "variables")))
+                                           (:file "variables" :depends-on ("api"))))
                              (:module "server"
                               :depends-on ("http")
                               :components ((:file "file-serving")
