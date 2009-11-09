@@ -508,7 +508,7 @@ Custom implementations should look something like this:
 
 (def (method o) purge-sessions ((application application))
   (app.dribble "Purging the sessions of ~S" application)
-  ;; this method should be called while not holding any session or application lock
+  ;; this method must be called while not holding any session or application lock
   (assert (not (is-lock-held? (lock-of application))) () "You must NOT have a lock on the application when calling PURGE-SESSIONS (or on any of its sessions)!")
   (setf (sessions-last-purged-at-of application) (get-monotonic-time))
   (let ((deleted-sessions (list))

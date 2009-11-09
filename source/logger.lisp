@@ -6,7 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def logger wui () :appender (make-instance 'brief-stream-appender :stream *debug-io*))
+(def logger wui ())
 
 (def logger rerl (wui))
 

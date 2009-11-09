@@ -581,6 +581,7 @@
     (format stream "Number of failed requests:                  ~A~%" (failed-request-count-of *server*))
     (format stream "Number of client connection resets:         ~A~%" (client-connection-reset-count-of *server*))
     (format stream "Number of live web sessions:                ~A~%" (iter (for broker :in (brokers-of *server*))
+                                                                            ;; FIXME application is not yet defined here. sometimes it errors while loading...
                                                                             (when (typep broker 'application)
                                                                               (summing (hash-table-count (session-id->session-of broker))))))
     (terpri)
@@ -588,7 +589,7 @@
                 (symbol-value '*application*))
       (format stream "Application:                                ~A~%" it)
       (format stream "Number of requests to valid sessions:       ~A~%" (requests-to-sessions-count-of it))
-      (format stream "Sessions last purged since:                 ~A seconds~%" (coerce (sessions-last-purged-at-of it) 'float))
+      (format stream "Sessions last purged at:                    ~,2F seconds since boot~%" (coerce (sessions-last-purged-at-of it) 'float))
       (terpri))
     (format stream "Heap usage:                                 ~,2F MBytes~%" (/ (sb-kernel::dynamic-usage) 1024d0 1024d0))
     (format stream "Number of threads running:                  ~A~%" (length (sb-thread::list-all-threads)))
