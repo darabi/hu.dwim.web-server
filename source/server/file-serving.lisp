@@ -68,7 +68,10 @@
              (make-redirect-response (append-path-to-uri uri "/")))))
       ((and (default-response-compression)
             (compress-file-before-serving? truename))
-       (bind ((compressed-file (merge-pathnames relative-path (merge-pathnames ".wui-cache/" root-directory))))
+       (bind ((compressed-file (merge-pathnames relative-path (make-pathname :directory (append (pathname-directory *directory-for-temporary-files*)
+                                                                                                (list "compressed-static-file-cache")
+                                                                                                (rest (pathname-directory root-directory)))
+                                                                             :defaults root-directory))))
          (ensure-directories-exist compressed-file)
          (if (and (cl-fad:file-exists-p compressed-file)
                   ;; TODO use iolib for file-write-date?
