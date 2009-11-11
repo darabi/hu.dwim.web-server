@@ -37,5 +37,9 @@
 (def render-text uri/external-link/inspector
   (render-component (print-uri-to-string (component-value-of -self-))))
 
+(def render-ods uri/external-link/inspector
+    (let ((uri (print-uri-to-string (component-value-of -self-))))
+      <text:p <text:a (xlink:href ,uri) ,uri>>))
+
 (def method render-command-bar-for-alternative? ((component uri/external-link/inspector))
   #f)

@@ -19,7 +19,7 @@
   (write-csv-value -self-))
 
 (def render-ods string
-  <text:p ,-self->)
+  <text:p (office:value-type "string") ,-self->)
 
 (def render-odt string
   <text:p ,-self->)

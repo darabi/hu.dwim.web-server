@@ -46,3 +46,12 @@
 
 (def layered-method make-title ((self chapter/text/inspector) class prototype (value chapter))
   (title-of value))
+
+;;;;;;
+;;; ods export
+(def render-ods chapter/text/inspector
+    <table:table-row
+      <table:table-cell (office:value-type "string")
+                        <text:p ,(title-of (component-value-of -self-)) >>>
+  (foreach #'render-ods (contents-of -self-)))
+

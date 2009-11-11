@@ -25,7 +25,7 @@
 ;;;;;;
 ;;; book/text/inspector
 
-(def (component e) book/text/inspector (t/text/inspector collapsible/abstract title/mixin)
+(def (component e) book/text/inspector (t/text/inspector collapsible/abstract title/mixin exportable/abstract)
   ())
 
 (def render-xhtml book/text/inspector
@@ -46,6 +46,11 @@
   (write-text-line-separator)
   (call-next-method))
 
+(def render-ods book/text/inspector
+  (render-title-for -self-)
+  (foreach #'render-author (authors-of (component-value-of -self-)))
+  (foreach #'render-component (contents-of -self-)))
+
 (def layered-method make-title ((self book/text/inspector) class prototype (value book))
   (title-of value))
 
@@ -60,6 +65,9 @@
   (:method :in xhtml-layer ((self string))
     <div (:class "author")
       ,(render-component self)>)
+
+  (:method :in ods-layer ((self string))
+    (render-component self))
 
   (:method ((self component))
     (render-component self)))

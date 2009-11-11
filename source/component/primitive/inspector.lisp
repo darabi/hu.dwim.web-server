@@ -86,6 +86,11 @@
   (render-component (component-value-of -self-)))
 
 ;;;;;;
+;;; ods export
+(def render-ods string/inspector
+    <text:p ,(component-value-of -self-)>)
+
+;;;;;;
 ;;; password/inspector
 
 (def (component e) password/inspector (password/abstract string/inspector)

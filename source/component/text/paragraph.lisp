@@ -43,3 +43,11 @@
 
   (:method ((self component))
     (render-component self)))
+
+
+;;;;;;
+;;; ods export
+(def render-ods paragraph/text/inspector
+    <table:table-row
+      <table:table-cell (office:value-type "string")
+                        ,(foreach #'render-ods (contents-of -self-))>>)

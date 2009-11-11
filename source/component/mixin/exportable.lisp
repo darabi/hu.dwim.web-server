@@ -70,7 +70,7 @@
 ;;;;;;
 ;;; ODS format
 
-(def layered-method export-ods (component)
+(def layered-method export-ods ((component exportable/abstract))
   (with-output-to-export-stream (*xml-stream* :content-type +ods-mime-type+ :external-format :utf-8)
     (emit-xml-prologue)
     <office:document (xmlns:office "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
@@ -107,7 +107,8 @@
                       office:mimetype "application/vnd.oasis.opendocument.spreadsheet")
       <office:body
         <office:spreadsheet
-          ,(render-ods component)>>>))
+         <table:table
+             ,(render-ods component)>>>>))
 
 ;;;;;;
 ;;; SH format

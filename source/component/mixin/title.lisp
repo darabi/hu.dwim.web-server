@@ -32,6 +32,9 @@
     <span (:class "title")
       ,(render-component self)>)
 
+  (:method :in ods-layer ((self string))
+    (render-component self))
+
   (:method ((self component))
     (render-component self))
 

@@ -132,6 +132,7 @@
 (def layered-method collect-slot-value-list/slots ((component t/name-value-list/filter) class prototype value)
   (class-slots value))
 
+
 (def layered-method make-slot-value-list/place-group ((component t/name-value-list/filter) class prototype value)
   (make-place-group nil (mapcar [make-object-slot-place (class-prototype (component-value-of component)) !1] value)))
 

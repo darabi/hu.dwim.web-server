@@ -178,6 +178,10 @@
   (optional-list* (make-menu-item (icon menu :label "Export") (make-export-commands component class prototype instance))
                   (call-next-method)))
 
+(def layered-method make-command-bar-commands ((component exportable/abstract) class prototype instance)
+  (optional-list* (make-export-commands component class prototype instance)
+                  (call-next-method)))
+
 (def (icon e) export-text)
 
 (def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype instance)
