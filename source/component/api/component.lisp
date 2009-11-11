@@ -360,20 +360,23 @@ such as make-instance, make-maker, make-viewer, make-editor, make-inspector, mak
 ;;;;;;
 ;;; Export component
 
+(def function export-operation-not-supported (thing export-method-name)
+  (operation-not-supported "Cannot export ~A; you may want to specialize the ~S method on it." thing export-method-name))
+
 (def layered-method export-text ((self component))
-  (operation-not-supported "Cannot EXPORT-TEXT ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
+  (export-operation-not-supported self 'export-text))
 
 (def layered-method export-csv ((self component))
-  (operation-not-supported "Cannot EXPORT-CSV ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
+  (export-operation-not-supported self 'export-csv))
 
 (def layered-method export-pdf ((self component))
-  (operation-not-supported "Cannot EXPORT-PDF ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
+  (export-operation-not-supported self 'export-pdf))
 
 (def layered-method export-odt ((self component))
-  (operation-not-supported "Cannot EXPORT-ODT ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
+  (export-operation-not-supported self 'export-odt))
 
 (def layered-method export-ods ((self component))
-  (operation-not-supported "Cannot EXPORT-ODS ~A, you may want to subclass EXPORTABLE/ABSTRACT"))
+  (export-operation-not-supported self 'export-ods))
 
 ;;;;;;
 ;;; Render component
