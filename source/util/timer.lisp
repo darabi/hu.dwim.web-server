@@ -38,7 +38,8 @@
                        (run-anything? #f))
                   (with-lock-held-on-timer timer
                     (timer.debug "~A sorting ~A entries" timer (length (entries-of timer)))
-                    (setf entries (reschedule-entries)))
+                    ;; need to copy, because we will release the lock before processing finishes
+                    (setf entries (copy-list (reschedule-entries))))
                   (dolist (entry entries)
                     (when (local-time:timestamp< (scheduled-at-of entry) (local-time:now))
                       (setf run-anything? #t)
