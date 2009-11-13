@@ -38,10 +38,12 @@
   (with-render-style/abstract (-self-)
     (iter (with commands = (commands-of -self-))
           (with length = (length commands))
-          (for index :from 0)
+          (with index = 0)
           (for command :in commands)
-          <span (:class ,(element-style-class index length))
-            ,(render-component command)>)))
+          (when (force (visible-component? command))
+            <span (:class ,(element-style-class index length))
+              ,(render-component command)>
+            (incf index)))))
 
 (def render-csv command-bar/widget
   (write-csv-separated-elements #\Space (commands-of -self-)))
