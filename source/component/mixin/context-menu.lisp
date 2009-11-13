@@ -14,11 +14,11 @@
   (:documentation "A COMPONENT with a CONTEXT-MENU."))
 
 (def refresh-component context-menu/mixin
-  (unless (slot-boundp -self- 'context-menu)
+  (bind (((:slots context-menu) -self-))
     (bind ((class (component-dispatch-class -self-))
            (prototype (component-dispatch-prototype -self-))
            (value (component-value-of -self-)))
-      (setf (context-menu-of -self-) (make-context-menu -self- class prototype value)))))
+      (setf context-menu (make-context-menu -self- class prototype value)))))
 
 (def (function e) render-context-menu-for (component)
   (awhen (context-menu-of component)

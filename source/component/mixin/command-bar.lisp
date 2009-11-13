@@ -10,15 +10,15 @@
 ;;; command-bar/mixin
 
 (def (component e) command-bar/mixin ()
-  ((command-bar :type component))
+  ((command-bar nil :type component))
   (:documentation "A COMPONENT with a COMMAND-BAR."))
 
 (def refresh-component command-bar/mixin
-  (unless (slot-boundp -self- 'command-bar)
+  (bind (((:slots command-bar) -self-))
     (bind ((class (component-dispatch-class -self-))
            (prototype (component-dispatch-prototype -self-))
            (value (component-value-of -self-)))
-      (setf (command-bar-of -self-) (make-command-bar -self- class prototype value)))))
+      (setf command-bar (make-command-bar -self- class prototype value)))))
 
 (def (function e) render-command-bar-for (component)
   (awhen (command-bar-of component)
