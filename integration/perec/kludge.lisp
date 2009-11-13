@@ -16,8 +16,7 @@
 (def method call-in-application-environment :around ((application application-with-perec-support) session thunk)
   (hu.dwim.meta-model::with-model-database
     (hu.dwim.perec::with-readonly-transaction
-      (hu.dwim.meta-model::with-import-technical-subject
-        (call-next-method)))))
+      (call-next-method))))
 
 (def localization-loading-locale-loaded-listener wui-resource-loader/perec :hu.dwim.wui "localization/integration/perec" :log-discriminator "WUI")
 
