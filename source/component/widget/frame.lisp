@@ -144,3 +144,31 @@
 (def (generic e) application-relative-path-for-no-javascript-support-error (application)
   (:method ((application application))
     "/help/"))
+
+(def (function e) make-default-page-icon ()
+  "static/favicon.ico")
+
+(def (function e) make-default-script-uris (system-name &rest script-uris)
+  (declare (ignore system-name))
+  (list* "wui/js/wui.js"
+         "wui/js/component-hierarchy.js"
+         script-uris))
+
+(def (function e) make-default-stylesheet-uris (system-name &rest style-sheets)
+  (flet ((entry (path)
+           (list (string+ "static/" path)
+                 (system-relative-pathname system-name (string+ "www/" path))))
+         (dojo-relative-path (path)
+           (string+ *dojo-directory-name* path)))
+    (list* (entry (dojo-relative-path "dojo/resources/dojo.css"))
+           (entry (dojo-relative-path "dijit/themes/tundra/tundra.css"))
+           (entry "wui/css/wui.css")
+           (entry "wui/css/icon.css")
+           (entry "wui/css/border.css")
+           (entry "wui/css/layout.css")
+           (entry "wui/css/widget.css")
+           (entry "wui/css/text.css")
+           (entry "wui/css/lisp-form.css")
+           (entry "wui/css/shell-script.css")
+           (entry "wui/css/presentation.css")
+           (mapcar #'entry style-sheets))))
