@@ -21,4 +21,5 @@
     (setf (menu-items-of self) (call-next-method)))
 
   (:method ((self menu-items/mixin))
+    (foreach #'ensure-refreshed (menu-items-of self))
     (sort (menu-items-of self) #'< :key #'command-position)))
