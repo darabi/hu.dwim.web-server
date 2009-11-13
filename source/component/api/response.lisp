@@ -56,6 +56,15 @@
                                        :encoding encoding
                                        :content-type content-type)))
 
+(def (function e) make-frame-root-component-rendering-response (frame-factory)
+  (if *session*
+      (if (root-component-of *frame*)
+          (make-root-component-rendering-response *frame*)
+          (progn
+            (setf (root-component-of *frame*) (funcall frame-factory))
+            (make-redirect-response-for-current-application)))
+      (make-component-rendering-response (funcall frame-factory))))
+
 (def method convert-to-primitive-response ((self component-rendering-response))
   (disallow-response-caching self)
   (bind ((*frame* (frame-of self))
