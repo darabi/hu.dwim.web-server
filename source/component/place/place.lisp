@@ -35,4 +35,9 @@
         (setf (component-value-of content) (value-at-place component-value))
         (setf content (make-slot-value/content -self- class prototype component-value)))))
 
+(def render-xhtml place/value/presentation
+  (with-render-style/abstract (-self- :element-name "span")
+    (render-context-menu-for -self-)
+    (render-content-for -self-)))
+
 (def (layered-function e) make-slot-value/content (component class prototype value))
