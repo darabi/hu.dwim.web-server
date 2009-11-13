@@ -12,8 +12,8 @@
 (def (component e) chapter/inspector (text/inspector exportable/abstract)
   ())
 
-(def (macro e) chapter/inspector ((&rest args &key &allow-other-keys) &body contents)
-  `(make-instance 'chapter/inspector ,@args :contents (list ,@contents)))
+(def (macro e) chapter/inspector ((&rest args &key &allow-other-keys) &body chapter)
+  `(make-instance 'chapter/inspector ,@args :component-value ,(the-only-element chapter)))
 
 (def layered-method find-inspector-type-for-prototype ((prototype chapter))
   'chapter/inspector)
@@ -27,7 +27,6 @@
 
 (def (component e) chapter/text/inspector (t/text/inspector collapsible/abstract title/mixin)
   ())
-
 
 (def render-xhtml chapter/text/inspector
   (with-render-style/abstract (-self-)
