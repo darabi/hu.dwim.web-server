@@ -41,7 +41,7 @@
   ()
   (:documentation "A COMPONENT with STYLE and remote setup."))
 
-(def with-macro* with-render-style/abstract (self &key (element-name "div"))
+(def (with-macro* e) with-render-style/abstract (self &key (element-name "div"))
   (bind (((:read-only-slots id style-class custom-style) self))
     <,element-name (:id ,id :class ,style-class :style ,custom-style)
       ,(-body-)>))
