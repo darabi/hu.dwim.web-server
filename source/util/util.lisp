@@ -476,15 +476,25 @@
 (def special-variable *temporary-file-random-state* (make-random-state t))
 (def special-variable *temporary-file-unique-number* 0)
 
-(def (special-variable e) *directory-for-temporary-files* "/tmp/wui/"
+(def special-variable *base-directory-for-temporary-files* (string+ (iolib.pathnames:file-path-namestring iolib.os:*temporary-directory*) "/wui")
   "Used for uploading files among other things.")
 
-(def function directory-for-temporary-files ()
-  (ensure-directories-exist
-   (string+ *directory-for-temporary-files*
-            "/"
-            (integer-to-string (isys:%sys-getpid))
-            "/")))
+(def special-variable *directory-for-temporary-files* nil
+  "Holds the runtime value of the temporary directory, which includes the PID. Lazily initialized to be able to extract the PID.")
+
+(def (function e) directory-for-temporary-files ()
+  (or *directory-for-temporary-files*
+      (setf *directory-for-temporary-files*
+            (ensure-directories-exist
+             (string+ *base-directory-for-temporary-files*
+                      "/"
+                      (integer-to-string (isys:%sys-getpid))
+                      "/")))))
+
+(def (function e) delete-directory-for-temporary-files ()
+  (when *directory-for-temporary-files*
+    (iolib.os:delete-files *directory-for-temporary-files* :recursive #t)
+    (setf *directory-for-temporary-files* nil)))
 
 (def function filename-for-temporary-file (&optional (prefix nil prefix-provided?))
   (string+ (directory-for-temporary-files)

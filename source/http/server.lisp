@@ -85,8 +85,9 @@
   (setf (shutdown-initiated-p server) #f)
   (restart-case
       (bind ((swank::*sldb-quit-restart* (find-restart 'abort)))
-        (server.debug "Making sure temp dir exists at ~S" *directory-for-temporary-files*)
-        (ensure-directories-exist *directory-for-temporary-files*)
+        (unless (iolib.os:directory-exists-p *base-directory-for-temporary-files*)
+          (server.warn "Specified *BASE-DIRECTORY-FOR-TEMPORARY-FILES* does not exists (~S)" *base-directory-for-temporary-files*)
+          (warn "Specified *BASE-DIRECTORY-FOR-TEMPORARY-FILES* does not exists (~S)" *base-directory-for-temporary-files*))
         (with-lock-held-on-server (server) ; in threaded mode the started workers are waiting until this lock is released
           (bind ((listen-entries (listen-entries-of server))
                  (mux (make-instance 'iolib:epoll-multiplexer)))
@@ -181,6 +182,8 @@
         (when (timer-of server)
           (shutdown-timer (timer-of server) :wait (not force))
           (setf (timer-of server) nil))
+        (dolist (broker (brokers-of server))
+          (shutdown-broker broker))
         (if force
             (progn
               (when threaded?
@@ -201,9 +204,9 @@
                             (return-from waiting-for-workers))))
                       (sleep 1))
                 (assert (zerop (occupied-worker-count-of server))))
-              (close-sockets)))
-        (dolist (broker (brokers-of server))
-          (shutdown-broker broker))))))
+              (close-sockets))))
+      ;; it's tempting to delete the temp dir here, but there might be other servers in this process using it, so don't (delete-directory-for-temporary-files)
+      )))
 
 (def class* worker ()
   ((thread)))
