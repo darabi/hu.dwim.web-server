@@ -296,14 +296,16 @@
                     (setf *request-id* (incf (processed-request-count-of server))))
                   (with-thread-name (string+ " / serving request " (integer-to-string *request-id*))
                     (setf *request* (read-request server stream-socket))
-                    (loop
-                       (with-simple-restart (retry-handling-request "Try again handling this request")
-                         (when (and *response*
-                                    (headers-are-sent-p *response*))
-                           (cerror "Continue" "Some data was already written to the network stream, so restarting the request handling will probably not result in what you would expect."))
-                         (setf *response* nil)
-                         (funcall (handler-of server))
-                         (return)))
+                    (with-error-log-decorator (lambda ()
+                                                (format t "~%User agent: ~S" (header-value *request* +header/user-agent+)))
+                      (loop
+                        (with-simple-restart (retry-handling-request "Try again handling this request")
+                          (when (and *response*
+                                     (headers-are-sent-p *response*))
+                            (cerror "Continue" "Some data was already written to the network stream, so restarting the request handling will probably not result in what you would expect."))
+                          (setf *response* nil)
+                          (funcall (handler-of server))
+                          (return))))
                     (close-request *request*)))
              (with-lock-held-on-server (server)
                (decf (occupied-worker-count-of server)))))
