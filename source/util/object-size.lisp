@@ -100,8 +100,8 @@
                              (recurse (sb-kernel:fun-code-header object)))
                             ((= widetag sb-vm:closure-header-widetag)
                              (recurse (sb-kernel:%closure-fun object))
-                             (iter (for i :from 0 :below (1- (sb-kernel:get-closure-length object)))
-                                   (recurse (sb-kernel:%closure-index-ref object i))))
+                             (sb-impl::do-closure-values (value object)
+                               (recurse value)))
                             (t (error "Unknown function type ~A" object)))))))))
       (recurse root))))
 
