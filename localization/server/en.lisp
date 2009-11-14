@@ -8,4 +8,10 @@
 
 (def localization en
   (class-name.request "request")
-  (class-name.response "response"))
+  (class-name.response "response")
+
+  (slot-name.http-header "http header")
+  (slot-name.kind "kind")
+  (slot-name.version "version")
+  (slot-name.supported "supported")
+  (slot-name.count "count"))

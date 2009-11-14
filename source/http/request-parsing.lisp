@@ -279,40 +279,60 @@
    (supported :type boolean :accessor supported?)))
 
 (def print-object user-agent
-  (format t "~A : ~A (~A)"
-          (kind-of -self-) (version-of -self-)
-          (if (supported? -self-)
+  (print-user-agent -self- t))
+
+(def function print-user-agent (user-agent stream)
+  (format stream "~A : ~A (~A)"
+          (kind-of user-agent) (version-of user-agent)
+          (if (supported? user-agent)
               "supported"
               "unsupported")))
 
-(def function make-generic-user-agent ()
+(def function make-generic-user-agent (http-header)
   (make-instance 'user-agent
-                 :http-header nil
+                 :http-header http-header
                  :kind :generic
                  :version 0
                  :supported #f))
 
 (def function determine-user-agent (request)
-  (bind ((http-agent (header-value request +header/user-agent+)))
-    (or (find-user-agent http-agent :otherwise nil)
-        (setf (find-user-agent http-agent)
-              (flet ((check-user-agent (version-scanner user-agent minimum-version)
-                       (bind (((:values success? version-string) (cl-ppcre:scan-to-strings version-scanner http-agent)))
-                         (when success?
-                           (bind ((version (or (ignore-errors
-                                                 (parse-number:parse-number (first-elt version-string)))
-                                               0)))
-                             (make-instance 'user-agent
-                                            :kind user-agent
-                                            :version version
-                                            :supported (>= version minimum-version)
-                                            :http-header http-agent))))))
-                (aprog1 (or (check-user-agent +chrome-version-scanner+ :chrome 3)
-                            (check-user-agent +opera-version-scanner+ :opera 9.6)
-                            (check-user-agent +konqueror-version-scanner+ :konqueror 4.2)
-                            (check-user-agent +safari-version-scanner+ :safari 4)
-                            (check-user-agent +msie-version-scanner+ :msie 7)
-                            (check-user-agent +mozilla-version-scanner+ :mozilla 5)
-                            (check-user-agent +drakma-version-scanner+ :drakma 0)
-                            (make-generic-user-agent))
-                  (http.info "Determined user agent is ~A" it)))))))
+  (bind ((http-header (header-value request +header/user-agent+)))
+    (or (find-user-agent http-header :otherwise nil)
+        (setf (find-user-agent http-header)
+              (parse-user-agent http-header)))))
+
+(def function parse-user-agent (http-header)
+  (flet ((check-user-agent (version-scanner user-agent minimum-version)
+           (bind (((:values success? version-string) (cl-ppcre:scan-to-strings version-scanner http-header)))
+             (when success?
+               (bind ((version (or (ignore-errors
+                                     (parse-number:parse-number (first-elt version-string)))
+                                   0)))
+                 (make-instance 'user-agent
+                                :kind user-agent
+                                :version version
+                                :supported (>= version minimum-version)
+                                :http-header http-header))))))
+    (aprog1 (or (check-user-agent +chrome-version-scanner+ :chrome 3)
+                (check-user-agent +opera-version-scanner+ :opera 9.6)
+                (check-user-agent +konqueror-version-scanner+ :konqueror 4.2)
+                (check-user-agent +safari-version-scanner+ :safari 4)
+                (check-user-agent +msie-version-scanner+ :msie 7)
+                (check-user-agent +mozilla-version-scanner+ :mozilla 5)
+                (check-user-agent +drakma-version-scanner+ :drakma 0)
+                (make-generic-user-agent http-header))
+      (http.info "Determined user agent is ~A" it))))
+
+(def class* user-agent-breakdown (user-agent)
+  ((count :type integer)))
+
+(def function make-user-agent-breakdown (&optional (server *server*))
+  (bind ((user-agents (make-hash-table :test #'equal)))
+    (iter (for broker :in (brokers-of server))
+          (when (typep broker 'application)
+            (iter (for (id session) :in-hashtable (session-id->session-of broker))
+                  (for user-agent = (user-agent-of session))
+                  (when user-agent
+                    (incf (gethash (http-header-of user-agent) user-agents 0))))))
+    (iter (for (http-header count) :in-hashtable user-agents)
+          (collect (change-class (parse-user-agent http-header) 'user-agent-breakdown :count count)))))

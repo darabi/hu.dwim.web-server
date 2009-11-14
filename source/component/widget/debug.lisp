@@ -94,7 +94,16 @@
       (menu-item/widget ()
           (replace-target-place/widget ()
               "Response"
-            (make-value-inspector *response*))))
+            (make-value-inspector *response*)))
+      #+sbcl
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Frame size breakdown"
+            (make-instance 'frame-size-breakdown/widget)))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "User agent breakdown"
+            (make-value-inspector (make-user-agent-breakdown *server*)))))
     (menu-item/widget ()
         "Miscellaneous"
       (menu-item/widget ()
@@ -113,9 +122,4 @@
                                  (declare (ignore href))
                                  `js(wui.reload-css)))
             "Reload CSS"
-            (make-action)))
-      #+sbcl
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Frame size breakdown"
-            (make-instance 'frame-size-breakdown))))))
+            (make-action))))))
