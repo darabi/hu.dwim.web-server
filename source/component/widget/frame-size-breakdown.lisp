@@ -7,13 +7,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; frame-size-breakdown
+;;; frame-size-breakdown/widget
 
-(def (component e) frame-size-breakdown ()
+;; TODO: rewrite this using the meta gui
+(def (component e) frame-size-breakdown/widget (widget/basic)
   ((last-dynamic-usage 0)
    (last-descriptors nil)))
 
-(def render-xhtml frame-size-breakdown
+(def render-xhtml frame-size-breakdown/widget
   (sb-ext:gc :full t)
   ;; TODO: room
   (bind ((last-dynamic-usage (last-dynamic-usage-of -self-))
