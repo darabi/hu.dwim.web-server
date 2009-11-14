@@ -6,7 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def localization-loading-locale-loaded-listener wui-resource-loader/hu.dwim.perec :wui "localization/integration/hu.dwim.perec/" :log-discriminator "WUI")
+(def localization-loader-callback wui-resource-loader/hu.dwim.perec :wui "localization/integration/hu.dwim.perec/" :log-discriminator "WUI")
 
 (register-locale-loaded-listener 'wui-resource-loader/hu.dwim.perec)
 

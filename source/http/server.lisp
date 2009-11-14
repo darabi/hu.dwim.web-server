@@ -6,7 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def localization-loading-locale-loaded-listener wui-resource-loader/server :hu.dwim.wui "localization/server/" :log-discriminator "WUI")
+(def localization-loader-callback wui-resource-loader/server :hu.dwim.wui "localization/server/" :log-discriminator "WUI")
 
 (register-locale-loaded-listener 'wui-resource-loader/server)
 

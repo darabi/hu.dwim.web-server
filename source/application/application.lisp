@@ -34,7 +34,7 @@
 (def (special-variable e) *default-compile-time-debug-client-side* #f
   "The default for the same slot in applications.")
 
-(def localization-loading-locale-loaded-listener wui-resource-loader/application :hu.dwim.wui "localization/application/" :log-discriminator "WUI")
+(def localization-loader-callback wui-resource-loader/application :hu.dwim.wui "localization/application/" :log-discriminator "WUI")
 
 (register-locale-loaded-listener 'wui-resource-loader/application)
 

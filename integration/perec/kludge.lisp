@@ -18,8 +18,6 @@
     (hu.dwim.perec::with-readonly-transaction
       (call-next-method))))
 
-(def localization-loading-locale-loaded-listener wui-resource-loader/perec :hu.dwim.wui "localization/integration/perec" :log-discriminator "WUI")
-
 ;; TODO: KLUDGE: move
 (def method reuse-component-value ((component component) (class standard-class) (prototype object-slot-place) (value object-slot-place))
   (bind ((instance (instance-of value))

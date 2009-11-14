@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Listener definer
 
-(def (definer e) localization-loading-locale-loaded-listener (name asdf-system base-directory &key log-discriminator (setup-readtable-function ''setup-readtable))
+(def (definer e) localization-loader-callback (name asdf-system base-directory &key log-discriminator (setup-readtable-function ''setup-readtable))
   (setf log-discriminator (or log-discriminator ""))
   (with-standard-definer-options name
     (once-only (setup-readtable-function asdf-system base-directory log-discriminator)
@@ -23,7 +23,7 @@
                (cl-l10n::load-resource-file :hu.dwim.wui file)
                (l10n.info "Loaded ~A localizations for locale ~S from ~A" ,log-discriminator locale-name file))))))))
 
-(def localization-loading-locale-loaded-listener wui-localization-loader :hu.dwim.wui "localization/" :log-discriminator "WUI")
+(def localization-loader-callback wui-localization-loader :hu.dwim.wui "localization/" :log-discriminator "WUI")
 
 (register-locale-loaded-listener 'wui-localization-loader)
 
