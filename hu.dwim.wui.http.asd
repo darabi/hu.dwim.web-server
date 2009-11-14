@@ -32,6 +32,9 @@
                :hu.dwim.syntax-sugar
                :hu.dwim.util
                :iolib
+               :iolib.pathnames
+               :iolib.sockets
+               :iolib.os
                :local-time
                :parse-number
                :rfc2109
