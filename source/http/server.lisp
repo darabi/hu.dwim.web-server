@@ -6,6 +6,10 @@
 
 (in-package :hu.dwim.wui)
 
+(def localization-loading-locale-loaded-listener wui-resource-loader/server :hu.dwim.wui "localization/server/" :log-discriminator "WUI")
+
+(register-locale-loaded-listener 'wui-resource-loader/server)
+
 (def (class* e) request-counter-mixin ()
   ((processed-request-count 0 :export :accessor :type integer)))
 
