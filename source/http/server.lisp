@@ -259,6 +259,9 @@
                          (iter (for stream-socket = (iolib:accept-connection socket :wait #f))
                                (while (and stream-socket
                                            (not (shutdown-initiated-p server))))
+                               ;; TODO until we have proper connection multiplexing, the sockets towards the clients should be blocking
+                               (setf (iolib.streams:fd-non-blocking stream-socket) #f)
+                               (setf (iolib:socket-option stream-socket :receive-timeout) 15)
                                (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
            (values)))
     (if threaded?
