@@ -270,6 +270,7 @@
 (def (load-time-constant e) +mozilla-version-scanner+ (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
 (def (load-time-constant e) +drakma-version-scanner+ (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
 
+;; TODO this is not thread safe
 (def (namespace :test #'equal) user-agent ())
 
 (def class* user-agent ()

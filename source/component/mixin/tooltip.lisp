@@ -25,6 +25,7 @@
   (etypecase tooltip
     (string
      `js(on-load
+         ;; TODO this should work (dijit.showTooltip ,tooltip ,target-id (array ,@position))
          (new dijit.Tooltip
               (create :connectId (array ,target-id)
                       :label ,tooltip

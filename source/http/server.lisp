@@ -299,7 +299,7 @@
                             (progn
                               (server.info "All ~A worker threads are occupied, starting a new one" worker-count)
                               (make-worker server))
-                            (server.warn "All ~A worker threads are occupied, and can't start new workers due to already at maximum-worker-count" worker-count))))
+                            (server.warn "All ~A worker threads are occupied, and can't start new workers due to having already MAXIMUM-WORKER-COUNT (~A) of them" worker-count (maximum-worker-count-of server)))))
                     (setf *request-id* (incf (processed-request-count-of server))))
                   (with-thread-name (string+ " / serving request " (integer-to-string *request-id*))
                     (setf *request* (read-request server stream-socket))

@@ -131,7 +131,7 @@
                         (string path-prefix)
                         (broker-with-path-prefix (path-prefix-of path-prefix))))
          (query-path (path-of (uri-of request)))
-         ((:values matches? relative-path) (starts-with-subseq path-prefix query-path :return-suffix t)))
+         ((:values matches? relative-path) (starts-with-subseq path-prefix query-path :return-suffix #t)))
     (values matches? relative-path)))
 
 (def class* constant-response-broker (broker)

@@ -62,4 +62,5 @@
                     (close-response response))))
               (server.info "Internal server error for request ~S to application ~A and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri application)))
         (abort-server-request error))
+      ;; TODO think through this fallthrough: js side history.back() is not exactly the best option and does the wrong thing in certain situations. maybe a static plain link to the app base url is a better choice...
       (call-next-method)))
