@@ -27,10 +27,10 @@
 ;;; Util
 
 (def (function e) find-project-by-path (pathname)
-  (maphash-values (lambda (project)
-                    (when (equal (path-of project) pathname)
-                      (return-from find-project-by-path project)))
-                  *projects*))
+  (iterate-project-namespace (lambda (name project)
+                               (declare (ignore name))
+                               (when (equal (path-of project) pathname)
+                                 (return-from find-project-by-path project)))))
 
 (def (function e) project-system-name (project)
   (name-of project))
