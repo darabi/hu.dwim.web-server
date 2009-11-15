@@ -49,6 +49,7 @@
 (def constant +frame-index-parameter-name+     "_x")
 (def constant +ajax-aware-parameter-name+      "_j")
 (def constant +delayed-content-parameter-name+ "_d")
+(def constant +timestamp-parameter-name+       "_ts")
 
 (pushnew +ajax-aware-parameter-name+ *clone-request-uri/default-strip-query-parameters*)
 (pushnew +delayed-content-parameter-name+ *clone-request-uri/default-strip-query-parameters*)
