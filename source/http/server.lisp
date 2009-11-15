@@ -260,8 +260,9 @@
                                (while (and stream-socket
                                            (not (shutdown-initiated-p server))))
                                ;; TODO until we have proper connection multiplexing, the sockets towards the clients should be blocking
-                               (setf (iolib.streams:fd-non-blocking stream-socket) #f)
-                               (setf (iolib:socket-option stream-socket :receive-timeout) 15)
+                               (setf (iolib.streams:fd-non-blocking stream-socket) #t)
+                               ;; TODO is this a constant or depends on server network load?
+                               (setf (iolib:socket-option stream-socket :receive-timeout) 15) 
                                (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
            (values)))
     (if threaded?
@@ -284,7 +285,6 @@
 (def function worker-loop/serve-one-request (threaded? server worker stream-socket)
   (flet ((serve-one-request ()
            (server.dribble "Worker ~A is processing a request" worker)
-           (setf (iolib:socket-option stream-socket :receive-timeout) 15) ;; TODO is this a constant or depends on server network load?
            (setf *request-remote-host* (iolib:remote-host stream-socket))
            (unwind-protect
                 (progn
