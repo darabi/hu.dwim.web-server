@@ -38,6 +38,37 @@
 (def method predicate-function ((component timestamp/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than-or-equal)))
   'local-time:timestamp>=)
 
+(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'equal)))
+  'local-time:timestamp=)
+
+(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than)))
+  'local-time:timestamp<)
+
+(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than-or-equal)))
+  'local-time:timestamp<=)
+
+(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than)))
+  'local-time:timestamp>)
+
+(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than-or-equal)))
+  'local-time:timestamp>=)
+
+(def method predicate-function ((component date/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'equal)))
+  'local-time:timestamp=)
+
+(def method predicate-function ((component date/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than)))
+  'local-time:timestamp<)
+
+(def method predicate-function ((component date/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than-or-equal)))
+  'local-time:timestamp<=)
+
+(def method predicate-function ((component date/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than)))
+  'local-time:timestamp>)
+
+(def method predicate-function ((component date/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than-or-equal)))
+  'local-time:timestamp>=)
+
+
 ;;;;;;
 ;;; Query builder
 
@@ -91,7 +122,7 @@
                     ;; TODO: use when, not unless
                     (when (use-in-filter? component)
                       (bind ((value (component-value-of value-filter))
-                             (ponated-predicate (make-filter-query-predicate (content-of place-filter) (class-of (instance-of (component-value-of component)))
+                             (ponated-predicate (make-filter-query-predicate (content-of place-filter) (sb-pcl::slot-definition-class (slot-of (component-value-of component)))
                                                                              (selected-predicate-of component) slot filter-query value)))
                         (hu.dwim.perec::add-assert (query-of filter-query)
                                                    (if (negated? component)
