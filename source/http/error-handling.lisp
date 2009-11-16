@@ -17,12 +17,16 @@
       (call-next-method))))
 
 (def function is-error-from-client-stream? (error client-stream)
-  (or (and (typep error 'stream-error)
-           (eq (stream-error-stream error) client-stream))
-      (and (typep error 'iolib:socket-error)
-           (bind ((error-fd (isys:handle-of error)))
-             (and error-fd
-                  (eql error-fd (iolib:fd-of client-stream)))))))
+  (bind ((client-stream-fd (iolib:fd-of client-stream)))
+    (or (and (typep error 'stream-error)
+             (eq (stream-error-stream error) client-stream))
+        ;; TODO the rest is fragile and easily breaks when iolib changes behavior
+        (and client-stream-fd
+             (and (typep error 'iolib:socket-error)
+                  (eql client-stream-fd (isys:handle-of error)))
+             ;; TODO signalling non stream-error conditions might be an iolib bug
+             (and (typep error 'iolib.multiplex:poll-error)
+                  (eql client-stream-fd (iolib.multiplex:poll-error-fd error)))))))
 
 (def method debug-on-error? :around (context (condition access-denied-error))
   #f)
