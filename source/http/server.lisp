@@ -345,7 +345,9 @@
               (:always
                (block closing
                  (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
-                                                 (server.error (build-backtrace-string error :message (format nil "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block." (if interrupted "unwinding" "normally exiting"))))
+                                                 (declare (ignorable error))
+                                                 ;; let's not clutter the error log with non-interesting errors... (server.error (build-backtrace-string error :message (format nil "Failed to close the socket stream in SERVE-ONE-REQUEST while ~A the UNWIND-PROTECT block." (if interrupted "unwinding" "normally exiting"))))
+                                                 (server.debug "Error closing the socket ~A while ~A: ~A" stream-socket (if interrupted "unwinding" "normally exiting") error)
                                                  (return-from closing))
                                                'abort-server-request)
                    (server.dribble "Closing the socket")
