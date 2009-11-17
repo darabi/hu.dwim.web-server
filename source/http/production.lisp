@@ -12,7 +12,7 @@
 (def (constant e) +default-http-server-port+ 8080)
 
 (def (constant e) +http-server-port-command-line-option+
-  '("http-server-port"
+  '(("http-server-port" #\Space)
     :type integer
     :initial-value #.+default-http-server-port+
     :documentation "The HTTP port where the server will be listening for incoming requests"))
