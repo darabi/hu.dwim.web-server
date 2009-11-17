@@ -26,11 +26,23 @@
 ;;;;;;
 ;;; Util
 
+(def (function e) project-pathname? (pathname)
+  (equal *workspace-directory*
+         (make-pathname :defaults pathname
+                        :directory (butlast (pathname-directory pathname)))))
+
 (def (function e) find-project-by-path (pathname)
   (iterate-project-namespace (lambda (name project)
                                (declare (ignore name))
                                (when (equal (path-of project) pathname)
                                  (return-from find-project-by-path project)))))
+
+(def (function e) find-project-by-system (system)
+  (iter (for pathname :initially (system-pathname (asdf:find-system system))
+             :then (make-pathname :defaults pathname
+                                  :directory (butlast (pathname-directory pathname))))
+        (until (project-pathname? pathname))
+        (finally (return (find-project-by-path pathname)))))
 
 (def (function e) project-system-name (project)
   (name-of project))
