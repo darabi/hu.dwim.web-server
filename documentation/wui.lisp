@@ -10,9 +10,9 @@
 
 (def method make-project-tab-pages ((component project/detail/inspector) (project (eql (find-project :hu.dwim.wui))))
   (append (call-next-method)
-          (list (tab-page/widget (:selector "Demo")
+          (list (tab-page/widget (:selector (icon switch-to-tab-page :label "Demo"))
                   (make-component-demo-content))
-                (tab-page/widget (:selector "Documentation")
+                (tab-page/widget (:selector (icon switch-to-tab-page :label "User guide"))
                   (make-value-inspector (find-book 'user-guide))))))
 
 (def book user-guide (:title "User guide")
