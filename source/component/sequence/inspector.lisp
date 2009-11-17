@@ -76,7 +76,7 @@
 
 (def method component-dispatch-class ((component sequence/table/inspector))
   ;; TODO: KLUDGE: this should be an argument
-  (class-of (first (component-value-of component))))
+  (class-of (first-elt (component-value-of component))))
 
 (def refresh-component sequence/table/inspector
   (bind (((:slots component-value rows columns) -self-)
@@ -123,9 +123,9 @@
                  (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
                    (push (cons slot-name slot) slot-name->slot-map)))))
         (when class
-          (mapc #'register-slot (collect-slot-value-list/slots component class (class-prototype class) component-value)))
-        (dolist (value component-value)
-          (mapc #'register-slot (collect-slot-value-list/slots component (class-of value) value component-value))))
+          (foreach #'register-slot (collect-slot-value-list/slots component class (class-prototype class) component-value)))
+        (iter (for value :in-sequence component-value)
+              (foreach #'register-slot (collect-slot-value-list/slots component (class-of value) value component-value))))
       (mapcar (lambda (slot-name->slot)
                 (make-instance 'place/column/inspector
                                :component-value "BLAH" ;; TODO:
