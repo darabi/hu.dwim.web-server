@@ -1,0 +1,22 @@
+Columns
+=======
+Status Priority System Description 
+
+Status
+======
+- todo
++ done
+
+Priorities
+==========
+0 - highest
+1 - high
+2 - normal
+3 - low
+4 - lowest
+
+Entries
+=======
+use M-x sort-lines to keep the order
+
+-2 make context-menu/widget rendering lazy on the client side using ajax
