@@ -25,7 +25,7 @@
          (place/name-value-pair/inspector         ; inspect a place, display as a name value pair
           (place/name/inspector                   ; inspect the name of a place
            (string/inspector                      ; inspect a string (alternator)
-            (string/string/inspector              ; inspect a string, display as a string
+            (string/text/inspector                ; inspect a string, display as text
              string)))                            ; immediate
           (place/value/inspector                  ; inspect the value of a place
            (t/inspector))))                       ; inspect something (alternator)
@@ -44,8 +44,8 @@
   ...))
 
 (string/inspector
- (string/string/inspector)
- (string/character-vector/inspector)
+ (string/text/inspector)
+ (string/character-sequence/inspector)
  ...)
 "))
 

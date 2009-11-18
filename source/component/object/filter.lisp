@@ -26,7 +26,7 @@
          (place/name-value-pair/filter            ; filter for a place, display as a name value pair
           (place/name/inspector                   ; inspect the name of a place
            (string/inspect                        ; inspect a string (alternator)
-            (string/string/inspect                ; inspect a string, display as a string
+            (string/text/inspect                  ; inspect a string, display as text
              string)))                            ; immediate
           (place/value/filter                     ; filter for the value of a place
            (t/filter))))                          ; filter for something (alternator)
