@@ -28,3 +28,5 @@ Entries
 use M-x sort-lines to keep the order
 
 -23 make context-menu/widget rendering lazy on the client side using ajax
+-   detect disabled cookies
+-   explicit error answer for ajax requests coming to non-existent (probably timed out) sessions. tell the js side that the session does not exist anymore
