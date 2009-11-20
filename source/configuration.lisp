@@ -121,8 +121,9 @@
   (enable-quasi-quoted-xml-syntax
    :transformation-pipeline (make-xml-transformation-pipeline)))
 
-(register-readtable-for-swank
- '(:hu.dwim.wui) 'setup-readtable)
+;; TODO this is not exactly the nicest way, but copy-pasting most of this file into package is also questionable... so, decision delayed.
+(setf (hu.dwim.def::readtable-setup-form-of (find-extended-package "HU.DWIM.WUI"))
+      `(setup-readtable))
 
 #+nil
 (def (macro e) transform-js (&body body)

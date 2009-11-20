@@ -4,9 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(in-package :common-lisp-user)
+(in-package :hu.dwim.util)
 
-(defpackage :hu.dwim.wui
+(def package :hu.dwim.wui
   (:use :babel
         :babel-streams
         :bordeaux-threads

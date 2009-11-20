@@ -19,9 +19,7 @@
   :depends-on (:drakma
                :hu.dwim.def+hu.dwim.stefil
                :hu.dwim.wui.http
-               ;; let's enforce loading a few swank integrations for convenient development
-               :hu.dwim.util+swank
-               :hu.dwim.syntax-sugar+swank
+               :hu.dwim.util.test
                )
   :components ((:module "test"
                 :components ((:file "package")

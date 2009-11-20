@@ -77,7 +77,7 @@
                                                     (:xmls (cxml-xmls:make-xmls-builder)))))))))
       (values body status headers)))
 
-  (:method ((path wui::uri) &rest args)
+  (:method ((path hu.dwim.wui::uri) &rest args)
     (apply 'web (print-uri-to-string path) args)))
 
 (def function uri (&optional (path ""))

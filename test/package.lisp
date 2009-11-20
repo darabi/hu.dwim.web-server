@@ -4,9 +4,9 @@
 ;;;
 ;;; See LICENCE for details.
 
-(in-package :common-lisp-user)
+(in-package :hu.dwim.util)
 
-(defpackage :hu.dwim.wui.test
+(def package :hu.dwim.wui.test
   (:use :babel
         :babel-streams
         :cl-l10n
@@ -29,18 +29,13 @@
   (:shadow #:parent
            #:test
            #:test
-           #:uri))
+           #:uri)
+
+  (:readtable-setup
+   (hu.dwim.wui::setup-readtable)
+   (enable-string-quote-syntax)))
 
 (in-package :hu.dwim.wui.test)
-
-(rename-package :hu.dwim.wui :hu.dwim.wui '(:wui))
-
-(def function setup-readtable ()
-  (hu.dwim.wui::setup-readtable)
-  (enable-string-quote-syntax))
-
-(register-readtable-for-swank
- '(:hu.dwim.wui.test) 'setup-readtable)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; import all the internal symbol of WUI
