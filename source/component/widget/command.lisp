@@ -72,19 +72,42 @@
                             :js ,js
                             :action-arguments ,action-arguments)))))))
 
+(def function %default-onclick-js (ajax send-client-state?)
+  (lambda (href)
+    (bind ((ajax (and (ajax-enabled? *application*)
+                      (force ajax))))
+      `js(wui.io.action ,href
+                        :event event
+                        :ajax ,(when (ajax-enabled? *application*)
+                                 (force ajax))
+                        :send-client-state ,send-client-state?)
+      ;; TODO add a *special* that collects the args of all action's and runs a js side loop to process the literal arrays
+      ;; TODO add special handling of apply to qq so that the 'this' arg of .apply is not needed below (wui.io.action twice)
+      ;; TODO do something like this below instead of the above, once qq properly emits commas in the output of (create ,@emtpy-list)
+      #+nil
+      (if (and (eq ajax #t)
+               send-client-state?)
+          `js(wui.io.action ,href :event event)
+          `js(.apply wui.io.action wui.io.action
+                     (array ,href
+                            (create
+                             :event event
+                             ,@(append (unless (eq ajax #t)
+                                         (list (make-instance 'hu.dwim.walker:free-variable-reference-form :name :ajax)
+                                               (make-instance 'hu.dwim.quasi-quote.js:js-unquote :form 'ajax)))
+                                       (unless send-client-state?
+                                         (list (make-instance 'hu.dwim.walker:free-variable-reference-form :name :send-client-state)
+                                               (make-instance 'hu.dwim.walker:constant-form :value '|false|)))))))))))
+
 (def render-xhtml command/widget
   ;; TODO the 'ajax' doesn't really suggest that it may also be a dom id...
+  ;; FIXME theres quite some duplication with RENDER-COMMAND-ONCLICK-HANDLER
   (bind (((:read-only-slots content action enabled-component default ajax js action-arguments id) -self-)
          (style-class (component-style-class -self-)))
     (if (force enabled-component)
         (bind (((:values href send-client-state?) (href-for-command action action-arguments))
                (onclick-js (or js
-                               (lambda (href)
-                                 `js(wui.io.action ,href
-                                                   :event event
-                                                   :ajax ,(when (ajax-enabled? *application*)
-                                                                (force ajax))
-                                                   :send-client-state ,send-client-state?))))
+                               (%default-onclick-js ajax send-client-state?)))
                (name (when (running-in-test-mode? *application*)
                        (if (typep content 'icon/widget)
                            (symbol-name (name-of content))
@@ -122,16 +145,12 @@
     (values href send-client-state?)))
 
 (def (function e) render-command-onclick-handler (command id)
+  ;; FIXME share code with (def render-xhtml command/widget ...)
   (bind ((action (action-of command))
          (action-arguments (action-arguments-of command))
          ((:values href send-client-state?) (href-for-command action action-arguments))
          (onclick-js (or (js-of command)
-                         (lambda (href)
-                           `js(wui.io.action ,href
-                                             :event event
-                                             :ajax ,(when (ajax-enabled? *application*)
-                                                      (force (ajax-of command)))
-                                             :send-client-state ,send-client-state?)))))
+                         (%default-onclick-js (ajax-of command) send-client-state?))))
     `js(on-load (dojo.connect (dojo.by-id ,id) "onclick"
                               (lambda (event)
                                 ,(funcall onclick-js href))))))
