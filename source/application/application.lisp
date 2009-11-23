@@ -577,6 +577,7 @@ Custom implementations should look something like this:
 ;;; Application specific responses
 
 (def function ajax-aware-request? (&optional (request *request*))
+  "Did the client js side code notify us that it's ready to receive ajax answers?"
   (bind ((value (request-parameter-value request +ajax-aware-parameter-name+)))
     (and value
          (etypecase value

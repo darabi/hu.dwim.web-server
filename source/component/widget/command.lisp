@@ -73,6 +73,7 @@
                             :action-arguments ,action-arguments)))))))
 
 (def render-xhtml command/widget
+  ;; TODO the 'ajax' doesn't really suggest that it may also be a dom id...
   (bind (((:read-only-slots content action enabled-component default ajax js action-arguments id) -self-)
          (style-class (component-style-class -self-)))
     (if (force enabled-component)

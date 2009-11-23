@@ -30,7 +30,7 @@
 (def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
   *delayed-content-request*)
 
-(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the remote JS stack and awaits a structured XML answer.")
+(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the client side JS stack and expects an XML answer.")
   *ajax-aware-request*)
 
 (def (special-variable e :documentation "Bound inside entry-points, and contains part of the path of the request url that comes after the application's url prefix.")

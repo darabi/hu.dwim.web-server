@@ -14,8 +14,7 @@
            "Levente Mészáros <levente.meszaros@gmail.com>"
            "Tamás Borbély <tomi.borbely@gmail.com>")
   :licence "BSD / Public domain (sans advertising clause)"
-  :depends-on (:hu.dwim.wui
-               :hu.dwim.wui.component.test))
+  :depends-on (:hu.dwim.wui.component.test))
 
 (defmethod perform :after ((op develop-op) (system (eql (find-system :hu.dwim.wui))))
   (let ((*package* (find-package :hu.dwim.wui)))
