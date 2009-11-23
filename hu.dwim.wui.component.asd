@@ -10,12 +10,7 @@
 
 (defsystem :hu.dwim.wui.component
   :class hu.dwim.system
-  :setup-readtable-function-name "hu.dwim.wui::setup-readtable"
-  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-           "Levente Mészáros <levente.meszaros@gmail.com>"
-           "Tamás Borbély <tomi.borbely@gmail.com>")
-  :licence "BSD / Public domain (sans advertising clause)"
-  :description "Extension to the HTTP application server to become an HTTP component based user interface server for the world wide web."
+  :description "Provides a component based server side GUI framework which is rendered into HTML and JavaScript through HTTP."
   :long-description "Provides various components, layouts, widgets, charts, books, model documentation components, meta components. Components have server and client side state and behavior."
   :depends-on (:contextl
                :hu.dwim.wui.application)

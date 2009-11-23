@@ -10,12 +10,7 @@
 
 (defsystem :hu.dwim.wui.http.test
   :class hu.dwim.test-system
-  :setup-readtable-function-name "hu.dwim.wui.test::setup-readtable"
   :package-name :hu.dwim.wui.test
-  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-           "Levente Mészáros <levente.meszaros@gmail.com>"
-           "Tamás Borbély <tomi.borbely@gmail.com>")
-  :licence "BSD / Public domain (sans advertising clause)"
   :depends-on (:drakma
                :hu.dwim.def+hu.dwim.stefil
                :hu.dwim.wui.http

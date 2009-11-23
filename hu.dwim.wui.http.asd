@@ -10,13 +10,8 @@
 
 (defsystem :hu.dwim.wui.http
   :class hu.dwim.system
-  :setup-readtable-function-name "hu.dwim.wui::setup-readtable"
-  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-           "Levente Mészáros <levente.meszaros@gmail.com>"
-           "Tamás Borbély <tomi.borbely@gmail.com>")
-  :licence "BSD / Public domain (sans advertising clause)"
-  :description "Basic HTTP server to build user interfaces for the world wide web."
-  :long-description "Provides error handling, compression, static file serving, quasi quoted JavaScript and quasi quoted XML serving."
+  :description "An iolib based HTTP server."
+  :long-description "Provides error handling, response compression, static file serving, quasi quoted JavaScript and quasi quoted XML serving."
   :depends-on (:babel
                :babel-streams
                :bordeaux-threads

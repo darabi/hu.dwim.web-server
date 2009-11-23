@@ -10,11 +10,6 @@
 
 (defsystem :hu.dwim.wui+hu.dwim.serializer
   :class hu.dwim.system
-  :setup-readtable-function-name "hu.dwim.wui::setup-readtable"
-  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-           "Tamás Borbély <tomi.borbely@gmail.com>"
-           "Levente Mészáros <levente.meszaros@gmail.com>")
-  :licence "BSD / Public domain"
   :depends-on (:hu.dwim.serializer
                :hu.dwim.wui)
   :components ((:module "integration"
