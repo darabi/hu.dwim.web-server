@@ -64,6 +64,10 @@
         (condition-notify (condition-variable-of timer)))
       (timer.debug "Thread is leaving the timer loop for ~A" timer))))
 
+(def (function e) drive-timer/abort ()
+  (invoke-restart 'abort-timer)
+  (error "It should be impossible to get here..."))
+
 (def function shutdown-timer (timer &key (wait #t))
   (if wait
       (loop
