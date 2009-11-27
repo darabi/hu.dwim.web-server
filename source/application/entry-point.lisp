@@ -7,11 +7,7 @@
 (in-package :hu.dwim.wui)
 
 (def class* entry-point (broker)
-  ((handler :type function))
-  (:metaclass funcallable-standard-class))
-
-(def method produce-response ((entry-point entry-point) request)
-  (funcall (handler-of entry-point) request))
+  ())
 
 (def generic entry-point-equals-for-redefinition (a b)
   (:method (a b)
@@ -29,32 +25,20 @@
     (string= (path-prefix-of a) (path-prefix-of b))))
 
 (def class* path-entry-point (entry-point broker-with-path)
-  ()
-  (:metaclass funcallable-standard-class))
+  ())
 
-(def constructor path-entry-point
-  (set-funcallable-instance-function
-    -self- (lambda (request)
-             (path-entry-point-handler -self- request))))
-
-(def function path-entry-point-handler (entry-point request)
+(def method call-if-matches-request ((entry-point path-entry-point) request thunk)
   (when (string= (path-of entry-point) *application-relative-path*)
     (bind ((*entry-point-relative-path* ""))
-      (produce-response entry-point request))))
+      (funcall thunk))))
 
 (def class* path-prefix-entry-point (entry-point broker-with-path-prefix)
-  ()
-  (:metaclass funcallable-standard-class))
+  ())
 
-(def constructor path-prefix-entry-point
-  (set-funcallable-instance-function
-    -self- (lambda (request)
-             (path-prefix-entry-point-handler -self- request))))
-
-(def function path-prefix-entry-point-handler (entry-point request)
+(def method call-if-matches-request ((entry-point path-prefix-entry-point) request thunk)
   (bind (((:values matches? *entry-point-relative-path*) (starts-with-subseq (path-prefix-of entry-point) *application-relative-path* :return-suffix #t)))
     (when matches?
-      (produce-response entry-point request))))
+      (funcall thunk))))
 
 (def (function e) ensure-entry-point (application entry-point)
   (setf (entry-points-of application)
@@ -76,12 +60,17 @@
                              (when (and (typep a 'path-entry-point)
                                         (typep b 'path-prefix-entry-point))
                                (return-from comparing #t))
-                             (bind ((a-path (broker-path-or-path-prefix-or-nil a))
-                                    (b-path (broker-path-or-path-prefix-or-nil b)))
-                               (when (and a-path
-                                          b-path)
-                                 ;; if we can extract path for brokers of the same priority then the one with a longer path goes first
-                                 (return-from comparing (> (length a-path) (length b-path))))))
+                             (flet ((broker-path-or-path-prefix-or-nil (broker)
+                                      (typecase broker
+                                        (broker-with-path (path-of broker))
+                                        (broker-with-path-prefix (path-prefix-of broker))
+                                        (t nil))))
+                               (bind ((a-path (broker-path-or-path-prefix-or-nil a))
+                                      (b-path (broker-path-or-path-prefix-or-nil b)))
+                                 (when (and a-path
+                                            b-path)
+                                   ;; if we can extract path for brokers of the same priority then the one with a longer path goes first
+                                   (return-from comparing (> (length a-path) (length b-path)))))))
                            (> a-priority b-priority))))))
   entry-point)
 
@@ -148,20 +137,23 @@
       (setf class ''path-entry-point))
     (when path-prefix-p
       (setf class ''path-prefix-entry-point)))
-  (with-unique-names (request)
-    `(ensure-entry-point ,application
-                         (make-instance
-                          ,class ,@args
-                          :handler (lambda (,request)
-                                     (%call-with-entry-point-logic (lambda ()
-                                                                     (app.debug "Entry point body reached")
-                                                                     (block entry-point
-                                                                       ;; BODY is in an intentionally visible block called 'ENTRY-POINT
-                                                                       (with-request-params* ,request ,request-lambda-list
-                                                                         ,@body)))
-                                                                   ,with-session-logic ,requires-valid-session ,ensure-session
-                                                                   ,with-frame-logic   ,requires-valid-frame ,ensure-frame
-                                                                   ,with-action-logic))))))
+  (with-unique-names (entry-point request)
+    `(bind ((,entry-point (make-instance ,class ,@args)))
+       (setf (handler-of ,entry-point)
+             (named-lambda entry-point-definer/handler (&key ((:broker ,entry-point)) ((:request ,request)) &allow-other-keys)
+               (check-type ,entry-point entry-point)
+               (call-if-matches-request ,entry-point ,request
+                                        (lambda ()
+                                          (%call-with-entry-point-logic (named-lambda entry-point-definer/body ()
+                                                                          (app.debug "Entry point body reached")
+                                                                          (block entry-point
+                                                                            ;; BODY is in an intentionally visible block called 'ENTRY-POINT
+                                                                            (with-request-params* ,request ,request-lambda-list
+                                                                              ,@body)))
+                                                                        ,with-session-logic ,requires-valid-session ,ensure-session
+                                                                        ,with-frame-logic   ,requires-valid-frame ,ensure-frame
+                                                                        ,with-action-logic)))))
+       (ensure-entry-point ,application ,entry-point))))
 
 (def (generic e) call-in-entry-point-environment (application session thunk)
   (:method (application session thunk)
@@ -178,4 +170,4 @@
   `(ensure-entry-point ,application (make-js-component-hierarchy-serving-broker ,path-prefix :priority ,priority)))
 
 (def (definer e) cgi-serving-entry-point (application path-prefix filename &key priority environment)
-  `(ensure-entry-point ,application (make-cgi-serving-broker ,path-prefix ,filename :priority ,priority :environment ,environment)))
+  `(ensure-entry-point ,application (make-cgi-broker ,path-prefix ,filename :priority ,priority :environment ,environment)))

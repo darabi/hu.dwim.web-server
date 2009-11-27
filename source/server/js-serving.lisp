@@ -10,8 +10,7 @@
 ;;; js-directory-serving-broker
 
 (def class* js-directory-serving-broker (directory-serving-broker)
-  ()
-  (:metaclass funcallable-standard-class))
+  ())
 
 (def (function e) make-js-directory-serving-broker (path-prefix root-directory &key priority)
   (make-instance 'js-directory-serving-broker :path-prefix path-prefix :root-directory root-directory :priority priority))
@@ -88,20 +87,19 @@
 (def special-variable *js-component-hierarchy-buffer* nil)
 
 (def class* js-component-hierarchy-serving-broker (path-prefix-entry-point)
-  ()
-  (:metaclass funcallable-standard-class))
+  ())
+
+(def method produce-response ((self js-component-hierarchy-serving-broker) request)
+  (make-byte-vector-response* (or *js-component-hierarchy-buffer*
+                                  (setf *js-component-hierarchy-buffer*
+                                        (emit-into-js-stream-buffer
+                                          (serve-js-component-hierarchy))))
+                              :last-modified-at (local-time:now) ;; FIXME no, it's not! it's the time when we last generated *js-component-hierarchy-buffer*
+                              :seconds-until-expires (* 60 60)
+                              :content-type (content-type-for +javascript-mime-type+ :utf-8)))
 
 (def (function e) make-js-component-hierarchy-serving-broker (path-prefix &key priority)
-  (make-instance 'js-component-hierarchy-serving-broker :path-prefix path-prefix :priority priority
-                 :handler (lambda (&rest args)
-                            (declare (ignore args))
-                            (make-byte-vector-response* (or *js-component-hierarchy-buffer*
-                                                            (setf *js-component-hierarchy-buffer*
-                                                                  (emit-into-js-stream-buffer
-                                                                    (serve-js-component-hierarchy))))
-                                                        :last-modified-at (local-time:now)
-                                                        :seconds-until-expires (* 60 60)
-                                                        :content-type (content-type-for +javascript-mime-type+ :utf-8)))))
+  (make-instance 'js-component-hierarchy-serving-broker :path-prefix path-prefix :priority priority))
 
 ;; FIXME: this generates a quite big list which is redundant like hell
 ;;        but it is cached and compressed, so we don't care about it right now

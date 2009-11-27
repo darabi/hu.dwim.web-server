@@ -10,8 +10,7 @@
 ;;; Kludges
 
 (def (class* e) application-with-perec-support ()
-  ()
-  (:metaclass funcallable-standard-class))
+  ())
 
 (def method call-in-application-environment :around ((application application-with-perec-support) session thunk)
   (hu.dwim.meta-model::with-model-database

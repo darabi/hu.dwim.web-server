@@ -28,25 +28,24 @@
 (def class* directory-serving-broker (broker-with-path-prefix)
   ((root-directory)
    ;; TODO (files-only #f)
-   (file-path->cache-entry (make-hash-table :test 'equal)))
-  (:metaclass funcallable-standard-class))
-
-;; TODO caching
+   (file-path->cache-entry (make-hash-table :test 'equal))
+   (path-does-not-exists-response-factory (lambda (&key &allow-other-keys)
+                                            (make-no-handler-response)))))
 
 (def (function e) make-directory-serving-broker (path-prefix root-directory &key priority)
   (make-instance 'directory-serving-broker :path-prefix path-prefix :root-directory root-directory :priority priority))
 
-(def constructor directory-serving-broker
-  (set-funcallable-instance-function
-    -self-
-    (lambda (request)
-      (file-serving-handler -self- request (root-directory-of -self-) (path-prefix-of -self-)))))
-
-(def function file-serving-handler (broker request root-directory path-prefix)
-  (bind (((:values matches? relative-path) (request-uri-matches-path-prefix? path-prefix request)))
-    (when matches?
-      (server.debug "Returning file serving response for path-prefix ~S, relative-path ~S, root-directory ~A" path-prefix relative-path root-directory)
-      (make-file-serving-response-for-query-path broker path-prefix relative-path root-directory))))
+(def method produce-response ((broker directory-serving-broker) request)
+  (bind ((root-directory (root-directory-of broker))
+         (path-prefix (path-prefix-of broker))
+         (relative-path (remaining-path-of-request-uri request)))
+    (server.debug "PRODUCE-RESPONSE for path-prefix ~S, relative-path ~S, root-directory ~A" path-prefix relative-path root-directory)
+    (or (make-file-serving-response-for-query-path broker path-prefix relative-path root-directory)
+        (funcall (path-does-not-exists-response-factory-of broker)
+                 :broker broker
+                 :path-prefix path-prefix
+                 :relative-path relative-path
+                 :root-directory root-directory))))
 
 (def generic make-file-serving-response-for-query-path (broker path-prefix relative-path root-directory)
   (:method ((broker directory-serving-broker) path-prefix relative-path root-directory)

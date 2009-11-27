@@ -44,8 +44,10 @@
          (not (headers-are-sent-p *response*)))
      (server.info "Sending an internal server error page for request ~S" (raw-uri-of *request*))
      (emit-simple-html-document-http-response (:status +http-internal-server-error+ :title #"error.internal-server-error.title")
+       ;; TODO this *server* reference here is leaking from server/
+       ;; that's why the usage of symbol-value...
        (bind ((args (list :administrator-email-address (and (boundp '*server*)
-                                                            (administrator-email-address-of *server*)))))
+                                                            (administrator-email-address-of (symbol-value '*server*))))))
          (apply-localization-function 'render-internal-error-page args)))
      (abort-server-request "HANDLE-TOPLEVEL-ERROR succesfully handled the error by sending an error page"))
     (t

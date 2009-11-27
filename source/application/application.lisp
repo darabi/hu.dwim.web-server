@@ -40,8 +40,7 @@
 
 (def (class* e) standard-application (application-with-home-package
                                       application-with-dojo-support)
-  ()
-  (:metaclass funcallable-standard-class))
+  ())
 
 (def (class* e) application (broker-with-path-prefix
                              request-counter-mixin
@@ -64,7 +63,6 @@
    (running-in-test-mode #f :type boolean :accessor running-in-test-mode? :export :accessor)
    (compile-time-debug-client-side *default-compile-time-debug-client-side* :type boolean :accessor compile-time-debug-client-side? :export :accessor)
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
-  (:metaclass funcallable-standard-class)
   (:default-initargs :path-prefix "/"))
 
 (def function default-frame-root-component-factory (content)
@@ -156,10 +154,7 @@
                        :direct-superclasses (mapcar #'find-class (session-class -self-))
                        :name (format-symbol :hu.dwim.wui "~A-SESSION-FOR-~A"
                                             (class-name (class-of -self-))
-                                            (string-upcase path-prefix))))
-  (set-funcallable-instance-function
-   -self- (lambda (request)
-          (application-handler -self- request))))
+                                            (string-upcase path-prefix)))))
 
 (def (generic e) call-in-application-environment (application session thunk)
   (:documentation "Everything related to an application goes through this method, so it can be used to set up wrappers like WITH-TRANSACTION. The SESSION argument may or may not be a valid session.")
@@ -405,46 +400,40 @@
                   response)))
   response)
 
-(def (function o) application-handler (application request)
+(def method produce-response ((application application) request)
   (assert (not (boundp '*rendering-phase-reached*)))
   (assert (not (boundp '*inside-user-code*)))
+  (assert (eq (first *brokers*) application))
   (bind ((*application* application)
-         (*debug-client-side* (compile-time-debug-client-side? application))
-         (*fallback-locale-for-functional-localizations* (default-locale-of application))
-         (*brokers* (cons application *brokers*))
-         ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can freely setf it
-         (*session* nil)
-         (*frame* nil)
-         (*rendering-phase-reached* #f)
-         (*inside-user-code* #f)
-         ;; the request counter is not critical, so just ignore locking...
-         (request-counter (incf (processed-request-count-of application))))
-    (when (and (zerop (mod request-counter +session-purge/check-at-request-interval+)) ; get time less often
+         (request-number (processed-request-counter/increment application)))
+    (when (and (zerop (mod request-number +session-purge/check-at-request-interval+)) ; to call GET-MONOTONIC-TIME less often
                (> (- (get-monotonic-time)
                      (sessions-last-purged-at-of application))
                   +session-purge/time-interval+))
       (purge-sessions application))
-    (handle-request application request)))
-
-(def method handle-request ((application application) request)
-  (assert (eq *application* application))
-  (assert (eq (first *brokers*) application))
-  (bind (((:values matches? *application-relative-path*) (request-uri-matches-path-prefix? application request)))
-    (when matches?
-      (with-locale (default-locale-of application)
-        (bind ((*ajax-aware-request* (ajax-aware-request?))
-               (*delayed-content-request* (or *ajax-aware-request*
-                                              (delayed-content-request?)))
-               (local-time:*default-timezone* (default-timezone-of application)))
-          (app.debug "~A matched with *application-relative-path* ~S, querying entry-points for response" application *application-relative-path*)
-          (bind ((response (query-brokers-for-response request (entry-points-of application))))
-            (when response
-              (unwind-protect
-                   (progn
-                     (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of the HANDLE-REQUEST method of application" response)
-                     (send-response response))
-                (close-response response))
-              (make-do-nothing-response))))))))
+    (with-locale (default-locale-of application)
+      (bind ((local-time:*default-timezone* (default-timezone-of application))
+             ;; bind *session* and *frame* here, so that WITH-SESSION/FRAME/ACTION-LOGIC and entry-points can freely setf it
+             (*session* nil)
+             (*frame* nil)
+             (*application-relative-path* (remaining-path-of-request-uri request))
+             (*fallback-locale-for-functional-localizations* (default-locale-of application))
+             (*rendering-phase-reached* #f)
+             (*inside-user-code* #f)
+             (*debug-client-side* (compile-time-debug-client-side? application))
+             (*ajax-aware-request* (ajax-aware-request?))
+             (*delayed-content-request* (or *ajax-aware-request*
+                                            (delayed-content-request?))))
+        (app.debug "~A matched with *application-relative-path* ~S, querying entry-points for response" application *application-relative-path*)
+        (bind ((response (query-brokers-for-response request (entry-points-of application) :otherwise nil)))
+          (when response
+            (unwind-protect
+                 (progn
+                   (app.debug "Calling SEND-RESPONSE for ~A while still inside the dynamic extent of the PRODUCE-RESPONSE method of application" response)
+                   (send-response response))
+              (close-response response))
+            ;; TODO why not unwinding from here instead of make-do-nothing-response?
+            (make-do-nothing-response)))))))
 
 (def (generic e) session-class (application)
   (:documentation "Returns a list of the session mixin classes.
@@ -543,8 +532,7 @@ Custom implementations should look something like this:
     (values)))
 
 (def (class* e) application-with-home-package (application)
-  ((home-package *package* :type package))
-  (:metaclass funcallable-standard-class))
+  ((home-package *package* :type package)))
 
 (def method call-in-application-environment :around ((application application-with-home-package) session thunk)
   (let ((*package* (home-package-of application)))
@@ -666,8 +654,7 @@ Custom implementations should look something like this:
 (def (class* ea) application-with-dojo-support (application)
   ((dojo-skin-name nil)
    (dojo-file-name nil)
-   (dojo-directory-name nil))
-  (:metaclass funcallable-standard-class))
+   (dojo-directory-name nil)))
 
 (def method startup-broker :after ((self application-with-dojo-support))
   (unless (dojo-directory-name-of self)

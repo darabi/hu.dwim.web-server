@@ -33,7 +33,7 @@
   (class-name.entry-point "entry point")
 
   (slot-name.debug-on-error "debug on error")
-  (slot-name.processed-request-count "processed request count")
+  (slot-name.processed-request-counter "request counter")
   (slot-name.priority "priority")
   (slot-name.path-prefix "path prefix")
   (slot-name.requests-to-sessions-count "number of requests to sessions")

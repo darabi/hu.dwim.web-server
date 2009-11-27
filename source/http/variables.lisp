@@ -25,15 +25,9 @@
                                                                 (find-symbol "COMPRESS" it)))
   "TRUE means that HTTP response will not be compressed, FALSE otherwise.")
 
-(def (special-variable e :documentation "The SERVER associated with the currently processed HTTP REQUEST.")
-  *server*)
-
 (def (special-variable e) *request-content-length-limit* #.(* 5 1024 1024)
   "While uploading a file the size of the request may not go higher than this or WUI will signal an error.
 See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
-
-(def (special-variable :documentation "Holds the broker path while processing the rules. Whenever a rule provides a new set of rules, it is pushed at the head of the *BROKERS* list.")
-  *brokers*)
 
 ;;;;;;
 ;;; Some DOS related limits

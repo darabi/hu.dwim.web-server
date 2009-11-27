@@ -11,7 +11,15 @@
 (register-locale-loaded-listener 'wui-resource-loader/server)
 
 (def (class* e) request-counter-mixin ()
-  ((processed-request-count 0 :export :accessor :type integer)))
+  ((processed-request-counter (make-atomic-counter) :accessor nil)))
+
+(def (function ioe) processed-request-counter-of (self)
+  (check-type self request-counter-mixin)
+  (atomic-counter/value (slot-value self 'processed-request-counter)))
+
+(def (function io) processed-request-counter/increment (self)
+  (check-type self request-counter-mixin)
+  (atomic-counter/increment (slot-value self 'processed-request-counter)))
 
 (def class* server-listen-entry ()
   ((host)
@@ -32,7 +40,7 @@
    (client-connection-reset-count 0 :type integer :export :accessor)
    (listen-entries nil :type list)
    (connection-multiplexer nil)
-   (handler :type (or symbol function))
+   (handler 'server/default-handler :type function-designator)
    (request-content-length-limit *request-content-length-limit* :type integer)
    (lock (make-recursive-lock "WUI server lock"))
    (shutdown-initiated #f :type boolean)
@@ -59,6 +67,9 @@
                                                            :host host
                                                            :port (or port 80)
                                                            :ssl-certificate ssl-certificate))))))
+
+(def function server/default-handler ()
+  (handle-request *server* *request*))
 
 (def function print-object/server (server)
   (write-string "listen: ")
@@ -300,7 +311,7 @@
                               (server.info "All ~A worker threads are occupied, starting a new one" worker-count)
                               (make-worker server))
                             (server.warn "All ~A worker threads are occupied, and can't start new workers due to having already MAXIMUM-WORKER-COUNT (~A) of them" worker-count (maximum-worker-count-of server)))))
-                    (setf *request-id* (incf (processed-request-count-of server))))
+                    (setf *request-id* (processed-request-counter/increment server)))
                   (with-thread-name (string+ " / serving request " (integer-to-string *request-id*))
                     (setf *request* (read-request server stream-socket))
                     (with-error-log-decorator (lambda ()
