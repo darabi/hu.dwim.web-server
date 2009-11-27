@@ -46,7 +46,7 @@
    (shutdown-initiated #f :type boolean)
    (workers (make-adjustable-vector 16) :type sequence)
    (maximum-worker-count 16 :type integer :export :accessor)
-   (occupied-worker-count 0 :type integer)
+   (occupied-worker-count 0 :type integer) ; only accessed while having the lock on the server, so doesn't need to be atomic
    (started-at nil :type local-time:timestamp)
    (timer nil)
    (profile-request-processing? #f :type boolean :export :accessor)))

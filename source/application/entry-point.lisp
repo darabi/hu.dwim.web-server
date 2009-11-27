@@ -41,6 +41,7 @@
       (funcall thunk))))
 
 (def (function e) ensure-entry-point (application entry-point)
+  ;; helper function for redefining entry points. works based on the generic protocol called ENTRY-POINT-EQUALS-FOR-REDEFINITION.
   (setf (entry-points-of application)
         (delete-if (lambda (old-entry-point)
                      (entry-point-equals-for-redefinition old-entry-point entry-point))

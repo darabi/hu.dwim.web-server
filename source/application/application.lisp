@@ -197,7 +197,7 @@
         (setf session (make-new-session application))
         (register-session application session)
         (setf new-session? #t))
-      ;; FIXME locking the session should happen while having the lock to the application
+      ;; FIXME locking the session below should happen while having the lock on the application here
       )
     (abort-request-unless-still-valid)
     (setf *session* session)

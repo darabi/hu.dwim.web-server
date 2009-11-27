@@ -18,7 +18,7 @@
 (def (special-variable e :documentation "The remote host which sent the currently processed HTTP REQUEST.")
   *request-remote-host*)
 
-(def (special-variable :documentation "A unique identifier assigned to each incoming request to help debugging.")
+(def (special-variable :documentation "A unique identifier is assigned to each incoming request to help debugging. This variable holds that id while processing the request.")
   *request-id*)
 
 (def (special-variable e) *disable-response-compression* (not (awhen (find-package :hu.dwim.wui.zlib)

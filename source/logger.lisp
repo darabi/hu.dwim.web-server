@@ -9,17 +9,14 @@
 (def logger wui ())
 
 (def logger rerl (wui))
-
+(def logger threads (wui))
 (def logger timer (wui))
 
 (def logger http   (rerl))
-
 (def logger app    (rerl))
-
-(def logger l10n   (app))
-
 (def logger server (rerl))
 
+(def logger cgi  (server))
 (def logger files  (server))
 
-(def logger threads (wui))
+(def logger l10n   (app))

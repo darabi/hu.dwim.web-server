@@ -73,7 +73,7 @@
 
 
 ;;;;;;
-;;; Brokers
+;;; broker
 
 (def definer broker (name supers slots &rest options)
   (bind ()
@@ -107,7 +107,7 @@
   ((path)))
 
 (def print-object broker-with-path
-  (format *standard-output* "~S ~S" (path-of -self-) (priority-of -self-)))
+  (format t "~S ~S" (path-of -self-) (priority-of -self-)))
 
 (def method call-if-matches-request ((broker broker-with-path) request thunk)
   (bind ((path (path-of broker))
@@ -116,6 +116,9 @@
     (when (string= path remaining-query-path)
       (with-new-matching-uri-path-element path
         (funcall thunk)))))
+
+;;;;;;
+;;; broker-with-path-prefix
 
 (def class* broker-with-path-prefix (broker)
   ((path-prefix :type string)))
@@ -130,6 +133,9 @@
     (when (starts-with-subseq path-prefix remaining-query-path)
       (with-new-matching-uri-path-element path-prefix
         (funcall thunk)))))
+
+;;;;;;
+;;; constant-response-broker
 
 (def class* constant-response-broker (broker)
   ((response)))

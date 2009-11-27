@@ -54,7 +54,7 @@
     (multiple-value-prog1
         (-body-)
       (when *dojo-widget-ids*
-        ;; NOTE: this must come first before any additional widget setup
+        ;; NOTE: this must run before any other js code tinkers with the dojo widgets.
         `xml,@(with-collapsed-js-scripts
                `js(on-load
                    (let ((widget-ids (array ,@*dojo-widget-ids*)))

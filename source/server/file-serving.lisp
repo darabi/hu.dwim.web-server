@@ -25,6 +25,8 @@
 ;;;;;;
 ;;; Directory serving broker
 
+;; TODO managed in-memory caching of files inside a directory-serving-broker
+
 (def class* directory-serving-broker (broker-with-path-prefix)
   ((root-directory)
    ;; TODO (files-only #f)

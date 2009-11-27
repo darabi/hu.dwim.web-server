@@ -25,7 +25,7 @@
                  (sort (delete-if (complement #'timer-entry-valid?) (entries-of timer))
                        'local-time:timestamp<
                        :key 'scheduled-at-of))))
-    (timer.debug "Thread is entering the timer loop for ~A" timer)
+    (timer.debug "Thread is entering the timer loop DRIVE-TIMER of ~A" timer)
     (unwind-protect
          (progn
            (assert (null (running-thread-of timer)))
@@ -37,7 +37,7 @@
                 (bind ((entries)
                        (run-anything? #f))
                   (with-lock-held-on-timer timer
-                    (timer.debug "~A sorting ~A entries" timer (length (entries-of timer)))
+                    (timer.dribble "~A sorting ~A entries" timer (length (entries-of timer)))
                     ;; need to copy, because we will release the lock before processing finishes
                     (setf entries (copy-list (reschedule-entries))))
                   (dolist (entry entries)
@@ -51,18 +51,18 @@
                                                (local-time:timestamp-difference (scheduled-at-of first-entry) (local-time:now)))
                                              ;; this is an ad-hoc large constant to keep the code path uniform. would be safe to wake up though...
                                              (* 60 60 24 365 10))))
-                        (timer.debug "~A will fall asleep for ~A seconds" timer expires-in)
+                        (timer.dribble "~A will fall asleep for ~A seconds" timer expires-in)
                         (when (plusp expires-in)
                           (handler-case
                               (with-timeout (expires-in)
                                 (condition-wait (condition-variable-of timer) (lock-of timer))
-                                (timer.debug "~A woke up from CONDITION-WAIT" timer))
+                                (timer.dribble "~A woke up from CONDITION-WAIT" timer))
                             (timeout ()
-                              (timer.debug "~A woke up from CONDITION-WAIT due to the timeout" timer)))))))))))
+                              (timer.dribble "~A woke up from CONDITION-WAIT due to the timeout" timer)))))))))))
       (setf (running-thread-of timer) nil)
       (with-lock-held-on-timer timer
         (condition-notify (condition-variable-of timer)))
-      (timer.debug "Thread is leaving the timer loop for ~A" timer))))
+      (timer.debug "Thread is leaving the timer loop DRIVE-TIMER of ~A" timer))))
 
 (def (function e) drive-timer/abort ()
   (invoke-restart 'abort-timer)
@@ -79,6 +79,7 @@
 
 (def (function e) register-timer-entry (timer time thunk &key (kind :periodic) (name "<unnamed>"))
   (check-type kind (member :periodic :single-shot))
+  (timer.debug "Registering timer entry ~S for timer ~A, at time ~A, kind ~S, thunk ~A" name timer time kind thunk)
   (with-lock-held-on-timer timer
     (push (ecase kind
             (:periodic
@@ -97,6 +98,7 @@
                             :scheduled-at time
                             :thunk thunk)))
           (entries-of timer))
+    (timer.debug "Waking up timer ~A because of a new entry" timer)
     (condition-notify (condition-variable-of timer))))
 
 (def function timer-entry-valid? (entry)
@@ -118,7 +120,7 @@
 
 (def generic run-timer-entry (entry)
   (:method ((entry timer-entry))
-    (timer.debug "Running timer entry ~A" entry)
+    (timer.dribble "Running timer entry ~A" entry)
     (awhen (thunk-of entry)
       (handler-bind
           ((serious-condition (lambda (level-1-error)

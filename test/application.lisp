@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Test application for basic app features
 
-(def class test-application (standard-application)
+(def class* test-application (standard-application)
   ()
   (:default-initargs :dojo-directory-name (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui "www/"))))
 

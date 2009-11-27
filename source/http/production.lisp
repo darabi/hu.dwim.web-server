@@ -9,6 +9,8 @@
 ;;;;;;
 ;;; HTTP port
 
+;; TODO move to meta-model or somewhere else.
+;; because this is not general enough, and can not be project independent: https, or not, starting multiple services on multiple ports, same service listening on multiple ports, etc...
 (def (constant e) +default-http-server-port+ 8080)
 
 (def (constant e) +http-server-port-command-line-option+
