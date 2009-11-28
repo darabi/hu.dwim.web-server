@@ -70,6 +70,7 @@
               :class ,style-class
               :style `str("display: none;" ,custom-style)
               :dojoType #.+dijit/menu+
+              :contextMenuForWindow "false"
               :targetNodeIds ,(id-of (parent-component-of -self-)))
           ,(foreach #'render-component menu-items)>))))
 
