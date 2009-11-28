@@ -132,27 +132,27 @@
 ;;; Cloneable
 
 (def localization de
-  (icon-label.open-in-new-frame "New window")
-  (icon-tooltip.open-in-new-frame "Open object in new window"))
+  (icon-label.open-in-new-frame "Neues Fenster")
+  (icon-tooltip.open-in-new-frame "Objekt in einem neuen Fenster öffnen"))
 
 ;;;;;;
 ;;; Editing
 
 (def localization de
-  (icon-label.begin-editing "Edit")
-  (icon-tooltip.begin-editing "Start editing")
+  (icon-label.begin-editing "Bearbeiten")
+  (icon-tooltip.begin-editing "Bearbeitung des angezeigten Objekts beginnen")
 
-  (icon-label.save-editing "Save")
-  (icon-tooltip.save-editing "Save changes and finish editing")
+  (icon-label.save-editing "Speichern")
+  (icon-tooltip.save-editing "Änderungen speichern und Bearbeitung beenden")
 
-  (icon-label.cancel-editing "Cancel")
-  (icon-tooltip.cancel-editing "Cancel changes and finish editing")
+  (icon-label.cancel-editing "Abbrechen")
+  (icon-tooltip.cancel-editing "Bearbeitung abbrechen, ohne zu speichern")
 
-  (icon-label.store-editing "Store")
-  (icon-tooltip.store-editing "Store changes")
+  (icon-label.store-editing "Zwischenspeichern")
+  (icon-tooltip.store-editing "Bisherige Änderungen speichern, ohne die Bearbeitung zu beenden")
 
-  (icon-label.revert-editing "Revert")
-  (icon-tooltip.revert-editing "Revert changes"))
+  (icon-label.revert-editing "Rückgängig")
+  (icon-tooltip.revert-editing "Änderungen rückgängig machen"))
 
 ;;;;;;
 ;;; Export
@@ -177,46 +177,46 @@
 ;;; Refreshable
 
 (def localization de
-  (icon-label.refresh-component "Refresh")
-  (icon-tooltip.refresh-component "Refresh content"))
+  (icon-label.refresh-component "Aktualisieren")
+  (icon-tooltip.refresh-component "Inhalt aktualisieren"))
 
 ;;;;;;
 ;;; Filter
 
 (def localization de
-  (no-matches-were-found "No matching objects were found")
-  (matches-were-found (count) (format nil "~A matching objects were found" count))
+  (no-matches-were-found "Keine passenden Objekte gefunden")
+  (matches-were-found (count) (format nil "~A passende(s) Objekt(e) gefunden" count))
 
-  (icon-label.equal "Equal")
-  (icon-tooltip.equal "Compare for equality")
+  (icon-label.equal "gleich")
+  (icon-tooltip.equal "Genau gleiche Daten suchen")
 
-  (icon-label.like "Like")
-  (icon-tooltip.like "Compare for like")
+  (icon-label.like "ähnlich")
+  (icon-tooltip.like "Ähnliche Daten suchen")
 
-  (icon-label.< "Less")
-  (icon-tooltip.< "Compare for less then")
+  (icon-label.< "kleiner")
+  (icon-tooltip.< "Daten suchen, die kleiner sind")
 
-  (icon-label.<= "Less or equal")
-  (icon-tooltip.<= "Compare for less than or equal")
+  (icon-label.<= "kleiner gleich")
+  (icon-tooltip.<= "Daten suchen die kleiner oder gleich sind")
 
-  (icon-label.> "Greater")
-  (icon-tooltip.> "Compare for greater then")
+  (icon-label.> "größer")
+  (icon-tooltip.> "Daten suchen, die größer sind")
 
-  (icon-label.>= "Greater or equal")
-  (icon-tooltip.>= "Compare for greater than or equal")
+  (icon-label.>= "größer gleich")
+  (icon-tooltip.>= "Daten suchen, die größer oder gleich sind")
 
-  (icon-label.negated "Negated")
-  (icon-tooltip.negated "Negate condition")
+  (icon-label.negated "Nicht")
+  (icon-tooltip.negated "Daten suchen, die NICHT dem Kriterium entsprechen")
 
   (icon-label.ponated "Ponated")
   (icon-tooltip.ponated "Ponate condition")
 
-  (predicate.equal "Equal")
-  (predicate.like "Like")
-  (predicate.less-than "Less than")
-  (predicate.less-than-or-equal "Less than or equal")
-  (predicate.greater-than "Greater than")
-  (predicate.greater-than-or-equal "Greater than or equal"))
+  (predicate.equal "gleich")
+  (predicate.like "ähnlich")
+  (predicate.less-than "kleiner")
+  (predicate.less-than-or-equal "kleiner gleich")
+  (predicate.greater-than "größer")
+  (predicate.greater-than-or-equal "größer gleich"))
 
 ;;;;;;
 ;;; Movable
