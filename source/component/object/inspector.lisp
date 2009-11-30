@@ -81,6 +81,10 @@
   <pre ,(render-content-for -self-)>)
 
 (def generic make-documentation (component class prototype value)
+  (:method :around (component class prototype value)
+    (or (call-next-method)
+        "No documentation"))
+
   (:method ((component t/documentation/inspector) class prototype value)
     (documentation value t)))
 

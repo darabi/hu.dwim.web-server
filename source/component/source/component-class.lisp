@@ -14,7 +14,7 @@
 
 (def subtype-mapper *inspector-type-mapping* (or null component-class) component-class/inspector)
 
-(def layered-method make-alternatives ((component component/inspector) (class component-class) (prototype component) (value component))
+(def layered-method make-alternatives ((component component-class/inspector) (class standard-class) (prototype component-class) (value component-class))
   (list* (delay-alternative-component-with-initargs 'component-class/documentation/inspector :component-value value)
          (call-next-method)))
 

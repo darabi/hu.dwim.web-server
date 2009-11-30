@@ -11,7 +11,8 @@
 
 (def (component e) primitive/presentation (presentation/abstract component/minimal)
   ((name nil :type (or null symbol))
-   (client-state-sink nil)))
+   (client-state-sink nil))
+  (:documentation "Presentation for primitive types"))
 
 (def render-csv primitive/presentation
   (write-csv-value (print-component-value -self-)))

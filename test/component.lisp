@@ -105,7 +105,9 @@
 
 (def function make-layouts-node ()
   (node/widget (:expanded #f)
-      "Layout"
+      (replace-target-place/widget ()
+          "Layout"
+        (make-value-inspector (find-class 'layout/abstract)))
     (component-demo/widget "Empty"
       (empty/layout))
     (component-demo/widget "Alternator"
@@ -201,7 +203,9 @@
 
 (def function make-widgets-node ()
   (node/widget (:expanded #f)
-      "Widget"
+      (replace-target-place/widget ()
+          "Widget"
+        (make-value-inspector (find-class 'widget/abstract)))
     (component-demo/widget "Inline render XHTML"
       (inline-render-xhtml/widget ()
         <div <span (:style "color: blue") "John">
@@ -379,10 +383,10 @@
     (component-demo/widget "Panel"
       (panel/widget (:title-bar (title-bar/widget ()
                                   "The panel's title")
-                     :command-bar (command-bar/widget ()
-                                    (command/widget ()
-                                      (icon refresh-component)
-                                      (make-action))))
+                                :command-bar (command-bar/widget ()
+                                               (command/widget ()
+                                                 (icon refresh-component)
+                                                 (make-action))))
         "John"))
     (component-demo/widget "Information message"
       (component-message/widget (:category :information)
@@ -511,7 +515,9 @@
 
 (def function make-primitive-node ()
   (node/widget (:expanded #f)
-      "Primitive"
+      (replace-target-place/widget ()
+          "Primitive"
+        (make-value-inspector (find-class 'primitive/presentation)))
     (make-primitive-makers-node)
     (make-primitive-viewers-node)
     (make-primitive-editors-node)
@@ -591,7 +597,9 @@
 
 (def function make-place-node ()
   (node/widget (:expanded #f)
-      "Place"
+      (replace-target-place/widget ()
+          "Place"
+        (make-value-inspector (find-class 'place/presentation)))
     (make-place-makers-node)
     (make-place-viewers-node)
     (make-place-editors-node)
@@ -644,7 +652,9 @@
 
 (def function make-object-node ()
   (node/widget (:expanded #f)
-      "Object"
+      (replace-target-place/widget ()
+          "Object"
+        (make-value-inspector (find-class 't/presentation)))
     (make-object-makers-node)
     (make-object-viewers-node)
     (make-object-editors-node)
@@ -776,7 +786,9 @@
 
 (def function make-sequence-node ()
   (node/widget (:expanded #f)
-      "Sequence"
+      (replace-target-place/widget ()
+          "Sequence"
+        (make-value-inspector (find-class 'sequence/presentation)))
     (make-sequence-makers-node)
     (make-sequence-viewers-node)
     (make-sequence-editors-node)
@@ -863,7 +875,7 @@
 
 (def function make-book-elements-node ()
   (node/widget (:expanded #f)
-      "Book"
+      "Text"
     (component-demo/widget "Book"
       (make-value-inspector
        (book (:title "The Guide" :authors '("Levente Mészáros"))
@@ -944,7 +956,9 @@
 
 (def function make-charts-node ()
   (node/widget (:expanded #f)
-      "Chart"
+      (replace-target-place/widget ()
+          "Chart"
+        (make-value-inspector (find-class 'chart/abstract)))
     (component-demo/widget "Column"
       (column/chart (:title "Salary"
                      :width 400
