@@ -7,7 +7,7 @@
 (in-package :hu.dwim.wui.test)
 
 (def macro with-wui-logger-level (log-level &body body)
-  `(with-logger-level (wui) ,log-level
+  `(with-logger-level (wui ,log-level)
     ,@body))
 
 (def special-variable *muffle-compiler-warnings* t

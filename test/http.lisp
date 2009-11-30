@@ -83,7 +83,7 @@
     (stop-test-server server)))
 
 (def function start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
-  (with-logger-level wui log-level
+  (with-wui-logger-level log-level
     (start-test-server-with-handler (lambda ()
                                       (bind ((response (make-request-echo-response)))
                                         (unwind-protect
@@ -92,12 +92,12 @@
                                     :maximum-worker-count maximum-worker-count)))
 
 (def function start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
-  (with-logger-level wui log-level
+  (with-wui-logger-level log-level
     (start-test-server-with-brokers (make-directory-serving-broker "/wui/" (system-relative-pathname :hu.dwim.wui.test ""))
                                     :maximum-worker-count maximum-worker-count)))
 
 (def function start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
-  (with-logger-level wui log-level
+  (with-wui-logger-level log-level
     (start-test-server-with-brokers (make-functional-broker
                                       (with-request-params (name)
                                         (make-functional-html-response ()
