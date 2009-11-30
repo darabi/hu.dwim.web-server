@@ -39,162 +39,32 @@
 ;;;;;;
 ;;; Inspector factory
 
-(def layered-method make-value-inspector (value &rest args)
-  (apply #'make-inspector (class-of value) value args))
 
-(def layered-method make-inspector (type value &rest args &key &allow-other-keys)
-  "A TYPE specifier is either
-     - a primitive type name such as BOOLEAN, INTEGER, STRING
-     - a parameterized type specifier such as (INTEGER 100 200) 
-     - a compound type specifier such as (OR NULL STRING)
-     - a type alias refering to a parameterized or compound type such as STANDARD-TEXT
-     - a CLOS class name such as STANDARD-OBJECT
-     - a CLOS type instance parsed from a compound type specifier such as #<INTEGER-TYPE 0x1232112>"
-  (bind (((component-type &rest additional-args)
-          (ensure-list (find-inspector-type-for-type type))))
-    (unless (subtypep component-type 'alternator/widget)
-      (remove-from-plistf args :initial-alternative-type))
+;;;;;;
+;;; TODO: steps to create an inspector
+;;;
+;;; 0. register all components based on the type they can inspect
+;;; 1. go through and collect all components registered with subtypep
+;;; 2. filter for those which are needed
+;;; 3. if there's only only one alternative use that
+;;; 4. find the most specific type that will be the default alternative and use an alternatork
+
+(def special-variable *inspector-type-mapping* (make-linear-type-mapping))
+
+(def subtype-mapper *inspector-type-mapping* nil nil)
+
+(def (layered-function e) find-inspector-type (type)
+  (:method (type)
+    (linear-mapping-value *inspector-type-mapping* type)))
+
+(def layered-method make-inspector :before (type &key (value nil value?) &allow-other-keys)
+  (when (and value?
+             (not (typep value type)))
+    (error "Cannot make inspector for the value ~A~% which is not of type ~A" value type)))
+
+(def layered-method make-inspector (type &rest args &key value &allow-other-keys)
+  (bind ((component-type (find-inspector-type type)))
     (apply #'make-instance component-type
            :component-value value
-           (append args additional-args
-                   (when (subtypep component-type 'primitive/abstract)
-                     (list :the-type type))))))
-
-(def (layered-function e) find-inspector-type-for-type (type)
-  (:method (class)
-    't/inspector)
-  
-  (:method ((type null))
-    (error "NIL is not a valid type to make an inspector for it"))
-
-  (:method ((type (eql 'boolean)))
-    'boolean/inspector)
-
-  (:method ((type (eql 'character)))
-    'character/inspector)
-
-  (:method ((type (eql 'base-char)))
-    'character/inspector)
-
-  (:method ((type (eql 'keyword)))
-    'keyword/inspector)
-
-  (:method ((type (eql 'password)))
-    'password/inspector)
-
-  (:method ((type (eql 'date)))
-    'date/inspector)
-
-  (:method ((type (eql 'time)))
-    'time/inspector)
-
-  (:method ((type (eql 'timestamp)))
-    'timestamp/inspector)
-
-  (:method ((type (eql 'html)))
-    'html/inspector)
-
-  (:method ((type (eql 'components)))
-    `(sequence/inspector :component-value ,(find-class 'component)))
-
-  (:method ((type symbol))
-    (aif (find-type-by-name type :otherwise nil)
-         (find-inspector-type-for-type it)
-         (call-next-method)))
-
-  (:method ((class (eql (find-class t))))
-    't/inspector)
-
-  (:method ((class built-in-class))
-    (find-inspector-type-for-prototype (class-prototype class)))
-
-  (:method ((type cons))
-    (find-inspector-type-for-compound-type type))
-
-  (:method ((class structure-class))
-    (find-inspector-type-for-prototype (class-prototype class)))
-
-  (:method ((class standard-class))
-    (find-inspector-type-for-prototype (class-prototype class)))
-
-  (:method ((class funcallable-standard-class))
-    (find-inspector-type-for-prototype (class-prototype class))))
-
-(def (function) find-inspector-type-for-compound-type (type)
-  (find-inspector-type-for-compound-type* (first type) type))
-
-(def (layered-function e) find-inspector-type-for-compound-type* (first type)
-  (:method (first (type cons))
-    't/inspector)
-
-  (:method ((first (eql 'member)) (type cons))
-    `(member/inspector :possible-values ,(rest type)))
-
-  (:method ((first (eql 'single-float)) (type cons))
-    'float/inspector)
-
-  (:method ((first (eql 'or)) (type cons))
-    (bind ((main-type (find-main-type-in-or-type type)))
-      (if (= 1 (length main-type))
-          (find-inspector-type-for-type (first main-type))
-          (find-inspector-type-for-type t))))
-
-  (:method ((first (eql 'list)) (type cons))
-    (bind ((main-type (second type)))
-      (if (subtypep main-type 'standard-object)
-          `(sequence/inspector :component-value ,(find-type-by-name main-type))
-          'sequence/inspector)))
-
-  (:method ((first (eql 'components)) (type cons))
-    (bind ((main-type (second type)))
-      (if (subtypep main-type 'standard-object)
-          `(sequence/inspector :component-value ,(find-type-by-name main-type))
-          'sequence/inspector))))
-
-(def (function e) make-inspector-for-prototype (prototype &rest args &key &allow-other-keys)
-  (apply #'make-instance (find-inspector-type-for-prototype prototype) args))
-
-;; TODO: split all around?
-(def (layered-function e) find-inspector-type-for-prototype (prototype)
-  (:method ((prototype t))
-    't/inspector)
-
-  (:method ((prototype character))
-    'character/inspector)
-
-  (:method ((prototype string))
-    'string/inspector)
-
-  (:method ((prototype symbol))
-    (if (null prototype)
-        (call-next-method)
-        'symbol/inspector))
-
-  (:method ((prototype integer))
-    'integer/inspector)
-
-  (:method ((prototype float))
-    'float/inspector)
-
-  (:method ((prototype number))
-    'number/inspector)
-
-  (:method ((prototype local-time:timestamp))
-    'timestamp/inspector)
-
-  (:method ((prototype standard-slot-definition))
-    'standard-slot-definition/inspector)
-
-  (:method ((prototype structure-object))
-    't/inspector)
-
-  (:method ((prototype package))
-    'package/inspector)
-
-  (:method ((prototype standard-object))
-    't/inspector))
-
-(def function find-main-type-in-or-type (type)
-  (remove-if (lambda (element)
-               (member element '(or null)))
-             type))
+           :component-value-type type
+           (remove-undefined-class-slot-initargs (find-class component-type) args))))

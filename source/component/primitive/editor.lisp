@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; primitive/editor
 
-(def (component e) primitive/editor (primitive/abstract editor/abstract)
+(def (component e) primitive/editor (primitive/presentation editor/abstract)
   ())

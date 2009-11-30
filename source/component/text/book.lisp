@@ -12,13 +12,9 @@
 (def (component e) book/inspector (text/inspector exportable/abstract)
   ())
 
-(def (macro e) book/inspector ((&rest args &key &allow-other-keys) &body book)
-  `(make-instance 'book/inspector ,@args :component-value ,(the-only-element book)))
+(def subtype-mapper *inspector-type-mapping* (or null book) book/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype book))
-  'book/inspector)
-
-(def layered-method make-alternatives ((component book/inspector) class prototype (value book))
+(def layered-method make-alternatives ((component book/inspector) (class standard-class) (prototype book) (value book))
   (list* (delay-alternative-component-with-initargs 'book/text/inspector :component-value value)
          (call-next-method)))
 
@@ -77,9 +73,6 @@
 
 (def (component e) book/tree-level/inspector (t/tree-level/inspector)
   ())
-
-(def (macro e) book/tree-level/inspector ((&rest args &key &allow-other-keys) &body book)
-  `(make-instance 'book/tree-level/inspector ,@args :component-value ,(the-only-element book)))
 
 (def layered-method make-tree-level/path ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value list))
   (make-instance 't/tree-level/path/inspector :component-value value))

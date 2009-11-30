@@ -12,8 +12,5 @@
 (def (component e) toc/inspector ()
   ())
 
-(def (macro e) toc/inspector ()
-  `(make-instance 'toc/inspector))
-
 (def render-xhtml toc/inspector
   (not-yet-implemented))

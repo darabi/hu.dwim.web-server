@@ -38,12 +38,11 @@
   (foreach #'render-component (child-nodes-of -self-)))
 
 (def render-ods nodrow/widget
-  <table:table-row ,(foreach (lambda (column cell)
-                               (render-ods-tree-cell *tree* -self- column cell))
-                             (columns-of *tree*)
-                             (cells-of -self-))>
-  (awhen (child-nodes-of -self-)
-    <table:table-row-group ,(foreach #'render-component (child-nodes-of -self-))>))
+  (bind (((:read-only-slots child-nodes expanded-component) -self-))
+    <table:table-row ,(render-nodrow-cells -self-)>
+    (when (and child-nodes
+               expanded-component)
+      <table:table-row-group ,(foreach #'render-component (child-nodes-of -self-))>)))
 
 (def layered-method render-onclick-handler ((self nodrow/widget) (button (eql :left)))
   nil)

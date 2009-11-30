@@ -40,4 +40,5 @@
 ;;; Finder factory
 
 (def layered-method make-finder (type &rest args &key &allow-other-keys)
+  (declare (ignore type args))
   (not-yet-implemented))

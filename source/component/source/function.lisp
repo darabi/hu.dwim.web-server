@@ -12,15 +12,9 @@
 (def (component e) function/inspector (t/inspector)
   ())
 
-(def (macro e) function/inspector ((&rest args &key &allow-other-keys) &body function)
-  `(make-instance 'function/inspector ,@args :component-value ,(the-only-element function)))
+(def subtype-mapper *inspector-type-mapping* (or null function) function/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype function))
-  ;; FIXME: workaround bug in SBCL? The value #<FUNCTION {1000DA3AC1}> is not of type FUNCTION.
-  (declare (optimize (safety 0)))
-  'function/inspector)
-
-(def layered-method make-alternatives ((component function/inspector) class prototype value)
+(def layered-method make-alternatives ((component function/inspector) (class built-in-class) (prototype function) (value function))
   (list* (delay-alternative-component-with-initargs 'function/lisp-form/inspector :component-value value)
          (call-next-method)))
 

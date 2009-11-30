@@ -13,14 +13,8 @@
   ((component-value
     :type t
     :computed-in compute-as
-    :documentation "The current COMPONENT-VALUE that is presented by this COMPONENT."))
-  (:documentation "A COMPONENT that presents a single COMPONENT-VALUE."))
-
-(def method component-value-of ((self component-value/mixin))
-  (slot-value self 'component-value))
-
-(def method (setf component-value-of) (new-value (self component-value/mixin))
-  (setf (slot-value self 'component-value) new-value))
+    :documentation "The current COMPONENT-VALUE."))
+  (:documentation "A COMPONENT that represents a single COMPONENT-VALUE."))
 
 (def layered-method refresh-component :before ((self component-value/mixin))
   (bind ((value (component-value-of self))
@@ -29,3 +23,13 @@
          (reused-value (reuse-component-value self class prototype value)))
     (unless (eq value reused-value)
       (setf (component-value-of self) reused-value))))
+
+;;;;;;
+;;; component-value-type/mixin
+
+(def (component e) component-value-type/mixin ()
+  ((component-value-type
+    t
+    :type t
+    :documentation "The type of possible COMPONENT-VALUEs."))
+  (:documentation "A COMPONENT that represents a single COMPONENT-VALUE of COMPONENT-VALUE-TYPE."))

@@ -12,8 +12,7 @@
 (def (component e) sequence/inspector (t/inspector)
   ())
 
-(def layered-method find-inspector-type-for-prototype ((prototype sequence))
-  'sequence/inspector)
+(def subtype-mapper *inspector-type-mapping* sequence sequence/inspector)
 
 (def layered-method make-alternatives ((component sequence/inspector) class prototype value)
   (list (delay-alternative-component-with-initargs 'sequence/table/inspector :component-value value)
@@ -168,9 +167,8 @@
 
 (def layered-method render-table-row :before ((table sequence/table/inspector) (row t/row/inspector))
   (when (messages-of row)
-    (render-entire-row table row
-                       (lambda ()
-                         (render-component-messages-for row)))))
+    (render-table-row table (make-instance 'entire-row/widget :content (inline-render-component/widget ()
+                                                                         (render-component-messages-for row))))))
 
 (def layered-method render-onclick-handler ((row t/row/inspector) button)
   (when-bind expand-command (find-command row 'expand-component)

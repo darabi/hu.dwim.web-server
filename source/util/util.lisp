@@ -56,6 +56,11 @@
     ("true" #t)
     ("false" #f)))
 
+(def function string-to-lisp-integer (value)
+  (eswitch (value :test #'string=)
+    ("true" 1)
+    ("false" 0)))
+
 (def function instance-class-name-as-string (instance)
   (class-name-as-string (class-of instance)))
 
@@ -111,6 +116,76 @@
   (or (find-class name #f)
       (handle-otherwise otherwise)))
 
+(def function find-main-type-in-or-type (type)
+  (remove-if (lambda (element)
+               (member element '(or null)))
+             type))
+
+(def function type-instance-count-upper-bound (type)
+  (etypecase type
+    (symbol
+     (case type
+       ((nil) 0)
+       (null 1)))
+    (cons
+     (case (first type)
+       (eql 1)
+       (member
+        (1- (length type)))
+       (integer
+        (when (length= type 3)
+          (1+ (- (third type) (second type)))))
+       (not nil)
+       (or
+        (iter (for element :in (cdr type))
+              (aif (type-instance-count-upper-bound element)
+                   (summing it)
+                   (return nil))))
+       (and
+        (iter (for element :in (cdr type))
+              (awhen (type-instance-count-upper-bound element)
+                (minimizing it))))))))
+
+(def function type-instance-list (type)
+  ;; TODO: sort the result with some natural sort
+  (etypecase type
+    (symbol
+     (case type
+       ((nil) nil)
+       (null '(nil))))
+    (cons
+     (case (first type)
+       (eql
+        (second type))
+       (member
+        (cdr type))
+       (integer
+        (iter (for i :from (second type) :to (third type))
+              (collect i)))
+       (not nil)
+       (or
+        (reduce 'union (cdr type) :key 'type-instance-list))
+       (and
+        (reduce 'intersection (cddr type) :key 'type-instance-list :initial-value (type-instance-list (second type))))))))
+
+(def function html? (instance)
+  (declare (ignore instance))
+  #t)
+
+(def (type e) html (&optional maximum-length)
+  "Formatted text that may contain various fonts, styles and colors as in XHTML."
+  (declare (ignore maximum-length))
+  `(and string
+        (satisfies html?)))
+
+(def function password? (instance)
+  (declare (ignore instance))
+  #t)
+
+(def (type e) password ()
+  `(and string
+        (satisfies password?)))
+
 (def (function i) class-prototype (class)
   (cond
     ;; KLUDGE: SBCL's class prototypes for built in classes are wrong in some cases
@@ -118,6 +193,8 @@
      42.0)
     ((subtypep class 'string)
      "42")
+    ((subtypep class 'null)
+     nil)
     ((subtypep class 'list)
      '(42))
     ((subtypep class 'array)
@@ -133,6 +210,12 @@
 
 (def (function i) class-precedence-list (class)
   (closer-mop:class-precedence-list (ensure-finalized class)))
+
+(def function remove-undefined-class-slot-initargs (class args)
+  (iter (for (arg value) :on args :by 'cddr)
+        (when (find arg (class-slots class) :key 'slot-definition-initargs :test 'member)
+          (collect arg)
+          (collect value))))
 
 (def function qualified-symbol-name (symbol)
   (concatenate 'string (package-name (symbol-package symbol)) "::" (symbol-name symbol)))
@@ -572,3 +655,28 @@
       (make-hash-table :test test)
     (dolist (element elements)
       (setf (gethash (funcall key element) set) element))))
+
+;;;;;;
+;;; KLUDGE: Local time
+
+(eval-always
+  (shadow 'common-lisp:time :local-time))
+
+(eval-always
+  (export '(local-time::time local-time::date) :local-time))
+
+(def function local-time::valid-time-p (timestamp)
+  (declare (ignore timestamp))
+  #t)
+
+(def type local-time::time ()
+  '(and local-time:timestamp
+        (satisfies local-time::valid-time-p)))
+
+(def function local-time::valid-date-p (timestamp)
+  (declare (ignore timestamp))
+  #t)
+
+(def type local-time::date ()
+  '(and local-time:timestamp
+        (satisfies local-time::valid-date-p)))

@@ -12,8 +12,7 @@
 (def (component e) place/inspector (t/inspector place/presentation)
   ())
 
-(def layered-method find-inspector-type-for-prototype ((prototype place))
-  'place/inspector)
+(def subtype-mapper *inspector-type-mapping* place place/inspector)
 
 (def layered-method make-alternatives ((component place/inspector) class prototype value)
   (list (delay-alternative-component-with-initargs 'place/value/inspector :component-value value)
@@ -31,17 +30,11 @@
 (def (component e) place/value/inspector (inspector/basic place/value/presentation)
   ())
 
-(def (macro e) place/value/inspector ((&rest args &key &allow-other-keys) &body place)
-  `(make-instance 'place/value/inspector ,@args :component-value ,(the-only-element place)))
-
 (def layered-method make-slot-value/content ((component place/value/inspector) class prototype value)
   (if (place-bound? value)
-      (make-inspector (place-type value) (value-at-place value) :initial-alternative-type 't/reference/inspector)
-      ;; TODO: handle unbound in a better way?
+      (make-inspector (place-type value)
+                      :value (value-at-place value)
+                      :editable (editable-component? component)
+                      :edited (edited-component? component)
+                      :initial-alternative-type 't/reference/inspector)
       (make-instance 'unbound/inspector)))
-
-;;;;;;
-;;; Factory
-
-(def layered-method make-place-inspector (type &rest args &key &allow-other-keys)
-  (apply #'make-instance 'place/inspector :component-value type args))

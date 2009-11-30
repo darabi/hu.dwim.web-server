@@ -12,11 +12,7 @@
 (def (component e) system/inspector (t/inspector)
   ())
 
-(def (macro e) system/inspector (system &rest args &key &allow-other-keys)
-  `(make-instance 'system/inspector :component-value ,system ,@args))
-
-(def layered-method find-inspector-type-for-prototype ((prototype asdf:system))
-  'system/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null asdf:system) system/inspector)
 
 (def layered-method make-alternatives ((component system/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (list* (delay-alternative-component-with-initargs 'system/depends-on-hierarchy/tree/inspector :component-value value)
@@ -28,9 +24,6 @@
 (def (component e) system/depends-on-hierarchy/tree/inspector (t/tree/inspector)
   ())
 
-(def (macro e) system/depends-on-hierarchy/tree/inspector (system &rest args &key &allow-other-keys)
-  `(make-instance 'system/depends-on-hierarchy/tree/inspector :component-value ,system ,@args))
-
 (def layered-method make-tree/root-node ((component system/depends-on-hierarchy/tree/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (make-instance 'system/depends-on-hierarchy/node/inspector :component-value value))
 
@@ -39,9 +32,6 @@
 
 (def (component e) system/depends-on-hierarchy/node/inspector (t/node/inspector)
   ())
-
-(def (macro e) system/depends-on-hierarchy/node/inspector (system &rest args &key &allow-other-keys)
-  `(make-instance 'system/depends-on-hierarchy/node/inspector :component-value ,system ,@args))
 
 (def layered-method make-node/child-node ((component system/depends-on-hierarchy/node/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (make-instance 'system/depends-on-hierarchy/node/inspector :component-value value :expanded #f))

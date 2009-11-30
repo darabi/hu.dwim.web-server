@@ -39,6 +39,6 @@
 ;;;;;;
 ;;; Invoker factory
 
-;; TODO: this is kind of unknown what do want here
 (def layered-method make-invoker (type &rest args &key &allow-other-keys)
+  (declare (ignore type args))
   (not-yet-implemented))

@@ -11,6 +11,3 @@
 
 (def (component e) symbol/special-variable-name/inspector (inspector/basic)
   ())
-
-(def (macro e) symbol/special-variable-name/inspector ((&rest args &key &allow-other-keys) &body name)
-  `(make-instance 'symbol/special-variable-name/inspector ,@args :component-value ,(the-only-element name)))

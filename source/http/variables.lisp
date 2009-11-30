@@ -15,6 +15,7 @@
 (def (special-variable e :documentation "The HTTP RESPONSE for the HTTP REQUEST currently being processed.")
   *response*)
 
+;; TODO: isn't this remote address instead? if not, how do we get that?
 (def (special-variable e :documentation "The remote host which sent the currently processed HTTP REQUEST.")
   *request-remote-host*)
 

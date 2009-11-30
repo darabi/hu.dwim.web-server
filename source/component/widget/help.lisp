@@ -13,7 +13,7 @@
 
 (def (icon e) help :tooltip nil)
 
-(def (component e) context-sensitive-help (content/mixin id/mixin)
+(def (component e) context-sensitive-help (content/mixin frame-unique-id/mixin)
   ()
   (:default-initargs :content (icon help)))
 

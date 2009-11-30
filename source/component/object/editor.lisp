@@ -7,7 +7,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; symbol/type-name/inspector
+;;; t/editor
 
-(def (component e) symbol/type-name/inspector (t/inspector)
+(def (component e) t/editor (editor/basic t/presentation)
   ())

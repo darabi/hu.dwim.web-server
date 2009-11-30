@@ -12,13 +12,9 @@
 (def (component e) pathname/inspector (t/inspector)
   ())
 
-(def (macro e) pathname/inspector (pathname &rest args &key &allow-other-keys)
-  `(make-instance 'pathname/inspector :component-value ,pathname ,@args))
+(def subtype-mapper *inspector-type-mapping* (or null pathname) pathname/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype pathname))
-  'pathname/inspector)
-
-(def layered-method make-alternatives ((component pathname/inspector) class prototype value)
+(def layered-method make-alternatives ((component pathname/inspector) (class structure-class) (prototype pathname) (value pathname))
   (bind ((file? (when value (pathname-name value)))
          (file-type (when file? (guess-file-type value))))
     (optional-list* (when (and value
@@ -38,9 +34,6 @@
 (def (component e) pathname/text-file/inspector (inspector/basic t/detail/presentation content/widget)
   ())
 
-(def (macro e) pathname/text-file/inspector (pathname &rest args &key &allow-other-keys)
-  `(make-instance 'pathname/text-file/inspector :component-value ,pathname ,@args))
-
 (def refresh-component pathname/text-file/inspector
   (bind (((:slots component-value content) -self-))
     (setf content (read-file-into-string component-value))))
@@ -54,9 +47,6 @@
 
 (def (component e) pathname/binary-file/inspector (inspector/basic t/detail/presentation content/widget)
   ())
-
-(def (macro e) pathname/binary-file/inspector (pathname &rest args &key &allow-other-keys)
-  `(make-instance 'pathname/binary-file/inspector :component-value ,pathname ,@args))
 
 (def refresh-component pathname/binary-file/inspector
   (bind (((:slots component-value content) -self-))
@@ -76,9 +66,6 @@
 
 (def (component e) pathname/lisp-file/inspector (inspector/basic t/detail/presentation content/widget)
   ())
-
-(def (macro e) pathname/lisp-file/inspector ((&rest args &key &allow-other-keys) &body file)
-  `(make-instance 'pathname/lisp-file/inspector ,@args :component-value ,(the-only-element file)))
 
 (def refresh-component pathname/lisp-file/inspector
   (bind (((:slots component-value content) -self-))

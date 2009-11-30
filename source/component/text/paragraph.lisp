@@ -12,13 +12,9 @@
 (def (component e) paragraph/inspector (text/inspector)
   ())
 
-(def (macro e) paragraph/inspector ((&rest args &key &allow-other-keys) &body contents)
-  `(make-instance 'paragraph/inspector ,@args :contents (list ,@contents)))
+(def subtype-mapper *inspector-type-mapping* (or null paragraph) paragraph/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype paragraph))
-  'paragraph/inspector)
-
-(def layered-method make-alternatives ((component paragraph/inspector) class prototype (value paragraph))
+(def layered-method make-alternatives ((component paragraph/inspector) (class standard-class) (prototype paragraph) (value paragraph))
   (list* (delay-alternative-component-with-initargs 'paragraph/text/inspector :component-value value)
          (call-next-method)))
 
@@ -44,10 +40,7 @@
   (:method ((self component))
     (render-component self)))
 
-
-;;;;;;
-;;; ods export
 (def render-ods paragraph/text/inspector
-    <table:table-row
-      <table:table-cell (office:value-type "string")
-                        ,(foreach #'render-ods (contents-of -self-))>>)
+  <table:table-row
+    <table:table-cell (office:value-type "string")
+      ,(foreach #'render-ods (contents-of -self-))>>)

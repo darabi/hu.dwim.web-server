@@ -15,7 +15,7 @@
 ;;;;;;
 ;;; t/text/inspector
 
-(def (component e) t/text/inspector (inspector/style t/detail/presentation contents/widget)
+(def (component e) t/text/inspector (inspector/style t/detail/inspector contents/widget)
   ())
 
 (def refresh-component t/text/inspector

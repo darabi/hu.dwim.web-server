@@ -45,6 +45,8 @@
   ...))
 "))
 
+(def subtype-mapper *filter-type-mapping* t t/filter)
+
 (def layered-method make-alternatives ((component t/filter) class prototype value)
   (list (delay-alternative-component-with-initargs 't/name-value-list/filter :component-value value)
         (delay-alternative-reference 't/reference/filter value)))
@@ -78,7 +80,7 @@
 
 (def (layered-function e) make-filter-result-inspector (component class prototype value)
   (:method ((filter t/filter) class prototype (value list))
-    (make-inspector `(list ,(class-name (component-value-of filter))) value))
+    (make-inspector `(list ,(class-name (component-value-of filter))) :value value))
 
   (:method :around ((filter t/filter) class prototype  value)
     (prog1-bind component
@@ -215,11 +217,14 @@
 (def method use-in-filter? ((self parent/mixin))
   (use-in-filter? (parent-component-of self)))
 
+(def method use-in-filter? ((self component))
+  #t)
+
 ;; TODO: do we need this parentism
 (def method use-in-filter-id-of ((self parent/mixin))
   (use-in-filter-id-of (parent-component-of self)))
 
-(def method use-in-filter-id-of ((self place/name-value-pair/filter))
+(def method use-in-filter-id-of ((self component))
   (generate-frame-unique-string))
 
 ;; TODO: move this to a component?

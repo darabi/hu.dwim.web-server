@@ -11,56 +11,41 @@
 ;;;;;;
 ;;; Component factories for types
 
-(def (layered-function e) make-maker (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that creates new values of TYPE. Other ARGS are passed to the COMPONENT being created."))
+(def (layered-function e) make-maker (type &rest args &key value &allow-other-keys)
+  (:documentation "Creates a COMPONENT that creates new values of TYPE, initialized from VALUE. Other ARGS are passed to the COMPONENT being created."))
 
-(def (layered-function e) make-viewer (type value &rest args &key &allow-other-keys)
+(def (layered-function e) make-viewer (type &rest args &key value &allow-other-keys)
   (:documentation "Creates a COMPONENT that displays existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE."))
 
-(def (layered-function e) make-editor (type value &rest args &key &allow-other-keys)
+(def (layered-function e) make-editor (type &rest args &key value &allow-other-keys)
   (:documentation "Creates a COMPONENT that edits existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE."))
 
-(def (layered-function e) make-inspector (type value &rest args &key &allow-other-keys)
+(def (layered-function e) make-inspector (type &rest args &key value &allow-other-keys)
   (:documentation "Creates a COMPONENT that displays or edits existing values of TYPE, initialized to VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the VALUE. The inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes."))
 
-(def (layered-function e) make-filter (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that filters the set of existing values of TYPE based on a filter criteria provided by the user. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the TYPE."))
+(def (layered-function e) make-filter (type &rest args &key value &allow-other-keys)
+  (:documentation "Creates a COMPONENT that filters the set of existing values of TYPE based on a filter criteria provided by the user, initialized from VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the TYPE."))
 
-(def (layered-function e) make-finder (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that searches for a particular existing value of TYPE based on a filter criteria provided by the user. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the TYPE."))
+(def (layered-function e) make-finder (type &rest args &key value &allow-other-keys)
+  (:documentation "Creates a COMPONENT that searches for a particular existing value of TYPE based on a filter criteria provided by the user, initialized from VALUE. Other ARGS are passed to the COMPONENT being created. Call COMPNENT-VALUE-OF to get, and (SETF COMPONENT-VALUE-OF) to set the TYPE."))
 
-(def (layered-function e) make-selector (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays all existing values of TYPE to select exactly one VALUE of them. Other ARGS are passed to the COMPONENT being created."))
+(def (layered-function e) make-selector (type &rest args &key value &allow-other-keys)
+  (:documentation "Creates a COMPONENT that displays all existing values of TYPE to select exactly one value of them, initialized from VALUE. Other ARGS are passed to the COMPONENT being created."))
 
 ;;;;;;
 ;;; Component factories for values
 
-(def (layered-function e) make-value-viewer (value &rest args)
-  (:documentation "Creates a COMPONENT that displays VALUE and other similar values of the VALUE's type. Other ARGS are passed to the COMPONENT being created. This function calls MAKE-VIEWER at some point."))
+(def (function e) make-value-viewer (value &rest args)
+  "Creates a COMPONENT that displays VALUE and other similar values of the VALUE's type. Other ARGS are passed to the COMPONENT being created."
+  (apply #'make-viewer (type-of value) :value value args))
 
-(def (layered-function e) make-value-editor (value &rest args)
-  (:documentation "Creates a COMPONENT that edits VALUE and other similar values of the VALUE's type. Other ARGS are passed to the COMPONENT being created. This function calls MAKE-EDITOR at some point."))
+(def (function e) make-value-editor (value &rest args)
+  "Creates a COMPONENT that edits VALUE and other similar values of the VALUE's type. Other ARGS are passed to the COMPONENT being created."
+  (apply #'make-editor (type-of value) :value value args))
 
-(def (layered-function e) make-value-inspector (value &rest args)
-  (:documentation "Creates a COMPONENT that displays or edits VALUE and other similar values of the VALUE's TYPE. Other ARGS are passed to the COMPONENT being created. The inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes. This function calls MAKE-INSPECTOR at some point."))
-
-;;;;;;
-;;; Component factories for types at a place
-
-(def (layered-function e) make-place-maker (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that creates new values of TYPE at a PLACE."))
-
-(def (layered-function e) make-place-viewer (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays existing values of TYPE at a PLACE."))
-
-(def (layered-function e) make-place-editor (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that edits existing values of TYPE at a PLACE."))
-
-(def (layered-function e) make-place-inspector (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that displays or edits values of TYPE at a PLACE."))
-
-(def (layered-function e) make-place-filter (type &rest args &key &allow-other-keys)
-  (:documentation "Creates a COMPONENT that filters the set of existing values based on a filter criteria at a PLACE."))
+(def (function e) make-value-inspector (value &rest args)
+  "Creates a COMPONENT that displays or edits VALUE and other similar values of the VALUE's TYPE. Other ARGS are passed to the COMPONENT being created. The inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes."
+  (apply #'make-inspector (type-of value) :value value args))
 
 ;;;;;;
 ;;; Component factories
@@ -141,16 +126,16 @@
 (def (layered-function e) make-switch-to-tab-page-command (component class prototype value)
   (:documentation "TODO"))
 
-(def (layered-function e) make-go-to-first-page-command (component)
+(def (layered-function e) make-go-to-first-page-command (component class prototype value)
   (:documentation "TODO"))
 
-(def (layered-function e) make-go-to-previous-page-command (component)
+(def (layered-function e) make-go-to-previous-page-command (component class prototype value)
   (:documentation "TODO"))
 
-(def (layered-function e) make-go-to-next-page-command (component)
+(def (layered-function e) make-go-to-next-page-command (component class prototype value)
   (:documentation "TODO"))
 
-(def (layered-function e) make-go-to-last-page-command (component)
+(def (layered-function e) make-go-to-last-page-command (component class prototype value)
   (:documentation "TODO"))
 
 (def (layered-function e) make-begin-editing-command (component class prototype value)

@@ -12,13 +12,9 @@
 (def (component e) standard-method/inspector (t/inspector)
   ())
 
-(def (macro e) standard-method/inspector ((&rest args &key &allow-other-keys) &body method)
-  `(make-instance 'standard-method/inspector ,@args :component-value ,(the-only-element method)))
+(def subtype-mapper *inspector-type-mapping* (or null standard-method) standard-method/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype standard-method))
-  'standard-method/inspector)
-
-(def layered-method make-alternatives ((component standard-method/inspector) class prototype value)
+(def layered-method make-alternatives ((component standard-method/inspector) (class standard-class) (prototype standard-method) (value standard-method))
   (list* (delay-alternative-component-with-initargs 'standard-method/lisp-form/inspector :component-value value)
          (call-next-method)))
 
@@ -27,9 +23,6 @@
 
 (def (component e) standard-method/lisp-form/inspector (inspector/basic content/widget)
   ())
-
-(def (macro e) standard-method/lisp-form/inspector ((&rest args &key &allow-other-keys) &body name)
-  `(make-instance 'standard-method/lisp-form/inspector ,@args :component-value ,(the-only-element name)))
 
 (def refresh-component standard-method/lisp-form/inspector
   (bind (((:slots component-value content) -self-))

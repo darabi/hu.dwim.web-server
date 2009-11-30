@@ -9,8 +9,11 @@
 ;;;;;;
 ;;; primitive/filter
 
-(def (component e) primitive/filter (primitive/abstract filter/abstract)
+(def (component e) primitive/filter (primitive/presentation filter/abstract)
   ())
+
+(def render-xhtml :before primitive/filter
+  (ensure-client-state-sink -self-))
 
 (def function make-update-use-in-filter-js (component)
   `js-inline(wui.field.update-use-in-filter ,(use-in-filter-id-of component) #t))
@@ -18,17 +21,18 @@
 ;;;;;;
 ;;; boolean/filter
 
-(def (component e) boolean/filter (boolean/abstract primitive/filter)
+(def (component e) boolean/filter (boolean/presentation primitive/filter)
   ())
 
+(def subtype-mapper *filter-type-mapping* boolean boolean/filter)
+
 (def render-xhtml boolean/filter
-  (ensure-client-state-sink -self-)
   (bind ((use-in-filter? (use-in-filter? -self-))
          (use-in-filter-id (use-in-filter-id-of -self-))
          (has-component-value? (slot-boundp -self- 'component-value))
          (component-value (when has-component-value?
                             (component-value-of -self-))))
-    (if (eq (the-type-of -self-) 'boolean)
+    (if (eq (component-value-type-of -self-) 'boolean)
         (render-checkbox-field component-value
                                :name (client-state-sink-of -self-)
                                :on-change `js-inline(wui.field.update-use-in-filter ,use-in-filter-id #t))
@@ -38,37 +42,45 @@
                                        (not has-component-value?))
                               "yes")))
                  <option (:value "" :selected ,selected)
-                         ,#"value.nil">)
+                   ,#"value.nil">)
           ,(bind ((selected (when (and use-in-filter?
                                        has-component-value?
                                        component-value)
                               "yes")))
                  <option (:value "true" :selected ,selected)
-                         ,#"boolean.true">)
+                   ,#"boolean.true">)
           ,(bind ((selected (when (and use-in-filter?
                                        has-component-value?
                                        (not component-value))
                               "yes")))
                  <option (:value "false" :selected ,selected)
-                         ,#"boolean.false">)>)))
+                   ,#"boolean.false">)>)))
 
 ;;;;;;
 ;;; character/filter
 
-(def (component e) character/filter (character/abstract primitive/filter)
+(def (component e) character/filter (character/presentation primitive/filter)
   ())
+
+(def subtype-mapper *filter-type-mapping* (or null character) character/filter)
+
+(def render-xhtml character/filter
+  (bind ((widget-id (generate-frame-unique-string "_stw")))
+    (render-string-component -self- :id widget-id)
+    `js(wui.field.setup-string-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
 ;;;;;;
 ;;; string/filter
 
-(def (component e) string/filter (string/abstract primitive/filter)
+(def (component e) string/filter (string/presentation primitive/filter)
   ((component-value nil)))
+
+(def subtype-mapper *filter-type-mapping* (or null string) string/filter)
 
 (def method collect-filter-predicates ((self string/filter))
   '(like equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml string/filter
-  (ensure-client-state-sink -self-)
   (bind ((widget-id (generate-frame-unique-string "_stw")))
     (render-string-component -self- :id widget-id)
     `js(wui.field.setup-string-filter ,widget-id ,(use-in-filter-id-of -self-))))
@@ -76,17 +88,21 @@
 ;;;;;;
 ;;; password/filter
 
-(def (component e) password/filter (password/abstract string/filter)
+(def (component e) password/filter (password/presentation string/filter)
   ())
+
+(def subtype-mapper *filter-type-mapping* (or null password) password/filter)
 
 ;;;;;;
 ;;; symbol/filter
 
-(def (component e) symbol/filter (symbol/abstract string/filter)
+(def (component e) symbol/filter (symbol/presentation string/filter)
   ())
 
+(def subtype-mapper *filter-type-mapping* (or null symbol) symbol/filter)
+
 (def method print-component-value ((self symbol/filter))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p self)))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? self)))
     (if (or (not has-component-value?)
             (null component-value))
         ""
@@ -95,16 +111,34 @@
             (qualified-symbol-name component-value)))))
 
 ;;;;;;
+;;; keyword/filter
+
+(def (component e) keyword/filter (keyword/presentation string/filter)
+  ())
+
+(def subtype-mapper *filter-type-mapping* (or null keyword) keyword/filter)
+
+(def method print-component-value ((component keyword/filter))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        (string+ ":" (if (stringp component-value)
+                         component-value
+                         (symbol-name component-value))))))
+
+;;;;;;
 ;;; number/filter
 
-(def (component e) number/filter (number/abstract primitive/filter)
+(def (component e) number/filter (number/presentation primitive/filter)
   ())
+
+(def subtype-mapper *filter-type-mapping* (or null number) number/filter)
 
 (def method collect-filter-predicates ((self number/filter))
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml number/filter
-  (ensure-client-state-sink -self-)
   (bind ((widget-id (generate-frame-unique-string "_stw")))
     (render-number-field-for-primitive-component -self- :id widget-id)
     `js(wui.field.setup-number-filter ,widget-id ,(use-in-filter-id-of -self-))))
@@ -112,23 +146,28 @@
 ;;;;;;
 ;;; integer/filter
 
-(def (component e) integer/filter (integer/abstract number/filter)
+(def (component e) integer/filter (integer/presentation number/filter)
   ())
+
+(def subtype-mapper *filter-type-mapping* (or null integer) integer/filter)
 
 ;;;;;;
 ;;; float/filter
 
-(def (component e) float/filter (float/abstract number/filter)
+(def (component e) float/filter (float/presentation number/filter)
   ())
+
+(def subtype-mapper *filter-type-mapping* (or null float) float/filter)
 
 ;;;;;;
 ;;; date/filter
 
-(def (component e) date/filter (date/abstract primitive/filter)
+(def (component e) date/filter (date/presentation primitive/filter)
   ())
 
+(def subtype-mapper *filter-type-mapping* (or null local-time:date) date/filter)
+
 (def render-xhtml date/filter
-  (ensure-client-state-sink -self-)
   (render-date-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 (def method collect-filter-predicates ((self date/filter))
@@ -137,11 +176,12 @@
 ;;;;;;
 ;;; time/filter
 
-(def (component e) time/filter (time/abstract primitive/filter)
+(def (component e) time/filter (time/presentation primitive/filter)
   ())
 
+(def subtype-mapper *filter-type-mapping* (or null local-time:time) time/filter)
+
 (def render-xhtml time/filter
-  (ensure-client-state-sink -self-)
   (render-time-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 (def method collect-filter-predicates ((self time/filter))
@@ -150,11 +190,12 @@
 ;;;;;;
 ;;; timestamp/filter
 
-(def (component e) timestamp/filter (timestamp/abstract primitive/filter)
+(def (component e) timestamp/filter (timestamp/presentation primitive/filter)
   ())
 
+(def subtype-mapper *filter-type-mapping* (or null local-time:timestamp) timestamp/filter)
+
 (def render-xhtml timestamp/filter
-  (ensure-client-state-sink -self-)
   (render-timestamp-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 (def method collect-filter-predicates ((self timestamp/filter))
@@ -163,24 +204,29 @@
 ;;;;;;
 ;;; member/filter
 
-(def (component e) member/filter (member/abstract primitive/filter)
+(def (component e) member/filter (member/presentation primitive/filter)
   ())
+
+(def finite-type-mapper *filter-type-mapping* 256 member/filter)
 
 (def method collect-filter-predicates ((self member/filter))
   '(equal))
 
 (def render-xhtml member/filter
-  (ensure-client-state-sink -self-)
   (render-member-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
 ;;;;;;
 ;;; html/filter
 
-(def (component e) html/filter (html/abstract string/filter)
+(def (component e) html/filter (html/presentation string/filter)
   ())
+
+(def subtype-mapper *filter-type-mapping* (or null html) html/filter)
 
 ;;;;;;
-;;; ip-address/filter
+;;; inet-address/filter
 
-(def (component e) ip-address/filter (ip-address/abstract primitive/filter)
+(def (component e) inet-address/filter (inet-address/presentation primitive/filter)
   ())
+
+(def subtype-mapper *filter-type-mapping* (or null iolib.sockets:inet-address) inet-address/filter)

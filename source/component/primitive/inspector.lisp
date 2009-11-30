@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; primitive/inspector
 
-(def (component e) primitive/inspector (primitive/abstract inspector/abstract)
+(def (component e) primitive/inspector (primitive/presentation inspector/abstract)
   ())
 
 (def render-xhtml :before primitive/inspector
@@ -19,25 +19,36 @@
 ;;;;;;
 ;;; unbound/inspector
 
-(def (component e) unbound/inspector (unbound/abstract primitive/inspector)
+(def (component e) unbound/inspector (unbound/presentation primitive/inspector)
   ())
+
+;;;;;;
+;;; null/inspector
+
+(def (component e) null/inspector (null/presentation primitive/inspector)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* null null/inspector)
 
 ;;;;;;
 ;;; boolean/inspector
 
-(def (component e) boolean/inspector (boolean/abstract primitive/inspector)
+(def (component e) boolean/inspector (boolean/presentation primitive/inspector)
   ())
 
-(def render-xhtml boolean/inspector
-  (bind (((:read-only-slots the-type edited-component client-state-sink) -self-)
-         (has-component-value? (slot-boundp -self- 'component-value))
-         (component-value (when has-component-value?
-                            (component-value-of -self-))))
+(def subtype-mapper *inspector-type-mapping* boolean boolean/inspector)
+
+(def function render-boolean-component (component &key (component-value-transformer #'identity))
+  (bind (((:read-only-slots component-value-type edited-component client-state-sink) component)
+         (has-component-value? (slot-boundp component 'component-value))
+         (component-value (funcall component-value-transformer
+                                   (when has-component-value?
+                                     (component-value-of component)))))
     <div ,(when edited-component
             <input (:type "hidden"
                     :name ,(id-of client-state-sink)
                     :value ,(if component-value "true" "false"))>)
-         ,(if (eq the-type 'boolean)
+         ,(if (symbolp component-value-type)
               (bind ((checked (when component-value "checked"))
                      (disabled (unless edited-component "disabled")))
                 <input (:type "checkbox" :checked ,checked :disabled ,disabled)>)
@@ -56,13 +67,30 @@
                                                (not component-value))
                                       "yes")))
                      <option (:selected ,selected)
-                      ,#"boolean.false">) >))>))
+                       ,#"boolean.false">) >))>))
+
+(def render-xhtml boolean/inspector
+  (render-boolean-component -self-))
+  
+
+;;;;;;
+;;; bit/inspector
+
+(def (component e) bit/inspector (bit/presentation primitive/inspector)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* (or null bit) bit/inspector)
+
+(def render-xhtml bit/inspector
+    (render-boolean-component -self- :component-value-transformer [not (zerop !1)]))
 
 ;;;;;;
 ;;; character/inspector
 
-(def (component e) character/inspector (character/abstract primitive/inspector)
+(def (component e) character/inspector (character/presentation primitive/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null character) character/inspector)
 
 (def render-xhtml character/inspector
   (bind (((:read-only-slots edited-component) -self-))
@@ -73,8 +101,10 @@
 ;;;;;;
 ;;; string/inspector
 
-(def (component e) string/inspector (string/abstract primitive/inspector)
+(def (component e) string/inspector (string/presentation primitive/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null string) string/inspector)
 
 (def render-xhtml string/inspector
   (bind (((:read-only-slots edited-component) -self-))
@@ -85,16 +115,16 @@
 (def render-text string/inspector
   (render-component (component-value-of -self-)))
 
-;;;;;;
-;;; ods export
 (def render-ods string/inspector
-    <text:p ,(component-value-of -self-)>)
+  <text:p ,(component-value-of -self-)>)
 
 ;;;;;;
 ;;; password/inspector
 
-(def (component e) password/inspector (password/abstract string/inspector)
+(def (component e) password/inspector (password/presentation string/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null password) password/inspector)
 
 (def method print-component-value ((component password/inspector))
   (if (edited-component? component)
@@ -104,20 +134,26 @@
 ;;;;;;
 ;;; symbol/inspector
 
-(def (component e) symbol/inspector (symbol/abstract string/inspector)
+(def (component e) symbol/inspector (symbol/presentation string/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null symbol) symbol/inspector)
 
 ;;;;;;
 ;;; keyword/inspector
 
-(def (component e) keyword/inspector (keyword/abstract string/inspector)
+(def (component e) keyword/inspector (keyword/presentation string/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null keyword) keyword/inspector)
 
 ;;;;;;
 ;;; number/inspector
 
-(def (component e) number/inspector (number/abstract primitive/inspector)
+(def (component e) number/inspector (number/presentation primitive/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null number) number/inspector)
 
 (def render-xhtml number/inspector
   (bind (((:read-only-slots edited-component) -self-))
@@ -126,22 +162,52 @@
         `xml,(print-component-value -self-))))
 
 ;;;;;;
+;;; real/inspector
+
+(def (component e) real/inspector (real/presentation number/inspector)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* (or null real) real/inspector)
+
+;;;;;;
+;;; complex/inspector
+
+(def (component e) complex/inspector (complex/presentation number/inspector)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* (or null complex) complex/inspector)
+
+;;;;;;
+;;; rational/inspector
+
+(def (component e) rational/inspector (rational/presentation real/inspector)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* (or null rational) rational/inspector)
+
+;;;;;;
 ;;; integer/inspector
 
-(def (component e) integer/inspector (integer/abstract number/inspector)
+(def (component e) integer/inspector (integer/presentation rational/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null integer) integer/inspector)
 
 ;;;;;;
 ;;; float/inspector
 
-(def (component e) float/inspector (float/abstract number/inspector)
+(def (component e) float/inspector (float/presentation real/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null float) float/inspector)
 
 ;;;;;;
 ;;; date/inspector
 
-(def (component e) date/inspector (date/abstract primitive/inspector)
+(def (component e) date/inspector (date/presentation primitive/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null local-time:date) date/inspector)
 
 (def render-xhtml date/inspector
   (if (edited-component? -self-)
@@ -151,8 +217,10 @@
 ;;;;;;
 ;;; time/inspector
 
-(def (component e) time/inspector (time/abstract primitive/inspector)
+(def (component e) time/inspector (time/presentation primitive/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null local-time:time) time/inspector)
 
 (def render-xhtml time/inspector
   (if (edited-component? -self-)
@@ -162,8 +230,10 @@
 ;;;;;;
 ;;; timestamp/inspector
 
-(def (component e) timestamp/inspector (timestamp/abstract primitive/inspector)
+(def (component e) timestamp/inspector (timestamp/presentation primitive/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null local-time:timestamp) timestamp/inspector)
 
 (def render-xhtml timestamp/inspector
   (if (edited-component? -self-)
@@ -173,8 +243,10 @@
 ;;;;;;
 ;;; member/inspector
 
-(def (component e) member/inspector (member/abstract primitive/inspector)
+(def (component e) member/inspector (member/presentation primitive/inspector)
   ())
+
+(def finite-type-mapper *inspector-type-mapping* 256 member/inspector)
 
 (def render-xhtml member/inspector
   (if (edited-component? -self-)
@@ -187,8 +259,10 @@
 ;;;;;;
 ;;; html/inspector
 
-(def (component e) html/inspector (html/abstract primitive/inspector)
+(def (component e) html/inspector (html/presentation primitive/inspector)
   ())
+
+(def subtype-mapper *inspector-type-mapping* (or null html) html/inspector)
 
 (def render-xhtml html/inspector
   (if (edited-component? -self-)
@@ -196,31 +270,33 @@
       (emit-html-component-value -self-)))
 
 ;;;;;;
-;;; ip-address/inspector
+;;; inet-address/inspector
 
-(def (component e) ip-address/inspector (ip-address/abstract primitive/inspector)
+(def (component e) inet-address/inspector (inet-address/presentation primitive/inspector)
   ())
 
-(def method print-component-value ((self ip-address/inspector))
+(def subtype-mapper *inspector-type-mapping* (or null iolib.sockets:inet-address) inet-address/inspector)
+
+(def method print-component-value ((self inet-address/inspector))
   (if (edited-component? self)
       (call-next-method)
       (bind ((value (component-value-of self)))
         (iolib:address-to-string
          (etypecase value
-           (iolib:inet-address                    value)
-           ((simple-array (unsigned-byte 8) (4))  (make-instance 'iolib:ipv4-address :name value))
+           (iolib:inet-address value)
+           ((simple-array (unsigned-byte 8) (4)) (make-instance 'iolib:ipv4-address :name value))
            ((simple-array (unsigned-byte 16) (8)) (make-instance 'iolib:ipv6-address :name value)))))))
 
-(def render-xhtml ip-address/inspector
+(def render-xhtml inet-address/inspector
   (if (edited-component? -self-)
       (call-next-method)
-      <span (:class "ip-address")
+      <span (:class "inet-address")
         ,(print-component-value -self-)>))
 
 ;;;;;;
 ;;; file/inspector
 
-(def (component e) file/inspector (file/abstract primitive/inspector)
+(def (component e) file/inspector (file/presentation primitive/inspector)
   ((upload-command :type component)
    (download-command :type component)
    (directory "/tmp/")

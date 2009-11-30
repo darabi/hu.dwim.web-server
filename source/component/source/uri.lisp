@@ -12,10 +12,9 @@
 (def (component e) uri/inspector (t/inspector)
   ())
 
-(def layered-method find-inspector-type-for-prototype ((prototype uri))
-  'uri/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null uri) uri/inspector)
 
-(def layered-method make-alternatives ((component uri/inspector) class prototype (value uri))
+(def layered-method make-alternatives ((component uri/inspector) (class standard-class) (prototype uri) (value uri))
   ;; TOOD: not all uris are external links
   (list* (delay-alternative-component-with-initargs 'uri/external-link/inspector :component-value value)
          (call-next-method)))

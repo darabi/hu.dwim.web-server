@@ -7,7 +7,8 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; symbol/type-name/inspector
+;;; name/mixin
 
-(def (component e) symbol/type-name/inspector (t/inspector)
-  ())
+(def (component e) name/mixin ()
+  ((name
+    :type t)))

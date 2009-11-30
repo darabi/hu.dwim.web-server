@@ -49,6 +49,8 @@
  ...)
 "))
 
+(def subtype-mapper *inspector-type-mapping* t t/inspector)
+
 (def layered-method make-alternatives ((component t/inspector) class prototype value)
   (list (delay-alternative-component-with-initargs 't/name-value-list/inspector :component-value value)
         (delay-alternative-reference 't/reference/inspector value)))
@@ -68,12 +70,15 @@
 ;;;;;
 ;;; t/documentation/inspector
 
-(def (component e) t/documentation/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) t/documentation/inspector (inspector/basic t/detail/inspector content/widget)
   ())
 
 (def refresh-component t/documentation/inspector
   (bind (((:slots content component-value) -self-))
     (setf content (make-documentation -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value))))
+
+(def render-xhtml t/documentation/inspector
+  <pre ,(render-content-for -self-)>)
 
 (def generic make-documentation (component class prototype value)
   (:method ((component t/documentation/inspector) class prototype value)

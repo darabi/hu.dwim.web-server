@@ -36,19 +36,19 @@
 (def render-pdf string ()
   (typeset:put-string -self-))
 
-(def render-pdf command-bar/widget ()
+(def render-pdf command-bar/widget
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
           (typeset:put-string " "))
         (render-component command)))
 
-(def render-pdf popup-menu/widget ()
+(def render-pdf popup-menu/widget
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
           (typeset:put-string " "))
         (render-component command)))
 
-(def render-pdf primitive/inspector ()
+(def render-pdf primitive/inspector
   (typeset:put-string (print-component-value -self-)))
 
 (def render-pdf table/widget ()

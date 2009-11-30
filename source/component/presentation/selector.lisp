@@ -40,4 +40,5 @@
 ;;; Selector factory
 
 (def layered-method make-selector (type &rest args &key &allow-other-keys)
+  (declare (ignore type args))
   (not-yet-implemented))

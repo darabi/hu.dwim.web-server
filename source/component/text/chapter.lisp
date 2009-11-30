@@ -12,13 +12,9 @@
 (def (component e) chapter/inspector (text/inspector exportable/abstract)
   ())
 
-(def (macro e) chapter/inspector ((&rest args &key &allow-other-keys) &body chapter)
-  `(make-instance 'chapter/inspector ,@args :component-value ,(the-only-element chapter)))
+(def subtype-mapper *inspector-type-mapping* (or null chapter) chapter/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype chapter))
-  'chapter/inspector)
-
-(def layered-method make-alternatives ((component chapter/inspector) class prototype (value chapter))
+(def layered-method make-alternatives ((component chapter/inspector) (class standard-class) (prototype chapter) (value chapter))
   (list* (delay-alternative-component-with-initargs 'chapter/text/inspector :component-value value)
          (call-next-method)))
 

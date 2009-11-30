@@ -7,37 +7,30 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; primitive/abstract
+;;; primitive/presentation
 
-(def (component e) primitive/abstract (component/minimal component-value/mixin)
+(def (component e) primitive/presentation (presentation/abstract component/minimal)
   ((name nil :type (or null symbol))
-   (the-type nil)
    (client-state-sink nil)))
 
-(def render-csv primitive/abstract
+(def render-csv primitive/presentation
   (write-csv-value (print-component-value -self-)))
 
-(def render-ods primitive/abstract
+(def render-ods primitive/presentation
   <text:p ,(print-component-value -self-) >)
-
-(def method component-value-of :around ((self primitive/abstract))
-  (bind ((result (call-next-method)))
-    (if (typep result 'error)
-        (error result)
-        result)))
-
-(def generic parse-component-value (component client-value)
-  (:documentation "Parses a STRING into the COMPONENT-VALUE of COMPONENT."))
 
 (def generic print-component-value (component)
   (:documentation "Prints the COMPONENT-VALUE of COMPONENT into a STRING."))
+
+(def generic parse-component-value (component client-value)
+  (:documentation "Parses a STRING into the COMPONENT-VALUE of COMPONENT."))
 
 (def generic string-field-type (component))
 
 ;;;;;;
 ;;; primitive/minimal
 
-(def (component e) primitive/minimal (primitive/abstract component/minimal)
+(def (component e) primitive/minimal (primitive/presentation component/minimal)
   ())
 
 ;;;;;;

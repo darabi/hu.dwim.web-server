@@ -20,19 +20,8 @@
 (def (macro e) row/widget ((&rest args &key &allow-other-keys) &body cells)
   `(make-instance 'row/widget ,@args :cells (list ,@cells)))
 
-(def render-xhtml row/widget
+(def render-component row/widget
   (render-table-row *table* -self-))
-
-(def render-csv row/widget
-  (write-csv-line (cells-of -self-))
-  (write-csv-line-separator))
-
-(def render-ods row/widget
-  <table:table-row ,(bind ((table (parent-component-of -self-)))
-                          (foreach (lambda (cell column)
-                                     (render-cells table -self- column cell))
-                                   (cells-of -self-)
-                                   (columns-of table)))>)
 
 (def layered-method render-onclick-handler ((self row/widget) (button (eql :left)))
   nil)
@@ -47,7 +36,14 @@
            :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
            :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
         ,(render-table-row-cells table row)>
-      (render-context-menu-for row))))
+      (render-context-menu-for row)))
+
+  (:method :in ods-layer ((table table/widget) (row row/widget))
+    <table:table-row ,(render-table-row-cells table row)>)
+
+  (:method :in csv-layer ((table table/widget) (row row/widget))
+    (render-table-row-cells table row)
+    (write-csv-line-separator)))
 
 (def (layered-function e) table-row-style-class (table row)
   (:method ((table table/widget) (row row/widget))
@@ -58,7 +54,10 @@
     (iter (for cell :in-sequence (cells-of row))
           (for column :in-sequence (columns-of table))
           (when (visible-component? column)
-            (render-table-row-cell table row column cell)))))
+            (render-table-row-cell table row column cell))))
+
+  (:method :in csv-layer ((table table/widget) (row row/widget))
+    (write-csv-line (cells-of row))))
 
 ;;;;;;
 ;;; entire-row/widget

@@ -6,5 +6,8 @@
 
 (in-package :hu.dwim.wui)
 
-(def layered-method make-place-editor (type &rest args &key &allow-other-keys)
-  (apply #'make-place-inspector type :edited #t :editable #f args))
+;;;;;;
+;;; place/editor
+
+(def (component e) place/editor (t/editor place/presentation)
+  ())

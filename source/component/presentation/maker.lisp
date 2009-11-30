@@ -39,5 +39,17 @@
 ;;;;;;
 ;;; Maker factory
 
-(def layered-method make-maker (type &rest args &key &allow-other-keys)
-  (not-yet-implemented))
+(def special-variable *maker-type-mapping* (make-linear-type-mapping))
+
+(def subtype-mapper *maker-type-mapping* nil nil)
+
+(def (layered-function e) find-maker-type (type)
+  (:method (type)
+    (linear-mapping-value *maker-type-mapping* type)))
+
+(def layered-method make-maker (type &rest args &key value &allow-other-keys)
+  (bind ((component-type (find-maker-type type)))
+    (apply #'make-instance component-type
+           :component-value value
+           :component-value-type type
+           (remove-undefined-class-slot-initargs (find-class component-type) args))))

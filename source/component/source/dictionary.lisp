@@ -12,13 +12,9 @@
 (def (component e) dictionary/inspector (t/inspector)
   ())
 
-(def (macro e) dictionary/inspector (dictionary &rest args &key &allow-other-keys)
-  `(make-instance 'dictionary/inspector ,@args :component-value ,dictionary))
+(def subtype-mapper *inspector-type-mapping* (or null dictionary) dictionary/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype dictionary))
-  'dictionary/inspector)
-
-(def layered-method make-alternatives ((component dictionary/inspector) class prototype value)
+(def layered-method make-alternatives ((component dictionary/inspector) (class standard-class) (prototype dictionary) (value dictionary))
   (list* (delay-alternative-component-with-initargs 'dictionary/name-list/inspector :component-value value)
          (delay-alternative-component-with-initargs 'dictionary/documentation/inspector :component-value value)
          (call-next-method)))

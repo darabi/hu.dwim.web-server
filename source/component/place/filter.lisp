@@ -12,8 +12,11 @@
 (def (component e) place/filter (t/filter place/presentation)
   ())
 
-(def layered-method make-place-filter (type &rest args &key &allow-other-keys)
-  (apply #'make-instance 'place/filter :component-value type args))
+(def subtype-mapper *filter-type-mapping* place place/filter)
+
+(def layered-method make-alternatives ((component place/filter) class prototype value)
+  (list (delay-alternative-component-with-initargs 'place/value/filter :component-value value)
+        (delay-alternative-reference 'place/reference/filter value)))
 
 ;;;;;;
 ;;; place/reference/filter
@@ -29,9 +32,3 @@
 
 (def layered-method make-slot-value/content ((component place/value/filter) class prototype value)
   (make-filter (place-type value) :initial-alternative-type 't/reference/filter))
-
-;;;;;;
-;;; Factory
-
-(def layered-method make-place-filter (type &rest args &key &allow-other-keys)
-  (apply #'make-instance 'place/filter :component-value type args))

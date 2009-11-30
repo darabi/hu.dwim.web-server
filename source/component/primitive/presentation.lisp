@@ -34,58 +34,58 @@
                                (equal old-value new-value))
                     (setf (component-value-of component) new-value))))))))
 
-(def function component-value-and-bound-p (component)
+(def function component-value-and-bound? (component)
   (bind ((has-component-value? (slot-boundp component 'component-value)))
     (values (when has-component-value?
               (component-value-of component))
             has-component-value?)))
 
 ;;;;;;
-;;; unbound/abstract
+;;; unbound/presentation
 
-(def (component e) unbound/abstract (primitive/abstract)
+(def (component e) unbound/presentation (primitive/presentation)
   ())
 
-(def method print-component-value ((self unbound/abstract))
+(def method print-component-value ((self unbound/presentation))
   #"value.unbound")
 
 (def (function io) render-unbound-component ()
   `xml,#"value.unbound")
 
-(def render-xhtml unbound/abstract
+(def render-xhtml unbound/presentation
   (render-unbound-component))
 
 ;;;;;;
-;;; null/abstract
+;;; null/presentation
 
-(def (component e) null/abstract (primitive/abstract)
+(def (component e) null/presentation (primitive/presentation)
   ())
 
-(def method print-component-value ((self null/abstract))
+(def method print-component-value ((self null/presentation))
   #"value.nil")
 
 (def (function io) render-null-component ()
   `xml,#"value.nil")
 
-(def render-xhtml null/abstract
+(def render-xhtml null/presentation
   (render-null-component))
 
 ;;;;;;
-;;; t/print-eval/abstract
+;;; t/read-eval-print/presentation
 
-(def (component e) t/print-eval/abstract (primitive/abstract)
+(def (component e) t/read-eval-print/presentation (primitive/presentation)
   ())
 
 (def function render-t-component (component)
   (render-string-field "text" (print-component-value component) (client-state-sink-of component)))
 
-(def method print-component-value ((component t/print-eval/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component t/read-eval-print/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if has-component-value?
         (format nil "~S" component-value)
         #"value.unbound")))
 
-(def method parse-component-value ((component t/print-eval/abstract) client-value)
+(def method parse-component-value ((component t/read-eval-print/presentation) client-value)
   (if (zerop (length client-value))
       (values nil #t)
       (bind ((*read-eval* #f))
@@ -93,45 +93,56 @@
         (values (read-from-string client-value)))))
 
 ;;;;;;
-;;; boolean/abstract
+;;; boolean/presentation
 
-(def (component e) boolean/abstract (primitive/abstract)
+(def (component e) boolean/presentation (primitive/presentation)
   ())
 
-(def method parse-component-value ((component boolean/abstract) client-value)
+(def method parse-component-value ((component boolean/presentation) client-value)
   (if (string= client-value "")
       (values nil #t)
       (string-to-lisp-boolean client-value)))
 
 ;;;;;;
-;;; character/abstract
+;;; bit/presentation
 
-(def (component e) character/abstract (primitive/abstract)
+(def (component e) bit/presentation (primitive/presentation)
   ())
 
-(def method string-field-type ((self primitive/abstract))
+(def method parse-component-value ((component bit/presentation) client-value)
+  (if (string= client-value "")
+      (values nil #t)
+      (string-to-lisp-integer client-value)))
+
+;;;;;;
+;;; character/presentation
+
+(def (component e) character/presentation (primitive/presentation)
+  ())
+
+(def method string-field-type ((self primitive/presentation))
   "text")
 
-(def method print-component-value ((component primitive/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component primitive/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (or (not has-component-value?)
             (null component-value))
         ""
         (princ-to-string component-value))))
 
-(def method parse-component-value ((component character/abstract) client-value)
+(def method parse-component-value ((component character/presentation) client-value)
   (if (string= client-value "")
       nil
       ;; KLUDGE: fix this
       (name-char (string+ "LATIN_CAPITAL_LETTER_" client-value))))
 
 ;;;;;;
-;;; string/abstract
+;;; string/presentation
 
-(def (component e) string/abstract (primitive/abstract)
+(def (component e) string/presentation (primitive/presentation)
   ())
 
-(def method string-field-type ((self string/abstract))
+(def method string-field-type ((self string/presentation))
   "text")
 
 (def function render-string-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-down on-key-up)
@@ -143,62 +154,62 @@
                        :on-key-down on-key-down
                        :on-key-up on-key-up))
 
-(def method print-component-value ((component string/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component string/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (or (not has-component-value?)
             (null component-value))
         ""
         component-value)))
 
-(def method parse-component-value ((component string/abstract) client-value)
+(def method parse-component-value ((component string/presentation) client-value)
   (if (string= client-value "")
       nil
       client-value))
 
 ;;;;;;
-;;; password/abstract
+;;; password/presentation
 
-(def (component e) password/abstract (string/abstract)
+(def (component e) password/presentation (string/presentation)
   ())
 
-(def method string-field-type ((self password/abstract))
+(def method string-field-type ((self password/presentation))
   "password")
 
 ;;;;;;
-;;; symbol/abstract
+;;; symbol/presentation
 
-(def (component e) symbol/abstract (string/abstract)
+(def (component e) symbol/presentation (string/presentation)
   ())
 
-(def method print-component-value ((component symbol/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component symbol/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (or (not has-component-value?)
             (null component-value))
         ""
         (qualified-symbol-name component-value))))
 
 ;;;;;;
-;;; keyword/abstract
+;;; keyword/presentation
 
-(def (component e) keyword/abstract (string/abstract)
+(def (component e) keyword/presentation (string/presentation)
   ())
 
-(def method print-component-value ((component keyword/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component keyword/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (or (not has-component-value?)
             (null component-value))
         ""
         (string+ ":" (symbol-name component-value)))))
 
 ;;;;;;
-;;; number/abstract
+;;; number/presentation
 
-(def (component e) number/abstract (primitive/abstract)
+(def (component e) number/presentation (primitive/presentation)
   ())
 
 (def function render-number-field-for-primitive-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-up on-key-down)
   ;; TODO was print-component-value, but spaces are not accepted as a value of the <input>
-  (bind ((component-value (component-value-and-bound-p component)))
+  (bind ((component-value (component-value-and-bound? component)))
     (render-number-field (if (null component-value)
                              ""
                              (princ-to-string component-value))
@@ -208,53 +219,89 @@
                          :on-key-up on-key-up
                          :on-key-down on-key-down)))
 
-(def method print-component-value ((component number/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component number/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (or (not has-component-value?)
             (null component-value))
         ""
         (format-number/decimal nil component-value))))
 
-(def method parse-component-value ((component number/abstract) client-value)
+(def method parse-component-value ((component number/presentation) client-value)
   (if (or (string= client-value "")
           (string= client-value "NaN"))
       nil
       (parse-number:parse-number client-value)))
 
 ;;;;;;
-;;; integer/abstract
+;;; real/presentation
 
-(def (component e) integer/abstract (number/abstract)
+(def (component e) real/presentation (number/presentation)
   ())
 
-(def render-csv integer/abstract
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p -self-)))
+(def method parse-component-value ((component real/presentation) client-value)
+  (if (string= client-value "")
+      nil
+      (parse-number:parse-real-number client-value)))
+
+;;;;;;
+;;; complex/presentation
+
+(def (component e) complex/presentation (number/presentation)
+  ())
+
+(def method print-component-value ((component complex/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
+    (if (or (not has-component-value?)
+            (null component-value))
+        ""
+        (bind ((imagpart (imagpart component-value)))
+          (format nil "~A ~A ~Ai"
+                  (format-number/decimal nil (realpart component-value))
+                  (if (plusp (signum imagpart)) "+" "-")
+                  (format-number/decimal nil (abs imagpart)))))))
+
+(def method parse-component-value ((component complex/presentation) client-value)
+  (if (and (length= 2 client-value)
+           (not (string= (first client-value) ""))
+           (not (string= (second client-value) "")))
+      (complex (parse-number:parse-real-number (first client-value))
+               (parse-number:parse-real-number (second client-value)))
+      nil))
+
+;;;;;;
+;;; rational/presentation
+
+(def (component e) rational/presentation (real/presentation)
+  ())
+
+;;;;;;
+;;; integer/presentation
+
+(def (component e) integer/presentation (rational/presentation)
+  ())
+
+(def render-csv integer/presentation
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? -self-)))
     (when (and has-component-value?
             (not (null component-value)))
       (write-csv-value (princ-to-string component-value)))))
 
-
-(def method parse-component-value ((component integer/abstract) client-value)
+(def method parse-component-value ((component integer/presentation) client-value)
   (if (or (string= client-value "")
           (string= client-value "NaN"))
       nil
       (values (parse-integer client-value))))
 
 ;;;;;;
-;;; float/abstract
+;;; float/presentation
 
-(def (component e) float/abstract (number/abstract)
+(def (component e) float/presentation (real/presentation)
   ())
 
-(def method parse-component-value ((component float/abstract) client-value)
-  (if (string= client-value "")
-      nil
-      (parse-number:parse-real-number client-value)))
-
 ;;;;;;
-;;; date/abstract
+;;; date/presentation
 
-(def (component e) date/abstract (primitive/abstract)
+(def (component e) date/presentation (primitive/presentation)
   ())
 
 (def function render-date-component (component &key (id (generate-frame-unique-string "_dtw")) on-change (printer #'print-component-value))
@@ -270,14 +317,14 @@
 (def function print-date-value (value)
   (local-time:format-rfc3339-timestring nil value :omit-time-part #t :omit-timezone-part #t))
 
-(def method print-component-value ((component date/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component date/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (and has-component-value?
              component-value)
         (print-date-value component-value)
         "")))
 
-(def method parse-component-value ((component date/abstract) client-value)
+(def method parse-component-value ((component date/presentation) client-value)
   (unless (string= client-value "")
     (bind ((result (local-time:parse-rfc3339-timestring client-value :allow-missing-time-part #t)))
       (local-time:with-decoded-timestamp (:hour hour :minute minute :sec sec :nsec nsec :timezone local-time:+utc-zone+) result
@@ -289,9 +336,9 @@
       result)))
 
 ;;;;;;
-;;; time/abstract
+;;; time/presentation
 
-(def (component e) time/abstract (primitive/abstract)
+(def (component e) time/presentation (primitive/presentation)
   ())
 
 (def function render-time-component (component &key (id (generate-frame-unique-string "_tmw")) on-change (printer #'print-component-value))
@@ -305,30 +352,32 @@
               :dojoType #.+dijit/time-text-box+
               :onChange ,(force on-change))>)))
 
+;; TODO: this prints an extra T when we simple want to print the time as a string
+;;       maybe we should use dojo to localize the time value
 (def function print-time-value (value)
   (local-time:format-timestring nil value :format '(#\T (:hour 2) #\: (:min 2) #\: (:sec 2)) :timezone local-time:+utc-zone+))
 
-(def method print-component-value ((component time/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component time/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (and has-component-value?
              component-value)
         (print-time-value component-value)
         "")))
 
-(def method parse-component-value ((component time/abstract) client-value)
+(def method parse-component-value ((component time/presentation) client-value)
   (unless (string= client-value "")
     (aprog1 (local-time:parse-timestring client-value :allow-missing-date-part #t :allow-missing-timezone-part #t)
       (unless it
         (invalid-client-value "Failed to parse ~S as a time" client-value)))))
 
 ;;;;;;
-;;; timestamp/abstract
+;;; timestamp/presentation
 
-(def (component e) timestamp/abstract (primitive/abstract)
+(def (component e) timestamp/presentation (primitive/presentation)
   ())
 
 (def function render-timestamp-component (component &key on-change)
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (render-date-component component :on-change on-change :printer (lambda (component)
                                                                      (declare (ignore component))
                                                                      (if (and has-component-value?
@@ -342,14 +391,14 @@
                                                                          (print-time-value component-value)
                                                                          "")))))
 
-(def method print-component-value ((component timestamp/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component timestamp/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (and has-component-value?
              component-value)
         (localized-timestamp component-value)
         "")))
 
-(def method parse-component-value ((component timestamp/abstract) client-value)
+(def method parse-component-value ((component timestamp/presentation) client-value)
   (when (consp client-value)
     (setf client-value (apply #'string+ client-value)))
   (unless (string= client-value "")
@@ -359,13 +408,16 @@
         (invalid-client-value "Failed to parse ~S as a timestamp" client-value)))))
 
 ;;;;;;
-;;; member/abstract
+;;; member/presentation
 
-(def (component e) member/abstract (primitive/abstract)
+(def (component e) member/presentation (primitive/presentation)
   ((possible-values)
    (predicate #'equal)
    (key #'identity)
    (client-name-generator 'localized-member-component)))
+
+(def constructor member/presentation
+  (setf (possible-values-of -self-) (type-instance-list (component-value-type-of -self-))))
 
 (def function localized-member-component (component value)
   (bind (((:values class nil slot) (extract-primitive-component-place component)))
@@ -388,13 +440,13 @@
                                     (member-component-value-name (component-value-of component)))
                      :otherwise nil))))))
 
-(def method print-component-value ((component member/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component member/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if has-component-value?
         (funcall (client-name-generator-of component) component component-value)
         "")))
 
-(def method parse-component-value ((component member/abstract) client-value)
+(def method parse-component-value ((component member/presentation) client-value)
   (bind (((:read-only-slots possible-values) component)
          (index (ignore-errors (parse-integer client-value))))
     (unless index
@@ -412,9 +464,9 @@
                          :on-change on-change)))
 
 ;;;;;;
-;;; html/abstract
+;;; html/presentation
 
-(def (component e) html/abstract (string/abstract)
+(def (component e) html/presentation (string/presentation)
   ())
 
 (def (function e) emit-html-string (string)
@@ -441,16 +493,16 @@
         ,(emit-html-component-value component)>)))
 
 ;;;;;;
-;;; ip-address/abstract
+;;; inet-address/presentation
 
-(def (component e) ip-address/abstract (primitive/abstract)
+(def (component e) inet-address/presentation (primitive/presentation)
   ())
 
-(def render-xhtml ip-address/abstract
+(def render-xhtml inet-address/presentation
   `xml,(print-component-value -self-))
 
-(def method print-component-value ((component ip-address/abstract))
-  (bind (((:values component-value has-component-value?) (component-value-and-bound-p component)))
+(def method print-component-value ((component inet-address/presentation))
+  (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if has-component-value?
         (with-output-to-string (string)
           (iter (for ip-element :in-sequence component-value)
@@ -460,12 +512,12 @@
         "")))
 
 ;;;;;;
-;;; file/abstract
+;;; file/presentation
 
-(def (component e) file/abstract (primitive/abstract)
+(def (component e) file/presentation (primitive/presentation)
   ())
 
 (def (layered-function e) download-file-name (component class instance slot)
-  (:method ((component file/abstract) class instance slot)
+  (:method ((component file/presentation) class instance slot)
     ;; TODO wtf? fixme or delme
     (random-string)))

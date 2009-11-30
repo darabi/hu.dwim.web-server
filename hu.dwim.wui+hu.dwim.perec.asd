@@ -17,7 +17,6 @@
   :components ((:module "integration"
                 :components ((:module "perec"
                               :components ((:file "kludge")
-                                           (:file "factory")
                                            (:file "object-filter")
                                            (:file "process")
                                            #+nil

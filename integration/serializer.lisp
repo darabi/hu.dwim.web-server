@@ -6,7 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
-;;;;;
+;;;;;;
 ;;; Serialization
 
 (def constant +component-code+ #x61)

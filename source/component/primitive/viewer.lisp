@@ -9,14 +9,5 @@
 ;;;;;;
 ;;; primitive/viewer
 
-(def (component e) primitive/viewer (primitive/abstract viewer/abstract)
+(def (component e) primitive/viewer (primitive/presentation viewer/abstract)
   ())
-
-;;;;;;
-;;; symbol/viewer
-
-(def (component e) symbol/viewer (symbol/abstract primitive/viewer)
-  ())
-
-(def render-xhtml symbol/viewer
-  `xml,(print-component-value -self-))

@@ -41,9 +41,9 @@
 ;;;;;;
 ;;; Entry point
 
-(def file-serving-entry-point *component-demo-application* "/static/" (system-relative-pathname :hu.dwim.wui "www/"))
+(def file-serving-entry-point *component-demo-application* "static/" (system-relative-pathname :hu.dwim.wui "www/"))
 
-(def js-file-serving-entry-point *component-demo-application* "/wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
+(def js-file-serving-entry-point *component-demo-application* "wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
 
 (def js-component-hierarchy-serving-entry-point *component-demo-application* "wui/js/component-hierarchy.js")
 
@@ -85,12 +85,6 @@
                                           +demo-static-stylesheet-uris+)
                  :script-uris +demo-script-uris+
                  :page-icon +demo-page-icon+)
-    #+nil
-    (top/widget (:menu-bar (menu-bar/widget ()
-                             (make-debug-menu)))
-      (collapsible/widget ()
-        "SICP"
-        "Structure and Interpretation of Computer Programs"))
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu)))
       (make-component-demo-content initial-content-component))))
@@ -525,61 +519,70 @@
     (make-primitive-filters-node)))
 
 ;; NOTE: all this hassle is to have a reasonable code shown by component-demo/widget
-(def macro make-primitive-presentations-node (name factory set-dummy-value)
+(def macro make-primitive-presentations-node (name factory)
   (flet ((make (type value)
-           (if set-dummy-value
-               `(,factory ',type ,value)
-               `(,factory ',type))))
+           `(,factory ',type :value ,value)))
     `(node/widget (:expanded #f)
          ,name
+       (component-demo/widget "Null"
+         ,(make 'null nil))
        (component-demo/widget "Boolean"
          ,(make 'boolean #t))
+       (component-demo/widget "Bit"
+         ,(make 'bit 0))
        (component-demo/widget "Character"
          ,(make 'character  #\J))
        (component-demo/widget "String"
          ,(make 'string  "John"))
        (component-demo/widget "Password"
-         ,(make 'hu.dwim.wui::password "Mary"))
+         ,(make 'password "Mary"))
        (component-demo/widget "Symbol"
          ,(make 'symbol ''John))
+       (component-demo/widget "Keyword"
+         ,(make 'keyword ':value))
        (component-demo/widget "Number"
          ,(make 'number 12345678901234567890/10000000000))
+       (component-demo/widget "Real"
+         ,(make 'real 3.14))
        (component-demo/widget "Integer"
          ,(make 'integer 42))
+       (component-demo/widget "Rational"
+         ,(make 'rational 31/7))
        (component-demo/widget "Float"
          ,(make 'float 42.42))
+       (component-demo/widget "Complex"
+         ,(make 'complex #C(42 -42)))
        (component-demo/widget "Date"
-         ,(make 'hu.dwim.wui::date (local-time:now)))
+         ,(make 'local-time:date (local-time:now)))
        (component-demo/widget "Time"
-         ,(make 'hu.dwim.wui::time (local-time:now)))
+         ,(make 'local-time:time (local-time:now)))
        (component-demo/widget "Timestamp"
-         ,(make 'hu.dwim.wui::timestamp (local-time:now)))
+         ,(make 'local-time:timestamp (local-time:now)))
        (component-demo/widget "Member"
          ,(make '(member John Mary Steve Kate) ''John))
        (component-demo/widget "HTML"
-         ,(make 'hu.dwim.wui::html "John <b>Mary</b> <h1>Steve</h1> <i>Kate</i>"))
+         ,(make 'html "John <b>Mary</b> <h2>Steve</h2> <i>Kate</i>"))
        (component-demo/widget "IP address"
-         ;; TODO: component-value
-         ,(make 'hu.dwim.wui::ip-address nil))
+         ,(make 'iolib.sockets:inet-address (make-instance 'iolib.sockets::ipv4-address :name #(127 0 0 1))))
+       ;; TODO: what is this type supposed to be? a slot type for a download/upload widget...
+       #+nil
        (component-demo/widget "File"
-         ;; TODO: component-value
          ,(make 'file (system-relative-pathname :hu.dwim.wui "test/component.lisp"))))))
 
-
 (def function make-primitive-makers-node ()
-  (make-primitive-presentations-node "Maker" make-maker #f))
+  (make-primitive-presentations-node "Maker" make-maker))
 
 (def function make-primitive-viewers-node ()
-  (make-primitive-presentations-node "Viewer" make-viewer #t))
+  (make-primitive-presentations-node "Viewer" make-viewer))
 
 (def function make-primitive-editors-node ()
-  (make-primitive-presentations-node "Editor" make-editor #t))
+  (make-primitive-presentations-node "Editor" make-editor))
 
 (def function make-primitive-inspectors-node ()
-  (make-primitive-presentations-node "Inspector" make-inspector #t))
+  (make-primitive-presentations-node "Inspector" make-inspector))
 
 (def function make-primitive-filters-node ()
-  (make-primitive-presentations-node "Filter" make-filter #f))
+  (make-primitive-presentations-node "Filter" make-filter))
 
 ;;;;;;
 ;;; Place
@@ -595,65 +598,46 @@
     (make-place-inspectors-node)
     (make-place-filters-node)))
 
+;; NOTE: all this hassle is to have a reasonable code shown by component-demo/widget
+(def macro make-place-presentations-node (name factory)
+  (flet ((make (place)
+           `(,factory 'place :value ,place)))
+    `(node/widget (:expanded #f)
+         ,name
+       (component-demo/widget "Special variable"
+         ,(make '(make-special-variable-place '*person-name* :type 'string)))
+       (component-demo/widget "Lexical variable"
+         ,(make '(bind ((person-name "Kate"))
+                  (make-lexical-variable-place person-name :type 'string))))
+       (component-demo/widget "Functional"
+         ,(make '(bind ((person-name "Mary"))
+                  (make-functional-place 'person-name
+                   (lambda ()
+                     person-name)
+                   (lambda (new-value)
+                     (setf person-name new-value))
+                   :type 'string))))
+       (component-demo/widget "Simple functional"
+         ,(make '(make-simple-functional-place (cons "Steve" "Kate") 'car :type 'string)))
+       (component-demo/widget "Sequence element"
+         ,(make '(make-sequence-element-place *person-name* 0)))
+       (component-demo/widget "Instance slot"
+         ,(make '(make-object-slot-place (make-instance 'action :id "George") 'hu.dwim.wui::id))))))
+
 (def function make-place-makers-node ()
-  (make-place-presentations-node "Maker" 'make-place-maker))
+  (make-place-presentations-node "Maker" make-maker))
 
 (def function make-place-viewers-node ()
-  (node/widget (:expanded #f)
-      "Viewer"
-    (component-demo/widget "Special variable"
-      (make-value-viewer (make-special-variable-place '*person-name* :type 'string)))
-    (component-demo/widget "Lexical variable"
-      (bind ((person-name "Kate"))
-        (make-value-viewer (make-lexical-variable-place person-name :type 'string))))
-    (component-demo/widget "Functional"
-      (bind ((person-name "Mary"))
-        (make-value-viewer (make-functional-place 'person-name
-                                                  (lambda ()
-                                                    person-name)
-                                                  (lambda (new-value)
-                                                    (setf person-name new-value))
-                                                  :type 'string))))
-    (component-demo/widget "Simple functional"
-      (make-value-viewer (make-simple-functional-place (cons "Steve" "Kate") 'car :type 'string)))
-    (component-demo/widget "Sequence element"
-      (make-value-viewer (make-sequence-element-place *person-name* 0)))
-    (component-demo/widget "Instance slot"
-      (make-value-viewer (make-object-slot-place (make-instance 'action :id "George") 'hu.dwim.wui::id)))))
+  (make-place-presentations-node "Viewer" make-viewer))
 
 (def function make-place-editors-node ()
-  (make-place-presentations-node "Editor" 'make-place-editor))
+  (make-place-presentations-node "Editor" make-editor))
 
 (def function make-place-inspectors-node ()
-  (make-place-presentations-node "Inspector" 'make-place-inspector))
+  (make-place-presentations-node "Inspector" make-inspector))
 
 (def function make-place-filters-node ()
-  (make-place-presentations-node "Filter" 'make-place-filter))
-
-(def function make-place-presentations-node (name factory)
-  (flet ((make (place)
-           (funcall factory place)))
-    (node/widget (:expanded #f)
-        name
-      (component-demo/widget "Special variable"
-        (make (make-special-variable-place '*person-name* :type 'string)))
-      (component-demo/widget "Lexical variable"
-        (bind ((person-name "Kate"))
-          (make (make-lexical-variable-place person-name :type 'string))))
-      (component-demo/widget "Functional"
-        (bind ((person-name "Mary"))
-          (make (make-functional-place 'person-name
-                                       (lambda ()
-                                         person-name)
-                                       (lambda (new-value)
-                                         (setf person-name new-value))
-                                       :type 'string))))
-      (component-demo/widget "Simple functional"
-        (make (make-simple-functional-place (cons "Steve" "Kate") 'car :type 'string)))
-      (component-demo/widget "Sequence element"
-        (make (make-sequence-element-place *person-name* 0)))
-      (component-demo/widget "Instance slot"
-        (make (make-object-slot-place (make-instance 'action :id "George") 'hu.dwim.wui::id))))))
+  (make-place-presentations-node "Filter" make-filter))
 
 ;;;;;;
 ;;; Object
@@ -691,11 +675,11 @@
     (node/widget (:expanded #f)
         "By type"
       (component-demo/widget "Null or Standard object"
-        (make-viewer '(or null standard-object) nil))
+        (make-viewer '(or null standard-object) :value nil))
       (component-demo/widget "Standard object"
-        (make-viewer 'standard-object *server*))
+        (make-viewer 'standard-object :value *server*))
       (component-demo/widget "Server"
-        (make-viewer 'server *server*)))
+        (make-viewer 'server :value *server*)))
     (node/widget (:expanded #f)
         "By value"
       (component-demo/widget "Standard object"
@@ -806,7 +790,7 @@
   (node/widget (:expanded #f)
       "Viewer"
     (component-demo/widget "Nil"
-      (make-viewer 'list nil))
+      (make-viewer 'list :value nil))
     (component-demo/widget "List"
       (make-value-viewer '("John" "Mary" "Steve" "Kate")))
     (component-demo/widget "Vector"
@@ -912,7 +896,7 @@
     (component-demo/widget "Source file"
       (make-value-inspector (reduce 'asdf:find-component (list "src" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
     (component-demo/widget "Text file"
-      (pathname/text-file/inspector (asdf:system-relative-pathname :hu.dwim.wui "README")))
+      (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "README")))
     (component-demo/widget "Pathname"
       (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "src/component/api/api.lisp")))
     (component-demo/widget "Package"
@@ -921,15 +905,12 @@
       (make-value-inspector (make-instance 'dictionary
                                            :name 'editing
                                            :definition-names '(editable/mixin begin-editing save-editing cancel-editing store-editing revert-editing join-editing leave-editing))))
-    (component-demo/widget "Defintion name"
-      (symbol/definition-name/inspector ()
-        'list))
+    (component-demo/widget "Definition name"
+      (make-value-inspector (make-definitions 'list)))
     (component-demo/widget "Special variable name"
-      (symbol/special-variable-name/inspector ()
-        '*xml-stream*))
+      (make-value-inspector (make-definitions '*xml-stream*)))
     (component-demo/widget "Type name"
-      (symbol/type-name/inspector ()
-        'components))
+      (make-value-inspector (make-definitions 'components)))
     (component-demo/widget "Structure class"
       (make-value-inspector (find-class 'package)))
     (component-demo/widget "Structure direct slot definition"
@@ -1019,9 +1000,7 @@
           (node/widget ()
               (replace-target-place/widget ()
                   "Component"
-                ;; TODO: component/documentation/inspector
-                (content/widget ()
-                  (component-documentation 'component)))
+                (make-value-inspector (find-class 'component)))
             (make-immediates-node)
             (make-layouts-node)
             (make-widgets-node)

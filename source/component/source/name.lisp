@@ -12,9 +12,6 @@
 (def (component e) symbol/definition-name/inspector (inspector/basic contents/widget)
   ())
 
-(def (macro e) symbol/definition-name/inspector ((&rest args &key &allow-other-keys) &body name)
-  `(make-instance 'symbol/definition-name/inspector ,@args :component-value ,(the-only-element name)))
-
 (def refresh-component symbol/definition-name/inspector
   (bind (((:slots contents component-value) -self-)
          (dispatch-class (component-dispatch-class -self-))

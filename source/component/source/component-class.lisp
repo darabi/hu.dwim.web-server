@@ -12,8 +12,14 @@
 (def (component e) component-class/inspector (class/inspector)
   ())
 
-(def (macro e) component-class/inspector (component-class &rest args &key &allow-other-keys)
-  `(make-instance 'component-class/inspector ,@args :component-value ,component-class))
+(def subtype-mapper *inspector-type-mapping* (or null component-class) component-class/inspector)
 
-(def layered-method find-inspector-type-for-prototype ((prototype component-class))
-  'component-class/inspector)
+(def layered-method make-alternatives ((component component/inspector) (class component-class) (prototype component) (value component))
+  (list* (delay-alternative-component-with-initargs 'component-class/documentation/inspector :component-value value)
+         (call-next-method)))
+
+;;;;;;
+;;; component-class/documentation/inspector
+
+(def (component e) component-class/documentation/inspector (t/documentation/inspector)
+  ())

@@ -12,10 +12,9 @@
 (def (component e) definition/inspector (t/inspector)
   ())
 
-(def layered-method find-inspector-type-for-prototype ((prototype definition))
-  'definition/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null definition) definition/inspector)
 
-(def layered-method make-alternatives ((component definition/inspector) class prototype value)
+(def layered-method make-alternatives ((component definition/inspector) (class standard-class) (prototype definition) (value definition))
   (list* (delay-alternative-component-with-initargs 'definition/lisp-form/inspector :component-value value)
          (call-next-method)))
 

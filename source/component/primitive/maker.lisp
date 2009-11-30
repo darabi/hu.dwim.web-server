@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; primitive/maker
 
-(def (component e) primitive/maker (primitive/abstract maker/abstract)
+(def (component e) primitive/maker (primitive/presentation maker/abstract)
   ((initform)
    (use-initform :type boolean)))
 
@@ -25,18 +25,34 @@
     <span ,#"value.defaults-to" ,(princ-to-string (initform-of component))>))
 
 ;;;;;;
-;;; boolean/maker
+;;; unbound/maker
 
-(def (component e) boolean/maker (boolean/abstract primitive/maker)
+(def (component e) unbound/maker (unbound/presentation primitive/maker)
   ())
 
+;;;;;;
+;;; null/maker
+
+(def (component e) null/maker (null/presentation primitive/maker)
+  ())
+
+(def subtype-mapper *maker-type-mapping* null null/maker)
+
+;;;;;;
+;;; boolean/maker
+
+(def (component e) boolean/maker (boolean/presentation primitive/maker)
+  ())
+
+(def subtype-mapper *maker-type-mapping* boolean boolean/maker)
+
 (def render-xhtml boolean/maker
-  (bind (((:read-only-slots the-type) -self-)
+  (bind (((:read-only-slots component-value-type) -self-)
          (has-initform? (slot-boundp -self- 'initform))
          (initform (when has-initform?
                      (initform-of -self-)))
          (constant-initform? (member initform '(#f #t))))
-    (if (and (eq the-type 'boolean)
+    (if (and (eq component-value-type 'boolean)
              has-initform?
              constant-initform?)
         (bind ((checked (when (and has-initform?
@@ -49,35 +65,38 @@
                                          constant-initform?)
                               "yes")))
                  <option (:selected ,selected)
-                         ,(cond (has-initform? #"value.default")
-                                ((eq the-type 'boolean) "")
-                                (t #"value.nil"))>)
+                   ,(cond (has-initform? #"value.default")
+                          ((eq component-value-type 'boolean) "")
+                          (t #"value.nil"))>)
           ,(bind ((selected (when (and has-initform?
                                        (eq initform #t))
                               "yes")))
                  <option (:selected ,selected)
-                         ,#"boolean.true">)
+                   ,#"boolean.true">)
           ,(bind ((selected (when (and has-initform?
                                        (eq initform #f))
                               "yes")))
                  <option (:selected ,selected)
-                         ,#"boolean.false">) >)))
+                   ,#"boolean.false">) >)))
 
 ;;;;;;
 ;;; character/maker
 
-(def (component e) character/maker (character/abstract primitive/maker)
+(def (component e) character/maker (character/presentation primitive/maker)
   ())
 
-(def render-xhtml character/maker
-    (render-string-component -self-))
+(def subtype-mapper *maker-type-mapping* (or null character) character/maker)
 
+(def render-xhtml character/maker
+  (render-string-component -self-))
 
 ;;;;;;
 ;;; string/maker
 
-(def (component e) string/maker (string/abstract primitive/maker)
+(def (component e) string/maker (string/presentation primitive/maker)
   ((component-value nil)))
+
+(def subtype-mapper *maker-type-mapping* (or null string) string/maker)
 
 (def render-xhtml string/maker
   (render-string-component -self-))
@@ -85,20 +104,34 @@
 ;;;;;;
 ;;; password/maker
 
-(def (component e) password/maker (password/abstract string/maker)
+(def (component e) password/maker (password/presentation string/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null password) password/maker)
 
 ;;;;;;
 ;;; symbol/maker
 
-(def (component e) symbol/maker (symbol/abstract string/maker)
+(def (component e) symbol/maker (symbol/presentation string/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null symbol) symbol/maker)
+
+;;;;;;
+;;; keyword/maker
+
+(def (component e) keyword/maker (keyword/presentation string/maker)
+  ())
+
+(def subtype-mapper *maker-type-mapping* (or null keyword) keyword/maker)
 
 ;;;;;;
 ;;; number/maker
 
-(def (component e) number/maker (number/abstract primitive/maker)
+(def (component e) number/maker (number/presentation primitive/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null number) number/maker)
 
 (def render-xhtml number/maker
   (render-number-field-for-primitive-component -self-))
@@ -106,20 +139,26 @@
 ;;;;;;
 ;;; integer/maker
 
-(def (component e) integer/maker (integer/abstract number/maker)
+(def (component e) integer/maker (integer/presentation number/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null integer) integer/maker)
 
 ;;;;;;
 ;;; float/maker
 
-(def (component e) float/maker (float/abstract number/maker)
+(def (component e) float/maker (float/presentation number/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null float) float/maker)
 
 ;;;;;;
 ;;; date/maker
 
-(def (component e) date/maker (date/abstract primitive/maker)
+(def (component e) date/maker (date/presentation primitive/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null local-time:date) date/maker)
 
 (def render-xhtml date/maker
   (render-date-component -self-))
@@ -127,8 +166,10 @@
 ;;;;;;
 ;;; time/maker
 
-(def (component e) time/maker (time/abstract primitive/maker)
+(def (component e) time/maker (time/presentation primitive/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null local-time:time) time/maker)
 
 (def render-xhtml time/maker
   (render-time-component -self-))
@@ -136,8 +177,10 @@
 ;;;;;;
 ;;; timestamp/maker
 
-(def (component e) timestamp/maker (timestamp/abstract primitive/maker)
+(def (component e) timestamp/maker (timestamp/presentation primitive/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null local-time:timestamp) timestamp/maker)
 
 (def render-xhtml timestamp/maker
   (render-timestamp-component -self-))
@@ -145,8 +188,10 @@
 ;;;;;;
 ;;; member/maker
 
-(def (component e) member/maker (member/abstract primitive/maker)
+(def (component e) member/maker (member/presentation primitive/maker)
   ())
+
+(def finite-type-mapper *maker-type-mapping* 256 member/maker)
 
 (def render-xhtml member/maker
   (render-member-component -self-))
@@ -154,14 +199,18 @@
 ;;;;;;
 ;;; html/maker
 
-(def (component e) html/maker (html/abstract primitive/maker)
+(def (component e) html/maker (html/presentation primitive/maker)
   ())
 
 (def render-xhtml html/maker
   (render-html-component -self-))
 
-;;;;;;
-;;; ip-address/maker
+(def subtype-mapper *filter-type-mapping* (or null html) html/maker)
 
-(def (component e) ip-address/maker (ip-address/abstract primitive/maker)
+;;;;;;
+;;; inet-address/maker
+
+(def (component e) inet-address/maker (inet-address/presentation primitive/maker)
   ())
+
+(def subtype-mapper *maker-type-mapping* (or null iolib.sockets:inet-address) inet-address/maker)

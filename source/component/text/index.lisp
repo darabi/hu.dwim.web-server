@@ -12,8 +12,5 @@
 (def (component e) index/inspector ()
   ())
 
-(def (macro e) index/inspector ()
-  `(make-instance 'index/inspector))
-
 (def render-xhtml index/inspector
   (not-yet-implemented))

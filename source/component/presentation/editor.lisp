@@ -39,8 +39,10 @@
 ;;;;;;
 ;;; Editor factory
 
-(def layered-method make-value-editor (value &rest args)
-  (apply #'make-editor (class-of value) value args))
+(def layered-method make-editor :before (type &key (value nil value?) &allow-other-keys)
+  (when (and value?
+             (not (typep value type)))
+    (error "Cannot make editor for the value ~A~% which is not of type ~A" value type)))
 
-(def layered-method make-editor (type value &rest args &key &allow-other-keys)
-  (apply #'make-inspector type value :editable #f :edited #t args))
+(def layered-method make-editor (type &rest args &key &allow-other-keys)
+  (apply #'make-inspector type :editable #f :edited #t args))

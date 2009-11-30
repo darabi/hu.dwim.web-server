@@ -40,11 +40,14 @@
   `(make-instance 'page-navigation-bar/widget ,@args))
 
 (def refresh-component page-navigation-bar/widget
-  (bind (((:slots position first-command previous-command next-command last-command jumper page-size page-size-selector) -self-))
-    (setf first-command (make-go-to-first-page-command -self-)
-          previous-command (make-go-to-previous-page-command -self-)
-          next-command (make-go-to-next-page-command -self-) 
-          last-command (make-go-to-last-page-command -self-)
+  (bind (((:slots position first-command previous-command next-command last-command jumper page-size page-size-selector) -self-)
+         (class (component-dispatch-class -self-))
+         (prototype (component-dispatch-prototype -self-))
+         (value (component-value-of -self-)))
+    (setf first-command (make-go-to-first-page-command -self- class prototype value)
+          previous-command (make-go-to-previous-page-command -self- class prototype value)
+          next-command (make-go-to-next-page-command -self- class prototype value)
+          last-command (make-go-to-last-page-command -self- class prototype value)
           jumper (make-instance 'integer/inspector :edited #t :component-value position)
           page-size-selector (make-instance 'page-size-selector/widget :component-value page-size))))
 
@@ -78,7 +81,7 @@
 ;;;;;;
 ;;; Command factory
 
-(def layered-method make-go-to-first-page-command ((component page-navigation-bar/widget))
+(def layered-method make-go-to-first-page-command ((component page-navigation-bar/widget) class prototype value)
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (> position 0))
                      :ajax (ajax-of parent-component))
@@ -87,7 +90,7 @@
         (setf (component-value-of jumper) (setf position 0))
         (mark-to-be-rendered-component parent-component)))))
 
-(def layered-method make-go-to-previous-page-command ((component page-navigation-bar/widget))
+(def layered-method make-go-to-previous-page-command ((component page-navigation-bar/widget) class prototype value)
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (> position 0))
                      :ajax (ajax-of parent-component))
@@ -96,7 +99,7 @@
         (setf (component-value-of jumper) (decf position (min position page-size)))
         (mark-to-be-rendered-component parent-component)))))
 
-(def layered-method make-go-to-next-page-command ((component page-navigation-bar/widget))
+(def layered-method make-go-to-next-page-command ((component page-navigation-bar/widget) class prototype value)
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (< position (- total-count page-size)))
                      :ajax (ajax-of parent-component))
@@ -105,7 +108,7 @@
         (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size))))
         (mark-to-be-rendered-component parent-component)))))
 
-(def layered-method make-go-to-last-page-command ((component page-navigation-bar/widget))
+(def layered-method make-go-to-last-page-command ((component page-navigation-bar/widget) class prototype value)
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (< position (- total-count page-size)))
                      :ajax (ajax-of parent-component))

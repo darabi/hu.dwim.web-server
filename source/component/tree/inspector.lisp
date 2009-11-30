@@ -55,7 +55,7 @@
   nil)
 
 (def layered-method make-node/content ((component t/node/inspector) class prototype value)
-  (make-value-inspector value))
+  (make-value-inspector value :initial-alternative-type 't/reference/presentation))
 
 
 ;;;;;;
@@ -121,7 +121,7 @@
 (def layered-method make-tree/root-node ((component sequence/tree/inspector) class prototype value)
   (if (typep value 'sequence)
       (make-instance 't/node/inspector :component-value value)
-      (make-value-inspector value)))
+      (make-value-inspector value :initial-alternative-type 't/reference/presentation)))
 
 ;;;;;;
 ;;; sequence/node/inspector
@@ -132,4 +132,4 @@
 (def layered-method make-node/child-node ((component sequence/node/inspector) class prototype value)
   (if (typep value 'sequence)
       (make-instance 'sequence/node/inspector :component-value value)
-      (make-value-inspector value)))
+      (make-value-inspector value :initial-alternative-type 't/reference/presentation)))
