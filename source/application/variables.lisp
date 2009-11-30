@@ -7,7 +7,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Specials available while processing a request
+;;; specials available while processing a request
 
 (def (special-variable e :documentation "The APPLICATION associated with the currently processed HTTP REQUEST.")
   *application*)
@@ -38,6 +38,30 @@
 
 (def (special-variable e :documentation "Bound inside entry-points, and contains part of the path of the request url that comes after the entry-point url prefix (so, it's an empty string for exact path matching entry-point's).")
   *entry-point-relative-path*)
+
+;;;;;;
+;;; application slot defaults
+
+(def (special-variable e) *maximum-sessions-per-application-count* most-positive-fixnum
+  "The default for the same slot in applications.")
+
+(def (special-variable e) *default-session-timeout* (* 30 60)
+  "The default for the same slot in applications.")
+
+(def (special-variable e) *default-frame-timeout* *default-session-timeout*
+  "The default for the same slot in applications.")
+
+(def (special-variable e) *default-ajax-enabled* #t
+  "The default for the same slot in applications.")
+
+(def (special-variable e) *default-compile-time-debug-client-side* #f
+  "The default for the same slot in applications.")
+
+;;;;;;
+;;; constants
+
+(def constant +session-purge/time-interval+ 30)
+(def constant +session-purge/check-at-request-interval+ (if *load-as-production?* 100 1))
 
 (def constant +action-id-length+   8)
 (def constant +frame-id-length+    8)

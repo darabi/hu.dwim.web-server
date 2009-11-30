@@ -59,9 +59,10 @@
                                            (:file "variables")))
                              (:module "server"
                               :depends-on ("http")
-                              :components ((:file "api")
+                              :components ((:file "api" :depends-on ("conditions"))
                                            (:file "brokers" :depends-on ("server"))
                                            (:file "cgi" :depends-on ("brokers"))
+                                           (:file "conditions")
                                            (:file "file-serving" :depends-on ("variables"))
                                            (:file "js-serving" :depends-on ("js-util" "file-serving"))
                                            (:file "js-util" :depends-on ("variables"))

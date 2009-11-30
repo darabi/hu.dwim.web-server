@@ -6,8 +6,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def generic purge-frames (application session))
-
 (def (condition* e) frame-related-request-processing-error (request-processing-error)
   ((frame nil)))
 

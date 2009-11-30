@@ -9,18 +9,9 @@
 (def class* entry-point (broker)
   ())
 
-(def generic entry-point-equals-for-redefinition (a b)
-  (:method (a b)
-    #f)
-
-  (:method :around (a b)
-           (if (eql (class-of a) (class-of b))
-               (call-next-method)
-               #f))
-
+(def methods entry-point-equals-for-redefinition
   (:method ((a broker-with-path) (b broker-with-path))
     (string= (path-of a) (path-of b)))
-
   (:method ((a broker-with-path-prefix) (b broker-with-path-prefix))
     (string= (path-prefix-of a) (path-prefix-of b))))
 
@@ -155,11 +146,6 @@
                                                                         ,with-frame-logic   ,requires-valid-frame ,ensure-frame
                                                                         ,with-action-logic)))))
        (ensure-entry-point ,application ,entry-point))))
-
-(def (generic e) call-in-entry-point-environment (application session thunk)
-  (:method (application session thunk)
-    (bind ((*inside-user-code* #t))
-      (funcall thunk))))
 
 (def (definer e) file-serving-entry-point (application path-prefix root-directory &key priority)
   `(ensure-entry-point ,application (make-directory-serving-broker ,path-prefix ,root-directory :priority ,priority)))

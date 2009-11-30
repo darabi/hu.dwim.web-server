@@ -16,9 +16,11 @@
   :components ((:module "source"
                 :components ((:module "application"
                               :components ((:file "action" :depends-on ("variables" "application" "frame"))
+                                           (:file "api" :depends-on ("conditions"))
                                            (:file "application" :depends-on ("variables" "dojo" "session" "frame"))
-                                           (:file "dojo")
+                                           (:file "conditions")
+                                           (:file "dojo" :depends-on ("variables"))
                                            (:file "entry-point" :depends-on ("variables"))
                                            (:file "frame" :depends-on ("variables" "session"))
                                            (:file "session" :depends-on ("variables"))
-                                           (:file "variables")))))))
+                                           (:file "variables" :depends-on ("api"))))))))

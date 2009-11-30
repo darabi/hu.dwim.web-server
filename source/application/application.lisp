@@ -6,33 +6,9 @@
 
 (in-package :hu.dwim.wui)
 
-(def constant +session-purge/time-interval+ 30)
-(def constant +session-purge/check-at-request-interval+ (if *load-as-production?* 100 1))
-
-(def (generic e) make-new-session (application))
-(def (generic e) make-new-frame (application session))
-(def (generic e) register-session (application session))
-(def (generic e) register-frame (application session frame))
-(def (generic e) delete-session (application session))
-(def (generic e) purge-sessions (application)
-  (:method :around (application)
-    (with-thread-name " / PURGE-SESSIONS"
-      (call-next-method))))
-
-(def (special-variable e) *maximum-sessions-per-application-count* most-positive-fixnum
-  "The default for the same slot in applications.")
-
-(def (special-variable e) *default-session-timeout* (* 30 60)
-  "The default for the same slot in applications.")
-
-(def (special-variable e) *default-frame-timeout* *default-session-timeout*
-  "The default for the same slot in applications.")
-
-(def (special-variable e) *default-ajax-enabled* #t
-  "The default for the same slot in applications.")
-
-(def (special-variable e) *default-compile-time-debug-client-side* #f
-  "The default for the same slot in applications.")
+(def method purge-sessions (application)
+  (with-thread-name " / PURGE-SESSIONS"
+    (call-next-method)))
 
 (def localization-loader-callback wui-resource-loader/application :hu.dwim.wui "localization/application/" :log-discriminator "WUI")
 
@@ -155,25 +131,6 @@
                        :name (format-symbol :hu.dwim.wui "~A-SESSION-FOR-~A"
                                             (class-name (class-of -self-))
                                             (string-upcase path-prefix)))))
-
-(def (generic e) call-in-application-environment (application session thunk)
-  (:documentation "Everything related to an application goes through this method, so it can be used to set up wrappers like WITH-TRANSACTION. The SESSION argument may or may not be a valid session.")
-  (:method (application session thunk)
-    (app.dribble "CALL-IN-APPLICATION-ENVIRONMENT is calling the thunk")
-    (funcall thunk)))
-
-(def (generic e) call-in-post-action-environment (application session frame thunk)
-  (:documentation "This call wraps entry points and rendering, but does not wrap actions. The SESSION argument may or may not be a valid session.")
-  (:method (application session frame thunk)
-    (app.dribble "CALL-IN-POST-ACTION-ENVIRONMENT is calling the thunk")
-    (funcall thunk)))
-
-(def (generic e) call-action (application session frame action)
-  (:method (application session frame (action function))
-    (funcall action))
-  (:method :around (application session frame action)
-    (bind ((*inside-user-code* #t))
-      (call-next-method))))
 
 (def (with-macro* eo) with-session-logic (&key ensure-session (requires-valid-session #t) (lock-session #t))
   (assert (and (boundp '*application*)
@@ -337,45 +294,28 @@
               (frame-not-found-error)
               (call-body))))))
 
-(def type session-invalidity-reason ()
-  `(member :nonexistent :timed-out :invalidated))
+(def method handle-request-to-invalid-session ((application application) session invalidity-reason)
+  (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is sending a redirect response to ~A" application)
+  (make-redirect-response-for-current-application))
 
-(def (generic e) handle-request-to-invalid-session (application session invalidity-reason)
-  (:method :before ((application application) session invalidity-reason)
-    (check-type invalidity-reason session-invalidity-reason)
-    (check-type session (or null session)))
-  (:method ((application application) session invalidity-reason)
-    (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is sending a redirect response to ~A" application)
-    (make-redirect-response-for-current-application)))
+(def method handle-request-to-invalid-frame ((application application) session frame invalidity-reason)
+  (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speeking, invalidity-reason is ~S" invalidity-reason)
+  (if (eq invalidity-reason :out-of-sync)
+      (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
+             (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))
+             (args (list refresh-href new-frame-href)))
+        (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
+        (emit-simple-html-document-http-response (:status +http-not-acceptable+
+                                                          :headers '#.+disallow-response-caching-header-values+)
+          (apply-localization-function 'render-frame-out-of-sync-error args))
+        (make-do-nothing-response))
+      (progn
+        (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
+        (make-redirect-response-for-current-application))))
 
-(def type frame-invalidity-reason ()
-  `(member :nonexistent :timed-out :invalidated :out-of-sync))
-
-(def (generic e) handle-request-to-invalid-frame (application session frame invalidity-reason)
-  (:method :before ((application application) session frame invalidity-reason)
-    (check-type invalidity-reason frame-invalidity-reason)
-    (check-type frame (or null frame)))
-  (:method ((application application) session frame invalidity-reason)
-    (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speeking, invalidity-reason is ~S" invalidity-reason)
-    (if (eq invalidity-reason :out-of-sync)
-        (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
-               (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))
-               (args (list refresh-href new-frame-href)))
-          (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
-          (emit-simple-html-document-http-response (:status +http-not-acceptable+
-                                                    :headers '#.+disallow-response-caching-header-values+)
-            (apply-localization-function 'render-frame-out-of-sync-error args))
-          (make-do-nothing-response))
-        (progn
-          (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
-          (make-redirect-response-for-current-application)))))
-
-(def (generic e) handle-request-to-invalid-action (application session frame action invalidity-reason)
-  (:method ((application application) session frame action invalidity-reason)
-    (declare (type (member :nonexistent :timed-out :invalidated) invalidity-reason)
-             (type (or null action) action))
-    (app.debug "Default HANDLE-REQUEST-TO-INVALID-ACTION is sending a redirect response to ~A" application)
-    (make-redirect-response-for-current-application)))
+(def method handle-request-to-invalid-action ((application application) session frame action invalidity-reason)
+  (app.debug "Default HANDLE-REQUEST-TO-INVALID-ACTION is sending a redirect response to ~A" application)
+  (make-redirect-response-for-current-application))
 
 (def (function e) invoke-delete-current-frame-restart ()
   (invoke-restart (find-restart 'delete-current-frame)))
@@ -434,14 +374,6 @@
               (close-response response))
             ;; TODO why not unwinding from here instead of make-do-nothing-response?
             (make-do-nothing-response)))))))
-
-(def (generic e) session-class (application)
-  (:documentation "Returns a list of the session mixin classes.
-
-Custom implementations should look something like this:
-\(def method session-class list \(\(app your-application))
-  'your-session-mixin)")
-  (:method-combination list))
 
 (def method session-class list ((application application))
   'session)
