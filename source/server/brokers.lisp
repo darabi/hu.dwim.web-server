@@ -24,7 +24,7 @@
       (close-response response))
     (values-list result)))
 
-(def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise [make-no-handler-response]))
+(def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise [make-not-found-response]))
   (bind ((answering-broker nil)
          (results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)

@@ -32,7 +32,7 @@
    ;; TODO (files-only #f)
    (file-path->cache-entry (make-hash-table :test 'equal))
    (path-does-not-exists-response-factory (lambda (&key &allow-other-keys)
-                                            (make-no-handler-response)))))
+                                            (make-not-found-response)))))
 
 (def (function e) make-directory-serving-broker (path-prefix root-directory &key priority)
   (make-instance 'directory-serving-broker :path-prefix path-prefix :root-directory root-directory :priority priority))

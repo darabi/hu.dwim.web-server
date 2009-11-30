@@ -443,17 +443,17 @@
 
 
 ;;;;;;
-;;; No handler response
+;;; Not found response
 
-(def class* no-handler-response (primitive-response)
+(def class* not-found-response (primitive-response)
   ())
 
-(def (function e) make-no-handler-response ()
+(def (function e) make-not-found-response ()
   (aprog1
-      (make-instance 'no-handler-response)
+      (make-instance 'not-found-response)
     (setf (header-value it +header/status+) +http-not-found+)))
 
-(def method send-response ((self no-handler-response))
+(def method send-response ((self not-found-response))
   (emit-simple-html-document-http-response (:title "Page not found"
                                             :headers (headers-of self)
                                             :cookies (cookies-of self))
