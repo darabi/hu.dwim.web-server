@@ -445,7 +445,7 @@
 ;;;;;;
 ;;; No handler response
 
-(def class* no-handler-response (response)
+(def class* no-handler-response (primitive-response)
   ())
 
 (def (function e) make-no-handler-response ()
