@@ -202,6 +202,8 @@
 (def (component e) html/maker (html/presentation primitive/maker)
   ())
 
+(def subtype-mapper *maker-type-mapping* (or null html) html/maker)
+
 (def render-xhtml html/maker
   (render-html-component -self-))
 
