@@ -657,12 +657,12 @@
       (setf (gethash (funcall key element) set) element))))
 
 ;;;;;;
-;;; KLUDGE: Local time
+;;; KLUDGE: Local time. FIXME there's something very similar in perec... that one is better, but wui doesn't depend on perec...
 
 (eval-always
   (shadow 'common-lisp:time :local-time))
-
 (eval-always
+  (shadowing-import 'local-time::time :hu.dwim.wui)
   (export '(local-time::time local-time::date) :local-time))
 
 (def function local-time::valid-time-p (timestamp)
