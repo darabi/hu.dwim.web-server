@@ -9,6 +9,10 @@
 ;;;;;;
 ;;; Persistent processs
 
+(export '(hu.dwim.meta-model::show-maybe hu.dwim.meta-model::show-to-subject
+          hu.dwim.meta-model::show-to-current-effective-subject hu.dwim.meta-model::show-to-subjects-matching-expression)
+        :hu.dwim.meta-model)
+
 (def (component e) persistent-process-component (standard-process-component)
   ((process)))
 
