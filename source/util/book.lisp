@@ -26,7 +26,7 @@
 (def class* hyperlink (text)
   ((uri :type (or string uri))))
 
-(def (macro e) link (uri &optional text)
+(def (macro e) hyperlink (uri &optional text)
   `(make-instance 'hyperlink :uri (parse-uri ,uri) :contents ,text))
 
 ;;;;;;
