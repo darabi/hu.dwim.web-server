@@ -12,9 +12,9 @@
   :class hu.dwim.test-system
   :package-name :hu.dwim.wui.test
   :depends-on (:drakma
+               :hu.dwim.stefil+hu.dwim.def+swank
                :hu.dwim.wui.http
-               :hu.dwim.wui+swank
-               :hu.dwim.util.test)
+               :hu.dwim.wui+swank)
   :components ((:module "test"
                 :components ((:file "package")
                              (:file "environment" :depends-on ("package"))

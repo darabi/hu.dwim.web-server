@@ -10,8 +10,4 @@
 
 (defsystem :hu.dwim.wui.test
   :class hu.dwim.test-system
-  :author ("Attila Lendvai <attila.lendvai@gmail.com>"
-           "Levente Mészáros <levente.meszaros@gmail.com>"
-           "Tamás Borbély <tomi.borbely@gmail.com>")
-  :licence "BSD / Public domain (sans advertising clause)"
   :depends-on (:hu.dwim.wui.component.test))

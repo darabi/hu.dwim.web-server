@@ -10,8 +10,8 @@
 
 (defsystem :hu.dwim.wui.application
   :class hu.dwim.system
-  :description "Application logic (sessions, etc) based on :hu.dwim.wui.http"
-  :long-description "Provides application, session, frame, action and entry point abstractions over the simple :hu.dwim.wui.http infrastrucutre."
+  :description "Application logic (sessions, etc) based on hu.dwim.wui.http."
+  :long-description "Provides application, session, frame, action and entry point abstractions over the simple hu.dwim.wui.http infrastrucutre."
   :depends-on (:hu.dwim.wui.http)
   :components ((:module "source"
                 :components ((:module "application"
