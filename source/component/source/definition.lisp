@@ -16,6 +16,7 @@
 
 (def layered-method make-alternatives ((component definition/inspector) (class standard-class) (prototype definition) (value definition))
   (list* (delay-alternative-component-with-initargs 'definition/lisp-form/inspector :component-value value)
+         (delay-alternative-component-with-initargs 'definition/documentation/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;
@@ -59,6 +60,15 @@
 
   (:method ((component definition/lisp-form/inspector) class prototype (value class-definition))
     (make-instance 'class/lisp-form/inspector :component-value (find-class (name-of value)))))
+
+;;;;;;
+;;; definition/documentation/inspector
+
+(def (component e) definition/documentation/inspector (t/documentation/inspector)
+  ())
+
+(def method make-documentation ((component definition/documentation/inspector) (class standard-class) (prototype definition) (value definition))
+  (documentation-of value))
 
 ;;;;;;
 ;;; t/filter

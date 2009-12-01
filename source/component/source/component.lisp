@@ -16,6 +16,7 @@
 
 (def layered-method make-alternatives ((component component/inspector) (class component-class) (prototype component) (value component))
   (list* (delay-alternative-component-with-initargs 'component/render-xhtml-output/inspector :component-value value)
+         (delay-alternative-component-with-initargs 'component/documentation/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

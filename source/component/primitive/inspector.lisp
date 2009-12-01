@@ -10,7 +10,8 @@
 ;;; primitive/inspector
 
 (def (component e) primitive/inspector (primitive/presentation inspector/abstract)
-  ())
+  ()
+  (:documentation "A PRIMITIVE/INSPECTOR displays or edits existing values of primitive TYPEs."))
 
 (def render-xhtml :before primitive/inspector
   (when (edited-component? -self-)

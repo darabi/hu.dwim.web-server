@@ -28,7 +28,7 @@
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Component" :tooltip "Live demo component internal state inspector"))
                       (make-value-inspector component :initial-alternative-type 't/name-value-list/inspector))
                     (tab-page/widget (:selector (icon switch-to-tab-page :label "Documentation" :tooltip "Component class documentation"))
-                      (make-value-inspector (component-documentation component) :initial-alternative-type 't/text/inspector))))))
+                      (make-value-inspector component :initial-alternative-type 't/documentation/inspector))))))
 
 (def render-xhtml lisp-form/component-demo/inspector
   (with-render-style/abstract (-self-)

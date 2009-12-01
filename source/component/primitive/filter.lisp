@@ -10,7 +10,8 @@
 ;;; primitive/filter
 
 (def (component e) primitive/filter (primitive/presentation filter/abstract)
-  ())
+  ()
+  (:documentation "A PRIMITIVE/FILTER filters the set of existing values of a primitive TYPE based on a filter criteria provided by the user."))
 
 (def render-xhtml :before primitive/filter
   (ensure-client-state-sink -self-))

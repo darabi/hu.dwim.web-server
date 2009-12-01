@@ -77,8 +77,9 @@
   (bind (((:slots content component-value) -self-))
     (setf content (make-documentation -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value))))
 
-(def render-xhtml t/documentation/inspector
-  <pre ,(render-content-for -self-)>)
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
+  (def render-xhtml t/documentation/inspector
+    <pre ,(render-content-for -self-)>)}
 
 (def generic make-documentation (component class prototype value)
   (:method :around (component class prototype value)
@@ -87,7 +88,6 @@
 
   (:method ((component t/documentation/inspector) class prototype value)
     (documentation value t)))
-
 
 ;;;;;;
 ;;; t/name-value-list/inspector

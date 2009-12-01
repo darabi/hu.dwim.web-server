@@ -94,7 +94,9 @@
 
 (def function make-immediates-node ()
   (node/widget (:expanded #f)
-      "Immediate"
+      (replace-target-place/widget ()
+          "Immediate"
+        (make-value-viewer (first (make-definitions 'component/immediate))))
     (component-demo/widget "Number"
       42)
     (component-demo/widget "String"
@@ -525,11 +527,13 @@
     (make-primitive-filters-node)))
 
 ;; NOTE: all this hassle is to have a reasonable code shown by component-demo/widget
-(def macro make-primitive-presentations-node (name factory)
+(def macro make-primitive-presentations-node (name factory supercomponent)
   (flet ((make (type value)
            `(,factory ',type :value ,value)))
     `(node/widget (:expanded #f)
-         ,name
+         (replace-target-place/widget ()
+             ,name
+           (make-value-inspector (find-class ',supercomponent)))
        (component-demo/widget "Null"
          ,(make 'null nil))
        (component-demo/widget "Boolean"
@@ -576,19 +580,19 @@
          ,(make 'file (system-relative-pathname :hu.dwim.wui "test/component.lisp"))))))
 
 (def function make-primitive-makers-node ()
-  (make-primitive-presentations-node "Maker" make-maker))
+  (make-primitive-presentations-node "Maker" make-maker primitive/maker))
 
 (def function make-primitive-viewers-node ()
-  (make-primitive-presentations-node "Viewer" make-viewer))
+  (make-primitive-presentations-node "Viewer" make-viewer primitive/viewer))
 
 (def function make-primitive-editors-node ()
-  (make-primitive-presentations-node "Editor" make-editor))
+  (make-primitive-presentations-node "Editor" make-editor primitive/editor))
 
 (def function make-primitive-inspectors-node ()
-  (make-primitive-presentations-node "Inspector" make-inspector))
+  (make-primitive-presentations-node "Inspector" make-inspector primitive/inspector))
 
 (def function make-primitive-filters-node ()
-  (make-primitive-presentations-node "Filter" make-filter))
+  (make-primitive-presentations-node "Filter" make-filter primitive/inspector))
 
 ;;;;;;
 ;;; Place

@@ -27,9 +27,13 @@
 ;;;;;;
 ;;; Component
 
+(def (type e) component/immediate ()
+  "Some primitive TYPEs are considered to be a COMPONENT."
+  '(or number string))
+
 (def (type e) component* ()
-  "The generic COMPONENT type, including supported primitive COMPONENT types: NUMBER and STRING."
-  '(or number string component))
+  "The generic COMPONENT type, including supported primitive COMPONENT types."
+  '(or component/immediate component))
 
 (def (function e) component? (object)
   (typep object 'component*))
@@ -45,8 +49,7 @@
 
 (def (component e) component ()
   ()
-  (:documentation "
-COMPONENT is the base class for all COMPONENT-CLASSes. The primitive types STRING and NUMBER are also considered COMPONENTs.
+  (:documentation "COMPONENT is the base class for all COMPONENT-CLASSes. The primitive types STRING and NUMBER are also considered COMPONENTs.
 For debugging purposes NIL is not a valid COMPONENT.
 
 Naming convention for non instantiatable components:
@@ -67,9 +70,8 @@ Naming convention for some alternative components:
 */reference/* - subclasses of reference/abstract
 */detail/*    - subclasses of detail/abstract
 
-Components are created by either using the component specific factory macros, makers or by calling generic factory methods
-such as make-instance, make-maker, make-viewer, make-editor, make-inspector, make-filter, make-finder and make-selector.
-"))
+Components are created by either using the component specific macros, maker functions or by calling generic factory functions
+such as make-instance, make-maker, make-viewer, make-editor, make-inspector, make-filter, make-finder and make-selector."))
 
 ;;;;;;
 ;;; component/minimal
