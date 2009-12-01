@@ -18,9 +18,9 @@
                :cffi
                :cl-fad
                :hu.dwim.common
+               :hu.dwim.computed-class+hu.dwim.defclass-star
                :hu.dwim.def+cl-l10n
                :hu.dwim.def+contextl
-               :hu.dwim.def.namespace
                :hu.dwim.defclass-star+hu.dwim.computed-class
                :hu.dwim.delico
                :hu.dwim.logger
