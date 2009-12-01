@@ -121,53 +121,6 @@
                (member element '(or null)))
              type))
 
-(def function type-instance-count-upper-bound (type)
-  (etypecase type
-    (symbol
-     (case type
-       ((nil) 0)
-       (null 1)))
-    (cons
-     (case (first type)
-       (eql 1)
-       (member
-        (1- (length type)))
-       (integer
-        (when (length= type 3)
-          (1+ (- (third type) (second type)))))
-       (not nil)
-       (or
-        (iter (for element :in (cdr type))
-              (aif (type-instance-count-upper-bound element)
-                   (summing it)
-                   (return nil))))
-       (and
-        (iter (for element :in (cdr type))
-              (awhen (type-instance-count-upper-bound element)
-                (minimizing it))))))))
-
-(def function type-instance-list (type)
-  ;; TODO: sort the result with some natural sort
-  (etypecase type
-    (symbol
-     (case type
-       ((nil) nil)
-       (null '(nil))))
-    (cons
-     (case (first type)
-       (eql
-        (second type))
-       (member
-        (cdr type))
-       (integer
-        (iter (for i :from (second type) :to (third type))
-              (collect i)))
-       (not nil)
-       (or
-        (reduce 'union (cdr type) :key 'type-instance-list))
-       (and
-        (reduce 'intersection (cddr type) :key 'type-instance-list :initial-value (type-instance-list (second type))))))))
-
 (def function html-text? (instance)
   (declare (ignore instance))
   #t)

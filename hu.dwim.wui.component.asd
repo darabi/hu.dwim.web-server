@@ -20,7 +20,6 @@
                                            (:file "csv")
                                            (:file "definition")
                                            (:file "dictionary")
-                                           (:file "linear-mapping")
                                            #+sbcl(:file "object-size")
                                            (:file "place")
                                            (:file "project")))
