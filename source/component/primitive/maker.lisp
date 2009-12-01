@@ -202,12 +202,10 @@
 (def (component e) html/maker (html/presentation primitive/maker)
   ())
 
-(def subtype-mapper *maker-type-mapping* (or null html) html/maker)
+(def subtype-mapper *maker-type-mapping* (or null html-text) html/maker)
 
 (def render-xhtml html/maker
   (render-html-component -self-))
-
-(def subtype-mapper *filter-type-mapping* (or null html) html/maker)
 
 ;;;;;;
 ;;; inet-address/maker

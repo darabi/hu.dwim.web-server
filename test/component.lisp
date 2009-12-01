@@ -571,7 +571,7 @@
        (component-demo/widget "Member"
          ,(make '(member John Mary Steve Kate) ''John))
        (component-demo/widget "HTML"
-         ,(make 'html "John <b>Mary</b> <h2>Steve</h2> <i>Kate</i>"))
+         ,(make 'html-text "John <b>Mary</b> <h2>Steve</h2> <i>Kate</i>"))
        (component-demo/widget "IP address"
          ,(make 'iolib.sockets:inet-address (make-instance 'iolib.sockets::ipv4-address :name #(127 0 0 1))))
        ;; TODO: what is this type supposed to be? a slot type for a download/upload widget...

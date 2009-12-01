@@ -168,15 +168,15 @@
        (and
         (reduce 'intersection (cddr type) :key 'type-instance-list :initial-value (type-instance-list (second type))))))))
 
-(def function html? (instance)
+(def function html-text? (instance)
   (declare (ignore instance))
   #t)
 
-(def (type e) html (&optional maximum-length)
+(def (type e) html-text (&optional maximum-length)
   "Formatted text that may contain various fonts, styles and colors as in XHTML."
   (declare (ignore maximum-length))
   `(and string
-        (satisfies html?)))
+        (satisfies html-text?)))
 
 (def function password? (instance)
   (declare (ignore instance))

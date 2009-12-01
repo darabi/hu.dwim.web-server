@@ -222,7 +222,7 @@
 (def (component e) html/filter (html/presentation string/filter)
   ())
 
-(def subtype-mapper *filter-type-mapping* (or null html) html/filter)
+(def subtype-mapper *filter-type-mapping* (or null html-text) html/filter)
 
 ;;;;;;
 ;;; inet-address/filter

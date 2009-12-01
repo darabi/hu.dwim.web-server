@@ -263,7 +263,7 @@
 (def (component e) html/inspector (html/presentation primitive/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null html) html/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null html-text) html/inspector)
 
 (def render-xhtml html/inspector
   (if (edited-component? -self-)
