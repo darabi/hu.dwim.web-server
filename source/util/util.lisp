@@ -661,8 +661,9 @@
 
 (eval-always
   (shadow 'common-lisp:time :local-time))
+
 (eval-always
-  (shadowing-import 'local-time::time :hu.dwim.wui)
+  (shadowing-import '(local-time::time local-time::date) :hu.dwim.wui)
   (export '(local-time::time local-time::date) :local-time))
 
 (def function local-time::valid-time-p (timestamp)
