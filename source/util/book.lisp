@@ -23,6 +23,12 @@
 (def class* text ()
   ((contents nil :type list)))
 
+(def class* hyperlink (text)
+  ((uri :type (or string uri))))
+
+(def (macro e) link (uri &optional text)
+  `(make-instance 'hyperlink :uri (parse-uri ,uri) :contents ,text))
+
 ;;;;;;
 ;;; Title mixin
 
