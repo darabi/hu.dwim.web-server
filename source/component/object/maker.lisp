@@ -56,3 +56,33 @@ Optimized factory configuration (default):
 
 (def (component e) t/reference/maker (maker/basic t/reference/presentation)
   ())
+
+;;;;;;
+;;; t/detail/maker
+
+(def (component e) t/detail/maker (maker/abstract t/detail/presentation)
+  ())
+
+;;;;;;
+;;; t/name-value-list/maker
+
+(def (component e) t/name-value-list/maker (maker/basic t/name-value-list/presentation)
+  ())
+
+;;;;;;
+;;; place-group-list/name-value-list/maker
+
+(def (component e) place-group-list/name-value-list/maker (maker/basic place-group-list/name-value-list/presentation)
+  ())
+
+;;;;;;
+;;; place-group/name-value-group/maker
+
+(def (component e) place-group/name-value-group/maker (maker/basic place-group/name-value-group/presentation)
+  ())
+
+;;;;;;
+;;; place/name-value-pair/maker
+
+(def (component e) place/name-value-pair/maker (maker/basic place/name-value-pair/presentation)
+  ())

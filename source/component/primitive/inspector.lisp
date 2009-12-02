@@ -83,7 +83,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null bit) bit/inspector)
 
 (def render-xhtml bit/inspector
-    (render-boolean-component -self- :component-value-transformer [not (zerop !1)]))
+  (render-boolean-component -self- :component-value-transformer [not (zerop !1)]))
 
 ;;;;;;
 ;;; character/inspector
