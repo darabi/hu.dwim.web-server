@@ -10,7 +10,17 @@
 ;;; finder/abstract
 
 (def (component e) finder/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "A FINDER/ABSTRACT searches for a particular existing value of TYPE based on a filter criteria provided by the user.
+  - similar to (select-instance ...)
+  - static input
+    - value-type: type
+  - volatile input
+    - all-values: sequence of type (implicit)
+    - selected-type: type (selected-type is a subtype of value-type)
+    - value: selected-type
+  - output
+    - value: selected-type"))
 
 ;;;;;;
 ;;; finder/minimal

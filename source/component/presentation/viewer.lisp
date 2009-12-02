@@ -10,7 +10,15 @@
 ;;; viewer/abstract
 
 (def (component e) viewer/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "An VIEWER/ABSTRACT displays existing values of a TYPE.
+  - similar to #<LITERAL-OBJECT {100C204081}>
+  - static input
+    - value-type: type
+  - volatile input
+    - value: value-type
+  - output
+    - value: value-type"))
 
 ;;;;;;
 ;;; viewer/minimal

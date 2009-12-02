@@ -10,7 +10,17 @@
 ;;; selector/abstract
 
 (def (component e) selector/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "A SELECTOR/ABSTRACT displays all existing values of TYPE at once to select exactly one VALUE of them.
+  - similar to (elt ...)
+  - static input
+    - value-type: type
+  - volatile input
+    - all-values: sequence of type (implicit)
+    - selected-type: type (selected-type is a subtype of value-type)
+    - value: value-type
+  - output
+    - value: value-type"))
 
 ;;;;;;
 ;;; selector/minimal

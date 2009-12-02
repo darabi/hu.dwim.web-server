@@ -10,7 +10,17 @@
 ;;; evaluator/abstract
 
 (def (component e) evaluator/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "An EVALUATOR/ABSTRACT TODO:
+  - similar to an arbitrary form
+  - static input
+    - form: form
+    - free-variable-types: list of types
+    - return-type: type
+  - volatile input
+    - free-variable-values: list of
+  - output
+    - value: return-type"))
 
 ;;;;;;
 ;;; evaluator/minimal

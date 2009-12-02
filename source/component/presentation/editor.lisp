@@ -10,7 +10,16 @@
 ;;; editor/abstract
 
 (def (component e) editor/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "An VIEWER/ABSTRACT edits existing values of a TYPE.
+  - similar to (reinitialize-instance ...)
+  - static input
+    - value-type: type
+  - volatile input
+    - selected-type: type (selected-type is a subtype of value-type)
+    - value: selected-type
+  - output
+    - value: selected-type"))
 
 ;;;;;;
 ;;; editor/minimal

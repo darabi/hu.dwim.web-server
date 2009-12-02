@@ -53,7 +53,7 @@
 
 (def render-component t/filter
   <div ,(call-next-method)
-       ,(render-component (result-of -self-))>)
+    ,(render-component (result-of -self-))>)
 
 (def method component-dispatch-class ((self t/filter))
   (or (find-class-for-type (component-value-of self))

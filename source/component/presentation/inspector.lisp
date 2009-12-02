@@ -10,7 +10,16 @@
 ;;; inspector/abstract
 
 (def (component e) inspector/abstract (presentation/abstract editable/mixin)
-  ())
+  ()
+  (:documentation "An INSPECTOR/ABSTRACT displays or edits existing values of a TYPE. An inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes.
+  - similar to either #<LITERAL-OBJECT {100C204081}> or (reinitialize-instance ...)
+  - static input
+    - value-type: type
+  - volatile input
+    - selected-type: type (selected-type is a subtype of value-type)
+    - value: selected-type
+  - output
+    - value: selected-type"))
 
 ;;;;;;
 ;;; inspector/minimal
@@ -38,16 +47,6 @@
 
 ;;;;;;
 ;;; Inspector factory
-
-
-;;;;;;
-;;; TODO: steps to create an inspector
-;;;
-;;; 0. register all components based on the type they can inspect
-;;; 1. go through and collect all components registered with subtypep
-;;; 2. filter for those which are needed
-;;; 3. if there's only only one alternative use that
-;;; 4. find the most specific type that will be the default alternative and use an alternatork
 
 (def special-variable *inspector-type-mapping* (make-linear-type-mapping))
 

@@ -10,7 +10,17 @@
 ;;; invoker/abstract
 
 (def (component e) invoker/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "An INVOKER/ABSTRACT TODO:
+  - similar to (foo ...)
+  - static input
+    - function-names: list of symbols
+    - argument-types: list of types
+    - return-type: type
+  - volatile input
+    - argument-values: list of
+  - output
+    - value: return-type"))
 
 ;;;;;;
 ;;; invoker/minimal

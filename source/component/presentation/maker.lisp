@@ -10,7 +10,17 @@
 ;;; maker/abstract
 
 (def (component e) maker/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "A MAKER/ABSTRACT creates new values of a TYPE.
+  - similar to (make-instance ...)
+  - static input
+    - value-type: type
+  - volatile input
+    - selected-type: type (selected-type is a subtype of value-type)
+    - value: selected-type
+    - restrictions: (e.g. initargs)
+  - output
+    - value: selected-type"))
 
 ;;;;;;
 ;;; maker/minimal

@@ -10,7 +10,17 @@
 ;;; filter/abstract
 
 (def (component e) filter/abstract (presentation/abstract)
-  ())
+  ()
+  (:documentation "A FILTER/ABSTRACT searches for multiple existing values of TYPE based on a filter criteria provided by the user.
+  - similar to (select-instance ...)
+  - static input
+    - value-type: type
+  - volatile input
+    - all-values: sequence of type (implicit)
+    - selected-type: type (selected-type is a subtype of value-type)
+    - value: selected-type
+  - output
+    - value: selected-type"))
 
 ;;;;;;
 ;;; filter/minimal
