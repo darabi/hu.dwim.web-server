@@ -49,21 +49,21 @@
       (clrhash selected-component-set)
       (dolist (component new-value)
         (mark-to-be-rendered-component component)
-        (setf (gethash (hash-key-for component) selected-component-set) component))
+        (setf (gethash (hash-key component) selected-component-set) component))
       (invalidate-computed-slot self 'selected-component-set))))
 
 (def (generic e) selected-component? (selection-component selectable-component)
   (:method ((selection-component selection/mixin) (selectable-component selectable/mixin))
     (awhen (selected-component-set-of selection-component)
-      (gethash (hash-key-for selectable-component) it))))
+      (gethash (hash-key selectable-component) it))))
 
 (def (generic e) (setf selected-component?) (new-value selection-component selectable-component)
   (:method (new-value (selection-component selection/mixin) (selectable-component selectable/mixin))
     (bind ((selected-component-set (selected-component-set-of selection-component)))
       (mark-to-be-rendered-component selectable-component)
       (if new-value
-          (setf (gethash (hash-key-for selectable-component) selected-component-set) selectable-component)
-          (remhash (hash-key-for selectable-component) selected-component-set))
+          (setf (gethash (hash-key selectable-component) selected-component-set) selectable-component)
+          (remhash (hash-key selectable-component) selected-component-set))
       (invalidate-computed-slot selection-component 'selected-component-set))))
 
 (def (generic e) select-component (selectable-component class prototype value)

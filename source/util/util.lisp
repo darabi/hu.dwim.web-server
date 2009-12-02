@@ -232,10 +232,6 @@
           (make-array length :element-type '(unsigned-byte 8))
         (replace it vector :end2 length))))
 
-(def generic hash-key-for (instance)
-  (:method ((instance standard-object))
-    instance))
-
 (def function assert-file-exists (file)
   (assert (cl-fad:file-exists-p file))
   file)

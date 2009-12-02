@@ -11,9 +11,6 @@
       (hu.dwim.perec::load-instance instance)
       (call-next-method)))
 
-(def method hash-key-for ((instance hu.dwim.perec::persistent-object))
-  (hu.dwim.perec::oid-of instance))
-
 (def layered-method make-expand-command :around ((component inspector/abstract) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) (instance hu.dwim.perec::persistent-object))
   (when (hu.dwim.meta-model::authorize-operation 'expand-instance-operation :-entity- class)
     (call-next-method)))
