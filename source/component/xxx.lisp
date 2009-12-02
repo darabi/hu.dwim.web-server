@@ -99,8 +99,8 @@
 (def (icon e) revert-editing)
 
 (def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
-  (optional-list* (make-menu-item (icon menu :label "Edit")
-                                  (make-editing-commands component class prototype instance))
+  (optional-list* (awhen (make-editing-commands component class prototype instance)
+                    (make-menu-item (icon menu :label "Edit") it))
                   (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
@@ -149,12 +149,13 @@
         (revert-editing component)))))
 
 (def layered-method make-editing-commands ((component editable/mixin) class prototype instance)
-  (if (editable-component? component)
-      (list (make-begin-editing-command component class prototype instance)
-            (make-save-editing-command component class prototype instance)
-            (make-cancel-editing-command component class prototype instance))
-      (list (make-store-editing-command component class prototype instance)
-            (make-revert-editing-command component class prototype instance))))
+  (cond ((editable-component? component)
+         (list (make-begin-editing-command component class prototype instance)
+               (make-save-editing-command component class prototype instance)
+               (make-cancel-editing-command component class prototype instance)))
+        ((edited-component? component)
+         (list (make-store-editing-command component class prototype instance)
+               (make-revert-editing-command component class prototype instance)))))
 
 (def layered-method make-refresh-component-command ((component editable/mixin) class prototype instance)
   (command/widget (:visible (delay (not (edited-component? component)))
