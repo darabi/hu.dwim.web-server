@@ -34,7 +34,7 @@
    (maximum-sessions-count *maximum-sessions-per-application-count* :type integer)
    (session-id->session (make-hash-table :test 'equal) :type hash-table :export :accessor)
    (frame-root-component-factory 'default-frame-root-component-factory :type (or symbol function) :documentation "A funcallable with (body-content &key &allow-other-keys) lambda-list, which is invoked to make the toplevel components for new frames. By default calls MAKE-FRAME-COMPONENT-WITH-CONTENT.")
-   (administrator-email-address nil :type string)
+   (administrator-email-address nil :type (or null string))
    (lock)
    (running-in-test-mode #f :type boolean :accessor running-in-test-mode? :export :accessor)
    (compile-time-debug-client-side *default-compile-time-debug-client-side* :type boolean :accessor compile-time-debug-client-side? :export :accessor)
