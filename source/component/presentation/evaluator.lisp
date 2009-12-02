@@ -35,10 +35,3 @@
 
 (def (component e) evaluator/full (evaluator/style presentation/full)
   ())
-
-;;;;;;
-;;; Evaluator factory
-
-(def layered-method make-evaluator (type &rest args &key &allow-other-keys)
-  (declare (ignore type args))
-  (not-yet-implemented))

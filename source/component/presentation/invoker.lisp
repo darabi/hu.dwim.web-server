@@ -35,10 +35,3 @@
 
 (def (component e) invoker/full (invoker/style presentation/full)
   ())
-
-;;;;;;
-;;; Invoker factory
-
-(def layered-method make-invoker (type &rest args &key &allow-other-keys)
-  (declare (ignore type args))
-  (not-yet-implemented))
