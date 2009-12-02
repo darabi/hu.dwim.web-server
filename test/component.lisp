@@ -563,9 +563,12 @@
        (component-demo/widget "Complex"
          ,(make 'complex #C(42 -42)))
        (component-demo/widget "Date"
-         ,(make 'local-time:date (local-time:now)))
+         ,(make 'local-time:date (aprog1 (local-time:now)
+                                   (setf (local-time:nsec-of it) 0
+                                         (local-time:sec-of it) 0))))
        (component-demo/widget "Time"
-         ,(make 'local-time:time (local-time:now)))
+         ,(make 'local-time:time (aprog1 (local-time:now)
+                                   (setf (local-time:day-of it) 0))))
        (component-demo/widget "Timestamp"
          ,(make 'local-time:timestamp (local-time:now)))
        (component-demo/widget "Member"
@@ -592,7 +595,7 @@
   (make-primitive-presentations-node "Inspector" make-inspector primitive/inspector))
 
 (def function make-primitive-filters-node ()
-  (make-primitive-presentations-node "Filter" make-filter primitive/inspector))
+  (make-primitive-presentations-node "Filter" make-filter primitive/filter))
 
 ;;;;;;
 ;;; Place
@@ -611,11 +614,13 @@
     (make-place-filters-node)))
 
 ;; NOTE: all this hassle is to have a reasonable code shown by component-demo/widget
-(def macro make-place-presentations-node (name factory)
+(def macro make-place-presentations-node (name factory supercomponent)
   (flet ((make (place)
            `(,factory 'place :value ,place)))
     `(node/widget (:expanded #f)
-         ,name
+         (replace-target-place/widget ()
+             ,name
+           (make-value-inspector (find-class ',supercomponent)))
        (component-demo/widget "Special variable"
          ,(make '(make-special-variable-place '*person-name* :type 'string)))
        (component-demo/widget "Lexical variable"
@@ -637,19 +642,19 @@
          ,(make '(make-object-slot-place (make-instance 'action :id "George") 'hu.dwim.wui::id))))))
 
 (def function make-place-makers-node ()
-  (make-place-presentations-node "Maker" make-maker))
+  (make-place-presentations-node "Maker" make-maker place/maker))
 
 (def function make-place-viewers-node ()
-  (make-place-presentations-node "Viewer" make-viewer))
+  (make-place-presentations-node "Viewer" make-viewer place/viewer))
 
 (def function make-place-editors-node ()
-  (make-place-presentations-node "Editor" make-editor))
+  (make-place-presentations-node "Editor" make-editor place/editor))
 
 (def function make-place-inspectors-node ()
-  (make-place-presentations-node "Inspector" make-inspector))
+  (make-place-presentations-node "Inspector" make-inspector place/inspector))
 
 (def function make-place-filters-node ()
-  (make-place-presentations-node "Filter" make-filter))
+  (make-place-presentations-node "Filter" make-filter place/filter))
 
 ;;;;;;
 ;;; Object
@@ -665,125 +670,44 @@
     (make-object-inspectors-node)
     (make-object-filters-node)))
 
+(def macro make-object-presentations-node (name factory supercomponent)
+  (flet ((make (type value)
+           `(,factory ',type :value ,value)))
+    `(node/widget (:expanded #f)
+         (replace-target-place/widget ()
+             ,name
+           (make-value-inspector (find-class ',supercomponent)))
+       (component-demo/widget "Null"
+         ,(make '(or null standard-object) nil))
+       (component-demo/widget "Standard object"
+         ,(make 'standard-object '(make-instance 'standard-object)))
+       (component-demo/widget "Server"
+         ,(make 'server '*server*))
+       (component-demo/widget "Application"
+         ,(make 'application '*application*))
+       (component-demo/widget "Session"
+         ,(make 'session '*session*))
+       (component-demo/widget "Frame"
+         ,(make 'frame '*frame*))
+       (component-demo/widget "Request"
+         ,(make 'request '*request*))
+       (component-demo/widget "Response"
+         ,(make 'response '*response*)))))
+
 (def function make-object-makers-node ()
-  (node/widget (:expanded #f)
-      "Maker"
-    (component-demo/widget "Standard object"
-      (make-maker 'standard-object))
-    (component-demo/widget "Server"
-      (make-maker 'server))
-    (component-demo/widget "Application"
-      (make-maker 'application))
-    (component-demo/widget "Session"
-      (make-maker 'session))
-    (component-demo/widget "Frame"
-      (make-maker 'frame))
-    (component-demo/widget "Request"
-      (make-maker 'request))
-    (component-demo/widget "Response"
-      (make-maker 'response))))
+  (make-object-presentations-node "Maker" make-maker t/maker))
 
 (def function make-object-viewers-node ()
-  (node/widget (:expanded #f)
-      "Viewer"
-    (node/widget (:expanded #f)
-        "By type"
-      (component-demo/widget "Null or Standard object"
-        (make-viewer '(or null standard-object) :value nil))
-      (component-demo/widget "Standard object"
-        (make-viewer 'standard-object :value *server*))
-      (component-demo/widget "Server"
-        (make-viewer 'server :value *server*)))
-    (node/widget (:expanded #f)
-        "By value"
-      (component-demo/widget "Standard object"
-        (make-value-viewer (make-instance 'standard-object)))
-      (component-demo/widget "Server"
-        (make-value-viewer *server*))
-      (component-demo/widget "Application"
-        (make-value-viewer *application*))
-      (component-demo/widget "Session"
-        (make-value-viewer *session*))
-      (component-demo/widget "Frame"
-        (make-value-viewer *frame*))
-      (component-demo/widget "Request"
-        (make-value-viewer *request*))
-      (component-demo/widget "Response"
-        (make-value-viewer *response*)))))
+  (make-object-presentations-node "Viewer" make-viewer t/viewer))
 
 (def function make-object-editors-node ()
-  (node/widget (:expanded #f)
-      "Editor"
-    (node/widget (:expanded #f)
-        "By type"
-      (component-demo/widget "Null or Standard object"
-        (make-editor '(or null standard-object) nil))
-      (component-demo/widget "Standard object"
-        (make-editor 'standard-object *server*))
-      (component-demo/widget "Server"
-        (make-editor 'server *server*)))
-    (node/widget (:expanded #f)
-        "By value"
-      (component-demo/widget "Standard object"
-        (make-value-editor (make-instance 'standard-object)))
-      (component-demo/widget "Server"
-        (make-value-editor *server*))
-      (component-demo/widget "Application"
-        (make-value-editor *application*))
-      (component-demo/widget "Session"
-        (make-value-editor *session*))
-      (component-demo/widget "Frame"
-        (make-value-editor *frame*))
-      (component-demo/widget "Request"
-        (make-value-editor *request*))
-      (component-demo/widget "Response"
-        (make-value-editor *response*)))))
+  (make-object-presentations-node "Editor" make-editor t/editor))
 
 (def function make-object-inspectors-node ()
-  (node/widget (:expanded #f)
-      "Inspector"
-    (node/widget (:expanded #f)
-        "By type"
-      (component-demo/widget "Null or Standard object"
-        (make-inspector '(or null standard-object) nil))
-      (component-demo/widget "Standard object"
-        (make-inspector 'standard-object *server*))
-      (component-demo/widget "Server"
-        (make-inspector 'server *server*)))
-    (node/widget (:expanded #f)
-        "By value"
-      (component-demo/widget "Standard object"
-        (make-value-inspector (make-instance 'standard-object)))
-      (component-demo/widget "Server"
-        (make-value-inspector *server*))
-      (component-demo/widget "Application"
-        (make-value-inspector *application*))
-      (component-demo/widget "Session"
-        (make-value-inspector *session*))
-      (component-demo/widget "Frame"
-        (make-value-inspector *frame*))
-      (component-demo/widget "Request"
-        (make-value-inspector *request*))
-      (component-demo/widget "Response"
-        (make-value-inspector *response*)))))
+  (make-object-presentations-node "Inspector" make-inspector t/inspector))
 
 (def function make-object-filters-node ()
-  (node/widget (:expanded #f)
-        "Filter"
-      (component-demo/widget "Standard object"
-        (make-filter 'standard-object))
-      (component-demo/widget "Server"
-        (make-filter 'server))
-      (component-demo/widget "Application"
-        (make-filter 'application))
-      (component-demo/widget "Session"
-        (make-filter 'session))
-      (component-demo/widget "Frame"
-        (make-filter 'frame))
-      (component-demo/widget "Request"
-        (make-filter 'request))
-      (component-demo/widget "Response"
-        (make-filter 'response))))
+  (make-object-presentations-node "Filter" make-filter t/filter))
 
 ;;;;;;
 ;;; Sequence
