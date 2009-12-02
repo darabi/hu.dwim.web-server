@@ -11,7 +11,8 @@
 
 (def (component e) t/presentation (presentation/abstract alternator/widget)
   ((initial-alternative-type 't/detail/presentation)
-   (default-alternative-type 't/detail/presentation)))
+   (default-alternative-type 't/detail/presentation))
+  (:documentation "Presentation for all types."))
 
 (def layered-method refresh-component :before ((-self- t/presentation))
   ;; TODO: shall we rather expect a list of symbols here, because all make-alternatives just do a few make-instance calls with the component-value

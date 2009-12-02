@@ -10,7 +10,8 @@
 ;;; place/inspector
 
 (def (component e) place/inspector (t/inspector place/presentation)
-  ())
+  ()
+  (:documentation "An PLACE/INSPECTOR displays or edits existing values of a TYPE at a PLACE."))
 
 (def subtype-mapper *inspector-type-mapping* place place/inspector)
 

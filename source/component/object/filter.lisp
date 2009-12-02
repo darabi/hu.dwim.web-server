@@ -9,11 +9,10 @@
 ;;;;;;
 ;;; t/filter
 
-(def (component e) t/filter (filter/basic t/presentation)
-  ((result (empty/layout) :type component)
-   (result-component-factory #'make-filter-result-inspector :type function))
-  (:documentation "
-;; generic version (all components are available)
+(def (component e) t/filter (filter/basic t/presentation component-result/mixin)
+  ()
+  (:documentation "Generic factory configuration (all components are available):
+
 (t/filter                                         ; filter for something (alternator)
  (t/place-list/filter                             ; filter for a list of places of something
   (place-list/filter                              ; filter for a list of places (alternator)
@@ -33,7 +32,8 @@
         ...))
       ...))))))
 
-;; optimized version (default factory configuration)
+Optimized factory configuration (default):
+
 (t/filter                                         ; filter for something (alternator)
  (place-group-list/name-value-list/filter         ; filter for a list of place groups, display as a name value list
   (place-group/name-value-group/filter            ; filter for a group of places, display as a name value group

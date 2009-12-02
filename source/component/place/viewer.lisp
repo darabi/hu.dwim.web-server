@@ -10,4 +10,5 @@
 ;;; place/viewer
 
 (def (component e) place/viewer (t/viewer place/presentation)
-  ())
+  ()
+  (:documentation "An PLACE/VIEWER displays existing values of a TYPE at a PLACE."))

@@ -11,7 +11,7 @@
 
 (def (component e) editor/abstract (presentation/abstract)
   ()
-  (:documentation "An VIEWER/ABSTRACT edits existing values of a TYPE.
+  (:documentation "An EDITOR/ABSTRACT edits existing values of a TYPE.
   - similar to (reinitialize-instance ...)
   - static input
     - value-type: type

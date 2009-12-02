@@ -10,4 +10,5 @@
 ;;; place/editor
 
 (def (component e) place/editor (t/editor place/presentation)
-  ())
+  ()
+  (:documentation "An PLACE/EDITOR edits existing values of a TYPE at a PLACE."))

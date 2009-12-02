@@ -11,8 +11,8 @@
 
 (def (component e) t/inspector (inspector/basic t/presentation)
   ()
-  (:documentation "
-;; generic version (all components are available)
+  (:documentation "Generic factory version (all components are available):
+
 (t/inspector                                      ; inspect something (alternator)
  (t/place-list/inspector                          ; inspect a list of places of something
   (place-list/inspector                           ; inspect a list of places (alternator)
@@ -32,7 +32,8 @@
         ...))
       ...))))))
 
-;; optimized version (default factory configuration)
+Optimized factory configuration (default):
+
 (t/inspector                                      ; inspect something (alternator)
  (place-group-list/name-value-list/inspector      ; inspect a list of place groups, display as a name value list
   (place-group/name-value-group/inspector         ; inspect a group of places, display as a name value group
