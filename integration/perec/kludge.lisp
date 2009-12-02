@@ -99,7 +99,7 @@
   "Formatted text that may contain various fonts, styles and colors as in XHTML."
   (declare (ignore maximum-length))
   `(and text
-        (satisfies html-text?)))
+        (satisfies hu.dwim.wui::html-text?)))
 
 (defmapping hu.dwim.wui::html-text (if (consp normalized-type)
                                        (sql-character-varying-type :size (maximum-length-of (parse-type normalized-type)))
@@ -107,3 +107,5 @@
   ;; TODO do some sanity check for maximum-length when provided
   'identity-reader
   'identity-writer)
+
+(pushnew 'hu.dwim.wui::html-text hu.dwim.perec::*canonical-types*)
