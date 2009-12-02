@@ -271,7 +271,7 @@
                                (while (and stream-socket
                                            (not (shutdown-initiated-p server))))
                                ;; TODO until we have proper connection multiplexing, the sockets towards the clients should be blocking
-                               (setf (iolib.streams:fd-non-blocking stream-socket) #t)
+                               (setf (iolib.streams:fd-non-blocking stream-socket) #f)
                                ;; TODO is this a constant or depends on server network load?
                                (setf (iolib:socket-option stream-socket :receive-timeout) 15) 
                                (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
