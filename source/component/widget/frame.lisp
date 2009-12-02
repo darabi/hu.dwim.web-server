@@ -48,6 +48,7 @@
                     :href ,(append-file-write-date-to-uri (etypecase icon-uri
                                                             (string (string+ path-prefix icon-uri))
                                                             (uri (prefix-uri-path (clone-uri icon-uri) path-prefix)))
+                                                          +timestamp-parameter-name+
                                                           file-name))>))
         <title ,(title-of -self-)>
         ,(foreach (lambda (el)
@@ -57,6 +58,7 @@
                              :href ,(append-file-write-date-to-uri (etypecase stylesheet-uri
                                                                      (string (string+ path-prefix stylesheet-uri))
                                                                      (uri (prefix-uri-path (clone-uri stylesheet-uri) path-prefix)))
+                                                                   +timestamp-parameter-name+
                                                                    file-name))>))
                   (stylesheet-uris-of -self-))
         <script (:type #.+javascript-mime-type+)
@@ -78,7 +80,7 @@
         ,(foreach (lambda (el)
                     (bind (((script-uri &optional file-name) (ensure-list el)))
                       <script (:type         #.+javascript-mime-type+
-                               :src          ,(append-file-write-date-to-uri (string+ path-prefix script-uri) file-name))
+                               :src          ,(append-file-write-date-to-uri (string+ path-prefix script-uri) +timestamp-parameter-name+ file-name))
                               ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                               "">))
                   (script-uris-of -self-))>
