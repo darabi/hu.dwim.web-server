@@ -31,4 +31,4 @@
                  `xml," / ")
                (render-component content))>)
 
-(def (generic e) make-path/content (component class prototype value))
+(def (layered-function e) make-path/content (component class prototype value))
