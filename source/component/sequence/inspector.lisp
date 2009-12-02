@@ -130,11 +130,11 @@
                                :component-value "BLAH" ;; TODO:
                                :header (localized-slot-name (cdr slot-name->slot))
                                :cell-factory (lambda (row-component)
-                                               (bind ((slot (find-slot (class-of (component-value-of row-component)) (car slot-name->slot))))
+                                               (bind ((slot (find-slot (class-of (component-value-of row-component)) (car slot-name->slot)
+                                                                       :otherwise nil)))
                                                  (if slot
                                                      (make-instance 'place/cell/inspector
-                                                                    :component-value (make-object-slot-place (component-value-of row-component) slot)
-                                                                    :content "FOOOO")
+                                                                    :component-value (make-object-slot-place (component-value-of row-component) slot))
                                                      (empty/layout/singleton))))))
               (nreverse slot-name->slot-map)))))
 
