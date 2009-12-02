@@ -26,7 +26,7 @@
 
 (def refresh-component source-file/lisp-form-list/inspector
   (bind (((:slots component-value content) -self-))
-    (setf content (make-instance 't/lisp-form/inspector :component-value (read-lisp-source (asdf:component-pathname component-value))))))
+    (setf content (make-instance 't/lisp-form/inspector :component-value (read-file-into-string (asdf:component-pathname component-value))))))
 
 ;;;;;;
 ;;; t/filter

@@ -69,7 +69,7 @@
 
 (def refresh-component pathname/lisp-file/inspector
   (bind (((:slots component-value content) -self-))
-    (setf content (make-instance 't/lisp-form/inspector :component-value (read-lisp-source component-value)))))
+    (setf content (make-instance 't/lisp-form/inspector :component-value (read-file-into-string component-value)))))
 
 ;;;;;;
 ;;; pathname/directory-tree/inspector

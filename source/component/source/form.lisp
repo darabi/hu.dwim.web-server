@@ -225,10 +225,6 @@
 ;;;;;;
 ;;; Read source
 
-(def function read-lisp-source (pathname)
-  (string-trim (coerce '(#\Newline #\Space) 'simple-string)
-               (read-file-into-string pathname)))
-
 #+sbcl
 (def function read-definition-lisp-source (definition)
   (read-definition-source-lisp-source (sb-introspect:find-definition-source definition) definition))
