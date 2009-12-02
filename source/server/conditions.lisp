@@ -12,5 +12,5 @@
    (lambda (error stream)
      (format stream "Broker recursion limit reached while calling brokers. Broker path: ~A~%" (brokers-of error)))))
 
-(def function broker-recursion-limit-reached (&optional (brokers *brokers*))
-  (error 'broker-recursion-limit-reached :request *request* :brokers brokers))
+(def function broker-recursion-limit-reached (request brokers)
+  (error 'broker-recursion-limit-reached :request request :brokers brokers))

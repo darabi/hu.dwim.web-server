@@ -50,7 +50,7 @@
     ((null brokers)
      nil)
     ((> recursion-depth 32)
-     (broker-recursion-limit-reached request)
+     (broker-recursion-limit-reached request brokers)
      nil)
     (t
      (bind ((broker (first brokers))
