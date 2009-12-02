@@ -112,15 +112,6 @@
     (generic-function (generic-function-name function))
     (function (sb-impl::%fun-name function))))
 
-(def function find-type-by-name (name &key (otherwise :error))
-  (or (find-class name #f)
-      (handle-otherwise otherwise)))
-
-(def function find-main-type-in-or-type (type)
-  (remove-if (lambda (element)
-               (member element '(or null)))
-             type))
-
 (def function html-text? (instance)
   (declare (ignore instance))
   #t)
@@ -604,29 +595,3 @@
       (make-hash-table :test test)
     (dolist (element elements)
       (setf (gethash (funcall key element) set) element))))
-
-;;;;;;
-;;; KLUDGE: Local time. FIXME there's something very similar in perec... that one is better, but wui doesn't depend on perec...
-
-(eval-always
-  (shadow 'common-lisp:time :local-time))
-
-(eval-always
-  (shadowing-import '(local-time::time local-time::date) :hu.dwim.wui)
-  (export '(local-time::time local-time::date) :local-time))
-
-(def function local-time::valid-time-p (timestamp)
-  (declare (ignore timestamp))
-  #t)
-
-(def type local-time::time ()
-  '(and local-time:timestamp
-        (satisfies local-time::valid-time-p)))
-
-(def function local-time::valid-date-p (timestamp)
-  (declare (ignore timestamp))
-  #t)
-
-(def type local-time::date ()
-  '(and local-time:timestamp
-        (satisfies local-time::valid-date-p)))

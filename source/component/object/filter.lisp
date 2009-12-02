@@ -56,13 +56,8 @@
        ,(render-component (result-of -self-))>)
 
 (def method component-dispatch-class ((self t/filter))
-  (bind ((component-value (component-value-of self)))
-    (if (consp component-value)
-        (bind ((main-type (find-main-type-in-or-type component-value)))
-          (if (= 1 (length main-type))
-              (find-class (first main-type))
-              (find-class t)))
-        component-value)))
+  (or (find-class-for-type (component-value-of self))
+      (find-class t)))
 
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
   (optional-list* (make-execute-filter-command component class prototype value)

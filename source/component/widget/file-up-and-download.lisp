@@ -47,11 +47,6 @@
   (ensure-client-state-sink -self-)
   (render-upload-file-field :client-state-sink (client-state-sink-of -self-)))
 
-(def method parse-component-value ((component upload-file/widget) client-value)
-  (etypecase client-value
-    (string (values nil #t)) ; empty upload file field is posted from the browser
-    (rfc2388-binary:mime-part client-value)))
-
 ;;;;;;
 ;;; Icon
 

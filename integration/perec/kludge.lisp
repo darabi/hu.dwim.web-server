@@ -31,17 +31,6 @@
   (unless (eq value (class-prototype class))
     (hu.dwim.perec::load-instance value)))
 
-;; TODO: KLUDGE: this redefines, but we are practical for now
-(def function find-main-type-in-or-type (type)
-  (remove-if (lambda (element)
-               (member element '(or hu.dwim.perec:unbound null)))
-             type))
-
-;; TODO: KLUDGE: this redefines, but we are practical for now
-(def function find-type-by-name (name &key otherwise)
-  (or (find-class name #f)
-      (hu.dwim.perec:find-type name :otherwise otherwise)))
-
 ;; KLUDGE: TODO: redefined for now
 #+nil
 (def function update-component-value-from-place (place component)
