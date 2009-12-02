@@ -145,6 +145,8 @@
      #(42))
     ((subtypep class 'sequence)
      '(42))
+    ((subtypep class 'function)
+     (lambda ()))
     (t (aprog1 (closer-mop:class-prototype (ensure-finalized class))
          (assert (or (subtypep class 'number)
                      (not (eql it 42))))))))
