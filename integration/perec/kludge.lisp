@@ -103,3 +103,18 @@
                                                                  (make-set-place-to-unbound-command self))
                                                                (make-set-place-to-find-instance-command self)
                                                                (make-set-place-to-new-instance-command self)))))
+
+(in-package :hu.dwim.perec)
+
+(def persistent-type hu.dwim.wui::html-text (&optional maximum-length)
+  "Formatted text that may contain various fonts, styles and colors as in XHTML."
+  (declare (ignore maximum-length))
+  `(and text
+        (satisfies html-text?)))
+
+(defmapping hu.dwim.wui::html-text (if (consp normalized-type)
+                                       (sql-character-varying-type :size (maximum-length-of (parse-type normalized-type)))
+                                       (sql-character-large-object-type))
+  ;; TODO do some sanity check for maximum-length when provided
+  'identity-reader
+  'identity-writer)
