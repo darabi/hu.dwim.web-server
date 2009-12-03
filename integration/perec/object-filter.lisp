@@ -19,7 +19,7 @@
 (def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object))
   (remove-if #'hu.dwim.perec:persistent-object-internal-slot-p (call-next-method)))
 
-(def layered-method execute-filter ((component t/filter) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) (value hu.dwim.perec::persistent-class))
+(def layered-method execute-filter ((component t/filter) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) value)
   (hu.dwim.perec::with-transaction
     (hu.dwim.perec::execute-query (make-filter-query component class prototype value))))
 
@@ -89,7 +89,7 @@
   (:method ((component t/filter) class prototype value)
     (bind ((query (hu.dwim.perec::make-instance 'hu.dwim.perec::query))
            (filter-query (make-instance 'filter-query :query query)))
-      (with-new-query-variable (query-variable filter-query (class-name (component-value-of component)))
+      (with-new-query-variable (query-variable filter-query (class-name class))
         (hu.dwim.perec::add-collect query query-variable)
         (make-filter-query* component filter-query))
       query)))

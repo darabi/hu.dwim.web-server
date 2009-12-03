@@ -156,10 +156,10 @@
 (def (macro e) delay-alternative-component-with-initargs (type &rest args)
   `(delay-alternative-component ,type (make-instance ,type ,@args)))
 
-(def (macro e) delay-alternative-reference (type target)
-  `(delay-alternative-component ,type (make-alternative-reference ,type ,target)))
+(def (macro e) delay-alternative-reference (type target &rest args)
+  `(delay-alternative-component ,type (make-alternative-reference ,type ,target ,@args)))
 
-(def (function e) make-alternative-reference (type target)
-  (prog1-bind reference (make-instance type :component-value target)
+(def (function e) make-alternative-reference (type target &rest args)
+  (prog1-bind reference (apply #'make-instance type :component-value target args)
     (setf (ajax-of reference) (delay (ajax-of (parent-component-of reference)))
           (action-of reference) (make-action (execute-replace reference (delay (find-default-alternative-component (parent-component-of reference))))))))

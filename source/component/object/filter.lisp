@@ -48,16 +48,14 @@ Optimized factory configuration (default):
 (def subtype-mapper *filter-type-mapping* t t/filter)
 
 (def layered-method make-alternatives ((component t/filter) class prototype value)
-  (list (delay-alternative-component-with-initargs 't/name-value-list/filter :component-value value)
-        (delay-alternative-reference 't/reference/filter value)))
+  (list (delay-alternative-component-with-initargs 't/name-value-list/filter
+                                                   :component-value value
+                                                   :component-value-type (component-value-type-of component))
+        (delay-alternative-reference 't/reference/filter value :component-value-type (component-value-type-of component))))
 
 (def render-component t/filter
   <div ,(call-next-method)
-    ,(render-component (result-of -self-))>)
-
-(def method component-dispatch-class ((self t/filter))
-  (or (find-class-for-type (component-value-of self))
-      (find-class t)))
+    ,(render-result-for -self-)>)
 
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
   (optional-list* (make-execute-filter-command component class prototype value)
@@ -68,21 +66,19 @@ Optimized factory configuration (default):
 (def layered-method make-execute-filter-command ((component t/filter) class prototype value)
   (make-replace-and-push-back-command (delay (result-of component))
                                       (delay (with-restored-component-environment component
-                                               (funcall (result-component-factory-of component) component class prototype
-                                                        (execute-filter component class prototype value))))
+                                               (make-result component class prototype (execute-filter component class prototype value))))
                                       (list :content (icon execute-filter) :default #t #+nil :ajax #+nil (ajax-of component))
                                       (list :content (icon navigate-back))))
 
-(def (layered-function e) make-filter-result-inspector (component class prototype value)
-  (:method ((filter t/filter) class prototype (value list))
-    (make-inspector `(list ,(class-name (component-value-of filter))) :value value))
+(def layered-method make-result ((filter t/filter) class prototype (value list))
+  (make-inspector `(list ,(class-name (component-dispatch-class filter))) :value value))
 
-  (:method :around ((filter t/filter) class prototype  value)
-    (prog1-bind component
-        (call-next-method)
-      (if value
-          (add-component-information-message component (matches-were-found (length value)))
-          (add-component-warning-message component #"no-matches-were-found")))))
+(def layered-method make-result :around ((filter t/filter) class prototype  value)
+  (prog1-bind component
+      (call-next-method)
+    (if value
+        (add-component-information-message component (matches-were-found (length value)))
+        (add-component-warning-message component #"no-matches-were-found"))))
 
 (def (layered-function e) execute-filter (component class prototype value)
   (:method ((component t/filter) class prototype value)
@@ -114,6 +110,9 @@ Optimized factory configuration (default):
 (def (component e) t/reference/filter (filter/abstract t/reference/presentation)
   ())
 
+(def layered-method make-reference-content ((component t/reference/filter) class prototype value)
+  (localized-class-name (component-dispatch-class component)))
+
 ;;;;;;
 ;;; t/detail/filter
 
@@ -127,19 +126,22 @@ Optimized factory configuration (default):
   ())
 
 (def layered-method collect-slot-value-list/slots ((component t/name-value-list/filter) class prototype value)
-  (class-slots value))
-
+  (class-slots (component-dispatch-class component)))
 
 (def layered-method make-slot-value-list/place-group ((component t/name-value-list/filter) class prototype value)
-  (make-place-group nil (mapcar [make-object-slot-place (class-prototype (component-value-of component)) !1] value)))
+  (make-place-group nil (mapcar [make-object-slot-place (class-prototype (component-dispatch-class component)) !1] value)))
 
 ;; TODO: rename
 (def layered-methods make-slot-value-list/content
   (:method ((component t/name-value-list/filter) class prototype (value place-group))
-    (make-instance 'place-group-list/name-value-list/filter :component-value value))
+    (make-instance 'place-group-list/name-value-list/filter
+                   :component-value value
+                   :component-value-type (component-value-type-of component)))
 
   (:method ((component t/name-value-list/filter) class prototype (value sequence))
-    (make-instance 'sequence/list/filter :component-value value))
+    (make-instance 'sequence/list/filter
+                   :component-value value
+                   :component-value-type (component-value-type-of component)))
 
   (:method ((component t/name-value-list/filter) class prototype (value number))
     value)
@@ -148,7 +150,10 @@ Optimized factory configuration (default):
     value)
 
   (:method ((component t/name-value-list/filter) class prototype value)
-    (make-instance 't/reference/filter :component-value value :action nil :enabled #f)))
+    (make-instance 't/reference/filter
+                   :component-value value
+                   :component-value-type (component-value-type-of component)
+                   :action nil :enabled #f)))
 
 ;;;;;;
 ;;; place-group-list/name-value-list/filter
@@ -160,7 +165,9 @@ Optimized factory configuration (default):
   (list value))
 
 (def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/filter) class prototype (value place-group))
-  (make-instance 'place-group/name-value-group/filter :component-value value))
+  (make-instance 'place-group/name-value-group/filter
+                 :component-value value
+                 :component-value-type (component-value-type-of component)))
 
 (def layered-method make-filter-predicate ((component contents/mixin) class prototype value)
   (bind ((predicates (iter (for content :in (contents-of component))
@@ -178,7 +185,9 @@ Optimized factory configuration (default):
   ())
 
 (def layered-method make-slot-value-group/content ((component place-group/name-value-group/filter) class prototype (value object-slot-place))
-  (make-instance 'place/name-value-pair/filter :component-value value))
+  (make-instance 'place/name-value-pair/filter
+                 :component-value value
+                 :component-value-type (component-value-type-of component)))
 
 ;;;;;;
 ;;; place/name-value-pair/filter
@@ -191,7 +200,9 @@ Optimized factory configuration (default):
    (selected-predicate nil :type symbol)))
 
 (def layered-method make-slot-value-pair/value ((component place/name-value-pair/filter) class prototype value)
-  (make-instance 'place/value/filter :component-value value))
+  (make-instance 'place/value/filter
+                 :component-value value
+                 :component-value-type (component-value-type-of component)))
 
 (def layered-method make-filter-predicate ((component place/name-value-pair/filter) class prototype value)
   (bind ((place (component-value-of component))

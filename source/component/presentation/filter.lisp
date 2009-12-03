@@ -22,6 +22,10 @@
   - output
     - value: selected-type"))
 
+(def method component-dispatch-class ((self filter/abstract))
+  (or (find-class-for-type (component-value-type-of self))
+      (find-class t)))
+
 ;;;;;;
 ;;; filter/minimal
 
@@ -53,16 +57,12 @@
 
 (def subtype-mapper *filter-type-mapping* nil nil)
 
-(def (layered-function e) find-filter-type (type)
-  (:method (type)
-    (linear-mapping-value *filter-type-mapping* type)))
-
 (def layered-method make-filter (type &rest args &key value &allow-other-keys)
-  (bind ((component-type (find-filter-type type)))
-    (apply #'make-instance component-type
+  (bind ((class (find-class (linear-mapping-value *filter-type-mapping* type))))
+    (apply #'make-instance class
            :component-value value
            :component-value-type type
-           (remove-undefined-class-slot-initargs (find-class component-type) args))))
+           (remove-undefined-class-slot-initargs class args))))
 
 ;;;;;;
 ;;; Filter interface
