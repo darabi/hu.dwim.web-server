@@ -14,26 +14,29 @@
             hu.dwim.meta-model::show-to-current-effective-subject hu.dwim.meta-model::show-to-subjects-matching-expression)
           :hu.dwim.meta-model))
 
-(def (component e) persistent-process-component (standard-process-component)
-  ((process)))
+(def (component e) persistent-process-component (t/process/inspector)
+  ())
+
+(def layered-method refresh-component :before ((self persistent-process-component))
+  (setf (form-of self) (hu.dwim.meta-model::form-of (component-value-of self))))
 
 (def layered-method make-context-menu-items ((component persistent-process-component) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
   (append (call-next-method)
           (optional-list (make-cancel-persistent-process-command component)
                          (make-pause-persistent-process-command component))))
 
-(def render-xhtml persistent-process-component ()
-  (bind (((:slots process command-bar answer-continuation content) -self-))
-    (hu.dwim.perec::revive-instance process)
+(def render-xhtml persistent-process-component
+  (bind (((:slots answer-continuation content component-value) -self-))
+    (hu.dwim.perec::revive-instance component-value)
     (when (empty-layout? content)
-      (add-component-information-message -self- (process.message.report-process-state process)))
+      (add-component-information-message -self- (process.message.report-process-state component-value)))
     <div ,(render-component-messages-for -self-)
-         ,(render-component content)
-         ,(render-component command-bar) >))
+         ,(render-content-for -self-)
+         ,(render-command-bar-for -self-)>))
 
 (def function roll-persistent-process (component thunk)
   (setf (content-of component) nil)
-  (bind ((*standard-process-component* component)
+  (bind ((*process-component* component)
          (process (component-value-of component)))
     (setf (answer-continuation-of component)
           (hu.dwim.rdbms::with-transaction
@@ -50,9 +53,10 @@
                                  :when (or (not subject)
                                            (and (hu.dwim.meta-model::has-authenticated-session)
                                                 (hu.dwim.perec:p-eq subject (hu.dwim.meta-model::current-effective-subject))))
-                                 :wait-reason (make-instance 'hu.dwim.meta-model::wait-for-subject
-                                                             :subject (or subject
-                                                                          (hu.dwim.meta-model::current-effective-subject)))))
+                                 :wait-reason (when subject
+                                                (make-instance 'hu.dwim.meta-model::wait-for-subject
+                                                               :subject (or subject
+                                                                            (hu.dwim.meta-model::current-effective-subject))))))
 
 (def function/cc hu.dwim.meta-model:show-to-current-effective-subject (component &key answer-commands)
   (hu.dwim.meta-model:show-to-subject (hu.dwim.meta-model:current-effective-subject) component :answer-commands answer-commands))
@@ -73,7 +77,7 @@
   (if when
       (call-component component :answer-commands answer-commands)
       (let/cc k
-        (add-user-information *standard-process-component* #"process.message.waiting-for-other-subject")
+        (add-user-information *process-component* #"process.message.waiting-for-other-subject")
         k))
   (assert (hu.dwim.meta-model::persistent-process-running-p hu.dwim.meta-model::*process*))
   (values))
@@ -82,7 +86,7 @@
   (roll-persistent-process component
                            (lambda (process)
                              (hu.dwim.meta-model::process-event process 'hu.dwim.meta-model::process-state 'hu.dwim.meta-model::continue)
-                             (kall (answer-continuation-of *standard-process-component*) (force value)))))
+                             (kall (answer-continuation-of *process-component*) (force value)))))
 
 ;;;;;;
 ;;; Command

@@ -917,6 +917,45 @@
       "TODO")))
 
 ;;;;;;
+;;; Processes
+
+(def function make-processes-node ()
+  (node/widget (:expanded #f)
+      (replace-target-place/widget ()
+          "Process"
+        (make-value-inspector (find-class 't/process/inspector)))
+    (component-demo/widget "Sequential"
+      (t/process/inspector ()
+        (call-component "John" :answer-commands (answer/widget () "Next"))
+        (call-component "Mary" :answer-commands (answer/widget () "Next"))
+        (call-component "Steve" :answer-commands (answer/widget () "Next"))
+        (call-component "Kate" :answer-commands (answer/widget () "Finish"))))
+    (component-demo/widget "Loop"
+      (t/process/inspector ()
+        (iter (with max = 4)
+              (for i :from 0 :below max)
+              (for label = (if (= i (1- max)) "Finish" "Next"))
+              (call-component (format nil "At ~A" i) :answer-commands (answer/widget () label)))))
+    (component-demo/widget "Branch"
+      (t/process/inspector ()
+        (ecase (call-component "John" :answer-commands (list (answer/widget () "Male" :male)
+                                                             (answer/widget () "Female" :female)))
+          (:male (call-component "Steve" :answer-commands (answer/widget () "Finish")))
+          (:female (call-component "Kate" :answer-commands (answer/widget () "Finish"))))))
+    (component-demo/widget "Recursive branch"
+      (t/process/inspector ()
+        (recursive-branch "Root" 4)))))
+
+(def function/cc recursive-branch (label level)
+  (unless (zerop level)
+    (recursive-branch (format nil "~A.~A" label
+                              (call-component label :answer-commands (if (= level 1)
+                                                                         (answer/widget () "Finish")
+                                                                         (list (answer/widget () "0" 0)
+                                                                               (answer/widget () "1" 1)))))
+                      (1- level))))
+
+;;;;;;
 ;;; Customizations
 
 (def function make-customization-node ()
@@ -954,5 +993,6 @@
             (make-book-elements-node)
             (make-source-elements-node)
             (make-charts-node)
+            (make-processes-node)
             (make-customization-node)))
         content))))
