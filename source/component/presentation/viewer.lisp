@@ -50,10 +50,5 @@
 ;;;;;;
 ;;; Viewer factory
 
-(def layered-method make-viewer :before (type &key (value nil value?) &allow-other-keys)
-  (when (and value?
-             (not (typep value type)))
-    (error "Cannot make viewer for the value ~A~% which is not of type ~A" value type)))
-
 (def layered-method make-viewer (type &rest args &key &allow-other-keys)
   (apply #'make-inspector type :editable #f :edited #f args))

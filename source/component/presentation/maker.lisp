@@ -53,13 +53,9 @@
 
 (def subtype-mapper *maker-type-mapping* nil nil)
 
-(def (layered-function e) find-maker-type (type)
-  (:method (type)
-    (linear-mapping-value *maker-type-mapping* type)))
-
 (def layered-method make-maker (type &rest args &key value &allow-other-keys)
-  (bind ((component-type (find-maker-type type)))
-    (apply #'make-instance component-type
+  (bind ((class (find-class (linear-mapping-value *maker-type-mapping* type))))
+    (apply #'make-instance class
            :component-value value
            :component-value-type type
-           (remove-undefined-class-slot-initargs (find-class component-type) args))))
+           (remove-undefined-class-slot-initargs class args))))

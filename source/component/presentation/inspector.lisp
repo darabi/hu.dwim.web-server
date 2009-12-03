@@ -55,18 +55,9 @@
 
 (def subtype-mapper *inspector-type-mapping* nil nil)
 
-(def (layered-function e) find-inspector-type (type)
-  (:method (type)
-    (linear-mapping-value *inspector-type-mapping* type)))
-
-(def layered-method make-inspector :before (type &key (value nil value?) &allow-other-keys)
-  (when (and value?
-             (not (typep value type)))
-    (error "Cannot make inspector for the value ~A~% which is not of type ~A" value type)))
-
 (def layered-method make-inspector (type &rest args &key value &allow-other-keys)
-  (bind ((component-type (find-inspector-type type)))
-    (apply #'make-instance component-type
+  (bind ((class (find-class (linear-mapping-value *inspector-type-mapping* type))))
+    (apply #'make-instance class
            :component-value value
            :component-value-type type
-           (remove-undefined-class-slot-initargs (find-class component-type) args))))
+           (remove-undefined-class-slot-initargs class args))))
