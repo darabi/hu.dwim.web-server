@@ -94,7 +94,7 @@
 ;;; string/maker
 
 (def (component e) string/maker (string/presentation primitive/maker)
-  ((component-value nil)))
+  ())
 
 (def subtype-mapper *maker-type-mapping* (or null string) string/maker)
 

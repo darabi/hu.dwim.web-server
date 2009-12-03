@@ -74,7 +74,7 @@
 ;;; string/filter
 
 (def (component e) string/filter (string/presentation primitive/filter)
-  ((component-value nil)))
+  ())
 
 (def subtype-mapper *filter-type-mapping* (or null string) string/filter)
 

@@ -22,7 +22,7 @@
                :hu.dwim.def.namespace
                :hu.dwim.def+cl-l10n
                :hu.dwim.def+contextl
-               :hu.dwim.delico
+               :hu.dwim.def+hu.dwim.delico
                :hu.dwim.logger
                :hu.dwim.quasi-quote.xml+hu.dwim.quasi-quote.js
                :hu.dwim.syntax-sugar

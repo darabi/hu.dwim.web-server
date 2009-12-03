@@ -31,6 +31,15 @@
         ,(bind ((*print-level* 1))
            (princ-to-string -self-))>)))
 
+(def render-xhtml null
+  (restart-case
+      (error "For debugging purposes NIL is not a valid COMPONENT, you may want to use EMPTY/LAYOUT or something similar.")
+    (skip-rendering-component ()
+      :report (lambda (stream)
+                (format stream "Skip rendering NIL and put an error marker in place"))
+      <div (:class "rendering-error")
+        "Cannot render NIL, it is not a valid component">)))
+
 (def function inspect-in-repl (component)
   (awhen (or swank::*emacs-connection*
              (swank::default-connection))

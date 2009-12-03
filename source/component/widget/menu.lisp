@@ -47,6 +47,7 @@
           <div (:id ,menu-id
                 :dojoType #.+dijit/menu+
                 :targetNodeIds ,id
+                :contextMenuForWindow "false"
                 :style "display: none;")
             ,(foreach #'render-component menu-items)>))>)))
 

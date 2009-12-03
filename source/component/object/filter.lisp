@@ -23,9 +23,9 @@
        (place-group/name-value-group/filter       ; filter for a group of places, display as a name value group
         (place/filter                             ; filter for a place (alternator)
          (place/name-value-pair/filter            ; filter for a place, display as a name value pair
-          (place/name/inspector                   ; inspect the name of a place
-           (string/inspect                        ; inspect a string (alternator)
-            (string/text/inspect                  ; inspect a string, display as text
+          (place/name/filter                      ; filter the name of a place
+           (string/filter                         ; filter a string (alternator)
+            (string/text/filter                   ; filter a string, display as text
              string)))                            ; immediate
           (place/value/filter                     ; filter for the value of a place
            (t/filter))))                          ; filter for something (alternator)
@@ -70,10 +70,10 @@ Optimized factory configuration (default):
                                       (list :content (icon execute-filter) :default #t #+nil :ajax #+nil (ajax-of component))
                                       (list :content (icon navigate-back))))
 
-(def layered-method make-result ((filter t/filter) class prototype (value list))
-  (make-inspector `(list ,(class-name (component-dispatch-class filter))) :value value))
+(def layered-method make-result ((component t/filter) class prototype (value list))
+  (make-inspector `(or null (cons ,(class-name (component-dispatch-class component)) t)) :value value))
 
-(def layered-method make-result :around ((filter t/filter) class prototype  value)
+(def layered-method make-result :around ((component t/filter) class prototype  value)
   (prog1-bind component
       (call-next-method)
     (if value

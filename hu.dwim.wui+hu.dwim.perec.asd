@@ -17,11 +17,11 @@
   :components ((:module "integration"
                 :components ((:module "perec"
                               :components ((:file "kludge")
+                                           (:file "l10n")
                                            (:file "object-filter")
                                            (:file "process")
                                            #+nil
-                                           ((:file "l10n")
-                                            (:file "menu")
+                                           ((:file "menu")
                                             (:file "place")
                                             (:file "reference")
                                             (:file "editable")

@@ -7,6 +7,18 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; standard-persistent-process/inspector
+
+(def (component e) standard-persistent-process/inspector (t/inspector)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* (or null hu.dwim.meta-model::standard-persistent-process) standard-persistent-process/inspector)
+
+(def layered-method make-alternatives ((component standard-persistent-process/inspector) class prototype value)
+  (list* (delay-alternative-component-with-initargs 'standard-persistent-process/user-interface/inspector :component-value value)
+         (call-next-method)))
+
+;;;;;;
 ;;; Persistent processs
 
 (eval-always
@@ -14,25 +26,23 @@
             hu.dwim.meta-model::show-to-current-effective-subject hu.dwim.meta-model::show-to-subjects-matching-expression)
           :hu.dwim.meta-model))
 
-(def (component e) persistent-process-component (t/process/inspector)
+(def (component e) standard-persistent-process/user-interface/inspector (t/user-interface/inspector)
   ())
 
-(def layered-method refresh-component :before ((self persistent-process-component))
-  (setf (form-of self) (hu.dwim.meta-model::form-of (component-value-of self))))
-
-(def layered-method make-context-menu-items ((component persistent-process-component) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
-  (append (call-next-method)
-          (optional-list (make-cancel-persistent-process-command component)
-                         (make-pause-persistent-process-command component))))
-
-(def render-xhtml persistent-process-component
+(def render-xhtml standard-persistent-process/user-interface/inspector
   (bind (((:slots answer-continuation content component-value) -self-))
     (hu.dwim.perec::revive-instance component-value)
     (when (empty-layout? content)
       (add-component-information-message -self- (process.message.report-process-state component-value)))
-    <div ,(render-component-messages-for -self-)
-         ,(render-content-for -self-)
-         ,(render-command-bar-for -self-)>))
+    (with-render-style/abstract (-self-)
+      (render-component-messages-for -self-)
+      (render-content-for -self-)
+      (render-command-bar-for -self-))))
+
+(def layered-method make-context-menu-items ((component standard-persistent-process/user-interface/inspector) (class hu.dwim.meta-model::persistent-process) (prototype hu.dwim.meta-model::standard-persistent-process) (instance hu.dwim.meta-model::standard-persistent-process))
+  (append (call-next-method)
+          (optional-list (make-cancel-persistent-process-command component)
+                         (make-pause-persistent-process-command component))))
 
 (def function roll-persistent-process (component thunk)
   (setf (content-of component) nil)
@@ -41,10 +51,10 @@
     (setf (answer-continuation-of component)
           (hu.dwim.rdbms::with-transaction
             (hu.dwim.perec::with-revived-instance process
-              (bind ((hu.dwim.meta-model::*process* process))
-                (funcall thunk process)))))
-    (unless (content-of component)
-      (clear-process-component component))))
+              (prog1 (bind ((hu.dwim.meta-model::*process* process))
+                       (funcall thunk process))
+                (when (hu.dwim.meta-model:persistent-process-in-final-state-p process)
+                  (finish-process-component component))))))))
 
 (def function/cc hu.dwim.meta-model:show-to-subject (subject component &key answer-commands)
   "Shows a user interface component to the given subject."
@@ -82,7 +92,7 @@
   (assert (hu.dwim.meta-model::persistent-process-running-p hu.dwim.meta-model::*process*))
   (values))
 
-(def method answer-component ((component persistent-process-component) value)
+(def method answer-component ((component standard-persistent-process/user-interface/inspector) value)
   (roll-persistent-process component
                            (lambda (process)
                              (hu.dwim.meta-model::process-event process 'hu.dwim.meta-model::process-state 'hu.dwim.meta-model::continue)
@@ -136,7 +146,7 @@
                                                                  (make-instance 'entire-row-component :content process-component)))))))
 
 (def (function e) make-start-persistent-process-command (component process)
-  (make-replace-and-push-back-command component (delay (prog1-bind process-component (make-instance 'persistent-process-component :component-value (force process))
+  (make-replace-and-push-back-command component (delay (prog1-bind process-component (make-instance 'standard-persistent-process/user-interface/inspector :component-value (force process))
                                                          (roll-persistent-process process-component
                                                                                   (lambda (process)
                                                                                     (nth-value 1 (hu.dwim.meta-model::start-persistent-process process))))))
@@ -144,7 +154,7 @@
                                       (list :content (icon navigate-back))))
 
 (def (function e) make-continue-persistent-process-command (component process &optional (wrapper-thunk #'identity))
-  (make-replace-and-push-back-command component (delay (bind ((process-component (make-instance 'persistent-process-component :component-value process)))
+  (make-replace-and-push-back-command component (delay (bind ((process-component (make-instance 'standard-persistent-process/user-interface/inspector :component-value process)))
                                                          (roll-persistent-process process-component
                                                                                   (lambda (process)
                                                                                     (nth-value 1 (hu.dwim.meta-model::continue-persistent-process process))))
@@ -161,7 +171,7 @@
       (hu.dwim.rdbms::with-transaction
         (hu.dwim.perec::revive-instance (component-value-of component))
         (hu.dwim.meta-model::cancel-persistent-process (component-value-of component))
-        (clear-process-component component)))))
+        (finish-process-component component)))))
 
 (def (function e) make-pause-persistent-process-command (component)
   (command/widget (:visible (delay (or (hu.dwim.meta-model::persistent-process-paused-p (component-value-of component))
@@ -171,4 +181,4 @@
       (hu.dwim.rdbms::with-transaction
         (hu.dwim.perec::revive-instance (component-value-of component))
         (hu.dwim.meta-model::pause-persistent-process (component-value-of component))
-        (clear-process-component component)))))
+        (finish-process-component component)))))

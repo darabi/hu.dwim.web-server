@@ -50,6 +50,7 @@
 
 (def method (setf component-value-of) :before (new-value (self refreshable/mixin))
   ;; KLUDGE: to allow refresh to kick in when the value is something really different
+  #+nil ;; TODO: delme, this really clears all component slots, is this what we want in general? I don't think so, what is this good for?
   (unless (equal (component-value-of self) new-value)
     (dolist (slot (component-slots-of (class-of self)))
       (setf (slot-value-using-class (class-of self) self slot) nil))))

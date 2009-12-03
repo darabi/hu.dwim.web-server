@@ -923,27 +923,27 @@
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Process"
-        (make-value-inspector (find-class 't/process/inspector)))
+        (make-value-inspector (find-class 'closure-cc/user-interface/inspector)))
     (component-demo/widget "Sequential"
-      (t/process/inspector ()
+      (closure-cc/user-interface/inspector ()
         (call-component "John" :answer-commands (answer/widget () "Next"))
         (call-component "Mary" :answer-commands (answer/widget () "Next"))
         (call-component "Steve" :answer-commands (answer/widget () "Next"))
         (call-component "Kate" :answer-commands (answer/widget () "Finish"))))
     (component-demo/widget "Loop"
-      (t/process/inspector ()
+      (closure-cc/user-interface/inspector ()
         (iter (with max = 4)
               (for i :from 0 :below max)
               (for label = (if (= i (1- max)) "Finish" "Next"))
               (call-component (format nil "At ~A" i) :answer-commands (answer/widget () label)))))
     (component-demo/widget "Branch"
-      (t/process/inspector ()
+      (closure-cc/user-interface/inspector ()
         (ecase (call-component "John" :answer-commands (list (answer/widget () "Male" :male)
                                                              (answer/widget () "Female" :female)))
           (:male (call-component "Steve" :answer-commands (answer/widget () "Finish")))
           (:female (call-component "Kate" :answer-commands (answer/widget () "Finish"))))))
     (component-demo/widget "Recursive branch"
-      (t/process/inspector ()
+      (closure-cc/user-interface/inspector ()
         (recursive-branch "Root" 4)))))
 
 (def function/cc recursive-branch (label level)

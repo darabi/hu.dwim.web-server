@@ -6,89 +6,90 @@
 
 (in-package :hu.dwim.wui)
 
-;; TODO:
-(eval-always
-  (asdf:load-system :hu.dwim.def+hu.dwim.delico))
+;;;;;;
+;;; closure-cc/inspector
+
+(def (component e) closure-cc/inspector (t/inspector)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* (or null hu.dwim.delico::closure/cc) closure-cc/inspector)
+
+(def layered-method make-alternatives ((component closure-cc/inspector) class prototype value)
+  (list* (delay-alternative-component-with-initargs 'closure-cc/user-interface/inspector :component-value value)
+         (call-next-method)))
 
 ;;;;;;
-;;; Process
+;;; t/user-interface/inspector
 
-;; TODO: try to kill this variable, if possible?!
 (def (special-variable e) *process-component*)
 
-(def (component e) t/process/inspector (inspector/style component-messages/widget content/mixin commands/mixin)
-  ((closure/cc nil)
-   (answer-continuation nil)
-   ;; TODO: is this really?
-   (command-bar (make-instance 'command-bar/widget :commands nil))))
+(def (component e) t/user-interface/inspector (inspector/style component-messages/widget content/mixin commands/mixin)
+  ((answer-continuation nil)
+   (answer-commands nil)))
 
-(def (macro e) t/process/inspector ((&rest args &key &allow-other-keys) &body forms)
-  `(make-instance 't/process/inspector ,@args :component-value '(progn ,@forms)))
-
-(def refresh-component t/process/inspector
-  (bind (((:slots closure/cc component-value) -self-))
-    (setf closure/cc (hu.dwim.delico::make-closure/cc (hu.dwim.walker:walk-form `(lambda () ,component-value))))))
-
-(def render-xhtml t/process/inspector
-  ;; NOTE: answer-continuation and content are set during rendering
-  (bind (((:slots answer-continuation content) -self-)
-         ((:read-only-slots closure/cc) -self-))
-    (unless content
-      (setf answer-continuation
-            (bind ((*process-component* -self-))
-              (with-call/cc
-                (funcall closure/cc)))))
-    (unless (and content answer-continuation)
-      ;; TODO: add a factory method or slot for this component
-      (setf content "Process finished")
-      (replace-answer-commands -self- nil))
-    (with-render-style/abstract (-self-)
-      (render-component-messages-for -self-)
-      (render-content-for -self-)
-      (render-command-bar-for -self-))))
-
-(def function clear-process-component (component)
-  (setf (content-of component) (empty/layout))
-  (replace-answer-commands component nil))
-
-(def function replace-answer-commands (component answer-commands)
-  (bind ((command-bar (command-bar-of component)))
-    (setf (commands-of command-bar)
-          (append (remove-if (lambda (command)
-                               (typep command 'answer/widget))
-                             (commands-of command-bar))
-                  answer-commands))))
+(def layered-method make-command-bar-commands ((component t/user-interface/inspector) class prototype value)
+  (dolist (command (answer-commands-of component))
+    (setf (parent-component-of command) nil))
+  (append (answer-commands-of component) (call-next-method)))
 
 (def (function/cc e) call-component (component &key answer-commands)
   (setf answer-commands (ensure-list answer-commands))
   (let/cc k
     (setf (content-of *process-component*) component)
-    (replace-answer-commands *process-component* answer-commands)
+    (setf (answer-commands-of *process-component*) answer-commands)
     k))
 
 (def (generic e) answer-component (component value)
   (:method ((component component) value)
-    (answer-component (find-ancestor-component-with-type component 't/process/inspector) value))
+    (answer-component (find-ancestor-component-with-type component 't/user-interface/inspector) value))
 
-  (:method ((component t/process/inspector) value)
+  (:method ((component t/user-interface/inspector) value)
     (bind ((*process-component* component))
       (setf (answer-continuation-of *process-component*)
             (kall (answer-continuation-of *process-component*) (force value))))))
+
+(def function finish-process-component (component)
+  (setf (content-of component) (empty/layout)
+        (answer-commands-of *process-component*) nil))
 
 ;;;;;;
 ;;; answer/widget
 
 (def (component e) answer/widget (command/widget)
-  ((icon (icon answer :label "Answer")) ;; TODO localize
-   (action nil)
-   (value nil)))
+  ((action nil)
+   (return-value)))
 
 (def constructor answer/widget ()
-  (bind (((:slots icon action value) -self-))
+  (bind (((:slots action return-value) -self-))
     (unless action
-      (setf action (make-action (answer-component -self- value))))))
+      (setf action (make-action (answer-component -self- return-value))))))
 
 (def (macro e) answer/widget ((&rest args &key &allow-other-keys) content &body forms)
   `(make-instance 'answer/widget ,@args
                   :content ,content
-                  :value ,(when forms `(delay ,@forms))))
+                  :return-value ,(when forms `(delay ,@forms))))
+
+;;;;;;
+;;; closure-cc/user-interface/inspector
+
+(def (component e) closure-cc/user-interface/inspector (t/user-interface/inspector)
+  ())
+
+(def (macro e) closure-cc/user-interface/inspector ((&rest args &key &allow-other-keys) &body forms)
+  `(make-instance 'closure-cc/user-interface/inspector ,@args
+                  :component-value (hu.dwim.delico::make-closure/cc (hu.dwim.walker:walk-form `(lambda () ,',@forms)))))
+
+(def render-xhtml closure-cc/user-interface/inspector
+  ;; NOTE: answer-continuation and content are set during rendering
+  (bind (((:slots answer-continuation content) -self-))
+    (unless content
+      (setf answer-continuation
+            (bind ((*process-component* -self-))
+              (with-call/cc
+                (funcall (component-value-of -self-))))))
+    (unless (and content answer-continuation)
+      (finish-process-component -self-))
+    (with-render-style/abstract (-self-)
+      (render-component-messages-for -self-)
+      (render-content-for -self-)
+      (render-command-bar-for -self-))))

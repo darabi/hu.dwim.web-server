@@ -22,6 +22,10 @@
   - output
     - value: selected-type"))
 
+(def method component-dispatch-class ((self maker/abstract))
+  (or (find-class-for-type (component-value-type-of self))
+      (find-class t)))
+
 ;;;;;;
 ;;; maker/minimal
 

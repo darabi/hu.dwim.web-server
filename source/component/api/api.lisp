@@ -183,6 +183,9 @@
 (def (layered-function e) make-execute-filter-command (component class prototype value)
   (:documentation "TODO"))
 
+(def (layered-function e) make-execute-maker-command (component class prototype value)
+  (:documentation "TODO"))
+
 (def (layered-function e) make-begin-editing-new-instance-command (component class prototype)
   (:documentation "TODO"))
 
