@@ -11,14 +11,17 @@
 
 (def (component e) viewer/abstract (presentation/abstract)
   ()
-  (:documentation "An VIEWER/ABSTRACT displays existing values of a TYPE.
-  - similar to #<LITERAL-OBJECT {100C204081}>
+  (:documentation "A VIEWER/ABSTRACT displays existing values of a TYPE.
+  - similar to a #<LITERAL-OBJECT {100C204081}>
   - static input
-    - value-type: type
+    - component-value-type: type
   - volatile input
-    - value: value-type
+    - component-value: component-value-type
+  - dispatch
+    - dispatch-class: (class-of component-value)
+    - dispatch-prototype: (class-prototype dispatch-class)
   - output
-    - value: value-type"))
+    - component-value: component-value-type"))
 
 ;;;;;;
 ;;; viewer/minimal

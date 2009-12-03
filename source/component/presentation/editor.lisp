@@ -18,6 +18,9 @@
   - volatile input
     - selected-type: type (selected-type is a subtype of value-type)
     - value: selected-type
+  - dispatch
+    - dispatch-class: (class-of component-value)
+    - dispatch-prototype: (class-prototype dispatch-class)
   - output
     - value: selected-type"))
 

@@ -14,12 +14,15 @@
   (:documentation "An INSPECTOR/ABSTRACT displays or edits existing values of a TYPE. An inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes.
   - similar to either #<LITERAL-OBJECT {100C204081}> or (reinitialize-instance ...)
   - static input
-    - value-type: type
+    - component-value-type: type
   - volatile input
-    - selected-type: type (selected-type is a subtype of value-type)
-    - value: selected-type
+    - selected-type: type (selected-type is a subtype of component-value-type)
+    - component-value: selected-type
+  - dispatch
+    - dispatch-class: (class-of component-value)
+    - dispatch-prototype: (class-prototype dispatch-class)
   - output
-    - value: selected-type"))
+    - component-value: selected-type"))
 
 ;;;;;;
 ;;; inspector/minimal

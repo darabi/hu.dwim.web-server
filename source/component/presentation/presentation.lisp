@@ -10,7 +10,8 @@
 ;;; presentation/abstract
 
 (def (component e) presentation/abstract (component-value/mixin component-value-type/mixin)
-  ())
+  ()
+  (:documentation "A PRESENTATION/ABSTRACT is the base class of all TYPE related meta COMPONENTs."))
 
 ;;;;;;
 ;;; presentation/minimal

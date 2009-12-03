@@ -28,7 +28,7 @@
 ;;; Component
 
 (def (type e) component/immediate ()
-  "Some primitive TYPEs are considered to be a COMPONENT."
+  "Some primitive TYPEs are considered to be COMPONENTs."
   '(or number string))
 
 (def (type e) component* ()
@@ -58,48 +58,48 @@ Naming convention for non instantiatable components:
                 it usually has no superclasses, except other mixins, and usually there is only one abstract superclass of an instantiatable component
 
 Naming convention for meta components related to a lisp type, they are usually alternator components:
-*/maker       - subclasses of maker/abstract
-*/viewer      - subclasses of viewer/abstract
-*/editor      - subclasses of editor/abstract
-*/inspector   - subclasses of inspector/abstract
-*/filter      - subclasses of filter/abstract
-*/finder      - subclasses of finder/abstract
-*/selector    - subclasses of selector/abstract
+*/maker       - subclasses of MAKER/ABSTRACT
+*/viewer      - subclasses of VIEWER/ABSTRACT
+*/editor      - subclasses of EDITOR/ABSTRACT
+*/inspector   - subclasses of INSPECTOR/ABSTRACT
+*/filter      - subclasses of FILTER/ABSTRACT
+*/finder      - subclasses of FINDER/ABSTRACT
+*/selector    - subclasses of SELECTOR/ABSTRACT
 
 Naming convention for some alternative components:
 */reference/* - subclasses of reference/abstract
 */detail/*    - subclasses of detail/abstract
 
 Components are created by either using the component specific macros, maker functions or by calling generic factory functions
-such as make-instance, make-maker, make-viewer, make-editor, make-inspector, make-filter, make-finder and make-selector."))
+such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAKE-FILTER, MAKE-FINDER and MAKE-SELECTOR."))
 
 ;;;;;;
 ;;; component/minimal
 
 (def (component e) component/minimal (parent/mixin hideable/mixin)
   ()
-  (:documentation "A COMPONENT/MINIMAL includes a minimal set of MIXINs. It supports navigation towards the ROOT-COMPONENT in the COMPONENT-HIERARCHY with PARENT-COMPONENT-OF, it also provides HIDEABLE with HIDE-COMPONENT and SHOW-COMPONENT."))
+  (:documentation "A COMPONENT/MINIMAL includes a minimal set of mixins. It supports navigation towards the root component in the component hierarchy using PARENT-COMPONENT-OF, it also provides HIDE-COMPONENT and SHOW-COMPONENT."))
 
 ;;;;;;
 ;;; component/basic
 
 (def (component e) component/basic (component/minimal refreshable/mixin renderable/mixin)
   ()
-  (:documentation "A COMPONENT/BASIC includes a basic set of MIXINs. It supports reacting upon state changes with REFRESH-COMPONENT and partial rendering with RENDER-COMPONENT."))
+  (:documentation "A COMPONENT/BASIC includes a basic set of mixins. It supports reacting upon state changes with TO-BE-REFRESHED-COMPONENT? and REFRESH-COMPONENT. It also provides on demand rendering with TO-BE-RENDERED-COMPONENT? and RENDER-COMPONENT."))
 
 ;;;;;;
 ;;; component/style
 
 (def (component e) component/style (component/basic style/abstract disableable/mixin)
   ()
-  (:documentation "A COMPONENT/STYLE includes a set of style related MIXINs. It supports styles with STYLE-CLASS and CUSTOM-STYLE, it also provides REMOTE-SETUP with the help of a unique ID, and ENABLE-COMPONENT along with DISABLE-COMPONENT for better user experience."))
+  (:documentation "A COMPONENT/STYLE includes a set of style related mixins. It supports styles with STYLE-CLASS and CUSTOM-STYLE, it also provides remote setup with the help of a unique ID, and ENABLE-COMPONENT along with DISABLE-COMPONENT for better user experience."))
 
 ;;;;;;
 ;;; component/full
 
 (def (component e) component/full (component/style collapsible/mixin tooltip/mixin)
   ()
-  (:documentation "A COMPONENT/FULL includes all generally useful MIXINs. It supports EXPAND-COMPONENT and COLLAPSE-COMPONENT, it also provides tooltip support."))
+  (:documentation "A COMPONENT/FULL includes all generally useful mixins and might be extended later. Currently it supports EXPAND-COMPONENT and COLLAPSE-COMPONENT, it also provides tooltips."))
 
 ;;;;;;
 ;;; Component environment
