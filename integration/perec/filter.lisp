@@ -9,6 +9,8 @@
 ;;;;;;
 ;;; Customizations
 
+(def subtype-mapper *filter-type-mapping* (hu.dwim.perec::set hu.dwim.perec::persistent-object) sequence/filter)
+
 #+nil
 (def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class hu.dwim.meta-model::entity) (prototype hu.dwim.perec::persistent-object))
   (filter-if (lambda (slot)
