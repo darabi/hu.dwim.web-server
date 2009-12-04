@@ -318,6 +318,9 @@
   (:method ((class class))
     (localized-class-name class))
 
+  (:method ((timestamp local-time:timestamp))
+    (localized-timestamp timestamp))
+
   (:method ((function function))
     (bind ((name (function-name function)))
       (cond ((symbolp name)
