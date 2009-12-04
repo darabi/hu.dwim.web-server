@@ -22,6 +22,9 @@
   - output
     - value: selected-type"))
 
+(def method collect-filter-predicates ((self filter/abstract))
+  nil)
+
 (def method component-dispatch-class ((self filter/abstract))
   (or (find-class-for-type (component-value-type-of self))
       (find-class t)))

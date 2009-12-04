@@ -47,19 +47,22 @@ Optimized factory configuration (default):
 
 (def subtype-mapper *filter-type-mapping* t t/filter)
 
+(def render-component t/filter
+  <div ,(call-next-method)
+    ,(render-result-for -self-)>)
+
 (def layered-method make-alternatives ((component t/filter) class prototype value)
   (list (delay-alternative-component-with-initargs 't/name-value-list/filter
                                                    :component-value value
                                                    :component-value-type (component-value-type-of component))
         (delay-alternative-reference 't/reference/filter value :component-value-type (component-value-type-of component))))
 
-(def render-component t/filter
-  <div ,(call-next-method)
-    ,(render-result-for -self-)>)
-
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
   (optional-list* (make-execute-filter-command component class prototype value)
                   (call-next-method)))
+
+(def method collect-filter-predicates ((self t/filter))
+  '(equal))
 
 (def (icon e) execute-filter)
 
@@ -261,9 +264,6 @@ Optimized factory configuration (default):
 
 ;;;;;;
 ;;; Util
-
-(def method collect-filter-predicates ((self filter/abstract))
-  nil)
 
 (def function localize-predicate (predicate)
   (lookup-resource (string+ "predicate." (symbol-name predicate))))
