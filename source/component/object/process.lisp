@@ -55,6 +55,7 @@
 ;;;;;;
 ;;; answer/widget
 
+;; TODO: support using plain command/widget and answer-component
 (def (component e) answer/widget (command/widget)
   ((action nil)
    (return-value)))

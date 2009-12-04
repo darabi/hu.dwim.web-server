@@ -72,15 +72,18 @@
                             :js ,js
                             :action-arguments ,action-arguments)))))))
 
-(def function %default-onclick-js (ajax send-client-state?)
+(def function %default-onclick-js (id ajax send-client-state?)
   (lambda (href)
     (bind ((ajax (and (ajax-enabled? *application*)
                       (force ajax))))
-      `js(wui.io.action ,href
-                        :event event
-                        :ajax ,(when (ajax-enabled? *application*)
-                                 (force ajax))
-                        :send-client-state ,send-client-state?)
+      ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
+      ;;         removed by destroy when simply replaced by some other content, this may leak memory on the cleint side
+      `js(when (dojo.by-id ,id)
+           (wui.io.action ,href
+                          :event event
+                          :ajax ,(when (ajax-enabled? *application*)
+                                       (force ajax))
+                          :send-client-state ,send-client-state?))
       ;; TODO add a *special* that collects the args of all action's and runs a js side loop to process the literal arrays
       ;; TODO add special handling of apply to qq so that the 'this' arg of .apply is not needed below (wui.io.action twice)
       ;; TODO do something like this below instead of the above, once qq properly emits commas in the output of (create ,@emtpy-list)
@@ -107,7 +110,7 @@
     (if (force enabled-component)
         (bind (((:values href send-client-state?) (href-for-command action action-arguments))
                (onclick-js (or js
-                               (%default-onclick-js ajax send-client-state?)))
+                               (%default-onclick-js id ajax send-client-state?)))
                (name (when (running-in-test-mode? *application*)
                        (if (typep content 'icon/widget)
                            (symbol-name (name-of content))
@@ -150,7 +153,7 @@
          (action-arguments (action-arguments-of command))
          ((:values href send-client-state?) (href-for-command action action-arguments))
          (onclick-js (or (js-of command)
-                         (%default-onclick-js (ajax-of command) send-client-state?))))
+                         (%default-onclick-js id (ajax-of command) send-client-state?))))
     `js(on-load (dojo.connect (dojo.by-id ,id) "onclick"
                               (lambda (event)
                                 ,(funcall onclick-js href))))))

@@ -47,7 +47,6 @@
           <div (:id ,menu-id
                 :dojoType #.+dijit/menu+
                 :targetNodeIds ,id
-                :contextMenuForWindow "false"
                 :style "display: none;")
             ,(foreach #'render-component menu-items)>))>)))
 
@@ -71,7 +70,6 @@
               :class ,style-class
               :style `str("display: none;" ,custom-style)
               :dojoType #.+dijit/menu+
-              :contextMenuForWindow "false"
               :targetNodeIds ,(id-of (parent-component-of -self-)))
           ,(foreach #'render-component menu-items)>))))
 
