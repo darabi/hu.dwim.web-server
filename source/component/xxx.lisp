@@ -114,35 +114,40 @@
 
 (def layered-method make-begin-editing-command ((component editable/mixin) class prototype value)
   (command/widget (:visible (or (editable-component? component)
-                                (delay (not (edited-component? component)))))
+                                (delay (not (edited-component? component))))
+                   :ajax (ajax-of component))
     (icon begin-editing)
     (make-component-action component
       (with-interaction component
         (begin-editing component)))))
 
 (def layered-method make-save-editing-command (component class prototype value)
-  (command/widget (:visible (delay (edited-component? component)))
+  (command/widget (:visible (delay (edited-component? component))
+                   :ajax (ajax-of component))
     (icon save-editing)
     (make-component-action component
       (with-interaction component
         (save-editing component)))))
 
 (def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
-  (command/widget (:visible (delay (edited-component? component)))
+  (command/widget (:visible (delay (edited-component? component))
+                   :ajax (ajax-of component))
     (icon cancel-editing)
     (make-component-action component
       (with-interaction component
         (cancel-editing component)))))
 
 (def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
-  (command/widget (:visible (delay (edited-component? component)))
+  (command/widget (:visible (delay (edited-component? component))
+                   :ajax (ajax-of component))
     (icon store-editing)
     (make-component-action component
       (with-interaction component
         (save-editing component)))))
 
 (def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
-  (command/widget (:visible (delay (edited-component? component)))
+  (command/widget (:visible (delay (edited-component? component))
+                   :ajax (ajax-of component))
     (icon revert-editing)
     (make-component-action component
       (with-interaction component
