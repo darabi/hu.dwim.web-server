@@ -11,11 +11,11 @@
 
 (def constant +context-sensitive-help-parameter-name+ "_hlp")
 
-(def (icon e) help :tooltip nil)
+(def (icon e) context-sensitive-help :tooltip nil)
 
 (def (component e) context-sensitive-help (content/mixin frame-unique-id/mixin)
   ()
-  (:default-initargs :content (icon help)))
+  (:default-initargs :content (icon context-sensitive-help)))
 
 (def render-xhtml context-sensitive-help
   (when *frame*
@@ -25,7 +25,7 @@
             :onmouseover `js-inline(bind ((kludge (wui.help.make-mouseover-handler ,href)))
                                      ;; KLUDGE for now cl-qq-js chokes on ((wui.help.make-mouseover-handler ,href))
                                      (kludge event)))
-           ,(call-next-method)>)))
+        ,(render-content-for -self-)>)))
 
 (def layered-function show-context-sensitive-help (component)
   (:method ((self context-sensitive-help))
@@ -37,32 +37,13 @@
                                      (when (and (typep descendant 'id/mixin)
                                                 (member (id-of descendant) ids :test #'string=))
                                        (push descendant components))))
-        (make-component-rendering-response (make-instance 'context-sensitive-help-popup
-                                                          :content (or (and components
-                                                                            (make-context-sensitive-help (first components)))
-                                                                       #"help.no-context-sensitive-help-available")))))))
+        (make-component-rendering-response (or (some (lambda (component)
+                                                       (make-context-sensitive-help component (component-dispatch-class component) (component-dispatch-prototype component) (component-value-of component)))
+                                                     components)
+                                               #"context-sensitive-help.not-available"))))))
 
-(def (generic e) make-context-sensitive-help (component)
-  (:method ((component component))
-    nil)
-
-  (:method :around ((component id/mixin))
-    (or (call-next-method)
-        (awhen (parent-component-of component)
-          (make-context-sensitive-help it))))
-
-  (:method ((self context-sensitive-help))
-    #"help.help-about-context-sensitive-help-button"))
-
-;;;;;;
-;;; Context sensitive help popup
-
-(def (component e) context-sensitive-help-popup (content/mixin)
-  ())
-
-(def render-xhtml context-sensitive-help-popup
-  <div (:class "context-sensitive-help-popup")
-    ,(call-next-method)>)
+(def layered-method make-context-sensitive-help ((component context-sensitive-help) class prototype value)
+  #"context-sensitive-help.self-description")
 
 ;;;;;;
 ;;; usage-help/widget

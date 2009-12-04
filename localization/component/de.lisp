@@ -88,9 +88,9 @@
 ;;; Context sensitive help
 
 (def localization de
-  (icon-label.help "Hilfe")
-  (help.no-context-sensitive-help-available "Hierzu ist kein Hilfe-Text verfügbar")
-  (help.help-about-context-sensitive-help-button "This is the switch that can be used to turn on the context sensitive help. In help mode hovering the mouse over certain parts of the screen opens a tooltip just like this, but containing the most relevant help to that point (in this case the description of the help mode itself). A special mouse pointer indicates help mode. Clicking the mouse button anywhere in help mode turns off the mode."))
+  (icon-label.context-sensitive-help "Hilfe-Text verfügbar")
+  (context-sensitive-help.not-available "Hierzu ist kein Hilfe-Text verfügbar")
+  (context-sensitive-help.self-description "This is the switch that can be used to turn on the context sensitive help. In help mode hovering the mouse over certain parts of the screen opens a tooltip just like this, but containing the most relevant help to that point (in this case the description of the help mode itself). A special mouse pointer indicates help mode. Clicking the mouse button anywhere in help mode turns off the mode."))
 
 ;;;;;;
 ;;; File up/download

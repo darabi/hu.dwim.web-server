@@ -88,9 +88,9 @@
 ;;; Context sensitive help
 
 (def localization hu
-  (icon-label.help "Segítség")
-  (help.no-context-sensitive-help-available "Nincs környezetfüggő segítség")
-  (help.help-about-context-sensitive-help-button "Ez a környezetfüggő segítség üzemmódnak a ki- és bekapcsoló gombja. Segítség üzemmódban az egérrel megállva a képernyő különböző pontjain feljön egy hasonló buborék mint ez, ami megmutatja az adott pontra legrelevánsabb környezetfüggő segítséget (jelen esetben magának a segítség üzemmódnak a leírását). A segítség üzemmódot a kérdőjel formájú egér kurzor jelzi. Ilyenkor az egérrel bárhova kattintva a segítség üzemmód kikapcsol."))
+  (icon-label.context-sensitive-help "Környezetfüggő segítség")
+  (context-sensitive-help.not-available "Nincs környezetfüggő segítség")
+  (context-sensitive-help.self-description "Ez a környezetfüggő segítség üzemmódnak a ki- és bekapcsoló gombja. Segítség üzemmódban az egérrel megállva a képernyő különböző pontjain feljön egy hasonló buborék mint ez, ami megmutatja az adott pontra legrelevánsabb környezetfüggő segítséget (jelen esetben magának a segítség üzemmódnak a leírását). A segítség üzemmódot a kérdőjel formájú egér kurzor jelzi. Ilyenkor az egérrel bárhova kattintva a segítség üzemmód kikapcsol."))
 
 ;;;;;;
 ;;; File up/download

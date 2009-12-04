@@ -92,6 +92,9 @@
 (def (layered-function e) make-reference-content (component class prototype value)
   (:documentation "Creates a COMPONENT to be the content of a reference to VALUE."))
 
+(def (layered-function e) make-context-sensitive-help (component class prototype value)
+  (:documentation "Creates a COMPONENT that provides help using the given COMPONENT."))
+
 ;;;;;;
 ;;; Command factories
 
