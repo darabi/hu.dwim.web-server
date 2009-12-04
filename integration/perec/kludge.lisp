@@ -63,23 +63,18 @@
     label))
 
 ;; KLUDGE: TODO: redefined for now
-#+nil
-(def (function e) save-editing (editable &key (leave-editing #t))
-  (assert (typep editable 'editable/mixin))
+(def method save-editing :around ((self editable/mixin))
   ;; TODO: make this with-transaction part of a generic save-editing protocol dispatch
   (handler-bind ((hu.dwim.perec::persistent-constraint-violation (lambda (error)
-                                                         (add-user-error editable "Adatösszefüggés hiba")
-                                                         (abort-interaction)
-                                                         (continue error))))
+                                                                   (add-component-error-message self "Adatösszefüggés hiba")
+                                                                   (abort-interaction)
+                                                                   (continue error))))
     (hu.dwim.rdbms:with-transaction
-      (store-editing editable)
-      (when (and leave-editing
-                 (not (interaction-aborted-p)))
-        (leave-editing editable))
-      (if (interaction-aborted-p)
-          (hu.dwim.rdbms:mark-transaction-for-rollback-only)
-          (hu.dwim.rdbms:register-transaction-hook :after :commit
-            (add-user-information editable "A változtatások elmentése sikerült"))))))
+       (call-next-method)
+       (if (interaction-aborted?)
+           (hu.dwim.rdbms:mark-transaction-for-rollback-only)
+           (hu.dwim.rdbms:register-transaction-hook :after :commit
+             (add-component-information-message self "A változtatások elmentése sikerült")))))))
 
 ;; KLUDGE: TODO: redefined for now
 #+nil
