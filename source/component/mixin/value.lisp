@@ -24,6 +24,10 @@
     (unless (eq value reused-value)
       (setf (component-value-of self) reused-value))))
 
+(def method clone-component ((self component-value/mixin))
+  (aprog1 (call-next-method)
+    (setf (component-value-of it) (component-value-of self))))
+
 ;;;;;;
 ;;; component-value-type/mixin
 
@@ -33,6 +37,10 @@
     :type t
     :documentation "The type of possible COMPONENT-VALUEs."))
   (:documentation "A COMPONENT that represents a single COMPONENT-VALUE of COMPONENT-VALUE-TYPE."))
+
+(def method clone-component ((self component-value-type/mixin))
+  (aprog1 (call-next-method)
+    (setf (component-value-type-of it) (component-value-type-of self))))
 
 ;;;;;;
 ;;; selected-type/mixin

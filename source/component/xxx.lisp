@@ -259,6 +259,14 @@
                                         (list :content (icon focus-in) :visible (delay (not (top-component-content? component))))
                                         (list :content (icon focus-out)))))
 
+(def layered-method make-context-menu-items ((component command-bar/mixin) class prototype value)
+  (optional-list* (awhen (make-move-commands component class prototype value)
+                    (make-menu-item (icon menu :label "Move") it))
+                  (call-next-method)))
+
+(def layered-method make-move-commands ((component command-bar/mixin) class prototype value)
+  (optional-list* (make-focus-command component class prototype value) (call-next-method)))
+
 ;;;;;
 ;;; Closeable
 

@@ -504,6 +504,9 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 (def layered-method make-command-bar-commands ((component component) class prototype value)
   nil)
 
+(def layered-method make-move-commands ((component component) class prototype value)
+  nil)
+
 ;;;;;;
 ;;; Clone component
 

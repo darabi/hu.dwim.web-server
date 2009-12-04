@@ -25,6 +25,3 @@
 
 (def (function e) top-component-content? (component)
   (eq component (find-top-component-content component)))
-
-(def layered-method make-move-commands ((component top/abstract) class prototype value)
-  (optional-list* (make-focus-command component class prototype value) (call-next-method)))
