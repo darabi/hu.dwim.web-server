@@ -50,7 +50,8 @@ and CANCEL-EDITING to continuously leave the component in edit mode.
 (def method save-editing ((self editable/mixin))
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces
   (store-editing self)
-  (leave-editing self))
+  (unless (interaction-aborted?)
+    (leave-editing self)))
 
 (def method cancel-editing ((self editable/mixin))
   (declare (optimize (debug 2))) ;; we always want to see it in backtraces

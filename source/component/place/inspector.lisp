@@ -39,3 +39,18 @@
                       :edited (edited-component? component)
                       :initial-alternative-type 't/reference/inspector)
       (make-instance 'unbound/inspector)))
+
+;; TODO: dispatch on generic place/??/inspector base class
+(def method editable-component? ((self place/value/inspector))
+  (place-editable? (component-value-of self)))
+
+;; TODO: dispatch on generic place/??/inspector base class
+(def method store-editing :after ((self place/value/inspector))
+  (bind ((place (component-value-of self))
+         (content (content-of self)))
+    (handler-bind ((type-error (lambda (error)
+                                 (add-component-error-message self "Nem megfelelő adat")
+                                 (abort-interaction)
+                                 (continue error))))
+      (reuse-component-value self (component-dispatch-class self) (component-dispatch-prototype self) place)
+      (setf (value-at-place place) (component-value-of content)))))
