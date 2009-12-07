@@ -29,11 +29,14 @@
          (results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
                                                    (setf answering-broker broker)
-                                                   (funcall (etypecase broker
-                                                              (broker (handler-of broker))
-                                                              (function-designator broker))
-                                                            :broker broker
-                                                            :request request))
+                                                   (etypecase broker
+                                                     (broker (bind ((*broker-stack* (cons broker *broker-stack*)))
+                                                               (funcall (handler-of broker)
+                                                                        :broker broker
+                                                                        :request request)))
+                                                     (function-designator (funcall broker
+                                                                                   :broker broker
+                                                                                   :request request))))
                                                  initial-request
                                                  initial-brokers
                                                  initial-brokers
@@ -97,8 +100,7 @@
 (def function broker/default-handler (&key broker request &allow-other-keys)
   (call-if-matches-request broker request
                            (lambda ()
-                             (bind ((*broker-stack* (cons broker *broker-stack*)))
-                               (produce-response broker request)))))
+                             (produce-response broker request))))
 
 ;;;;;;
 ;;; broker-with-path
