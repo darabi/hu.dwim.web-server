@@ -464,7 +464,7 @@
 ;;; Temporary file
 
 (def special-variable *temporary-file-random-state* (make-random-state t))
-(def special-variable *temporary-file-unique-number* 0)
+(def global *temporary-file-unique-counter* (make-atomic-counter))
 
 (def special-variable *base-directory-for-temporary-files* (string+ (iolib.pathnames:file-path-namestring iolib.os:*temporary-directory*) "/wui")
   "Used for uploading files among other things.")
@@ -491,8 +491,7 @@
            prefix
            (when prefix-provided?
              "-")
-           ;; TODO atomic-incf
-           (integer-to-string (incf *temporary-file-unique-number*))
+           (integer-to-string (atomic-counter/increment *temporary-file-unique-counter*))
            "-"
            (integer-to-string (random 100000 *temporary-file-random-state*))))
 
