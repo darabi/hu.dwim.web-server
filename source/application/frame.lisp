@@ -26,7 +26,7 @@
       (if previous
           (1+ previous)
           0)
-      (random-simple-base-string +frame-index-length+)))
+      (random-string +frame-index-length+)))
 
 (def class* frame (string-id-mixin activity-monitor-mixin)
   ((session nil :type session)

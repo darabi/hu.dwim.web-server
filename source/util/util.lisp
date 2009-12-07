@@ -360,43 +360,8 @@
 (def function mailto-href (email-address)
   (concatenate 'string "mailto:" email-address))
 
-;;;;;;
-;;; String utils
-
-(def constant +lower-case-ascii-alphabet+ (coerce "abcdefghijklmnopqrstuvwxyz" 'simple-base-string))
-(def constant +upper-case-ascii-alphabet+ (coerce "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 'simple-base-string))
-(def constant +ascii-alphabet+ (coerce (concatenate 'string +upper-case-ascii-alphabet+ +lower-case-ascii-alphabet+) 'simple-base-string))
-(def constant +alphanumeric-ascii-alphabet+ (coerce (concatenate 'string +ascii-alphabet+ "0123456789") 'simple-base-string))
-(def constant +base64-alphabet+ (coerce (concatenate 'string +alphanumeric-ascii-alphabet+ "+/") 'simple-base-string))
-
-(def (function o) random-string (&optional (length 32) (alphabet +ascii-alphabet+))
-  (etypecase alphabet
-    (simple-base-string
-     (random-simple-base-string length alphabet))
-    (string
-     (loop
-        :with result = (make-string length)
-        :with alphabet-length = (length alphabet)
-        :for i :below length
-        :do (setf (aref result i) (aref alphabet (random alphabet-length)))
-        :finally (return result)))))
-
-(def (function io) random-simple-base-string (&optional (length 32) (alphabet +ascii-alphabet+) prefix)
-  (check-type length array-index)
-  (check-type alphabet simple-base-string)
-  (assert (or (null prefix)
-              (< (length prefix) length)))
-  (loop
-     :with result = (make-string length :element-type 'base-char)
-     :with alphabet-length = (length alphabet)
-     :initially (when prefix
-                  (replace result prefix))
-     :for i :from (if prefix (length prefix) 0) :below length
-     :do (setf (aref result i) (aref alphabet (random alphabet-length)))
-     :finally (return result)))
-
 (def (function io) new-random-hash-table-key (hash-table key-length &key prefix)
-  (iter (for key = (random-simple-base-string key-length +ascii-alphabet+ prefix))
+  (iter (for key = (random-string key-length +ascii-alphabet+ prefix))
         (for (values value foundp) = (gethash key hash-table))
         (when (not foundp)
           (return key))))
