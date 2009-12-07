@@ -27,7 +27,7 @@
 ;;;;;;
 ;;; Component rendering response
 
-(def class* component-rendering-response (locked-session-response-mixin)
+(def class* component-rendering-response (response)
   ((unique-counter 0 :type integer)
    (application :type application)
    (session :type session)

@@ -512,9 +512,6 @@
            (cons (some [not (string= !1 "")] value))
            (string (not (string= value "")))))))
 
-(def class* locked-session-response-mixin (response)
-  ())
-
 ;;;;;;
 ;;; Utils
 
