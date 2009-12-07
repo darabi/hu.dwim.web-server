@@ -9,9 +9,8 @@
 (def (special-variable e :documentation "The SERVER associated with the currently processed HTTP REQUEST.")
   *server*)
 
-;; TODO rename to *broker-stack*
-(def (special-variable :documentation "Holds the broker path while processing the rules. Whenever a rule provides a new set of rules, it is pushed at the head of the *BROKERS* list.")
-  *brokers*)
+(def (special-variable :documentation "Holds the broker path while processing the rules. Whenever a broker provides a new set of rules to dispatch on, it is pushed at the head of the *BROKER-STACK* list.")
+  *broker-stack*)
 
 (def special-variable *matching-uri-path-element-stack* '()
   "A stack of currently matching path elements while request handling is going deeper and deeper in the broker tree.")

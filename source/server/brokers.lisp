@@ -15,7 +15,7 @@
   (princ (length (brokers-of -self-))))
 
 (def method handle-request ((server broker-based-server) (request request))
-  (debug-only (assert (and (boundp '*brokers*) (eq (first *brokers*) server))))
+  (debug-only (assert (and (boundp '*broker-stack*) (eq (first *broker-stack*) server))))
   (bind ((result (multiple-value-list (query-brokers-for-response request (brokers-of server))))
          (response (first result)))
     (assert (typep response 'response))
@@ -63,7 +63,7 @@
          (cons
           ;; recurse with a new set of brokers provided by the previous broker.
           ;; also record the broker who provided the last set of brokers.
-          (bind ((*brokers* (cons broker *brokers*)))
+          (bind ((*broker-stack* (cons broker *broker-stack*)))
             (iterate-brokers-for-response visitor request initial-brokers result (1+ recursion-depth))))
          (request
           ;; we've got a new request, start over using the original set of brokers
@@ -97,7 +97,7 @@
 (def function broker/default-handler (&key broker request &allow-other-keys)
   (call-if-matches-request broker request
                            (lambda ()
-                             (bind ((*brokers* (cons broker *brokers*)))
+                             (bind ((*broker-stack* (cons broker *broker-stack*)))
                                (produce-response broker request)))))
 
 ;;;;;;
@@ -170,7 +170,7 @@
     `(bind ((,broker (make-instance 'functional-broker)))
        (setf (handler-of ,broker) (named-lambda functional-broker/body (&key ((:request -request-)) &allow-other-keys)
                                     (declare (ignorable -request-))
-                                    (debug-only (assert (and (boundp '*brokers*) (eq (first *brokers*) ,broker))))
+                                    (debug-only (assert (and (boundp '*broker-stack*) (eq (first *broker-stack*) ,broker))))
                                     ,@body))
        ,broker)))
 
@@ -185,7 +185,7 @@
   (error "CALL-IF-MATCHES-REQUEST reached for delegate-broker ~A" broker))
 
 (def method handle-request ((broker delegate-broker) request)
-  (debug-only (assert (and (boundp '*brokers*) (eq (first *brokers*) broker))))
+  (debug-only (assert (and (boundp '*broker-stack*) (eq (first *broker-stack*) broker))))
   ;; tell ITERATE-BROKERS-FOR-RESPONSE to go on with a new set of brokers
   (children-of broker))
 

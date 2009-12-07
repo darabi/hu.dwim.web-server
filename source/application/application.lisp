@@ -343,7 +343,7 @@
 (def method produce-response ((application application) request)
   (assert (not (boundp '*rendering-phase-reached*)))
   (assert (not (boundp '*inside-user-code*)))
-  (assert (eq (first *brokers*) application))
+  (assert (eq (first *broker-stack*) application))
   (bind ((*application* application)
          (request-number (processed-request-counter/increment application)))
     (when (and (zerop (mod request-number +session-purge/check-at-request-interval+)) ; to call GET-MONOTONIC-TIME less often
@@ -477,8 +477,8 @@
                                                                                   *session*)
                                                                              (and (boundp '*application*)
                                                                                   *application*)
-                                                                             (and (boundp '*brokers*)
-                                                                                  (first *brokers*)))))
+                                                                             (and (boundp '*broker-stack*)
+                                                                                  (first *broker-stack*)))))
   (maybe-invoke-debugger condition :context context))
 
 (def method handle-toplevel-error :around ((application application) condition)
