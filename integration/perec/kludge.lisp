@@ -74,7 +74,7 @@
        (if (interaction-aborted?)
            (hu.dwim.rdbms:mark-transaction-for-rollback-only)
            (hu.dwim.rdbms:register-transaction-hook :after :commit
-             (add-component-information-message self "A változtatások elmentése sikerült")))))))
+             (add-component-information-message self "A változtatások elmentése sikerült"))))))
 
 ;; KLUDGE: TODO: redefined for now
 #+nil
