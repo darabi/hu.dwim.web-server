@@ -128,7 +128,7 @@
   (setf (session-class-of -self-)
         (make-instance 'standard-class
                        :direct-superclasses (mapcar #'find-class (session-class -self-))
-                       :name (format-symbol :hu.dwim.wui "~A-SESSION-FOR-~A"
+                       :name (format-symbol :hu.dwim.wui "SESSION-CLASS-FOR/~A/~A"
                                             (class-name (class-of -self-))
                                             (string-upcase path-prefix)))))
 
@@ -467,11 +467,11 @@
   ((home-package *package* :type package)))
 
 (def method call-in-application-environment :around ((application application-with-home-package) session thunk)
-  (let ((*package* (home-package-of application)))
+  (bind ((*package* (home-package-of application)))
     (call-next-method)))
 
 ;;;;;;
-;;; Handle conditions in AJAX requests
+;;; error handling in AJAX requests
 
 (def function maybe-invoke-debugger/application (condition &key (context (or (and (boundp '*session*)
                                                                                   *session*)
@@ -572,6 +572,7 @@
 (def (function e) make-redirect-response-for-current-application (&optional relative-path)
   (make-redirect-response (make-uri-for-current-application relative-path)))
 
+#+nil ; TODO err... i don't get it. rename or delme.
 (def (function e) make-static-content-uri-for-current-application (&optional relative-path)
   (make-uri :path (string+ (path-prefix-of *application*) relative-path)))
 

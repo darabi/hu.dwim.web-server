@@ -39,7 +39,9 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; import all the internal symbol of WUI
-  (iter (for symbol :in-package #.(find-package :hu.dwim.wui) :external-only nil)
-        (when (and (eq (symbol-package symbol) #.(find-package :hu.dwim.wui))
-                   (not (find-symbol (symbol-name symbol) #.(find-package :hu.dwim.wui.test))))
-          (import symbol))))
+  (bind ((wui-package (find-package :hu.dwim.wui))
+         (wui.test-package (find-package :hu.dwim.wui.test)))
+    (iter (for symbol :in-package wui-package :external-only nil)
+          (when (and (eq (symbol-package symbol) wui-package)
+                     (not (find-symbol (symbol-name symbol) wui.test-package)))
+            (import symbol)))))

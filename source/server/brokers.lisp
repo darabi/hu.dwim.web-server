@@ -65,7 +65,7 @@
           (values-list result-values))
          (cons
           ;; recurse with a new set of brokers provided by the previous broker.
-          ;; also record the broker who provided the last set of brokers.
+          ;; also record the broker who provided the new set of brokers to continue with.
           (bind ((*broker-stack* (cons broker *broker-stack*)))
             (iterate-brokers-for-response visitor request initial-brokers result (1+ recursion-depth))))
          (request
@@ -184,7 +184,7 @@
   (:documentation "A simple broker that delegates the handling of a request to one of its children. Base class for things like a virtual host dispatcher broker."))
 
 (def method call-if-matches-request ((broker delegate-broker) request thunk)
-  (error "CALL-IF-MATCHES-REQUEST reached for delegate-broker ~A" broker))
+  (error "CALL-IF-MATCHES-REQUEST of delegate-broker ~A has been reached" broker))
 
 (def method handle-request ((broker delegate-broker) request)
   (debug-only (assert (and (boundp '*broker-stack*) (eq (first *broker-stack*) broker))))
