@@ -23,7 +23,7 @@
    (default-locale "en" :type string)
    (supported-locales '("en"))
    (default-timezone local-time:*default-timezone* :type local-time::timezone)
-   (session-class :type standard-class)
+   (session-class nil :type (or null standard-class))
    (session-timeout *default-session-timeout*)
    (frame-timeout *default-frame-timeout* :type integer)
    (sessions-last-purged-at (get-monotonic-time) :type number)
@@ -127,13 +127,19 @@
 
 (def (constructor o) (application path-prefix)
   (assert path-prefix)
-  (setf (lock-of -self-) (make-recursive-lock (format nil "Application lock for ~A" path-prefix)))
-  (setf (session-class-of -self-)
-        (make-instance 'standard-class
-                       :direct-superclasses (mapcar #'find-class (session-class -self-))
-                       :name (format-symbol :hu.dwim.wui "SESSION-CLASS-FOR/~A/~A"
-                                            (class-name (class-of -self-))
-                                            path-prefix))))
+  (setf (lock-of -self-) (make-recursive-lock (format nil "Application lock for ~A" path-prefix))))
+
+(def method session-class-of :around ((self application))
+  (or (call-next-method)
+      (setf (session-class-of self)
+            (aprog1
+                (make-instance 'standard-class
+                               :direct-superclasses (mapcar #'find-class (session-class self))
+                               :name (symbolicate '#:session-class-for/
+                                                  (class-name (class-of self))
+                                                  "/"
+                                                  (path-prefix-of self)))
+              (app.debug "Instantiated session class ~A for application ~A" it self)))))
 
 (def method session-class list ((application application))
   'session)
