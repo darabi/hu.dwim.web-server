@@ -22,6 +22,7 @@
                                            (:file "dojo" :depends-on ("variables"))
                                            (:file "entry-point" :depends-on ("variables" "session-logic"))
                                            (:file "frame" :depends-on ("variables" "session"))
+                                           (:file "login-entry-point" :depends-on ("session-logic" "entry-point"))
                                            (:file "session" :depends-on ("variables"))
                                            (:file "session-logic" :depends-on ("session" "application"))
                                            (:file "variables" :depends-on ("api"))))))))

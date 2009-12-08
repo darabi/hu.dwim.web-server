@@ -73,6 +73,11 @@ Custom implementations should look something like this:
     (check-type invalidity-reason action-invalidity-reason)
     (check-type action (or null action))))
 
+(def (generic e) execute-logout (application session)
+  (:method (application session)
+    ;; nop by default
+    ))
+
 (def generic entry-point-equals-for-redefinition (a b)
   (:method (a b)
     #f)

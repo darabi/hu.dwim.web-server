@@ -97,6 +97,7 @@
                                            (:module "widget"
                                             :depends-on ("layout")
                                             :components ((:file "alternator" :depends-on ("reference" "command" "menu"))
+                                                         (:file "authentication" :depends-on ("command"))
                                                          (:file "border")
                                                          (:file "button")
                                                          (:file "cell" :depends-on ("table" "row" "column"))

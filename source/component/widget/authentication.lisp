@@ -7,19 +7,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Constants
-
-(def (constant e) +login-identifier-cookie-name+ "login-identifier")
-
-(def (constant e) +login-entry-point-path+ "login/")
-
-(def (constant e) +session-timed-out-query-parameter-name+ "timed-out")
-
-(def (constant e) +user-action-query-parameter-name+ "user-action")
-
-(def (constant e) +continue-url-query-parameter-name+ "continue-url")
-
-;;;;;;
 ;;; login/widget
 
 (def (component e) login/widget ()
@@ -47,8 +34,8 @@
       (copy-uri-query-parameters (uri-of *request*) uri +continue-url-query-parameter-name+)
       uri)))
 
-(def (function e) make-identifier-and-password-login-component (&key (commands (list (make-default-identifier-and-password-login-command)))
-                                                                     identifier password title id)
+(def (function e) make-identifier-and-password-login/widget (&key (commands (list (make-default-identifier-and-password-login-command)))
+                                                                  identifier password title id)
   (bind ((result (make-instance 'identifier-and-password-login/widget :identifier identifier :password password)))
     (when title
       (setf (title-of result) title))
@@ -59,12 +46,12 @@
     result))
 
 (def render-xhtml identifier-and-password-login/widget
-  (bind (((:read-only-slots identifier password) -self-)
+  (bind (((:read-only-slots id identifier password) -self-)
          (focused-field-id (if identifier
                                "password-field"
-                               "identifier-field"))
-         (id (id-of -self-)))
-    <div (:id ,id :class "identifier-and-password-login-component")
+                               "identifier-field")))
+    <div (:id ,id
+          :class "identifier-and-password-login/widget")
      ,(render-title-for -self-)
      ,(render-component-messages-for -self-)
      <table
@@ -92,18 +79,6 @@
         (execute-logout application *session*)
         (make-redirect-response-for-current-application)))))
 
-(def (generic e) execute-logout (application session)
-  (:method (application session)
-    ;; nop by default
-    )
-
-  (:method :after ((application application) (session session))
-    (assert (eq *session* session))
-    (mark-session-invalid session)
-    ;; set *session* to nil so that the session cookie removal is decorated on the response. otherwise the next request to an entry point
-    ;; would send up a session id to an invalid session and trigger HANDLE-REQUEST-TO-INVALID-SESSION.
-    (setf *session* nil)))
-
 ;;;;;;
 ;;; fake-identifier-and-password-login/widget
 
@@ -128,6 +103,5 @@
 ;;;;;;
 ;;; Icon
 
-(def (icon e) login)
-
-(def (icon e) logout)
+(def icon login)
+(def icon logout)
