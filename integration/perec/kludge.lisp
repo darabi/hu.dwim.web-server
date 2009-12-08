@@ -15,7 +15,8 @@
 (def method call-in-application-environment :around ((application application-with-perec-support) session thunk)
   (hu.dwim.meta-model::with-model-database
     (hu.dwim.perec::with-readonly-transaction
-      (call-next-method))))
+      (hu.dwim.perec:with-new-compiled-query-cache
+        (call-next-method)))))
 
 ;; TODO: KLUDGE: move
 (def method reuse-component-value ((component component) (class standard-class) (prototype object-slot-place) (value object-slot-place))
