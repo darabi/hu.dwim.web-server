@@ -71,7 +71,7 @@
 (def (namespace :test 'equal) http-user-agent)
 
 (def class* http-user-agent ()
-  ((http-header :type (or null string)) ; TODO rename to raw-header-value
+  ((raw-http-header-value :type (or null string))
    (kind :type keyword)
    (version :type number)
    (supported :type boolean :accessor supported?)))
@@ -87,14 +87,15 @@
               "unsupported")))
 
 (def function identify-http-user-agent (request)
-  (bind ((http-header (header-value request +header/user-agent+)))
-    (or (find-http-user-agent http-header :otherwise #f)
-        (setf (find-http-user-agent http-header)
-              (parse-http-user-agent http-header)))))
+  (bind ((header-value (header-value request +header/user-agent+)))
+    ;; the locks inside the namespace accessors are enough here
+    (or (find-http-user-agent header-value :otherwise #f)
+        (setf (find-http-user-agent header-value)
+              (parse-http-user-agent header-value)))))
 
-(def function parse-http-user-agent (http-header)
+(def function parse-http-user-agent (header-value)
   (flet ((try (version-scanner kind minimum-required-version)
-           (bind (((:values success? version-string) (cl-ppcre:scan-to-strings version-scanner http-header)))
+           (bind (((:values success? version-string) (cl-ppcre:scan-to-strings version-scanner header-value)))
              (when success?
                (bind ((version (or (ignore-errors
                                      (parse-number:parse-number (first-elt version-string)))
@@ -103,7 +104,7 @@
                                 :kind kind
                                 :version version
                                 :supported (>= version minimum-required-version)
-                                :http-header http-header))))))
+                                :raw-http-header-value header-value))))))
     (aprog1
         (or (try +chrome-version-scanner+    :chrome    3)
             (try +opera-version-scanner+     :opera     9.6)
@@ -113,7 +114,7 @@
             (try +mozilla-version-scanner+   :mozilla   5)
             (try +drakma-version-scanner+    :drakma    0)
             (make-instance 'http-user-agent
-                           :http-header http-header
+                           :raw-http-header-value header-value
                            :kind :generic
                            :version 0
                            :supported #f))
