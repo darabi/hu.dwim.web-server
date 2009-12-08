@@ -464,7 +464,7 @@
 ;;; Temporary file
 
 (def special-variable *temporary-file-random-state* (make-random-state t))
-(def global *temporary-file-unique-counter* (make-atomic-counter))
+(def global-variable *temporary-file-unique-counter* (make-atomic-counter))
 
 (def special-variable *base-directory-for-temporary-files* (string+ (iolib.pathnames:file-path-namestring iolib.os:*temporary-directory*) "/wui")
   "Used for uploading files among other things.")
