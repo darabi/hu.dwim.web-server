@@ -55,9 +55,7 @@
         (princ prefix str))
       (princ (incf (unique-counter-of context)) str))))
 
-;;;;;;
-;;; NOTE: this should not be used with ajax renderable parts, because there is no guarantee
-;;; that it will not generate the same string that is already present in the page
+;; NOTE: GENERATE-RESPONSE-UNIQUE-STRING should not be used with ajax renderable parts, because there is no guarantee that it will not generate the same string that is already present in the page
 (def (function ei) generate-response-unique-string (&optional prefix response)
   (generate-unique-string (or prefix "r") (or response *response*)))
 

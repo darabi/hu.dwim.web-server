@@ -284,7 +284,8 @@
         (setf (slot-value ($ ,id) 'value)
               (dojo.date.to-rfc-3339 (new *date))))))
 
-;; TODO: resolve this duality among localize and localized-instance-name, why do we have both? 
+;; TODO: resolve this duality among localize and localized-instance-name, why do we have both?
+;; TODO localized-instance-name is quite a bad name, because it's not the instance's name, only a mere human readable, short text representation
 (def (generic e) localized-instance-name (value)
   (:method (value)
     (bind ((*print-level* 3)

@@ -316,7 +316,7 @@
                     (with-error-log-decorator (lambda ()
                                                 (format t "~%User agent: ~S" (header-value *request* +header/user-agent+)))
                       (loop
-                        (with-simple-restart (retry-handling-request "Try again handling this request")
+                        (with-simple-restart (retry-handling-request "Try again handling this HTTP request")
                           (when (and *response*
                                      (headers-are-sent-p *response*))
                             (cerror "Continue" "Some data was already written to the network stream, so restarting the request handling will probably not result in what you would expect."))
