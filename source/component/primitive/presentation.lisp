@@ -504,11 +504,7 @@
 (def method print-component-value ((component inet-address/presentation))
   (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if has-component-value?
-        (with-output-to-string (string)
-          (iter (for ip-element :in-sequence component-value)
-                (unless (first-iteration-p)
-                  (write-char #\. string))
-                (write-string (princ-to-string ip-element) string)))
+        (iolib.sockets:address-to-string component-value)
         "")))
 
 ;;;;;;
