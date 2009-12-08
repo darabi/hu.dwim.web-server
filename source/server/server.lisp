@@ -458,8 +458,8 @@
              (accepts-encoding? +content-encoding/deflate+)
              (member (kind-of (aif (and (boundp '*session*)
                                         (symbol-value '*session*))
-                                   (user-agent-of it)
-                                   (determine-user-agent *request*)))
+                                   (http-user-agent-of it)
+                                   (identify-http-user-agent *request*)))
                      '(:chrome :mozilla :opera)))
     :deflate))
 

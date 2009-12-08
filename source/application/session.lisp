@@ -56,7 +56,7 @@
 (def class* session (string-id-mixin
                      activity-monitor-mixin
                      debug-context-mixin)
-  ((user-agent (determine-user-agent *request*) :type user-agent)
+  ((http-user-agent (identify-http-user-agent *request*) :type http-user-agent)
    (application nil :type application)
    (client-timezone (default-timezone-of *application*) :type local-time::timezone)
    (frame-id->frame (make-hash-table :test 'equal) :type hash-table)
@@ -124,3 +124,24 @@
                (not invalidity-reason))
       (setf invalidity-reason :nonexistent))
     (values session cookie-exists? invalidity-reason session-instance)))
+
+;;;;;;
+;;; http user agent breakdown
+
+;; TODO rename to what? http-user-agent-count? breakdown means something else...
+(def class* http-user-agent-breakdown (http-user-agent)
+  ((count :type integer)))
+
+(def function make-http-user-agent-breakdown (&optional (server *server*))
+  (bind ((user-agents (make-hash-table :test #'equal))
+         (applications '()))
+    (map-broker-tree server
+                     [push !1 applications]
+                     :filter (of-type 'application))
+    (dolist (application applications)
+      (iter (for (id session) :in-hashtable (session-id->session-of application))
+            (for user-agent = (http-user-agent-of session))
+            (when user-agent
+              (incf (gethash (http-header-of user-agent) user-agents 0)))))
+    (iter (for (http-header count) :in-hashtable user-agents)
+          (collect (change-class (parse-http-user-agent http-header) 'http-user-agent-breakdown :count count)))))

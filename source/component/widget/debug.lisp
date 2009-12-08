@@ -103,7 +103,7 @@
       (menu-item/widget ()
           (replace-target-place/widget ()
               "User agent breakdown"
-            (make-value-inspector (make-user-agent-breakdown *server*)))))
+            (make-value-inspector (make-http-user-agent-breakdown *server*)))))
     (menu-item/widget ()
         "Miscellaneous"
       (menu-item/widget ()

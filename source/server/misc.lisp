@@ -58,7 +58,7 @@
     (format stream "Elapsed time rendering this response:       ~,4F seconds~%" (local-time:timestamp-difference (local-time:now) start))))
 
 ;;;;;;
-;;; user-agent
+;;; http-user-agent
 
 (def (load-time-constant e) +chrome-version-scanner+    (cl-ppcre:create-scanner "Chrome/([0-9]{1,}\.[0-9]{0,})"))
 (def (load-time-constant e) +opera-version-scanner+     (cl-ppcre:create-scanner "Opera/([0-9]{1,}\.[0-9]{0,})"))
@@ -68,69 +68,53 @@
 (def (load-time-constant e) +mozilla-version-scanner+   (cl-ppcre:create-scanner "Mozilla/([0-9]{1,}\.[0-9]{0,})"))
 (def (load-time-constant e) +drakma-version-scanner+    (cl-ppcre:create-scanner "Drakma/([0-9]{1,}\.[0-9]{0,})"))
 
-(def (namespace :test 'equal) user-agent)
+(def (namespace :test 'equal) http-user-agent)
 
-(def class* user-agent ()
-  ((http-header :type (or null string))
+(def class* http-user-agent ()
+  ((http-header :type (or null string)) ; TODO rename to raw-header-value
    (kind :type keyword)
    (version :type number)
    (supported :type boolean :accessor supported?)))
 
-(def print-object user-agent
-  (print-user-agent -self- t))
+(def print-object http-user-agent
+  (print-http-user-agent -self- t))
 
-(def function print-user-agent (user-agent stream)
+(def function print-http-user-agent (self stream)
   (format stream "~A : ~A (~A)"
-          (kind-of user-agent) (version-of user-agent)
-          (if (supported? user-agent)
+          (kind-of self) (version-of self)
+          (if (supported? self)
               "supported"
               "unsupported")))
 
-(def function make-generic-user-agent (http-header)
-  (make-instance 'user-agent
-                 :http-header http-header
-                 :kind :generic
-                 :version 0
-                 :supported #f))
-
-(def function determine-user-agent (request)
+(def function identify-http-user-agent (request)
   (bind ((http-header (header-value request +header/user-agent+)))
-    (or (find-user-agent http-header :otherwise nil)
-        (setf (find-user-agent http-header)
-              (parse-user-agent http-header)))))
+    (or (find-http-user-agent http-header :otherwise #f)
+        (setf (find-http-user-agent http-header)
+              (parse-http-user-agent http-header)))))
 
-(def function parse-user-agent (http-header)
-  (flet ((check-user-agent (version-scanner user-agent minimum-version)
+(def function parse-http-user-agent (http-header)
+  (flet ((try (version-scanner kind minimum-required-version)
            (bind (((:values success? version-string) (cl-ppcre:scan-to-strings version-scanner http-header)))
              (when success?
                (bind ((version (or (ignore-errors
                                      (parse-number:parse-number (first-elt version-string)))
                                    0)))
-                 (make-instance 'user-agent
-                                :kind user-agent
+                 (make-instance 'http-user-agent
+                                :kind kind
                                 :version version
-                                :supported (>= version minimum-version)
+                                :supported (>= version minimum-required-version)
                                 :http-header http-header))))))
-    (aprog1 (or (check-user-agent +chrome-version-scanner+ :chrome 3)
-                (check-user-agent +opera-version-scanner+ :opera 9.6)
-                (check-user-agent +konqueror-version-scanner+ :konqueror 4.2)
-                (check-user-agent +safari-version-scanner+ :safari 4)
-                (check-user-agent +msie-version-scanner+ :msie 7)
-                (check-user-agent +mozilla-version-scanner+ :mozilla 5)
-                (check-user-agent +drakma-version-scanner+ :drakma 0)
-                (make-generic-user-agent http-header))
+    (aprog1
+        (or (try +chrome-version-scanner+    :chrome    3)
+            (try +opera-version-scanner+     :opera     9.6)
+            (try +konqueror-version-scanner+ :konqueror 4.2)
+            (try +safari-version-scanner+    :safari    4)
+            (try +msie-version-scanner+      :msie      7) ;; TODO rename
+            (try +mozilla-version-scanner+   :mozilla   5)
+            (try +drakma-version-scanner+    :drakma    0)
+            (make-instance 'http-user-agent
+                           :http-header http-header
+                           :kind :generic
+                           :version 0
+                           :supported #f))
       (http.info "Determined user agent is ~A" it))))
-
-(def class* user-agent-breakdown (user-agent)
-  ((count :type integer)))
-
-(def function make-user-agent-breakdown (&optional (server *server*))
-  (bind ((user-agents (make-hash-table :test #'equal)))
-    (iter (for broker :in (brokers-of server))
-          (when (typep broker 'application)
-            (iter (for (id session) :in-hashtable (session-id->session-of broker))
-                  (for user-agent = (user-agent-of session))
-                  (when user-agent
-                    (incf (gethash (http-header-of user-agent) user-agents 0))))))
-    (iter (for (http-header count) :in-hashtable user-agents)
-          (collect (change-class (parse-user-agent http-header) 'user-agent-breakdown :count count)))))
