@@ -832,13 +832,13 @@
     (component-demo/widget "System"
       (make-value-inspector (asdf:find-system :hu.dwim.wui)))
     (component-demo/widget "Module"
-      (make-value-inspector (reduce 'asdf:find-component (list "src" "component") :initial-value (asdf:find-system :hu.dwim.wui.component))))
+      (make-value-inspector (reduce 'asdf:find-component (list "source" "component") :initial-value (asdf:find-system :hu.dwim.wui.component))))
     (component-demo/widget "Source file"
-      (make-value-inspector (reduce 'asdf:find-component (list "src" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
+      (make-value-inspector (reduce 'asdf:find-component (list "source" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
     (component-demo/widget "Text file"
       (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "README")))
     (component-demo/widget "Pathname"
-      (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "src/component/api/api.lisp")))
+      (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "source/component/api/api.lisp")))
     (component-demo/widget "Package"
       (make-value-inspector (find-package :hu.dwim.wui)))
     (component-demo/widget "Dictionary"
@@ -877,7 +877,14 @@
     (component-demo/widget "Macro"
       (make-value-inspector (symbol-function 'with-lock-held-on-application)))
     (component-demo/widget "Test"
-      (make-value-inspector (hu.dwim.stefil::find-test 'test)))))
+      (make-value-inspector (hu.dwim.stefil::find-test 'test)))
+    (component-demo/widget "Shell script"
+      (make-value-inspector (shell-script ()
+                              "sudo apt-get install clisp"
+                              "cd ~/workspace/sbcl"
+                              "wget http://dwim.hu/install/customize-target-features.lisp"
+                              "sh ~/workspace/sbcl/make.sh \"clisp -ansi -on-error abort\""
+                              "sudo sh ~/workspace/sbcl/install.sh")))))
 
 ;;;;;;
 ;;; Chart
