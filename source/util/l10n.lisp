@@ -76,7 +76,6 @@
     ("class-name" (string-downcase (class-name class)))))
 
 (def (generic e) localized-slot-name (slot &key capitalize-first-letter prefix-with)
-
   (:method ((slot effective-slot-definition) &key &allow-other-keys)
     (bind ((slot-name (slot-definition-name slot)))
       (lookup-first-matching-resource
