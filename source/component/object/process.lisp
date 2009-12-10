@@ -78,7 +78,7 @@
 
 (def (macro e) closure-cc/user-interface/inspector ((&rest args &key &allow-other-keys) &body forms)
   `(make-instance 'closure-cc/user-interface/inspector ,@args
-                  :component-value (hu.dwim.delico::make-closure/cc (hu.dwim.walker:walk-form `(lambda () ,',@forms)))))
+                  :component-value (hu.dwim.delico::make-closure/cc (hu.dwim.walker:walk-form `(lambda () ,@',forms)))))
 
 (def render-xhtml closure-cc/user-interface/inspector
   ;; NOTE: answer-continuation and content are set during rendering
