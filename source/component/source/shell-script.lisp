@@ -35,19 +35,14 @@
 
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
   (def render-xhtml shell-script/text/inspector
-    (bind (((:read-only-slots component-value) -self-))
-      (with-render-style/abstract (-self-)
-        <pre (:class "gutter")
-             ,(iter (with line-count = (length (contents-of component-value)))
-                    (for line-number :from 0)
-                    (repeat line-count)
-                    <span (:class `str("line-number " ,(element-style-class line-number line-count))) ,(format nil "~3,' ',D" (1+ line-number))>
-                    <span (:class "prompt") ,(format nil "$ ~%")>)>
-        <pre (:class "content")
-             ,(iter (for line :in (contents-of component-value))
-                    (unless (first-iteration-p)
-                      (write-char #\NewLine *xml-stream*))
-                    <span (:class "command") ,(render-component line)>)>)))}
+    (bind (((:read-only-slots component-value) -self-)
+           (contents (contents-of component-value)))
+      (with-render-style/abstract (-self- :element-name "ol")
+        (iter (with length = (length contents))
+              (for index :from 0)
+              (for line :in contents)
+              ;; NOTE: do not put new lines in here, because it is preformatted
+              <li <pre (:class `str("command " ,(element-style-class index length))) ,(render-component line)>>))))}
 
 (def render-text shell-script/text/inspector
   (iter (for content :in (contents-of -self-))
