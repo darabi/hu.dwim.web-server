@@ -128,7 +128,8 @@
 ;;;;;;
 ;;; http user agent breakdown
 
-;; TODO rename to what? http-user-agent-count? breakdown means something else...
+;; TODO rename to what? http-user-agent-statistics? breakdown means something else...
+;; TODO or just implement it in a different way than inheritance... also including other statistics than the count...
 (def class* http-user-agent-breakdown (http-user-agent)
   ((count :type integer)))
 
@@ -142,6 +143,6 @@
       (iter (for (id session) :in-hashtable (session-id->session-of application))
             (for user-agent = (http-user-agent-of session))
             (when user-agent
-              (incf (gethash (http-header-of user-agent) user-agents 0)))))
-    (iter (for (http-header count) :in-hashtable user-agents)
-          (collect (change-class (parse-http-user-agent http-header) 'http-user-agent-breakdown :count count)))))
+              (incf (gethash (raw-http-header-value-of user-agent) user-agents 0)))))
+    (iter (for (header-value count) :in-hashtable user-agents)
+          (collect (change-class (parse-http-user-agent header-value) 'http-user-agent-breakdown :count count)))))
