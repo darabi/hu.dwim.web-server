@@ -81,8 +81,7 @@
   (bind ((query (query-of filter-query))
          (query-variable (hu.dwim.perec::add-query-variable query (gensym (symbol-name class-name)))))
     (push query-variable (query-variable-stack-of filter-query))
-    ;; KLUDGE: was `(typep ,query-variable ',class-name) but with-macro didn't like it
-    (hu.dwim.perec::add-assert query (list 'typep query-variable (list 'quote class-name)))
+    (hu.dwim.perec::add-assert query `(typep ,query-variable ',class-name))
     (multiple-value-prog1
         (-body- (query-variable variable-name))
       (pop (query-variable-stack-of filter-query)))))
