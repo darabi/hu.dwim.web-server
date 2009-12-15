@@ -34,10 +34,10 @@
     (values)))
 
 (def fixture ensure-test-server
-  (:setup
-   (start-test-server (make-instance 'server :host *test-host* :port *test-port*)))
-  (:teardown
-   (stop-test-server)))
+  (start-test-server (make-instance 'server :host *test-host* :port *test-port*))
+  (unwind-protect
+       (-body-)
+    (stop-test-server)))
 
 (def function start-test-server-with-handler (handler &rest args &key (server-type 'server) &allow-other-keys)
   (remove-from-plistf args :server-type)

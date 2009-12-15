@@ -34,17 +34,16 @@
                          action)))))))))
 
 (def fixture ensure-test-application-with-ajax-action-dispatcher
-  (:setup
-   (ensure-test-application-with-action-dispatcher :setup)
-   (unless (find-if (rcurry #'typep 'ajax-action-dispatcher)
-                    (application.dispatchers *test-application*))
-     (register-dispatcher *test-application* (make-instance 'ajax-action-dispatcher))))
-  (:teardown
-   (setf (application.dispatchers *test-application*)
-         (delete-if (lambda (el)
-                      (typep el 'ajax-action-dispatcher))
-                    (application.dispatchers *test-application*)))
-   (ensure-test-application-with-action-dispatcher :teardown)))
+  (with-fixture ensure-test-application-with-action-dispatcher
+    (unless (find-if (of-type 'ajax-action-dispatcher)
+                     (application.dispatchers *test-application*))
+      (register-dispatcher *test-application* (make-instance 'ajax-action-dispatcher)))
+    (unwind-protect
+         (-body-)
+      (setf (application.dispatchers *test-application*)
+            (delete-if (lambda (el)
+                         (typep el 'ajax-action-dispatcher))
+                       (application.dispatchers *test-application*))))))
 
 (def definer ajax-action-test (name args &body body)
   `(def-action-test ,name ,args
