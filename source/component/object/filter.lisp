@@ -269,13 +269,7 @@ Optimized factory configuration (default):
   (lookup-resource (string+ "predicate." (symbol-name predicate))))
 
 (def function predicate-icon-style-class (predicate)
-  (ecase predicate
-    (equal "icon predicate equal")
-    (like "icon predicate like")
-    (less-than "icon predicate less-than")
-    (less-than-or-equal "icon predicate less-than-or-equal")
-    (greater-than "icon predicate greater-than")
-    (greater-than-or-equal "icon predicate greater-than-or-equal")))
+  (string+ "icon predicate " (string-downcase predicate)))
 
 (def generic predicate-function (component class predicate)
   (:method ((component t/filter) class predicate)

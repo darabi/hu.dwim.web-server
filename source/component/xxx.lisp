@@ -40,12 +40,11 @@
     (make-component-action component
       (refresh-component component))))
 
-(def (layered-function e) make-select-component-command (component class prototype value)
-  (:method ((component selectable/mixin) class prototype value)
-    (command/widget (:ajax (ajax-of (find-selection-component component)))
-      (icon select-component)
-      (make-component-action component
-        (select-component component class prototype value)))))
+(def layered-method make-select-component-command ((component selectable/mixin) class prototype value)
+  (command/widget (:ajax (awhen (find-selection-component component) (ajax-of it)))
+    (icon select-component)
+    (make-component-action component
+      (select-component component class prototype value))))
 
 (def layered-method make-context-menu-items ((component selectable/mixin) class prototype value)
   (optional-list* (make-menu-item (make-select-component-command component class prototype value) nil)

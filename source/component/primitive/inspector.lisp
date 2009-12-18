@@ -282,17 +282,18 @@
   (if (edited-component? self)
       (call-next-method)
       (bind ((value (component-value-of self)))
-        (iolib:address-to-string
-         (etypecase value
-           (iolib:inet-address value)
-           ((simple-array (unsigned-byte 8) (4)) (make-instance 'iolib:ipv4-address :name value))
-           ((simple-array (unsigned-byte 16) (8)) (make-instance 'iolib:ipv6-address :name value)))))))
+        (if value
+            (iolib:address-to-string
+             (etypecase value
+               (iolib:inet-address value)
+               ((simple-array (unsigned-byte 8) (4)) (make-instance 'iolib:ipv4-address :name value))
+               ((simple-array (unsigned-byte 16) (8)) (make-instance 'iolib:ipv6-address :name value))))
+            ""))))
 
 (def render-xhtml inet-address/inspector
   (if (edited-component? -self-)
       (call-next-method)
-      <span (:class "inet-address")
-        ,(print-component-value -self-)>))
+      (print-component-value -self-)))
 
 ;;;;;;
 ;;; file/inspector

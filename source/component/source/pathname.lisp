@@ -31,7 +31,7 @@
 ;;;;;;
 ;;; pathname/text-file/inspector
 
-(def (component e) pathname/text-file/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) pathname/text-file/inspector (inspector/basic t/detail/inspector content/widget)
   ())
 
 (def refresh-component pathname/text-file/inspector
@@ -45,7 +45,7 @@
 ;;;;;;
 ;;; pathname/binary-file/inspector
 
-(def (component e) pathname/binary-file/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) pathname/binary-file/inspector (inspector/basic t/detail/inspector content/widget)
   ())
 
 (def refresh-component pathname/binary-file/inspector
@@ -64,7 +64,7 @@
 ;;;;;;
 ;;; pathname/lisp-file/inspector
 
-(def (component e) pathname/lisp-file/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) pathname/lisp-file/inspector (inspector/basic t/detail/inspector content/widget)
   ())
 
 (def refresh-component pathname/lisp-file/inspector
@@ -74,7 +74,7 @@
 ;;;;;;
 ;;; pathname/directory-tree/inspector
 
-(def (component e) pathname/directory/tree/inspector (t/tree/inspector t/detail/presentation)
+(def (component e) pathname/directory/tree/inspector (t/tree/inspector)
   ())
 
 (def layered-method make-tree/root-node ((component pathname/directory/tree/inspector) (class structure-class) (prototype pathname) (value pathname))
@@ -87,7 +87,7 @@
   ())
 
 (def layered-method collect-tree/children ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
-  (sort (directory (merge-pathnames "*.*" value)) #'string< :key #'namestring))
+  (sort (copy-list (directory (merge-pathnames "*.*" value))) #'string< :key #'namestring))
 
 (def layered-method make-node/child-node ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
   (if (pathname-name value)

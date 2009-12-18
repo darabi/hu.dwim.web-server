@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; t/tree/inspector
 
-(def (component e) t/tree/inspector (inspector/basic tree/widget)
+(def (component e) t/tree/inspector (inspector/basic t/detail/inspector tree/widget)
   ())
 
 (def refresh-component t/tree/inspector
@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; t/node/inspector
 
-(def (component e) t/node/inspector (inspector/basic node/widget)
+(def (component e) t/node/inspector (inspector/basic t/detail/inspector node/widget)
   ())
 
 (def refresh-component t/node/inspector
@@ -62,7 +62,7 @@
 ;;;;;;
 ;;; t/tree-level/inspector
 
-(def (component e) t/tree-level/inspector (inspector/basic tree-level/widget)
+(def (component e) t/tree-level/inspector (inspector/basic t/detail/inspector tree-level/widget)
   ())
 
 (def layered-method make-tree-level/path ((component t/tree-level/inspector) class prototype value)
@@ -82,7 +82,7 @@
 ;;;;;;
 ;;; t/tree-level/path/inspector
 
-(def (component e) t/tree-level/path/inspector (inspector/basic path/widget)
+(def (component e) t/tree-level/path/inspector (inspector/basic t/detail/inspector path/widget)
   ())
 
 (def method component-dispatch-class ((self t/tree-level/path/inspector))

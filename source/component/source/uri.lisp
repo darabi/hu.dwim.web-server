@@ -22,7 +22,7 @@
 ;;;;;;
 ;;; uri/external-link/inspector
 
-(def (component e) uri/external-link/inspector (inspector/style)
+(def (component e) uri/external-link/inspector (inspector/style t/detail/inspector)
   ())
 
 (def render-xhtml uri/external-link/inspector

@@ -15,10 +15,11 @@
 (def subtype-mapper *inspector-type-mapping* sequence sequence/inspector)
 
 (def layered-method make-alternatives ((component sequence/inspector) class prototype value)
-  (list (delay-alternative-component-with-initargs 'sequence/table/inspector :component-value value)
-        (delay-alternative-component-with-initargs 'sequence/list/inspector :component-value value)
-        (delay-alternative-component-with-initargs 'sequence/tree/inspector :component-value value)
-        (delay-alternative-reference 'sequence/reference/inspector value)))
+  (optional-list (awhen (find-if [not (null (class-slots (class-of !1)))] value)
+                   (delay-alternative-component-with-initargs 'sequence/table/inspector :component-value value))
+                 (delay-alternative-component-with-initargs 'sequence/list/inspector :component-value value)
+                 (delay-alternative-component-with-initargs 'sequence/tree/inspector :component-value value)
+                 (delay-alternative-reference 'sequence/reference/inspector value)))
 
 ;;;;;;
 ;;; sequence/reference/inspector
@@ -29,7 +30,7 @@
 ;;;;;;
 ;;; sequence/list/inspector
 
-(def (component e) sequence/list/inspector (inspector/style t/detail/presentation list/widget)
+(def (component e) sequence/list/inspector (inspector/style t/detail/inspector list/widget)
   ())
 
 (def refresh-component sequence/list/inspector
@@ -68,14 +69,15 @@
 ;;; sequence/table/inspector
 
 (def (component e) sequence/table/inspector (inspector/style
-                                             t/detail/presentation
+                                             t/detail/inspector
                                              table/widget
                                              component-messages/widget)
   ())
 
 (def method component-dispatch-class ((component sequence/table/inspector))
   ;; TODO: KLUDGE: this should be an argument
-  (class-of (first-elt (component-value-of component))))
+  (awhen (component-value-of component)
+    (class-of (first-elt it))))
 
 (def refresh-component sequence/table/inspector
   (bind (((:slots component-value rows columns) -self-)
@@ -151,7 +153,7 @@
 ;;; t/row/inspector
 
 (def (component e) t/row/inspector (inspector/style
-                                    t/detail/presentation
+                                    t/detail/inspector
                                     row/widget
                                     component-messages/widget)
   ())
@@ -195,7 +197,7 @@
 ;;; t/entire-row/inspector
 
 (def (component e) t/entire-row/inspector (inspector/style
-                                           t/detail/presentation
+                                           t/detail/inspector
                                            entire-row/widget
                                            component-messages/widget)
   ())
@@ -210,7 +212,7 @@
 ;;;;;;
 ;;; place/cell/inspector
 
-(def (component e) place/cell/inspector (inspector/style t/detail/presentation cell/widget)
+(def (component e) place/cell/inspector (inspector/style t/detail/inspector cell/widget)
   ())
 
 (def refresh-component place/cell/inspector

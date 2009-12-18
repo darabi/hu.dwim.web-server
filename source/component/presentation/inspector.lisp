@@ -24,6 +24,9 @@
   - output
     - component-value: selected-type"))
 
+(def method component-dispatch-class ((self inspector/abstract))
+  (class-of (component-value-of self)))
+
 ;;;;;;
 ;;; inspector/minimal
 

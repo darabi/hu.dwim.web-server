@@ -21,7 +21,7 @@
 ;;;;;;
 ;;; standard-method/lisp-form/inspector
 
-(def (component e) standard-method/lisp-form/inspector (inspector/basic content/widget)
+(def (component e) standard-method/lisp-form/inspector (inspector/basic t/detail/inspector content/widget)
   ())
 
 (def refresh-component standard-method/lisp-form/inspector

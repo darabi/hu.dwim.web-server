@@ -62,7 +62,7 @@
   (make-instance 'class/subclass-hierarchy/node/inspector :component-value value :expanded #f))
 
 (def layered-method collect-tree/children ((component class/subclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
-  (sort (class-direct-subclasses value) #'string< :key (compose #'qualified-symbol-name #'class-name)))
+  (sort (copy-list (class-direct-subclasses value)) #'string< :key (compose #'qualified-symbol-name #'class-name)))
 
 ;;;;;;
 ;;; class/superclass-hierarchy/tree/inspector
@@ -83,7 +83,7 @@
   (make-instance 'class/superclass-hierarchy/node/inspector :component-value value :expanded #f))
 
 (def layered-method collect-tree/children ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
-  (sort (class-direct-superclasses value) #'string< :key (compose #'qualified-symbol-name #'class-name)))
+  (sort (copy-list (class-direct-superclasses value)) #'string< :key (compose #'qualified-symbol-name #'class-name)))
 
 ;;;;;;
 ;;; class/tree-level/inspector
