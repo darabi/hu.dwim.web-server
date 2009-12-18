@@ -16,6 +16,11 @@
                 ,@(iter (for (name dojo-name) :on entries :by #'cddr)
                         (collect `(def (constant e) ,name ,dojo-name))))))
   (x
+   +dijit/accordion-container+   "dijit.layout.AccordionContainer"
+   +dijit/border-container+      "dijit.layout.BorderContainer"
+   +dijit/content-pane+          "dijit.layout.ContentPane"
+   +dijit/split-container+       "dijit.layout.SplitContainer"
+   +dijit/tab-container+         "dijit.layout.TabContainer"
    +dijit/button+                "dijit.form.Button"
    +dijit/drop-down-button+      "dijit.form.DropDownButton"
    +dijit/date-text-box+         "dijit.form.DateTextBox"
