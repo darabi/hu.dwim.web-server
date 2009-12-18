@@ -15,6 +15,7 @@
                :hu.dwim.wui.application.test
                :hu.dwim.wui.component
                :hu.dwim.wui+cl-graph+cl-typesetting
-               :hu.dwim.wui+hu.dwim.reader)
+               :hu.dwim.wui+hu.dwim.reader
+               :hu.dwim.wui+stefil)
   :components ((:module "test"
                 :components ((:file "component")))))

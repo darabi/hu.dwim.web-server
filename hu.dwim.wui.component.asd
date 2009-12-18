@@ -190,11 +190,12 @@
                                                          (:file "process" :depends-on ("presentation"))
                                                          (:file "viewer" :depends-on ("presentation"))))
                                            (:module "sequence"
-                                            :depends-on ("primitive" "place")
-                                            :components ((:file "inspector" :depends-on ("presentation"))
+                                            :depends-on ("object")
+                                            :components ((:file "filter" :depends-on ("presentation"))
+                                                         (:file "inspector" :depends-on ("presentation"))
                                                          (:file "presentation")))
                                            (:module "tree"
-                                            :depends-on ("primitive" "place")
+                                            :depends-on ("object")
                                             :components ((:file "inspector" :depends-on ("presentation"))
                                                          (:file "presentation")))
                                            (:module "text"
