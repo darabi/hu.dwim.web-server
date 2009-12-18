@@ -216,7 +216,9 @@
   (predicate.less-than "Less than")
   (predicate.less-than-or-equal "Less than or equal")
   (predicate.greater-than "Greater than")
-  (predicate.greater-than-or-equal "Greater than or equal"))
+  (predicate.greater-than-or-equal "Greater than or equal")
+  (predicate.some "Some")
+  (predicate.every "Every"))
 
 ;;;;;;
 ;;; Movable

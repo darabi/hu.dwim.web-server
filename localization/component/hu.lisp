@@ -216,7 +216,9 @@
   (predicate.less-than "Kisebb")
   (predicate.less-than-or-equal "Kisebb vagy egyenlő")
   (predicate.greater-than "Nagyobb")
-  (predicate.greater-than-or-equal "Nagyobb vagy egyenlő"))
+  (predicate.greater-than-or-equal "Nagyobb vagy egyenlő")
+  (predicate.some "Egyik")
+  (predicate.every "Mindegyik"))
 
 ;;;;;;
 ;;; Movable
