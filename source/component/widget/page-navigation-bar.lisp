@@ -26,7 +26,7 @@
 ;; TODO: clickable pages: first, 4, 5, previous, (jumper 7), next, 9, 10, last
 (def (component e) page-navigation-bar/widget (widget/style)
   ((position 0 :type integer)
-   (total-count :type integer)
+   (total-count 0 :type integer)
    (first-command :type component)
    (previous-command :type component)
    (next-command :type component)

@@ -28,5 +28,4 @@
   (bind (((:read-only-slots root-nodes) -self-))
     (with-render-style/abstract (-self-)
       (foreach #'render-component root-nodes)
-      (render-command-bar-for -self-)
       (render-context-menu-for -self-))))

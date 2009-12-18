@@ -35,10 +35,12 @@
 
 (def render-xhtml name-value-group/widget
   <tbody (:id ,(id-of -self-) :class "name-value-group widget")
-    ,(unless (length= 1 (contents-of (parent-component-of -self-)))
-       <tr (:class "title")
-         <td ,(render-collapse-or-expand-command-for -self-)>
-         <td (:colspan 2) ,(render-title-for -self-)>>)
+    ,(bind ((parent-component (parent-component-of -self-)))
+       (unless (and (typep parent-component 'name-value-list/widget)
+                    (length= 1 (contents-of parent-component)))
+         <tr (:class "title")
+             <td ,(render-collapse-or-expand-command-for -self-)>
+             <td (:colspan 2) ,(render-title-for -self-)>>))
     ,(when (expanded-component? -self-)
        (foreach (lambda (content)
                   (bind ((id (generate-frame-unique-string)))

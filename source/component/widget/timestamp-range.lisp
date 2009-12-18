@@ -32,7 +32,7 @@
     (make-instance 'timestamp-component)
     :type component)))
 
-(def constructor timestamp-range-component ()
+(def constructor timestamp-range-component
   (not-yet-implemented)
   (setf (range-of -self-) (make-instance 'member-inspector
                                          :edited #t

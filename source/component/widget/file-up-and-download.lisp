@@ -38,7 +38,7 @@
 ;;; Upload file
 
 (def (component e) upload-file/widget ()
-  ())
+  ((client-state-sink nil)))
 
 (def (macro e) upload-file/widget ()
   '(make-instance 'upload-file/widget))
