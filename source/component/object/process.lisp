@@ -7,57 +7,98 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; closure-cc/inspector
+;;; standard-process
 
-(def (component e) closure-cc/inspector (t/inspector)
-  ())
+(def (class* e) standard-process ()
+  ((form :type t)
+   (continuation :type hu.dwim.delico::continuation)
+   (result :type t)))
 
-(def subtype-mapper *inspector-type-mapping* (or null hu.dwim.delico::closure/cc) closure-cc/inspector)
+(def (macro e) standard-process (&body forms)
+  `(make-instance 'standard-process :form '(progn ,@forms)))
 
-(def layered-method make-alternatives ((component closure-cc/inspector) class prototype value)
-  (list* (delay-alternative-component-with-initargs 'closure-cc/user-interface/inspector :component-value value)
+;;;;;;
+;;; t/inspector
+
+(def layered-method make-alternatives ((component t/inspector) (class standard-class) (prototype standard-process) (value standard-process))
+  (list* (delay-alternative-component-with-initargs 'standard-process/user-interface/inspector
+                                                    :component-value value
+                                                    :component-value-type (component-value-type-of component))
          (call-next-method)))
 
 ;;;;;;
-;;; t/user-interface/inspector
+;;; standard-process/user-interface/inspector
 
 (def (special-variable e) *process-component*)
 
-(def (component e) t/user-interface/inspector (inspector/style component-messages/widget content/mixin commands/mixin)
-  ((answer-continuation nil)
-   (answer-commands nil)))
+(def (component e) standard-process/user-interface/inspector (inspector/style t/detail/inspector component-messages/widget content/mixin commands/mixin)
+  ;; TODO: add support to command-bar
+  ((answer-commands nil))
+  (:documentation "Continuation based COMPONENT."))
 
-(def layered-method make-command-bar-commands ((component t/user-interface/inspector) class prototype value)
+(def layered-method refresh-component ((self standard-process/user-interface/inspector))
+  (bind (((:slots component-value) self))
+    (unless (slot-boundp component-value 'continuation)
+      (roll-standard-process self
+                             (lambda (standard-process)
+                               (bind ((walked-form (hu.dwim.walker::walk-form `(lambda () ,(form-of standard-process)))))
+                                 (funcall (hu.dwim.delico::make-closure/cc walked-form))))))))
+
+(def render-xhtml standard-process/user-interface/inspector
+  (with-render-style/abstract (-self-)
+    (render-component-messages-for -self-)
+    (render-content-for -self-)
+    (render-command-bar-for -self-)))
+
+;; TODO: add support for computed commands in command-bar/widget
+(def layered-method make-command-bar-commands ((component standard-process/user-interface/inspector) class prototype value)
   (dolist (command (answer-commands-of component))
     (setf (parent-component-of command) nil))
-  (append (answer-commands-of component) (call-next-method)))
+  (answer-commands-of component))
 
-(def (function/cc e) call-component (component &key answer-commands)
-  (setf answer-commands (ensure-list answer-commands))
+(def (function/cc e) call-component (component answer-commands)
   (let/cc k
     (setf (content-of *process-component*) component)
-    (setf (answer-commands-of *process-component*) answer-commands)
+    (setf (answer-commands-of *process-component*) (ensure-list answer-commands))
     k))
 
 (def (generic e) answer-component (component value)
   (:method ((component component) value)
-    (answer-component (find-ancestor-component-with-type component 't/user-interface/inspector) value))
+    (answer-component (find-ancestor-component-with-type component 'standard-process/user-interface/inspector) value))
 
-  (:method ((component t/user-interface/inspector) value)
-    (bind ((*process-component* component))
-      (setf (answer-continuation-of *process-component*)
-            (kall (answer-continuation-of *process-component*) (force value))))))
+  (:method ((component standard-process/user-interface/inspector) value)
+    (roll-standard-process component
+                           (lambda (standard-process)
+                             (kall (continuation-of standard-process) value)))))
 
-(def function finish-process-component (component)
-  (setf (content-of component) (empty/layout)
-        (answer-commands-of *process-component*) nil))
+(def function roll-standard-process (component thunk)
+  (bind (((:slots answer-commands content component-value) component)
+         (*process-component* component)
+         (values (multiple-value-list (funcall thunk component-value)))
+         (first-value (first values)))
+    (if (hu.dwim.delico:continuationp first-value)
+        (setf (continuation-of component-value) first-value)
+        (progn
+          (when values
+            (setf content (make-value-inspector first-value)))
+          (setf answer-commands nil
+                (continuation-of component-value) nil
+                (result-of component-value) first-value)
+          (add-component-information-message component "Process finished normally")))
+    (mark-to-be-refreshed-component component)
+    (values-list values)))
 
 ;;;;;;
 ;;; answer/widget
+;;;
+;;; TODO: support using plain command/widget and answer-component
+;;; (make-answer-action) -> capture *process-component*
 
-;; TODO: support using plain command/widget and answer-component
+(def (icon e) answer-component)
+
 (def (component e) answer/widget (command/widget)
-  ((action nil)
+  ((content (icon answer-component))
+   (action nil)
    (return-value)))
 
 (def constructor answer/widget ()
@@ -69,28 +110,3 @@
   `(make-instance 'answer/widget ,@args
                   :content ,content
                   :return-value ,(when forms `(delay ,@forms))))
-
-;;;;;;
-;;; closure-cc/user-interface/inspector
-
-(def (component e) closure-cc/user-interface/inspector (t/user-interface/inspector)
-  ())
-
-(def (macro e) closure-cc/user-interface/inspector ((&rest args &key &allow-other-keys) &body forms)
-  `(make-instance 'closure-cc/user-interface/inspector ,@args
-                  :component-value (hu.dwim.delico::make-closure/cc (hu.dwim.walker:walk-form `(lambda () ,@',forms)))))
-
-(def render-xhtml closure-cc/user-interface/inspector
-  ;; NOTE: answer-continuation and content are set during rendering
-  (bind (((:slots answer-continuation content) -self-))
-    (unless content
-      (setf answer-continuation
-            (bind ((*process-component* -self-))
-              (with-call/cc
-                (funcall (component-value-of -self-))))))
-    (unless (and content answer-continuation)
-      (finish-process-component -self-))
-    (with-render-style/abstract (-self-)
-      (render-component-messages-for -self-)
-      (render-content-for -self-)
-      (render-command-bar-for -self-))))

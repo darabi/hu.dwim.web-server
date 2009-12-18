@@ -26,11 +26,11 @@
             hu.dwim.meta-model::show-to-current-effective-subject hu.dwim.meta-model::show-to-subjects-matching-expression)
           :hu.dwim.meta-model))
 
-(def (component e) standard-persistent-process/user-interface/inspector (t/user-interface/inspector)
+(def (component e) standard-persistent-process/user-interface/inspector (standard-process/user-interface/inspector)
   ())
 
 (def render-xhtml standard-persistent-process/user-interface/inspector
-  (bind (((:slots answer-continuation content component-value) -self-))
+  (bind (((:slots content component-value) -self-))
     (hu.dwim.perec::revive-instance component-value)
     (when (empty-layout? content)
       (add-component-information-message -self- (process.message.report-process-state component-value)))
@@ -85,9 +85,9 @@
 (def function/cc hu.dwim.meta-model:show-maybe (component &key answer-commands (when t) (wait-reason nil))
   (hu.dwim.meta-model::persistent-process-wait hu.dwim.meta-model::*process* wait-reason)
   (if when
-      (call-component component :answer-commands answer-commands)
+      (call-component component answer-commands)
       (let/cc k
-        (add-user-information *process-component* #"process.message.waiting-for-other-subject")
+        (add-component-information-message *process-component* #"process.message.waiting-for-other-subject")
         k))
   (assert (hu.dwim.meta-model::persistent-process-running-p hu.dwim.meta-model::*process*))
   (values))
