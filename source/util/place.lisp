@@ -205,7 +205,7 @@
 (def (generic e) object-slot-place-editable? (place class instance slot)
   (:documentation "TRUE means the PLACE can be edited and set to other values, otherwise FALSE.")
 
-  (:method  ((place object-slot-place) (class standard-class) (instance standard-object) (slot standard-effective-slot-definition))
+  (:method  ((place object-slot-place) class instance slot)
     #t))
 
 (def generic slot-type (class prototype slot)
@@ -254,7 +254,7 @@
     (setf (slot-value-using-class class (instance-of self) (slot-of self)) new-value)))
 
 (def (function e) make-object-slot-place (instance slot)
-  (check-type instance (or structure-object standard-object))
+  (check-type instance (or structure-object standard-object condition))
   (check-type slot (or symbol effective-slot-definition))
   (when (symbolp slot)
     (setf slot (find-slot (class-of instance) slot)))
