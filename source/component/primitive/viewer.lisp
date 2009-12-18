@@ -11,4 +11,4 @@
 
 (def (component e) primitive/viewer (primitive/presentation viewer/abstract)
   ()
-  (:documentation "A PRIMITIVE/INSPECTOR displays existing values of primitive TYPEs."))
+  (:documentation "A PRIMITIVE/VIEWER displays existing values of primitive TYPEs."))

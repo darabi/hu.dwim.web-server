@@ -10,7 +10,8 @@
 ;;; place/presentation
 
 (def (component e) place/presentation (t/presentation)
-  ())
+  ()
+  (:documentation "Presentation for reified places."))
 
 ;;;;;;;
 ;;; place/reference/presentation

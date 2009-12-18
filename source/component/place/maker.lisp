@@ -10,7 +10,8 @@
 ;;; place/maker
 
 (def (component e) place/maker (t/maker place/presentation)
-  ())
+  ()
+  (:documentation "An PLACE/MAKER makes existing values of a TYPE at a PLACE."))
 
 (def subtype-mapper *maker-type-mapping* place place/maker)
 

@@ -10,7 +10,8 @@
 ;;; place/filter
 
 (def (component e) place/filter (t/filter place/presentation)
-  ())
+  ()
+  (:documentation "An PLACE/INSPECTOR filters existing values of a TYPE at a PLACE."))
 
 (def subtype-mapper *filter-type-mapping* place place/filter)
 

@@ -11,4 +11,4 @@
 
 (def (component e) primitive/editor (primitive/presentation editor/abstract)
   ()
-  (:documentation "A PRIMITIVE/INSPECTOR edits existing values of primitive TYPEs."))
+  (:documentation "A PRIMITIVE/EDITOR edits existing values of primitive TYPEs."))

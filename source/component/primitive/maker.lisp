@@ -11,7 +11,8 @@
 
 (def (component e) primitive/maker (primitive/presentation maker/abstract)
   ((initform)
-   (use-initform :type boolean)))
+   (use-initform :type boolean))
+  (:documentation "A PRIMITIVE/MAKER makers new values of primitive TYPEs."))
 
 (def constructor primitive/maker ()
   (setf (use-initform? -self-)

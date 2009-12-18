@@ -50,14 +50,13 @@
 (def (component e) component ()
   ()
   (:documentation "COMPONENT is the base class for all COMPONENT-CLASSes. The primitive types STRING and NUMBER are also considered COMPONENTs.
-For debugging purposes NIL is not a valid COMPONENT.
+For debugging purposes NIL is not a valid COMPONENT. This class does not have any slots on purpose.
 
 Naming convention for non instantiatable components:
-*/mixin       - adds some slots and/or behavior, but it is not usable on its own (usually has no superclasses, or only other mixin classes)
-*/abstract    - base class for similar kind of components, usually related to a mixin that mixes in an instance of this component in a slot
-                it usually has no superclasses, except other mixins, and usually there is only one abstract superclass of an instantiatable component
+*/mixin       - adds some slots and/or behavior, but it is not usable on its own. It usually has no superclasses, or only other mixin classes.
+*/abstract    - base class for similar kind of components, usually related to a mixin that mixes in an instance of this component in a slot. It usually has no superclasses, except other mixins, and usually there is only one abstract superclass of an instantiatable component.
 
-Naming convention for meta components related to a lisp type, they are usually alternator components:
+Naming convention for presentations related to a lisp type, they are usually subclasses of alternator components:
 */maker       - subclasses of MAKER/ABSTRACT
 */viewer      - subclasses of VIEWER/ABSTRACT
 */editor      - subclasses of EDITOR/ABSTRACT
