@@ -336,7 +336,7 @@
           (inline-render-xhtml/widget ()
             <span "Last command: " ,string>))))
     (component-demo/widget "Page navigation bar"
-      (page-navigation-bar/widget))
+      (page-navigation-bar/widget :total-count 100))
     (component-demo/widget "Push button"
       (push-button/widget ()
         (command/widget ()
@@ -353,7 +353,7 @@
           (icon refresh-component)
           (make-action))))
     (component-demo/widget "File download"
-      (download-file/widget :file-name (system-relative-pathname :hu.dwim.wui "source/test/component.lisp")))
+      (download-file/widget :file-name (system-relative-pathname :hu.dwim.wui "test/component.lisp")))
     (component-demo/widget "File upload"
       (upload-file/widget))
     (component-demo/widget "List"
@@ -366,6 +366,18 @@
           "Steve")
         (element/widget ()
           "Kate")))
+    (component-demo/widget "Name value pair"
+      (name-value-pair/widget ()
+        "First Name"
+        "John"))
+    (component-demo/widget "Name value group"
+      (name-value-group/widget (:title "Name")
+        (name-value-pair/widget ()
+          "First Name"
+          "John")
+        (name-value-pair/widget ()
+          "Last Name"
+          "Doe")))
     (component-demo/widget "Name value list"
       (name-value-list/widget ()
         (name-value-group/widget (:title "Name")
@@ -415,7 +427,10 @@
           "Cannot add Mary to the list of males, she is a female")))
     (component-demo/widget "Splitter"
       (splitter/widget ()
-        "TODO"))
+        "John"
+        "Mary"
+        "Steve"
+        "Kate"))
     (component-demo/widget "Table"
       (table/widget (:columns (list (column/widget ()
                                       "Male")
@@ -510,7 +525,7 @@
         "John"
         "Mary"
         "Steve"
-        "Kage"))))
+        "Kate"))))
 
 ;;;;;;
 ;;; Primitive
@@ -723,46 +738,34 @@
     (make-sequence-inspectors-node)
     (make-sequence-filters-node)))
 
+(def macro make-sequence-presentations-node (name factory supercomponent)
+  (flet ((make (type value)
+           `(,factory ',type :value ,value)))
+    `(node/widget (:expanded #f)
+         (replace-target-place/widget ()
+             ,name
+           (make-value-inspector (find-class ',supercomponent)))
+       (component-demo/widget "Nil"
+         ,(make 'sequence nil))
+       (component-demo/widget "List"
+         ,(make 'list ''("John" "Mary" "Steve" "Kate")))
+       (component-demo/widget "Vector"
+         ,(make 'vector #("Kate" "Steve" "Mary" "John"))))))
+
 (def function make-sequence-makers-node ()
-  (make-sequence-presentations-node "Maker" 'make-maker))
+  (make-sequence-presentations-node "Maker" make-maker sequence/maker))
 
 (def function make-sequence-viewers-node ()
-  (node/widget (:expanded #f)
-      "Viewer"
-    (component-demo/widget "Nil"
-      (make-viewer 'list :value nil))
-    (component-demo/widget "List"
-      (make-value-viewer '("John" "Mary" "Steve" "Kate")))
-    (component-demo/widget "Vector"
-      (make-value-viewer #("John" "Mary" "Steve" "Kate")))))
+  (make-sequence-presentations-node "Viewer" make-viewer sequence/viewer))
 
 (def function make-sequence-editors-node ()
-  (node/widget (:expanded #f)
-      "Editor"
-    (component-demo/widget "Nil"
-      (make-editor 'list nil))
-    (component-demo/widget "List"
-      (make-value-editor '("John" "Mary" "Steve" "Kate")))
-    (component-demo/widget "Vector"
-      (make-value-editor #("John" "Mary" "Steve" "Kate")))))
+  (make-sequence-presentations-node "Editor" make-editor sequence/editor))
 
 (def function make-sequence-inspectors-node ()
-  (node/widget (:expanded #f)
-      "Inspector"
-    (component-demo/widget "Nil"
-      (make-inspector 'list nil))
-    (component-demo/widget "List"
-      (make-value-inspector '("John" "Mary" "Steve" "Kate")))
-    (component-demo/widget "Vector"
-      (make-value-inspector #("John" "Mary" "Steve" "Kate")))))
+  (make-sequence-presentations-node "Inspector" make-inspector sequence/inspector))
 
 (def function make-sequence-filters-node ()
-  (make-sequence-presentations-node "Filter" 'make-filter))
-
-(def function make-sequence-presentations-node (name factory)
-  (node/widget (:expanded #f)
-      name
-    ))
+  (make-sequence-presentations-node "Filter" make-filter sequence/filter))
 
 ;;;;;;
 ;;; Tree
@@ -821,7 +824,9 @@
        (paragraph ()
          +lorem-ipsum+)))
     (component-demo/widget "Toc"
-      "TODO")))
+      "TODO")
+    (component-demo/widget "URI"
+      (make-value-inspector (parse-uri "http://dwim.hu/")))))
 
 ;;;;;;
 ;;; Source
@@ -834,23 +839,25 @@
     (component-demo/widget "Module"
       (make-value-inspector (reduce 'asdf:find-component (list "source" "component") :initial-value (asdf:find-system :hu.dwim.wui.component))))
     (component-demo/widget "Source file"
-      (make-value-inspector (reduce 'asdf:find-component (list "source" "component" "api" "api") :initial-value (asdf:find-system :hu.dwim.wui.component))))
-    (component-demo/widget "Text file"
-      (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "README")))
-    (component-demo/widget "Pathname"
       (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "source/component/api/api.lisp")))
+    (component-demo/widget "Text file"
+      (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "LICENCE")))
+    (component-demo/widget "Binary file"
+      (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "www/wui/icon/10x10/arrow-out.png")))
+    (component-demo/widget "Pathname"
+      (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "")))
     (component-demo/widget "Package"
       (make-value-inspector (find-package :hu.dwim.wui)))
     (component-demo/widget "Dictionary"
       (make-value-inspector (make-instance 'dictionary
                                            :name 'editing
                                            :definition-names '(editable/mixin begin-editing save-editing cancel-editing store-editing revert-editing join-editing leave-editing))))
-    (component-demo/widget "Definition name"
+    (component-demo/widget "Definition"
       (make-value-inspector (make-definitions 'list)))
-    (component-demo/widget "Special variable name"
-      (make-value-inspector (make-definitions '*xml-stream*)))
-    (component-demo/widget "Type name"
-      (make-value-inspector (make-definitions 'components)))
+    (component-demo/widget "Special variable"
+      (make-value-inspector (first (make-definitions '*xml-stream*))))
+    (component-demo/widget "Type"
+      (make-value-inspector (first (make-definitions 'components))))
     (component-demo/widget "Structure class"
       (make-value-inspector (find-class 'package)))
     (component-demo/widget "Structure direct slot definition"
@@ -875,7 +882,7 @@
     (component-demo/widget "Standard method"
       (make-value-inspector (second (generic-function-methods (symbol-function 'handle-request)))))
     (component-demo/widget "Macro"
-      (make-value-inspector (symbol-function 'with-lock-held-on-application)))
+      (make-value-inspector (first (make-definitions 'with-lock-held-on-application))))
     (component-demo/widget "Test"
       (make-value-inspector (hu.dwim.stefil::find-test 'test)))
     (component-demo/widget "Shell script"
@@ -930,36 +937,61 @@
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Process"
-        (make-value-inspector (find-class 'closure-cc/user-interface/inspector)))
+        (make-value-inspector (find-class 'standard-process/user-interface/inspector)))
+    (component-demo/widget "Empty"
+      (make-value-inspector (standard-process)))
+    (component-demo/widget "Literal"
+      (make-value-inspector (standard-process
+                              42)))
+    (component-demo/widget "Call"
+      (make-value-inspector (standard-process
+                              (call-component "Hello World" (answer/widget ()
+                                                                (icon answer-component :label "Finish"))))))
     (component-demo/widget "Sequential"
-      (closure-cc/user-interface/inspector ()
-        (call-component "John" :answer-commands (answer/widget () "Next"))
-        (call-component "Mary" :answer-commands (answer/widget () "Next"))
-        (call-component "Steve" :answer-commands (answer/widget () "Next"))
-        (call-component "Kate" :answer-commands (answer/widget () "Finish"))))
+      (make-value-inspector (standard-process
+                              (call-component "John" (answer/widget ()
+                                                         (icon answer-component :label "Next")))
+                              (call-component "Mary" (answer/widget ()
+                                                         (icon answer-component :label "Next")))
+                              (call-component "Steve" (answer/widget ()
+                                                          (icon answer-component :label "Next")))
+                              (call-component "Kate" (answer/widget ()
+                                                         (icon answer-component :label "Finish"))))))
     (component-demo/widget "Loop"
-      (closure-cc/user-interface/inspector ()
-        (iter (with max = 4)
-              (for i :from 0 :below max)
-              (for label = (if (= i (1- max)) "Finish" "Next"))
-              (call-component (format nil "At ~A" i) :answer-commands (answer/widget () label)))))
+      (make-value-inspector (standard-process
+                              (iter (with max = 4)
+                                    (for i :from 0 :below max)
+                                    (for label = (if (= i (1- max)) "Finish" "Next"))
+                                    (call-component (format nil "At ~A" i)
+                                                    (answer/widget ()
+                                                        (icon answer-component :label label)))))))
     (component-demo/widget "Branch"
-      (closure-cc/user-interface/inspector ()
-        (ecase (call-component "John" :answer-commands (list (answer/widget () "Male" :male)
-                                                             (answer/widget () "Female" :female)))
-          (:male (call-component "Steve" :answer-commands (answer/widget () "Finish")))
-          (:female (call-component "Kate" :answer-commands (answer/widget () "Finish"))))))
+      (make-value-inspector (standard-process
+                              (ecase (call-component "John"
+                                                     (list (answer/widget ()
+                                                               (icon answer-component :label "Male")
+                                                             :male)
+                                                           (answer/widget ()
+                                                               (icon answer-component :label "Female")
+                                                             :female)))
+                                (:male (call-component "Steve"
+                                                       (answer/widget ()
+                                                           (icon answer-component :label "Finish"))))
+                                (:female (call-component "Kate"
+                                                         (answer/widget ()
+                                                             (icon answer-component :label "Finish"))))))))
     (component-demo/widget "Recursive branch"
-      (closure-cc/user-interface/inspector ()
-        (recursive-branch "Root" 4)))))
+      (make-value-inspector (standard-process
+                              (recursive-branch "Root" 4))))))
 
 (def function/cc recursive-branch (label level)
   (unless (zerop level)
     (recursive-branch (format nil "~A.~A" label
-                              (call-component label :answer-commands (if (= level 1)
-                                                                         (answer/widget () "Finish")
-                                                                         (list (answer/widget () "0" 0)
-                                                                               (answer/widget () "1" 1)))))
+                              (call-component label
+                                              (if (= level 1)
+                                                  (answer/widget () (icon answer-component :label "Finish"))
+                                                  (list (answer/widget () (icon answer-component :label "0") 0)
+                                                        (answer/widget () (icon answer-component :label "1") 1)))))
                       (1- level))))
 
 ;;;;;;
@@ -967,12 +999,26 @@
 
 (def function make-customization-node ()
   (node/widget (:expanded #f)
-      "Customization"
+      (replace-target-place/widget ()
+          "Customization"
+        (content/widget ()
+          "A couple of somewhat more complex examples that demonstrate how to combine the components."))
     (component-demo/widget "Inspector"
-      "TODO")
+      (table/widget (:columns (list (column/widget ()
+                                      "Foo")
+                                    (column/widget ()
+                                      "Bar")))
+        (row/widget ()
+          (cell/widget ()
+            (make-instance 'place/value/inspector :component-value (make-object-slot-place *request* 'hu.dwim.wui::http-method)))
+          (cell/widget ()
+            (make-instance 'place/value/inspector :component-value (make-object-slot-place *application* 'hu.dwim.wui::frame-timeout))))
+        (row/widget ()
+          (cell/widget ()
+            (make-instance 'place/value/inspector :component-value (make-object-slot-place *frame* 'hu.dwim.wui::action-id->action)))
+          (cell/widget ()
+            (make-instance 'place/value/inspector :component-value (make-object-slot-place *server* 'hu.dwim.wui::started-at))))))
     (component-demo/widget "Filter"
-      "TODO")
-    (component-demo/widget "Complex form"
       "TODO")))
 
 ;;;;;;
