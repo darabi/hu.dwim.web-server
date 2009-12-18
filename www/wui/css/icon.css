@@ -128,7 +128,7 @@
 }
 
 .show-context-menu.icon {
-  background-image: url("/static/wui/icon/20x20/open-folder.png");
+  background-image: url("/static/wui/icon/20x20/green-star.png");
 }
 
 /* external-link */
@@ -285,6 +285,14 @@
   background-image: url("/static/wui/icon/17x17/greater-than-or-equal-predicate.png");
 }
 
+.every.predicate.icon {
+  background-image: url("/static/wui/icon/17x17/every-predicate.png");
+}
+
+.some.predicate.icon {
+  background-image: url("/static/wui/icon/17x17/some-predicate.png");
+}
+
 /* form */
 
 .evaluate-form.icon {
@@ -309,6 +317,9 @@
   background-image: url("/static/wui/icon/20x20/stop-sign.png");
 }
 
+.answer-component.icon {
+  background-image: url("/static/wui/icon/20x20/vcr-forward.png");
+}
 /* reference */
 
 .expand-from-reference.icon {

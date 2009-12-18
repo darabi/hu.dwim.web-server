@@ -18,12 +18,13 @@ ol.shell-script {
 }
 
 .shell-script .command {
-  font-family: monospace;
   color: black;
+  background-color: inherit;
+  font-family: monospace;
   border: none;
   padding-top: 0px;
   padding-bottom: 0px;
-  padding-left: 15px;
+  padding-left: 18px;
   padding-right: 6px;
   white-space: pre-wrap;
   background-image: url("/static/wui/icon/14x14/dollar.png");
