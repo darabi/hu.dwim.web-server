@@ -43,7 +43,9 @@
             ;; (string+ "PATH_TRANSLATED=")
             (string+ "SCRIPT_NAME="     script-name)
             (string+ "QUERY_STRING="    (query-of request-uri))
-            (awhen (nth-value 2 (iolib.sockets:lookup-hostname *request-remote-host*))
+            (awhen (nth-value 2 (ignore-errors
+                                  ;; lookup-hostname signals when something is not found
+                                  (iolib.sockets:lookup-hostname *request-remote-host*)))
               (string+ "REMOTE_HOST=" it))
             (string+ "REMOTE_ADDR="     (iolib:address-to-string *request-remote-host*))
             ;; (string+ "REMOTE_USER=")
