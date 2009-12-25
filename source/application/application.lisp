@@ -277,20 +277,8 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (frame-index-of frame))
     (make-redirect-response uri)))
 
-(def (function e) make-application-relative-uri (relative-path)
-  (append-path-to-uri (make-uri-for-application *application*) relative-path))
-
-(def (function e) make-uri-for-application (application &optional relative-path)
-  "Does not assume an application context and only uses *session* & co. when available."
-  (bind ((uri (clone-request-uri)))
-    (clear-uri-query-parameters uri)
-    (decorate-uri uri application)
-    (when relative-path
-      (append-path-to-uri uri relative-path))
-    uri))
-
 (def (function e) make-uri-for-current-application (&optional relative-path)
-  "Expects a valid *session* environment."
+  (assert *application*)
   (bind ((uri (clone-request-uri)))
     (clear-uri-query-parameters uri)
     (decorate-uri uri *application*)
