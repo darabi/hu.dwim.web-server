@@ -73,11 +73,6 @@ Custom implementations should look something like this:
     (check-type invalidity-reason action-invalidity-reason)
     (check-type action (or null action))))
 
-(def (generic e) execute-logout (application session)
-  (:method (application session)
-    ;; nop by default
-    ))
-
 (def generic entry-point-equals-for-redefinition (a b)
   (:method (a b)
     #f)
@@ -85,3 +80,24 @@ Custom implementations should look something like this:
            (if (eql (class-of a) (class-of b))
                (call-next-method)
                #f)))
+
+;;;;;;
+;;; authentication (needs an APPLICATION-WITH-LOGIN-SUPPORT)
+
+(def (generic e) login (application session login-data)
+  (:method (application session login-data)
+    ;; nop by default
+    ))
+
+(def (generic e) logout (application session)
+  (:method (application session)
+    ;; nop by default
+    ))
+
+(def (generic e) authenticate (application potentially-unregistered-web-session login-data)
+  (:documentation "Should return something non-NIL in case the authentication was successful. WUI treats the return value as a mere generalized boolean, but it's also stored in the AUTHENTICATE/RETURN-VALUE slot of the web session for later use by user code."))
+
+(def (generic e) is-logged-in? (session)
+  (:documentation "Should return T if we are in an authenticated session opened by a succesful LOGIN.")
+  (:method (session)
+    #f))

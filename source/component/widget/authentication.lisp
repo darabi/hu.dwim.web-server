@@ -16,7 +16,9 @@
 ;;; identifier-and-password-login/widget
 
 ;; TODO: this is kind separate from all the other components which is bad because it does not combine well with other features
-;;       needs refactoring, less direct manipulation and more generalism through inheritance 
+;;       needs refactoring, less direct manipulation and more generalism through inheritance
+;; TODO rename to something that tells that this component works without sessions
+;; TODO make a potentially smarter counterpart that uses features which require a session/frame?
 (def (component e) identifier-and-password-login/widget (login/widget
                                                          title/mixin
                                                          component-messages/widget
@@ -29,7 +31,7 @@
 (def function make-default-identifier-and-password-login-command ()
   (command/widget (:default #t)
     (icon login)
-    (bind ((uri (make-application-relative-uri +login-entry-point-path+)))
+    (bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
       (setf (uri-query-parameter-value uri +user-action-query-parameter-name+) t)
       (copy-uri-query-parameters (uri-of *request*) uri +continue-url-query-parameter-name+)
       uri)))
@@ -73,10 +75,11 @@
 
 (def (generic e) make-logout-command (application)
   (:method ((application application))
+    (assert (eq *application* application))
     (command/widget (:send-client-state #f)
       (icon logout)
       (make-action
-        (execute-logout application *session*)
+        (logout application *session*)
         (make-redirect-response-for-current-application)))))
 
 ;;;;;;

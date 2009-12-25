@@ -169,16 +169,6 @@
               (call-body))))))
 
 ;;;;;;
-;;; authentication, aka login/logout
-
-(def method execute-logout :after ((application application) (session session))
-  (assert (eq *session* session))
-  (mark-session-invalid session)
-  ;; set *session* to nil so that the session cookie removal is decorated on the response. otherwise the next request to an entry point
-  ;; would send up a session id to an invalid session and trigger HANDLE-REQUEST-TO-INVALID-SESSION.
-  (setf *session* nil))
-
-;;;;;;
 ;;; invalid request handling
 
 (def method handle-request-to-invalid-session ((application application) session invalidity-reason)

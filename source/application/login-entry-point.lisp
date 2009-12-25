@@ -6,15 +6,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (class* e) application-with-login-support (application)
-  ())
-
-(def (class* e) session-with-login-support (session)
-  ((authenticated-session nil :documentation "An object representing the current authenticated session (which does not neccessarily have the same lifecycle as the web session).")))
-
-(def method session-class list ((application application-with-login-support))
-  'session-with-login-support)
-
 (def (constant e) +login-identifier-cookie-name+           "login-identifier")
 (def (constant e) +login-entry-point-path+                 "login/")
 (def (constant e) +session-timed-out-query-parameter-name+ "timed-out")
@@ -28,13 +19,6 @@
 (def (layered-function e) valid-login-identifier? (identifier)
   (:method (password)
     #t))
-
-(def (layered-function e) call-in-login-entry-point-environment (application login-encapsulation thunk)
-  (:method ((application application-with-login-support) login-encapsulation thunk)
-    (funcall thunk)))
-
-(def (layered-function e) authenticate (application unregistered-new-web-session login-encapsulation)
-  (:documentation "Should return an authenticated-session authentication-happened?), and (values nil #f) is a valid return value."))
 
 (def (definer e) identifier-and-password-login-entry-point (application &rest args &key
                                                                         (path +login-entry-point-path+)
@@ -108,78 +92,39 @@
    *application* nil
    (named-lambda %identifier-and-password-login-entry-point/phase2 ()
      (bind ((valid-input? (and (valid-login-identifier? identifier)
-                               (valid-login-password? password)))
-            (response nil)
-            (authentication-happened? nil))
+                               (valid-login-password? password))))
        (app.debug "IDENTIFIER-AND-PASSWORD-ENTRY-POINT checks valid-input? ~S and user-action? ~S" valid-input? user-action?)
        (or (when (and valid-input?
                       user-action?)
-             (bind ((login-encapsulation (make-instance 'identifier-and-password-login-encapsulation
-                                                        :identifier identifier
-                                                        :password password
-                                                        :extra-arguments extra-arguments)))
-               (setf (values response authentication-happened?)
-                     (call-in-login-entry-point-environment *application* login-encapsulation
-                                                            (named-lambda %identifier-and-password-login-entry-point/phase3 ()
-                                                              (%identifier-and-password-login-entry-point/phase4 login-encapsulation continue-url)))))
-             (if response
-                 (progn
-                   (when authentication-happened?
-                     (app.dribble "IDENTIFIER-AND-PASSWORD-ENTRY-POINT is decorating the response with the login identifier cookie value: ~S" identifier)
-                     (add-cookie (make-cookie +login-identifier-cookie-name+ identifier
-                                              :max-age #.(* 60 60 24 365 100)
-                                              :domain (string+ "." (host-of (uri-of *request*)))
-                                              :path (string+ (path-prefix-of *application*) uri-path))
-                                 response))
-                   response)))
+             (bind ((response (%identifier-and-password-login-entry-point/phase3
+                               (make-instance 'identifier-and-password-login-data
+                                              :identifier identifier
+                                              :password password
+                                              :extra-arguments extra-arguments)
+                               continue-url)))
+               (when response
+                 (app.dribble "IDENTIFIER-AND-PASSWORD-ENTRY-POINT is decorating the response with the login identifier cookie value: ~S" identifier)
+                 (add-cookie (make-cookie +login-identifier-cookie-name+ identifier
+                                          :max-age #.(* 60 60 24 365 100)
+                                          :domain (string+ "." (host-of (uri-of *request*)))
+                                          :path (string+ (path-prefix-of *application*) uri-path))
+                             response))
+               response))
            (funcall unauthenticated-response-factory
                     :identifier identifier :password password
                     :user-action? user-action? :valid-input? valid-input? :timed-out? timed-out?))))))
 
-(def function %identifier-and-password-login-entry-point/phase4 (login-encapsulation continue-url)
+(def function %identifier-and-password-login-entry-point/phase3 (login-data continue-url)
   (block authenticating
     (bind ((application *application*)
-           (session *session*)
-           (new-session? #f))
-      (flet ((return-result (response authentication-happened?)
-               (return-from authenticating
-                 (values response authentication-happened?))))
-        (app.debug "Login entry point called with login-encapsulation ~A, continue-url ~S" login-encapsulation continue-url)
-        (unless session
-          (with-session-logic (:requires-valid-session #f :lock-session #f)
-            (app.debug "Login entry point reached while we already have a web session: ~A" *session*)
-            (setf session *session*)))
-        (if session
-            (when (authenticated-session-of session)
-              (app.debug "Login entry point reached while we already have an authenticated session, bailing out...")
-              (return-result nil #f))
-            (progn
-              (setf session (make-new-session application))
-              (setf new-session? #t)))
-        (bind ((authenticated-session (authenticate application session login-encapsulation)))
-          (if authenticated-session
-              (progn
-                (app.debug "~S returned ~S" 'authenticate authenticated-session)
-                (setf *session* session)
-                (when new-session?
-                  (app.debug "Registering new web session ~A" session)
-                  (with-lock-held-on-application (application)
-                    (register-session application session)))
-                (setf (authenticated-session-of session) authenticated-session)
-                (app.debug "Login entry point is preparing the response, continue-url is ~S" continue-url)
-                (return-result (decorate-application-response application (if continue-url
-                                                                              (make-redirect-response continue-url)
-                                                                              (make-redirect-response-for-current-application)))
-                               #t))))))))
-
-(def (class* ea) login-encapsulation ()
-  ((extra-arguments '()))
-  (:documentation "A login-encapsulation is an object that packages up login information and can be used for dispatching in a later phase of authentication. The EXTRA-ARGUMENTS slot can hold some &rest keyword arguments that is useful later on."))
-
-(def (class* ea) identifier-and-password-login-encapsulation (login-encapsulation)
-  ((identifier)
-   (password)))
-
-(def print-object identifier-and-password-login-encapsulation
-  (write-string "identifier: ")
-  (write (identifier-of -self-)))
+           (session *session*))
+      (app.debug "Login entry point called with login-data ~A, continue-url ~S" login-data continue-url)
+      (unless session
+        (with-session-logic (:requires-valid-session #f :lock-session #f)
+          (app.debug "Login entry point reached while we already have a web session: ~A" *session*)
+          (setf session *session*)))
+      (if (login application session login-data)
+          (decorate-application-response application (if continue-url
+                                                         (make-redirect-response continue-url)
+                                                         (make-redirect-response-for-current-application)))
+          nil))))
