@@ -123,8 +123,10 @@
         (with-session-logic (:requires-valid-session #f :lock-session #f)
           (app.debug "Login entry point reached while we already have a web session: ~A" *session*)
           (setf session *session*)))
-      (if (login application session login-data)
-          (decorate-application-response application (if continue-url
-                                                         (make-redirect-response continue-url)
-                                                         (make-redirect-response-for-current-application)))
-          nil))))
+      (handler-bind ((login-failed (lambda (error)
+                                     (declare (ignore error))
+                                     (return-from authenticating nil))))
+        (login application session login-data)
+        (decorate-application-response application (if continue-url
+                                                       (make-redirect-response continue-url)
+                                                       (make-redirect-response-for-current-application)))))))

@@ -91,19 +91,17 @@ Custom implementations should look something like this:
 ;;; authentication (needs an APPLICATION-WITH-LOGIN-SUPPORT)
 
 (def (generic e) login (application session login-data)
-  (:method (application session login-data)
-    ;; nop by default
-    ))
+  (:documentation "Authenticates the current web session, if there's any.
+The default implementation calls AUTHENTICATE with LOGIN-DATA and stores the return value in a potentially freshly created web session.
+In case of success it returns a valid web session (potentially a freshly created one), otherwise it signals an error."))
 
 (def (generic e) logout (application session)
-  (:method (application session)
-    ;; nop by default
-    ))
+  (:documentation "Make the necessary sideffects in the session to log it out. May signal an error."))
 
 (def (generic e) authenticate (application potentially-unregistered-web-session login-data)
-  (:documentation "Should return something non-NIL in case the authentication was successful. WUI treats the return value as a mere generalized boolean, but it's also stored in the AUTHENTICATE/RETURN-VALUE slot of the web session for later use by user code."))
+  (:documentation "Should return something non-NIL in case the authentication was successful. WUI treats the return value as a mere generalized boolean, but it also stores it in the AUTHENTICATE-RETURN-VALUE slot of the web session for later use by user code."))
 
 (def (generic e) is-logged-in? (session)
-  (:documentation "Should return T if we are in an authenticated session opened by a succesful LOGIN.")
+  (:documentation "Should return T if we are in an authenticated session opened by a succesful LOGIN call.")
   (:method (session)
     #f))
