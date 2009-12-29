@@ -52,9 +52,10 @@
 
 (def refresh-component project/description/inspector
   (bind (((:slots content component-value) -self-)
-         (system (asdf:find-system (project-system-name component-value))))
-    (setf content (or (when (slot-boundp system 'asdf::description)
-                        (asdf:system-description system))
+         (system (asdf:find-system (project-system-name component-value) #f)))
+    (setf content (or (and system
+                           (slot-boundp system 'asdf::description)
+                           (asdf:system-description system))
                       "No description"))))
 
 ;;;;;;
