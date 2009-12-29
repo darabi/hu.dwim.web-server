@@ -22,9 +22,7 @@
     (bind ((href (register-action/href (make-action (show-context-sensitive-help -self-)) :delayed-content #t)))
       <div (:id ,(id-of -self-)
             :onclick `js-inline(wui.help.setup event ,href)
-            :onmouseover `js-inline(bind ((kludge (wui.help.make-mouseover-handler ,href)))
-                                     ;; KLUDGE for now cl-qq-js chokes on ((wui.help.make-mouseover-handler ,href))
-                                     (kludge event)))
+            :onmouseover `js-inline((wui.help.make-mouseover-handler ,href) event))
         ,(render-content-for -self-)>)))
 
 (def layered-function show-context-sensitive-help (component)
