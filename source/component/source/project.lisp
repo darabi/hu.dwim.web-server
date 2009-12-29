@@ -98,9 +98,18 @@
 
 (def refresh-component project/test/inspector
   (bind (((:slots content component-value) -self-)
-         (test-package-name (system-package-name (asdf:find-system (system-test-system-name (asdf:find-system (project-system-name component-value)))))))
-    (setf content (make-value-inspector (funcall (find-symbol "FIND-TEST" :hu.dwim.stefil) (find-symbol "TEST" test-package-name))
-                                        :initial-alternative-type 'test/hierarchy/tree/inspector))))
+         (project-system (asdf:find-system (project-system-name component-value) #f))
+         (test-system (when project-system
+                        (asdf:find-system (system-test-system-name project-system) #f)))
+         (test-package-name (when test-system
+                              (system-package-name test-system)))
+         (test-name (when test-package-name
+                      (find-symbol "TEST" test-package-name))))
+    (setf content (if test-name
+                      (make-value-inspector (funcall (find-symbol "FIND-TEST" :hu.dwim.stefil)
+                                                     test-name)
+                                            :initial-alternative-type 'test/hierarchy/tree/inspector)
+                      "No test suite was found for this project"))))
 
 ;;;;;;
 ;;; project/licence/inspector
