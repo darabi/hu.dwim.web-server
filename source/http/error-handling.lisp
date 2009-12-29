@@ -21,10 +21,11 @@
     (or (and (typep error 'stream-error)
              (eq (stream-error-stream error) client-stream))
         ;; TODO the rest is fragile and easily breaks when iolib changes behavior
+        ;; TODO follow iolib when it gets the condition cleanup
+        ;; TODO signalling non stream-error conditions from stream operations might be an iolib bug
         (and client-stream-fd
-             (or (and (typep error 'iolib:socket-error)
+             (or (and (typep error 'iolib.syscalls:syscall-error)
                       (eql client-stream-fd (isys:handle-of error)))
-                 ;; TODO signalling non stream-error conditions might be an iolib bug
                  (and (typep error 'iolib.multiplex:poll-error)
                       (eql client-stream-fd (iolib.multiplex:poll-error-fd error))))))))
 
