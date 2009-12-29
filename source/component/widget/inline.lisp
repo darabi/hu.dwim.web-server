@@ -21,7 +21,7 @@
   (:documentation "An INLINE-RENDER-COMPONENT/WIDGET has a FUNCTION that is called in its RENDER-COMPONENT."))
 
 (def (macro e) inline-render-component/widget ((&rest args &key &allow-other-keys) &body forms)
-  `(make-instance 'inline-render-component/widget ,@args :thunk (lambda () ,@forms)))
+  `(make-instance 'inline-render-component/widget ,@args :thunk (named-lambda inline-render-component/body () ,@forms)))
 
 (def function render-inline-render-component (component)
   (funcall (thunk-of component)))
