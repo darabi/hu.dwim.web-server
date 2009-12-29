@@ -313,7 +313,7 @@
                     (setf *request-id* (processed-request-counter/increment server)))
                   (with-thread-name (string+ " / serving request " (integer-to-string *request-id*))
                     (setf *request* (read-request server stream-socket))
-                    (with-error-log-decorator (lambda ()
+                    (with-error-log-decorator (make-error-log-decorator
                                                 (format t "~%User agent: ~S" (header-value *request* +header/user-agent+)))
                       (loop
                         (with-simple-restart (retry-handling-request "Try again handling this HTTP request")
@@ -342,7 +342,12 @@
            (*response* nil)
            (*request-remote-host* nil)
            (*request-id* nil))
-      (with-error-log-decorator (make-special-variable-printing-error-log-decorator *request-remote-host* *request-id*)
+      (with-error-log-decorators
+          ((make-error-log-decorator
+             (format t "~%Request id: ~A" *request-id*))
+           (make-error-log-decorator
+             (format t "~%Remote host: ~A (~A)" *request-remote-host* (or (ignore-errors (nth-value 2 (iolib.sockets:lookup-hostname *request-remote-host*)))
+                                                                          "?"))))
         (restart-case
             (unwind-protect-case (interrupted)
                 (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
