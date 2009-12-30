@@ -400,7 +400,8 @@
     (http.info "Handling request ~S from ~S for ~S, method ~S" *request-id* *request-remote-host* raw-uri (http-method-of request))
     (multiple-value-prog1
         (if (profile-request-processing? server)
-            (call-with-profiling #'call-next-method)
+            (with-profiling ()
+              (call-next-method))
             (call-next-method))
       (bind ((seconds (- (get-monotonic-time) start-time))
              (bytes-allocated (- (get-bytes-allocated) start-bytes-allocated)))

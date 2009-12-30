@@ -290,20 +290,6 @@
      (t
       0)))
 
-(def function call-with-profiling (thunk)
-  (block nil
-    #+#.(hu.dwim.wui::sbcl-with-symbol '#:sb-sprof '#:start-profiling)
-    (return
-      (progn
-        (sb-sprof:start-profiling)
-        (multiple-value-prog1
-            (unwind-protect
-                 (funcall thunk)
-              #+nil ;; TODO: KLUDGE: this makes profiling useless, don't know why
-              (sb-sprof:stop-profiling)))))
-    (warn "No profiling is available for your lisp, see HU.DWIM.WUI::CALL-WITH-PROFILING for details.")
-    (funcall thunk)))
-
 (def (function io) shrink-vector (vector size)
   "Fast shrinking for simple vectors. It's not thread-safe, use only on local vectors!"
   #+allegro
