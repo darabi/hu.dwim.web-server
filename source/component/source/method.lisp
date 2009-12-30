@@ -26,7 +26,7 @@
 
 (def refresh-component standard-method/lisp-form/inspector
   (bind (((:slots component-value content) -self-))
-    (setf content (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source component-value)))))
+    (setf content (make-instance 't/lisp-form/inspector :component-value (definition-source-text component-value)))))
 
 ;;;;;;
 ;;; standard-method-sequence/lisp-form-list/inspector

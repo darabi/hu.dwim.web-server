@@ -12,8 +12,5 @@
   :class hu.dwim.system
   :depends-on (:hu.dwim.reader+hu.dwim.syntax-sugar
                :hu.dwim.wui)
-  :components ((:module "source"
-                :components ((:module "component"
-                              :components ((:module "source"
-                                            :components ((:file "form")
-                                                         (:file "repl" :depends-on ("form"))))))))))
+  :components ((:module "integration"
+                :components ((:file "reader")))))

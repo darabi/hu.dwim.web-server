@@ -46,14 +46,14 @@
 (def generic make-definition/lisp-form/content (component class prototype value)
   (:method ((component definition/lisp-form/inspector) class prototype (value definition))
     (bind ((name (make-definition-class-name class))
-           (source (read-definition-source-lisp-source (first (sb-introspect:find-definition-sources-by-name (name-of value) (intern (string-upcase name) :keyword))))))
+           (source (definition-source-text (first (sb-introspect:find-definition-sources-by-name (name-of value) (intern (string-upcase name) :keyword))))))
       (make-instance 't/lisp-form/inspector :component-value source)))
 
   (:method ((component definition/lisp-form/inspector) class prototype (value macro-definition))
-    (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source (macro-function (name-of value)))))
+    (make-instance 't/lisp-form/inspector :component-value (definition-source-text (macro-function (name-of value)))))
 
   (:method ((component definition/lisp-form/inspector) class prototype (value function-definition))
-    (make-instance 't/lisp-form/inspector :component-value (read-definition-lisp-source (symbol-function (name-of value)))))
+    (make-instance 't/lisp-form/inspector :component-value (definition-source-text (symbol-function (name-of value)))))
 
   (:method ((component definition/lisp-form/inspector) class prototype (value generic-function-definition))
     (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods (symbol-function (name-of value)))))
