@@ -53,6 +53,7 @@
 
 (def generic web (path &key request-parameters expected-status parse-result-as)
   (:method ((path string) &key request-parameters (expected-status 200) parse-result-as)
+    (declare (ignore parse-result-as))
     (multiple-value-bind (body status headers url)
         (drakma:http-request (string+ (when (or (< (length path) 4)
                                                            (not (string= (subseq path 0 4) "http")))

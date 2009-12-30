@@ -779,25 +779,29 @@
     (make-tree-inspectors-node)
     (make-tree-filters-node)))
 
+(def macro make-tree-presentations-node (name factory supercomponent)
+  (flet ((make (type value)
+           `(,factory ',type :value ,value)))
+    `(node/widget (:expanded #f)
+         (replace-target-place/widget ()
+             ,name
+           (make-value-inspector (find-class ',supercomponent)))
+       )))
+
 (def function make-tree-makers-node ()
-  (make-tree-presentations-node "Maker" 'make-maker))
+  (make-tree-presentations-node "Maker" make-maker nil))
 
 (def function make-tree-viewers-node ()
-  (make-tree-presentations-node "Viewer" 'make-viewer))
+  (make-tree-presentations-node "Viewer" make-viewer nil))
 
 (def function make-tree-editors-node ()
-  (make-tree-presentations-node "Editor" 'make-editor))
+  (make-tree-presentations-node "Editor" make-editor nil))
 
 (def function make-tree-inspectors-node ()
-  (make-tree-presentations-node "Inspector" 'make-inspector))
+  (make-tree-presentations-node "Inspector" make-inspector nil))
 
 (def function make-tree-filters-node ()
-  (make-tree-presentations-node "Filter" 'make-filter))
-
-(def function make-tree-presentations-node (name factory)
-  (node/widget (:expanded #f)
-      name
-    ))
+  (make-tree-presentations-node "Filter" make-filter nil))
 
 ;;;;;;
 ;;; Book
