@@ -13,7 +13,9 @@
   :description "Provides a component based server side GUI framework which is rendered into HTML and JavaScript through HTTP."
   :long-description "Provides various components, layouts, widgets, charts, books, model documentation components, meta components. Components have server and client side state and behavior."
   :depends-on (:contextl
-               :hu.dwim.wui.application)
+               :hu.dwim.wui.application
+               :hu.dwim.util.source
+               :hu.dwim.util.standard-process)
   :components ((:module "source"
                 :components ((:module "util"
                               :components ((:file "book")
@@ -223,10 +225,11 @@
                                             :components ((:file "class")
                                                          (:file "component")
                                                          (:file "component-class")
-                                                         (:file "demo")
                                                          (:file "definition")
+                                                         (:file "demo")
                                                          (:file "dictionary")
                                                          (:file "file")
+                                                         (:file "form")
                                                          (:file "function")
                                                          (:file "generic")
                                                          (:file "method")
@@ -236,10 +239,10 @@
                                                          (:file "package")
                                                          (:file "pathname")
                                                          (:file "project")
-                                                         (:file "slot")
+                                                         (:file "repl")
                                                          (:file "shell-script")
+                                                         (:file "slot")
                                                          (:file "system")
-                                                         #+sbcl(:file "source")
                                                          (:file "type")
                                                          (:file "uri")
                                                          (:file "variable")))

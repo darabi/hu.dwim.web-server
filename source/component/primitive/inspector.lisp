@@ -107,11 +107,12 @@
 
 (def subtype-mapper *inspector-type-mapping* (or null string) string/inspector)
 
-(def render-xhtml string/inspector
-  (bind (((:read-only-slots edited-component) -self-))
-    (if edited-component
-        (render-string-component -self-)
-        `xml,(print-component-value -self-))))
+{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
+  (def render-xhtml string/inspector
+    (bind (((:read-only-slots edited-component) -self-))
+      (if edited-component
+          (render-string-component -self-)
+          `xml,(print-component-value -self-))))}
 
 (def render-text string/inspector
   (render-component (component-value-of -self-)))

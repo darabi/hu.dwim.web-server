@@ -432,13 +432,7 @@
     (bind (((:values nil nil slot) (extract-primitive-component-place component)))
       (when slot
         (bind ((slot-name (slot-definition-name slot)))
-          ;; TODO: revive
-          #+nil
-          (find-icon (format-symbol (symbol-package slot-name)
-                                    "~A-~A"
-                                    slot-name
-                                    (member-component-value-name (component-value-of component)))
-                     :otherwise nil))))))
+          (find-icon (format-symbol (symbol-package slot-name) "~A-~A" slot-name (member-value-name (component-value-of component))) :otherwise nil))))))
 
 (def method print-component-value ((component member/presentation))
   (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
