@@ -13,7 +13,7 @@
   (process.message.waiting-for-other-subject "A folyamat jelenleg másra várakozik.")
   (process.message.waiting "A folyamat jelenleg várakozik.")
   (process.message.report-process-state (process)
-    (ecase (hu.dwim.meta-model::element-name-of (hu.dwim.meta-model::process-state-of process))
+    (ecase (hu.dwim.meta-model::element-name-of (hu.dwim.util::process-state-of process))
       ;; a process in 'running state may not reach this point
       (hu.dwim.meta-model::finished    "Folyamat normálisan befejeződött")
       (hu.dwim.meta-model::failed      "Folyamat hibára futott")

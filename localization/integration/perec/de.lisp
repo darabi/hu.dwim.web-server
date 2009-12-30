@@ -13,7 +13,7 @@
   (process.message.waiting-for-other-subject "Process is waiting for other subject.")
   (process.message.waiting "Process is currently waiting.")
   (process.message.report-process-state (process)
-    (ecase (hu.dwim.meta-model::element-name-of (hu.dwim.meta-model::process-state-of process))
+    (ecase (hu.dwim.meta-model::element-name-of (hu.dwim.util::process-state-of process))
       ;; a process in 'running state may not reach this point
       (hu.dwim.meta-model::finished    "Process finished normally")
       (hu.dwim.meta-model::failed      "Process failed")

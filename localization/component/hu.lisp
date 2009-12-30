@@ -71,7 +71,10 @@
   (icon-tooltip.hide-component "Objektum elrejtése")
 
   (icon-label.external-link nil)
-  (icon-tooltip.external-link "Külső hivatkozás"))
+  (icon-tooltip.external-link "Külső hivatkozás")
+
+  (icon-label.answer-component "Válaszolás")
+  (icon-tooltip.answer-component "Válaszolás és a folyamat folytatása"))
 
 ;;;;;;
 ;;; Error handling

@@ -71,7 +71,10 @@
   (icon-tooltip.hide-component "Hide object")
 
   (icon-label.external-link nil)
-  (icon-tooltip.external-link "External link"))
+  (icon-tooltip.external-link "External link")
+
+  (icon-label.answer-component "Answer")
+  (icon-tooltip.answer-component "Answer and continue"))
 
 ;;;;;;
 ;;; Error handling

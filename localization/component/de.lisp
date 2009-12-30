@@ -71,7 +71,10 @@
   (icon-tooltip.hide-component "ein Objekt verbergen")
 
   (icon-label.external-link nil)
-  (icon-tooltip.external-link "Externer Link"))
+  (icon-tooltip.external-link "Externer Link")
+
+  (icon-label.answer-component "Weiter")
+  (icon-tooltip.answer-component "Weiter"))
 
 ;;;;;;
 ;;; Error handling
@@ -90,7 +93,7 @@
 (def localization de
   (icon-label.context-sensitive-help "Hilfe-Text verfügbar")
   (context-sensitive-help.not-available "Hierzu ist kein Hilfe-Text verfügbar")
-  (context-sensitive-help.self-description "This is the switch that can be used to turn on the context sensitive help. In help mode hovering the mouse over certain parts of the screen opens a tooltip just like this, but containing the most relevant help to that point (in this case the description of the help mode itself). A special mouse pointer indicates help mode. Clicking the mouse button anywhere in help mode turns off the mode."))
+  (context-sensitive-help.self-description "This is the switch that can be used to turn on the context sensitive help. In help mode hovering the mouse over certain parts of the screen opens a tooltip just like this, but containing the most relevant help to that point (in this case the description of the help mode itself). A special mouse pointer indicates help mode. Clicking the mouse button anywhere in help mode turns it off."))
 
 ;;;;;;
 ;;; File up/download
