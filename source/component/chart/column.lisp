@@ -21,6 +21,7 @@
   (render-chart -self- "amcolumn"))
 
 (def (function e) make-column-chart (&key width height title names values)
+  (declare (ignore title))
   (make-instance 'column/chart
                  :width width
                  :height height

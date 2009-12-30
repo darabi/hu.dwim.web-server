@@ -53,9 +53,10 @@
 
 (def render-xhtml page-navigation-bar/widget
   (bind (((:read-only-slots total-count first-command previous-command next-command last-command jumper page-size page-size-selector) -self-))
+    ;; TODO: revive page-size-selector (does not work with ajax)
+    (declare (ignore page-size-selector))
     (when (< page-size total-count)
       (with-render-style/abstract (-self-)
-        ;; TODO: revive page-size-selector (does not work with ajax)
         (foreach (lambda (component)
                    <span ,(render-component component)>)
                  (list first-command previous-command " #" jumper "/" total-count #+nil page-size-selector next-command last-command))))))
