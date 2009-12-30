@@ -17,6 +17,10 @@
 (def (function e) (setf find-book) (new-value name)
   (setf (gethash name *books*) new-value))
 
+(def (function e) find-user-guide (system-name)
+  (awhen (find-package (system-package-name (find-system (system-documentation-system-name (find-system system-name)))))
+    (find-book (find-symbol "USER-GUIDE" it))))
+
 ;;;;;;
 ;;; Text
 
