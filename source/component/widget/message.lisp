@@ -22,7 +22,7 @@
 (def (function e) render-component-messages-for (collector)
   (bind ((messages (messages-of collector)))
     (flet ((render-message-category (category)
-             (awhen (filter category messages :key #'category-of)
+             (awhen (filter-out category messages :key #'category-of)
                <div (:class ,(string+ (string-downcase category) "-messages"))
                     ,(foreach #'render-component it)>)))
       (multiple-value-prog1

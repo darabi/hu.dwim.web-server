@@ -9,8 +9,6 @@
 ;;;;;;
 ;;; CSV format
 
-(def constant +whitespace-chars+ '(#\Space #\Tab #\Linefeed #\Return #\Page))
-
 (def constant +csv-quote-char+ #\")
 
 (def constant +csv-value-separator+ #\Tab)
@@ -18,9 +16,6 @@
 (def constant +csv-line-separator+ #\NewLine)
 
 (def special-variable *csv-stream*)
-
-(def function whitespace? (char)
-  (member char +whitespace-chars+ :test #'char=))
 
 (def function escape-csv-char? (char)
   (member char '(#.+csv-value-separator+ #.+csv-line-separator+ #.+csv-quote-char+) :test #'char=))

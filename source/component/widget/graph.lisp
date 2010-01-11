@@ -124,7 +124,7 @@
       (vertex/widget
         (cl-graph:add-vertex graph vertice-or-edge))
       (edge/widget
-        (bind ((vertices (filter-if (of-type 'vertex/widget) vertices-and-edges)))
+        (bind ((vertices (filter-out-if (of-type 'vertex/widget) vertices-and-edges)))
           (setf (slot-value vertice-or-edge 'cl-graph:vertex-1) (find (cl-graph:vertex-1 vertice-or-edge) vertices :key #'cl-graph:vertex-id))
           (setf (slot-value vertice-or-edge 'cl-graph:vertex-2) (find (cl-graph:vertex-2 vertice-or-edge) vertices :key #'cl-graph:vertex-id))
           (cl-graph:add-edge graph vertice-or-edge))))))

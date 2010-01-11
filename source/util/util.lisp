@@ -71,21 +71,6 @@
   (when value
     (make-xml-attribute name value)))
 
-(def macro notf (&rest places)
-  `(setf ,@(iter (for place in places)
-                 (collect place)
-                 (collect `(not ,place)))))
-
-(def (macro e) foreach (function first-list &rest more-lists)
-  `(map nil ,function ,first-list ,@more-lists))
-
-(def function join-strings (strings &key (separator #\Space))
-  (with-output-to-string (*standard-output*)
-    (iter (for el :in-sequence strings)
-          (unless (first-time-p)
-            (princ separator))
-          (write-string el))))
-
 (def macro to-boolean (form)
   `(not (not ,form)))
 
@@ -169,30 +154,11 @@
 (def function trim-suffix (suffix sequence)
   (subseq sequence 0 (- (length sequence) (length suffix))))
 
-(def function every-type-p (type list)
-  (every [typep !1 type] list))
-
-(def function optional-list (&rest elements)
-  (remove nil elements))
-
-(def function optional-list* (&rest elements)
-  (remove nil (apply #'list* elements)))
-
-(def function the-only-element (elements)
-  (assert (length= 1 elements))
-  (elt elements 0))
-
-(def function filter (element list &key (key #'identity) (test #'eq))
-  (remove element list :key key :test-not test))
-
-(def function filter-if (predicate list &key (key #'identity))
-  (remove-if (complement predicate) list :key key))
-
 (def function filter-slots (names slots)
   (when names
-    (filter-if (lambda (slot)
-                 (member (slot-definition-name slot) names))
-               slots)))
+    (filter-out-if (lambda (slot)
+                     (member (slot-definition-name slot) names))
+                   slots)))
 
 (def function remove-slots (names slots)
   (if names
@@ -200,19 +166,6 @@
                    (member (slot-definition-name slot) names))
                  slots)
       slots))
-
-(def function partition (list &rest predicates)
-  (iter (with result = (make-array (length predicates) :initial-element nil))
-        (for element :in list)
-        (iter (for predicate :in predicates)
-              (for index :from 0)
-              (when (funcall predicate element)
-                (push element (aref result index))
-                (finish)))
-        (finally
-         (return
-           (iter (for element :in-vector result)
-                 (collect (nreverse element)))))))
 
 (deftype simple-ub8-vector (&optional (length '*))
   `(simple-array (unsigned-byte 8) (,length)))
@@ -334,10 +287,6 @@
                 (setf start (1+ end)))
               (finally (in outer (collect (make-displaced-array line start)))))
         (while nil)))
-
-(def macro eval-always (&body body)
-  `(eval-when (:compile-toplevel :load-toplevel :execute)
-     ,@body))
 
 (def (function i) is-lock-held? (lock)
   #+sbcl (eq (sb-thread::mutex-value lock) (current-thread))
@@ -503,11 +452,11 @@
 (def special-variable *dynamic-classes* (make-hash-table :test #'equal))
 
 (def function find-dynamic-class (class-names)
-  (assert (every-type-p 'symbol class-names))
+  (assert (every #'symbolp class-names))
   (gethash class-names *dynamic-classes*))
 
 (def function (setf find-dynamic-class) (class class-names)
-  (assert (every-type-p 'symbol class-names))
+  (assert (every #'symbolp class-names))
   (setf (gethash class-names *dynamic-classes*) class))
 
 (def function dynamic-class-name (class-names)

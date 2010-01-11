@@ -93,10 +93,10 @@
   (make-instance 't/tree-level/reference/inspector :component-value value))
 
 (def layered-method collect-tree/children ((component book/tree-level/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
-  (filter-if (of-type 'title-mixin) (contents-of value)))
+  (filter-out-if (of-type 'title-mixin) (contents-of value)))
 
 (def layered-method collect-tree/children ((component t/node/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
-  (filter-if (of-type 'title-mixin) (contents-of value)))
+  (filter-out-if (of-type 'title-mixin) (contents-of value)))
 
 (def layered-method make-reference-content ((component t/tree-level/reference/inspector) (class standard-class) (prototype hu.dwim.wui::title-mixin) (value hu.dwim.wui::title-mixin))
   (title-of value))

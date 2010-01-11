@@ -26,7 +26,7 @@
                :hu.dwim.logger
                :hu.dwim.quasi-quote.xml+hu.dwim.quasi-quote.js
                :hu.dwim.syntax-sugar
-               :hu.dwim.util.all
+               :hu.dwim.util.error-handling
                :iolib
                :iolib.pathnames
                :iolib.sockets
