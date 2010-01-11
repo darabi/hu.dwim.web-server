@@ -112,7 +112,7 @@
                   (collect-covering-to-be-rendered-descendant-components top))))
           (setf (header-value *response* +header/content-type+) +xml-mime-type+)
           ;; FF does not like proper xml prologue, probably the other browsers even more so...
-          ;; (emit-xml-prologue)
+          ;; (emit-xml-prologue :encoding (guess-encoding-for-http-response) :stream *xml-stream* :version "1.1")
           <ajax-response
            ,@(with-collapsed-js-scripts
                (with-dojo-widget-collector

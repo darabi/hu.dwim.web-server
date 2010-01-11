@@ -72,7 +72,7 @@
 
 (def layered-method export-ods ((component exportable/abstract))
   (with-output-to-export-stream (*xml-stream* :content-type +ods-mime-type+ :external-format :utf-8)
-    (emit-xml-prologue)
+    (emit-xml-prologue :encoding (guess-encoding-for-http-response) :stream *xml-stream* :version "1.1")
     <office:document (xmlns:office "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
                       xmlns:style "urn:oasis:names:tc:opendocument:xmlns:style:1.0"
                       xmlns:text "urn:oasis:names:tc:opendocument:xmlns:text:1.0"

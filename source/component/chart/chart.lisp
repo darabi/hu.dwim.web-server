@@ -59,7 +59,7 @@
 (def macro make-xml-provider (&body forms)
   `(lambda ()
      (emit-http-response (("Content-Type" +xml-mime-type+))
-       (emit-xml-prologue)
+       (emit-xml-prologue :encoding (guess-encoding-for-http-response) :stream *xml-stream* :version "1.1")
        ,@forms)))
 
 (def function make-chart-from-files (type &key settings-file data-file)

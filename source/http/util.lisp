@@ -55,19 +55,6 @@
 (def (constant e) +xml-content-type+          (content-type-for +xml-mime-type+          +default-encoding+))
 (def (constant e) +javascript-content-type+   (content-type-for +javascript-mime-type+   +default-encoding+))
 
-(def function emit-xml-prologue (&key (encoding (guess-encoding-for-http-response)) (stream *xml-stream*) (version "1.1"))
-  (macrolet ((emit (string)
-               `(write-string ,string stream)))
-    (if (and (eq encoding :utf-8)
-             (string= version "1.1"))
-        (emit #.(coerce (format nil "<?xml version=\"1.1\" encoding=\"UTF-8\"?>~%") 'simple-base-string))
-        (progn
-          (emit "<?xml version=\"")
-          (emit (or version "1.1"))
-          (emit "\" encoding=\"")
-          (emit (string encoding))
-          (emit (format nil "\"?>~%"))))))
-
 (def function emit-xhtml-prologue (encoding doctype &optional (stream *xml-stream*))
   (declare (ignore encoding))
   (macrolet ((emit (string)
