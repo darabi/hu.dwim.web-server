@@ -527,7 +527,7 @@
                                        (for previous-piece :previous piece)
                                        (for start :first 0 :then (+ start (length previous-piece)))
                                        (replace it piece :start1 start))))))
-               (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.wui.zlib:deflate-sequence input :window-bits -15)))
+               (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.util:deflate-sequence input :window-bits -15)))
                  (server.debug "SERVE-SEQUENCE: compressed response, original-size ~A, compressed-size ~A, ratio: ~,3F" input-byte-size compressed-bytes-length (/ compressed-bytes-length input-byte-size))
                  (send-http-headers compressed-bytes-length)
                  (write-sequence compressed-bytes stream :start 0 :end compressed-bytes-length))))

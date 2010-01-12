@@ -50,7 +50,7 @@
           (files.debug "Compiling and updating cache entry for ~A, in ~A" truename broker)
           (setf bytes-to-serve (compile-js-file-to-byte-vector broker truename :encoding :utf-8))
           (when compress?
-            (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.wui.zlib:deflate-sequence bytes-to-serve :window-bits -15)))
+            (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.util:deflate-sequence bytes-to-serve :window-bits -15)))
               (files.debug "Compressed response for cache entry ~A, original-size ~A, compressed-size ~A, ratio: ~,3F" truename (length bytes-to-serve) compressed-bytes-length (/ compressed-bytes-length (length bytes-to-serve)))
               (setf bytes-to-serve (coerce-to-simple-ub8-vector compressed-bytes compressed-bytes-length))
               (assert (= (length bytes-to-serve) compressed-bytes-length))))

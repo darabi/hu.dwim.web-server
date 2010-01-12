@@ -22,8 +22,7 @@
 (def (special-variable :documentation "A unique identifier is assigned to each incoming request to help debugging. This variable holds that id while processing the request.")
   *request-id*)
 
-(def (special-variable e) *disable-response-compression* (not (awhen (find-package :hu.dwim.wui.zlib)
-                                                                (find-symbol "COMPRESS" it)))
+(def (special-variable e) *disable-response-compression* #f
   "TRUE means that HTTP response will not be compressed, FALSE otherwise.")
 
 (def (special-variable e) *request-content-length-limit* #.(* 5 1024 1024)

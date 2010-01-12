@@ -27,6 +27,7 @@
                :hu.dwim.quasi-quote.xml+hu.dwim.quasi-quote.js
                :hu.dwim.syntax-sugar
                :hu.dwim.util.error-handling
+               :hu.dwim.util.zlib
                :iolib
                :iolib.pathnames
                :iolib.sockets
@@ -45,8 +46,7 @@
                               :components ((:file "l10n" :depends-on ("util"))
                                            (:file "timer")
                                            (:file "util")
-                                           (:file "timestring-parsing")
-                                           (:file "zlib")))
+                                           (:file "timestring-parsing")))
                              (:module "http"
                               :depends-on ("logger" "util")
                               :components ((:file "accept-headers" :depends-on ("variables"))

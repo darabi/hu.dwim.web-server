@@ -85,7 +85,7 @@
                (files.dribble "Updating compressed file cache for ~S, into compressed file ~S" truename compressed-file)
                (with-open-file (input truename :direction :input :element-type '(unsigned-byte 8))
                  (with-open-file (output compressed-file :direction :output :element-type '(unsigned-byte 8) :if-exists :supersede)
-                   (hu.dwim.wui.zlib:deflate
+                   (hu.dwim.util:deflate
                        (lambda (buffer start size)
                          (read-sequence buffer input :start start :end size))
                        (lambda (buffer start size)
