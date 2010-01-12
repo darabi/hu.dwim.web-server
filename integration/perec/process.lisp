@@ -137,6 +137,8 @@
       (hu.dwim.rdbms::with-transaction
         (hu.dwim.perec::revive-instance (component-value-of component))
         (cancel-process (component-value-of component))
+        ;; TODO:
+        #+nil
         (finish-process-component component)))))
 
 (def (function e) make-pause-persistent-process-command (component)
@@ -147,4 +149,6 @@
       (hu.dwim.rdbms::with-transaction
         (hu.dwim.perec::revive-instance (component-value-of component))
         (pause-process (component-value-of component))
+        ;; TODO:
+        #+nil
         (finish-process-component component)))))
