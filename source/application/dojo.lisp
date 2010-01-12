@@ -75,7 +75,9 @@
                                      #'string>=))))
          (if dojo-dir
              (return (string+ dojo-dir "/"))
-             (cerror "Ignore" "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" www-directory))))))
+             (progn
+               (cerror "Ignore" "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" www-directory)
+               (return)))))))
 
 (def with-macro with-dojo-widget-collector ()
   (bind ((*dojo-widget-ids* nil))
