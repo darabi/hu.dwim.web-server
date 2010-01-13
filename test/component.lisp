@@ -830,7 +830,9 @@
     (component-demo/widget "Toc"
       "TODO")
     (component-demo/widget "URI"
-      (make-value-inspector (parse-uri "http://dwim.hu/")))))
+      (make-value-inspector (parse-uri "http://dwim.hu/")))
+    (component-demo/widget "Hyperlink"
+      (make-value-inspector (hyperlink "http://dwim.hu/" "Home")))))
 
 ;;;;;;
 ;;; Source

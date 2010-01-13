@@ -763,6 +763,7 @@
                  #("t/presentation"                         "content-border"           "DIV")
                  #("t/detail/presentation"                  false                      false)
                  #("uri/inspector"                          false                      false)
+                 #("hyperlink/inspector"                    false                      false)
                  #("text/inspector"                         false                      false)
                  #("book/inspector"                         "content-border"           "DIV")))
   (bind ((type (first entry))

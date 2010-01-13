@@ -201,11 +201,12 @@
                                             :components ((:file "inspector" :depends-on ("presentation"))
                                                          (:file "presentation")))
                                            (:module "text"
-                                            :depends-on ( "object" "tree")
+                                            :depends-on ("object" "tree")
                                             :components ((:file "text")
                                                          (:file "book" :depends-on ("text"))
                                                          (:file "chapter" :depends-on ("text"))
                                                          (:file "glossary" :depends-on ("text"))
+                                                         (:file "hyperlink" :depends-on ("text"))
                                                          (:file "index" :depends-on ("text"))
                                                          (:file "paragraph" :depends-on ("text"))
                                                          (:file "toc" :depends-on ("text"))))
