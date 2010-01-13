@@ -84,26 +84,21 @@
            (condition-wait (condition-variable-of timer) (lock-of timer))))
       (setf (shutdown-initiated-p timer) #t)))
 
-(def (function e) register-timer-entry (timer time thunk &key (kind :periodic) (name "<unnamed>"))
-  (check-type kind (member :periodic :single-shot))
-  (timer.debug "Registering timer entry ~S for timer ~A, at time ~A, kind ~S, thunk ~A" name timer time kind thunk)
+(def (function e) register-timer-entry (timer thunk &key (first-time (local-time:now)) time-interval (name "<unnamed>"))
+  (check-type first-time local-time:timestamp)
+  (check-type time-interval (or null number))
+  (timer.debug "Registering timer entry ~S for timer ~A, at first time ~A, time interval ~A, thunk ~A" name timer first-time time-interval thunk)
   (with-lock-held-on-timer timer
-    (push (ecase kind
-            (:periodic
-             (unless (numberp time)
-               (error "The TIME argument must be the interval length in seconds for periodic timers"))
-             (make-instance 'periodic-timer-entry
-                            :name name
-                            :scheduled-at (local-time:now)
-                            :interval time
-                            :thunk thunk))
-            (:single-shot
-             (unless (typep time 'local-time:timestamp)
-               (error "The TIME argument must be a local-time timestamp denoting the time when this single-shot timer should be run"))
-             (make-instance 'single-shot-timer-entry
-                            :name name
-                            :scheduled-at time
-                            :thunk thunk)))
+    (push (if time-interval
+              (make-instance 'periodic-timer-entry
+                             :name name
+                             :scheduled-at first-time
+                             :interval time-interval
+                             :thunk thunk)
+              (make-instance 'single-shot-timer-entry
+                             :name name
+                             :scheduled-at first-time
+                             :thunk thunk))
           (entries-of timer))
     (timer.debug "Waking up timer ~A because of a new entry" timer)
     (condition-notify (condition-variable-of timer))))
