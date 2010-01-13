@@ -20,9 +20,7 @@
 ;;;;;;
 ;;; Component localization
 
-(def localization-loader-callback wui-resource-loader/component :hu.dwim.wui "localization/component/" :log-discriminator "WUI")
-
-(register-locale-loaded-listener 'wui-resource-loader/component)
+(def localization-loader-callback wui-component-localization-loader :hu.dwim.wui "localization/component/" :log-discriminator "hu.dwim.wui.component")
 
 ;;;;;;
 ;;; Component

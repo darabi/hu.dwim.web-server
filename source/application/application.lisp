@@ -6,9 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def localization-loader-callback wui-resource-loader/application :hu.dwim.wui "localization/application/" :log-discriminator "WUI")
-
-(register-locale-loaded-listener 'wui-resource-loader/application)
+(def localization-loader-callback wui-application-localization-loader :hu.dwim.wui "localization/application/" :log-discriminator "hu.dwim.wui.application")
 
 (def (class* e) standard-application (application-with-home-package
                                       application-with-dojo-support)

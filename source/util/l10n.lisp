@@ -9,23 +9,22 @@
 ;;;;;;
 ;;; Listener definer
 
-(def (definer e) localization-loader-callback (name asdf-system base-directory &key log-discriminator (setup-readtable-function ''setup-readtable))
-  (setf log-discriminator (or log-discriminator ""))
+(def (definer e) localization-loader-callback (name asdf-system base-directory &key (log-discriminator (string-downcase asdf-system)) (setup-readtable-function ''setup-readtable))
   (with-standard-definer-options name
     (once-only (setup-readtable-function asdf-system base-directory log-discriminator)
-      `(def function ,name (locale-name)
-         (l10n.debug "Loading ~A localizations for locale ~S" ,log-discriminator locale-name)
-         (bind ((file (merge-pathnames (string+ locale-name ".lisp") (system-relative-pathname ,asdf-system ,base-directory))))
-           (when (probe-file file)
-             (bind ((*readtable* (copy-readtable nil)))
-               (awhen ,setup-readtable-function
-                 (funcall it))
-               (cl-l10n::load-resource-file file)
-               (l10n.info "Loaded ~A localizations for locale ~S from ~A" ,log-discriminator locale-name file))))))))
+      `(progn
+         (def function ,name (locale-name)
+           (l10n.debug "Loading ~A localizations for locale ~S" ,log-discriminator locale-name)
+           (bind ((file (merge-pathnames (string+ locale-name ".lisp") (system-relative-pathname ,asdf-system ,base-directory))))
+             (when (probe-file file)
+               (bind ((*readtable* (copy-readtable nil)))
+                 (awhen ,setup-readtable-function
+                   (funcall it))
+                 (cl-l10n::load-resource-file file)
+                 (l10n.info "Loaded ~A localizations for locale ~S from ~A" ,log-discriminator locale-name file)))))
+         (register-locale-loaded-listener ',name)))))
 
-(def localization-loader-callback wui-localization-loader :hu.dwim.wui "localization/" :log-discriminator "WUI")
-
-(register-locale-loaded-listener 'wui-localization-loader)
+(def localization-loader-callback wui-localization-loader :hu.dwim.wui "localization/")
 
 ;;;;;;
 ;;; Localized string reader

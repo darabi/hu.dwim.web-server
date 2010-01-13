@@ -6,9 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def localization-loader-callback wui-resource-loader/server :hu.dwim.wui "localization/server/" :log-discriminator "WUI")
-
-(register-locale-loaded-listener 'wui-resource-loader/server)
+(def localization-loader-callback wui-server-localization-loader :hu.dwim.wui "localization/server/" :log-discriminator "hu.dwim.wui.server")
 
 (def (class* e) request-counter-mixin ()
   ((processed-request-counter (make-atomic-counter) :accessor nil)))
