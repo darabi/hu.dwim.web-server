@@ -32,12 +32,6 @@
   (unless (eq value (class-prototype class))
     (hu.dwim.perec::load-instance value)))
 
-(def (hu.dwim.meta-model::operation e) export-instance-operation ()
-  ())
-
-(def (hu.dwim.meta-model::operation e) expand-instance-operation ()
-  ())
-
 ;; KLUDGE: TODO: redefined for now
 #+nil
 (def function update-component-value-from-place (place component)
