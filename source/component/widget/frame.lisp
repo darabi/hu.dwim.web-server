@@ -13,7 +13,7 @@
   ((content-mime-type +xhtml-mime-type+)
    (stylesheet-uris nil)
    (script-uris nil)
-   (page-icon nil)
+   (page-icon-uri nil)
    (title nil)
    (dojo-skin-name *dojo-skin-name*)
    (dojo-release-uri (parse-uri (string+ "static/" *dojo-directory-name* "dojo/")))
@@ -41,7 +41,7 @@
       <head
         <meta (:http-equiv #.+header/content-type+
                :content ,(content-type-for (content-mime-type-of -self-) encoding))>
-        ,(bind (((icon-uri &optional file-name) (ensure-list (page-icon-of -self-))))
+        ,(bind (((icon-uri &optional file-name) (ensure-list (page-icon-uri-of -self-))))
            (when icon-uri
              <link (:rel "icon"
                     :type "image/x-icon"
@@ -147,7 +147,7 @@
   (:method ((application application))
     "/help/"))
 
-(def (function e) make-default-page-icon ()
+(def (function e) make-default-page-icon-uri ()
   "static/favicon.ico")
 
 (def (function e) make-default-script-uris (system-name &rest script-uris)

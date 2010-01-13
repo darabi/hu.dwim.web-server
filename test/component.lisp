@@ -84,7 +84,7 @@
                                                 (make-stylesheet-uri (string+ *dojo-directory-name* "dijit/themes/tundra/tundra.css")))
                                           +demo-static-stylesheet-uris+)
                  :script-uris +demo-script-uris+
-                 :page-icon +demo-page-icon+)
+                 :page-icon-uri +demo-page-icon+)
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu)))
       (make-component-demo-content initial-content-component))))
