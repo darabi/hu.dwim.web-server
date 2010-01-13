@@ -374,8 +374,8 @@
 (def (macro e) make-functional-response ((&optional headers-as-plist cookie-list) &body body)
   (expand-make-functional-response #f headers-as-plist cookie-list body))
 
-(def (macro e) make-raw-functional-response ((&optional headers-as-plist cookie-list) &body body)
-  (expand-make-functional-response #t headers-as-plist cookie-list body))
+(def (macro e) make-raw-functional-response (() &body body)
+  (expand-make-functional-response #t nil nil body))
 
 (def (macro e) make-functional-html-response ((&optional headers-as-plist cookie-list) &body body)
   `(make-functional-response ((+header/content-type+ (content-type-for +html-mime-type+ +default-encoding+)
