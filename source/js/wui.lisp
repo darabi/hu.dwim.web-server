@@ -346,7 +346,7 @@
 
 ;; Return a lambda that when passed a root node, will call the visitor with each of those children
 ;; that have the given tag-name.
-(defun wui.io.make-node-walker (tag-name visitor (import-node-p true) (toplevel-p false))
+(defun wui.io.make-dom-node-walker (tag-name visitor (import-node-p true) (toplevel-p false))
   (return
     (lambda (root)
       ;; NOTE: it used to be a dolist but root.childNodes does not work in IE by some weird reason
@@ -384,14 +384,14 @@
 ;; on the ajax answer, report any possible server errors, then walk the nodes with the given
 ;; tag-name and call the visitor on them.  If the visitor returns a node, then postprocess the
 ;; returned node as an added dom html fragment.
-(defun wui.io.make-node-walking-ajax-answer-processor (tag-name visitor (import-node-p true) (toplevel-p false))
-  (let ((node-walker (wui.io.make-node-walker tag-name
-                                              (lambda (node original-node)
-                                                (when (visitor node original-node)
-                                                  (log.debug "Calling postprocess-inserted-node on node " node)
-                                                  (wui.io.postprocess-inserted-node original-node node)))
-                                              import-node-p
-                                              toplevel-p)))
+(defun wui.io.make-ajax-answer-processor (tag-name visitor (import-node-p true) (toplevel-p false))
+  (let ((node-walker (wui.io.make-dom-node-walker tag-name
+                                                  (lambda (node original-node)
+                                                    (when (visitor node original-node)
+                                                      (log.debug "Calling postprocess-inserted-node on node " node)
+                                                      (wui.io.postprocess-inserted-node original-node node)))
+                                                  import-node-p
+                                                  toplevel-p)))
     (return
       (lambda (response args)
         (log.debug "Response is " response)
@@ -399,43 +399,43 @@
         (with-ajax-answer response
           (node-walker response))))))
 
-(bind ((dom-replacer
-        (wui.io.make-node-walking-ajax-answer-processor "dom-replacements"
-                                                        (lambda (replacement-node)
-                                                          (bind ((id (.getAttribute replacement-node "id")))
-                                                            (cond
-                                                              ((and id ($ id))
-                                                               (let ((old-node ($ id))
-                                                                     (parent-node (slot-value old-node 'parent-node)))
-                                                                 (hide-dom-node old-node)
-                                                                 (log.debug "About to replace old node with id " id)
-                                                                 (.replace-child parent-node replacement-node old-node)
-                                                                 (log.debug "Successfully replaced node with id " id)
-                                                                 (return true)))
-                                                              ((= replacement-node.tagName "script")
-                                                               (log.debug "Found a toplevel script node in dom-replacements, calling eval...")
-                                                               (wui.io.eval-script-tag replacement-node))
-                                                              (t (log.warn "Replacement node with id '" id "' was not found on the client side"))))))))
+(bind ((dom-replacer (wui.io.make-ajax-answer-processor
+                      "dom-replacements"
+                      (lambda (replacement-node)
+                        (bind ((id (.getAttribute replacement-node "id")))
+                              (cond
+                                ((and id ($ id))
+                                 (let ((old-node ($ id))
+                                       (parent-node (slot-value old-node 'parent-node)))
+                                   (hide-dom-node old-node)
+                                   (log.debug "About to replace old node with id " id)
+                                   (.replace-child parent-node replacement-node old-node)
+                                   (log.debug "Successfully replaced node with id " id)
+                                   (return true)))
+                                ((= replacement-node.tagName "script")
+                                 (log.debug "Found a toplevel script node in dom-replacements, calling eval...")
+                                 (wui.io.eval-script-tag replacement-node))
+                                (t (log.warn "Replacement node with id '" id "' was not found on the client side"))))))))
   (setf wui.io.process-ajax-answer
         (lambda (response args)
           (with-wui-error-handler
+            ;; TODO properly handle ajax errors
             ;; replace some components (dom nodes)
             (log.debug "Calling dom-replacer...")
             (dom-replacer response args)
             (log.debug "...dom-replacer returned")
             ;; look for 'script' tags and execute them with 'current-ajax-answer' bound
-            (let ((script-evaluator
-                   (wui.io.make-node-walking-ajax-answer-processor "script"
-                                                                   (lambda (script-node)
-                                                                     ;; TODO handle/assert for script type attribute
-                                                                     (let ((script (dojox.xml.parser.textContent script-node)))
-                                                                       (log.debug "About to eval AJAX-received script " #\Newline script)
-                                                                       ;; isolate the local bindings from the script to be executed
-                                                                       ;; and only bind with the given name what we explicitly list here
-                                                                       ((lambda (_script current-ajax-answer)
-                                                                          (eval _script)) script response)
-                                                                       (log.debug "Finished eval-ing AJAX-received script")))
-                                                                   false true)))
+            (let ((script-evaluator (wui.io.make-ajax-answer-processor "script"
+                                                                       (lambda (script-node)
+                                                                         ;; TODO handle/assert for script type attribute
+                                                                         (let ((script (dojox.xml.parser.textContent script-node)))
+                                                                           (log.debug "About to eval AJAX-received script " #\Newline script)
+                                                                           ;; isolate the local bindings from the script to be executed
+                                                                           ;; and only bind with the given name what we explicitly list here
+                                                                           ((lambda (_script current-ajax-answer)
+                                                                              (eval _script)) script response)
+                                                                           (log.debug "Finished eval-ing AJAX-received script")))
+                                                                       false true)))
               (log.debug "Calling script-evaluator...")
               (script-evaluator response args)
               (log.debug "...script-evaluator returned"))))))
