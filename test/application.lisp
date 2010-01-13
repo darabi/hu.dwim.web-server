@@ -18,7 +18,7 @@
 (def entry-point (*test-application* :path "performance" :with-session-logic #f)
     (name)
   (make-functional-html-response ()
-    (with-html-document ()
+    (emit-html-document ()
       <h3 ,(or name "The name query parameter is not specified!")>)))
 
 (def function render-mime-part-details (mime-part)

@@ -89,7 +89,7 @@
                           ,@(when status `((list (cons +header/status+ ,status))))
                           '((#.+header/content-type+ . #.+utf-8-html-content-type+)))
                          ,cookies)
-     (with-html-document (:content-type +html-content-type+ :title ,title)
+     (emit-html-document (:content-type +html-content-type+ :title ,title)
        ,@body)))
 
 (def (with-macro e) with-collapsed-js-scripts ()
@@ -109,7 +109,7 @@
                (write-sequence script-body *xml-stream*)
                (write-sequence #.(format nil "~%// ]]></script>") *xml-stream*)))))))
 
-(def (with-macro* e) with-html-document (&key title
+(def (with-macro* e) emit-html-document (&key title
                                               content-type
                                               encoding
                                               head

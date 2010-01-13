@@ -101,6 +101,6 @@
     (start-test-server-with-brokers (make-functional-broker
                                       (with-request-params (name)
                                         (make-functional-html-response ()
-                                          (with-html-document (:title "foo")
+                                          (emit-html-document (:title "foo")
                                             <h3 ,(or name "The name query parameter is not specified!")>))))
                                     :maximum-worker-count maximum-worker-count)))

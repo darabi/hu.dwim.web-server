@@ -481,7 +481,7 @@
     (render-request *request*)))
 
 (def (function e) render-request (request)
-  (with-html-document (:title "URL echo server")
+  (emit-html-document (:title "URL echo server")
     <p "Raw request uri: \"" ,(raw-uri-of request) "\"">
     <p "Parsed request uri: \"" ,(print-uri-to-string (uri-of request)) "\"">
     <h3 "Headers">
@@ -534,7 +534,7 @@
   ;; can't use emit-http-response, because +header/content-location+ is not constant
   (call-next-method)
   (emit-into-xml-stream (client-stream-of *request*)
-    (with-html-document (:title "Redirect")
+    (emit-html-document (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
 
 
