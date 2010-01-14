@@ -253,7 +253,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 
   (:method ((self component-class))
     (component-documentation (class-prototype self)))
-  
+
   (:method ((self component))
     (or (documentation (class-of self) 'type)
         "No documentation")))

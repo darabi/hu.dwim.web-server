@@ -16,7 +16,7 @@
   (:documentation "A MENU-BAR/WIDGET is always shown with a list of MENU-ITEM/WIDGETs VISIBLE."))
 
 (def (macro e) menu-bar/widget ((&rest args &key &allow-other-keys) &body menu-items)
-  `(make-instance 'menu-bar/widget ,@args :menu-items (list ,@menu-items)))
+  `(make-instance 'menu-bar/widget ,@args :menu-items (flatten (list ,@menu-items))))
 
 (def render-xhtml menu-bar/widget
   (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
@@ -35,7 +35,7 @@
   (:documentation "A POPUP-MENU/WIDGET is only shown upon explicit user interaction on its CONTENT."))
 
 (def (macro e) popup-menu/widget ((&rest args &key &allow-other-keys) content &body menu-items)
-  `(make-instance 'popup-menu/widget ,@args :content ,content :menu-items (list ,@menu-items)))
+  `(make-instance 'popup-menu/widget ,@args :content ,content :menu-items (flatten (list ,@menu-items))))
 
 (def render-xhtml popup-menu/widget
   (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
@@ -60,7 +60,7 @@
   (:documentation "A CONTEXT-MENU/WIDGET is attached to its PARENT-COMPONENT as its CONTEXT-MENU."))
 
 (def (macro e) context-menu/widget ((&rest args &key &allow-other-keys) &body menu-items)
-  `(make-instance 'context-menu/widget ,@args :menu-items (list ,@menu-items)))
+  `(make-instance 'context-menu/widget ,@args :menu-items (flatten (list ,@menu-items))))
 
 (def render-xhtml context-menu/widget
   (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
@@ -81,7 +81,7 @@
   (:documentation "A MENU-ITEM/WIDGET is an intermediate or leaf COMPONENT in a MENU-HIERARCHY."))
 
 (def (macro e) menu-item/widget ((&rest args &key &allow-other-keys) content &body menu-items)
-  `(make-instance 'menu-item/widget ,@args :content ,content :menu-items (list ,@menu-items)))
+  `(make-instance 'menu-item/widget ,@args :content ,content :menu-items (flatten (list ,@menu-items))))
 
 (def (function e) make-menu-item (content menu-items &key id style-class custom-style)
   (bind ((menu-items (flatten menu-items)))
@@ -139,8 +139,8 @@
   ()
   (:documentation "A MENU-ITEM-SEPARATOR/WIDGET is a leaf COMPONENT in the MENU-HIERARCHY separating other MENU-ITEM/WIDGETs."))
 
-(def (macro e) menu-item-separator/widget ()
-  '(make-instance 'menu-item-separator/widget))
+(def (macro e) menu-item-separator/widget (&rest args &key &allow-other-keys)
+  `(make-instance 'menu-item-separator/widget ,@args))
 
 (def render-xhtml menu-item-separator/widget
   (bind (((:read-only-slots id) -self-))
