@@ -99,9 +99,12 @@
 
 (defmapping hu.dwim.wui::html-text (if (consp normalized-type)
                                        (sql-character-varying-type :size (maximum-length-of (parse-type normalized-type)))
-                                       (sql-character-large-object-type))
+                                       (sql-character-varying-type))
   ;; TODO do some sanity check for maximum-length when provided
   'identity-reader
   'identity-writer)
 
 (pushnew 'hu.dwim.wui::html-text hu.dwim.perec::*canonical-types*)
+
+;; TODO: KLUDGE: bruhuhu, should kill this stupid type mapping in hu.dwim.perec and use the one from hu.dwim.util
+(pushnew 'hu.dwim.wui::html-text hu.dwim.perec::*mapped-type-precedence-list*)
