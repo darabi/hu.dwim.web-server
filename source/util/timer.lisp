@@ -33,7 +33,7 @@
            (setf (entries-of timer)
                  (sort (delete-if (complement #'timer-entry-valid?) (entries-of timer))
                        'local-time:timestamp<
-                       :key 'scheduled-at-of))))
+                       :key 'run-at-of))))
     (timer.debug "Thread is entering the timer loop DRIVE-TIMER of ~A" timer)
     (unwind-protect
          (progn
@@ -50,14 +50,14 @@
                     ;; need to copy, because we will release the lock before processing finishes
                     (setf entries (copy-list (reschedule-entries))))
                   (dolist (entry entries)
-                    (when (local-time:timestamp< (scheduled-at-of entry) (local-time:now))
+                    (when (local-time:timestamp< (run-at-of entry) (local-time:now))
                       (setf run-anything? #t)
                       (run-timer-entry entry)))
                   (unless run-anything?
                     (with-lock-held-on-timer timer
                       (bind ((first-entry (first (reschedule-entries)))
                              (expires-in (or (when first-entry
-                                               (local-time:timestamp-difference (scheduled-at-of first-entry) (local-time:now)))
+                                               (local-time:timestamp-difference (run-at-of first-entry) (local-time:now)))
                                              ;; this is an ad-hoc large constant to keep the code path uniform. would be safe to wake up though...
                                              (* 60 60 24 365 10))))
                         (timer.dribble "~A will fall asleep for ~A seconds" timer expires-in)
@@ -84,20 +84,24 @@
            (condition-wait (condition-variable-of timer) (lock-of timer))))
       (setf (shutdown-initiated-p timer) #t)))
 
-(def (function e) register-timer-entry (timer thunk &key (first-time (local-time:now)) time-interval (name "<unnamed>"))
-  (check-type first-time local-time:timestamp)
-  (check-type time-interval (or null number))
-  (timer.debug "Registering timer entry ~S for timer ~A, at first time ~A, time interval ~A, thunk ~A" name timer first-time time-interval thunk)
+(def (function e) register-timer-entry (timer thunk &key
+                                              interval
+                                              (run-at (when interval
+                                                        (local-time:now)))
+                                              (name "<unnamed>"))
+  (check-type run-at local-time:timestamp)
+  (check-type interval (or null number))
+  (timer.debug "Registering timer entry ~S for timer ~A, at first time ~A, time interval ~A, thunk ~A" name timer run-at interval thunk)
   (with-lock-held-on-timer timer
-    (push (if time-interval
+    (push (if interval
               (make-instance 'periodic-timer-entry
                              :name name
-                             :scheduled-at first-time
-                             :interval time-interval
+                             :run-at run-at
+                             :interval interval
                              :thunk thunk)
               (make-instance 'single-shot-timer-entry
                              :name name
-                             :scheduled-at first-time
+                             :run-at run-at
                              :thunk thunk))
           (entries-of timer))
     (timer.debug "Waking up timer ~A because of a new entry" timer)
@@ -108,7 +112,7 @@
 
 (def class* timer-entry ()
   ((name (mandatory-argument) :type string)
-   (scheduled-at :type local-time:timestamp)
+   (run-at :type local-time:timestamp)
    (thunk (mandatory-argument) :type (or symbol function))))
 
 (def print-object (timer-entry :identity #f)
@@ -140,4 +144,4 @@
     (setf (thunk-of entry) nil))
 
   (:method :after ((self periodic-timer-entry))
-    (setf (scheduled-at-of self) (local-time:adjust-timestamp (local-time:now) (offset :sec (interval-of self))))))
+    (setf (run-at-of self) (local-time:adjust-timestamp (local-time:now) (offset :sec (interval-of self))))))
