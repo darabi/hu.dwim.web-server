@@ -71,9 +71,18 @@
         (condition-notify (condition-variable-of timer)))
       (timer.debug "Thread is leaving the timer loop DRIVE-TIMER of ~A" timer))))
 
-(def (function e) drive-timer/abort ()
-  (invoke-restart 'abort-timer)
-  (error "It should be impossible to get here..."))
+(def (function e) drive-timer/abort (timer)
+  (if (eq (current-thread) (running-thread-of timer))
+      (progn
+        (invoke-restart 'abort-timer)
+        (error "It should be impossible to get here..."))
+      ;; register an instant entry which will call us in the timer thread
+      (register-timer-entry timer
+                            (named-lambda timer-aborter ()
+                              (timer.debug "Calling DRIVE-TIMER/ABORT in the timer thread~%")
+                              (drive-timer/abort timer))
+                            :run-at (local-time:now)
+                            :name "DRIVE-TIMER/ABORT message to the timer thread")))
 
 (def function shutdown-timer (timer &key (wait #t))
   (if wait
