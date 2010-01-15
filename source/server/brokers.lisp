@@ -61,14 +61,15 @@
             (result (first result-values)))
        (typecase result
          (response
-          ;; yay! return with the response...
+          (server.debug "Broker ~A returned response ~A, returning from ITERATE-BROKERS-FOR-RESPONSE" broker result)
           (values-list result-values))
          (cons
-          ;; recurse with a new set of brokers provided by the previous broker.
-          ;; also record the broker who provided the new set of brokers to continue with.
+          ;; record the broker who provided the new set of brokers on the *broker-stack*
           (bind ((*broker-stack* (cons broker *broker-stack*)))
+            (server.debug "Broker ~A returned the new rules ~S, calling ITERATE-BROKERS-FOR-RESPONSE recursively" broker result)
             (iterate-brokers-for-response visitor request initial-brokers result (1+ recursion-depth))))
          (request
+          (server.debug "Broker ~A returned the new request ~S, calling ITERATE-BROKERS-FOR-RESPONSE recursively" broker result)
           ;; we've got a new request, start over using the original set of brokers
           (iterate-brokers-for-response visitor result initial-brokers initial-brokers (1+ recursion-depth)))
          (t

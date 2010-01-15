@@ -571,6 +571,7 @@
           (listener (lambda ()
                       (wui.field.update-use-in-filter use-in-filter-id (!= "" (.getValue this))))))
      (assert widget)
+     ;; TODO why not dojo.connect?
      (widget.connect widget "onKeyUp" listener)
      (widget.connect widget "onChange" listener))))
 

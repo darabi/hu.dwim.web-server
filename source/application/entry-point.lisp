@@ -77,6 +77,7 @@
     (error "Can't use ENSURE-SESSION without WITH-SESSION-LOGIC"))
   (when (and ensure-frame (not with-frame-logic))
     (error "Can't use ENSURE-FRAME without WITH-FRAME-LOGIC"))
+  (app.debug "Entry point body reached, going through the session/frame/action logic; with-session-logic: ~A, with-frame-logic: ~A, with-action-logic: ~A" with-session-logic with-frame-logic with-action-logic)
   (surround-body-when with-session-logic
       (with-session-logic (:requires-valid-session requires-valid-session :ensure-session ensure-session)
         (-body-))

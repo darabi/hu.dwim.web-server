@@ -342,6 +342,7 @@
   (:documentation "A response that does nothing else than calling its thunk."))
 
 (def method send-response ((response raw-functional-response))
+  ;; override everything, including the sending of the headers...
   (funcall (thunk-of response)))
 
 (def method close-response :after ((self functional-response))
@@ -363,7 +364,7 @@
 
 (def function expand-make-functional-response (raw headers-as-plist cookie-list body)
   (with-unique-names (response)
-    `(bind ((,response (make-functional-response* (lambda () ,@body) :raw ,raw)))
+    `(bind ((,response (make-functional-response* (named-lambda functional-response/body () ,@body) :raw ,raw)))
        (store-response ,response)
        ;; this way *response* is bound while evaluating the following
        (setf (headers-of ,response) (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
