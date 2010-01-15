@@ -75,7 +75,7 @@
                                  :form form
                                  :error (lambda (response io-args)
                                           (ajax-request-in-progress-teardown)
-                                          (wui.io.process-ajax-error response io-args))
+                                          (wui.io.process-ajax-network-error response io-args))
                                  :load (lambda (response io-args)
                                          (ajax-request-in-progress-teardown)
                                          (wui.io.process-ajax-answer response io-args)))))
@@ -152,7 +152,7 @@
                   (setf (slot-value params ',name) ,value))))
     (default sync false) ;; TODO make true the default, and if true then find a way to numb event handlers meanwhile
     (default handle-as "xml")
-    (default error wui.io.process-ajax-error)
+    (default error wui.io.process-ajax-network-error)
     (default load wui.io.process-ajax-answer)
 
     ;; submit some forms as per caller request
@@ -222,11 +222,29 @@
                                                     (setf wui.io.polling.enabled-p false)))
         (return result)))))
 
-(defun wui.io.process-ajax-error (response io-args)
-  (log.error "Processing AJAX error, name " response.name ", message: " response.message)
+(defun wui.io.process-ajax-network-error (response io-args)
+  (log.error "Processing AJAX network error, name " response.name ", message: " response.message)
   (if dojo.config.isDebug
       debugger
       (window.location.reload)))
+
+(defun wui.io.inform-user-about-ajax-error (message)
+  (log.debug "Informing user about AJAX error, message is '" message "'")
+  (dojo.require "dijit.Dialog")
+  (setf message (wui.i18n.localize message))
+  (bind ((dialog (new dijit.Dialog (create :id "wui-ajax-error-dialog" :title #"error.ajax.dialog.title")))
+         (reload-button (new dijit.form.Button (create :label #"action.reload-page")))
+         (cancel-button (new dijit.form.Button (create :label #"action.cancel"))))
+    (.placeAt (new dijit.layout.ContentPane (create :content message)) dialog.containerNode)
+    (reload-button.placeAt dialog.containerNode)
+    (cancel-button.placeAt dialog.containerNode)
+    (dojo.connect reload-button "onClick" (lambda ()
+                                            (window.location.reload)))
+    (dojo.connect cancel-button "onClick" (lambda ()
+                                            (bind ((dialog (dijit.byId "wui-ajax-error-dialog")))
+                                              (dialog.hide)
+                                              (dialog.destroyRecursive))))
+    (dialog.show)))
 
 #+nil
 (defun wui.io.execute-ajax-action (params)

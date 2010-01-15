@@ -90,7 +90,8 @@
           (t
            (-body-))))))
 
-(def (with-macro* eo) with-action-logic ()
+(def (with-macro* eo) with-action-logic (&key requires-valid-action)
+  (app.debug "WITH-FRAME-LOGIC speaking")
   (assert (and *application* *session* *frame*) () "May not use WITH-ACTION-LOGIC without a proper application/session/frame dynamic environment")
   (bind ((application *application*)
          (session *session*)
@@ -101,98 +102,117 @@
     (labels ((convert-to-primitive-response* (response)
                (app.debug "Calling CONVERT-TO-PRIMITIVE-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and WITH-ACTION-LOGIC's dynamic scope" response)
                (decorate-application-response *application* response)
-               (convert-to-primitive-response response))
-             (call-body ()
-               (values (convert-to-primitive-response* (-body-)))))
-      (declare (inline call-body))
+               (convert-to-primitive-response response)))
       (if frame
-          (progn
-            (restart-case
-                (progn
-                  (setf *frame* frame)
-                  (notify-activity frame)
-                  (process-client-state-sinks frame (query-parameters-of *request*))
-                  (bind ((action (find-action-from-request frame))
-                         (incoming-frame-index (parameter-value +frame-index-parameter-name+))
-                         (current-frame-index (frame-index-of frame))
-                         (next-frame-index (next-frame-index-of frame)))
-                    (unless (stringp current-frame-index)
-                      (setf current-frame-index (integer-to-string current-frame-index)))
-                    (unless (stringp next-frame-index)
-                      (setf next-frame-index (integer-to-string next-frame-index)))
-                    (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index current-frame-index next-frame-index action)
-                    (cond
-                      ((and action
-                            incoming-frame-index)
-                       (bind ((original-frame-index nil))
-                         (unwind-protect-case ()
-                             (if (equal incoming-frame-index next-frame-index)
-                                 (progn
-                                   (app.dribble "Found an action and frame is in sync...")
-                                   (unless *delayed-content-request*
-                                     (setf original-frame-index (step-to-next-frame-index frame)))
-                                   (app.dribble "Calling action...")
-                                   (bind ((response (call-action application session frame action)))
-                                     (when (typep response 'response)
-                                       (return-from with-action-logic
-                                         (convert-to-primitive-response* response)))))
-                                 (return-from with-action-logic
-                                   (convert-to-primitive-response* (handle-request-to-invalid-frame application session frame :out-of-sync))))
-                           (:abort
-                            ;; TODO the problem at hand is this: when the app specific error handler is called the stack is not yet unwinded
-                            ;; so this REVERT-STEP-TO-NEXT-FRAME-INDEX is not yet called, therefore the page it renders will point to an invalid
-                            ;; frame index after this unwind block is executed.
-                            ;; but on the other hand without this uwp, the "retry rendering this request" restart is broken...
-                            ;; we chose the lesser badness here and don't do the revert, so break the restart instead of the user visible error page
-                            #+nil
-                            (when original-frame-index
-                              (revert-step-to-next-frame-index frame original-frame-index))))))
-                      (incoming-frame-index
-                       (unless (equal incoming-frame-index current-frame-index)
-                         (return-from with-action-logic
-                           (convert-to-primitive-response*
-                            (handle-request-to-invalid-frame application session frame :out-of-sync)))))
-                      ;; at the time the frame is first registered, there's no frame index param in the url, so just fall through here and
-                      ;; end up at the entry points.
-                      )
-                    (app.dribble "Action logic fell through, proceeding to the thunk...")))
-              (delete-current-frame ()
-                :report (lambda (stream)
-                          (format stream "Delete frame ~A" frame))
-                (mark-expired frame)
-                (invoke-retry-handling-request-restart)))
-            (call-body))
-          (if *ajax-aware-request*
-              ;; we can't find a valid frame but received an ajax aware request. for now treat this as an
-              ;; error until a valid use-case requires something else...
-              (frame-not-found-error)
-              (call-body))))))
+          (restart-case
+              (progn
+                (notify-activity frame)
+                (process-client-state-sinks frame (query-parameters-of *request*))
+                (bind ((action (find-action-from-request frame))
+                       (incoming-frame-index (parameter-value +frame-index-parameter-name+))
+                       (current-frame-index (frame-index-of frame))
+                       (next-frame-index (next-frame-index-of frame)))
+                  (unless (stringp current-frame-index)
+                    (setf current-frame-index (integer-to-string current-frame-index)))
+                  (unless (stringp next-frame-index)
+                    (setf next-frame-index (integer-to-string next-frame-index)))
+                  (app.debug "Incoming frame-index is ~S, current is ~S, next is ~S, action is ~A" incoming-frame-index current-frame-index next-frame-index action)
+                  (cond
+                    ((and action
+                          incoming-frame-index)
+                     (bind ((original-frame-index nil))
+                       (unwind-protect-case ()
+                           (if (equal incoming-frame-index next-frame-index)
+                               (progn
+                                 (app.dribble "Found an action and frame is in sync...")
+                                 (unless *delayed-content-request*
+                                   (setf original-frame-index (step-to-next-frame-index frame)))
+                                 (app.dribble "Calling action...")
+                                 (bind ((response (call-action application session frame action)))
+                                   (when (typep response 'response)
+                                     (return-from with-action-logic
+                                       (convert-to-primitive-response* response)))))
+                               (return-from with-action-logic
+                                 (convert-to-primitive-response* (handle-request-to-invalid-frame application session frame :out-of-sync))))
+                         (:abort
+                          ;; TODO the problem at hand is this: when the app specific error handler is called the stack is not yet unwinded
+                          ;; so this REVERT-STEP-TO-NEXT-FRAME-INDEX is not yet called, therefore the page it renders will point to an invalid
+                          ;; frame index after this unwind block is executed.
+                          ;; but on the other hand without this uwp, the "retry rendering this request" restart is broken...
+                          ;; FIXME we chose the lesser badness here and don't do the revert, so break the restart instead of the user visible error page
+                          #+nil
+                          (when original-frame-index
+                            (revert-step-to-next-frame-index frame original-frame-index))))))
+                    (incoming-frame-index
+                     (unless (equal incoming-frame-index current-frame-index)
+                       (return-from with-action-logic
+                         (convert-to-primitive-response*
+                          (handle-request-to-invalid-frame application session frame :out-of-sync)))))
+                    ;; at the time the frame is first registered, there's no frame index param in the url, so just fall through here and
+                    ;; end up at the entry points.
+                    )
+                  (app.dribble "Action logic fell through, proceeding to the thunk...")
+                  (if requires-valid-action
+                      (handle-request-to-invalid-action application session frame action :nonexistent)
+                      (values (convert-to-primitive-response* (-body-))))))
+            (delete-current-frame ()
+              :report (lambda (stream)
+                        (format stream "Delete frame ~A" frame))
+              (mark-expired frame)
+              (invoke-retry-handling-request-restart)))
+          (handle-request-to-invalid-frame application session frame :nonexistent)))))
 
 ;;;;;;
 ;;; invalid request handling
 
+(def function handle-delayed-request-to-invalid-session/frame/action ()
+  ;; what else can we do? it's a *delayed-content-request* not a full page reload...
+  (make-do-nothing-response))
+
 (def method handle-request-to-invalid-session ((application application) session invalidity-reason)
-  (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is sending a redirect response to ~A" application)
-  (make-redirect-response-for-current-application))
+  (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
+  (cond
+    (*ajax-aware-request*
+     (make-raw-functional-response ()
+       (emit-error-response-for-ajax-aware-client ()
+         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-session")>)))
+    ((not *delayed-content-request*)
+     (make-redirect-response-for-current-application))
+    (t
+     (handle-delayed-request-to-invalid-session/frame/action))))
 
 (def method handle-request-to-invalid-frame ((application application) session frame invalidity-reason)
-  (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speeking, invalidity-reason is ~S" invalidity-reason)
-  (if (eq invalidity-reason :out-of-sync)
-      (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
-             (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))
-             (args (list refresh-href new-frame-href)))
-        (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
-        (emit-simple-html-document-http-response (:status +http-not-acceptable+
-                                                          :headers '#.+disallow-response-caching-header-values+)
-          (apply-localization-function 'render-frame-out-of-sync-error args))
-        (make-do-nothing-response))
-      (progn
-        (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
-        (make-redirect-response-for-current-application))))
+  (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
+  (cond
+    (*ajax-aware-request*
+     (make-raw-functional-response ()
+       (emit-error-response-for-ajax-aware-client ()
+         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-frame")>)))
+    ((and (eq invalidity-reason :out-of-sync)
+          (not *delayed-content-request*))
+     (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
+            (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))
+            (args (list refresh-href new-frame-href)))
+       (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
+       (make-functional-html-response ((+header/status+ +http-not-acceptable+)
+                                       ('#.+disallow-response-caching-header-values+))
+         (apply-localization-function 'render-frame-out-of-sync-error args))))
+    ((not *delayed-content-request*)
+     (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
+     (make-redirect-response-for-current-application))
+    (t
+     (handle-delayed-request-to-invalid-session/frame/action))))
 
 (def method handle-request-to-invalid-action ((application application) session frame action invalidity-reason)
-  (app.debug "Default HANDLE-REQUEST-TO-INVALID-ACTION is sending a redirect response to ~A" application)
-  (make-redirect-response-for-current-application))
+  (app.dribble "Default HANDLE-REQUEST-TO-INVALID-ACTION speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
+  (cond
+    (*ajax-aware-request*
+     (make-raw-functional-response ()
+       (emit-error-response-for-ajax-aware-client ()
+         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-session")>)))
+    ((not *delayed-content-request*)
+     (make-redirect-response-for-current-application))
+    (t (handle-delayed-request-to-invalid-session/frame/action))))
 
 (def (function e) invoke-delete-current-frame-restart ()
   (invoke-restart (find-restart 'delete-current-frame)))

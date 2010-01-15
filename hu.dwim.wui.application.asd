@@ -15,9 +15,10 @@
   :depends-on (:hu.dwim.wui.http)
   :components ((:module "source"
                 :components ((:module "application"
-                              :components ((:file "action" :depends-on ("api" "application" "frame"))
+                              :components ((:file "action" :depends-on ("api" "application-response" "frame"))
                                            (:file "api" :depends-on ("conditions" "variables"))
                                            (:file "application" :depends-on ("api" "dojo" "session" "frame"))
+                                           (:file "application-response" :depends-on ("application" "session-logic"))
                                            (:file "conditions")
                                            (:file "dojo" :depends-on ("api"))
                                            (:file "entry-point" :depends-on ("variables" "session-logic"))

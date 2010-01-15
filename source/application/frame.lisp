@@ -14,11 +14,6 @@
 (def function frame-index-missing-error (&optional (frame *frame*))
   (error 'frame-index-missing-error :frame frame))
 
-(def (condition* e) frame-not-found-error (frame-related-request-processing-error)
-  ())
-(def function frame-not-found-error (&optional (frame *frame*))
-  (error 'frame-not-found-error :frame frame))
-
 (def function generate-frame-index (&optional previous)
   (if (and (running-in-test-mode? *application*)
            (or (not previous)
