@@ -45,9 +45,9 @@
             (string+ "QUERY_STRING="    (query-of request-uri))
             (awhen (nth-value 2 (ignore-errors
                                   ;; lookup-hostname signals when something is not found
-                                  (iolib.sockets:lookup-hostname *request-remote-host*)))
+                                  (iolib.sockets:lookup-hostname *request-remote-address*)))
               (string+ "REMOTE_HOST=" it))
-            (string+ "REMOTE_ADDR="     (iolib:address-to-string *request-remote-host*))
+            (string+ "REMOTE_ADDR="     *request-remote-address/string*)
             ;; (string+ "REMOTE_USER=")
             ;; (string+ "REMOTE_IDENT=")
             ;; (string+ "AUTH_TYPE=")

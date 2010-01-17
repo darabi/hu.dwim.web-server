@@ -293,7 +293,8 @@
 (def function worker-loop/serve-one-request (threaded? server worker stream-socket)
   (flet ((serve-one-request ()
            (server.dribble "Worker ~A is processing a request" worker)
-           (setf *request-remote-host* (iolib:remote-host stream-socket))
+           (setf *request-remote-address* (iolib:remote-host stream-socket))
+           (setf *request-remote-address/string* (iolib:address-to-string *request-remote-address*))
            (unwind-protect
                 (progn
                   (with-lock-held-on-server (server)
@@ -333,19 +334,20 @@
              ;; no need to handle (nested) errors here, see WITH-LAYERED-ERROR-HANDLERS
              (handle-toplevel-error broker condition))
            (server.dribble "HANDLE-TOPLEVEL-ERROR returned, worker continues...")))
-    (debug-only (assert (notany #'boundp '(*server* *broker-stack* *request* *response* *request-remote-host* *request-id*))))
+    (debug-only (assert (notany #'boundp '(*server* *broker-stack* *request* *response* *request-remote-address* *request-remote-address/string* *request-id*))))
     (bind ((*server* server)
            (*broker-stack* (list server))
            (*request* nil)
            (*response* nil)
-           (*request-remote-host* nil)
+           (*request-remote-address* nil)
+           (*request-remote-address/string* nil)
            (*request-id* nil))
       (with-error-log-decorators
           ((make-error-log-decorator
              (format t "~%Request id: ~A" *request-id*))
            (make-error-log-decorator
-             (format t "~%Remote host: ~A (~A)" *request-remote-host* (or (ignore-errors (nth-value 2 (iolib.sockets:lookup-hostname *request-remote-host*)))
-                                                                          "?"))))
+             (format t "~%Remote host: ~A (~A)" *request-remote-address/string* (or (ignore-errors (nth-value 2 (iolib.sockets:lookup-hostname *request-remote-address*)))
+                                                                                    "?"))))
         (restart-case
             (unwind-protect-case (interrupted)
                 (bind ((swank::*sldb-quit-restart* (find-restart 'abort-server-request)))
@@ -382,7 +384,7 @@
   (invoke-restart (find-restart 'retry-handling-request)))
 
 (def function abort-server-request (&optional (why nil why-p))
-  (server.info "Gracefully aborting request coming from ~S for ~S~:[.~; because: ~A.~]" *request-remote-host* (when *request* (raw-uri-of *request*)) why-p why)
+  (server.info "Gracefully aborting request coming from ~S for ~S~:[.~; because: ~A.~]" *request-remote-address* (when *request* (raw-uri-of *request*)) why-p why)
   (typecase why
     (iolib:socket-connection-reset-error (incf (client-connection-reset-count-of *server*))))
   (invoke-restart (find-restart 'abort-server-request)))
@@ -395,7 +397,7 @@
   (bind ((start-time (get-monotonic-time))
          (start-bytes-allocated (get-bytes-allocated))
          (raw-uri (raw-uri-of request)))
-    (http.info "Handling request ~S from ~S for ~S, method ~S" *request-id* *request-remote-host* raw-uri (http-method-of request))
+    (http.info "Handling request ~S from ~S for ~S, method ~S" *request-id* *request-remote-address/string* raw-uri (http-method-of request))
     (multiple-value-prog1
         (if (profile-request-processing? server)
             (with-profiling ()
@@ -404,7 +406,7 @@
       (bind ((seconds (- (get-monotonic-time) start-time))
              (bytes-allocated (- (get-bytes-allocated) start-bytes-allocated)))
         (http.info "Handled request ~S in ~,3f secs, ~,3f MB allocated (request came from ~S for ~S)"
-                   *request-id* seconds (/ bytes-allocated 1024 1024) *request-remote-host* raw-uri)))))
+                   *request-id* seconds (/ bytes-allocated 1024 1024) *request-remote-address/string* raw-uri)))))
 
 (def (function e) is-request-still-valid? ()
   (iolib:socket-connected-p (client-stream-of *request*)))

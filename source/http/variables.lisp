@@ -15,9 +15,11 @@
 (def (special-variable e :documentation "The HTTP RESPONSE for the HTTP REQUEST currently being processed.")
   *response*)
 
-;; TODO: isn't this remote address instead? if not, how do we get that?
 (def (special-variable e :documentation "The remote host which sent the currently processed HTTP REQUEST.")
-  *request-remote-host*)
+  *request-remote-address*)
+
+(def (special-variable e :documentation "The value of (iolib.sockets:address-to-string *request-remote-address*)")
+  *request-remote-address/string*)
 
 (def (special-variable :documentation "A unique identifier is assigned to each incoming request to help debugging. This variable holds that id while processing the request.")
   *request-id*)
