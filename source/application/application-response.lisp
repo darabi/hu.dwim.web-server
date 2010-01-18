@@ -116,7 +116,7 @@
 (def (function e) make-uri-for-current-application (&optional relative-path)
   (assert *application*)
   (bind ((uri (clone-request-uri)))
-    (clear-uri-query-parameters uri)
+    (uri/delete-all-query-parameters uri)
     (decorate-uri uri *application*)
     (when *session*
       (decorate-uri uri *session*))

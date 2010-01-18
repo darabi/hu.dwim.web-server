@@ -24,7 +24,7 @@
    (port      nil)
    (path      nil)
    (query     nil)
-   (query-parameters)
+   (query-parameters :unbound :documentation "An internal cache for PARSE-QUERY-PARAMETERS.")
    (fragment  nil)))
 
 (def method make-load-form ((self uri) &optional env)
@@ -37,21 +37,28 @@
   (make-instance 'uri :scheme scheme :host host :port port :path path
                  :query query :fragment fragment))
 
-(def (function ie) clone-uri (uri)
-  (bind ((result (make-instance 'uri
-                                :scheme (scheme-of uri) :host (host-of uri) :port (port-of uri) :path (path-of uri)
-                                :query (query-of uri) :fragment (fragment-of uri))))
-    (when (slot-boundp uri 'query-parameters)
+(def (function ie) clone-uri (uri &key (scheme nil scheme-provided?) (host nil host-provided?) (port nil port-provided?)
+                                  (path nil path-provided?) (query nil query-provided?) (fragment nil fragment-provided?))
+  (bind ((result #.`(make-instance 'uri
+                                   ,@(iter (for name :in '(scheme host port path query fragment))
+                                           (collect (intern (string name) :keyword))
+                                           (collect `(if ,(symbolicate name '#:-provided?)
+                                                         ,name
+                                                         (,(symbolicate name '#:-of) uri)))))))
+    (when (and (not query-provided?)
+               (slot-boundp uri 'query-parameters))
       (setf (query-parameters-of result) (copy-alist (query-parameters-of uri))))
     result))
 
 (def special-variable *clone-request-uri/default-strip-query-parameters* nil)
 
 (def (function e) clone-request-uri (&key (strip-query-parameters *clone-request-uri/default-strip-query-parameters*))
-  (prog1-bind uri
-      (clone-uri (uri-of *request*))
-    (dolist (parameter-name strip-query-parameters)
-      (delete-query-parameter uri parameter-name))))
+  (bind ((uri (clone-uri (uri-of *request*))))
+    (if (eq strip-query-parameters :all)
+        (uri/delete-all-query-parameters uri)
+        (dolist (parameter-name strip-query-parameters)
+          (uri/delete-query-parameters uri parameter-name)))
+    uri))
 
 (def method query-parameters-of :before ((self uri))
   (unless (slot-boundp self 'query-parameters)
@@ -68,7 +75,7 @@
         (add-query-parameter-to-uri uri name value)))
   value)
 
-(def (function e) delete-query-parameter (uri &rest names)
+(def (function e) uri/delete-query-parameters (uri &rest names)
   (setf (query-parameters-of uri)
         (delete-if [member (car !1) names :test #'string=]
                    (query-parameters-of uri)))
@@ -83,7 +90,7 @@
   (nconcf (query-parameters-of uri) (list (cons name value)))
   uri)
 
-(def (function e) clear-uri-query-parameters (uri)
+(def (function e) uri/delete-all-query-parameters (uri)
   (setf (query-parameters-of uri) '())
   uri)
 
