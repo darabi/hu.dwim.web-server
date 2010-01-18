@@ -37,6 +37,9 @@
 (def (macro e) hyperlink (uri &optional text)
   `(make-instance 'hyperlink :uri (parse-uri ,uri) :content ,text))
 
+(def (macro e) hyperlink/wikipedia (relative-uri &optional (text relative-uri))
+  `(hyperlink (string+ "http://wikipedia.org/wiki/" ,relative-uri) ,text))
+
 ;;;;;;
 ;;; Title mixin
 
