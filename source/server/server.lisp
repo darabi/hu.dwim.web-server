@@ -101,6 +101,7 @@
         (unless (iolib.os:directory-exists-p *base-directory-for-temporary-files*)
           (server.warn "Specified *BASE-DIRECTORY-FOR-TEMPORARY-FILES* does not exists (~S) and will be created by us with whatever file permissions apply" *base-directory-for-temporary-files*))
         (with-lock-held-on-server (server) ; in threaded mode the started workers are waiting until this lock is released
+          (setf (brokers-of server) (stable-sort (brokers-of server) #'> :key 'priority-of))
           (bind ((listen-entries (listen-entries-of server))
                  (mux (make-instance 'iolib:epoll-multiplexer)))
             (unwind-protect-case ()
