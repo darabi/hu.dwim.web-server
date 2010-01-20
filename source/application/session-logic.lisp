@@ -82,8 +82,6 @@
                 *session*)
            ;; set up a new frame and fall through to the entry points to set up to their favour
            (setf frame (make-new-frame application session))
-           (setf (id-of frame) (insert-with-new-random-hash-table-key (frame-id->frame-of session)
-                                                                      frame +frame-id-length+))
            (register-frame application session frame)
            (setf *frame* frame)
            (-body-))
