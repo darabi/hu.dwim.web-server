@@ -4,6 +4,7 @@ dependencies ={
         name: "dojo.js",
         dependencies: [
             "dijit.CheckedMenuItem",
+            "dijit.Dialog",
             "dijit.Editor",
             "dijit.Menu",
             "dijit.MenuBar",
