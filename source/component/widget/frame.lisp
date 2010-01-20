@@ -78,9 +78,12 @@
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">
         ,(foreach (lambda (el)
-                    (bind (((script-uri &optional file-name) (ensure-list el)))
+                    (bind (((script-url &optional file-name) (ensure-list el)))
                       <script (:type         #.+javascript-mime-type+
-                               :src          ,(append-file-write-date-to-uri (string+ path-prefix script-uri) +timestamp-parameter-name+ file-name))
+                               :src          ,(bind ((url script-url))
+                                                (unless (starts-with #\/ url)
+                                                  (setf url (string+ path-prefix url)))
+                                                (append-file-write-date-to-uri url +timestamp-parameter-name+ file-name)))
                               ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                               "">))
                   (script-uris-of -self-))>
