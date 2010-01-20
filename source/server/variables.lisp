@@ -12,14 +12,14 @@
 (def (special-variable :documentation "Holds the broker path while processing the rules. Whenever a broker provides a new set of rules to dispatch on, it is pushed at the head of the *BROKER-STACK* list.")
   *broker-stack*)
 
-(def special-variable *matching-uri-path-element-stack* '()
-  "A stack of currently matching path elements while request handling is going deeper and deeper in the broker tree.")
+(def (special-variable :documentation "A stack of currently matching path elements while request handling is going deeper and deeper in the broker tree.")
+  *matching-uri-path-element-stack*)
 
-(def special-variable *matching-uri-path-element-stack/total-length* 0
-  "Optimization; keeps the current value of (reduce #'+ *matching-uri-path-element-stack* :key #'length).")
+(def (special-variable :documentation "Optimization; keeps the current value of (reduce #'+ *matching-uri-path-element-stack* :key #'length).")
+  *matching-uri-path-element-stack/total-length*)
 
-(def special-variable *matching-uri-path-element-stack/remaining-path* nil
-  "Optimization; keeps NIL or the current value of (subseq (path-of (uri-of request)) *matching-uri-path-element-stack/total-length*).")
+(def (special-variable :documentation "Optimization; it's either NIL or the current value of (subseq (path-of (uri-of request)) *matching-uri-path-element-stack/total-length*).")
+  *matching-uri-path-element-stack/remaining-path*)
 
 (def function remaining-path-of-request-uri (&optional (request *request*))
   "While matching the request uri, returns the remaining part of the path of the uri that have not yet been matched."

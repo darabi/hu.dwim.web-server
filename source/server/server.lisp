@@ -335,14 +335,19 @@
              ;; no need to handle (nested) errors here, see WITH-LAYERED-ERROR-HANDLERS
              (handle-toplevel-error broker condition))
            (server.dribble "HANDLE-TOPLEVEL-ERROR returned, worker continues...")))
-    (debug-only (assert (notany #'boundp '(*server* *broker-stack* *request* *response* *request-remote-address* *request-remote-address/string* *request-id*))))
+    (debug-only
+      (assert (notany #'boundp '(*server* *broker-stack* *request* *response* *request-remote-address* *request-remote-address/string* *request-id*
+                                 *matching-uri-path-element-stack* *matching-uri-path-element-stack/total-length* *matching-uri-path-element-stack/remaining-path*))))
     (bind ((*server* server)
            (*broker-stack* (list server))
            (*request* nil)
            (*response* nil)
            (*request-remote-address* nil)
            (*request-remote-address/string* nil)
-           (*request-id* nil))
+           (*request-id* nil)
+           (*matching-uri-path-element-stack* '())
+           (*matching-uri-path-element-stack/total-length* 0)
+           (*matching-uri-path-element-stack/remaining-path* nil))
       (with-error-log-decorators
           ((make-error-log-decorator
              (format t "~%Request id: ~A" *request-id*))
