@@ -79,4 +79,4 @@
   (bind ((slots (class-slots class)))
     (setf (computed-slots-of class) (filter-out-if (of-type 'computed-effective-slot-definition) slots)
           (component-slots-of class) (filter-out-if (of-type 'component-effective-slot-definition) slots))
-    (setf *js-component-hierarchy-buffer* nil)))
+    (clear-js-component-hierarchy-cache)))

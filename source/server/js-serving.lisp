@@ -86,15 +86,22 @@
 
 (def special-variable *js-component-hierarchy-cache* nil)
 
-(def class* js-component-hierarchy-serving-broker (path-prefix-entry-point)
-  ())
+(def special-variable *js-component-hierarchy-cache/last-modified-at* (local-time:now))
+
+(def (class* e) js-component-hierarchy-serving-broker (broker-with-path)
+  ()
+  (:default-initargs :path +js-component-hierarchy-serving-broker/default-path+))
+
+(def function clear-js-component-hierarchy-cache ()
+  (setf *js-component-hierarchy-cache* nil)
+  (setf *js-component-hierarchy-cache/last-modified-at* (local-time:now)))
 
 (def method produce-response ((self js-component-hierarchy-serving-broker) request)
   (make-byte-vector-response* (or *js-component-hierarchy-cache*
                                   (setf *js-component-hierarchy-cache*
                                         (emit-into-js-stream-buffer
                                           (serve-js-component-hierarchy))))
-                              :last-modified-at (local-time:now) ;; FIXME no, it's not! it's the time when we last generated *js-component-hierarchy-cache*
+                              :last-modified-at *js-component-hierarchy-cache/last-modified-at*
                               :seconds-until-expires (* 60 60)
                               :content-type (content-type-for +javascript-mime-type+ :utf-8)))
 
