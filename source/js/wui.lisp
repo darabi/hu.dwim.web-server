@@ -640,13 +640,12 @@
       (setf value name))
     (return value)))
 
-(defun wui.i18n.define ()
-  (setf names-and-values arguments)
-  (log.debug "Defining " names-and-values.length " i18n resources")
+(defun wui.i18n.process-resources (resources)
+  (log.debug "Received " resources.length " l10n resources")
   (do ((idx 0 (+ idx 2)))
-      ((>= idx names-and-values.length))
-    (let ((name (aref names-and-values idx))
-          (value (aref names-and-values (1+ idx))))
+      ((>= idx resources.length))
+    (bind ((name (aref resources idx))
+           (value (aref resources (1+ idx))))
       (setf (aref wui.i18n.resources name) value))))
 
 ;;;;;;

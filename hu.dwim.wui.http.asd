@@ -66,6 +66,7 @@
                                            (:file "conditions")
                                            (:file "file-serving" :depends-on ("variables"))
                                            (:file "js-serving" :depends-on ("js-util" "file-serving"))
+                                           (:file "js-i18n" :depends-on ("js-serving"))
                                            (:file "js-util" :depends-on ("variables"))
                                            (:file "misc" :depends-on ("variables"))
                                            (:file "server" :depends-on ("variables"))

@@ -163,6 +163,14 @@
 ;;;;;;
 ;;; invalid request handling
 
+;; TODO search all usages of this, and factor out what makes sense
+(def macro emit-error-response-for-ajax-aware-client (() &body body)
+  `(emit-http-response ((+header/status+       +http-ok+
+                         +header/content-type+ +xml-mime-type+))
+     <ajax-response
+       <result "success">
+       ,@,@body>))
+
 (def function handle-delayed-request-to-invalid-session/frame/action ()
   ;; what else can we do? it's a *delayed-content-request* not a full page reload...
   (make-do-nothing-response))

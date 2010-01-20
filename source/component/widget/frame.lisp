@@ -156,6 +156,7 @@
 (def (function e) make-default-script-uris (system-name &rest script-uris)
   (declare (ignore system-name))
   (list* "wui/js/wui.js"
+         +js-i18n-broker/default-path+
          "wui/js/component-hierarchy.js"
          script-uris))
 

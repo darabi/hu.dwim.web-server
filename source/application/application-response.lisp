@@ -86,14 +86,6 @@
 ;;;;;;
 ;;; Error handling in AJAX requests
 
-;; TODO search all usages of this, and factor out what makes sense
-(def macro emit-error-response-for-ajax-aware-client (() &body body)
-  `(emit-http-response ((+header/status+       +http-ok+
-                         +header/content-type+ +xml-mime-type+))
-     <ajax-response
-       <result "success">
-       ,@,@body>))
-
 (def method handle-toplevel-error :around ((application application) condition)
   (if (and (boundp '*ajax-aware-request*)
            *ajax-aware-request*)
