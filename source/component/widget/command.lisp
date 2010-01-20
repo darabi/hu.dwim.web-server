@@ -134,7 +134,7 @@
 (def render-text command/widget
   (render-component (content-of -self-)))
 
-(def render-component :in passive-layer command/widget
+(def render-passive command/widget
   (render-content-for -self-))
 
 (def function href-for-command (action action-arguments)

@@ -72,7 +72,7 @@
 
 (def render-xhtml boolean/inspector
   (render-boolean-component -self-))
-  
+
 
 ;;;;;;
 ;;; bit/inspector
