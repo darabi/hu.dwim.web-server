@@ -71,8 +71,8 @@
               (app.debug "This is a *DELAYED-CONTENT-REQUEST*, handling appropriately")
               (with-session-logic (:requires-valid-session #t)
                 (with-frame-logic (:requires-valid-frame #t)
-                  (with-action-logic (:requires-valid-action #t)
-                    (assert nil () "Execution must not get inside WITH-ACTION-LOGIC for ajax requests. How did this happen?")))))
+                  (with-action-logic ()
+                    (make-root-component-rendering-response *frame*)))))
             (bind ((response (query-brokers-for-response request (entry-points-of application) :otherwise nil)))
               (when response
                 (unwind-protect
