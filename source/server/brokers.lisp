@@ -104,15 +104,15 @@
                              (produce-response broker request))))
 
 ;;;;;;
-;;; broker-with-path
+;;; broker-at-path
 
-(def class* broker-with-path (broker)
+(def class* broker-at-path (broker)
   ((path)))
 
-(def print-object broker-with-path
+(def print-object broker-at-path
   (format t "~S ~S" (path-of -self-) (priority-of -self-)))
 
-(def method call-if-matches-request ((broker broker-with-path) request thunk)
+(def method call-if-matches-request ((broker broker-at-path) request thunk)
   (bind ((path (path-of broker))
          (remaining-query-path (remaining-path-of-request-uri request)))
     (server.debug "Trying to match ~A; path is ~S, remaining-query-path is ~S" broker path remaining-query-path)
@@ -121,15 +121,15 @@
         (funcall thunk)))))
 
 ;;;;;;
-;;; broker-with-path-prefix
+;;; broker-at-path-prefix
 
-(def class* broker-with-path-prefix (broker)
+(def class* broker-at-path-prefix (broker)
   ((path-prefix :type string)))
 
-(def print-object broker-with-path-prefix
+(def print-object broker-at-path-prefix
   (format t "~S ~S" (path-prefix-of -self-) (priority-of -self-)))
 
-(def method call-if-matches-request ((broker broker-with-path-prefix) request thunk)
+(def method call-if-matches-request ((broker broker-at-path-prefix) request thunk)
   (bind ((path-prefix (path-prefix-of broker))
          (remaining-query-path (remaining-path-of-request-uri request)))
     (server.debug "Trying to match ~A; path-prefix is ~S, remaining-query-path is ~S" broker path-prefix remaining-query-path)
@@ -146,10 +146,10 @@
 (def method handle-request ((broker constant-response-broker) request)
   (response-of broker))
 
-(def class* constant-response-broker-at-path (constant-response-broker broker-with-path)
+(def class* constant-response-broker-at-path (constant-response-broker broker-at-path)
   ())
 
-(def class* constant-response-broker-at-path-prefix (constant-response-broker broker-with-path-prefix)
+(def class* constant-response-broker-at-path-prefix (constant-response-broker broker-at-path-prefix)
   ())
 
 (def (function e) make-redirect-broker (path target-uri)

@@ -41,7 +41,7 @@
                 :iterator-name nil)
   js-i18n-response-cache)
 
-(def class* js-i18n-broker (broker-with-path)
+(def class* js-i18n-broker (broker-at-path)
   ()
   (:default-initargs :path +js-i18n-broker/default-path+))
 

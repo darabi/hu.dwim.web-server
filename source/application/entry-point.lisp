@@ -6,30 +6,11 @@
 
 (in-package :hu.dwim.wui)
 
-(def class* entry-point (broker)
-  ())
-
 (def methods entry-point-equals-for-redefinition
-  (:method ((a broker-with-path) (b broker-with-path))
+  (:method ((a broker-at-path) (b broker-at-path))
     (string= (path-of a) (path-of b)))
-  (:method ((a broker-with-path-prefix) (b broker-with-path-prefix))
+  (:method ((a broker-at-path-prefix) (b broker-at-path-prefix))
     (string= (path-prefix-of a) (path-prefix-of b))))
-
-(def class* path-entry-point (entry-point broker-with-path)
-  ())
-
-(def method call-if-matches-request ((entry-point path-entry-point) request thunk)
-  (when (string= (path-of entry-point) *application-relative-path*)
-    (bind ((*entry-point-relative-path* ""))
-      (funcall thunk))))
-
-(def class* path-prefix-entry-point (entry-point broker-with-path-prefix)
-  ())
-
-(def method call-if-matches-request ((entry-point path-prefix-entry-point) request thunk)
-  (bind (((:values matches? *entry-point-relative-path*) (starts-with-subseq (path-prefix-of entry-point) *application-relative-path* :return-suffix #t)))
-    (when matches?
-      (funcall thunk))))
 
 (def (function e) ensure-entry-point (application entry-point)
   ;; helper function for redefining entry points. works based on the generic protocol called ENTRY-POINT-EQUALS-FOR-REDEFINITION.
@@ -46,16 +27,16 @@
                                 (b-priority (priority-of b)))
                            (when (= a-priority
                                     b-priority)
-                             (when (and (typep a 'path-prefix-entry-point)
-                                        (typep b 'path-entry-point))
+                             (when (and (typep a 'broker-at-path-prefix)
+                                        (typep b 'broker-at-path))
                                (return-from comparing #f))
-                             (when (and (typep a 'path-entry-point)
-                                        (typep b 'path-prefix-entry-point))
+                             (when (and (typep a 'broker-at-path)
+                                        (typep b 'broker-at-path-prefix))
                                (return-from comparing #t))
                              (flet ((broker-path-or-path-prefix-or-nil (broker)
                                       (typecase broker
-                                        (broker-with-path (path-of broker))
-                                        (broker-with-path-prefix (path-prefix-of broker))
+                                        (broker-at-path (path-of broker))
+                                        (broker-at-path-prefix (path-prefix-of broker))
                                         (t nil))))
                                (bind ((a-path (broker-path-or-path-prefix-or-nil a))
                                       (b-path (broker-path-or-path-prefix-or-nil b)))
@@ -115,10 +96,10 @@
   (with-unique-names (entry-point request)
     (cond
       ((eq class :path)
-       (setf class 'broker-with-path)
+       (setf class 'broker-at-path)
        (push :path initargs))
       ((eq class :path-prefix)
-       (setf class 'broker-with-path-prefix)
+       (setf class 'broker-at-path-prefix)
        (push :path-prefix initargs)))
     `(bind ((,entry-point (make-instance ',class ,@initargs)))
        ,(when body
@@ -126,7 +107,8 @@
                  (named-lambda entry-point-definer/handler (&key ((:broker ,entry-point)) ((:request ,request)) &allow-other-keys)
                    (check-type ,entry-point broker)
                    (call-if-matches-request ,entry-point ,request (named-lambda entry-point-definer/body ()
-                                                                    ,@body)))))
+                                                                    (bind ((*entry-point-relative-path* (remaining-path-of-request-uri ,request)))
+                                                                      ,@body))))))
        (ensure-entry-point ,application ,entry-point)
        ,entry-point)))
 

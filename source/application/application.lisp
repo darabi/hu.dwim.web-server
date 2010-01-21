@@ -12,7 +12,7 @@
                                       application-with-dojo-support)
   ())
 
-(def (class* e) application (broker-with-path-prefix
+(def (class* e) application (broker-at-path-prefix
                              request-counter-mixin
                              debug-context-mixin)
   ((requests-to-sessions-count 0 :type integer :export :accessor)

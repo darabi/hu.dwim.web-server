@@ -29,7 +29,7 @@
 
 ;; TODO managed in-memory caching of files inside a directory-serving-broker
 
-(def class* directory-serving-broker (broker-with-path-prefix)
+(def class* directory-serving-broker (broker-at-path-prefix)
   ((root-directory)
    ;; TODO (files-only #f)
    (file-path->cache-entry (make-hash-table :test 'equal))

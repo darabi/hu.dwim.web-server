@@ -90,7 +90,7 @@
 
 (def special-variable *js-component-hierarchy-cache/last-modified-at* (local-time:now))
 
-(def (class* e) js-component-hierarchy-serving-broker (broker-with-path)
+(def (class* e) js-component-hierarchy-serving-broker (broker-at-path)
   ()
   (:default-initargs :path +js-component-hierarchy-serving-broker/default-path+))
 
