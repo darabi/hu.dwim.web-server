@@ -96,13 +96,14 @@
     (labels ((%recurse (path)
                (bind ((el (first path)))
                  (etypecase el
-                   ;; TODO handle delegate-broker when implemented
                    (broker-based-server (visit)
                                         (recurse (brokers-of el)))
+                   (delegate-broker (visit)
+                                    (dolist (child (children-of el))
+                                      (recurse child)))
                    (application (visit)
                                 (recurse (entry-points-of el)))
-                   (entry-point (visit))
-                   (broker nil)
+                   (broker (visit))
                    (null nil)))))
       (%recurse (list root))))
   (values))
