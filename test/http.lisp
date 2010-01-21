@@ -99,7 +99,7 @@
 (def function start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
   (with-wui-logger-level log-level
     (start-test-server-with-brokers (make-functional-broker
-                                      (with-request-params (name)
+                                      (with-request-parameters (name)
                                         (make-functional-html-response ()
                                           (emit-html-document (:title "foo")
                                             <h3 ,(or name "The name query parameter is not specified!")>))))

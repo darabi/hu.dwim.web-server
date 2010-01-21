@@ -152,24 +152,10 @@
        ,@(with-collapsed-js-scripts
           (list (-body-)))>>))
 
-#||
-;; TODO
-(def (macro e) with-xhtml-document ((&key title content-type) &body body)
-  `(progn
-     (format *xml-stream* "<?xml version=\"1.0\" encoding=\"~A\"?>" (encoding-name-of *response*))
-     <html
-       <head
-         <meta (:content ,(or ,content-type
-                              (header-value *response* +header/content-type+))
-                :http-equiv #.+header/content-type+)>
-         <title ,,(or title "")>>
-       <body ,,@body>>))
-||#
+(def (macro e) with-request-parameters (args &body body)
+  `(with-request-parameters* *request* ,args ,@body))
 
-(def (macro e) with-request-params (args &body body)
-  `(with-request-params* *request* ,args ,@body))
-
-(def (macro e) with-request-params* (request args &body body)
+(def (macro e) with-request-parameters* (request args &body body)
   "Bind the parameters in REQUEST according to the REQUEST-LAMBDA-LIST and execute BODY.
 
 REQUEST-LAMBDA-LIST is a list of the form:
@@ -184,11 +170,11 @@ If the request contains a param (no distinction between GET and POST params is m
                   (setf entry (ensure-list entry))
                   (unless (and (< 0 (length entry) 5)
                                (not (null (first entry))))
-                    (error "Invalid with-request-params entry ~S" entry))
+                    (error "Invalid WITH-REQUEST-PARAMETERS entry ~S" entry))
                   (for name-part = (ensure-list (first entry)))
                   (unless (and (< 0 (length name-part) 3)
                                (not (null (first name-part))))
-                    (error "Invalid with-request-params entry ~S" entry))
+                    (error "Invalid WITH-REQUEST-PARAMETERS entry ~S" entry))
                   (for variable-name = (first name-part))
                   (for parameter-name = (second name-part))
                   (for default-value = (second entry))

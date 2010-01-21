@@ -44,7 +44,7 @@
     (setf (getf entry-point-arguments :with-session-logic)
           (getf entry-point-arguments :with-session-logic #f))
     `(def (entry-point ,@-options-) (,application :path ,path)
-       (with-request-params (identifier password user-action continue-url timed-out)
+       (with-request-parameters (identifier password user-action continue-url timed-out)
          (with-entry-point-logic (,@entry-point-arguments)
            (%identifier-and-password-login-entry-point/phase1 user-action identifier password continue-url timed-out
                                                               ,path

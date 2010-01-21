@@ -16,7 +16,7 @@
 (def special-variable *test-application* (make-instance 'test-application :path-prefix "/test/"))
 
 (def entry-point (*test-application* :path "performance")
-  (with-request-params (name)
+  (with-request-parameters (name)
     (make-functional-html-response ()
       (emit-html-document ()
         <h3 ,(or name "The name query parameter is not specified!")>))))
@@ -43,7 +43,7 @@
         <td ,(rfc2388-binary:content-type mime-part)>>>)
 
 (def entry-point (*test-application* :path "params")
-  (with-request-params ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
+  (with-request-parameters ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
     (make-raw-functional-response ()
       (emit-simple-html-document-http-response (:title "foo")
         <p "Parameters:"

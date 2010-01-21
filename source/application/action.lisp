@@ -108,9 +108,9 @@
                                                     (collect `(quote ,query-parameter))
                                                     (collect `js-inline(.toString ,variable-name)))))
                    :url ,(action/href (:delayed-content #t)
-                           (with-request-params ,(mapcar [list !1 !2]
-                                                         variable-names
-                                                         query-parameters)
+                           (with-request-parameters ,(mapcar [list !1 !2]
+                                                             variable-names
+                                                             query-parameters)
                              ,@body))
                    :load (lambda (response args)
                            ;; TODO process the return value, possible ajax replacements, etc

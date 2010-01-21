@@ -27,7 +27,7 @@
 
 (def layered-function show-context-sensitive-help (component)
   (:method ((self context-sensitive-help))
-    (with-request-params (((ids +context-sensitive-help-parameter-name+) nil))
+    (with-request-parameters (((ids +context-sensitive-help-parameter-name+) nil))
       (setf ids (ensure-list ids))
       (bind ((components nil))
         (map-descendant-components (root-component-of *frame*)
