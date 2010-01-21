@@ -157,7 +157,7 @@
   (declare (ignore system-name))
   (list* "wui/js/wui.js"
          +js-i18n-broker/default-path+
-         "wui/js/component-hierarchy.js"
+         +js-component-hierarchy-serving-broker/default-path+
          script-uris))
 
 (def (function e) make-default-stylesheet-uris (system-name &rest style-sheets)

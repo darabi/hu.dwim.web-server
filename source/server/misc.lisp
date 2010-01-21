@@ -20,6 +20,14 @@
          handle-cgi-request
          ))
 
+(def (function e) make-default-broker-list ()
+  "Returns a list of brokers that are needed in most situations."
+  (list (make-instance 'js-directory-serving-broker
+                       :path-prefix "/wui/js/"
+                       :root-directory (system-relative-pathname :hu.dwim.wui "source/js/"))
+        (make-instance 'js-i18n-broker :priority 100)
+        (make-instance 'js-component-hierarchy-serving-broker :priority 100)))
+
 ;;;;;;
 ;;; Server status
 

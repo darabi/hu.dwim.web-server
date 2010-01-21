@@ -66,9 +66,21 @@
                            (> a-priority b-priority))))))
   entry-point)
 
-(def function %call-with-entry-point-logic (thunk with-session-logic requires-valid-session ensure-session
-                                                  with-frame-logic requires-valid-frame ensure-frame
-                                                  with-action-logic)
+(def (with-macro* e) with-entry-point-logic (&key (with-optional-session/frame-logic #f)
+                                                  (with-session-logic #t)
+                                                  (requires-valid-session with-session-logic)
+                                                  (ensure-session #f)
+                                                  (with-frame-logic with-session-logic)
+                                                  (requires-valid-frame requires-valid-session)
+                                                  (ensure-frame #f)
+                                                  (with-action-logic with-frame-logic))
+  (when with-optional-session/frame-logic
+    ;; TODO style warn when any of these is provided
+    (setf with-session-logic #t)
+    (setf requires-valid-session #f)
+    (setf with-frame-logic #t)
+    (setf ensure-frame #t)
+    (setf requires-valid-frame #f))
   (when (and with-frame-logic (not with-session-logic))
     (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
   (when (and with-action-logic (not with-frame-logic))
@@ -96,66 +108,37 @@
               (-body-))
         (call-in-post-action-environment *application* *session* *frame*
                                          (named-lambda call-in-post-action-environment-body ()
-                                           (convert-to-primitive-response (call-in-entry-point-environment *application* *session* thunk))))))))
+                                           (convert-to-primitive-response
+                                            (call-in-entry-point-environment *application* *session* #'-with-macro/body-))))))))
 
-(def (definer e) entry-point ((application &rest args &key
-                                           (with-optional-session/frame-logic #f)
-                                           (with-session-logic #t)
-                                           (requires-valid-session with-session-logic)
-                                           (ensure-session #f)
-                                           (with-frame-logic with-session-logic)
-                                           (requires-valid-frame requires-valid-session)
-                                           (ensure-frame #f)
-                                           (with-action-logic with-frame-logic)
-                                           (path nil path-p)
-                                           (path-prefix nil path-prefix-p)
-                                           class &allow-other-keys)
-                               request-lambda-list &body body)
-  (declare (ignore path path-prefix))
-  (when with-optional-session/frame-logic
-    ;; TODO style warn when any of these is provided
-    (setf with-session-logic #t)
-    (setf requires-valid-session #f)
-    (setf with-frame-logic #t)
-    (setf ensure-frame #t)
-    (setf requires-valid-frame #f))
-  (remove-from-plistf args :class
-                      :with-optional-session/frame-logic
-                      :with-session-logic :requires-valid-session :ensure-session
-                      :with-frame-logic :requires-valid-frame :ensure-frame
-                      :with-action-logic)
-  (assert (not (and path-p path-prefix-p)))
-  (unless class
-    (when path-p
-      (setf class ''path-entry-point))
-    (when path-prefix-p
-      (setf class ''path-prefix-entry-point)))
+(def (definer e) entry-point ((application class &rest initargs) &body body)
   (with-unique-names (entry-point request)
-    `(bind ((,entry-point (make-instance ,class ,@args)))
-       (setf (handler-of ,entry-point)
-             (named-lambda entry-point-definer/handler (&key ((:broker ,entry-point)) ((:request ,request)) &allow-other-keys)
-               (check-type ,entry-point entry-point)
-               (call-if-matches-request ,entry-point ,request
-                                        (lambda ()
-                                          (%call-with-entry-point-logic (named-lambda entry-point-definer/body ()
-                                                                          (app.debug "Entry point body reached")
-                                                                          (block entry-point
-                                                                            ;; BODY is in an intentionally visible block called 'ENTRY-POINT
-                                                                            (with-request-params* ,request ,request-lambda-list
-                                                                              ,@body)))
-                                                                        ,with-session-logic ,requires-valid-session ,ensure-session
-                                                                        ,with-frame-logic   ,requires-valid-frame ,ensure-frame
-                                                                        ,with-action-logic)))))
-       (ensure-entry-point ,application ,entry-point))))
+    (cond
+      ((eq class :path)
+       (setf class 'broker-with-path)
+       (push :path initargs))
+      ((eq class :path-prefix)
+       (setf class 'broker-with-path-prefix)
+       (push :path-prefix initargs)))
+    `(bind ((,entry-point (make-instance ',class ,@initargs)))
+       ,(when body
+          `(setf (handler-of ,entry-point)
+                 (named-lambda entry-point-definer/handler (&key ((:broker ,entry-point)) ((:request ,request)) &allow-other-keys)
+                   (check-type ,entry-point broker)
+                   (call-if-matches-request ,entry-point ,request (named-lambda entry-point-definer/body ()
+                                                                    ,@body)))))
+       (ensure-entry-point ,application ,entry-point)
+       ,entry-point)))
 
 (def (definer e) file-serving-entry-point (application path-prefix root-directory &key priority)
-  `(ensure-entry-point ,application (make-directory-serving-broker ,path-prefix ,root-directory :priority ,priority)))
+  `(def (entry-point ,@-options-) (,application directory-serving-broker
+                                                :path-prefix ,path-prefix
+                                                :root-directory ,root-directory
+                                                :priority ,priority)))
 
 (def (definer e) js-file-serving-entry-point (application path-prefix root-directory &key priority)
-  `(ensure-entry-point ,application (make-js-directory-serving-broker ,path-prefix ,root-directory :priority ,priority)))
+  `(def (entry-point ,@-options-) (,application js-directory-serving-broker
+                                                :path-prefix ,path-prefix
+                                                :root-directory ,root-directory
+                                                :priority ,priority)))
 
-(def (definer e) js-component-hierarchy-serving-entry-point (application path-prefix &key priority)
-  `(ensure-entry-point ,application (make-js-component-hierarchy-serving-broker ,path-prefix :priority ,priority)))
-
-(def (definer e) cgi-serving-entry-point (application path-prefix filename &key priority environment)
-  `(ensure-entry-point ,application (make-cgi-broker ,path-prefix ,filename :priority ,priority :environment ,environment)))

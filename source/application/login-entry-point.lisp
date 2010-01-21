@@ -43,14 +43,15 @@
     ;; make :with-session-logic default to #f
     (setf (getf entry-point-arguments :with-session-logic)
           (getf entry-point-arguments :with-session-logic #f))
-    `(def (entry-point ,@-options-) (,application :path ,path ,@entry-point-arguments)
-         (identifier password user-action continue-url timed-out)
-       (%identifier-and-password-login-entry-point/phase1 user-action identifier password continue-url timed-out
-                                                          ,path
-                                                          ,frame-component-factory
-                                                          ,login-component-factory
-                                                          ,unauthenticated-response-factory
-                                                          (list ,@extra-arguments)))))
+    `(def (entry-point ,@-options-) (,application :path ,path)
+       (with-request-params (identifier password user-action continue-url timed-out)
+         (with-entry-point-logic (,@entry-point-arguments)
+           (%identifier-and-password-login-entry-point/phase1 user-action identifier password continue-url timed-out
+                                                              ,path
+                                                              ,frame-component-factory
+                                                              ,login-component-factory
+                                                              ,unauthenticated-response-factory
+                                                              (list ,@extra-arguments)))))))
 
 (def function %identifier-and-password-login-entry-point/phase1 (user-action? identifier password continue-url timed-out?
                                                                               uri-path

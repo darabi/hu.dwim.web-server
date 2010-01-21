@@ -6,7 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
-(def class* cgi-broker (broker-with-path-prefix)
+(def (class* e) cgi-broker (broker-with-path-prefix)
   ((cgi-file :type (or string pathname))
    (environment nil)))
 

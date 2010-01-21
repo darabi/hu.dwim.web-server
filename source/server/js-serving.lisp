@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; js-directory-serving-broker
 
-(def class* js-directory-serving-broker (directory-serving-broker)
+(def (class* e) js-directory-serving-broker (directory-serving-broker)
   ())
 
 (def (function e) make-js-directory-serving-broker (path-prefix root-directory &key priority)
@@ -84,6 +84,8 @@
 ;;;;;;
 ;;; js-component-hierarchy-broker
 
+(def constant +js-component-hierarchy-serving-broker/default-path+ "/wui/js/component-hierarchy.js")
+
 (def special-variable *js-component-hierarchy-cache* nil)
 
 (def special-variable *js-component-hierarchy-cache/last-modified-at* (local-time:now))
@@ -104,9 +106,6 @@
                               :last-modified-at *js-component-hierarchy-cache/last-modified-at*
                               :seconds-until-expires (* 60 60)
                               :content-type (content-type-for +javascript-mime-type+ :utf-8)))
-
-(def (function e) make-js-component-hierarchy-serving-broker (path-prefix &key priority)
-  (make-instance 'js-component-hierarchy-serving-broker :path-prefix path-prefix :priority priority))
 
 ;; FIXME: this generates a quite big list which is redundant like hell
 ;;        but it is cached and compressed, so we don't care about it right now
