@@ -15,11 +15,11 @@
 
 (def special-variable *test-application* (make-instance 'test-application :path-prefix "/test/"))
 
-(def entry-point (*test-application* :path "performance" :with-session-logic #f)
-    (name)
-  (make-functional-html-response ()
-    (emit-html-document ()
-      <h3 ,(or name "The name query parameter is not specified!")>)))
+(def entry-point (*test-application* :path "performance")
+  (with-request-params (name)
+    (make-functional-html-response ()
+      (emit-html-document ()
+        <h3 ,(or name "The name query parameter is not specified!")>))))
 
 (def function render-mime-part-details (mime-part)
   <p "Mime part headers:">
@@ -42,46 +42,46 @@
     <tr <td "Content type">
         <td ,(rfc2388-binary:content-type mime-part)>>>)
 
-(def entry-point (*test-application* :path "params" :with-session-logic #f)
-    ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
-  (make-raw-functional-response ()
-    (emit-simple-html-document-http-response (:title "foo")
-      <p "Parameters:"
-        <a (:href ,(string+ (path-prefix-of *test-application*)
-                                       (if (or number? the-answer?)
-                                           "params"
-                                           "params?theanswer=yes&number=42")))
-          "try this">>
-      <table
-        <thead <tr <td "Parameter name">
-                   <td "Parameter value">>>
-        ,@(do-parameters (name value)
-            <tr
-              <td ,name>
-              <td ,(etypecase value
-                     (string value)
-                     (list (princ-to-string value))
-                     (rfc2388-binary:mime-part
-                      (render-mime-part-details value)))>>)>
-      <hr>
-      <form (:method "post")
-        <input (:name "input1"             :value ,(or (parameter-value "input1") "1"))>
-        <input (:name "input2-with-áccent" :value ,(or (parameter-value "input2-with-áccent") "Ááő\"$&+ ?űúéö"))>
-        <input (:type "submit")>>
-      <form (:method "post" :enctype "multipart/form-data")
-        <input (:name "file-input1" :type "file")>
-        <input (:name "file-input2" :value ,(or (parameter-value "file-input2") "file2"))>
-        <input (:type "submit")>>
-      <hr>
-      <p "The parsed request: ">
-      (render-request *request*))))
+(def entry-point (*test-application* :path "params")
+  (with-request-params ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
+    (make-raw-functional-response ()
+      (emit-simple-html-document-http-response (:title "foo")
+        <p "Parameters:"
+          <a (:href ,(string+ (path-prefix-of *test-application*)
+                                         (if (or number? the-answer?)
+                                             "params"
+                                             "params?theanswer=yes&number=42")))
+            "try this">>
+        <table
+          <thead <tr <td "Parameter name">
+                     <td "Parameter value">>>
+          ,@(do-parameters (name value)
+              <tr
+                <td ,name>
+                <td ,(etypecase value
+                       (string value)
+                       (list (princ-to-string value))
+                       (rfc2388-binary:mime-part
+                        (render-mime-part-details value)))>>)>
+        <hr>
+        <form (:method "post")
+          <input (:name "input1"             :value ,(or (parameter-value "input1") "1"))>
+          <input (:name "input2-with-áccent" :value ,(or (parameter-value "input2-with-áccent") "Ááő\"$&+ ?űúéö"))>
+          <input (:type "submit")>>
+        <form (:method "post" :enctype "multipart/form-data")
+          <input (:name "file-input1" :type "file")>
+          <input (:name "file-input2" :value ,(or (parameter-value "file-input2") "file2"))>
+          <input (:type "submit")>>
+        <hr>
+        <p "The parsed request: ">
+        (render-request *request*)))))
 
 ;;;;;;
 ;;; Echo application to echo back the request
 
 (def special-variable *echo-application* (make-instance 'standard-application :path-prefix "/echo/"))
 
-(def entry-point (*echo-application* :path-prefix "" :with-session-logic #f) ()
+(def entry-point (*echo-application* :path-prefix "")
   (make-request-echo-response))
 
 ;;;;;;
@@ -89,29 +89,31 @@
 
 (def special-variable *session-application* (make-instance 'standard-application :path-prefix "/session/"))
 
-(def entry-point (*session-application* :path "" :requires-valid-session #f :ensure-session #f :requires-valid-frame #f :ensure-frame #t) ()
-  (if *session*
-      (progn
-        (assert (and (boundp '*frame*)
-                     *frame*))
-        (make-raw-functional-response ()
-          (emit-simple-html-document-http-response ()
-            <p "We have a session now... "
-               <span ,(or (root-component-of *frame*)
-                          (setf (root-component-of *frame*) "Hello world from a session!"))>
-               <a (:href ,(string+ (path-prefix-of *application*) "delete/"))
-                  "delete session">>)))
-      (bind ((application *application*)) ; need to capture it in the closure
-        (make-raw-functional-response ()
-          (emit-simple-html-document-http-response ()
-            <p "There's no session... "
-               <a (:href ,(string+ (path-prefix-of application) "new/"))
-                  "create new session">>)))))
+(def entry-point (*session-application* :path "" )
+  (with-entry-point-logic (:requires-valid-session #f :ensure-session #f :requires-valid-frame #f :ensure-frame #t)
+    (if *session*
+        (progn
+          (assert (and (boundp '*frame*)
+                       *frame*))
+          (make-raw-functional-response ()
+            (emit-simple-html-document-http-response ()
+              <p "We have a session now... "
+                 <span ,(or (root-component-of *frame*)
+                            (setf (root-component-of *frame*) "Hello world from a session!"))>
+                 <a (:href ,(string+ (path-prefix-of *application*) "delete/"))
+                    "delete session">>)))
+        (bind ((application *application*)) ; need to capture it in the closure
+          (make-raw-functional-response ()
+            (emit-simple-html-document-http-response ()
+              <p "There's no session... "
+                 <a (:href ,(string+ (path-prefix-of application) "new/"))
+                    "create new session">>))))))
 
-(def entry-point (*session-application* :path "new/" :requires-valid-session #f :ensure-session #t :requires-valid-frame #f) ()
-  (make-redirect-response-for-current-application))
+(def entry-point (*session-application* :path "new/")
+  (with-entry-point-logic (:requires-valid-session #f :ensure-session #t :requires-valid-frame #f)
+    (make-redirect-response-for-current-application)))
 
-(def entry-point (*session-application* :path "delete/" :with-session-logic #f) ()
+(def entry-point (*session-application* :path "delete/")
   (bind ((old-session nil))
     (with-session-logic ()
       (setf old-session *session*)

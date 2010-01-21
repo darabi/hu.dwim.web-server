@@ -43,23 +43,21 @@
 
 (def file-serving-entry-point *component-demo-application* "static/" (system-relative-pathname :hu.dwim.wui "www/"))
 
-(def js-file-serving-entry-point *component-demo-application* "wui/js/" (system-relative-pathname :hu.dwim.wui "source/js/"))
-
-(def js-component-hierarchy-serving-entry-point *component-demo-application* "wui/js/component-hierarchy.js")
-
-(def entry-point (*component-demo-application* :path "" :ensure-session #t :ensure-frame #t) ()
-  (assert (and (boundp '*session*) *session*))
-  (assert (and (boundp '*frame*) *frame*))
-  (if (root-component-of *frame*)
-      (make-root-component-rendering-response *frame*)
-      (progn
-        (setf (root-component-of *frame*) (make-demo-frame-component))
-        (make-redirect-response-for-current-application))))
+(def entry-point (*component-demo-application* :path "")
+  (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
+    (assert (and (boundp '*session*) *session*))
+    (assert (and (boundp '*frame*) *frame*))
+    (if (root-component-of *frame*)
+        (make-root-component-rendering-response *frame*)
+        (progn
+          (setf (root-component-of *frame*) (make-demo-frame-component))
+          (make-redirect-response-for-current-application)))))
 
 (def function start-test-server-with-component-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)
   (start-test-server-with-brokers (list *component-demo-application*
-                                        (make-redirect-broker "" "/"))
+                                        (make-redirect-broker "" "/")
+                                        (make-default-broker-list))
                                   :host host
                                   :port port
                                   :maximum-worker-count maximum-worker-count
