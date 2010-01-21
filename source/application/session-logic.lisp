@@ -127,6 +127,7 @@
                                    (setf original-frame-index (step-to-next-frame-index frame)))
                                  (app.dribble "Calling action...")
                                  (bind ((response (call-action application session frame action)))
+                                   (app.dribble "Action returned response ~A" response)
                                    (when (typep response 'response)
                                      (return-from with-action-logic
                                        (convert-to-primitive-response* response)))))
@@ -215,7 +216,7 @@
     (*ajax-aware-request*
      (make-raw-functional-response ()
        (emit-error-response-for-ajax-aware-client ()
-         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-session")>)))
+         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-action")>)))
     ((not *delayed-content-request*)
      (make-redirect-response-for-current-application))
     (t (handle-delayed-request-to-invalid-session/frame/action))))
@@ -235,9 +236,9 @@
   (bind ((frame-id->frame (frame-id->frame-of session)))
     ;; TODO purge frames
     (bind ((frame-id (insert-with-new-random-hash-table-key frame-id->frame frame +frame-id-length+)))
+      (app.debug "Registered frame ~A with id ~S" frame frame-id)
       (setf (id-of frame) frame-id)
       (setf (session-of frame) session)
-      (app.dribble "Registered frame with id ~S" (id-of frame))
       frame)))
 
 (def method register-session ((application application) (session session))

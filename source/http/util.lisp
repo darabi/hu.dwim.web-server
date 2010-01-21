@@ -72,9 +72,11 @@
 (def (macro e) emit-http-response ((&optional headers-as-plist cookie-list) &body body)
   "Emit a full http response and also bind html stream, so you are ready to output directly into the network stream."
   `(emit-into-xml-stream (client-stream-of *request*)
+     (server.dribble "EMIT-HTTP-RESPONSE will now send the headers")
      (send-http-headers (list ,@(iter (for (name value) :on headers-as-plist :by #'cddr)
                                       (collect `(cons ,name ,value))))
                         (list ,@cookie-list))
+     (server.dribble "EMIT-HTTP-RESPONSE will now run the &body forms")
      ,@body))
 
 (def (macro e) emit-http-response* ((&optional headers cookies) &body body)
