@@ -25,6 +25,13 @@
   (error.internal-server-error.message "An internal server error has occured, we are sorry for the inconvenience.")
   )
 
+(def js-localization en
+  (error.ajax.dialog.title "Communication error")
+  (error.message.ajax-request-to-invalid-session "Your connection to the server has timed out. You can reconnect by refreshing the page...")
+  (action.reload-page "Refresh page")
+  (action.cancel "Cancel")
+  )
+
 (def localization en
   (class-name.application "application")
   (class-name.session "session")
