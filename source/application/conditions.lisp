@@ -16,8 +16,14 @@
 (def function too-many-sessions (application)
   (error 'too-many-sessions :request *request* :application application))
 
-(def condition* login-failed (simple-error)
+(def condition* error/login-failed (simple-error)
   ((login-data)))
 
-(def function login-failed (login-data format-control &rest format-arguments)
-  (error 'login-failed :format-control format-control :format-arguments format-arguments :login-data login-data))
+(def function error/login-failed (login-data format-control &rest format-arguments)
+  (error 'error/login-failed :format-control format-control :format-arguments format-arguments :login-data login-data))
+
+(def condition* error/already-logged-in (error/login-failed)
+  ())
+
+(def function error/already-logged-in (login-data)
+  (error 'error/already-logged-in :format-control "This session is already logged in" :login-data login-data))

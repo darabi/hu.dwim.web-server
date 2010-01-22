@@ -13,11 +13,11 @@
   ((extra-arguments '()))
   (:documentation "A login-data is an object that encapsulates information that should be used for authentication. It can be used for dispatching in later phases of the authentication. The EXTRA-ARGUMENTS slot can hold some &rest keyword arguments that is useful later on."))
 
-(def (class* ea) identifier-and-password-login-data (login-data)
+(def (class* ea) login-data/identifier-and-password (login-data)
   ((identifier)
    (password)))
 
-(def print-object identifier-and-password-login-data
+(def print-object login-data/identifier-and-password
   (write-string "identifier: ")
   (write (identifier-of -self-)))
 
@@ -36,30 +36,45 @@
 (def method is-logged-in? ((session session-with-login-support))
   (not (null (authenticate-return-value-of session))))
 
+;;;;;;
+;;; Login
+
 (def function login-current-session (login-data)
   (bind ((session (login *application* *session* login-data)))
     (check-type session session)
     (setf *session* session)))
 
-(def method login :around ((application application-with-login-support) (session null) login-data)
+(def method login ((application application-with-login-support) (session null) login-data)
   (app.debug "~S is making a new web session and calling itself with it" 'login)
   (setf session (make-new-session application))
-  (login application session login-data)
-  ;; login signals if there's any error
+  ;; recall ourselves with a valid session to dispatch to the other method(s)
+  (login application session login-data) ; login signals if there's any error, including authentication failure
   (app.debug "Registering new web session ~A" session)
   (with-lock-held-on-application (application)
     (register-session application session))
   session)
 
 (def method login ((application application-with-login-support) (session session-with-login-support) login-data)
-  (app.debug "~S called with login-data ~A" 'login login-data)
-  (assert (not (is-logged-in? session)))
-  (bind ((authenticate-return-value (authenticate application session login-data)))
-    (app.debug "~S returned ~S" 'authenticate authenticate-return-value)
-    (unless authenticate-return-value
-      (login-failed login-data "~S returned false" 'authenticate))
-    (setf (authenticate-return-value-of session) authenticate-return-value))
+  (app.debug "LOGIN called with login-data ~A" login-data)
+  (if (is-logged-in? session)
+      (restart-case
+          (progn
+            (app.dribble "LOGIN will signal 'ERROR/ALREADY-LOGGED-IN now")
+            (error/already-logged-in login-data))
+        (logout-and-continue ()
+          :report (lambda (stream)
+                    (format stream "~@<Call LOGOUT and retry calling LOGIN~@:>"))
+          (logout application session)
+          (setf session (login application *session* login-data))))
+      (bind ((authenticate-return-value (authenticate application session login-data)))
+        (app.debug "AUTHENTICATE returned ~S" authenticate-return-value)
+        (unless authenticate-return-value
+          (error/login-failed login-data "~S returned false" 'authenticate))
+        (setf (authenticate-return-value-of session) authenticate-return-value)))
   session)
+
+;;;;;;
+;;; Logout
 
 (def function logout-current-session ()
   (logout *application* *session*)
@@ -68,4 +83,6 @@
   (setf *session* nil))
 
 (def method logout ((application application-with-login-support) (session session-with-login-support))
-  (mark-session-invalid session))
+  (mark-session-invalid session)
+  (setf (authenticate-return-value-of session) nil)
+  (setf *session* nil))
