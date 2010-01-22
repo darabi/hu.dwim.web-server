@@ -16,7 +16,7 @@
 
 (def method startup-broker :after ((self application-with-dojo-support))
   (unless (dojo-directory-name-of self)
-    (error "The DOJO-DIRECTORY-NAME slot of application ~A is not initialized by the time the server was started! Please refer to the install guide (e.g. on http://dwim.hu) or the sources for details on how to build dojo." self)))
+    (warn "The DOJO-DIRECTORY-NAME slot of application ~A is not initialized by the time the server was started! Please refer to the install guide (e.g. on http://dwim.hu) or the sources for details on how to build dojo." self)))
 
 (def method call-in-application-environment :around ((application application-with-dojo-support) session thunk)
   (bind ((*dojo-skin-name* (or (dojo-skin-name-of application)
