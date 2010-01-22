@@ -8,7 +8,8 @@
 
 (def localization-loader-callback wui-application-localization-loader :hu.dwim.wui "localization/application/" :log-discriminator "hu.dwim.wui.application")
 
-(def (class* e) standard-application (application-with-home-package
+(def (class* e) standard-application (application-with-login-support
+                                      application-with-home-package
                                       application-with-dojo-support)
   ())
 
