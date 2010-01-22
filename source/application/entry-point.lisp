@@ -54,14 +54,17 @@
                                                   (with-frame-logic with-session-logic)
                                                   (requires-valid-frame requires-valid-session)
                                                   (ensure-frame #f)
-                                                  (with-action-logic with-frame-logic))
+                                                  (with-action-logic with-frame-logic)
+                                                  (requires-valid-action #f))
   (when with-optional-session/frame-logic
     ;; TODO style warn when any of these is provided
     (setf with-session-logic #t)
     (setf requires-valid-session #f)
     (setf with-frame-logic #t)
     (setf ensure-frame #t)
-    (setf requires-valid-frame #f))
+    (setf requires-valid-frame #f)
+    (setf with-action-logic #t)
+    (setf requires-valid-action #f))
   (when (and with-frame-logic (not with-session-logic))
     (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
   (when (and with-action-logic (not with-frame-logic))
@@ -84,7 +87,7 @@
               (-body-)))
       (surround-body-when with-action-logic
           (if *frame*
-              (with-action-logic ()
+              (with-action-logic (:requires-valid-action requires-valid-action)
                 (-body-))
               (-body-))
         (call-in-post-action-environment *application* *session* *frame*
