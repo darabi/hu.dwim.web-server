@@ -25,7 +25,7 @@
                                *dojo-file-name*))
          (*dojo-directory-name* (or (dojo-directory-name-of application)
                                     (when (boundp '*dojo-directory-name*)
-                                      ;; it's not advised to have a global value, but when testing it can be handy, so handle it
+                                      ;; it's not advised to have a globally bound value, but it can be handy when not running in production
                                       *dojo-directory-name*))))
     (call-next-method)))
 

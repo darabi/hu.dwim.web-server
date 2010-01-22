@@ -319,7 +319,7 @@
                         (with-simple-restart (retry-handling-request "Try again handling this HTTP request")
                           (when (and *response*
                                      (headers-are-sent-p *response*))
-                            (cerror "Continue" "Some data was already written to the network stream, so restarting the request handling will probably not result in what you would expect."))
+                            (cerror "Continue even though some data was sent already" "Some data was already written to the network stream, so restarting the request handling will probably not result in what you would expect."))
                           (setf *response* nil)
                           (funcall (handler-of server))
                           (return))))

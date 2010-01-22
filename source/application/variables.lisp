@@ -84,8 +84,6 @@
 
 (def constant +session-cookie-name+ "sid")
 
-(def constant +epoch-start+ (encode-universal-time 0 0 0 1 1 1970 0))
-
 ;;;;;;
 ;;; Stuff needed for applications and components
 

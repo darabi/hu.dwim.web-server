@@ -6,6 +6,7 @@
 
 (in-package :hu.dwim.wui)
 
+;; this could be delegated to be part of the API, but... let's wait for the first time it's needed!
 (def (function e) decorate-application-response (application response)
   (when response
     (bind ((request-uri (uri-of *request*)))
