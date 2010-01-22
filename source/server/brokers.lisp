@@ -97,11 +97,14 @@
   (unless (priority-of -self-)
     (setf (priority-of -self-) 0)))
 
-;; the default handler of brokers start a new generic protocol to introduce a customizable point of filtering
-(def function broker/default-handler (&key broker request &allow-other-keys)
+(def method handle-request ((broker broker) (request request))
   (call-if-matches-request broker request
                            (lambda ()
                              (produce-response broker request))))
+
+;; the default handler of brokers start a new generic protocol to introduce a customizable point of filtering
+(def function broker/default-handler (&key broker request &allow-other-keys)
+  (handle-request broker request))
 
 ;;;;;;
 ;;; broker-at-path
@@ -143,7 +146,7 @@
 (def class* constant-response-broker (broker)
   ((response)))
 
-(def method handle-request ((broker constant-response-broker) request)
+(def method produce-response ((broker constant-response-broker) request)
   (response-of broker))
 
 (def class* constant-response-broker-at-path (constant-response-broker broker-at-path)

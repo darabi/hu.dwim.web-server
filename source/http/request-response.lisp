@@ -473,9 +473,6 @@
 (def (function e) make-request-echo-response ()
   (make-instance 'request-echo-response))
 
-(def (function e) send-request-echo-response ()
-  (send-response (make-request-echo-response)))
-
 (def method send-response ((self request-echo-response))
   (emit-http-response ((+header/content-type+ +html-mime-type+))
     (render-request *request*)))
@@ -532,7 +529,8 @@
 
 (def method send-response ((self redirect-response))
   ;; can't use emit-http-response, because +header/content-location+ is not constant
-  (call-next-method)
+  ;; don't (call-next-method) because it would sideffect response with (setf (headers-are-sent-p response) #t)
+  (send-headers self)
   (emit-into-xml-stream (client-stream-of *request*)
     (emit-html-document (:title "Redirect")
       <p "Page has moved " <a (:href ,(target-uri-of self)) "here">>)))
