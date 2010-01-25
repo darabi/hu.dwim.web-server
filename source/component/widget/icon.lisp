@@ -74,7 +74,7 @@
     (unless style-class?
       (setf style-class (style-class-of icon))))
   (bind ((tooltip (force tooltip))
-         (id (generate-frame-unique-string)))
+         (id (generate-unique-string/frame)))
     ;; render the `js first, so the return value contract of qq is kept.
     (when tooltip
       (render-tooltip tooltip id))

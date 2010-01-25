@@ -145,7 +145,7 @@
 (def method string-field-type ((self string/presentation))
   "text")
 
-(def function render-string-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-down on-key-up)
+(def function render-string-component (component &key (id (generate-unique-string/frame "_stw")) on-change on-key-down on-key-up)
   (render-string-field (string-field-type component)
                        (print-component-value component)
                        (client-state-sink-of component)
@@ -207,7 +207,7 @@
 (def (component e) number/presentation (primitive/presentation)
   ())
 
-(def function render-number-field-for-primitive-component (component &key (id (generate-frame-unique-string "_stw")) on-change on-key-up on-key-down)
+(def function render-number-field-for-primitive-component (component &key (id (generate-unique-string/frame "_stw")) on-change on-key-up on-key-down)
   ;; TODO was print-component-value, but spaces are not accepted as a value of the <input>
   (bind ((component-value (component-value-and-bound? component)))
     (render-number-field (if (null component-value)
@@ -304,7 +304,7 @@
 (def (component e) date/presentation (primitive/presentation)
   ())
 
-(def function render-date-component (component &key (id (generate-frame-unique-string "_dtw")) on-change (printer #'print-component-value))
+(def function render-date-component (component &key (id (generate-unique-string/frame "_dtw")) on-change (printer #'print-component-value))
   (bind (((:read-only-slots client-state-sink) component))
     (render-dojo-widget (id)
       <input (:type     "text"
@@ -341,7 +341,7 @@
 (def (component e) time/presentation (primitive/presentation)
   ())
 
-(def function render-time-component (component &key (id (generate-frame-unique-string "_tmw")) on-change (printer #'print-component-value))
+(def function render-time-component (component &key (id (generate-unique-string/frame "_tmw")) on-change (printer #'print-component-value))
   (bind (((:read-only-slots client-state-sink) component))
     (render-dojo-widget (id)
       <input (:type     "text"
@@ -471,8 +471,8 @@
   (emit-html-string (print-component-value component)))
 
 (def function render-html-component (component)
-  (bind ((id (generate-frame-unique-string))
-         (field-id (generate-frame-unique-string)))
+  (bind ((id (generate-unique-string/frame))
+         (field-id (generate-unique-string/frame)))
     (render-dojo-widget (id)
       <input (:id ,field-id
               :name ,(id-of (client-state-sink-of component))

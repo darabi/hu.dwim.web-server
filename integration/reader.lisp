@@ -130,7 +130,7 @@
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
  (def layered-function render-source-symbol (value instance)
    (:method :in xhtml-layer (value (instance source-text:source-symbol))
-     (bind ((id (generate-frame-unique-string))
+     (bind ((id (generate-unique-string/frame))
             (style-class (string+ (cond ((keywordp value)
                                                     "keyword ")
                                                    ((member value '(&optional &rest &allow-other-keys &key &aux &whole &body &environment))

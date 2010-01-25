@@ -124,7 +124,7 @@
               (dojo.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href))))
           ;; TODO: use dojo.connect for keyboard events
           (when default
-            (bind ((submit-id (generate-frame-unique-string)))
+            (bind ((submit-id (generate-unique-string/frame)))
               <input (:id ,submit-id :type "submit" :style "display: none;")>
               `js(on-load (dojo.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
         <span (:id ,id :class "command widget disabled")

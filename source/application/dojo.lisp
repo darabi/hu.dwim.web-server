@@ -98,7 +98,7 @@
                          (.destroyRecursive it)))
                      (dojo.parser.instantiate (map 'dojo.by-id widget-ids)))))))))
 
-(def macro render-dojo-widget ((&optional (id '(generate-frame-unique-string "_w")))
+(def macro render-dojo-widget ((&optional (id '(generate-unique-string/frame "_w")))
                                 &body body)
   (once-only (id)
     `(progn
@@ -106,10 +106,10 @@
        (push ,id *dojo-widget-ids*)
        (values))))
 
-(def (macro e) render-dojo-dialog ((id-var &key title (width "400px") (attach-point '`js-piece(slot-value document.body ,(generate-frame-unique-string))))
+(def (macro e) render-dojo-dialog ((id-var &key title (width "400px") (attach-point '`js-piece(slot-value document.body ,(generate-unique-string/frame))))
                                     &body body)
   (once-only (width attach-point)
-    `(bind ((,id-var (generate-frame-unique-string)))
+    `(bind ((,id-var (generate-unique-string/frame)))
        `js(bind ((dialog (or ,,attach-point
                              (new dijit.Dialog (create :id ,,id-var
                                                        :title ,,title
