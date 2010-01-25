@@ -66,9 +66,10 @@
                  (iterate-js-i18n-resource-registry
                   (lambda (name &rest args)
                     (declare (ignore args))
-                    (push (localize name) entries)
-                    (push (etypecase name
-                            (symbol (string-downcase name))
-                            (string name))
-                          entries)))
+                    (flet ((stringify (value)
+                             (etypecase value
+                               (symbol (string-downcase value))
+                               (string value))))
+                      (push (stringify (localize name)) entries)
+                      (push (stringify name) entries))))
                  entries))))
