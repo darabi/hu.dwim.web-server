@@ -402,6 +402,11 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 (def layered-method refresh-component ((self component))
   (values))
 
+(def layered-method refresh-component :after ((self component))
+  (bind ((class (class-of self)))
+    (dolist (slot (computed-slots-of (class-of self)))
+      (slot-value-using-class class self slot))))
+
 (def method to-be-refreshed-component? ((self component))
   #f)
 
