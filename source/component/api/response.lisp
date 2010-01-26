@@ -129,6 +129,8 @@
     (labels ((traverse (component)
                (catch component
                  (with-component-environment component
+                   ;; NOTE: due to computed slots we must make sure that the component is refreshed
+                   (ensure-refreshed component)
                    (if (to-be-rendered-component? component)
                        (bind ((new-covering-component (find-ancestor-component-with-type component 'id/mixin)))
                          (assert new-covering-component nil "There is no covering ancestor component with id for ~A" component)
