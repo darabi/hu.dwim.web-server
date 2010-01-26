@@ -55,9 +55,9 @@
 
 (def function start-test-server-with-component-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)
-  (start-test-server-with-brokers (list *component-demo-application*
-                                        (make-redirect-broker "" "/")
-                                        (make-default-broker-list))
+  (start-test-server-with-brokers (list* *component-demo-application*
+                                         (make-redirect-broker "" "/")
+                                         (make-default-broker-list))
                                   :host host
                                   :port port
                                   :maximum-worker-count maximum-worker-count
@@ -90,7 +90,7 @@
 ;;;;;;
 ;;; Immediate
 
-(def function make-immediates-node ()
+(def function make-immediate-node ()
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Immediate"
@@ -103,7 +103,7 @@
 ;;;;;
 ;;; Layout
 
-(def function make-layouts-node ()
+(def function make-layout-node ()
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Layout"
@@ -201,7 +201,7 @@
 ;;;;;;
 ;;; Widget
 
-(def function make-widgets-node ()
+(def function make-widget-node ()
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Widget"
@@ -533,14 +533,14 @@
       (replace-target-place/widget ()
           "Primitive"
         (make-value-inspector (find-class 'primitive/presentation)))
-    (make-primitive-makers-node)
-    (make-primitive-viewers-node)
-    (make-primitive-editors-node)
-    (make-primitive-inspectors-node)
-    (make-primitive-filters-node)))
+    (make-primitive-maker-node)
+    (make-primitive-viewer-node)
+    (make-primitive-editor-node)
+    (make-primitive-inspector-node)
+    (make-primitive-filter-node)))
 
 ;; NOTE: all this hassle is to have a reasonable code shown by component-demo/widget
-(def macro make-primitive-presentations-node (name factory supercomponent)
+(def macro make-primitive-presentation-node (name factory supercomponent)
   (flet ((make (type value)
            `(,factory ',type :value ,value)))
     `(node/widget (:expanded #f)
@@ -595,20 +595,20 @@
        (component-demo/widget "File"
          ,(make 'file (system-relative-pathname :hu.dwim.wui "test/component.lisp"))))))
 
-(def function make-primitive-makers-node ()
-  (make-primitive-presentations-node "Maker" make-maker primitive/maker))
+(def function make-primitive-maker-node ()
+  (make-primitive-presentation-node "Maker" make-maker primitive/maker))
 
-(def function make-primitive-viewers-node ()
-  (make-primitive-presentations-node "Viewer" make-viewer primitive/viewer))
+(def function make-primitive-viewer-node ()
+  (make-primitive-presentation-node "Viewer" make-viewer primitive/viewer))
 
-(def function make-primitive-editors-node ()
-  (make-primitive-presentations-node "Editor" make-editor primitive/editor))
+(def function make-primitive-editor-node ()
+  (make-primitive-presentation-node "Editor" make-editor primitive/editor))
 
-(def function make-primitive-inspectors-node ()
-  (make-primitive-presentations-node "Inspector" make-inspector primitive/inspector))
+(def function make-primitive-inspector-node ()
+  (make-primitive-presentation-node "Inspector" make-inspector primitive/inspector))
 
-(def function make-primitive-filters-node ()
-  (make-primitive-presentations-node "Filter" make-filter primitive/filter))
+(def function make-primitive-filter-node ()
+  (make-primitive-presentation-node "Filter" make-filter primitive/filter))
 
 ;;;;;;
 ;;; Place
@@ -620,14 +620,14 @@
       (replace-target-place/widget ()
           "Place"
         (make-value-inspector (find-class 'place/presentation)))
-    (make-place-makers-node)
-    (make-place-viewers-node)
-    (make-place-editors-node)
-    (make-place-inspectors-node)
-    (make-place-filters-node)))
+    (make-place-maker-node)
+    (make-place-viewer-node)
+    (make-place-editor-node)
+    (make-place-inspector-node)
+    (make-place-filter-node)))
 
 ;; NOTE: all this hassle is to have a reasonable code shown by component-demo/widget
-(def macro make-place-presentations-node (name factory supercomponent)
+(def macro make-place-presentation-node (name factory supercomponent)
   (flet ((make (place)
            `(,factory 'place :value ,place)))
     `(node/widget (:expanded #f)
@@ -654,20 +654,20 @@
        (component-demo/widget "Instance slot"
          ,(make '(make-object-slot-place (make-instance 'action :id "George") 'hu.dwim.wui::id))))))
 
-(def function make-place-makers-node ()
-  (make-place-presentations-node "Maker" make-maker place/maker))
+(def function make-place-maker-node ()
+  (make-place-presentation-node "Maker" make-maker place/maker))
 
-(def function make-place-viewers-node ()
-  (make-place-presentations-node "Viewer" make-viewer place/viewer))
+(def function make-place-viewer-node ()
+  (make-place-presentation-node "Viewer" make-viewer place/viewer))
 
-(def function make-place-editors-node ()
-  (make-place-presentations-node "Editor" make-editor place/editor))
+(def function make-place-editor-node ()
+  (make-place-presentation-node "Editor" make-editor place/editor))
 
-(def function make-place-inspectors-node ()
-  (make-place-presentations-node "Inspector" make-inspector place/inspector))
+(def function make-place-inspector-node ()
+  (make-place-presentation-node "Inspector" make-inspector place/inspector))
 
-(def function make-place-filters-node ()
-  (make-place-presentations-node "Filter" make-filter place/filter))
+(def function make-place-filter-node ()
+  (make-place-presentation-node "Filter" make-filter place/filter))
 
 ;;;;;;
 ;;; Object
@@ -677,13 +677,13 @@
       (replace-target-place/widget ()
           "Object"
         (make-value-inspector (find-class 't/presentation)))
-    (make-object-makers-node)
-    (make-object-viewers-node)
-    (make-object-editors-node)
-    (make-object-inspectors-node)
-    (make-object-filters-node)))
+    (make-object-maker-node)
+    (make-object-viewer-node)
+    (make-object-editor-node)
+    (make-object-inspector-node)
+    (make-object-filter-node)))
 
-(def macro make-object-presentations-node (name factory supercomponent)
+(def macro make-object-presentation-node (name factory supercomponent)
   (flet ((make (type value)
            `(,factory ',type :value ,value)))
     `(node/widget (:expanded #f)
@@ -707,20 +707,20 @@
        (component-demo/widget "Response"
          ,(make 'response '*response*)))))
 
-(def function make-object-makers-node ()
-  (make-object-presentations-node "Maker" make-maker t/maker))
+(def function make-object-maker-node ()
+  (make-object-presentation-node "Maker" make-maker t/maker))
 
-(def function make-object-viewers-node ()
-  (make-object-presentations-node "Viewer" make-viewer t/viewer))
+(def function make-object-viewer-node ()
+  (make-object-presentation-node "Viewer" make-viewer t/viewer))
 
-(def function make-object-editors-node ()
-  (make-object-presentations-node "Editor" make-editor t/editor))
+(def function make-object-editor-node ()
+  (make-object-presentation-node "Editor" make-editor t/editor))
 
-(def function make-object-inspectors-node ()
-  (make-object-presentations-node "Inspector" make-inspector t/inspector))
+(def function make-object-inspector-node ()
+  (make-object-presentation-node "Inspector" make-inspector t/inspector))
 
-(def function make-object-filters-node ()
-  (make-object-presentations-node "Filter" make-filter t/filter))
+(def function make-object-filter-node ()
+  (make-object-presentation-node "Filter" make-filter t/filter))
 
 ;;;;;;
 ;;; Sequence
@@ -730,13 +730,13 @@
       (replace-target-place/widget ()
           "Sequence"
         (make-value-inspector (find-class 'sequence/presentation)))
-    (make-sequence-makers-node)
-    (make-sequence-viewers-node)
-    (make-sequence-editors-node)
-    (make-sequence-inspectors-node)
-    (make-sequence-filters-node)))
+    (make-sequence-maker-node)
+    (make-sequence-viewer-node)
+    (make-sequence-editor-node)
+    (make-sequence-inspector-node)
+    (make-sequence-filter-node)))
 
-(def macro make-sequence-presentations-node (name factory supercomponent)
+(def macro make-sequence-presentation-node (name factory supercomponent)
   (flet ((make (type value)
            `(,factory ',type :value ,value)))
     `(node/widget (:expanded #f)
@@ -750,20 +750,20 @@
        (component-demo/widget "Vector"
          ,(make 'vector #("Kate" "Steve" "Mary" "John"))))))
 
-(def function make-sequence-makers-node ()
-  (make-sequence-presentations-node "Maker" make-maker sequence/maker))
+(def function make-sequence-maker-node ()
+  (make-sequence-presentation-node "Maker" make-maker sequence/maker))
 
-(def function make-sequence-viewers-node ()
-  (make-sequence-presentations-node "Viewer" make-viewer sequence/viewer))
+(def function make-sequence-viewer-node ()
+  (make-sequence-presentation-node "Viewer" make-viewer sequence/viewer))
 
-(def function make-sequence-editors-node ()
-  (make-sequence-presentations-node "Editor" make-editor sequence/editor))
+(def function make-sequence-editor-node ()
+  (make-sequence-presentation-node "Editor" make-editor sequence/editor))
 
-(def function make-sequence-inspectors-node ()
-  (make-sequence-presentations-node "Inspector" make-inspector sequence/inspector))
+(def function make-sequence-inspector-node ()
+  (make-sequence-presentation-node "Inspector" make-inspector sequence/inspector))
 
-(def function make-sequence-filters-node ()
-  (make-sequence-presentations-node "Filter" make-filter sequence/filter))
+(def function make-sequence-filter-node ()
+  (make-sequence-presentation-node "Filter" make-filter sequence/filter))
 
 ;;;;;;
 ;;; Tree
@@ -771,13 +771,13 @@
 (def function make-tree-node ()
   (node/widget (:expanded #f)
       "Tree"
-    (make-tree-makers-node)
-    (make-tree-viewers-node)
-    (make-tree-editors-node)
-    (make-tree-inspectors-node)
-    (make-tree-filters-node)))
+    (make-tree-maker-node)
+    (make-tree-viewer-node)
+    (make-tree-editor-node)
+    (make-tree-inspector-node)
+    (make-tree-filter-node)))
 
-(def macro make-tree-presentations-node (name factory supercomponent)
+(def macro make-tree-presentation-node (name factory supercomponent)
   (flet ((make (type value)
            `(,factory ',type :value ,value)))
     `(node/widget (:expanded #f)
@@ -786,27 +786,27 @@
            (make-value-inspector (find-class ',supercomponent)))
        )))
 
-(def function make-tree-makers-node ()
-  (make-tree-presentations-node "Maker" make-maker nil))
+(def function make-tree-maker-node ()
+  (make-tree-presentation-node "Maker" make-maker nil))
 
-(def function make-tree-viewers-node ()
-  (make-tree-presentations-node "Viewer" make-viewer nil))
+(def function make-tree-viewer-node ()
+  (make-tree-presentation-node "Viewer" make-viewer nil))
 
-(def function make-tree-editors-node ()
-  (make-tree-presentations-node "Editor" make-editor nil))
+(def function make-tree-editor-node ()
+  (make-tree-presentation-node "Editor" make-editor nil))
 
-(def function make-tree-inspectors-node ()
-  (make-tree-presentations-node "Inspector" make-inspector nil))
+(def function make-tree-inspector-node ()
+  (make-tree-presentation-node "Inspector" make-inspector nil))
 
-(def function make-tree-filters-node ()
-  (make-tree-presentations-node "Filter" make-filter nil))
+(def function make-tree-filter-node ()
+  (make-tree-presentation-node "Filter" make-filter nil))
 
 ;;;;;;
 ;;; Book
 
 (def constant +lorem-ipsum+ "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla metus eros, vestibulum eu scelerisque sed, lacinia at neque. In vulputate, erat imperdiet vestibulum commodo, risus diam pretium risus, quis ullamcorper urna velit eget ligula. Quisque egestas laoreet neque, id varius lacus tempus at. Sed varius vulputate dui a cursus. Fusce eleifend pulvinar purus, eu iaculis leo adipiscing nec. Proin pellentesque cursus felis, vitae faucibus ante interdum sed. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed est velit, blandit sollicitudin pulvinar at, pretium ac mi. Etiam molestie dictum massa id elementum. In bibendum, ligula cursus sagittis convallis, erat urna bibendum neque, ut pulvinar elit leo vitae metus. Vivamus id eleifend elit. Vestibulum et odio ipsum. Cras tellus turpis, malesuada facilisis tristique tincidunt, semper sollicitudin neque. In ornare turpis non lorem feugiat dapibus.")
 
-(def function make-book-elements-node ()
+(def function make-book-element-node ()
   (node/widget (:expanded #f)
       "Text"
     (component-demo/widget "Book"
@@ -835,7 +835,7 @@
 ;;;;;;
 ;;; Source
 
-(def function make-source-elements-node ()
+(def function make-source-element-node ()
   (node/widget (:expanded #f)
       "Source"
     (component-demo/widget "System"
@@ -900,7 +900,7 @@
 ;;;;;;
 ;;; Chart
 
-(def function make-charts-node ()
+(def function make-chart-node ()
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Chart"
@@ -935,9 +935,9 @@
       "TODO")))
 
 ;;;;;;
-;;; Processes
+;;; Process
 
-(def function make-processes-node ()
+(def function make-processe-node ()
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Process"
@@ -1039,17 +1039,18 @@
               (replace-target-place/widget ()
                   "Component"
                 (make-value-inspector (find-class 'component)))
-            (make-immediates-node)
-            (make-layouts-node)
-            (make-widgets-node)
+            (make-immediate-node)
+            (make-layout-node)
+            (make-widget-node)
             (make-primitive-node)
             (make-place-node)
             (make-object-node)
             (make-sequence-node)
             (make-tree-node)
-            (make-book-elements-node)
-            (make-source-elements-node)
-            (make-charts-node)
-            (make-processes-node)
+            (make-book-element-node)
+            (make-source-element-node)
+            (make-chart-node)
+            (make-processe-node)
+            (make-computed-node)
             (make-customization-node)))
         content))))
