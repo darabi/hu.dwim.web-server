@@ -49,7 +49,7 @@
 ;;; Component value
 
 (def method component-value-of ((self string))
-  nil)
+  self)
 
 (def method (setf component-value-of) (new-value (self string))
   (values))
