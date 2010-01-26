@@ -999,7 +999,32 @@
                       (1- level))))
 
 ;;;;;;
-;;; Customizations
+;;; Computed
+
+(def function make-computed-node ()
+  (node/widget (:expanded #f)
+      (replace-target-place/widget ()
+          "Computed"
+        (content/widget ()
+          "Examples based on the constraint based change propagation provided by the hu.dwim.computed-class system."))
+    (component-demo/widget "List"
+      (bind ((left-list (list/widget ()
+                          (element/widget ()
+                            "John")
+                          (element/widget ()
+                            "Steve")))
+             (right-list (list/widget ()
+                           (element/widget ()
+                             "Mary")
+                           (element/widget ()
+                             "Kate"))))
+        (horizontal-list/layout ()
+          left-list
+          (make-inspector 'string :value (compute-as (string+ " " (selected-component-value left-list) " - " (selected-component-value right-list) " ")))
+          right-list)))))
+
+;;;;;;
+;;; Customization
 
 (def function make-customization-node ()
   (node/widget (:expanded #f)
