@@ -79,6 +79,11 @@
                                  :load (lambda (response io-args)
                                          (ajax-request-in-progress-teardown)
                                          (wui.io.process-ajax-answer response io-args)))))
+            (when dojo.config.isDebug
+              (when wui.last-ajax-replacements
+                (dolist (node wui.last-ajax-replacements)
+                  (dojo.remove-class node "ajax-replacement")))
+              (setf wui.last-ajax-replacements (array)))
             (when send-client-state
               (setf params.form form))
             (when ajax-target
@@ -428,6 +433,9 @@
                                    (hide-dom-node old-node)
                                    (log.debug "About to replace old node with id " id)
                                    (.replace-child parent-node replacement-node old-node)
+                                   (when dojo.config.isDebug
+                                     (dojo.add-class replacement-node "ajax-replacement")
+                                     (wui.last-ajax-replacements.push replacement-node))
                                    (log.debug "Successfully replaced node with id " id)
                                    (return true)))
                                 ((= replacement-node.tagName "script")

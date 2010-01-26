@@ -79,3 +79,9 @@ body.tundra {
 span .ajax-request-in-progress {
   background-image: none;
 }
+
+.ajax-replacement {
+  border-color: red;
+  border-width: 1px;
+  border-style: solid;
+}
