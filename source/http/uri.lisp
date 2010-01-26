@@ -19,13 +19,26 @@
          :format-arguments args))
 
 (def class* uri ()
-  ((scheme    nil)
-   (host      nil)
-   (port      nil)
-   (path      nil)
-   (query     nil)
-   (query-parameters :unbound :documentation "An internal cache for PARSE-QUERY-PARAMETERS.")
-   (fragment  nil)))
+  ((scheme
+    nil
+    :type (or null string))
+   (host
+    nil
+    :type (or null string))
+   (port
+    nil
+    :type (or null string))
+   (path
+    nil
+    :type (or null string))
+   (query
+    nil
+    :type (or null string))
+   (query-parameters
+    :unbound
+    :documentation "An internal cache for PARSE-QUERY-PARAMETERS."
+    :type list)
+   (fragment nil)))
 
 (def method make-load-form ((self uri) &optional env)
   (make-load-form-saving-slots self :environment env))
