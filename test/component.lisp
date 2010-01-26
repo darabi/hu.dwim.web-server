@@ -1012,15 +1012,20 @@
                           (element/widget ()
                             "John")
                           (element/widget ()
-                            "Steve")))
+                            "Steve")
+                          (element/widget ()
+                            "Fred")))
              (right-list (list/widget ()
                            (element/widget ()
                              "Mary")
                            (element/widget ()
-                             "Kate"))))
+                             "Kate")
+                           (element/widget ()
+                             "Susanne"))))
         (horizontal-list/layout ()
           left-list
-          (make-inspector 'string :value (compute-as (string+ " " (selected-component-value left-list) " - " (selected-component-value right-list) " ")))
+          (content/widget ()
+            (make-inspector 'string :value (compute-as (string+ (selected-component-value left-list) " - " (selected-component-value right-list)))))
           right-list)))))
 
 ;;;;;;

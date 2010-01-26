@@ -102,6 +102,7 @@
   (flet ((call-render-xhtml (component)
            (bind ((*inside-user-code* #t))
              (setf *rendering-phase-reached* #t)
+             (app.debug "Rendering component ~A" component)
              (render-xhtml component))))
     (if (and *ajax-aware-request*
              (ajax-enabled? *application*))
