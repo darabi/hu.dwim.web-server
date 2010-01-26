@@ -57,7 +57,7 @@
 ;;;;;;
 ;;; Render to string
 
-(def (with-macro e) with-render-to-xhtml-string-context ()
+(def (with-macro e) with-render-context ()
   (bind ((*request* (if (boundp '*request*)
                         *request*
                         (make-instance 'request :uri (parse-uri ""))))
@@ -76,18 +76,22 @@
                       (make-instance 'frame :session *session*)))
          (*rendering-phase-reached* #f))
     (with-lock-held-on-session (*session*)
-      (octets-to-string
-       (with-output-to-sequence (buffer-stream :external-format +default-encoding+ :initial-buffer-size 256)
-         (emit-into-xml-stream buffer-stream
-           `xml,@(with-collapsed-js-scripts
-                  (with-dojo-widget-collector
-                    (-body-)))
-           +void+))
-       :encoding +default-encoding+))))
+      (-body-))))
+
+(def (with-macro e) with-render-to-string-context ()
+  (with-render-context
+    (octets-to-string
+     (with-output-to-sequence (buffer-stream :external-format +default-encoding+ :initial-buffer-size 256)
+       (emit-into-xml-stream buffer-stream
+         `xml,@(with-collapsed-js-scripts
+                (with-dojo-widget-collector
+                  (-body-)))
+         +void+))
+     :encoding +default-encoding+)))
 
 (def (function e) render-to-xhtml-string (component &key (ajax-aware #f))
   (bind ((*ajax-aware-request* ajax-aware))
-    (with-render-to-xhtml-string-context
+    (with-render-to-string-context
       (call-in-rendering-environment *application* *session*
                                      (lambda ()
                                        (ajax-aware-render (force component)))))))
