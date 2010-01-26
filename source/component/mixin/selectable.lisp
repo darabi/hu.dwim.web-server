@@ -61,10 +61,16 @@
   (:method (new-value (selection-component selection/mixin) (selectable-component selectable/mixin))
     (bind ((selected-component-set (selected-component-set-of selection-component)))
       (mark-to-be-rendered-component selectable-component)
+      (when (single-selection-mode? selection-component)
+        (clear-selected-components selection-component))
       (if new-value
           (setf (gethash (hash-key selectable-component) selected-component-set) selectable-component)
           (remhash (hash-key selectable-component) selected-component-set))
       (invalidate-computed-slot selection-component 'selected-component-set))))
+
+(def (generic e) clear-selected-components (selection-component)
+  (:method ((selection-component selection/mixin))
+    (setf (selected-components-of selection-component) nil)))
 
 (def (generic e) select-component (selectable-component class prototype value)
   (:method ((selectable-component selectable/mixin) class prototype value)
@@ -76,3 +82,7 @@
 (def (function e) selectable-component-style-class (selectable-component)
   (when (selected-component? (find-selection-component selectable-component) selectable-component)
     " selected"))
+
+(def (function e) selected-component-value (selection-component)
+  (awhen (selected-component-of selection-component)
+    (component-value-of it)))
