@@ -29,7 +29,7 @@
     <a (:href ,url :target "_blank")
        <img (:src ,image-url :alt ,image-alt)>>
     (iter (for person :in-sequence people)
-          <div ,person>))))
+          <div ,person>)))
 
 (def (function e) render-about/dwim ()
   (render-about/contributors "dwim" "Szoftvertechnológia" "http://dwim.hu"

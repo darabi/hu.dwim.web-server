@@ -23,7 +23,7 @@
 (def (component e) standard-process/user-interface/inspector (inspector/style t/detail/inspector component-messages/widget content/mixin commands/mixin)
   ;; TODO: add support to command-bar
   ((answer-commands nil))
-  (:documentation "Continuation based COMPONENT."))
+  (:documentation "A COMPONENT based on the continuation support provided by the hu.dwim.delico system."))
 
 (def layered-method refresh-component ((self standard-process/user-interface/inspector))
   (bind (((:slots component-value) self))
