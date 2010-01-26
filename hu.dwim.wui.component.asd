@@ -98,7 +98,8 @@
                                                          (:file "xy" :depends-on ("layout"))))
                                            (:module "widget"
                                             :depends-on ("layout")
-                                            :components ((:file "alternator" :depends-on ("reference" "command" "menu"))
+                                            :components ((:file "about" :depends-on ("widget"))
+                                                         (:file "alternator" :depends-on ("reference" "command" "menu"))
                                                          (:file "authentication" :depends-on ("command"))
                                                          (:file "border")
                                                          (:file "button")

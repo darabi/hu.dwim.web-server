@@ -52,6 +52,9 @@
   ()
   (:default-initargs :title (title/widget () "Segítség")))
 
+(def (macro e) usage-help/widget (&key args &allow-other-keys)
+  `(make-instance 'usage-help/widget ,@args))
+
 (def render-xhtml usage-help/widget
   (when (parameter-value +no-javascript-error-parameter-name+)
     (add-component-error-message -self- "*** Nincs engedélyezve az internet böngészőjében a JavaScript programok futtatása, így az alkalmazás sajnos egyátalán nem használható. Kérjük engedélyezze a JavaScript futtatását a beállításokban!"))
