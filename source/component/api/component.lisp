@@ -410,6 +410,12 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 (def method to-be-refreshed-component? ((self component))
   #f)
 
+(def method to-be-refreshed-component? :around ((self component))
+  (or (call-next-method)
+      (some (lambda (slot)
+              (not (computed-slot-valid-p self slot)))
+            (computed-slots-of (class-of self)))))
+
 (def method mark-to-be-refreshed-component ((self component))
   (map-child-components self #'mark-to-be-refreshed-component))
 
