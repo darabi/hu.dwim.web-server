@@ -19,9 +19,7 @@ body.tundra {
 
 .debug-component-hierarchy {
   padding: 1px;
-  border-color: lightgray;
-  border-width: 1px;
-  border-style: solid;
+  border: 1px lightgray solid;
 }
 
 .debug-component-hierarchy .class-name {
@@ -81,7 +79,5 @@ span .ajax-request-in-progress {
 }
 
 .ajax-replacement {
-  border-color: red;
-  border-width: 1px;
-  border-style: solid;
+  border: 1px red solid;
 }

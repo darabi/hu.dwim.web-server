@@ -11,7 +11,7 @@
   padding-bottom: 6px;
 }
 
-.lisp-form .gutter {
+.lisp-form > .gutter {
   display: block;
   float: left;
   font-family: monospace;
@@ -21,7 +21,7 @@
   padding: 0px;
 }
 
-.lisp-form .content {
+.lisp-form > .content {
   display: block;
   font-family: monospace;
   color: inherit;
