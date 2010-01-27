@@ -6,7 +6,7 @@
 
 (in-package :hu.dwim.wui.test)
 
-(def special-variable *parameter-application* (make-instance 'authentication-application :path-prefix "/parameter/"))
+(def special-variable *parameter-application* (make-instance 'standard-application :path-prefix "/parameter/"))
 
 (def function render-mime-part-details (mime-part)
   <p "Mime part headers:">
