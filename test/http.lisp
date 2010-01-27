@@ -8,7 +8,7 @@
 
 (def special-variable *running-test-servers* (list))
 
-(def function start-test-server (server &key maximum-worker-count)
+(def function startup-test-server (server &key maximum-worker-count)
   (when maximum-worker-count
     (setf (maximum-worker-count-of server) maximum-worker-count))
   (finishes
@@ -20,7 +20,7 @@
       (pushnew server *running-test-servers*)
       (setf *test-server* server))))
 
-(def function stop-test-server (&optional (server *test-server*))
+(def function shutdown-test-server (&optional (server *test-server*))
   (finishes
     (is (not (null server)))
     (dolist (listen-entry (listen-entries-of server))
@@ -33,30 +33,24 @@
       (setf *test-server* nil))
     (values)))
 
-(def fixture ensure-test-server
-  (start-test-server (make-instance 'server :host *test-host* :port *test-port*))
-  (unwind-protect
-       (-body-)
-    (stop-test-server)))
-
-(def function start-test-server-with-handler (handler &rest args &key (server-type 'server) &allow-other-keys)
+(def function startup-test-server-with-handler (handler &rest args &key (server-type 'server) &allow-other-keys)
   (remove-from-plistf args :server-type)
   (bind ((server (apply #'make-instance server-type :host *test-host* :port *test-port* args)))
     (setf (handler-of server) handler)
-    (start-test-server-and-wait server)))
+    (startup-test-server-and-wait server)))
 
-(def function start-test-server-with-brokers (brokers &rest args &key
-                                                      (server-type 'broker-based-server)
-                                                      (host *test-host*)
-                                                      (port *test-port*)
-                                                      (maximum-worker-count 16) ; lower to 0 to start in the REPL thread
-                                                      &allow-other-keys)
+(def function startup-test-server-with-brokers (brokers &rest args &key
+                                                        (server-type 'broker-based-server)
+                                                        (host *test-host*)
+                                                        (port *test-port*)
+                                                        (maximum-worker-count 16) ; lower to 0 to start in the REPL thread
+                                                        &allow-other-keys)
   (when *test-server*
-    (cerror "Start anyway" "*TEST-SERVER* is not NIL which means that there's a test server still running. You can use STOP-TEST-SERVER to shut it down. See also *RUNNING-TEST-SERVERS*."))
+    (cerror "Start anyway" "*TEST-SERVER* is not NIL which means that there's a test server still running. You can use SHUTDOWN-TEST-SERVER to shut it down. See also *RUNNING-TEST-SERVERS*."))
   (remove-from-plistf args :server-type)
   (bind ((server (apply #'make-instance server-type :host host :port port :maximum-worker-count maximum-worker-count args)))
     (setf (brokers-of server) (ensure-list brokers))
-    (start-test-server server)
+    (startup-test-server server)
     server))
 
 (def function test-server-info-string (server)
@@ -65,7 +59,7 @@
          (port (port-of listen-entry))
          (uri (make-uri :scheme "http" :host host :port port))
          (uri-string (print-uri-to-string uri)))
-    (format nil "Server running at ~A. You can use STOP-TEST-SERVER to stop it. See also *TEST-SERVER* and *RUNNING-TEST-SERVERS*.~%~
+    (format nil "Server running at ~A. You can use SHUTDOWN-TEST-SERVER to stop it. See also *TEST-SERVER* and *RUNNING-TEST-SERVERS*.~%~
                  You may stress test it with something like:~%~
                  siege -c100 -t10S ~A (add -b for full throttle benchmarking)~%~
                  httperf --rate 1000 --num-conn 10000 --port ~A --server ~A --uri /foo/bar/~%~
@@ -75,32 +69,32 @@
             port
             host)))
 
-(def function start-test-server-and-wait (server)
+(def function startup-test-server-and-wait (server)
   (unwind-protect
        (progn
-         (start-test-server server)
+         (startup-test-server server)
          (break (test-server-info-string server)))
-    (stop-test-server server)))
+    (shutdown-test-server server)))
 
-(def function start-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
+(def function startup-request-echo-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-wui-logger-level log-level
-    (start-test-server-with-handler (lambda ()
-                                      (bind ((response (make-request-echo-response)))
-                                        (unwind-protect
-                                             (send-response response)
-                                          (close-response response))))
-                                    :maximum-worker-count maximum-worker-count)))
+    (startup-test-server-with-handler (lambda ()
+                                        (bind ((response (make-request-echo-response)))
+                                          (unwind-protect
+                                               (send-response response)
+                                            (close-response response))))
+                                      :maximum-worker-count maximum-worker-count)))
 
-(def function start-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
+(def function startup-project-file-server (&key (maximum-worker-count 16) (log-level +dribble+))
   (with-wui-logger-level log-level
-    (start-test-server-with-brokers (make-directory-serving-broker "/wui/" (system-relative-pathname :hu.dwim.wui.test ""))
-                                    :maximum-worker-count maximum-worker-count)))
+    (startup-test-server-with-brokers (make-directory-serving-broker "/wui/" (system-relative-pathname :hu.dwim.wui.test ""))
+                                      :maximum-worker-count maximum-worker-count)))
 
-(def function start-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
+(def function startup-functional-response-server (&key (maximum-worker-count 4) (log-level +warn+))
   (with-wui-logger-level log-level
-    (start-test-server-with-brokers (make-functional-broker
-                                      (with-request-parameters (name)
-                                        (make-functional-html-response ()
-                                          (emit-html-document (:title "foo")
-                                            <h3 ,(or name "The name query parameter is not specified!")>))))
-                                    :maximum-worker-count maximum-worker-count)))
+    (startup-test-server-with-brokers (make-functional-broker
+                                        (with-request-parameters (name)
+                                          (make-functional-html-response ()
+                                            (emit-html-document (:title "foo")
+                                              <h3 ,(or name "The name query parameter is not specified!")>))))
+                                      :maximum-worker-count maximum-worker-count)))

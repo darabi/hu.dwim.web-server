@@ -6,23 +6,12 @@
 
 (in-package :hu.dwim.wui.test)
 
-(def entry-point (*test-application* :path "performance")
-  (with-request-parameters (name)
-    (make-functional-html-response ()
-      (emit-html-document ()
-        <h3 ,(or name "The name query parameter is not specified!")>))))
+(def class authentication-application (standard-application)
+  ())
 
-(def method authenticate ((application test-application) (session session-with-login-support) (login-data login-data/identifier-and-password))
-  (bind ((entry (assoc (identifier-of login-data) '(("test" "test123")
-                                                    ("joe" nil))
-                       :test 'equal)))
-    (if (and entry
-             (equal (second entry) (password-of login-data)))
-        (first entry)
-        ;; authentication failed
-        nil)))
+(def special-variable *authentication-application* (make-instance 'authentication-application :path-prefix "/authentication/"))
 
-(def entry-point (*test-application* :path +login-entry-point-path+)
+(def entry-point (*authentication-application* :path +login-entry-point-path+)
   (with-entry-point-logic/login-with-identifier-and-password ()
     (make-raw-functional-response ()
       (emit-simple-html-document-http-response (:title "Login" :status +http-ok+)
@@ -45,8 +34,18 @@
         <a (:href ,(print-uri-to-string (make-uri-for-current-application "logout/")))
            "Logout">))))
 
-(def entry-point (*test-application* :path "logout/")
+(def entry-point (*authentication-application* :path +logout-entry-point-path+)
   (with-session-logic (:requires-valid-session #f)
     (when *session*
       (logout-current-session))
     (make-redirect-response (make-uri-for-current-application +login-entry-point-path+))))
+
+(def method authenticate ((application authentication-application) (session session-with-login-support) (login-data login-data/identifier-and-password))
+  (bind ((entry (assoc (identifier-of login-data) '(("test" "test123")
+                                                    ("joe" nil))
+                       :test 'equal)))
+    (if (and entry
+             (equal (second entry) (password-of login-data)))
+        (first entry)
+        ;; authentication failed
+        nil)))

@@ -29,14 +29,12 @@
 
 (def constant +demo-page-icon+ "static/favicon.ico")
 
-(def special-variable *component-demo-application*
-  (make-instance 'test-application
-                 :path-prefix "/"
-                 :home-package (find-package :hu.dwim.wui.test)
-                 :default-locale "en"
-                 :frame-root-component-factory 'make-demo-frame-component-with-content
-                 :dojo-directory-name (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui "www/"))
-                 :ajax-enabled #t))
+(def special-variable *component-demo-application* (make-instance 'standard-application
+                                                                  :path-prefix "/"
+                                                                  :home-package (find-package :hu.dwim.wui.test)
+                                                                  :default-locale "en"
+                                                                  :frame-root-component-factory 'make-demo-frame-component-with-content
+                                                                  :ajax-enabled #t))
 
 ;;;;;;
 ;;; Entry point
@@ -53,15 +51,15 @@
           (setf (root-component-of *frame*) (make-demo-frame-component))
           (make-redirect-response-for-current-application)))))
 
-(def function start-test-server-with-component-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
+(def function startup-test-server-with-component-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)
-  (start-test-server-with-brokers (list* *component-demo-application*
-                                         (make-redirect-broker "" "/")
-                                         (make-default-broker-list))
-                                  :host host
-                                  :port port
-                                  :maximum-worker-count maximum-worker-count
-                                  :request-content-length-limit (* 1024 1024 50)))
+  (startup-test-server-with-brokers (list* *component-demo-application*
+                                           (make-redirect-broker "" "/")
+                                           (make-default-broker-list))
+                                    :host host
+                                    :port port
+                                    :maximum-worker-count maximum-worker-count
+                                    :request-content-length-limit (* 1024 1024 50)))
 
 ;;;;;;
 ;;; Component demo
@@ -77,12 +75,10 @@
   (make-demo-frame-component-with-content))
 
 (def function make-demo-frame-component-with-content (&optional initial-content-component)
-  (frame/widget (:title "demo"
-                 :stylesheet-uris (append (list (make-stylesheet-uri (string+ *dojo-directory-name* "dojo/resources/dojo.css"))
-                                                (make-stylesheet-uri (string+ *dojo-directory-name* "dijit/themes/tundra/tundra.css")))
-                                          +demo-static-stylesheet-uris+)
-                 :script-uris +demo-script-uris+
-                 :page-icon-uri +demo-page-icon+)
+  (frame/widget (:title "hu.dwim.wui component demo"
+                 :page-icon-uri (make-default-page-icon-uri)
+                 :script-uris (make-default-script-uris :hu.dwim.wui.test)
+                 :stylesheet-uris (make-default-stylesheet-uris :hu.dwim.wui.test))
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu)))
       (make-component-demo-content initial-content-component))))

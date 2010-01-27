@@ -32,14 +32,10 @@
            (*test-server* *test-server*))
       ,@body)))
 
-(def class* test-application (standard-application)
-  ()
-  (:default-initargs :dojo-directory-name (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui "www/"))))
-
 (def special-variable *test-host* +any-host+ "The test server host.")
 
 (def special-variable *test-port* 8080 "The test server port.")
 
 (def special-variable *test-server* nil "The currently running test server.")
 
-(def special-variable *test-application* (make-instance 'test-application :path-prefix "/test/") "The currently running test application.")
+(def special-variable *test-application* nil "The currently running test application.")
