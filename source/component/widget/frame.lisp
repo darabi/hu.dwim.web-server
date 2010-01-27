@@ -150,8 +150,8 @@
   (:method ((application application))
     "/help/"))
 
-(def (function e) make-default-page-icon-uri ()
-  "static/favicon.ico")
+(def (function e) make-default-page-icon-uri (system-name &optional (path "wui/image/miscellaneous/favicon.ico"))
+  (list (string+ "static/" path) (system-relative-pathname system-name (string+ "www/" path))))
 
 (def (function e) make-default-script-uris (system-name &rest script-uris)
   (declare (ignore system-name))

@@ -76,7 +76,7 @@
 
 (def function make-demo-frame-component-with-content (&optional initial-content-component)
   (frame/widget (:title "hu.dwim.wui component demo"
-                 :page-icon-uri (make-default-page-icon-uri)
+                 :page-icon-uri (make-default-page-icon-uri :hu.dwim.wui.test)
                  :script-uris (make-default-script-uris :hu.dwim.wui.test)
                  :stylesheet-uris (make-default-stylesheet-uris :hu.dwim.wui.test))
     (top/widget (:menu-bar (menu-bar/widget ()
