@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; frame/widget
 
-(def (component e) frame/widget (top/abstract layer-context-capturing/mixin)
+(def (component e) frame/widget (top/abstract layer-context/mixin)
   ((content-mime-type +xhtml-mime-type+)
    (stylesheet-uris nil)
    (script-uris nil)
