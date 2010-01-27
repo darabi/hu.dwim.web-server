@@ -43,7 +43,7 @@
              <td (:colspan 2) ,(render-title-for -self-)>>))
     ,(when (expanded-component? -self-)
        (foreach (lambda (content)
-                  (bind ((id (generate-unique-string/frame)))
+                  (bind ((id (generate-unique-component-id)))
                     <tr (:id ,id
                          :class "name-value-pair widget"
                          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)

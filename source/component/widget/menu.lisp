@@ -42,7 +42,7 @@
     (when menu-items
       <span (:id ,id :class ,style-class :style ,custom-style)
         ,(render-content-for -self-)
-        ,(bind ((menu-id (generate-unique-string/frame)))
+        ,(bind ((menu-id (generate-unique-component-id)))
                (render-dojo-widget (menu-id)
           <div (:id ,menu-id
                 :dojoType #.+dijit/menu+
@@ -97,7 +97,7 @@
 (def render-xhtml menu-item/widget
   (bind (((:read-only-slots menu-items id style-class custom-style content) -self-))
     (if menu-items
-        (bind ((popup-id (generate-unique-string/frame)))
+        (bind ((popup-id (generate-unique-component-id)))
           (render-dojo-widget (popup-id)
             <div (:id ,popup-id
                   :class ,style-class

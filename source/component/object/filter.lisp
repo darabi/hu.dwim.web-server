@@ -234,7 +234,7 @@ Optimized factory configuration (default):
   (use-in-filter-id-of (parent-component-of self)))
 
 (def method use-in-filter-id-of ((self component))
-  (generate-unique-string/frame))
+  (generate-unique-component-id))
 
 ;; TODO: move this to a component?
 (def render-component place/name-value-pair/filter
@@ -339,7 +339,7 @@ Optimized factory configuration (default):
         <td (:colspan 2)>)))
 
 (def function render-use-in-filter-marker-for (self)
-  (bind ((id (generate-unique-string/frame)))
+  (bind ((id (generate-unique-component-id)))
     (setf (use-in-filter-id-of self) id)
     <td ,(render-checkbox-field (use-in-filter? self)
                                 :id id

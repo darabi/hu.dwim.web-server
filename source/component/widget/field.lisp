@@ -63,7 +63,7 @@
 ;;;;;;
 ;;; String field
 
-(def function render-string-field (type value client-state-sink &key (id (generate-unique-string/frame "_stw")) on-change on-key-down on-key-up)
+(def function render-string-field (type value client-state-sink &key (id (generate-unique-component-id "_stw")) on-change on-key-down on-key-up)
   (render-dojo-widget (id)
     ;; TODO dojoRows 3
     <input (:dojoType #.+dijit/text-box+
@@ -78,7 +78,7 @@
 ;;;;;;
 ;;; Number field
 
-(def function render-number-field (value client-state-sink &key (id (generate-unique-string/frame "_nrw")) on-change on-key-down on-key-up)
+(def function render-number-field (value client-state-sink &key (id (generate-unique-component-id "_nrw")) on-change on-key-down on-key-up)
   (render-dojo-widget (id)
     <input (:dojoType #.+dijit/number-text-box+
             :type     "text"
@@ -92,7 +92,7 @@
 ;;;;;;
 ;;; Combo box
 
-(def function render-combo-box-field (value possible-values &key (id (generate-unique-string/frame "_w")) name
+(def function render-combo-box-field (value possible-values &key (id (generate-unique-component-id "_w")) name
                                             (key #'identity) (test #'equal) (client-name-generator #'princ-to-string))
   <select (:id ,id
            :name ,name)
@@ -108,7 +108,7 @@
 ;;;;;;
 ;;; Select field
 
-(def function render-select-field (value possible-values &key (id (generate-unique-string/frame "_w")) name
+(def function render-select-field (value possible-values &key (id (generate-unique-component-id "_w")) name
                                          (key #'identity) (test #'equal) (client-name-generator #'princ-to-string) on-change)
   (render-dojo-widget (id)
     <select (:id ,id
@@ -129,7 +129,7 @@
 ;;;;;;
 ;;; Upload file
 
-(def function render-upload-file-field (&key (id (generate-unique-string/frame)) access-key tooltip tab-index
+(def function render-upload-file-field (&key (id (generate-unique-component-id)) access-key tooltip tab-index
                                              class style client-state-sink (name (awhen client-state-sink (id-of it))))
   <input (:id ,id
           :class ,class
@@ -144,9 +144,9 @@
 ;;; Popup menu select field
 
 (def function render-popup-menu-select-field (value possible-values &key value-sink classes (test #'equal) (key #'identity))
-  (bind ((div-id (generate-unique-string/frame))
-         (menu-id (generate-unique-string/frame))
-         (field-id (generate-unique-string/frame))
+  (bind ((div-id (generate-unique-component-id))
+         (menu-id (generate-unique-component-id))
+         (field-id (generate-unique-component-id))
          (name (id-of (client-state-sink (client-value)
                         (funcall value-sink client-value))))
          (index (position value possible-values :key key :test test)))
@@ -163,7 +163,7 @@
               :targetNodeIds ,div-id)
           ,(iter (for possible-value :in possible-values)
                  (for class :in classes)
-                 (for option-id = (generate-unique-string/frame))
+                 (for option-id = (generate-unique-component-id))
                  (render-dojo-widget (option-id)
                    <div (:id ,option-id
                          :dojoType #.+dijit/menu-item+

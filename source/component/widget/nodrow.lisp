@@ -55,7 +55,7 @@
   (bind (((:slots child-nodes expanded-component) nodrow)
          (treeble *tree*))
     (if child-nodes
-        (bind ((id (generate-unique-string/frame)))
+        (bind ((id (generate-unique-component-id)))
           <img (:id ,id :src ,(string+ (path-prefix-of *application*)
                                                   (if expanded-component
                                                       "static/wui/icon/20x20/arrowhead-down.png"

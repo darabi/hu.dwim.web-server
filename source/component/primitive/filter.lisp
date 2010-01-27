@@ -66,7 +66,7 @@
 (def subtype-mapper *filter-type-mapping* (or null character) character/filter)
 
 (def render-xhtml character/filter
-  (bind ((widget-id (generate-unique-string/frame "_stw")))
+  (bind ((widget-id (generate-unique-component-id "_stw")))
     (render-string-component -self- :id widget-id)
     `js(wui.field.setup-string-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
@@ -82,7 +82,7 @@
   '(like equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml string/filter
-  (bind ((widget-id (generate-unique-string/frame "_stw")))
+  (bind ((widget-id (generate-unique-component-id "_stw")))
     (render-string-component -self- :id widget-id)
     `js(wui.field.setup-string-filter ,widget-id ,(use-in-filter-id-of -self-))))
 
@@ -140,7 +140,7 @@
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 (def render-xhtml number/filter
-  (bind ((widget-id (generate-unique-string/frame "_stw")))
+  (bind ((widget-id (generate-unique-component-id "_stw")))
     (render-number-field-for-primitive-component -self- :id widget-id)
     `js(wui.field.setup-number-filter ,widget-id ,(use-in-filter-id-of -self-))))
 

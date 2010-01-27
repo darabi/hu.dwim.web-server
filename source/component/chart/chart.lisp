@@ -33,7 +33,7 @@
   ;; TODO: move this to frame or something higher?
   (bind ((path (concatenate 'string "/static/amCharts/" kind "/")))
     <script (:type "text/javascript" :src ,(concatenate 'string path "swfobject.js")) "">
-    (bind ((id (generate-unique-string/frame))
+    (bind ((id (generate-unique-component-id))
            (data-provider (data-provider-of component)))
       ;; TODO: generate variable name
       <div (:id ,id) ,#"chart.missing-flash-plugin">

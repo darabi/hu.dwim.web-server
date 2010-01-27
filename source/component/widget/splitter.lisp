@@ -25,7 +25,7 @@
             :orientation ,(string-downcase orientation)
             :sizerWidth 7)
         ,(foreach (lambda (content)
-                    (bind ((pane-id (generate-unique-string/frame)))
+                    (bind ((pane-id (generate-unique-component-id)))
                       (render-dojo-widget (pane-id)
                         <div (:id ,pane-id
                               :dojoType #.+dijit/content-pane+
