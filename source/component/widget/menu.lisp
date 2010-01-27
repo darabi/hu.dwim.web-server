@@ -27,9 +27,6 @@
             :dojoType #.+dijit/menu-bar+)
         ,(foreach #'render-component menu-items)>)))
 
-(def render-passive :around menu-bar/widget
-  (values))
-
 ;;;;;;
 ;;; popup-menu/widget
 
@@ -53,9 +50,6 @@
                 :style "display: none;")
             ,(foreach #'render-component menu-items)>))>)))
 
-(def render-passive :around popup-menu/widget
-  (values))
-
 ;;;;;;
 ;;; context-menu/widget
 
@@ -78,9 +72,6 @@
               :dojoType #.+dijit/menu+
               :targetNodeIds ,(id-of (parent-component-of -self-)))
           ,(foreach #'render-component menu-items)>))))
-
-(def render-passive :around context-menu/widget
-  (values))
 
 ;;;;;;
 ;;; menu-item/widget
