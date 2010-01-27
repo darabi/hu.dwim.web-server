@@ -52,7 +52,7 @@
   ()
   (:default-initargs :title (title/widget () "Segítség")))
 
-(def (macro e) usage-help/widget (&key args &allow-other-keys)
+(def (macro e) usage-help/widget (&rest args &key &allow-other-keys)
   `(make-instance 'usage-help/widget ,@args))
 
 (def render-xhtml usage-help/widget

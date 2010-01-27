@@ -202,6 +202,8 @@
       (replace-target-place/widget ()
           "Widget"
         (make-value-inspector (find-class 'widget/abstract)))
+    (component-demo/widget "Authentication"
+      (identifier-and-password-login/widget :identifier "John" :password "engedjbe"))
     (component-demo/widget "Inline render XHTML"
       (inline-render-xhtml/widget ()
         <div <span (:style "color: blue") "John">
