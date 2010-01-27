@@ -148,9 +148,7 @@
                                                          (:file "widget")
                                                          (:file "wizard" :depends-on ("icon"))
                                                          #+nil
-                                                         ((:file "authentication")
-                                                          (:file "expression")
-                                                          (:file "extended-table")
+                                                         ((:file "extended-table")
                                                           (:file "pivot-table")
                                                           (:file "timestamp-range")
                                                           )))
