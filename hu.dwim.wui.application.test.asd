@@ -14,4 +14,5 @@
   :depends-on (:hu.dwim.wui.application
                :hu.dwim.wui.http.test)
   :components ((:module "test"
-                :components ((:file "application")))))
+                :components ((:file "application")
+                             (:file "authentication")))))
