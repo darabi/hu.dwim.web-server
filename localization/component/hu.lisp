@@ -28,7 +28,7 @@
   (icon-label.expand-component "Kinyitás")
   (icon-tooltip.expand-component "Részletek megjelenítése")
 
-  (icon-label.collapse-component "összecsukás")
+  (icon-label.collapse-component "Összecsukás")
   (icon-tooltip.collapse-component "Részletek elrejtése")
 
   (icon-label.expand-from-reference "Kinyitás")
@@ -283,7 +283,7 @@
 
   (icon-label.show-context-menu "Menü")
   (icon-tooltip.show-context-menu "Környezetfüggő menü megjelenítése")
-  
+
   (context-menu.move-commands "Mozgatás"))
 
 ;;;;;;
