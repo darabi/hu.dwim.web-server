@@ -18,8 +18,6 @@
     (eval
      (read-from-string
       "(progn
-         ;; set dojo to the latest available
-         (setf *dojo-directory-name* (find-latest-dojo-directory-name (asdf:system-relative-pathname :hu.dwim.wui \"www/\")))
          (setf (log-level 'wui) +debug+)
          (setf *debug-on-error* t))")))
   (warn "Set WUI log level to +debug+; enabled server-side debugging, set *dojo-directory-name*"))
