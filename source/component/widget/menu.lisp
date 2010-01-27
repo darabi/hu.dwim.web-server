@@ -13,7 +13,7 @@
 
 (def (component e) menu-bar/widget (widget/style menu-items/mixin)
   ()
-  (:documentation "A MENU-BAR/WIDGET is always shown with a list of MENU-ITEM/WIDGETs VISIBLE."))
+  (:documentation "A MENU-BAR/WIDGET is always shown with a flat list of MENU-ITEM/WIDGETs immediately VISIBLE."))
 
 (def (macro e) menu-bar/widget ((&rest args &key &allow-other-keys) &body menu-items)
   `(make-instance 'menu-bar/widget ,@args :menu-items (flatten (list ,@menu-items))))
@@ -83,16 +83,20 @@
 (def (macro e) menu-item/widget ((&rest args &key &allow-other-keys) content &body menu-items)
   `(make-instance 'menu-item/widget ,@args :content ,content :menu-items (flatten (list ,@menu-items))))
 
-(def (function e) make-menu-item (content menu-items &key id style-class custom-style)
+(def (function e) make-menu-item (content &rest menu-items)
   (bind ((menu-items (flatten menu-items)))
     (when (or menu-items
               content)
       (make-instance 'menu-item/widget
                      :content content
-                     :menu-items menu-items
-                     :id id
-                     :style-class style-class
-                     :custom-style custom-style))))
+                     :menu-items (mapcar 'make-menu-item menu-items)))))
+
+(def (function e) make-submenu-item (content &rest menu-items)
+  (bind ((menu-items (flatten menu-items)))
+    (when menu-items
+      (make-instance 'menu-item/widget
+                     :content content
+                     :menu-items (mapcar 'make-menu-item menu-items)))))
 
 (def render-xhtml menu-item/widget
   (bind (((:read-only-slots menu-items id style-class custom-style content) -self-))
@@ -113,14 +117,15 @@
                        :dojoType #.+dijit/menu+
                        :style "display: none;")
                    ,(foreach #'render-component menu-items)>)>))
-        (render-dojo-widget (id)
-          <div (:id ,id
-                :class ,style-class
-                :style ,custom-style
-                :dojoType #.+dijit/menu-item+)
-            ,(render-content-for -self-) >
-          (when (typep content 'command/widget)
-            (render-command-onclick-handler content id))))))
+        (when (visible-component? content)
+          (render-dojo-widget (id)
+            <div (:id ,id
+                  :class ,style-class
+                  :style ,custom-style
+                  :dojoType #.+dijit/menu-item+)
+              ,(render-content-for -self-)>
+            (when (typep content 'command/widget)
+              (render-command-onclick-handler content id)))))))
 
 (def function render-show-context-menu-command-for (component)
   (declare (ignore component))

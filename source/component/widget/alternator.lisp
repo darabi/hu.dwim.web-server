@@ -61,8 +61,8 @@
 
 (def layered-method make-context-menu-items ((component alternator/widget) class prototype value)
   (append (call-next-method)
-          (list (make-menu-item (icon show-submenu :label "View")
-                                (make-switch-to-alternative-commands component class prototype value)))))
+          (list (make-submenu-item (icon show-submenu :label "View")
+                                   (make-switch-to-alternative-commands component class prototype value)))))
 
 (def layered-method make-command-bar-commands ((component alternator/widget) class prototype value)
   (optional-list* (make-replace-with-alternative-command component (find-reference-alternative-component component :force #f)) (call-next-method)))

@@ -27,7 +27,7 @@
   (optional-list* (make-refresh-component-command component class prototype value) (call-next-method)))
 
 (def layered-method make-context-menu-items ((component refreshable/mixin) class prototype value)
-  (optional-list* (make-menu-item (make-refresh-component-command component class prototype value) nil) (call-next-method)))
+  (optional-list* (make-menu-item (make-refresh-component-command component class prototype value)) (call-next-method)))
 
 (def method mark-to-be-refreshed-component ((self refreshable/mixin))
   (setf (to-be-refreshed-component? self) #t))

@@ -47,7 +47,7 @@
       (select-component component class prototype value))))
 
 (def layered-method make-context-menu-items ((component selectable/mixin) class prototype value)
-  (optional-list* (make-menu-item (make-select-component-command component class prototype value) nil)
+  (optional-list* (make-menu-item (make-select-component-command component class prototype value))
                   (call-next-method)))
 
 (def function command-with-icon-name? (component name)
@@ -98,8 +98,7 @@
 (def (icon e) revert-editing)
 
 (def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
-  (optional-list* (awhen (make-editing-commands component class prototype instance)
-                    (make-menu-item (icon menu :label "Edit") it))
+  (optional-list* (make-submenu-item (icon menu :label "Edit") (make-editing-commands component class prototype instance))
                   (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
@@ -180,7 +179,7 @@
 ;;; Exportable
 
 (def layered-method make-context-menu-items ((component exportable/abstract) class prototype instance)
-  (optional-list* (make-menu-item (icon menu :label "Export") (make-export-commands component class prototype instance))
+  (optional-list* (make-submenu-item (icon menu :label "Export") (make-export-commands component class prototype instance))
                   (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component exportable/abstract) class prototype instance)
@@ -259,8 +258,7 @@
                                         (list :content (icon focus-out)))))
 
 (def layered-method make-context-menu-items ((component command-bar/mixin) class prototype value)
-  (optional-list* (awhen (make-move-commands component class prototype value)
-                    (make-menu-item (icon menu :label "Move") it))
+  (optional-list* (make-submenu-item (icon menu :label "Move") (make-move-commands component class prototype value))
                   (call-next-method)))
 
 (def layered-method make-move-commands ((component command-bar/mixin) class prototype value)
