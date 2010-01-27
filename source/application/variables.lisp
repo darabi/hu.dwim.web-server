@@ -94,8 +94,4 @@
 (def (constant e) +page-failed-to-load-id+ "page-failed-to-load")
 (def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 10000)
 
-(def (special-variable e) *dojo-skin-name* "tundra")
-(def (special-variable e) *dojo-file-name* "dojo.js")
-(def (special-variable e) *dojo-directory-name*)
-
 (def (constant e) +export-uri-path+ "export/")

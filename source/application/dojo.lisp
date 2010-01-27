@@ -7,12 +7,21 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; Variables
+
+(def (special-variable e) *dojo-skin-name*)
+
+(def (special-variable e) *dojo-file-name*)
+
+(def (special-variable e) *dojo-directory-name*)
+
+;;;;;;
 ;;; application-with-dojo-support
 
 (def (class* ea) application-with-dojo-support (application)
-  ((dojo-skin-name nil)
-   (dojo-file-name nil)
-   (dojo-directory-name nil)))
+  ((dojo-skin-name "tundra")
+   (dojo-file-name "dojo.js")
+   (dojo-directory-name (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui "www/")))))
 
 (def method startup-broker :after ((self application-with-dojo-support))
   (unless (dojo-directory-name-of self)
@@ -24,13 +33,11 @@
          (*dojo-file-name* (or (dojo-file-name-of application)
                                *dojo-file-name*))
          (*dojo-directory-name* (or (dojo-directory-name-of application)
-                                    (when (boundp '*dojo-directory-name*)
-                                      ;; it's not advised to have a globally bound value, but it can be handy when not running in production
-                                      *dojo-directory-name*))))
+                                    *dojo-directory-name*)))
     (call-next-method)))
 
 ;;;;;;
-;;; general dojo support
+;;; Rendering
 
 (def special-variable *dojo-widget-ids*)
 

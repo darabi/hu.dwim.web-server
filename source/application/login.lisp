@@ -79,7 +79,7 @@
 (def function logout-current-session ()
   (logout *application* *session*)
   ;; set *session* to nil so that the session cookie removal is decorated on the response. otherwise the next request to an entry point
-  ;; would send up a session id to an invalid session and trigger HANDLE-REQUEST-TO-INVALID-SESSION.
+  ;; would send up with a session id to an invalid session and trigger HANDLE-REQUEST-TO-INVALID-SESSION.
   (setf *session* nil))
 
 (def method logout ((application application-with-login-support) (session session-with-login-support))
