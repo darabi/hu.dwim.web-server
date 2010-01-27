@@ -1007,7 +1007,7 @@
           "Computed"
         (content/widget ()
           "Examples based on the constraint based change propagation provided by the hu.dwim.computed-class system."))
-    (component-demo/widget "List"
+    (component-demo/widget "Widget"
       (bind ((left-list (list/widget ()
                           (element/widget ()
                             "John")
@@ -1026,7 +1026,13 @@
           left-list
           (content/widget ()
             (make-inspector 'string :value (compute-as (string+ (selected-component-value left-list) " - " (selected-component-value right-list)))))
-          right-list)))))
+          right-list)))
+    (component-demo/widget "Inspector"
+      (bind ((list-inspector (make-value-inspector (list (parse-uri "http://dwim.hu")
+                                                         (parse-uri "http://sbcl.org")))))
+        (vertical-list/layout ()
+          list-inspector
+          (make-inspector 'uri :value (compute-as (selected-component-value (content-of list-inspector)))))))))
 
 ;;;;;;
 ;;; Customization
