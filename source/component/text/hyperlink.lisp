@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null hyperlink) hyperlink/inspector)
 
 (def layered-method make-alternatives ((component hyperlink/inspector) (class standard-class) (prototype hyperlink) (value hyperlink))
-  (list* (delay-alternative-component-with-initargs 'hyperlink/text/inspector :component-value value)
+  (list* (make-instance 'hyperlink/text/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

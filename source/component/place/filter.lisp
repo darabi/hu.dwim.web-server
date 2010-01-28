@@ -16,8 +16,8 @@
 (def subtype-mapper *filter-type-mapping* place place/filter)
 
 (def layered-method make-alternatives ((component place/filter) class prototype value)
-  (list (delay-alternative-component-with-initargs 'place/value/filter :component-value value)
-        (delay-alternative-reference 'place/reference/filter value)))
+  (list (make-instance 'place/value/filter :component-value value)
+        (make-instance 'place/reference/filter :component-value value)))
 
 ;;;;;;
 ;;; place/reference/filter

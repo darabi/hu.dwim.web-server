@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null standard-slot-definition) standard-slot-definition/inspector)
 
 (def layered-method make-alternatives ((component standard-slot-definition/inspector) (class standard-class) (prototype standard-slot-definition) (value standard-slot-definition))
-  (list* (delay-alternative-component-with-initargs 'standard-slot-definition/lisp-form/inspector :component-value value)
+  (list* (make-instance 'standard-slot-definition/lisp-form/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

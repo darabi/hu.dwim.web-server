@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null chapter) chapter/inspector)
 
 (def layered-method make-alternatives ((component chapter/inspector) (class standard-class) (prototype chapter) (value chapter))
-  (list* (delay-alternative-component-with-initargs 'chapter/text/inspector :component-value value)
+  (list* (make-instance 'chapter/text/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;
@@ -49,4 +49,3 @@
       <table:table-cell (office:value-type "string")
                         <text:p ,(title-of (component-value-of -self-)) >>>
   (foreach #'render-ods (contents-of -self-)))
-

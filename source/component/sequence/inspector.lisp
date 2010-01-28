@@ -16,10 +16,10 @@
 
 (def layered-method make-alternatives ((component sequence/inspector) class prototype value)
   (optional-list (awhen (find-if [not (null (class-slots (class-of !1)))] value)
-                   (delay-alternative-component-with-initargs 'sequence/table/inspector :component-value value))
-                 (delay-alternative-component-with-initargs 'sequence/list/inspector :component-value value)
-                 (delay-alternative-component-with-initargs 'sequence/tree/inspector :component-value value)
-                 (delay-alternative-reference 'sequence/reference/inspector value)))
+                   (make-instance 'sequence/table/inspector :component-value value))
+                 (make-instance 'sequence/list/inspector :component-value value)
+                 (make-instance 'sequence/tree/inspector :component-value value)
+                 (make-instance 'sequence/reference/inspector :component-value value)))
 
 ;;;;;;
 ;;; sequence/reference/inspector

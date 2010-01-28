@@ -10,9 +10,9 @@
 ;;; t/inspector
 
 (def layered-method make-alternatives ((component t/inspector) (class hu.dwim.meta-model::persistent-process-class) (prototype hu.dwim.meta-model::persistent-process) (value hu.dwim.meta-model::persistent-process))
-  (list* (delay-alternative-component-with-initargs 'standard-process/user-interface/inspector
-                                                    :component-value value
-                                                    :component-value-type (component-value-type-of component))
+  (list* (make-instance 'standard-process/user-interface/inspector
+                        :component-value value
+                        :component-value-type (component-value-type-of component))
          (call-next-method)))
 
 ;;;;;;

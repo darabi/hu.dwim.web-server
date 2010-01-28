@@ -16,7 +16,7 @@
 
 (def layered-method make-alternatives ((component uri/inspector) (class standard-class) (prototype uri) (value uri))
   ;; TOOD: not all uris are external links
-  (list* (delay-alternative-component-with-initargs 'uri/external-link/inspector :component-value value)
+  (list* (make-instance 'uri/external-link/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

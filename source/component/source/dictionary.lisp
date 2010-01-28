@@ -15,8 +15,8 @@
 (def subtype-mapper *inspector-type-mapping* (or null dictionary) dictionary/inspector)
 
 (def layered-method make-alternatives ((component dictionary/inspector) (class standard-class) (prototype dictionary) (value dictionary))
-  (list* (delay-alternative-component-with-initargs 'dictionary/name-list/inspector :component-value value)
-         (delay-alternative-component-with-initargs 'dictionary/documentation/inspector :component-value value)
+  (list* (make-instance 'dictionary/name-list/inspector :component-value value)
+         (make-instance 'dictionary/documentation/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

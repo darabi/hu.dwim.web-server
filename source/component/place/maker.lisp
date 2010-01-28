@@ -16,8 +16,8 @@
 (def subtype-mapper *maker-type-mapping* place place/maker)
 
 (def layered-method make-alternatives ((component place/maker) class prototype value)
-  (list (delay-alternative-component-with-initargs 'place/value/maker :component-value value)
-        (delay-alternative-reference 'place/reference/maker value)))
+  (list (make-instance 'place/value/maker :component-value value)
+        (make-instance 'place/reference/maker :component-value value)))
 
 ;;;;;;
 ;;; place/reference/maker

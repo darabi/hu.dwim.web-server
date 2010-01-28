@@ -52,10 +52,12 @@ Optimized factory configuration (default):
     ,(render-result-for -self-)>)
 
 (def layered-method make-alternatives ((component t/filter) class prototype value)
-  (list (delay-alternative-component-with-initargs 't/name-value-list/filter
-                                                   :component-value value
-                                                   :component-value-type (component-value-type-of component))
-        (delay-alternative-reference 't/reference/filter value :component-value-type (component-value-type-of component))))
+  (list (make-instance 't/name-value-list/filter
+                       :component-value value
+                       :component-value-type (component-value-type-of component))
+        (make-instance 't/reference/filter
+                       :component-value value
+                       :component-value-type (component-value-type-of component))))
 
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
   (optional-list* (make-execute-filter-command component class prototype value)

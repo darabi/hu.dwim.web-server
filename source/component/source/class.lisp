@@ -15,10 +15,10 @@
 (def subtype-mapper *inspector-type-mapping* (or null class) class/inspector)
 
 (def layered-method make-alternatives ((component class/inspector) (class standard-class) (prototype class) (value class))
-  (list* (delay-alternative-component-with-initargs 'class/subclass-hierarchy/tree/inspector :component-value value)
-         (delay-alternative-component-with-initargs 'class/superclass-hierarchy/tree/inspector :component-value value)
-         (delay-alternative-component-with-initargs 'class/lisp-form/inspector :component-value value)
-         (delay-alternative-component-with-initargs 'class/documentation/inspector :component-value value)
+  (list* (make-instance 'class/subclass-hierarchy/tree/inspector :component-value value)
+         (make-instance 'class/superclass-hierarchy/tree/inspector :component-value value)
+         (make-instance 'class/lisp-form/inspector :component-value value)
+         (make-instance 'class/documentation/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

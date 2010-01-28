@@ -15,8 +15,8 @@
 (def subtype-mapper *inspector-type-mapping* (or null hu.dwim.stefil::test) test/inspector)
 
 (def layered-method make-alternatives ((component test/inspector) (class standard-class) (prototype hu.dwim.stefil::test) (value hu.dwim.stefil::test))
-  (list* (delay-alternative-component-with-initargs 'test/hierarchy/tree/inspector :component-value value)
-         (delay-alternative-component-with-initargs 'test/lisp-form/inspector :component-value value)
+  (list* (make-instance 'test/hierarchy/tree/inspector :component-value value)
+         (make-instance 'test/lisp-form/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

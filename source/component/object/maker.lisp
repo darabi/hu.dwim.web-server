@@ -48,10 +48,12 @@ Optimized factory configuration (default):
 (def subtype-mapper *maker-type-mapping* t t/maker)
 
 (def layered-method make-alternatives ((component t/maker) class prototype value)
-  (list (delay-alternative-component-with-initargs 't/name-value-list/maker
-                                                   :component-value value
-                                                   :component-value-type (component-value-type-of component))
-        (delay-alternative-reference 't/reference/maker value)))
+  (list (make-instance 't/name-value-list/maker
+                       :component-value value
+                       :component-value-type (component-value-type-of component))
+        (make-instance 't/reference/maker
+                       :component-value value
+                       :component-value-type (component-value-type-of component))))
 
 (def render-component t/maker
   <div ,(call-next-method)

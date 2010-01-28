@@ -115,7 +115,7 @@
        <div ,(render-component (find-slot-value-component -self- 'hu.dwim.util::experiences))>>)
 
 (def layered-method make-alternatives ((component t/inspector) class prototype (value curriculum-vitae))
-  (list* (delay-alternative-component-with-initargs 'curriculum-vitae/detail/inspector :component-value value)
+  (list* (make-instance 'curriculum-vitae/detail/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;
@@ -134,7 +134,7 @@
           ,(render-component (find-slot-value-component -self- 'hu.dwim.util::email-address))>))
 
 (def layered-method make-alternatives ((component t/inspector) class prototype (value person))
-  (list* (delay-alternative-component-with-initargs 'person/detail/inspector :component-value value)
+  (list* (make-instance 'person/detail/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

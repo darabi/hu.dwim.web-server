@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null standard-method) standard-method/inspector)
 
 (def layered-method make-alternatives ((component standard-method/inspector) (class standard-class) (prototype standard-method) (value standard-method))
-  (list* (delay-alternative-component-with-initargs 'standard-method/lisp-form/inspector :component-value value)
+  (list* (make-instance 'standard-method/lisp-form/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

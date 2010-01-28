@@ -10,9 +10,9 @@
 ;;; t/inspector
 
 (def layered-method make-alternatives ((component t/inspector) (class standard-class) (prototype standard-process) (value standard-process))
-  (list* (delay-alternative-component-with-initargs 'standard-process/user-interface/inspector
-                                                    :component-value value
-                                                    :component-value-type (component-value-type-of component))
+  (list* (make-instance 'standard-process/user-interface/inspector
+                        :component-value value
+                        :component-value-type (component-value-type-of component))
          (call-next-method)))
 
 ;;;;;;

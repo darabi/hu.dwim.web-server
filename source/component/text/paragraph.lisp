@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null paragraph) paragraph/inspector)
 
 (def layered-method make-alternatives ((component paragraph/inspector) (class standard-class) (prototype paragraph) (value paragraph))
-  (list* (delay-alternative-component-with-initargs 'paragraph/text/inspector :component-value value)
+  (list* (make-instance 'paragraph/text/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

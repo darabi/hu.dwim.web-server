@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null asdf:source-file) source-file/inspector)
 
 (def layered-method make-alternatives ((component source-file/inspector) (class standard-class) (prototype asdf:source-file) (value asdf:source-file))
-  (list* (delay-alternative-component-with-initargs 'source-file/lisp-form-list/inspector :component-value value)
+  (list* (make-instance 'source-file/lisp-form-list/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

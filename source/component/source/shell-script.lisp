@@ -24,7 +24,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null shell-script) shell-script/inspector)
 
 (def layered-method make-alternatives ((component shell-script/inspector) (class standard-class) (prototype shell-script) (value shell-script))
-  (list* (delay-alternative-component-with-initargs 'shell-script/text/inspector :component-value value)
+  (list* (make-instance 'shell-script/text/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

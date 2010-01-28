@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null book) book/inspector)
 
 (def layered-method make-alternatives ((component book/inspector) (class standard-class) (prototype book) (value book))
-  (list* (delay-alternative-component-with-initargs 'book/text/inspector :component-value value)
+  (list* (make-instance 'book/text/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

@@ -16,8 +16,8 @@
 (def subtype-mapper *inspector-type-mapping* place place/inspector)
 
 (def layered-method make-alternatives ((component place/inspector) class prototype value)
-  (list (delay-alternative-component-with-initargs 'place/value/inspector :component-value value)
-        (delay-alternative-reference 'place/reference/inspector value)))
+  (list (make-instance 'place/value/inspector :component-value value)
+        (make-instance 'place/reference/inspector :component-value value)))
 
 ;;;;;;
 ;;; place/reference/inspector

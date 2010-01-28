@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null project) project/inspector)
 
 (def layered-method make-alternatives ((component project/inspector) (class standard-class) (prototype project) (value project))
-  (list* (delay-alternative-component-with-initargs 'project/detail/inspector :component-value value)
+  (list* (make-instance 'project/detail/inspector :component-value value)
          (call-next-method)))
 
 (def method localized-instance-name ((project project))

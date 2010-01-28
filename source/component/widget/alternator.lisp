@@ -13,8 +13,6 @@
                                       alternator/layout
                                       hideable/mixin
                                       collapsible/mixin
-                                      #+nil
-                                      title/mixin
                                       context-menu/mixin
                                       command-bar/mixin
                                       frame-unique-id/mixin)
@@ -65,7 +63,7 @@
                                    (make-switch-to-alternative-commands component class prototype value)))))
 
 (def layered-method make-command-bar-commands ((component alternator/widget) class prototype value)
-  (optional-list* (make-replace-with-alternative-command component (find-reference-alternative-component component :force #f)) (call-next-method)))
+  (optional-list* (make-replace-with-alternative-command component (find-reference-alternative-component component)) (call-next-method)))
 
 (def layered-method make-switch-to-alternative-commands ((component alternator/widget) class prototype value)
   (bind (((:read-only-slots alternatives) component))
@@ -113,53 +111,18 @@
 
 (def (icon e) collapse-to-reference)
 
-;;;;;;
-;;; Alternative factory
-
-;; TODO: factor it with one-time-computation
-(def class* alternative-factory (computation)
-  ((component-class :type standard-class :documentation "The class of the component that this factory produces.")
-   (component nil :documentation "The component instance or NIL if not yet produced."))
-  (:metaclass funcallable-standard-class))
-
-(def (function e) find-alternative-component (component type &key (otherwise :error) (force #t))
+(def (function e) find-alternative-component (component type &key (otherwise :error))
   (bind ((alternatives (alternatives-of component)))
     (or (some (lambda (class)
-                (awhen (find-if (lambda (alternative)
-                                  (subtypep (if (computation? alternative)
-                                                (component-class-of alternative)
-                                                (class-of alternative))
-                                            class))
-                                alternatives)
-                  (if force
-                      (force it)
-                      it)))
-              (bind ((class (find-class type)))
-                (class-precedence-list class)))
+                (find-if [subtypep (class-of !1) class) alternatives))
+              (class-precedence-list (find-class type)))
         (handle-otherwise otherwise))))
 
-(def (function e) find-reference-alternative-component (component &key force)
-  (find-alternative-component component 'reference/widget :force force))
+(def (function e) find-reference-alternative-component (component)
+  (find-alternative-component component 'reference/widget))
 
 (def (function e) find-initial-alternative-component (component)
   (find-alternative-component component (initial-alternative-type-of component)))
 
 (def (function e) find-default-alternative-component (component)
   (find-alternative-component component (default-alternative-type-of component)))
-
-(def (macro e) delay-alternative-component (type &body forms)
-  `(aprog1 (make-instance 'alternative-factory :component-class (find-class ,type))
-     (set-funcallable-instance-function it (delay (or (component-of it)
-                                                      (setf (component-of it) (progn ,@forms)))))))
-
-;; TODO: factor these into a single delay-alternative-component
-(def (macro e) delay-alternative-component-with-initargs (type &rest args)
-  `(delay-alternative-component ,type (make-instance ,type ,@args)))
-
-(def (macro e) delay-alternative-reference (type target &rest args)
-  `(delay-alternative-component ,type (make-alternative-reference ,type ,target ,@args)))
-
-(def (function e) make-alternative-reference (type target &rest args)
-  (prog1-bind reference (apply #'make-instance type :component-value target args)
-    (setf (ajax-of reference) (delay (ajax-of (parent-component-of reference)))
-          (action-of reference) (make-action (execute-replace reference (delay (find-default-alternative-component (parent-component-of reference))))))))

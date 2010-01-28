@@ -19,13 +19,13 @@
          (file-type (when file? (guess-file-type value))))
     (optional-list* (when (and value
                                (not file?))
-                      (delay-alternative-component-with-initargs 'pathname/directory/tree/inspector :component-value value))
+                      (make-instance 'pathname/directory/tree/inspector :component-value value))
                     (when (eq file-type :text)
-                      (delay-alternative-component-with-initargs 'pathname/text-file/inspector :component-value value))
+                      (make-instance 'pathname/text-file/inspector :component-value value))
                     (when (member file-type '(:asd :lisp))
-                      (delay-alternative-component-with-initargs 'pathname/lisp-file/inspector :component-value value))
+                      (make-instance 'pathname/lisp-file/inspector :component-value value))
                     (when (eq file-type :binary)
-                      (delay-alternative-component-with-initargs 'pathname/binary-file/inspector :component-value value))
+                      (make-instance 'pathname/binary-file/inspector :component-value value))
                     (call-next-method))))
 
 ;;;;;;

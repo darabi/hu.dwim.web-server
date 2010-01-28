@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null function) function/inspector)
 
 (def layered-method make-alternatives ((component function/inspector) (class built-in-class) (prototype function) (value function))
-  (list* (delay-alternative-component-with-initargs 'function/lisp-form/inspector :component-value value)
+  (list* (make-instance 'function/lisp-form/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;

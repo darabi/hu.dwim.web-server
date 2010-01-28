@@ -33,6 +33,12 @@
 (def layered-method make-reference-content (component class prototype value)
   (localized-instance-name value))
 
+;; TODO:
+(def (function e) make-alternative-reference (type target &rest args)
+  (prog1-bind reference (apply #'make-instance type :component-value target args)
+    (setf (ajax-of reference) (delay (ajax-of (parent-component-of reference)))
+          (action-of reference) (make-action (execute-replace reference (delay (find-default-alternative-component (parent-component-of reference))))))))
+
 ;;;;;;
 ;;; t/detail/presentation
 

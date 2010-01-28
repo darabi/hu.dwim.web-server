@@ -53,10 +53,12 @@ Optimized factory configuration (default):
 (def subtype-mapper *inspector-type-mapping* t t/inspector)
 
 (def layered-method make-alternatives ((component t/inspector) class prototype value)
-  (list (delay-alternative-component-with-initargs 't/name-value-list/inspector
-                                                   :component-value value
-                                                   :component-value-type (component-value-type-of component))
-        (delay-alternative-reference 't/reference/inspector value)))
+  (list (make-instance 't/name-value-list/inspector
+                       :component-value value
+                       :component-value-type (component-value-type-of component))
+        (make-instance 't/reference/inspector
+                       :component-value value
+                       :component-value-type (component-value-type-of component))))
 
 ;;;;;;
 ;;; t/reference/inspector

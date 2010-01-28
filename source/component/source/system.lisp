@@ -15,7 +15,7 @@
 (def subtype-mapper *inspector-type-mapping* (or null asdf:system) system/inspector)
 
 (def layered-method make-alternatives ((component system/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
-  (list* (delay-alternative-component-with-initargs 'system/depends-on-hierarchy/tree/inspector :component-value value)
+  (list* (make-instance 'system/depends-on-hierarchy/tree/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;
