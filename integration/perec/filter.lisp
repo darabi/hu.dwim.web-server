@@ -130,7 +130,7 @@
                                                        ponated-predicate)))))
                    ((and (typep value-filter 't/filter)
                          (not (typep (content-of value-filter) 't/reference/filter)))
-                    (with-new-query-variable (query-variable filter-query (class-name (component-value-of value-filter)))
+                    (with-new-query-variable (query-variable filter-query (class-name (find-class-for-type (component-value-type-of value-filter))))
                       (hu.dwim.perec::add-assert (query-of filter-query)
                                                  `(eq ,query-variable
                                                       (,(hu.dwim.perec::reader-name-of slot)
