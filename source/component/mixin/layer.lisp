@@ -7,14 +7,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; layer-context/mixin
+;;; layer/mixin
 
-(def (component e) layer-context/mixin ()
-  ((layer-context (current-layer-context))))
+(def (component e) layer/mixin ()
+  ((layer (current-layer))))
 
-(def component-environment layer-context/mixin
-  (bind ((new-layer-context (adjoin-layer (contextl::layer-context-prototype (layer-context-of -self-)) (current-layer-context))))
-    (funcall-with-layer-context new-layer-context #'call-next-method)))
+(def component-environment layer/mixin
+  (funcall-with-layer-context (adjoin-layer (layer-of -self-) (current-layer-context)) #'call-next-method))
 
 (def (function ie) current-layer ()
   (contextl::layer-context-prototype (current-layer-context)))
