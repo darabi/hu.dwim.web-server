@@ -15,8 +15,11 @@
   (:documentation "Presentation for all types."))
 
 (def layered-method refresh-component :before ((-self- t/presentation))
-  ;; TODO: shall we rather expect a list of symbols here, because all make-alternatives just do a few make-instance calls with the component-value
-  (setf (alternatives-of -self-) (make-alternatives -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) (component-value-of -self-))))
+  (bind (((:slots alternatives) -self-)
+         (component-value (component-value-of -self-)))
+    (if alternatives
+        (foreach [setf (component-value-of !1) component-value] alternatives)
+        (setf alternatives (make-alternatives -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value)))))
 
 ;;;;;;
 ;;; t/reference/presentation
@@ -25,19 +28,15 @@
   ())
 
 (def refresh-component t/reference/presentation
-  (bind (((:slots component-value content) -self-)
+  (bind (((:slots component-value content ajax action) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf content (icon expand-from-reference :label (make-reference-content -self- class prototype component-value)))))
+    (setf content (icon expand-from-reference :label (make-reference-content -self- class prototype component-value))
+          ajax (ajax-of (parent-component-of -self-))
+          action (make-action (execute-replace -self- (delay (find-default-alternative-component (parent-component-of -self-))))))))
 
 (def layered-method make-reference-content (component class prototype value)
   (localized-instance-name value))
-
-;; TODO:
-(def (function e) make-alternative-reference (type target &rest args)
-  (prog1-bind reference (apply #'make-instance type :component-value target args)
-    (setf (ajax-of reference) (delay (ajax-of (parent-component-of reference)))
-          (action-of reference) (make-action (execute-replace reference (delay (find-default-alternative-component (parent-component-of reference))))))))
 
 ;;;;;;
 ;;; t/detail/presentation

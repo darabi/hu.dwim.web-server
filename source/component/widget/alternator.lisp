@@ -74,9 +74,7 @@
 
 (def (generic e) make-replace-with-alternative-command (component alternative)
   (:method ((component alternator/widget) alternative)
-    (bind ((prototype (class-prototype (if (computation? alternative)
-                                           (component-class-of alternative)
-                                           (class-of alternative))))
+    (bind ((prototype (class-prototype (class-of alternative)))
            (reference? (typep prototype 'reference/widget)))
       (make-instance 'command/widget
                      :action (make-action
@@ -84,9 +82,7 @@
                                (execute-replace (content-of component) alternative))
                      :content (make-replace-with-alternative-command-content alternative prototype)
                      :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
-                                          (not (eq (if (computation? alternative)
-                                                       (component-class-of alternative)
-                                                       (class-of alternative))
+                                          (not (eq (class-of alternative)
                                                    (class-of (content-of component))))
                                           (or (not reference?)
                                               (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract))))
@@ -114,7 +110,7 @@
 (def (function e) find-alternative-component (component type &key (otherwise :error))
   (bind ((alternatives (alternatives-of component)))
     (or (some (lambda (class)
-                (find-if [subtypep (class-of !1) class) alternatives))
+                (find-if [subtypep (class-of !1) class] alternatives))
               (class-precedence-list (find-class type)))
         (handle-otherwise otherwise))))
 
