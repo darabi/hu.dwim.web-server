@@ -177,7 +177,7 @@
     (render-command-onclick-handler expand-command (id-of row))))
 
 (def layered-method make-context-menu-items ((component t/row/inspector) class prototype value)
-  (append (optional-list (make-expand-command component class prototype value)) (call-next-method)))
+  (append (optional-list (make-menu-item (make-expand-command component class prototype value))) (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component t/row/inspector) class prototype value)
   nil)
