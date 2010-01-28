@@ -9,10 +9,13 @@
 ;;;;;;
 ;;; primitive/presentation
 
-(def (component e) primitive/presentation (presentation/abstract component/minimal)
+(def (component e) primitive/presentation (presentation/abstract component/minimal renderable/mixin)
   ((name nil :type (or null symbol))
    (client-state-sink nil))
   (:documentation "Presentation for primitive types"))
+
+(def refresh-component primitive/presentation
+  (mark-to-be-rendered-component -self-))
 
 (def render-csv primitive/presentation
   (write-csv-value (print-component-value -self-)))
