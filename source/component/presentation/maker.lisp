@@ -53,7 +53,7 @@
 ;;;;;;
 ;;; Maker factory
 
-(def special-variable *maker-type-mapping* (make-linear-type-mapping))
+(def (special-variable e) *maker-type-mapping* (make-linear-type-mapping))
 
 (def subtype-mapper *maker-type-mapping* nil nil)
 

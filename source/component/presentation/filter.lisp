@@ -56,7 +56,7 @@
 ;;;;;;
 ;;; Filter factory
 
-(def special-variable *filter-type-mapping* (make-linear-type-mapping))
+(def (special-variable e) *filter-type-mapping* (make-linear-type-mapping))
 
 (def subtype-mapper *filter-type-mapping* nil nil)
 

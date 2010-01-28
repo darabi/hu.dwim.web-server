@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; component-value/mixin
 
-(def (component e) component-value/mixin ()
+(def (component eas) component-value/mixin ()
   ((component-value
     :type t
     :computed-in compute-as
@@ -32,7 +32,7 @@
 ;;;;;;
 ;;; component-value-type/mixin
 
-(def (component e) component-value-type/mixin ()
+(def (component eas) component-value-type/mixin ()
   ((component-value-type
     t
     :type t

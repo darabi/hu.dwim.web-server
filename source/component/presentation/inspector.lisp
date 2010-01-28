@@ -54,7 +54,7 @@
 ;;;;;;
 ;;; Inspector factory
 
-(def special-variable *inspector-type-mapping* (make-linear-type-mapping))
+(def (special-variable e) *inspector-type-mapping* (make-linear-type-mapping))
 
 (def subtype-mapper *inspector-type-mapping* nil nil)
 
