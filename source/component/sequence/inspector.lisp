@@ -38,7 +38,11 @@
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
     (setf contents (iter (for element-value :in-sequence component-value)
-                         (collect (make-list/element -self- class prototype element-value))))))
+                         (for element = (find element-value contents :key #'component-value-of))
+                         (if element
+                             (setf (component-value-of element) element-value)
+                             (setf element (make-list/element -self- class prototype element-value)))
+                         (collect element)))))
 
 (def layered-method make-page-navigation-bar ((component sequence/list/inspector) class prototype value)
   (make-instance 'page-navigation-bar/widget :total-count (length value)))
