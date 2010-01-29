@@ -23,10 +23,15 @@
            (prototype (component-dispatch-prototype self))
            (reused-value (reuse-component-value self class prototype value)))
       (unless (eq value reused-value)
-        (setf (component-value-of self) reused-value)))))
+        ;; TODO: is this the right way to avoid overwriting computations in component-value?
+        (bind ((cs (standard-instance-access self (slot-definition-location (find-slot (class-of self) 'component-value)))))
+          (if (hu.dwim.computed-class::computed-state-p cs)
+              (setf (hu.dwim.computed-class::cs-value cs) reused-value)
+              (setf (component-value-of self) reused-value)))))))
 
 (def method clone-component ((self component-value/mixin))
   (aprog1 (call-next-method)
+    ;; TODO: computed state?
     (setf (component-value-of it) (component-value-of self))))
 
 ;;;;;;
