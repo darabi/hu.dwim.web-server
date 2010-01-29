@@ -48,12 +48,12 @@
            <td (:class "value")
                <input (:id "identifier-field"
                        :name "identifier"
-                       :value ,(or identifier ""))>>>
+                       :value ,identifier)>>>
        <tr <td (:class "label") ,#"login.password<>">
            <td (:class "value")
                <input (:id "password-field"
                        :name "password"
-                       :value ,(or password "")
+                       :value ,password
                        :type "password")>>>
        <tr <td (:colspan 2) ,(render-command-bar-for -self-)>>>
      `js(on-load
