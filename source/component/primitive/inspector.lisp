@@ -253,7 +253,7 @@
 (def render-xhtml member/inspector
   (if (edited-component? -self-)
       (render-member-component -self-)
-      (bind ((icon (find-member-component-value-icon -self-)))
+      (bind ((icon (find-icon/member-component-value -self-)))
         (if icon
             (render-icon :icon icon :label (print-component-value -self-) :tooltip nil)
             `xml,(print-component-value -self-)))))

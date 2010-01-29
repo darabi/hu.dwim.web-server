@@ -148,18 +148,20 @@
     <span (:class ,(string+ "boolean " (unless found? +missing-localization-style-class+)))
       ,str>))
 
-(def function member-value-name (value)
+(def function member-value-name/for-localization-entry (value)
   (typecase value
-    (symbol (symbol-name value))
-    (class (class-name value))
-    (t (write-to-string value))))
+    (symbol (string-downcase value))
+    (class (string-downcase (class-name value)))
+    (integer (integer-to-string value))
+    (number (princ-to-string value))
+    (t nil)))
 
 (def function localized-enumeration-member (member-value &key class slot capitalize-first-letter)
   ;; TODO fails with 'person 'sex: '(OR NULL SEX-TYPE)
   (unless class
     (setf class (when slot
                   (owner-class-of-effective-slot-definition slot))))
-  (bind ((member-value-name (member-value-name member-value))
+  (bind ((member-value-name (member-value-name/for-localization-entry member-value))
          (slot-definition-type (when slot
                                  (slot-definition-type slot)))
          (class-name (when class

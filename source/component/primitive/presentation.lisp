@@ -427,12 +427,18 @@
   (:method (class slot value)
     (localized-enumeration-member value :class class :slot slot :capitalize-first-letter #t)))
 
-(def function find-member-component-value-icon (component)
+(def function find-icon/member-component-value (component)
   (when (slot-boundp component 'component-value)
     (bind (((:values nil nil slot) (extract-primitive-component-place component)))
       (when slot
-        (bind ((slot-name (slot-definition-name slot)))
-          (find-icon (format-symbol (symbol-package slot-name) "~A-~A" slot-name (member-value-name (component-value-of component))) :otherwise nil))))))
+        (bind ((slot-name (slot-definition-name slot))
+               (member-value (component-value-of component))
+               (member-value-name (member-value-name/for-localization-entry member-value))
+               (icon-name (string+ (string-downcase slot-name) "-" member-value-name)))
+          ;; TODO use . separator, just like for localization entries
+          ;; TODO find-icon should use strings
+          (awhen (find-symbol* icon-name :packages (symbol-package slot-name) :otherwise nil)
+            (find-icon it :otherwise nil)))))))
 
 (def method print-component-value ((component member/presentation))
   (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
