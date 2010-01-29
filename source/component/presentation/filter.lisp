@@ -22,8 +22,9 @@
   - output
     - value: selected-type"))
 
-(def method collect-filter-predicates ((self filter/abstract))
-  nil)
+(def (generic e) collect-filter-predicates (component)
+  (:method ((self filter/abstract))
+    nil))
 
 (def method component-dispatch-class ((self filter/abstract))
   (or (find-class-for-type (component-value-type-of self))
@@ -66,8 +67,3 @@
            :component-value value
            :component-value-type type
            (remove-undefined-class-slot-initargs class args))))
-
-;;;;;;
-;;; Filter interface
-
-(def (generic e) collect-filter-predicates (component))
