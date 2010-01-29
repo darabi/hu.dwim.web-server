@@ -24,7 +24,8 @@
   (render-table-row *table* -self-))
 
 (def layered-method render-onclick-handler ((self row/widget) (button (eql :left)))
-  nil)
+  (when-bind select-command (find-command self 'select-component)
+    (render-command-onclick-handler select-command (id-of self))))
 
 (def (layered-function e) render-table-row (table row)
   (:method :in xhtml-layer ((table table/widget) (row row/widget))
@@ -77,7 +78,8 @@
   (render-component row))
 
 (def layered-method render-onclick-handler ((self entire-row/widget) (button (eql :left)))
-  nil)
+  (when-bind select-command (find-command self 'select-component)
+    (render-command-onclick-handler select-command (id-of self))))
 
 (def render-xhtml entire-row/widget
   (bind (((:read-only-slots id) -self-)
