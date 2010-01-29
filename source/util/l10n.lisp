@@ -60,6 +60,10 @@
 ;;;;;;
 ;;; Localization primitives
 
+(def function fully-qualified-symbol-name/for-localization-entry (symbol)
+  ;; make the separator independent of the exported state of the symbol
+  (string-downcase (fully-qualified-symbol-name symbol :separator ":")))
+
 (def (function e) localized-mime-type-description (mime-type)
   (lookup-first-matching-resource
     ("mime-type" mime-type)))
@@ -71,7 +75,7 @@
 
 (def method localize ((class class))
   (lookup-first-matching-resource
-    ("class-name" (string-downcase (qualified-symbol-name (class-name class))))
+    ("class-name" (fully-qualified-symbol-name/for-localization-entry (class-name class)))
     ("class-name" (string-downcase (class-name class)))))
 
 (def (generic e) localized-slot-name (slot &key capitalize-first-letter prefix-with)
@@ -326,12 +330,12 @@
     (bind ((name (function-name function)))
       (cond ((symbolp name)
              (lookup-first-matching-resource
-               ("function-name" (string-downcase (qualified-symbol-name name)))
+               ("function-name" (fully-qualified-symbol-name/for-localization-entry name))
                ("function-name" (string-downcase name))))
             ((and (consp name)
                   (eq (first name) 'macro-function))
              (lookup-first-matching-resource
-               ("macro-name" (string-downcase (qualified-symbol-name (second name))))
+               ("macro-name" (fully-qualified-symbol-name/for-localization-entry (second name)))
                ("macro-name" (string-downcase (second name)))))
             (t "unknown function")))))
 

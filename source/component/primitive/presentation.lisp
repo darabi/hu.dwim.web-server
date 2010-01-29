@@ -186,7 +186,7 @@
     (if (or (not has-component-value?)
             (null component-value))
         ""
-        (qualified-symbol-name component-value))))
+        (fully-qualified-symbol-name component-value))))
 
 ;;;;;;
 ;;; keyword/presentation

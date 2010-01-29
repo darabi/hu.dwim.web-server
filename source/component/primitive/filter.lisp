@@ -109,7 +109,7 @@
         ""
         (if (stringp component-value)
             component-value
-            (qualified-symbol-name component-value)))))
+            (fully-qualified-symbol-name component-value)))))
 
 ;;;;;;
 ;;; keyword/filter

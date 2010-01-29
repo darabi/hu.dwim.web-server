@@ -62,7 +62,7 @@
   (make-instance 'class/subclass-hierarchy/node/inspector :component-value value :expanded #f))
 
 (def layered-method collect-tree/children ((component class/subclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
-  (sort (copy-list (class-direct-subclasses value)) #'string< :key (compose #'qualified-symbol-name #'class-name)))
+  (sort (copy-list (class-direct-subclasses value)) #'string< :key (compose #'fully-qualified-symbol-name #'class-name)))
 
 ;;;;;;
 ;;; class/superclass-hierarchy/tree/inspector
@@ -83,7 +83,7 @@
   (make-instance 'class/superclass-hierarchy/node/inspector :component-value value :expanded #f))
 
 (def layered-method collect-tree/children ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
-  (sort (copy-list (class-direct-superclasses value)) #'string< :key (compose #'qualified-symbol-name #'class-name)))
+  (sort (copy-list (class-direct-superclasses value)) #'string< :key (compose #'fully-qualified-symbol-name #'class-name)))
 
 ;;;;;;
 ;;; class/tree-level/inspector
@@ -114,7 +114,7 @@
 
 (def refresh-component class/tree-level/reference/inspector
   (bind (((:slots content action component-value) -self-))
-    (setf content (qualified-symbol-name (class-name component-value)))
+    (setf content (fully-qualified-symbol-name (class-name component-value)))
     (setf action (make-action
                    (setf (component-value-of (find-ancestor-component-with-type -self- 'class/tree-level/inspector)) component-value)))))
 

@@ -149,9 +149,6 @@
           (collect arg)
           (collect value))))
 
-(def function qualified-symbol-name (symbol)
-  (concatenate 'string (package-name (symbol-package symbol)) "::" (symbol-name symbol)))
-
 (def function trim-suffix (suffix sequence)
   (subseq sequence 0 (- (length sequence) (length suffix))))
 
