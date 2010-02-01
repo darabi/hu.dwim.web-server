@@ -9,6 +9,7 @@
 ;;;;;;
 ;;; Icons cache
 
+;; TODO use strings as icon names instead of symbols
 (def special-variable *icons* (make-hash-table))
 
 (def (function e) find-icon (name &key (otherwise (list :error "The icon ~A cannot be found" name)))

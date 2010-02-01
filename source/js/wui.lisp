@@ -233,6 +233,7 @@
       debugger
       (window.location.reload)))
 
+;; TODO factor out dialog code
 (defun wui.io.inform-user-about-ajax-error (message)
   (log.debug "Informing user about AJAX error, message is '" message "'")
   (dojo.require "dijit.Dialog")
@@ -241,6 +242,7 @@
          (reload-button (new dijit.form.Button (create :label #"action.reload-page")))
          (cancel-button (new dijit.form.Button (create :label #"action.cancel"))))
     (.placeAt (new dijit.layout.ContentPane (create :content message)) dialog.containerNode)
+    ;; TODO add a 'float: right' to a container of the buttons
     (reload-button.placeAt dialog.containerNode)
     (cancel-button.placeAt dialog.containerNode)
     (dojo.connect reload-button "onClick" (lambda ()
