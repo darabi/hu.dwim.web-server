@@ -105,6 +105,10 @@
                       xmlns:formx "urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0"
                       office:version "1.2"
                       office:mimetype "application/vnd.oasis.opendocument.spreadsheet")
+      <office:meta
+        <meta:generator "http://dwim.hu/project/hu.dwim.wui">
+        <meta:creation-date ()
+          ,(local-time:format-rfc3339-timestring nil (local-time:now))>>
       <office:body
         <office:spreadsheet
          <table:table
