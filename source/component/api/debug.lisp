@@ -57,6 +57,7 @@
 ;;;;;;
 ;;; Render to string
 
+;; TODO rename to with-fake-render-context
 (def (with-macro e) with-render-context ()
   (bind ((*request* (if (boundp '*request*)
                         *request*
@@ -78,6 +79,7 @@
     (with-lock-held-on-session (*session*)
       (-body-))))
 
+;; TODO rename to with-fake-render-context/emit-xml-into-string, or something like that
 (def (with-macro e) with-render-to-string-context ()
   (with-render-context
     (octets-to-string
