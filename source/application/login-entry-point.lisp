@@ -8,7 +8,6 @@
 
 (def (constant e) +login-identifier-cookie-name+           "login-identifier")
 (def (constant e) +login-entry-point-path+                 "login/")
-(def (constant e) +logout-entry-point-path+                "logout/")
 (def (constant e) +session-timed-out-query-parameter-name+ "timed-out")
 (def (constant e) +user-action-query-parameter-name+       "user-action")
 (def (constant e) +continue-url-query-parameter-name+      "continue-url")

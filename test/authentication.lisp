@@ -34,7 +34,7 @@
         <a (:href ,(print-uri-to-string (make-uri-for-current-application "logout/")))
            "Logout">))))
 
-(def entry-point (*authentication-application* :path +logout-entry-point-path+)
+(def entry-point (*authentication-application* :path "logout/")
   (with-session-logic (:requires-valid-session #f)
     (when *session*
       (logout-current-session))
