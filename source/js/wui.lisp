@@ -125,20 +125,8 @@
         (return (eval return-value-string))))))
 
 (defun wui.io.postprocess-inserted-node (original-node imported-node)
-  (log.debug "Parsing dojo widgets under " imported-node.id)
-  ;; TODO check for widgets in ajax answers
-  ;; (dojo.widget.create-widget imported-node)
-  ;; seems like IE drops script nodes when setf'ing node.innerHTML, so let's walk the original-node
-  ;; this must be another branidead try to make m$ crap secure...
-  #+nil ;; TODO check the eval of toplevel script tags in ajax answers
-  (cond (dojo.is-opera
-         ;; TODO check other Opera versions, this is probably version dependent...
-         (log.warn "NOT evaluating script tags, Opera does that automatically, version is " navigator.app-version))
-        (t ;; (or dojo.is-mozilla dojo.isIE)
-         (let ((script-nodes (if (= original-node.tag-name "script")
-                                 (array original-node)
-                                 (.get-elements-by-tag-name original-node "script"))))
-           (.forEach script-nodes wui.io.eval-script-tag)))))
+  ;; this was needed before WITH-COLLAPSED-JS-SCRIPTS collected all js fragments into a toplevel script node in the ajax answer. might come handy for something later, so leave it for now...
+  )
 
 (defun wui.io.eval-script-tag (node)
   (let ((type (node.getAttribute "type")))

@@ -95,6 +95,7 @@
        ,@body)))
 
 (def (with-macro e) with-collapsed-js-scripts ()
+  "Run -WITH-MACRO/BODY- and collect all (non-inline) emitted js into a the result list (usable in <xml ,@(with-collapsed-js-scripts ...)> contexts)."
   (bind ((result nil)
          (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
                                                                               '(unsigned-byte 8)
