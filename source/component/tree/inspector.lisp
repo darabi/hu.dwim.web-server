@@ -21,7 +21,9 @@
         (foreach [setf (component-value-of !1) !2] root-nodes root-node-values)
         (setf root-nodes (mapcar [make-tree/root-node -self- dispatch-class dispatch-prototype !1] root-node-values)))))
 
-(def (layered-function e) make-tree/root-node (component class prototype value))
+(def (layered-function e) make-tree/root-node (component class prototype value)
+  (:method ((component t/tree/inspector) class prototype value)
+    (make-instance 't/node/inspector :component-value value)))
 
 ;;;;;;
 ;;; t/node/inspector
@@ -44,7 +46,9 @@
 
 (def (layered-function e) make-node/content (component class prototype value))
 
-(def (layered-function e) make-node/child-node (component class prototype value))
+(def (layered-function e) make-node/child-node (component class prototype value)
+  (:method ((component t/node/inspector) class prototype value)
+    (make-instance 't/node/inspector :component-value value)))
 
 (def (layered-function e) collect-tree/children (component class prototype value))
 
