@@ -741,12 +741,13 @@
          (replace-target-place/widget ()
              ,name
            (make-value-inspector (find-class ',supercomponent)))
-       (component-demo/widget "Nil"
-         ,(make 'sequence nil))
-       (component-demo/widget "List"
+       (component-demo/widget "Empty"
+         ,(make 'list nil))
+       (component-demo/widget "String"
          ,(make 'list ''("John" "Mary" "Steve" "Kate")))
-       (component-demo/widget "Vector"
-         ,(make 'vector #("Kate" "Steve" "Mary" "John"))))))
+       (component-demo/widget "Application"
+         ,(make 'list '(list *performance-application* *echo-application* *parameter-application* *session-application* *authentication-application* *component-demo-application*))))))
+
 
 (def function make-sequence-maker-node ()
   (make-sequence-presentation-node "Maker" make-maker sequence/maker))
