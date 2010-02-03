@@ -10,7 +10,10 @@
 ;;; command-bar/mixin
 
 (def (component e) command-bar/mixin ()
-  ((command-bar nil :type component))
+  ((command-bar
+    nil
+    :type component
+    :documentation "REFRESH-COMPONENT will call MAKE-COMMAND-BAR, a NIL return value means there's no COMMAND-BAR for this COMPONENT."))
   (:documentation "A COMPONENT with a COMMAND-BAR."))
 
 (def refresh-component command-bar/mixin

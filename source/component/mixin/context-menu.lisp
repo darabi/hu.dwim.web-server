@@ -10,7 +10,10 @@
 ;;; context-menu/mixin
 
 (def (component e) context-menu/mixin ()
-  ((context-menu :type component))
+  ((context-menu
+    nil
+    :type component
+    :documentation "REFRESH-COMPONENT will call MAKE-CONTEXT-MENU, a NIL return value means there's no CONTEXT-MENU for this COMPONENT."))
   (:documentation "A COMPONENT with a CONTEXT-MENU."))
 
 (def refresh-component context-menu/mixin
