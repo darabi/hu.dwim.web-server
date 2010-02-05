@@ -170,7 +170,7 @@
 (def (component e) time/maker (time/presentation primitive/maker)
   ())
 
-(def subtype-mapper *maker-type-mapping* (or null local-time:time) time/maker)
+(def subtype-mapper *maker-type-mapping* (or null local-time:time-of-day) time/maker)
 
 (def render-xhtml time/maker
   (render-time-component -self-))

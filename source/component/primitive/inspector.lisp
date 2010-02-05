@@ -222,7 +222,7 @@
 (def (component e) time/inspector (time/presentation primitive/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null local-time:time) time/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null local-time:time-of-day) time/inspector)
 
 (def render-xhtml time/inspector
   (if (edited-component? -self-)

@@ -180,7 +180,7 @@
 (def (component e) time/filter (time/presentation primitive/filter)
   ())
 
-(def subtype-mapper *filter-type-mapping* (or null local-time:time) time/filter)
+(def subtype-mapper *filter-type-mapping* (or null local-time:time-of-day) time/filter)
 
 (def render-xhtml time/filter
   (render-time-component -self- :on-change (make-update-use-in-filter-js -self-)))
