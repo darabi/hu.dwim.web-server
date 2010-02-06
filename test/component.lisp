@@ -778,12 +778,12 @@
 
 (def macro make-tree-presentation-node (name factory supercomponent)
   (flet ((make (type value)
-           `(,factory ',type :value ,value)))
+           `(,factory ',type :value ,value :initial-alternative-type 't/tree/inspector)))
     `(node/widget (:expanded #f)
          (replace-target-place/widget ()
              ,name
            (make-value-inspector (find-class ',supercomponent)))
-       )))
+       ,(make 'list ''("John" ("Mary" ("Fred" "Susanne") "Steve" ("George" "Jenna")) "Kate")))))
 
 (def function make-tree-maker-node ()
   (make-tree-presentation-node "Maker" make-maker nil))

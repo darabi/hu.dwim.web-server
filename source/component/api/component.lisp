@@ -402,6 +402,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 (def layered-method refresh-component ((self component))
   (values))
 
+;; TODO: this supposed to happen at the very end, but now it's at the very beginning of :after methods
 (def layered-method refresh-component :after ((self component))
   (bind ((class (class-of self)))
     (dolist (slot (computed-slots-of class))
