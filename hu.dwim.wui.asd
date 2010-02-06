@@ -20,4 +20,4 @@
       "(progn
          (setf (log-level 'wui) +debug+)
          (setf *debug-on-error* t))")))
-  (warn "Set WUI log level to +debug+; enabled server-side debugging, set *dojo-directory-name*"))
+  (warn "Set WUI log level to +debug+; enabled server-side debugging"))

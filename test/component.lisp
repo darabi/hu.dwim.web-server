@@ -578,8 +578,8 @@
                                    (setf (local-time:nsec-of it) 0
                                          (local-time:sec-of it) 0))))
        (component-demo/widget "Time"
-         ,(make 'local-time:time (aprog1 (local-time:now)
-                                   (setf (local-time:day-of it) 0))))
+         ,(make 'local-time:time-of-day (aprog1 (local-time:now)
+                                          (setf (local-time:day-of it) 0))))
        (component-demo/widget "Timestamp"
          ,(make 'local-time:timestamp (local-time:now)))
        (component-demo/widget "Member"
