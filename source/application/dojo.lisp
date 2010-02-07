@@ -21,7 +21,7 @@
 (def (class* ea) application-with-dojo-support (application)
   ((dojo-skin-name "tundra")
    (dojo-file-name "dojo.js")
-   (dojo-directory-name (or (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui "www/") :otherwise :warn)
+   (dojo-directory-name (or (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.wui "www/dojo/") :otherwise :warn)
                             "dojo/"))))
 
 (def method startup-broker :after ((self application-with-dojo-support))
