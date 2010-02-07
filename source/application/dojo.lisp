@@ -74,13 +74,13 @@
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
 
-(def (function e) find-latest-dojo-directory-name (www-directory &key (otherwise :cerror))
-  (bind ((error-message (list "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" www-directory)))
+(def (function e) find-latest-dojo-directory-name (directory &key (otherwise :cerror))
+  (bind ((error-message (list "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" directory)))
     (loop
-      (with-simple-restart (retry "Try searching for dojo directories again in ~A" www-directory)
+      (with-simple-restart (retry "Try searching for dojo directories again in ~A" directory)
         (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
                                                  (mapcar [last-elt (pathname-directory !1)]
-                                                         (cl-fad:list-directory www-directory)))
+                                                         (cl-fad:list-directory directory)))
                                       #'string>=))))
           (return
             (if dojo-dir
