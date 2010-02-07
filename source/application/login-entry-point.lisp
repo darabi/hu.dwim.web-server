@@ -50,32 +50,32 @@
                                   ,@extra-arguments)
      ,@body))
 
-(def (with-macro* e) with-entry-point-logic/login (login-data-extractor response-decorator &rest extra-arguments)
-  (remove-from-plistf extra-arguments :login-data-extractor :response-decorator)
+(def (with-macro* e) with-entry-point-logic/login (login-data-extractor response-decorator &rest extra-login-arguments)
   (with-request-parameters (continue-url ((user-action? +user-action-query-parameter-name+) #f)
                                          ((timed-out? +session-timed-out-query-parameter-name+) #f))
     (string/trim-whitespace-and-maybe-nil-it continue-url)
     (with-entry-point-logic (:with-optional-session/frame-logic #t)
-      (bind ((login-data (funcall login-data-extractor))
-             (response nil))
+      (bind ((login-data (funcall login-data-extractor)))
         (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN, login-data is ~S, user-action? is ~S, continue-url is ~S" login-data user-action? continue-url)
         (when login-data
-          (setf (extra-arguments-of login-data) extra-arguments)
-          (if user-action?
+          (setf (extra-arguments-of login-data) extra-login-arguments)
+          (if (or (null *session*)
+                  (not (is-logged-in? *session*)))
               (block call-login
                 (handler-bind ((error/login-failed (lambda (error)
                                                      (declare (ignore error))
                                                      (return-from call-login nil))))
                   (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN will now call LOGIN")
                   (setf *session* (login *application* *session* login-data))))
-              (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN skipped calling LOGIN because it's not a user-action"))
-          (setf response (if continue-url
+              ;; TODO support re-authentication here when the model supports it
+              (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN skipped calling LOGIN because *session* is already logged in")))
+        (bind ((response (if continue-url
                              (make-redirect-response continue-url)
-                             (-with-macro/body- (login-data '-login-data- :ignorable #t))))
+                             (-with-macro/body- (login-data '-login-data- :ignorable #t)))))
           (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN received the response ~A" response)
           ;; it's a wierd situation if there's no response at this point, but let's keep the flexibility...
           (when response
             (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN is calling response-decorator ~S" response-decorator)
             ;; and we return with the decorated response
-            (setf response (decorate-application-response *application* (funcall response-decorator response login-data)))))
-        response))))
+            (setf response (decorate-application-response *application* (funcall response-decorator response login-data))))
+          response)))))
