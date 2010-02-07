@@ -115,11 +115,25 @@
        (ensure-entry-point ,application ,entry-point)
        ,entry-point)))
 
+(def (definer e) entry-points (application &body entries)
+  (once-only (application)
+    `(progn
+       ,@(iter (for entry :in entries)
+               (collect `(def (entry-point ,@-options-) (,application ,@entry)))))))
+
 (def (definer e) file-serving-entry-point (application path-prefix root-directory &key priority)
   `(def (entry-point ,@-options-) (,application directory-serving-broker
                                                 :path-prefix ,path-prefix
                                                 :root-directory ,root-directory
                                                 :priority ,priority)))
+
+(def (definer e) file-serving-entry-points (application &body entries)
+  (once-only (application)
+    `(progn
+       ,@(iter (for entry :in entries)
+               (bind (((path-prefix root-directory &key priority) entry))
+                 (collect `(def (file-serving-entry-point ,@-options-)
+                               ,application ,path-prefix ,root-directory :priority ,priority)))))))
 
 (def (definer e) js-file-serving-entry-point (application path-prefix root-directory &key priority)
   `(def (entry-point ,@-options-) (,application js-directory-serving-broker
