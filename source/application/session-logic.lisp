@@ -48,7 +48,7 @@
                                      (call-in-application-environment application session #'-body-)))))
                 (when (and new-session?
                            response)
-                  (decorate-application-response application response))
+                  (decorate-session-cookie application response))
                 response)
             (delete-current-session ()
               :report (lambda (stream)
@@ -58,7 +58,7 @@
         (if (or requires-valid-session
                 (not (eq invalidity-reason :nonexistent)))
             (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
-              (decorate-application-response application response)
+              (decorate-session-cookie application response)
               response)
             (call-in-application-environment application nil #'-body-)))))
 
@@ -99,7 +99,6 @@
     (notify-activity session)
     (labels ((convert-to-primitive-response* (response)
                (app.debug "Calling CONVERT-TO-PRIMITIVE-RESPONSE for ~A while still inside the WITH-LOCK-HELD-ON-SESSION's and WITH-ACTION-LOGIC's dynamic scope" response)
-               (decorate-application-response *application* response)
                (convert-to-primitive-response response)))
       (if frame
           (restart-case

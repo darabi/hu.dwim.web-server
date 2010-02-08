@@ -55,7 +55,8 @@
                                          ((timed-out? +session-timed-out-query-parameter-name+) #f))
     (string/trim-whitespace-and-maybe-nil-it continue-url)
     (with-entry-point-logic (:with-optional-session/frame-logic #t)
-      (bind ((login-data (funcall login-data-extractor)))
+      (bind ((login-data (funcall login-data-extractor))
+             (new-session? #f))
         (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN, login-data is ~S, user-action? is ~S, continue-url is ~S" login-data user-action? continue-url)
         (when login-data
           (setf (extra-arguments-of login-data) extra-login-arguments)
@@ -66,7 +67,9 @@
                                                      (declare (ignore error))
                                                      (return-from call-login nil))))
                   (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN will now call LOGIN")
-                  (setf *session* (login *application* *session* login-data))))
+                  (bind ((new-session (login *application* *session* login-data)))
+                    (setf new-session? (not (eq *session* new-session)))
+                    (setf *session* new-session))))
               ;; TODO support re-authentication here when the model supports it
               (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN skipped calling LOGIN because *session* is already logged in")))
         (bind ((response (if continue-url
@@ -77,5 +80,7 @@
           (when response
             (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN is calling response-decorator ~S" response-decorator)
             ;; and we return with the decorated response
-            (setf response (decorate-application-response *application* (funcall response-decorator response login-data))))
+            (setf response (funcall response-decorator response login-data))
+            (when new-session?
+              (setf response (decorate-session-cookie *application* response))))
           response)))))

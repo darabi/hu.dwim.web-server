@@ -6,22 +6,22 @@
 
 (in-package :hu.dwim.wui)
 
-;; this could be delegated to be part of the API, but... let's wait for the first time it's needed!
-(def (function e) decorate-application-response (application response)
-  (when response
-    (bind ((request-uri (uri-of *request*)))
-      (app.debug "Decorating response ~A with the session cookie for session ~S" response *session*)
-      (add-cookie (make-cookie
-                   +session-cookie-name+
-                   (aif *session*
-                        (id-of it)
-                        "")
-                   :max-age (unless *session*
-                              0)
-                   :comment "WUI session id"
-                   :domain (string+ "." (host-of request-uri))
-                   :path (path-prefix-of application))
-                  response)))
+(def function decorate-session-cookie (application response)
+  ;; this function is only called when we are sending back a response after creating a session
+  (bind ((request-uri (uri-of *request*)))
+    ;; TODO assert against double additions?
+    (app.debug "Decorating response ~A with the session cookie for session ~S" response *session*)
+    (add-cookie (make-cookie
+                 +session-cookie-name+
+                 (aif *session*
+                      (id-of it)
+                      "")
+                 :max-age (unless *session*
+                            0)
+                 :comment "WUI session id"
+                 :domain (string+ "." (host-of request-uri))
+                 :path (path-prefix-of application))
+                response))
   response)
 
 (def function ajax-aware-request? (&optional (request *request*))
