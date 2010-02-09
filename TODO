@@ -5,10 +5,8 @@
 #+STARTUP: hidestars
 #+STARTUP: overview
 
-TODO file for dwim
-
-This is the collection of bugs and tasks for dwim (http://dwim.hu) as
-an org-mode (http://orgmode.org) file. 
+This is the collection of bugs and tasks for hu.dwim.wui as an
+org-mode (http://orgmode.org) file.
 
 Introduction
 ============
