@@ -131,6 +131,11 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
       (setf (parent-component-of original-component) nil)))
   (setf (place-value place) replacement-component))
 
+(def method (setf component-at-place) :after ((replacement-component component) (place object-slot-deep-place))
+  (bind ((parent-component (instance-of place)))
+    (setf (parent-component-references replacement-component) parent-component)
+    (mark-to-be-rendered-component parent-component)))
+
 ;;;;;;
 ;;; Parent component
 

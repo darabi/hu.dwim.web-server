@@ -123,11 +123,10 @@
            ,@(loop
                 :for slot :in (class-slots class)
                 :when (typep slot 'hu.dwim.wui::component-effective-slot-definition)
-                :collect `(setf (hu.dwim.wui::parent-component-references .instance.) (standard-instance-access .instance. ,(slot-definition-location slot))))
+                :collect `(setf (hu.dwim.wui::parent-component-references (standard-instance-access .instance. ,(slot-definition-location slot))) .instance.))
            .instance.)
         `(let* ((.instance. (,allocation-function ,wrapper))
                 (.slots. (,slots-fetcher .instance.)))
            (declare (ignorable .slots.))
            ,body
            .instance.))))
-

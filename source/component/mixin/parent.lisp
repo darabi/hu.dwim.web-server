@@ -19,9 +19,9 @@
     #+nil(or null component))))
 
 (def method (setf slot-value-using-class) :after (child (class component-class) (parent component) (slot component-effective-slot-definition))
-  (setf (parent-component-references parent) child))
+  (setf (parent-component-references child) parent))
 
-(def (function o) (setf parent-component-references) (child new-parent &optional parent-component-slot-index)
+(def (function o) (setf parent-component-references) (new-parent child &optional parent-component-slot-index)
   (flet (((setf parent-component) (child)
            (bind ((current-parent (parent-component-of child)))
              (assert (or (not current-parent)
@@ -32,10 +32,10 @@
     (typecase child
       (parent/mixin
        (setf (parent-component) child))
-      (list
-       (dolist (element child)
-         (when (typep element 'parent/mixin)
-           (setf (parent-component) element))))
+      (sequence
+       (iter (for element :in-sequence child)
+             (when (typep element 'parent/mixin)
+               (setf (parent-component) element))))
       (hash-table
        (iter (for (key value) :in-hashtable child)
              (when (typep value 'parent/mixin)
@@ -60,4 +60,11 @@
                      (return-from make-component-place (make-object-slot-place parent slot))))
                   (sequence
                    (when (find component slot-value)
-                     (return-from make-component-place (make-sequence-element-place slot-value (position component slot-value))))))))))))
+                     (return-from make-component-place (make-object-slot-sequence-element-place parent slot (position component slot-value)))))
+                  (hash-table
+                   (awhen (block find-key
+                            (maphash (lambda (key value)
+                                       (when (eq value component)
+                                         (return-from find-key key)))
+                                     slot-value))
+                     (return-from make-component-place (make-object-slot-hash-table-value-place parent slot it)))))))))))
