@@ -36,7 +36,7 @@
 #+nil
 (def function update-component-value-from-place (place component)
   (when (place-bound? place)
-    (bind ((value (value-at-place place)))
+    (bind ((value (place-value place)))
       (setf (component-value-of component)
             (if (and (hu.dwim.perec::d-value-p value)
                      (hu.dwim.perec::single-d-value-p value))

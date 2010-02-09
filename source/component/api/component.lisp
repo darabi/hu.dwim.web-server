@@ -119,16 +119,16 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 
 (def method component-at-place ((place place))
   (prog1-bind value
-      (value-at-place place)
+      (place-value place)
     (assert (typep value '(or null component)))))
 
 (def method (setf component-at-place) ((replacement-component component) (place place))
   (when-bind replacement-place (make-component-place replacement-component)
-    (setf (value-at-place replacement-place) nil))
-  (when-bind original-component (value-at-place place)
+    (setf (place-value replacement-place) nil))
+  (when-bind original-component (place-value place)
     (when (typep original-component 'parent/mixin)
       (setf (parent-component-of original-component) nil)))
-  (setf (value-at-place place) replacement-component))
+  (setf (place-value place) replacement-component))
 
 ;;;;;;
 ;;; Component computed slot

@@ -33,7 +33,7 @@
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
     (if content
-        (setf (component-value-of content) (value-at-place component-value))
+        (setf (component-value-of content) (place-value component-value))
         (setf content (make-slot-value/content -self- class prototype component-value)))))
 
 (def render-xhtml place/value/presentation
