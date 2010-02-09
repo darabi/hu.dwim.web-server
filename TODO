@@ -16,7 +16,7 @@ your distro's package repository (in Debian/Ubuntu, the package is
 called org-mode). After installation, the emacs info system contains a
 chapter about org-mode. Try C-h i m org<TAB>.
 
-To specify: 
+To specify:
 
 1) the priority of a heading (A=highest to C=lowest), place
    the point on that heading and press S-<up> and S-<down>.
@@ -24,12 +24,12 @@ To specify:
 2) the status (TODO, DONE) of a heading, use S-<left> and S-<right>
 
 3) assignee, type and severity of a topic, tags are used. Place the
-   cursor on a heading and C-c t. You will be presented with a group
+   cursor on a heading and C-c C-c. You will be presented with a group
    of tags some of which are mutually exclusive (the shortcuts for the
    tags are given in parentheses):
 
    + Assignee: Attila(a), Levy(l), Tomi(t), Kami(k), Unassigned(u)
-     
+
    + Type: BUG (B), FEATURE (F), TASK (T)
 
    + Severity: critical (c), major (m), minor (n), trivial (v)
@@ -53,7 +53,7 @@ rendering.
 
 We should use ajax on the client side to 
 
-* DONE [#A] session timeout leads to 'unknown error at toplevel' in browser     :Unassigned:major:BUG:
+* DONE [#A] session timeout leads to 'unknown error at toplevel' in browser     :Attila:major:BUG:
   CLOSED: [2010-02-05 Fri 23:54]
 
 Desired behaviour:
@@ -61,7 +61,6 @@ Desired behaviour:
 explicit error answer for ajax requests coming to non-existent
 (probably timed out) sessions. tell the js side that the session does
 not exist anymore
-
 
 * TODO [#C] detect disabled cookies                                             :Unassigned:trivial:TASK:
 
