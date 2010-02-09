@@ -25,10 +25,10 @@
   (:documentation "Removes all selected values from SELECTION making it empty."))
 
 (def (generic e) selection-select (selection value)
-  (:documentation "Selects VALUE in SELECTION."))
+  (:documentation "Selects VALUE in SELECTION, does nothing if VALUE is already selected."))
 
 (def (generic e) selection-deselect (selection value)
-  (:documentation "Deselects VALUE in SELECTION."))
+  (:documentation "Deselects VALUE in SELECTION, does nothing if VALUE is not selected."))
 
 (def (generic e) selected-value? (selection value)
   (:documentation "Returns TRUE if SELECTION contains VALUE as a selected value, otherwise returns FALSE."))
@@ -196,7 +196,8 @@
             (remhash key selected-value-set))
         (if selected?
             (setf (gethash key selected-value-set) #t)
-            (values)))))
+            (values)))
+    (invalidate-computed-slot selection 'selected-value-set)))
 
 (def method selected-single-value ((selection value-set-selection))
   (bind ((selected-value-set (selected-value-set-of selection)))
@@ -212,7 +213,7 @@
     (setf (gethash (hash-key new-value) selected-value-set) #t)
     (invalidate-computed-slot selection 'selected-value-set)))
 
-(def method select-ed-value-set ((selection value-set-selection))
+(def method selected-value-set ((selection value-set-selection))
   (hash-table-keys (selected-value-set-of selection)))
 
 (def method (setf selected-value-set) (new-value (selection value-set-selection))

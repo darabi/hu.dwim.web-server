@@ -10,8 +10,7 @@
 ;;; selectable/mixin
 
 (def (component e) selectable/mixin ()
-  (#+nil ;; TODO: some instances are not selectable even though the class allows it
-   (selectable-component
+  ((selectable-component
     #t
     :type boolean
     :initarg :selectable-component
@@ -23,66 +22,38 @@
 ;;; selection/mixin
 
 (def (component e) selection/mixin ()
-  ((selected-component-set (compute-as (or -current-value- (make-hash-table))) :type (or null hash-table))
-   (minimum-selection-cardinality 0 :type fixnum)
-   (maximum-selection-cardinality 1 :type fixnum))
+  ((selection
+    (make-instance 'single-value-selection :selected-value (compute-as nil))
+    #+nil
+    (make-instance 'value-set-selection :selected-value-set (compute-as (or -current-value- (make-hash-table))))
+    :type selection))
   (:documentation "A COMPONENT that maintains a SELECTION."))
-
-(def (generic e) single-selection-mode? (selection-component)
-  (:method ((self selection/mixin))
-    (= 1 (maximum-selection-cardinality-of self))))
 
 (def (generic e) selected-component-of (selection-component)
   (:method ((self selection/mixin))
-    (assert (single-selection-mode? self))
-    (first (selected-components-of self))))
+    (selected-single-value (selection-of self))))
 
 (def (generic e) selected-components-of (selection-component)
   (:method ((self selection/mixin))
-    (awhen (selected-component-set-of self)
-      (hash-table-values it))))
-
-(def (generic e) (setf selected-components-of) (new-value selection-component)
-  (:method (new-value (self selection/mixin))
-    (bind ((selected-component-set (selected-component-set-of self)))
-      (maphash-values #'mark-to-be-rendered-component selected-component-set)
-      (clrhash selected-component-set)
-      (dolist (component new-value)
-        (mark-to-be-rendered-component component)
-        (setf (gethash (hash-key component) selected-component-set) component))
-      (invalidate-computed-slot self 'selected-component-set))))
+    (selected-value-set (selection-of self))))
 
 (def (generic e) selected-component? (selection-component selectable-component)
   (:method ((selection-component selection/mixin) (selectable-component selectable/mixin))
-    (awhen (selected-component-set-of selection-component)
-      (gethash (hash-key selectable-component) it))))
+    (selected-value? (selection-of selection-component) selectable-component)))
 
 (def (generic e) (setf selected-component?) (new-value selection-component selectable-component)
   (:method (new-value (selection-component selection/mixin) (selectable-component selectable/mixin))
-    (bind ((selected-component-set (selected-component-set-of selection-component)))
-      (mark-to-be-rendered-component selectable-component)
-      (when (single-selection-mode? selection-component)
-        (clear-selected-components selection-component))
-      (if new-value
-          (setf (gethash (hash-key selectable-component) selected-component-set) selectable-component)
-          (remhash (hash-key selectable-component) selected-component-set))
-      (invalidate-computed-slot selection-component 'selected-component-set))))
-
-(def (generic e) clear-selected-components (selection-component)
-  (:method ((selection-component selection/mixin))
-    (setf (selected-components-of selection-component) nil)))
-
-(def (generic e) select-component (selectable-component class prototype value)
-  (:method ((selectable-component selectable/mixin) class prototype value)
-    (notf (selected-component? (find-selection-component selectable-component) selectable-component))))
+    (setf (selected-value? (selection-of selection-component) selectable-component) new-value)
+    (mark-to-be-rendered-component selectable-component)
+    (mark-to-be-rendered-component selection-component)))
 
 (def (function e) find-selection-component (selectable-component)
   (find-ancestor-component-with-type selectable-component 'selection/mixin))
 
-(def (function e) selectable-component-style-class (selectable-component)
-  (when (selected-component? (find-selection-component selectable-component) selectable-component)
-    " selected"))
-
 (def (function e) selected-component-value (selection-component)
   (awhen (selected-component-of selection-component)
     (component-value-of it)))
+
+(def (function e) selectable-component-style-class (selectable-component)
+  (when (selected-component? (find-selection-component selectable-component) selectable-component)
+    " selected"))

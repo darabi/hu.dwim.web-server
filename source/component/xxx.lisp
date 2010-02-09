@@ -44,7 +44,7 @@
   (command/widget (:ajax (awhen (find-selection-component component) (ajax-of it)))
     (icon select-component)
     (make-component-action component
-      (select-component component class prototype value))))
+      (notf (selected-component? (find-selection-component component) component)))))
 
 (def layered-method make-context-menu-items ((component selectable/mixin) class prototype value)
   (optional-list* (make-menu-item (make-select-component-command component class prototype value))
