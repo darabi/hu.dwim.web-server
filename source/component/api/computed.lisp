@@ -25,7 +25,7 @@
 
 (def (macro e) compute-as* ((&rest args &key &allow-other-keys) &body forms)
   `(compute-as-in-session* (:universe (ensure-session-computed-universe) ,@args)
-     (call-compute-as -self- (lambda () ,@forms))))
+     ,@forms))
 
 (setf (get 'compute-as* 'hu.dwim.computed-class::computed-as-macro-p) #t)
 

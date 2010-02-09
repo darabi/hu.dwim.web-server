@@ -131,12 +131,6 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (setf (place-value place) replacement-component))
 
 ;;;;;;
-;;; Component computed slot
-
-(def method call-compute-as ((self component) thunk)
-  (funcall thunk))
-
-;;;;;;
 ;;; Parent component
 
 (def method parent-component-of ((self component))

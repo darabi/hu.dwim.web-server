@@ -419,12 +419,6 @@
        ,@forms)))
 
 ;;;;;;
-;;; Component computed slot
-
-(def (generic e) call-compute-as (component thunk)
-  (:documentation "Called whenever a COMPUTED-SLOT-DEFINITION's value is updated in a COMPONENT, so that customization can happen."))
-
-;;;;;;
 ;;; Parent component
 
 (def (generic e) parent-component-of (component)
