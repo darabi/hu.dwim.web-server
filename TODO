@@ -1,6 +1,6 @@
 # -*- mode: org; eval: (setf org-tags-column 80) -*-
 #+TAGS: { Attila(a) Levy(l) Tomi(t) Kami(k) Unassigned(u) }
-#+TAGS: { critical(c) major(m) minor(n) trivial(v) }
+#+TAGS: { critical(c) major(m) minor(n) }
 #+TAGS: { BUG(b) FEATURE(f) TASK(s) }
 #+STARTUP: hidestars
 #+STARTUP: overview
@@ -32,7 +32,7 @@ To specify:
 
    + Type: BUG (B), FEATURE (F), TASK (T)
 
-   + Severity: critical (c), major (m), minor (n), trivial (v)
+   + Severity: critical (c), major (m), minor (n)
 
 You can add sub-headings to a heading by using one more asterisk at
 the start of a new line. Try out TAB on a heading with sub-headings.
@@ -51,7 +51,7 @@ unconditionally, even if they are not visible (i.e. the menu item is
 not yet clicked on).This leads to an increase in DOM size and slower
 rendering.
 
-We should use ajax on the client side to 
+We should use ajax on the client side to download context menu on demand.
 
 * DONE [#A] session timeout leads to 'unknown error at toplevel' in browser     :Attila:major:BUG:
   CLOSED: [2010-02-05 Fri 23:54]
@@ -62,7 +62,7 @@ explicit error answer for ajax requests coming to non-existent
 (probably timed out) sessions. tell the js side that the session does
 not exist anymore
 
-* TODO [#C] detect disabled cookies                                             :Unassigned:trivial:TASK:
+* TODO [#C] detect disabled cookies                                             :Unassigned:minor:TASK:
 
 Description:
 
