@@ -9,8 +9,6 @@
 ;;;;;;
 ;;; t/lisp-form/inspector
 
-(def special-variable *lisp-form*)
-
 (def (component e) t/lisp-form/inspector (inspector/style)
   ((source-objects :type list)
    (line-count :type integer)))
@@ -34,8 +32,7 @@
 
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
   (def render-component t/lisp-form/inspector
-    (bind (((:read-only-slots line-count) -self-)
-           (*lisp-form* -self-))
+    (bind (((:read-only-slots line-count) -self-))
       (with-render-style/abstract (-self-)
         <pre (:class "gutter")
              ,(iter (for line-number :from 1 :to line-count)
