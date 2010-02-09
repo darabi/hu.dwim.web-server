@@ -302,19 +302,19 @@
       (iter (for (session-id session) :in-hashtable (session-id->session-of application))
             (if (is-session-alive? session)
                 (push session live-sessions)
-                (block deleting-session
+                (block deleting-sessions
                   (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
                                                   (app.error "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error))
                                                 (lambda (&key &allow-other-keys)
-                                                  (return-from deleting-session)))
+                                                  (return-from deleting-sessions)))
                     (delete-session application session)
                     (push session deleted-sessions))))))
     (dolist (session deleted-sessions)
-      (block noifying-session
+      (block noifying-sessions
         (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
                                         (app.error "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error))
                                       (lambda (&key &allow-other-keys)
-                                        (return-from noifying-session)))
+                                        (return-from noifying-sessions)))
           (with-lock-held-on-session (session)
             (notify-session-expiration application session)))))
     (dolist (session live-sessions)
