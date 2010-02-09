@@ -14,7 +14,7 @@
    (selectable-component
     #t
     :type boolean
-    :initarg :hideable
+    :initarg :selectable-component
     :computed-in compute-as
     :documentation "TRUE means COMPONENT can be SELECTED, FALSE otherwise."))
   (:documentation "A COMPONENT that can be SELECTED."))
@@ -26,7 +26,7 @@
   ((selected-component-set (compute-as (or -current-value- (make-hash-table))) :type (or null hash-table))
    (minimum-selection-cardinality 0 :type fixnum)
    (maximum-selection-cardinality 1 :type fixnum))
-  (:documentation "A COMPONENT that maintains SELECTION."))
+  (:documentation "A COMPONENT that maintains a SELECTION."))
 
 (def (generic e) single-selection-mode? (selection-component)
   (:method ((self selection/mixin))

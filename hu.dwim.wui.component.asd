@@ -24,7 +24,8 @@
                                            (:file "dictionary")
                                            #+sbcl(:file "object-size")
                                            (:file "place")
-                                           (:file "project")))
+                                           (:file "project")
+                                           (:file "selection")))
                              (:module "component"
                               :depends-on ("util")
                               :components ((:module "api"
