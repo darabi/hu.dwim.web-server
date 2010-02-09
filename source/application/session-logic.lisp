@@ -17,50 +17,73 @@
          (session-instance nil)
          (session-cookie-exists? #f)
          (invalidity-reason nil)
-         (new-session? #f))
+         (new-session? #f)
+         (application-lock-held? #f))
     (app.debug "WITH-SESSION-LOGIC speaking, request is delayed-content? ~A, ajax-aware? ~A" *delayed-content-request* *ajax-aware-request*)
-    (with-lock-held-on-application (application)
-      (setf (values session session-cookie-exists? invalidity-reason session-instance)
-            (find-session-from-request application))
-      (when (and (not session)
-                 (eq invalidity-reason :nonexistent)
-                 ensure-session)
-        (setf session (make-new-session application))
-        (register-session application session)
-        (setf new-session? #t))
-      ;; FIXME locking the session below should happen while having the lock on the application here
-      )
-    (abort-request-unless-still-valid)
-    (setf *session* session)
-    (if session
-        (bind ((local-time:*default-timezone* (client-timezone-of session)))
-          (incf (requests-to-sessions-count-of application))
-          (restart-case
-              (bind ((response (if lock-session
-                                   (progn
-                                     (app.debug "WITH-SESSION-LOGIC is locking session ~A as requested" session)
-                                     ;; TODO check if locking would hang, throw error if so
-                                     (with-lock-held-on-session (session)
-                                       (when (is-request-still-valid?)
-                                         (call-in-application-environment application session #'-body-))))
-                                   (progn
-                                     (app.debug "WITH-SESSION-LOGIC is NOT locking session ~A, it wasn't requested" session)
-                                     (call-in-application-environment application session #'-body-)))))
-                (when (and new-session?
-                           response)
-                  (decorate-session-cookie application response))
-                response)
-            (delete-current-session ()
-              :report (lambda (stream)
-                        (format stream "Delete session ~A and rety handling the request" session))
-              (mark-expired session)
-              (invoke-retry-handling-request-restart))))
-        (if (or requires-valid-session
-                (not (eq invalidity-reason :nonexistent)))
-            (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
-              (decorate-session-cookie application response)
-              response)
-            (call-in-application-environment application nil #'-body-)))))
+    (assert (not (is-lock-held? (lock-of application))))
+    ;; KLUDGE this kind of locking logic can not be done with bordeaux-threads...
+    (flet ((lock-application ()
+             (bind ((mutex (lock-of application)))
+               (sb-sys:without-interrupts
+                 (unless (eq (sb-thread::mutex-%owner mutex) sb-thread:*current-thread*)
+                   (sb-sys:allow-with-interrupts
+                     (sb-thread:get-mutex mutex)
+                     (setf application-lock-held? #t))))))
+           (ensure-application-is-unlocked ()
+             (sb-sys:without-interrupts
+               (when application-lock-held?
+                 (sb-thread:release-mutex (lock-of application))
+                 (setf application-lock-held? #f)))))
+      (unwind-protect
+           (progn
+             (lock-application)
+             (progn
+               ;; find the session while the app is locked, or create a new one if requested by the caller
+               (setf (values session session-cookie-exists? invalidity-reason session-instance)
+                     (find-session-from-request application))
+               (when (and (not session)
+                          (eq invalidity-reason :nonexistent)
+                          ensure-session)
+                 (setf session (make-new-session application))
+                 (register-session application session)
+                 (setf new-session? #t))
+               (when (or (null session)
+                         (not lock-session))
+                 ;; if there's no session or we were not asked to lock it, then release the app early to lower contention
+                 (ensure-application-is-unlocked))
+               (setf *session* session))
+             (abort-request-unless-still-valid)
+             (if session
+                 (bind ((local-time:*default-timezone* (client-timezone-of session)))
+                   (incf (requests-to-sessions-count-of application))
+                   (restart-case
+                       (bind ((response (if lock-session
+                                            (progn
+                                              (app.debug "WITH-SESSION-LOGIC is locking session ~A as requested" session)
+                                              ;; TODO check if locking would hang, handle the situation somehow
+                                              (with-lock-held-on-session (session)
+                                                (ensure-application-is-unlocked)
+                                                (when (is-request-still-valid?)
+                                                  (call-in-application-environment application session #'-body-))))
+                                            (progn
+                                              (app.debug "WITH-SESSION-LOGIC is NOT locking session ~A, it wasn't requested" session)
+                                              (call-in-application-environment application session #'-body-)))))
+                         (when (and new-session?
+                                    response)
+                           (decorate-session-cookie application response))
+                         response)
+                     (delete-current-session ()
+                       :report (lambda (stream)
+                                 (format stream "Delete session ~A and rety handling the request" session))
+                       (mark-expired session)
+                       (invoke-retry-handling-request-restart))))
+                 (if (or requires-valid-session
+                         (not (eq invalidity-reason :nonexistent)))
+                     (bind ((response (handle-request-to-invalid-session application session invalidity-reason)))
+                       (decorate-session-cookie application response)
+                       response)
+                     (call-in-application-environment application nil #'-body-))))
+        (ensure-application-is-unlocked)))))
 
 (def (with-macro* eo) with-frame-logic (&key (requires-valid-frame #t) (ensure-frame #f))
   (assert (and *application* *session* (boundp '*frame*)) () "May not use WITH-FRAME-LOGIC without a proper session in the environment")
