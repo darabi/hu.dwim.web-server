@@ -6,6 +6,8 @@
 
 (in-package :hu.dwim.wui)
 
+;;; TODO: couldn't we use a better naming scheme for classes using /
+
 ;;;;;;
 ;;; API
 ;;;
@@ -108,12 +110,6 @@
    (setter :type (or symbol function)))
   (:documentation "A PLACE that is get and set by using lambda functions."))
 
-(def method place-value ((self functional-place))
-  (funcall (getter-of self)))
-
-(def method (setf place-value) (new-value (self functional-place))
-  (funcall (setter-of self) new-value))
-
 (def (function e) make-functional-place (name getter setter &key (type t))
   (check-type name symbol)
   (make-instance 'functional-place
@@ -122,18 +118,18 @@
                  :setter setter
                  :the-type type))
 
+(def method place-value ((self functional-place))
+  (funcall (getter-of self)))
+
+(def method (setf place-value) (new-value (self functional-place))
+  (funcall (setter-of self) new-value))
+
 ;;;;;;
 ;;; simple-functional-place
 
 (def (class* e) simple-functional-place (functional-place)
   ((argument :type t))
   (:documentation "A PLACE that is get and set by using lambda functions on a single argument."))
-
-(def method place-value ((self simple-functional-place))
-  (funcall (getter-of self) (argument-of self)))
-
-(def method (setf place-value) (new-value (self simple-functional-place))
-  (funcall (setter-of self) new-value (argument-of self)))
 
 (def (function e) make-simple-functional-place (argument name &key (type t))
   (check-type name symbol)
@@ -143,6 +139,12 @@
                  :getter (fdefinition name)
                  :setter (fdefinition `(setf ,name))
                  :the-type type))
+
+(def method place-value ((self simple-functional-place))
+  (funcall (getter-of self) (argument-of self)))
+
+(def method (setf place-value) (new-value (self simple-functional-place))
+  (funcall (setter-of self) new-value (argument-of self)))
 
 ;;;;;;
 ;;; variable-place
@@ -157,6 +159,10 @@
 (def (class*) special-variable-place (variable-place)
   ()
   (:documentation "A PLACE for a special variable."))
+
+(def (function e) make-special-variable-place (name &key (type t))
+  (check-type name symbol)
+  (make-instance 'special-variable-place :name name :the-type type))
 
 (def method place-documentation ((self special-variable-place))
   (documentation (name-of self) 'variable))
@@ -175,10 +181,6 @@
 
 (def method (setf place-value) (new-value (self special-variable-place))
   (setf (symbol-value (name-of self)) new-value))
-
-(def (function e) make-special-variable-place (name &key (type t))
-  (check-type name symbol)
-  (make-instance 'special-variable-place :name name :the-type type))
 
 ;;;;;;
 ;;; lexical-variable-place
@@ -205,6 +207,14 @@
    (index :type integer))
   (:documentation "A PLACE for an element of a sequence."))
 
+(def (function e) make-sequence-element-place (sequence index)
+  (check-type sequence sequence)
+  (check-type index integer)
+  (make-instance 'sequence-element-place
+                 :sequence sequence
+                 :index index
+                 :name index))
+
 (def method place-type ((self sequence-element-place))
   (bind ((sequence (sequence-of self)))
     (if (consp sequence)
@@ -217,13 +227,26 @@
 (def method (setf place-value) (new-value (self sequence-element-place))
   (setf (elt (sequence-of self) (index-of self)) new-value))
 
-(def (function e) make-sequence-element-place (sequence index)
-  (check-type sequence sequence)
-  (check-type index integer)
-  (make-instance 'sequence-element-place
-                 :sequence sequence
-                 :index index
-                 :name index))
+;;;;;;
+;;; hash-table-value-place
+
+(def (class* e) hash-table-value-place (basic-place always-bound-place)
+  ((hash-table :type hash-table)
+   (key :type t))
+  (:documentation "A PLACE for a value of a hash-table."))
+
+(def (function e) make-hash-table-value-place (hash-table key)
+  (check-type hash-table hash-table)
+  (make-instance 'hash-table-value-place
+                 :hash-table hash-table
+                 :key key
+                 :name key))
+
+(def method place-value ((self hash-table-value-place))
+  (gethash (key-of self) (hash-table-of self)))
+
+(def method (setf place-value) (new-value (self hash-table-value-place))
+  (setf (gethash (key-of self) (hash-table-of self)) new-value))
 
 ;;;;;;
 ;;; object-slot-place
@@ -232,6 +255,15 @@
   ((instance :type standard-object)
    (slot :type standard-effective-slot-definition))
   (:documentation "A PLACE for a particular slot of an object instance."))
+
+(def (function e) make-object-slot-place (instance slot)
+  (check-type instance (or structure-object standard-object condition))
+  (check-type slot (or symbol effective-slot-definition))
+  (make-instance 'object-slot-place
+                 :instance instance
+                 :slot (if (symbolp slot)
+                           (find-slot (class-of instance) slot)
+                           slot)))
 
 (def (generic e) object-slot-place-editable? (place class instance slot)
   (:documentation "Returns TRUE if the PLACE can be edited and set to other values, otherwise returns FALSE.")
@@ -287,14 +319,64 @@
          (class (class-of instance)))
     (setf (slot-value-using-class class (instance-of self) (slot-of self)) new-value)))
 
-(def (function e) make-object-slot-place (instance slot)
+;;;;;;
+;;; object-slot-deep-place
+
+(def (class* e) object-slot-deep-place (always-bound-place basic-place object-slot-place)
+  ())
+
+;;;;;;
+;;; object-slot-sequence-element-place
+
+(def (class* e) object-slot-sequence-element-place (object-slot-deep-place)
+  ((index :type integer)))
+
+(def (function e) make-object-slot-sequence-element-place (instance slot index)
   (check-type instance (or structure-object standard-object condition))
   (check-type slot (or symbol effective-slot-definition))
-  (make-instance 'object-slot-place
+  (check-type index integer)
+  (make-instance 'object-slot-sequence-element-place
                  :instance instance
                  :slot (if (symbolp slot)
                            (find-slot (class-of instance) slot)
-                           slot)))
+                           slot)
+                 :index index))
+
+(def method place-value ((self object-slot-sequence-element-place))
+  (bind ((instance (instance-of self))
+         (class (class-of instance)))
+    (elt (slot-value-using-class class instance (slot-of self)) (index-of self))))
+
+(def method (setf place-value) (new-value (self object-slot-sequence-element-place))
+  (bind ((instance (instance-of self))
+         (class (class-of instance)))
+    (setf (elt (slot-value-using-class class instance (slot-of self)) (index-of self)) new-value)))
+
+;;;;;;
+;;; object-slot-hash-table-value-place
+
+(def (class* e) object-slot-hash-table-value-place (object-slot-deep-place)
+  ((key :type t)))
+
+(def (function e) make-object-slot-hash-table-value-place (instance slot key)
+  (check-type instance (or structure-object standard-object condition))
+  (check-type slot (or symbol effective-slot-definition))
+  (make-instance 'object-slot-hash-table-value-place
+                 :instance instance
+                 :slot (if (symbolp slot)
+                           (find-slot (class-of instance) slot)
+                           slot)
+                 :key key))
+
+(def method place-value ((self object-slot-hash-table-value-place))
+  (bind ((instance (instance-of self))
+         (class (class-of instance)))
+    (gethash (key-of self) (slot-value-using-class class instance (slot-of self)))))
+
+(def method (setf place-value) (new-value (self object-slot-hash-table-value-place))
+  (bind ((instance (instance-of self))
+         (class (class-of instance)))
+    (setf (gethash (key-of self) (slot-value-using-class class instance (slot-of self))) new-value)))
 
 ;;;;;;
 ;;; place-group

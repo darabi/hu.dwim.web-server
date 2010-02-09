@@ -40,6 +40,7 @@
   "A polimorph type for a SEQUENCE of COMPONENTs."
   (declare (ignore element-type))
   '(and sequence
+        hash-table
         (satisfies component-sequence?)))
 
 (def (function e) component-sequence? (sequence)

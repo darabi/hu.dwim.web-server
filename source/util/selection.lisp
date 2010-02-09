@@ -158,7 +158,7 @@
          (error "Cannot set selected values to ~A in ~A" new-value selection))))
 
 ;;;;;;
-;;; multiple-selection
+;;; value-set-selection
 
 (def (computed-class* e) value-set-selection (selection)
   ((selected-value-set
