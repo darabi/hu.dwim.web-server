@@ -287,8 +287,10 @@
         (while nil)))
 
 (def (function i) is-lock-held? (lock)
-  #+sbcl (eq (sb-thread::mutex-value lock) (current-thread))
-  #-sbcl #t)
+  #*((:sbcl (debug-only (check-type lock sb-thread:mutex))
+            (eq (sb-thread:mutex-owner lock) sb-thread:*current-thread*))
+     (t #.(warn "~S is not implemented for your platform." 'is-lock-held?)
+        (error "~S is not implemented for your platform." 'is-lock-held?))))
 
 (def function mailto-href (email-address)
   (concatenate 'string "mailto:" email-address))
