@@ -18,14 +18,17 @@
 (def (generic e) selection-maximum-cardinality (selection)
   (:documentation "Returns an integer greater than or equal to selection minimum cardinality. It specifies the possible maximum number of selected values in SELECTION."))
 
-(def (generic e) selection-single-value? (selection)
-  (:documentation "Returns TRUE if SELECTION can hold at most one selected value, otherwise returns FALSE."))
-
 (def (generic e) selection-empty? (selection)
   (:documentation "Returns TRUE if SELECTION currently does not contain any selected value, otherwise returns FALSE."))
 
 (def (generic e) selection-clear (selection)
   (:documentation "Removes all selected values from SELECTION making it empty."))
+
+(def (generic e) selection-select (selection value)
+  (:documentation "Selects VALUE in SELECTION."))
+
+(def (generic e) selection-deselect (selection value)
+  (:documentation "Deselects VALUE in SELECTION."))
 
 (def (generic e) selected-value? (selection value)
   (:documentation "Returns TRUE if SELECTION contains VALUE as a selected value, otherwise returns FALSE."))
@@ -49,7 +52,7 @@
   "Creates a new selection with INITIAL-VALUES being the selected values in it."
   (prog1-bind selection
       (if (<= maximum-cardinality 1)
-          (make-instance 'selection-single-value :mandatory (not (= minimum-cardinality 0)))
+          (make-instance 'single-value-selection :mandatory (not (= minimum-cardinality 0)))
           (make-instance 'value-set-selection :minimum-cardinality minimum-cardinality :maximum-cardinality maximum-cardinality))
     (when initial-values
       (setf (selected-value-set selection) initial-values))))
@@ -63,10 +66,45 @@
 (def method selection? ((selection selection))
   #t)
 
-;;;;;;
-;;; selection-single-value
+(def method selection-empty? ((selection selection))
+  (null (selected-value-set selection)))
 
-(def (computed-class* e) selection-single-value (selection)
+(def method selection-clear ((selection selection))
+  (setf (selected-value-set selection) ()))
+
+(def method selection-select ((selection selection) value)
+  (setf (selected-value? selection value) #t))
+
+(def method selection-deselect ((selection selection) value)
+  (setf (selected-value? selection value) #f))
+
+(def method selected-value? ((selection selection) value)
+  (member value (selected-value-set selection)))
+
+(def method (setf selected-value?) (selected? (selection selection) value)
+  (bind ((selected-values (selected-value-set selection)))
+    (if (member value selected-values)
+        (if selected?
+            (values)
+            (setf (selected-value-set selection) (remove value selected-values)))
+        (if selected?
+            (setf (selected-value-set selection) (cons value selected-values))
+            (values)))))
+
+(def method selected-single-value ((selection selection))
+  (bind ((selected-values (selected-value-set selection)))
+    (if (or (null selected-values)
+            (length= selected-values 1))
+        (first selected-values)
+        (error "~A contains multiple selected values" selection))))
+
+(def method (setf selected-single-value) (new-value (selection selection))
+  (setf (selected-value-set selection) (list new-value)))
+
+;;;;;;
+;;; single-value-selection
+
+(def (computed-class* e) single-value-selection (selection)
   ((selected-value
     :computed-in t
     :type t)
@@ -75,27 +113,24 @@
     :accessor mandatory?
     :type boolean)))
 
-(def method selection-minimum-cardinality ((selection selection-single-value))
+(def method selection-minimum-cardinality ((selection single-value-selection))
   (if (mandatory? selection)
       1
       0))
 
-(def method selection-maximum-cardinality ((selection selection-single-value))
+(def method selection-maximum-cardinality ((selection single-value-selection))
   1)
 
-(def method selection-single-value? ((selection selection-single-value))
-  #t)
-
-(def method selection-empty? ((selection selection-single-value))
+(def method selection-empty? ((selection single-value-selection))
   (null (selected-value-of selection)))
 
-(def method selection-clear ((selection selection-single-value))
+(def method selection-clear ((selection single-value-selection))
   (setf (selected-value-of selection) nil))
 
-(def method selected-value? ((selection selection-single-value) value)
+(def method selected-value? ((selection single-value-selection) value)
   (eq (selected-value-of selection) value))
 
-(def method (setf selected-value?) (selected? (selection selection-single-value) value)
+(def method (setf selected-value?) (selected? (selection single-value-selection) value)
   (if (eq (selected-value-of selection) value)
       (if selected?
           (values)
@@ -104,21 +139,21 @@
           (setf (selected-value-of selection) value)
           (setf (selected-value-of selection) nil))))
 
-(def method selected-single-value ((selection selection-single-value))
+(def method selected-single-value ((selection single-value-selection))
   (selected-value-of selection))
 
-(def method (setf selected-single-value) (new-value (selection selection-single-value))
+(def method (setf selected-single-value) (new-value (selection single-value-selection))
   (setf (selected-value-of selection) new-value))
 
-(def method selected-value-set ((selection selection-single-value))
+(def method selected-value-set ((selection single-value-selection))
   (awhen (selected-value-of selection)
     (list it)))
 
-(def method (setf selected-value-set) (new-value (selection selection-single-value))
+(def method (setf selected-value-set) (new-value (selection single-value-selection))
   (cond ((length= 0 new-value)
          (setf (selected-value-of selection) nil))
         ((length= 1 new-value)
-         (setf (selected-value-of selection) (first-elt new-value)))
+         (setf (selected-value-of selection) (first new-value)))
         (t
          (error "Cannot set selected values to ~A in ~A" new-value selection))))
 
@@ -141,9 +176,6 @@
 
 (def method selection-maximum-cardinality ((selection value-set-selection))
   (maximum-cardinality-of selection))
-
-(def method selection-single-value? ((selection value-set-selection))
-  (<= (maximum-cardinality-of selection) 1))
 
 (def method selection-empty? ((selection value-set-selection))
   (zerop (hash-table-count (selected-value-set-of selection))))
