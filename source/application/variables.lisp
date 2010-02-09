@@ -61,7 +61,6 @@
 ;;; constants
 
 (def constant +session-purge/time-interval+ 30)
-(def constant +session-purge/check-at-request-interval+ (if *load-as-production?* 100 1))
 
 (def constant +action-id-length+   8)
 (def constant +frame-id-length+    8)

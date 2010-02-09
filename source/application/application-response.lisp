@@ -46,10 +46,9 @@
   (assert (eq (first *broker-stack*) application))
   (bind ((*application* application)
          (request-number (processed-request-counter/increment application)))
-    (when (and (zerop (mod request-number +session-purge/check-at-request-interval+)) ; to call GET-MONOTONIC-TIME less often
-               (> (- (get-monotonic-time)
-                     (sessions-last-purged-at-of application))
-                  +session-purge/time-interval+))
+    (when (> (- (get-monotonic-time)
+                (sessions-last-purged-at-of application))
+             +session-purge/time-interval+)
       (purge-sessions application))
     (with-locale (default-locale-of application)
       (bind ((local-time:*default-timezone* (default-timezone-of application))
