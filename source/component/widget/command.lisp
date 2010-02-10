@@ -201,7 +201,7 @@
         (setf (component-at-place original-place) replacement-component)))))
 
 (def (function e) make-back-command (original-component original-place replacement-component replacement-place &rest args)
-  "The BACK command puts REPLACEMENT-COMPONENT and ORIGINAL-COMPONENT back to their COMPONENT-PLACE and removes itself from its COMMAND-BAR"
+  "The BACK command puts REPLACEMENT-COMPONENT and ORIGINAL-COMPONENT back to their COMPONENT-PLACEs and removes itself from its COMMAND-BAR"
   (prog1-bind command (apply #'make-instance 'command/widget args)
     (setf (action-of command) (make-action
                                 (pop-command command)
@@ -230,4 +230,6 @@
                                           `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
                                                                   (eq (force replacement-component) (component-at-place original-place)))))))))
         (push-command back-command replacement-component)
+        (when replacement-place
+          (setf (parent-component-of replacement-component) nil))
         (setf (component-at-place original-place) replacement-component)))))
