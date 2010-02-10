@@ -56,8 +56,9 @@ Optimized factory configuration (default):
                        :component-value-type (component-value-type-of component))))
 
 (def render-component t/maker
-  <div ,(call-next-method)
-    ,(render-result-for -self-)>)
+  (with-render-alternator/widget -self-
+    (render-alternator-interior -self-)
+    (render-result-for -self-)))
 
 (def layered-method make-command-bar-commands ((component t/maker) class prototype value)
   (optional-list* (make-execute-maker-command component class prototype value)

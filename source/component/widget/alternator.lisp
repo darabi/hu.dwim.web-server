@@ -19,24 +19,30 @@
   ((initial-alternative-type t :type symbol)
    (default-alternative-type t :type symbol)))
 
-(def (macro e) alternator/widget ((&rest args &key &allow-other-keys) &body contents)
-  `(make-instance 'alternator/widget ,@args :alternatives (list ,@contents)))
+(def (macro e) alternator/widget ((&rest args &key &allow-other-keys) &body alternatives)
+  `(make-instance 'alternator/widget ,@args :alternatives (list ,@alternatives)))
 
 (def refresh-component alternator/widget
   (bind (((:slots alternatives content) -self-))
     (unless content
       (setf content (find-initial-alternative-component -self-)))))
 
+(def with-macro with-render-alternator/widget (self)
+  (with-render-style/abstract (self :element-name (if (typep (content-of self) 'reference/widget)
+                                                      "span"
+                                                      "div"))
+    (-body-)))
+
+(def function render-alternator-interior (self)
+  (render-context-menu-for self)
+  (render-component-messages-for self)
+  (render-content-for self)
+  (when (render-command-bar-for-alternative? (content-of self))
+    (render-command-bar-for self)))
+
 (def render-xhtml alternator/widget
-  (bind (((:read-only-slots content) -self-))
-    (with-render-style/abstract (-self- :element-name (if (typep content 'reference/widget)
-                                                          "span"
-                                                          "div"))
-      (render-context-menu-for -self-)
-      (render-component-messages-for -self-)
-      (render-content-for -self-)
-      (when (render-command-bar-for-alternative? content)
-        (render-command-bar-for -self-)))))
+  (with-render-alternator/widget -self-
+    (render-alternator-interior -self-)))
 
 (def method visible-child-component-slots ((component alternator/widget))
   (remove-slots (unless (render-command-bar-for-alternative? (content-of component))

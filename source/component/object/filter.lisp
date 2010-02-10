@@ -48,8 +48,9 @@ Optimized factory configuration (default):
 (def subtype-mapper *filter-type-mapping* t t/filter)
 
 (def render-component t/filter
-  <div ,(call-next-method)
-    ,(render-result-for -self-)>)
+  (with-render-alternator/widget -self-
+    (render-alternator-interior -self-)
+    (render-result-for -self-)))
 
 (def layered-method make-alternatives ((component t/filter) class prototype value)
   (list (make-instance 't/name-value-list/filter
@@ -160,6 +161,11 @@ Optimized factory configuration (default):
                    :component-value-type (component-value-type-of component)
                    :action nil :enabled #f)))
 
+(def layered-method make-filter-predicate ((component t/name-value-list/filter) class prototype value)
+  (bind ((predicate (call-next-method)))
+    (lambda (candidate)
+      (and (typep candidate (component-value-type-of component))
+           (funcall predicate candidate)))))
 ;;;;;;
 ;;; place-group-list/name-value-list/filter
 
