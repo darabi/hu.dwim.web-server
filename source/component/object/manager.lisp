@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; t/manager
 
-(def (component e) t/manager (t/presentation tab-container-component)
+(def (component e) t/manager (t/presentation tab-container/widget)
   ())
 
 (def (macro e) t/manager (type &body pages)

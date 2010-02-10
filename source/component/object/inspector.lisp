@@ -13,40 +13,40 @@
   ()
   (:documentation "Generic factory version (all components are available):
 
-(t/inspector                                      ; inspect something (alternator)
- (t/place-list/inspector                          ; inspect a list of places of something
-  (place-list/inspector                           ; inspect a list of places (alternator)
-   (place-list/place-group-list/inspector         ; inspect a grouping of a list of places
-    (place-group-list/inspector                   ; inspect a list of place groups (alternator)
-     (place-group-list/name-value-list/inspector  ; inspect a list of place groups, display as a name value list
-      (place-group/inspector                      ; inspect a group of places (alternator)
-       (place-group/name-value-group/inspector    ; inspect a group of places, display as a name value group
-        (place/inspector                          ; inspect a place (alternator)
-         (place/name-value-pair/inspector         ; inspect a place, display as a name value pair
-          (place/name/inspector                   ; inspect the name of a place
-           (string/inspector                      ; inspect a string (alternator)
-            (string/text/inspector                ; inspect a string, display as text
-             string)))                            ; immediate
-          (place/value/inspector                  ; inspect the value of a place
-           (t/inspector))))                       ; inspect something (alternator)
+(T/INSPECTOR                                      ; inspect something (alternator)
+ (T/PLACE-LIST/INSPECTOR                          ; inspect a list of places of something
+  (PLACE-LIST/INSPECTOR                           ; inspect a list of places (alternator)
+   (PLACE-LIST/PLACE-GROUP-LIST/INSPECTOR         ; inspect a grouping of a list of places
+    (PLACE-GROUP-LIST/INSPECTOR                   ; inspect a list of place groups (alternator)
+     (PLACE-GROUP-LIST/NAME-VALUE-LIST/INSPECTOR  ; inspect a list of place groups, display as a name value list
+      (PLACE-GROUP/INSPECTOR                      ; inspect a group of places (alternator)
+       (PLACE-GROUP/NAME-VALUE-GROUP/INSPECTOR    ; inspect a group of places, display as a name value group
+        (PLACE/INSPECTOR                          ; inspect a place (alternator)
+         (PLACE/NAME-VALUE-PAIR/INSPECTOR         ; inspect a place, display as a name value pair
+          (PLACE/NAME/INSPECTOR                   ; inspect the name of a place
+           (STRING/INSPECTOR                      ; inspect a string (alternator)
+            (STRING/TEXT/INSPECTOR                ; inspect a string, display as text
+             STRING)))                            ; immediate
+          (PLACE/VALUE/INSPECTOR                  ; inspect the value of a place
+           (T/INSPECTOR))))                       ; inspect something (alternator)
         ...))
       ...))))))
 
 Optimized factory configuration (default):
 
-(t/inspector                                      ; inspect something (alternator)
- (place-group-list/name-value-list/inspector      ; inspect a list of place groups, display as a name value list
-  (place-group/name-value-group/inspector         ; inspect a group of places, display as a name value group
-   (place/name-value-pair/inspector               ; inspect a place, display as a name value pair
-    string                                        ; immediate
-    (place/value/inspector                        ; inspect the value of a place
-     (t/inspector)))                              ; inspect something (alternator)
+(T/INSPECTOR                                      ; inspect something (alternator)
+ (PLACE-GROUP-LIST/NAME-VALUE-LIST/INSPECTOR      ; inspect a list of place groups, display as a name value list
+  (PLACE-GROUP/NAME-VALUE-GROUP/INSPECTOR         ; inspect a group of places, display as a name value group
+   (PLACE/NAME-VALUE-PAIR/INSPECTOR               ; inspect a place, display as a name value pair
+    STRING                                        ; immediate
+    (PLACE/VALUE/INSPECTOR                        ; inspect the value of a place
+     (T/INSPECTOR)))                              ; inspect something (alternator)
    ...)
   ...))
 
-(string/inspector
- (string/text/inspector)
- (string/character-sequence/inspector)
+(STRING/INSPECTOR                                 ; inspect a string (alternator)
+ (STRING/TEXT/INSPECTOR)                          ; inspect a string as text
+ (STRING/CHARACTER-SEQUENCE/INSPECTOR)            ; inspect a string as a sequence of characters
  ...)
 "))
 
@@ -75,16 +75,17 @@ Optimized factory configuration (default):
 ;;;;;
 ;;; t/documentation/inspector
 
-(def (component e) t/documentation/inspector (inspector/basic t/detail/inspector content/widget)
+(def (component e) t/documentation/inspector (inspector/style t/detail/inspector contents/mixin)
   ())
 
 (def refresh-component t/documentation/inspector
-  (bind (((:slots content component-value) -self-))
-    (setf content (make-documentation -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value))))
+  (bind (((:slots contents component-value) -self-)
+         (documentation (make-documentation -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value)))
+    (setf contents (parse-definition-documentation documentation))))
 
-{with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
-  (def render-xhtml t/documentation/inspector
-    <pre ,(render-content-for -self-)>)}
+(def render-xhtml t/documentation/inspector
+  (with-render-style/abstract (-self-)
+    (render-contents-for -self-)))
 
 (def generic make-documentation (component class prototype value)
   (:method :around (component class prototype value)

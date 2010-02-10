@@ -13,34 +13,34 @@
   ()
   (:documentation "Generic factory version (all components are available):
 
-(t/maker                                          ; maker for something (alternator)
- (t/place-list/maker                              ; maker for a list of places of something
-  (place-list/maker                               ; maker for a list of places (alternator)
-   (place-list/place-group-list/maker             ; maker for a grouping of a list of places
-    (place-group-list/maker                       ; maker for a list of place groups (alternator)
-     (place-group-list/name-value-list/maker      ; maker for a list of place groups, display as a name value list
-      (place-group/maker                          ; maker for a group of places (alternator)
-       (place-group/name-value-group/maker        ; maker for a group of places, display as a name value group
-        (place/maker                              ; maker for a place (alternator)
-         (place/name-value-pair/maker             ; maker for a place, display as a name value pair
-          (place/name/maker                       ; maker the name of a place
-           (string/maker                          ; maker a string (alternator)
-            (string/text/maker                    ; maker a string, display as text
-             string)))                            ; immediate
-          (place/value/maker                      ; maker for the value of a place
-           (t/maker))))                           ; maker for something (alternator)
+(T/MAKER                                          ; maker for something (alternator)
+ (T/PLACE-LIST/MAKER                              ; maker for a list of places of something
+  (PLACE-LIST/MAKER                               ; maker for a list of places (alternator)
+   (PLACE-LIST/PLACE-GROUP-LIST/MAKER             ; maker for a grouping of a list of places
+    (PLACE-GROUP-LIST/MAKER                       ; maker for a list of place groups (alternator)
+     (PLACE-GROUP-LIST/NAME-VALUE-LIST/MAKER      ; maker for a list of place groups, display as a name value list
+      (PLACE-GROUP/MAKER                          ; maker for a group of places (alternator)
+       (PLACE-GROUP/NAME-VALUE-GROUP/MAKER        ; maker for a group of places, display as a name value group
+        (PLACE/MAKER                              ; maker for a place (alternator)
+         (PLACE/NAME-VALUE-PAIR/MAKER             ; maker for a place, display as a name value pair
+          (PLACE/NAME/MAKER                       ; maker the name of a place
+           (STRING/MAKER                          ; maker a string (alternator)
+            (STRING/TEXT/MAKER                    ; maker a string, display as text
+             STRING)))                            ; immediate
+          (PLACE/VALUE/MAKER                      ; maker for the value of a place
+           (T/MAKER))))                           ; maker for something (alternator)
         ...))
       ...))))))
 
 Optimized factory configuration (default):
 
-(t/maker                                          ; maker for something (alternator)
- (place-group-list/name-value-list/maker          ; maker for a list of place groups, display as a name value list
-  (place-group/name-value-group/maker             ; maker for a group of places, display as a name value group
-   (place/name-value-pair/maker                   ; maker for a place, display as a name value pair
-    string                                        ; immediate
-    (place/value/maker                            ; maker for the value of a place
-     (t/maker)))                                  ; maker for something (alternator)
+(T/MAKER                                          ; maker for something (alternator)
+ (PLACE-GROUP-LIST/NAME-VALUE-LIST/MAKER          ; maker for a list of place groups, display as a name value list
+  (PLACE-GROUP/NAME-VALUE-GROUP/MAKER             ; maker for a group of places, display as a name value group
+   (PLACE/NAME-VALUE-PAIR/MAKER                   ; maker for a place, display as a name value pair
+    STRING                                        ; immediate
+    (PLACE/VALUE/MAKER                            ; maker for the value of a place
+     (T/MAKER)))                                  ; maker for something (alternator)
    ...)
   ...))
 "))

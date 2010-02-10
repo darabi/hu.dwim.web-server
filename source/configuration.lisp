@@ -12,6 +12,7 @@
 (def constant +default-encoding+ :utf-8)
 
 (def special-variable *transform-quasi-quote-to-inline-emitting* t)
+
 (def special-variable *transform-quasi-quote-to-binary* t)
 (def special-variable *quasi-quote-indentation-width* (unless *load-as-production?* 2))
 

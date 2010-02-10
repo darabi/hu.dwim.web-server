@@ -13,34 +13,34 @@
   ()
   (:documentation "Generic factory configuration (all components are available):
 
-(t/filter                                         ; filter for something (alternator)
- (t/place-list/filter                             ; filter for a list of places of something
-  (place-list/filter                              ; filter for a list of places (alternator)
-   (place-list/place-group-list/filter            ; filter for a grouping of a list of places
-    (place-group-list/filter                      ; filter for a list of place groups (alternator)
-     (place-group-list/name-value-list/filter     ; filter for a list of place groups, display as a name value list
-      (place-group/filter                         ; filter for a group of places (alternator)
-       (place-group/name-value-group/filter       ; filter for a group of places, display as a name value group
-        (place/filter                             ; filter for a place (alternator)
-         (place/name-value-pair/filter            ; filter for a place, display as a name value pair
-          (place/name/filter                      ; filter the name of a place
-           (string/filter                         ; filter a string (alternator)
-            (string/text/filter                   ; filter a string, display as text
-             string)))                            ; immediate
-          (place/value/filter                     ; filter for the value of a place
-           (t/filter))))                          ; filter for something (alternator)
+(T/FILTER                                         ; filter for something (alternator)
+ (T/PLACE-LIST/FILTER                             ; filter for a list of places of something
+  (PLACE-LIST/FILTER                              ; filter for a list of places (alternator)
+   (PLACE-LIST/PLACE-GROUP-LIST/FILTER            ; filter for a grouping of a list of places
+    (PLACE-GROUP-LIST/FILTER                      ; filter for a list of place groups (alternator)
+     (PLACE-GROUP-LIST/NAME-VALUE-LIST/FILTER     ; filter for a list of place groups, display as a name value list
+      (PLACE-GROUP/FILTER                         ; filter for a group of places (alternator)
+       (PLACE-GROUP/NAME-VALUE-GROUP/FILTER       ; filter for a group of places, display as a name value group
+        (PLACE/FILTER                             ; filter for a place (alternator)
+         (PLACE/NAME-VALUE-PAIR/FILTER            ; filter for a place, display as a name value pair
+          (PLACE/NAME/FILTER                      ; filter the name of a place
+           (STRING/FILTER                         ; filter a string (alternator)
+            (STRING/TEXT/FILTER                   ; filter a string, display as text
+             STRING)))                            ; immediate
+          (PLACE/VALUE/FILTER                     ; filter for the value of a place
+           (T/FILTER))))                          ; filter for something (alternator)
         ...))
       ...))))))
 
 Optimized factory configuration (default):
 
-(t/filter                                         ; filter for something (alternator)
- (place-group-list/name-value-list/filter         ; filter for a list of place groups, display as a name value list
-  (place-group/name-value-group/filter            ; filter for a group of places, display as a name value group
-   (place/name-value-pair/filter                  ; filter for a place, display as a name value pair
-    string                                        ; immediate
-    (place/value/filter                           ; filter for the value of a place
-     (t/filter)))                                 ; filter for something (alternator)
+(T/FILTER                                         ; filter for something (alternator)
+ (PLACE-GROUP-LIST/NAME-VALUE-LIST/FILTER         ; filter for a list of place groups, display as a name value list
+  (PLACE-GROUP/NAME-VALUE-GROUP/FILTER            ; filter for a group of places, display as a name value group
+   (PLACE/NAME-VALUE-PAIR/FILTER                  ; filter for a place, display as a name value pair
+    STRING                                        ; immediate
+    (PLACE/VALUE/FILTER                           ; filter for the value of a place
+     (T/FILTER)))                                 ; filter for something (alternator)
    ...)
   ...))
 "))
