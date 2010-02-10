@@ -387,6 +387,7 @@
 ;;; Class
 
 (def localization en
+  (class-name.built-in-class "built in class")
   (class-name.structure-class "structure class")
   (class-name.standard-class "standard class")
   (class-name.component-class "component class")
@@ -406,4 +407,4 @@
 ;;; Dictionary
 
 (def localization en
-  (dictionary-name.editing "Editing"))
+  (dictionary-name.editing "editing"))

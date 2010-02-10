@@ -382,28 +382,3 @@
        <br>
        ;; TODO replace with a reference renderer
        ,(princ-to-string instance)>))
-
-;;;;;;
-;;; Class
-
-(def localization de
-  (class-name.structure-class "structure class")
-  (class-name.standard-class "standard class")
-  (class-name.component-class "component class")
-  (class-name.function "function")
-  (class-name.standard-generic-function "standard generic function")
-
-  (slot-name.documentation "documentation")
-  (slot-name.%documentation "documentation"))
-
-;;;;;;
-;;; Component
-
-(def localization de
-  (class-name.component "component"))
-
-;;;;;;
-;;; Dictionary
-
-(def localization de
-  (dictionary-name.editing "Editing"))
