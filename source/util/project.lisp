@@ -9,8 +9,8 @@
 ;;;;;;
 ;;; Project
 
-(def (namespace e) project (name &rest args &key &allow-other-keys)
-  `(setf (find-project ',name) (make-instance 'project ,@args)))
+(def (namespace e) project (&rest args &key &allow-other-keys)
+  `(make-instance 'project ,@args))
 
 (def (class* e) project ()
   ((name nil :type string)

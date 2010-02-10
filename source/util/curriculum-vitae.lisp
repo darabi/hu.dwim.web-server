@@ -59,8 +59,8 @@
    (level :type string)
    (years-of-experience :type number)))
 
-(def (namespace e) curriculum-vitae (name &body args)
-  `(setf (find-curriculum-vitae ',name) (make-instance 'curriculum-vitae ,@args)))
+(def (namespace e) curriculum-vitae (&rest args &key &allow-other-keys)
+  `(make-instance 'curriculum-vitae ,@args))
 
 (def curriculum-vitae levente-mészáros
     :subject (make-instance 'person
