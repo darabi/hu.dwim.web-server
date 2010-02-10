@@ -16,8 +16,14 @@
 (def subtype-mapper *inspector-type-mapping* place place/inspector)
 
 (def layered-method make-alternatives ((component place/inspector) class prototype value)
-  (list (make-instance 'place/value/inspector :component-value value)
-        (make-instance 'place/reference/inspector :component-value value)))
+  (list (make-instance 'place/value/inspector
+                       :component-value value
+                       :editable (editable-component? component)
+                       :edited (edited-component? component))
+        (make-instance 'place/reference/inspector
+                       :component-value value
+                       :editable (editable-component? component)
+                       :edited (edited-component? component))))
 
 ;;;;;;
 ;;; place/reference/inspector
@@ -42,7 +48,8 @@
 
 ;; TODO: dispatch on generic place/??/inspector base class
 (def method editable-component? ((self place/value/inspector))
-  (place-editable? (component-value-of self)))
+  (and (call-next-method)
+       (place-editable? (component-value-of self))))
 
 ;; TODO: dispatch on generic place/??/inspector base class
 (def method store-editing :after ((self place/value/inspector))

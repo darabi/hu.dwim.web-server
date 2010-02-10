@@ -53,12 +53,17 @@ Optimized factory configuration (default):
 (def subtype-mapper *inspector-type-mapping* t t/inspector)
 
 (def layered-method make-alternatives ((component t/inspector) class prototype value)
-  (list (make-instance 't/name-value-list/inspector
-                       :component-value value
-                       :component-value-type (component-value-type-of component))
-        (make-instance 't/reference/inspector
-                       :component-value value
-                       :component-value-type (component-value-type-of component))))
+  (bind (((:read-only-slots editable-component edited-component component-value-type) component))
+    (list (make-instance 't/name-value-list/inspector
+                         :component-value value
+                         :component-value-type component-value-type
+                         :edited edited-component
+                         :editable editable-component)
+          (make-instance 't/reference/inspector
+                         :component-value value
+                         :component-value-type component-value-type
+                         :edited edited-component
+                         :editable editable-component))))
 
 ;;;;;;
 ;;; t/reference/inspector
@@ -120,12 +125,16 @@ Optimized factory configuration (default):
   (:method ((component t/name-value-list/inspector) class prototype (value place-group))
     (make-instance 'place-group-list/name-value-list/inspector
                    :component-value value
-                   :component-value-type (component-value-type-of component)))
+                   :component-value-type (component-value-type-of component)
+                   :edited (edited-component? component)
+                   :editable (editable-component? component)))
 
   (:method ((component t/name-value-list/inspector) class prototype (value sequence))
     (make-instance 'sequence/list/inspector
                    :component-value value
-                   :component-value-type (component-value-type-of component)))
+                   :component-value-type (component-value-type-of component)
+                   :edited (edited-component? component)
+                   :editable (editable-component? component)))
 
   (:method ((component t/name-value-list/inspector) class prototype (value number))
     value)
@@ -138,7 +147,9 @@ Optimized factory configuration (default):
                    :component-value value
                    :component-value-type (component-value-type-of component)
                    :action nil
-                   :enabled #f)))
+                   :enabled #f
+                   :edited (edited-component? component)
+                   :editable (editable-component? component))))
 
 ;;;;;;
 ;;; place-group-list/name-value-list/inspector
@@ -152,7 +163,9 @@ Optimized factory configuration (default):
 (def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
   (make-instance 'place-group/name-value-group/inspector
                  :component-value value
-                 :component-value-type (component-value-type-of component)))
+                 :component-value-type (component-value-type-of component)
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 ;;;;;;
 ;;; place-group/name-value-group/inspector
@@ -163,7 +176,9 @@ Optimized factory configuration (default):
 (def layered-method make-slot-value-group/content ((component place-group/name-value-group/inspector) class prototype (value object-slot-place))
   (make-instance 'place/name-value-pair/inspector
                  :component-value value
-                 :component-value-type (component-value-type-of component)))
+                 :component-value-type (component-value-type-of component)
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 ;;;;;;
 ;;; place/name-value-pair/inspector
@@ -174,4 +189,6 @@ Optimized factory configuration (default):
 (def layered-method make-slot-value-pair/value ((component place/name-value-pair/inspector) class prototype value)
   (make-instance 'place/value/inspector
                  :component-value value
-                 :component-value-type (component-value-type-of component)))
+                 :component-value-type (component-value-type-of component)
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))

@@ -20,7 +20,10 @@
 
 (def refresh-component t/text/inspector
   (bind (((:slots contents component-value) -self-))
-    (setf contents (mapcar [make-value-inspector !1 :initial-alternative-type 't/text/inspector]
+    (setf contents (mapcar [make-value-inspector !1
+                                                 :initial-alternative-type 't/text/inspector
+                                                 :edited (edited-component? -self-)
+                                                 :editable (editable-component? -self-)]
                            (contents-of component-value)))))
 
 (def render-text t/text/inspector

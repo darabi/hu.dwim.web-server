@@ -27,7 +27,9 @@
 (def refresh-component hyperlink/text/inspector
   (bind (((:slots component-value content) -self-))
     (setf content (aif (content-of component-value)
-                       (make-value-inspector it)
+                       (make-value-inspector it
+                                             :edited (edited-component? -self-)
+                                             :editable (editable-component? -self-))
                        (print-uri-to-string (uri-of component-value))))))
 
 (def render-xhtml hyperlink/text/inspector

@@ -15,11 +15,24 @@
 (def subtype-mapper *inspector-type-mapping* sequence sequence/inspector)
 
 (def layered-method make-alternatives ((component sequence/inspector) class prototype value)
-  (optional-list (awhen (find-if [not (null (class-slots (class-of !1)))] value)
-                   (make-instance 'sequence/table/inspector :component-value value))
-                 (make-instance 'sequence/list/inspector :component-value value)
-                 (make-instance 'sequence/tree/inspector :component-value value)
-                 (make-instance 'sequence/reference/inspector :component-value value)))
+  (bind (((:read-only-slots editable-component edited-component component-value-type) component))
+    (optional-list (awhen (find-if [not (null (class-slots (class-of !1)))] value)
+                     (make-instance 'sequence/table/inspector
+                                    :component-value value
+                                    :edited edited-component
+                                    :editable editable-component))
+                   (make-instance 'sequence/list/inspector
+                                  :component-value value
+                                  :edited edited-component
+                                  :editable editable-component)
+                   (make-instance 'sequence/tree/inspector
+                                  :component-value value
+                                  :edited edited-component
+                                  :editable editable-component)
+                   (make-instance 'sequence/reference/inspector
+                                  :component-value value
+                                  :edited edited-component
+                                  :editable editable-component))))
 
 ;;;;;;
 ;;; sequence/reference/inspector
@@ -49,7 +62,10 @@
 
 (def (layered-function e) make-list/element (component class prototype value)
   (:method ((component sequence/list/inspector) class prototype value)
-    (make-instance 't/element/inspector :component-value value)))
+    (make-instance 't/element/inspector
+                   :component-value value
+                   :edited (edited-component? component)
+                   :editable (editable-component? component))))
 
 ;;;;;;
 ;;; t/element/inspector
@@ -67,7 +83,10 @@
 
 (def layered-function make-element/content (component class prototype value)
   (:method ((component t/element/inspector) class prototype value)
-    (make-value-inspector value :initial-alternative-type 't/reference/inspector)))
+    (make-value-inspector value
+                          :initial-alternative-type 't/reference/inspector
+                          :edited (edited-component? component)
+                          :editable (editable-component? component))))
 
 ;;;;;;
 ;;; sequence/table/inspector
@@ -100,7 +119,10 @@
 
 (def (layered-function e) make-table-row (component class prototype value)
   (:method ((component sequence/table/inspector) class prototype value)
-    (make-instance 't/row/inspector :component-value value)))
+    (make-instance 't/row/inspector
+                   :component-value value
+                   :edited (edited-component? component)
+                   :editable (editable-component? component))))
 
 (def (layered-function e) make-table-type-column (component class prototype value)
   (:method ((component sequence/table/inspector) class prototype value)
@@ -109,7 +131,7 @@
                    :header #"object-list-table.column.type"
                    :cell-factory (lambda (row)
                                    (bind ((class (class-of (component-value-of row))))
-                                     (make-value-inspector class :initial-alternative-type 't/reference/inspector))))))
+                                     (make-value-viewer class :initial-alternative-type 't/reference/inspector))))))
 
 (def (layered-function e) make-table-columns (component class prototype value)
   (:method ((component sequence/table/inspector) class prototype value)
@@ -193,7 +215,10 @@
   (bind ((replacement-component nil))
     (make-replace-and-push-back-command component
                                         (delay (setf replacement-component
-                                                     (make-instance 't/entire-row/inspector :component-value value)))
+                                                     (make-instance 't/entire-row/inspector
+                                                                    :component-value value
+                                                                    :edited (edited-component? component)
+                                                                    :editable (editable-component? component))))
                                         (list :content (icon expand-component) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
                                         (list :content (icon collapse-component) :ajax (delay (id-of replacement-component))))))
 
@@ -210,7 +235,9 @@
   (bind (((:slots component-value content) -self-))
     (setf content
           (if component-value
-              (make-value-inspector component-value)
+              (make-value-inspector component-value
+                                    :edited (edited-component? -self-)
+                                    :editable (editable-component? -self-))
               (empty/layout)))))
 
 ;;;;;;
@@ -220,7 +247,10 @@
   ())
 
 (def refresh-component place/cell/inspector
-  (bind (((:slots component-value content) -self-))
-    (if component-value
-        (setf content (make-instance 'place/value/inspector :component-value component-value))
-        (setf content (empty/layout)))))
+    (bind (((:slots component-value content) -self-))
+      (if component-value
+          (setf content (make-instance 'place/value/inspector
+                                       :component-value component-value
+                                       :edited (edited-component? -self-)
+                                       :editable (editable-component? -self-)))
+          (setf content (empty/layout)))))

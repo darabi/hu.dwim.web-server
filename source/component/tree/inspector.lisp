@@ -23,7 +23,10 @@
 
 (def (layered-function e) make-tree/root-node (component class prototype value)
   (:method ((component t/tree/inspector) class prototype value)
-    (make-instance 't/node/inspector :component-value value)))
+    (make-instance 't/node/inspector
+                   :component-value value
+                   :edited (edited-component? component)
+                   :editable (editable-component? component))))
 
 ;;;;;;
 ;;; t/node/inspector
@@ -48,7 +51,10 @@
 
 (def (layered-function e) make-node/child-node (component class prototype value)
   (:method ((component t/node/inspector) class prototype value)
-    (make-instance 't/node/inspector :component-value value)))
+    (make-instance 't/node/inspector
+                   :component-value value
+                   :edited (edited-component? component)
+                   :editable (editable-component? component))))
 
 (def (layered-function e) collect-tree/children (component class prototype value))
 
@@ -59,7 +65,10 @@
   nil)
 
 (def layered-method make-node/content ((component t/node/inspector) class prototype value)
-  (make-value-inspector value :initial-alternative-type 't/reference/presentation))
+  (make-value-inspector value
+                        :initial-alternative-type 't/reference/presentation
+                        :edited (edited-component? component)
+                        :editable (editable-component? component)))
 
 
 ;;;;;;
@@ -70,7 +79,10 @@
   ())
 
 (def layered-method make-tree-level/path ((component t/tree-level/inspector) class prototype value)
-  (make-instance 't/tree-level/path/inspector :component-value value))
+  (make-instance 't/tree-level/path/inspector
+                 :component-value value
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 ;;;;;;
 ;;; t/tree-level/reference/inspector
@@ -93,7 +105,10 @@
   (class-of (first (component-value-of self))))
 
 (def layered-method make-path/content ((component t/tree-level/path/inspector) class prototype value)
-  (make-instance 't/tree-level/reference/inspector :component-value value))
+  (make-instance 't/tree-level/reference/inspector
+                 :component-value value
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 ;;;;;;
 ;;; t/tree-level/tree/inspector
@@ -102,7 +117,10 @@
   ())
 
 (def layered-method make-tree/root-node ((component t/tree-level/tree/inspector) class prototype value)
-  (make-instance 't/tree-level/node/inspector :component-value value))
+  (make-instance 't/tree-level/node/inspector
+                 :component-value value
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 ;;;;;;
 ;;; t/tree-level/node/inspector
@@ -111,10 +129,16 @@
   ())
 
 (def layered-method make-node/child-node ((component t/tree-level/node/inspector) class prototype value)
-  (make-instance 't/tree-level/node/inspector :component-value value))
+  (make-instance 't/tree-level/node/inspector
+                 :component-value value
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 (def layered-method make-node/content ((component t/tree-level/node/inspector) class prototype value)
-  (make-instance 't/tree-level/reference/inspector :component-value value))
+  (make-instance 't/tree-level/reference/inspector
+                 :component-value value
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 ;;;;;;
 ;;; sequence/tree/inspector
@@ -124,8 +148,14 @@
 
 (def layered-method make-tree/root-node ((component sequence/tree/inspector) class prototype value)
   (if (typep value 'sequence)
-      (make-instance 't/node/inspector :component-value value)
-      (make-value-inspector value :initial-alternative-type 't/reference/presentation)))
+      (make-instance 't/node/inspector
+                     :component-value value
+                     :edited (edited-component? component)
+                     :editable (editable-component? component))
+      (make-value-inspector value
+                            :initial-alternative-type 't/reference/presentation
+                            :edited (edited-component? component)
+                            :editable (editable-component? component))))
 
 ;;;;;;
 ;;; sequence/node/inspector
@@ -135,5 +165,11 @@
 
 (def layered-method make-node/child-node ((component sequence/node/inspector) class prototype value)
   (if (typep value 'sequence)
-      (make-instance 'sequence/node/inspector :component-value value)
-      (make-value-inspector value :initial-alternative-type 't/reference/presentation)))
+      (make-instance 'sequence/node/inspector
+                     :component-value value
+                     :edited (edited-component? component)
+                     :editable (editable-component? component))
+      (make-value-inspector value
+                            :initial-alternative-type 't/reference/presentation
+                            :edited (edited-component? component)
+                            :editable (editable-component? component))))
