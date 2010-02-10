@@ -14,7 +14,7 @@
     #t
     :type boolean
     :initarg :selectable-component
-    :computed-in compute-as
+    :computed-in computed-universe/session-local
     :documentation "TRUE means COMPONENT can be SELECTED, FALSE otherwise."))
   (:documentation "A COMPONENT that can be SELECTED."))
 

@@ -14,13 +14,13 @@
     #t
     :type boolean
     :initarg :hideable
-    :computed-in compute-as
+    :computed-in computed-universe/session-local
     :documentation "TRUE means COMPONENT can be VISIBLE/HIDDEN, FALSE otherwise.")
    (visible-component
     #t
     :type boolean
     :initarg :visible
-    :computed-in compute-as
+    :computed-in computed-universe/session-local
     :documentation "TRUE means the COMPONENT is visible on the remote side, FALSE otherwise."))
   (:documentation "A COMPONENT that can be HIDDEN or SHOWN."))
 

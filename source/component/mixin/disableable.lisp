@@ -14,7 +14,7 @@
     #t
     :type boolean
     :initarg :enabled
-    :computed-in compute-as
+    :computed-in computed-universe/session-local
     :documentation "TRUE means COMPONENT is ENABLED on the remote side, FALSE otherwise."))
   (:documentation "A COMPONENT that can be ENABLED or DISABLED."))
 

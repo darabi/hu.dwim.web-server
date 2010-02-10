@@ -9,24 +9,6 @@
 ;;;;;;
 ;;; Computed universe
 
-(def computed-universe compute-as-in-session)
-
-(def function ensure-session-computed-universe ()
-  (or (computed-universe-of *session*)
-      (setf (computed-universe-of *session*) (make-computed-universe))))
-
-(def (macro e) compute-as (&body forms)
-  `(compute-as* ()
-     ,@forms))
-
-(setf (get 'compute-as 'hu.dwim.computed-class::computed-as-macro-p) #t)
-
-(setf (get 'compute-as 'hu.dwim.computed-class::primitive-compute-as-macro) 'compute-as-in-session*)
-
-(def (macro e) compute-as* ((&rest args &key &allow-other-keys) &body forms)
-  `(compute-as-in-session* (:universe (ensure-session-computed-universe) ,@args)
-     ,@forms))
-
-(setf (get 'compute-as* 'hu.dwim.computed-class::computed-as-macro-p) #t)
-
-(setf (get 'compute-as* 'hu.dwim.computed-class::primitive-compute-as-macro) 'compute-as-in-session*)
+(def computed-universe computed-universe/session-local
+    :computed-state-factory-name compute-as
+    :universe-accessor-form (computed-universe-of *session*))
