@@ -39,12 +39,16 @@
 (def (type e) components (&optional element-type)
   "A polimorph type for a SEQUENCE of COMPONENTs."
   (declare (ignore element-type))
-  '(and sequence
-        hash-table
-        (satisfies component-sequence?)))
+  '(or (and sequence
+            (satisfies component-sequence?))
+       (and hash-table
+            (satisfies component-hash-table?))))
 
 (def (function e) component-sequence? (sequence)
   (every #'component? sequence))
+
+(def (function e) component-hash-table? (hash-table)
+  (maphash-values #'component? hash-table))
 
 (def (component e) component ()
   ()
