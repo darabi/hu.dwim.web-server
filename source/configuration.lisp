@@ -14,7 +14,9 @@
 (def special-variable *transform-quasi-quote-to-inline-emitting* t)
 
 (def special-variable *transform-quasi-quote-to-binary* t)
-(def special-variable *quasi-quote-indentation-width* (unless *load-as-production?* 2))
+
+;; NOTE: for debugging purposes you may use something else, but that is going to break the layout in certain places where whitespace is important
+(def special-variable *quasi-quote-indentation-width* nil)
 
 (def function make-str-transformation-pipeline ()
   (make-quasi-quoted-string-to-form-emitting-transformation-pipeline
