@@ -783,7 +783,8 @@
          (replace-target-place/widget ()
              ,name
            (make-value-inspector (find-class ',supercomponent)))
-       ,(make 'list ''("John" ("Mary" ("Fred" "Susanne") "Steve" ("George" "Jenna")) "Kate")))))
+       (component-demo/widget "Cons tree"
+         ,(make 'list ''("John" ("Mary" ("Fred" "Susanne") "Steve" ("George" "Jenna")) "Kate"))))))
 
 (def function make-tree-maker-node ()
   (make-tree-presentation-node "Maker" make-maker nil))
