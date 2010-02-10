@@ -2,6 +2,10 @@
  * Widget styles.
  */
 
+span.widget {
+  white-space: normal;
+}
+
 /* command */
 
 .command {

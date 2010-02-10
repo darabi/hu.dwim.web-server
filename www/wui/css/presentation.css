@@ -1,3 +1,28 @@
 /**
- * Presentation, maker, viewer, inspector, editor, filter styles.
+ * Presentation, maker, viewer, editor, inspector, filter styles.
  */
+
+span.inspector {
+  white-space: normal;
+}
+
+span.viewer {
+  white-space: normal;
+}
+
+span.editor {
+  white-space: normal;
+}
+
+span.inspector {
+  white-space: normal;
+}
+
+span.filter {
+  white-space: normal;
+}
+
+div.documentation.inspector {
+  white-space: pre-wrap;
+  font-family: monospace;
+}
