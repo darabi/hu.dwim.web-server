@@ -12,7 +12,7 @@
 (def (component eas) component-value/mixin ()
   ((component-value
     :type t
-    :computed-in computed-universe/session-local
+    :computed-in computed-universe/session
     :documentation "The current COMPONENT-VALUE."))
   (:documentation "A COMPONENT that represents a single COMPONENT-VALUE."))
 

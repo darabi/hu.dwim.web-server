@@ -14,13 +14,13 @@
     #t
     :type boolean
     :initarg :collapsible
-    :computed-in computed-universe/session-local
+    :computed-in computed-universe/session
     :documentation "TRUE means COMPONENT can be EXPANDED/COLLAPSED, FALSE otherwise.")
    (expanded-component
     #t
     :type boolean
     :initarg :expanded
-    :computed-in computed-universe/session-local
+    :computed-in computed-universe/session
     :documentation "TRUE means COMPONENT displays itself with full detail, FALSE means it should be minimized."))
   (:documentation "A COMPONENT that can be EXPANDED or COLLAPSED."))
 
