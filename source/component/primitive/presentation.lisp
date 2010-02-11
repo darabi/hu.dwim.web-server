@@ -503,7 +503,8 @@
 
 (def method print-component-value ((component inet-address/presentation))
   (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
-    (if has-component-value?
+    (if (and component-value
+             has-component-value?)
         (iolib.sockets:address-to-string component-value)
         "")))
 
