@@ -9,9 +9,9 @@
 ;;;;;;
 ;;; Computed universe
 
-(def computed-universe computed-universe/session-local
-    :computed-state-factory-name compute-as
-    :universe-accessor-form (computed-universe-of *session*))
+(def computed-universe (computed-universe/session-local
+                        :computed-state-factory-name compute-as
+                        :universe-accessor-form (computed-universe-of *session*)))
 
 ;; TODO: KLUDGE: wtf? once upon a time there was an export flag for computed-universe
 (export 'compute-as)
