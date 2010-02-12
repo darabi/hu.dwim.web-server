@@ -9,7 +9,11 @@
 ;;;;;;
 ;;; t/maker
 
-(def (component e) t/maker (maker/basic t/presentation component-result/mixin)
+(def (component e) t/maker (maker/basic
+                            t/presentation
+                            cloneable/abstract
+                            layer/mixin
+                            component-result/mixin)
   ()
   (:documentation "Generic factory version (all components are available):
 

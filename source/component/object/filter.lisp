@@ -9,7 +9,11 @@
 ;;;;;;
 ;;; t/filter
 
-(def (component e) t/filter (filter/basic t/presentation component-result/mixin)
+(def (component e) t/filter (filter/basic
+                             t/presentation
+                             cloneable/abstract
+                             layer/mixin
+                             component-result/mixin)
   ()
   (:documentation "Generic factory configuration (all components are available):
 
@@ -79,7 +83,7 @@ Optimized factory configuration (default):
 (def layered-method make-result ((component t/filter) class prototype (value list))
   (make-inspector `(or null (cons ,(class-name (component-dispatch-class component)) t)) :value value))
 
-(def layered-method make-result :around ((component t/filter) class prototype  value)
+(def layered-method make-result :around ((component t/filter) class prototype value)
   (prog1-bind component
       (call-next-method)
     (if value

@@ -9,7 +9,10 @@
 ;;;;;;
 ;;; t/inspector
 
-(def (component e) t/inspector (inspector/basic t/presentation cloneable/abstract layer/mixin)
+(def (component e) t/inspector (inspector/basic
+                                t/presentation
+                                cloneable/abstract
+                                layer/mixin)
   ()
   (:documentation "Generic factory version (all components are available):
 
