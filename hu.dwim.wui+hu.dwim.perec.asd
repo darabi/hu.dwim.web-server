@@ -16,7 +16,8 @@
                :hu.dwim.wui)
   :components ((:module "integration"
                 :components ((:module "perec"
-                              :components ((:file "filter")
+                              :components ((:file "dimensional")
+                                           (:file "filter")
                                            (:file "inspector")
                                            (:file "kludge")
                                            (:file "l10n")
