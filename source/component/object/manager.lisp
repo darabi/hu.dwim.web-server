@@ -7,18 +7,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; t/manager
+;;; manager
 
-(def (component e) t/manager (t/presentation tab-container/widget)
-  ())
-
-(def (macro e) t/manager (type &body pages)
-  `(make-instance 't/manager :component-value type :pages (list ,@pages)))
-
-(def layered-method refresh-component :before ((self t/manager))
-  (bind (((:slots component-value component-value pages) self))
-    (setf pages (list* (tab-page/widget (icon switch-to-tab-page :label "Search")
-                         (make-filter component-value))
-                       (tab-page/widget (icon switch-to-tab-page :label "Create")
-                         (make-maker component-value))
-                       pages))))
+(def (function e) make-manager (type)
+  (tab-container/widget ()
+    (tab-page/widget (:selector (icon switch-to-tab-page :label "Search"))
+      (make-filter type))
+    (tab-page/widget (:selector (icon switch-to-tab-page :label "Create"))
+      (make-maker type))))
