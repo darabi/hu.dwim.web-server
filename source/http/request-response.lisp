@@ -27,15 +27,16 @@
   (bind (((:values temps values new-value-for-setter setter getter) (get-setf-expansion alist env)))
     (assert (= 1 (length new-value-for-setter)))
     (setf new-value-for-setter (first new-value-for-setter))
-    (with-unique-names (new-value)
+    (with-unique-names (new-value alist)
       (values temps
               values
               `(,new-value)
-              `(aif (assoc ,header-name ,getter :test #'string=)
-                    (setf (cdr it) ,new-value)
-                    (bind ((,new-value-for-setter (list* (cons ,header-name ,new-value) ,getter)))
-                      ,setter
-                      ,new-value))
+              `(bind ((,alist ,getter))
+                 (aif (assoc ,header-name ,alist :test #'string=)
+                      (setf (cdr it) ,new-value)
+                      (bind ((,new-value-for-setter (list* (cons ,header-name ,new-value) ,alist)))
+                        ,setter
+                        ,new-value)))
               `(header-alist-value ,alist ,header-name)))))
 
 (def method header-value ((message http-message) header-name)
