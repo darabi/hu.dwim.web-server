@@ -9,26 +9,6 @@
 ;;;;;;
 ;;; This is a simple example application with various components
 
-(eval-always
-  (def function make-stylesheet-uri (path)
-    (list (string+ "static/" path)
-          (assert-file-exists (system-relative-pathname :hu.dwim.wui.test (string+ "www/" path))))))
-
-(def constant +demo-static-stylesheet-uris+ (list (make-stylesheet-uri "wui/css/wui.css")
-                                                  (make-stylesheet-uri "wui/css/icon.css")
-                                                  (make-stylesheet-uri "wui/css/border.css")
-                                                  (make-stylesheet-uri "wui/css/layout.css")
-                                                  (make-stylesheet-uri "wui/css/widget.css")
-                                                  (make-stylesheet-uri "wui/css/text.css")
-                                                  (make-stylesheet-uri "wui/css/lisp-form.css")
-                                                  (make-stylesheet-uri "wui/css/shell-script.css")
-                                                  (make-stylesheet-uri "wui/css/presentation.css")
-                                                  (make-stylesheet-uri "wui/css/test.css")))
-
-(def constant +demo-script-uris+ '("wui/js/wui.js" "wui/js/component-hierarchy.js"))
-
-(def constant +demo-page-icon+ "static/favicon.ico")
-
 (def special-variable *component-demo-application* (make-instance 'standard-application
                                                                   :path-prefix "/"
                                                                   :home-package (find-package :hu.dwim.wui.test)
@@ -76,9 +56,10 @@
 
 (def function make-demo-frame-component-with-content (&optional initial-content-component)
   (frame/widget (:title "hu.dwim.wui component demo"
-                 :page-icon-uri (make-default-page-icon-uri :hu.dwim.wui.test)
-                 :script-uris (make-default-script-uris :hu.dwim.wui.test)
-                 :stylesheet-uris (make-default-stylesheet-uris :hu.dwim.wui.test))
+                 :stylesheet-uris (append
+                                   (make-default-stylesheet-uris)
+                                   (mapcar (make-stylesheet-uri-entry-factory :hu.dwim.wui)
+                                           '("wui/css/test.css"))))
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu)))
       (make-component-demo-content initial-content-component))))
