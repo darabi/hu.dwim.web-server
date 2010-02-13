@@ -16,7 +16,7 @@
    (page-icon-uri nil)
    (title nil)
    (dojo-skin-name *dojo-skin-name*)
-   (dojo-release-uri (parse-uri (string+ "static/dojo/" *dojo-directory-name* "dojo/")))
+   (dojo-release-uri (parse-uri (string+ "static/wui/dojo/" *dojo-directory-name* "dojo/")))
    (dojo-file-name *dojo-file-name*)
    (parse-dojo-widgets-on-load #f :type boolean)
    (debug-client-side *debug-client-side* :type boolean)))
