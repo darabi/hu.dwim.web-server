@@ -122,6 +122,12 @@
 ;;;;;;
 ;;; broker-at-path
 
+(def function broker-path-or-path-prefix (broker &key (otherwise :error))
+  (typecase broker
+    (broker-at-path (path-of broker))
+    (broker-at-path-prefix (path-prefix-of broker))
+    (t (handle-otherwise otherwise))))
+
 (def class* broker-at-path (broker)
   ((path)))
 

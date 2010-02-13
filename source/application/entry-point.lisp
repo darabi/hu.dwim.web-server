@@ -33,17 +33,12 @@
                              (when (and (typep a 'broker-at-path)
                                         (typep b 'broker-at-path-prefix))
                                (return-from comparing #t))
-                             (flet ((broker-path-or-path-prefix-or-nil (broker)
-                                      (typecase broker
-                                        (broker-at-path (path-of broker))
-                                        (broker-at-path-prefix (path-prefix-of broker))
-                                        (t nil))))
-                               (bind ((a-path (broker-path-or-path-prefix-or-nil a))
-                                      (b-path (broker-path-or-path-prefix-or-nil b)))
-                                 (when (and a-path
-                                            b-path)
-                                   ;; if we can extract path for brokers of the same priority then the one with a longer path goes first
-                                   (return-from comparing (> (length a-path) (length b-path)))))))
+                             (bind ((a-path (broker-path-or-path-prefix a :otherwise nil))
+                                    (b-path (broker-path-or-path-prefix b :otherwise nil)))
+                               (when (and a-path
+                                          b-path)
+                                 ;; if we can extract path for brokers of the same priority then the one with a longer path goes first
+                                 (return-from comparing (> (length a-path) (length b-path))))))
                            (> a-priority b-priority))))))
   entry-point)
 
