@@ -12,8 +12,8 @@
 (def (component e) frame/widget (top/abstract layer/mixin)
   ((content-mime-type +xhtml-mime-type+)
    (stylesheet-uris nil)
-   (script-uris nil)
-   (page-icon-uri nil)
+   (script-uris (make-default-script-uris))
+   (page-icon-uri (make-page-icon-uri :hu.dwim.wui "static/wui/" "image/miscellaneous/favicon.ico"))
    (title nil)
    (dojo-skin-name *dojo-skin-name*)
    (dojo-release-uri (parse-uri (string+ "static/wui/dojo/" *dojo-directory-name* "dojo/")))
@@ -150,31 +150,39 @@
   (:method ((application application))
     "/help/"))
 
-(def (function e) make-default-page-icon-uri (system-name &optional (path "wui/image/miscellaneous/favicon.ico"))
-  (list (string+ "static/" path) (system-relative-pathname system-name (string+ "www/" path))))
+(def (function e) make-page-icon-uri (asdf-system-name-or-base-directory path-prefix path)
+  (bind ((base-directory (aif (find-system asdf-system-name-or-base-directory #f)
+                              (system-relative-pathname it "www/")
+                              asdf-system-name-or-base-directory)))
+    (list (string+ path-prefix path) (merge-pathnames path base-directory))))
 
-(def (function e) make-default-script-uris (system-name &rest script-uris)
-  (declare (ignore system-name))
-  (list* "wui/js/wui.js"
+(def (function e) make-default-script-uris ()
+  (list "wui/js/wui.js"
          +js-i18n-broker/default-path+
-         +js-component-hierarchy-serving-broker/default-path+
-         script-uris))
+         +js-component-hierarchy-serving-broker/default-path+))
 
-(def (function e) make-default-stylesheet-uris (system-name &rest style-sheets)
-  (flet ((entry (path)
-           (list (string+ "static/" path)
-                 (system-relative-pathname system-name (string+ "www/" path))))
-         (dojo-relative-path (path)
-           (string+ "static/dojo/" *dojo-directory-name* path)))
-    (list* (dojo-relative-path "dojo/resources/dojo.css")
-           (dojo-relative-path "dijit/themes/tundra/tundra.css")
-           (entry "wui/css/wui.css")
-           (entry "wui/css/icon.css")
-           (entry "wui/css/border.css")
-           (entry "wui/css/layout.css")
-           (entry "wui/css/widget.css")
-           (entry "wui/css/text.css")
-           (entry "wui/css/lisp-form.css")
-           (entry "wui/css/shell-script.css")
-           (entry "wui/css/presentation.css")
-           (mapcar #'entry style-sheets))))
+(def (function e) make-default-stylesheet-uris ()
+  (flet ((dojo-relative-path (path)
+           (string+ "static/wui/dojo/" *dojo-directory-name* path)))
+    (append
+     (mapcar #'dojo-relative-path
+             '("dojo/resources/dojo.css"
+               "dijit/themes/tundra/tundra.css"))
+     (mapcar (make-stylesheet-uri-entry-factory :hu.dwim.wui :path-prefix "static/wui/")
+             '("css/wui.css"
+               "css/icon.css"
+               "css/border.css"
+               "css/layout.css"
+               "css/widget.css"
+               "css/text.css"
+               "css/lisp-form.css"
+               "css/shell-script.css"
+               "css/presentation.css")))))
+
+(def (function e) make-stylesheet-uri-entry-factory (asdf-system-name-or-base-directory &key (path-prefix "static/"))
+  (bind ((base-directory (aif (find-system asdf-system-name-or-base-directory #f)
+                              (system-relative-pathname it "www/")
+                              asdf-system-name-or-base-directory)))
+    (named-lambda make-stylesheet-uri-entry-factory/factory (path)
+      (list (string+ path-prefix path)
+            (assert-file-exists (merge-pathnames path base-directory))))))
