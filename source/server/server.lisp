@@ -170,53 +170,50 @@
 
 (def method shutdown-server ((server server) &key force &allow-other-keys)
   (setf (shutdown-initiated-p server) #t)
-  (macrolet ((kill-thread-and-catch-error (thread)
-               (once-only (thread)
-                 `(block kill-worker
-                   (handler-bind ((error (lambda (c)
-                                           (warn "Error while killing ~S: ~A." ,thread c)
-                                           (return-from kill-worker))))
-                     (let ((os-thread (thread-of ,thread)))
-                       (server.dribble "Killing thread ~A; os thread is ~A" ,thread os-thread)
-                       (destroy-thread os-thread)))))))
-    (flet ((close-sockets ()
-             (dolist (listen-entry (listen-entries-of server))
-               (awhen (socket-of listen-entry)
-                 (setf (socket-of listen-entry) nil)
-                 (server.dribble "Closing socket ~A" it)
-                 (close it :abort force)))
-             (awhen (connection-multiplexer-of server)
-               (iolib.multiplex::close-multiplexer it)
-               (setf (connection-multiplexer-of server) nil))
-             (setf (started-at-of server) nil)))
-      (server.dribble "Shutting down server ~A, force? ~A" server force)
-      (bind ((threaded? (not (zerop (maximum-worker-count-of server)))))
-        (when (timer-of server)
-          (shutdown-timer (timer-of server) :wait (not force))
-          (setf (timer-of server) nil))
-        (if force
-            (progn
-              (when threaded?
-                (iter (for worker :in-sequence (copy-seq (workers-of server)))
-                      (kill-thread-and-catch-error worker)))
-              (close-sockets)
-              (when threaded?
-                (setf (fill-pointer (workers-of server)) 0)
-                (setf (occupied-worker-count-of server) 0)))
-            (progn
-              (when threaded?
-                (iter waiting-for-workers
-                      (server.debug "Waiting for the workers of ~A to quit..." server)
-                      (with-lock-held-on-server (server)
-                        (bind ((worker-count (length (workers-of server))))
-                          (server.dribble "Polling workers to quit, worker-count is ~A" worker-count)
-                          (when (zerop worker-count)
-                            (return-from waiting-for-workers))))
-                      (sleep 1))
-                (assert (zerop (occupied-worker-count-of server))))
-              (close-sockets))))
-      ;; it's tempting to delete the temp dir here, but there might be other servers in this process using it, so don't (delete-directory-for-temporary-files)
-      )))
+  (flet ((close-sockets ()
+           (dolist (listen-entry (listen-entries-of server))
+             (awhen (socket-of listen-entry)
+               (setf (socket-of listen-entry) nil)
+               (server.dribble "Closing socket ~A" it)
+               (close it :abort force)))
+           (awhen (connection-multiplexer-of server)
+             (iolib.multiplex::close-multiplexer it)
+             (setf (connection-multiplexer-of server) nil))
+           (setf (started-at-of server) nil)))
+    (server.dribble "Shutting down server ~A, force? ~A" server force)
+    (bind ((threaded? (not (zerop (maximum-worker-count-of server)))))
+      (when (timer-of server)
+        (shutdown-timer (timer-of server) :wait (not force))
+        (setf (timer-of server) nil))
+      (if force
+          (progn
+            (when threaded?
+              (iter (for worker :in-sequence (copy-seq (workers-of server)))
+                    (for thread = (thread-of worker))
+                    (block kill-worker
+                      (handler-bind ((error (lambda (c)
+                                              (warn "Error while killing ~S: ~A" worker c)
+                                              (return-from kill-worker))))
+                        (server.dribble "Killing worker ~A; os thread is ~A" worker thread)
+                        (destroy-thread thread)))))
+            (close-sockets)
+            (when threaded?
+              (setf (fill-pointer (workers-of server)) 0)
+              (setf (occupied-worker-count-of server) 0)))
+          (progn
+            (when threaded?
+              (iter waiting-for-workers
+                    (server.debug "Waiting for the workers of ~A to quit..." server)
+                    (with-lock-held-on-server (server)
+                      (bind ((worker-count (length (workers-of server))))
+                        (server.dribble "Polling workers to quit, worker-count is ~A" worker-count)
+                        (when (zerop worker-count)
+                          (return-from waiting-for-workers))))
+                    (sleep 1))
+              (assert (zerop (occupied-worker-count-of server))))
+            (close-sockets))))
+    ;; it's tempting to delete the temp dir here, but there might be other servers in this process using it, so don't (delete-directory-for-temporary-files)
+    ))
 
 (def class* worker ()
   ((thread)))
