@@ -7,6 +7,7 @@
 (in-package :hu.dwim.wui)
 
 (def (generic e) startup-server (server &key &allow-other-keys))
+(def (generic e) startup-server/with-lock-held (server &key &allow-other-keys))
 
 (def (generic e) shutdown-server (server &key &allow-other-keys))
 

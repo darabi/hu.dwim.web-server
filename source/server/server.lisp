@@ -92,7 +92,7 @@
           (-body-)))
     (threads.dribble "Leaving with-lock-held-on-server for server ~S in thread ~S" server (current-thread))))
 
-(def method startup-server ((server server) &key (initial-worker-count 2) &allow-other-keys)
+(def method startup-server ((server server) &rest args &key &allow-other-keys)
   (server.debug "STARTUP-SERVER of ~A" server)
   (assert (listen-entries-of server))
   (setf (shutdown-initiated-p server) #f)
@@ -101,73 +101,72 @@
         (unless (iolib.os:directory-exists-p *base-directory-for-temporary-files*)
           (server.warn "Specified *BASE-DIRECTORY-FOR-TEMPORARY-FILES* does not exists (~S) and will be created by us with whatever file permissions apply" *base-directory-for-temporary-files*))
         (with-lock-held-on-server (server) ; in threaded mode the started workers are waiting until this lock is released
-          (setf (brokers-of server) (stable-sort (brokers-of server) #'> :key 'priority-of))
-          (bind ((listen-entries (listen-entries-of server))
-                 (mux (make-instance 'iolib:epoll-multiplexer)))
-            (unwind-protect-case ()
-                (progn
-                  (assert listen-entries)
-                  (assert (not (find-if (complement #'null) listen-entries :key 'socket-of)) () "Some of the listen-entries of the server ~A already has a socket (lifecycle management got confused somehow)" server)
-                  (dolist (listen-entry listen-entries)
-                    (bind ((host (host-of listen-entry))
-                           (port (port-of listen-entry)))
-                      (loop :named binding :do
-                         (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" host port)
-                           (server.debug "Binding socket to host ~A, port ~A" host port)
-                           (bind ((socket (iolib:make-socket :connect :passive
-                                                             :local-host host
-                                                             :local-port port
-                                                             :external-format +default-external-format+
-                                                             :reuse-address #t))
-                                  (fd (iolib:fd-of socket)))
-                             (unwind-protect-case ()
-                                 (progn
-                                   (assert fd)
-                                   (server.dribble "Setting socket ~A to be non-blocking" socket)
-                                   (setf (iolib.streams:fd-non-blocking socket) #t)
-                                   ;;(setf (iolib:socket-option socket :receive-timeout) 1)
-                                   (server.debug "Adding socket ~A, fd ~A to the accept multiplexer" socket fd)
-                                   (iomux::monitor-fd mux (aprog1
-                                                              (iomux::make-fd-entry fd)
-                                                             ;; KLUDGE to make the multiplexer do what we want
-                                                            (setf (iomux::fd-entry-read-handler it)
-                                                                  (iomux::make-fd-handler fd :read (lambda (&rest args)
-                                                                                                     (declare (ignore args))
-                                                                                                     (error "BUG"))
-                                                                                          nil))))
-                                   (setf (socket-of listen-entry) socket))
-                               (:abort (close socket)))
-                             (return-from binding))))))
-                  (setf (connection-multiplexer-of server) mux)
-                  ;; notify the brokers about the startup
-                  (dolist (broker (brokers-of server))
-                    (startup-broker broker))
-                  ;; fire up the worker-loop, either in this thread or in several worker threads
-                  (if (zerop (maximum-worker-count-of server))
-                      (unwind-protect
-                           (progn
-                             ;; this is the single-threaded mode using the caller thread (for debugging and profiling)
-                             (server.info "Starting server in the current thread, use C-c C-c and restarts to break out...")
-                             (worker-loop server #f))
-                        ;; when a restart was selected, then shut the server down...
-                        (shutdown-server server))
-                      (progn
-                        (server.debug "Setting up the timer")
-                        (assert (null (timer-of server)))
-                        (setf (timer-of server) (make-instance 'timer))
-                        (server.debug "Spawning the initial workers")
-                        (iter (for n :from 0 :below initial-worker-count)
-                              (make-worker server))
-                        (setf (started-at-of server) (local-time:now))
-                        (server.debug "Server successfully started"))))
-              (:abort
-               (server.debug "Cleaning up after a failed server start")
-               (shutdown-server server :force #t)))))
+          (apply 'startup-server/with-lock-held server args))
         server)
     (abort ()
       :report (lambda (stream)
                 (format stream "Give up starting server ~A" server))
       (values))))
+
+(def method startup-server/with-lock-held ((server server) &key (initial-worker-count 2) &allow-other-keys)
+  (bind ((listen-entries (listen-entries-of server))
+         (mux (make-instance 'iolib:epoll-multiplexer)))
+    (unwind-protect-case ()
+        (progn
+          (assert listen-entries)
+          (assert (not (find-if (complement #'null) listen-entries :key 'socket-of)) () "Some of the listen-entries of the server ~A already has a socket (lifecycle management got confused somehow)" server)
+          (dolist (listen-entry listen-entries)
+            (bind ((host (host-of listen-entry))
+                   (port (port-of listen-entry)))
+              (loop :named binding :do
+                (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" host port)
+                  (server.debug "Binding socket to host ~A, port ~A" host port)
+                  (bind ((socket (iolib:make-socket :connect :passive
+                                                    :local-host host
+                                                    :local-port port
+                                                    :external-format +default-external-format+
+                                                    :reuse-address #t))
+                         (fd (iolib:fd-of socket)))
+                    (unwind-protect-case ()
+                        (progn
+                          (assert fd)
+                          (server.dribble "Setting socket ~A to be non-blocking" socket)
+                          (setf (iolib.streams:fd-non-blocking socket) #t)
+                          ;;(setf (iolib:socket-option socket :receive-timeout) 1)
+                          (server.debug "Adding socket ~A, fd ~A to the accept multiplexer" socket fd)
+                          (iomux::monitor-fd mux (aprog1
+                                                     (iomux::make-fd-entry fd)
+                                                   ;; KLUDGE to make the multiplexer do what we want
+                                                   (setf (iomux::fd-entry-read-handler it)
+                                                         (iomux::make-fd-handler fd :read (lambda (&rest args)
+                                                                                            (declare (ignore args))
+                                                                                            (error "BUG"))
+                                                                                 nil))))
+                          (setf (socket-of listen-entry) socket))
+                      (:abort (close socket)))
+                    (return-from binding))))))
+          (setf (connection-multiplexer-of server) mux)
+          ;; fire up the worker-loop, either in this thread or in several worker threads
+          (if (zerop (maximum-worker-count-of server))
+              (unwind-protect
+                   (progn
+                     ;; this is the single-threaded mode using the caller thread (for debugging and profiling)
+                     (server.info "Starting server in the current thread, use C-c C-c and restarts to break out...")
+                     (worker-loop server #f))
+                ;; when a restart was selected, then shut the server down...
+                (shutdown-server server))
+              (progn
+                (server.debug "Setting up the timer")
+                (assert (null (timer-of server)))
+                (setf (timer-of server) (make-instance 'timer))
+                (server.debug "Spawning the initial workers")
+                (iter (for n :from 0 :below initial-worker-count)
+                      (make-worker server))
+                (setf (started-at-of server) (local-time:now))
+                (server.debug "Server successfully started"))))
+      (:abort
+       (server.debug "Cleaning up after a failed server start")
+       (shutdown-server server :force #t)))))
 
 (def method shutdown-server ((server server) &key force &allow-other-keys)
   (setf (shutdown-initiated-p server) #t)
@@ -195,8 +194,6 @@
         (when (timer-of server)
           (shutdown-timer (timer-of server) :wait (not force))
           (setf (timer-of server) nil))
-        (dolist (broker (brokers-of server))
-          (shutdown-broker broker))
         (if force
             (progn
               (when threaded?

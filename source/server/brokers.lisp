@@ -24,6 +24,19 @@
       (close-response response))
     (values-list result)))
 
+(def method startup-server/with-lock-held ((server broker-based-server) &key &allow-other-keys)
+  ;; TODO introduce comparison function for broker sorting, take path prefix length into account if priority doesn't decide
+  (setf (brokers-of server) (stable-sort (brokers-of server) #'> :key 'priority-of))
+  ;; notify the brokers about the startup
+  (dolist (broker (brokers-of server))
+    (startup-broker broker))
+  (call-next-method))
+
+(def method shutdown-server ((server broker-based-server) &key &allow-other-keys)
+  (dolist (broker (brokers-of server))
+    (shutdown-broker broker))
+  (call-next-method))
+
 (def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise [make-not-found-response]))
   (bind ((answering-broker nil)
          (results (multiple-value-list
