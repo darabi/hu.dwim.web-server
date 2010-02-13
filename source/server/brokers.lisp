@@ -25,8 +25,7 @@
     (values-list result)))
 
 (def method startup-server/with-lock-held ((server broker-based-server) &key &allow-other-keys)
-  ;; TODO introduce comparison function for broker sorting, take path prefix length into account if priority doesn't decide
-  (setf (brokers-of server) (stable-sort (brokers-of server) #'> :key 'priority-of))
+  (setf (brokers-of server) (stable-sort (brokers-of server) 'compare-brokers-for-sorting))
   ;; notify the brokers about the startup
   (dolist (broker (brokers-of server))
     (startup-broker broker))
@@ -158,6 +157,27 @@
     (when (starts-with-subseq path-prefix remaining-query-path)
       (with-new-matching-uri-path-element path-prefix
         (funcall thunk)))))
+
+;;;;;;
+;;; compare-brokers-for-sorting
+
+(def (generic e) compare-brokers-for-sorting (a b)
+  (:documentation "Used as sorting predicate to sort brokers of a broker-based-server.")
+  (:method ((a broker) (b broker))
+    (bind ((a/priority (priority-of a))
+           (b/priority (priority-of b))
+           (a/path (broker-path-or-path-prefix a :otherwise nil))
+           (b/path (broker-path-or-path-prefix b :otherwise nil)))
+      (cond
+        ((and (= a/priority b/priority)
+              a/path
+              b/path)
+         (if (string= a/path b/path)
+             (and (not (typep a 'broker-at-path-prefix))
+                  (typep b 'broker-at-path-prefix))
+             (string> a/path b/path)))
+      (t
+       (> a/priority b/priority))))))
 
 ;;;;;;
 ;;; constant-response-broker
