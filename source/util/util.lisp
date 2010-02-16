@@ -401,18 +401,15 @@
 (def special-variable *temporary-file-random-state* (make-random-state t))
 (def global-variable *temporary-file-unique-counter* (make-atomic-counter))
 
-(def special-variable *base-directory-for-temporary-files* (string+ (iolib.pathnames:file-path-namestring iolib.os:*temporary-directory*) "/wui")
-  "Used for uploading files among other things.")
-
 (def special-variable *directory-for-temporary-files* nil
-  "Holds the runtime value of the temporary directory, which includes the PID. Lazily initialized to be able to extract the PID.")
+  "Holds the runtime value of the temporary directory, which includes the PID.")
 
 (def (function e) directory-for-temporary-files ()
   (or *directory-for-temporary-files*
       (setf *directory-for-temporary-files*
             (ensure-directories-exist
-             (string+ *base-directory-for-temporary-files*
-                      "/"
+             (string+ (iolib.pathnames:file-path-namestring iolib.os:*temporary-directory*)
+                      "/wui-"
                       (integer-to-string (isys:%sys-getpid))
                       "/")))))
 
