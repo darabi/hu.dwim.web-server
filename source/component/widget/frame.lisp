@@ -161,28 +161,32 @@
          +js-i18n-broker/default-path+
          +js-component-hierarchy-serving-broker/default-path+))
 
-(def (function e) make-default-stylesheet-uris ()
+(def (function e) make-stylesheet-uris (asdf-system-name-or-base-directory path-prefix &rest relative-paths)
+  (bind ((base-directory (aif (find-system asdf-system-name-or-base-directory #f)
+                              (system-relative-pathname it "www/")
+                              asdf-system-name-or-base-directory)))
+    (iter (for path :in relative-paths)
+          (collect (list (string+ path-prefix path)
+                         (assert-file-exists (merge-pathnames path base-directory)))))))
+
+(def (function e) make-internal-stylesheet-uris ()
   (flet ((dojo-relative-path (path)
            (string+ "static/wui/dojo/" *dojo-directory-name* path)))
     (append
      (mapcar #'dojo-relative-path
              '("dojo/resources/dojo.css"
                "dijit/themes/tundra/tundra.css"))
-     (mapcar (make-stylesheet-uri-entry-factory :hu.dwim.wui :path-prefix "static/wui/")
-             '("css/wui.css"
-               "css/icon.css"
-               "css/border.css"
-               "css/layout.css"
-               "css/widget.css"
-               "css/text.css"
-               "css/lisp-form.css"
-               "css/shell-script.css"
-               "css/presentation.css")))))
+     (make-stylesheet-uris :hu.dwim.wui "static/wui/"
+                           "css/wui.css"
+                           "css/icon.css"
+                           "css/border.css"
+                           "css/layout.css"
+                           "css/widget.css"
+                           "css/text.css"
+                           "css/lisp-form.css"
+                           "css/shell-script.css"
+                           "css/presentation.css"))))
 
-(def (function e) make-stylesheet-uri-entry-factory (asdf-system-name-or-base-directory &key (path-prefix "static/"))
-  (bind ((base-directory (aif (find-system asdf-system-name-or-base-directory #f)
-                              (system-relative-pathname it "www/")
-                              asdf-system-name-or-base-directory)))
-    (named-lambda make-stylesheet-uri-entry-factory/factory (path)
-      (list (string+ path-prefix path)
-            (assert-file-exists (merge-pathnames path base-directory))))))
+(def (function e) make-default-stylesheet-uris (asdf-system-name-or-base-directory &rest relative-paths)
+  (append (make-internal-stylesheet-uris)
+          (apply #'make-stylesheet-uris asdf-system-name-or-base-directory "static/" relative-paths)))
