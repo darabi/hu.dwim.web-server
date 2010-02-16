@@ -9,6 +9,7 @@
 ;;;;;;
 ;;; Computed universe
 
-(def (computed-universe e) (computed-universe/session
-                            :computed-state-factory-name compute-as
-                            :universe-accessor-form (computed-universe-of *session*)))
+(def (computed-universe e) computed-universe/session ()
+  ()
+  (:computed-state-factory-name compute-as)
+  (:universe-accessor-form (computed-universe-of *session*)))
