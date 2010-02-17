@@ -3,15 +3,6 @@
 ;;;;;;
 ;;; A simple task scheduler
 
-(def macro with-deadline ((timeout-in-seconds) body-form &body timeout-forms)
-  "As usual, TIMEOUT is in the SI unit of the scale, which is seconds."
-  #*((:sbcl `(handler-case
-                 (sb-sys:with-deadline (:seconds ,timeout-in-seconds)
-                   ,body-form)
-               (sb-sys:deadline-timeout ()
-                 ,@timeout-forms)))
-     (t #.(not-yet-implemented "~S is not implemented on your platform" 'with-deadline))))
-
 (def class* timer ()
   ((entries nil)
    (lock (make-recursive-lock "Timer lock"))
@@ -61,11 +52,12 @@
                                              ;; this is an ad-hoc large constant to keep the code path uniform. would be safe to wake up though...
                                              (* 60 60 24 365 10))))
                         (timer.dribble "~A will fall asleep for ~A seconds" timer expires-in)
-                        (with-deadline (expires-in)
-                            (progn
+                        (handler-case
+                            (with-deadline (expires-in)
                               (condition-wait (condition-variable-of timer) (lock-of timer))
                               (timer.dribble "~A woke up from CONDITION-WAIT" timer))
-                          (timer.dribble "~A woke up from CONDITION-WAIT due to the timeout" timer)))))))))
+                          (deadline-timeout ()
+                            (timer.dribble "~A woke up from CONDITION-WAIT due to the timeout" timer))))))))))
       (setf (running-thread-of timer) nil)
       (with-lock-held-on-timer timer
         (condition-notify (condition-variable-of timer)))
