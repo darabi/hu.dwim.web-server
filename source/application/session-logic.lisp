@@ -296,35 +296,44 @@
   ;; this method must be called while not holding any session or application lock
   (assert (not (is-lock-held? (lock-of application))) () "You must NOT have a lock on the application when calling PURGE-SESSIONS (or on any of its sessions)!")
   (setf (sessions-last-purged-at-of application) (get-monotonic-time))
-  (let ((deleted-sessions (list))
-        (live-sessions (list)))
+  (bind ((deleted-sessions (list))
+         (live-sessions (list))
+         (deadline-timeout 1))
     (with-lock-held-on-application (application)
       (iter (for (session-id session) :in-hashtable (session-id->session-of application))
-            (if (is-session-alive? session)
-                (push session live-sessions)
-                (block deleting-sessions
-                  (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
-                                                  (app.error "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error))
-                                                (lambda (&key &allow-other-keys)
-                                                  (return-from deleting-sessions)))
-                    (delete-session application session)
-                    (push session deleted-sessions))))))
-    (dolist (session deleted-sessions)
-      (block noifying-sessions
-        (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
-                                        (app.error "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error))
-                                      (lambda (&key &allow-other-keys)
-                                        (return-from noifying-sessions)))
-          (with-lock-held-on-session (session)
-            (notify-session-expiration application session)))))
-    (dolist (session live-sessions)
-      (block purging-session-frames
-        (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
-                                        (app.error "Error happened while purging frames of ~A of application ~A. Got error ~A" session application error))
-                                      (lambda (&key &allow-other-keys)
-                                        (return-from purging-session-frames)))
-          (with-lock-held-on-session (session)
-            (purge-frames application session)))))
+            (cond
+              ((is-session-alive? session)
+               (push session live-sessions))
+              ((sb-thread:mutex-owner session)
+               ;; if someone has a lock on the session (e.g. a zombie request running on CPU so long that the session under it times out meanwhile), then we must skip that session because it'll lead to a deadlock...
+               ;; note: it's safe to call SB-THREAD:MUTEX-OWNER here because noone may lock a session without holding the app lock, which we hold here
+               (app.warn "Dead session ~A is also locked in PURGE-SESSIONS, therefore it will be excluded from this round of purging" session))
+              (t
+               (block deleting-session
+                 (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
+                                                 (app.error "Could not delete expired/invalid session ~A of application ~A, got error ~A" session application error))
+                                               (lambda (&key &allow-other-keys)
+                                                 (return-from deleting-session)))
+                   (delete-session application session)
+                   (push session deleted-sessions)))))))
+    (with-thread-name " / calling NOTIFY-SESSION-EXPIRATION on exired sessions"
+      (dolist (session deleted-sessions)
+        (block noifying-session
+          (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
+                                          (app.error "Error happened while notifying session ~A of application ~A about its exiration, got error ~A" session application error))
+                                        (lambda (&key &allow-other-keys)
+                                          (return-from noifying-session)))
+            (with-lock-held-on-session (session :deadline deadline-timeout)
+              (notify-session-expiration application session))))))
+    (with-thread-name " / calling PURGE-FRAMES on live sessions"
+      (dolist (session live-sessions)
+        (block purging-session-frames
+          (with-layered-error-handlers ((lambda (error &key &allow-other-keys)
+                                          (app.error "Error happened while purging frames of ~A of application ~A. Got error ~A" session application error))
+                                        (lambda (&key &allow-other-keys)
+                                          (return-from purging-session-frames)))
+            (with-lock-held-on-session (session :deadline deadline-timeout)
+              (purge-frames application session))))))
     (values)))
 
 (def (function e) mark-all-sessions-expired (application)

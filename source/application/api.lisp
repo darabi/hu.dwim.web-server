@@ -12,7 +12,8 @@
 (def (generic e) register-session (application session))
 (def (generic e) register-frame (application session frame))
 
-(def (generic e) purge-sessions (application))
+(def (generic e) purge-sessions (application)
+  (:documentation "Purge the web sessions of APPLICATION. Make sure you don't have any resources locked while calling this method! Especially dangerous to call this method from code invoked by WUI, because then you most probably have something locked already, e.g. the current SESSION object."))
 (def (generic e) purge-frames (application session))
 
 (def (generic e) delete-session (application session))
