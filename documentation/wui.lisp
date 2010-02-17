@@ -150,5 +150,5 @@ You need to build dojo for WUI to work:
 
 svn checkout -r 18738 http://svn.dojotoolkit.org/src/trunk/ dojo/
 svn update -r 18738
-~/workspace/wui/etc/build-dojo.sh --dojo ~/workspace/dojo --dojo-release-dir ~/workspace/wui/wwwroot/ --profile ~/workspace/wui/etc/wui.profile.js --locales "en-us,hu"
+$DWIM_WORKSPACE/wui/etc/build-dojo.sh --dojo $DWIM_WORKSPACE/dojo --dojo-release-dir $DWIM_WORKSPACE/wui/wwwroot/ --profile $DWIM_WORKSPACE/wui/etc/wui.profile.js --locales "en-us,hu"
 |#

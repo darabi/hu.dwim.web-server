@@ -870,10 +870,10 @@
     (component-demo/widget "Shell script"
       (make-value-inspector (shell-script ()
                               "sudo apt-get install clisp"
-                              "cd ~/workspace/sbcl"
+                              "cd $DWIM_WORKSPACE/sbcl"
                               "wget http://dwim.hu/install/customize-target-features.lisp"
-                              "sh ~/workspace/sbcl/make.sh \"clisp -ansi -on-error abort\""
-                              "sudo sh ~/workspace/sbcl/install.sh")))))
+                              "sh $DWIM_WORKSPACE/sbcl/make.sh \"clisp -ansi -on-error abort\""
+                              "sudo sh $DWIM_WORKSPACE/sbcl/install.sh")))))
 
 ;;;;;;
 ;;; Chart
