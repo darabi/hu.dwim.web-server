@@ -169,18 +169,18 @@
 (def function render-directory-as-html (directory path-prefix relative-path &key (filter 'render-directory-as-html/default-filter))
   <table
     ,@(labels ((render-link (path name)
-                 <a (:href ,(escape-as-uri (string+ path-prefix path)))
+                 <a (:href ,(escape-as-uri path) :class ,path)
                     ,name>)
                (render-file (file)
                  (bind ((name (apply 'string+ (pathname-name file)
                                      (awhen (pathname-type file)
                                        (list "." it)))))
-                   <tr <td ,(render-link (string+ relative-path name) name)>
+                   <tr <td ,(render-link (string+ name) name)>
                        <td ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))>>))
                (render-directory (directory &key
                                             (path (string+ (lastcar (pathname-directory directory)) "/"))
                                             (name path))
-                 <tr <td ,(render-link (string+ relative-path path) name)>
+                 <tr <td ,(render-link path name)>
                      <td>>))
         (bind ((elements (cl-fad:list-directory directory))
                ((:values directories files)
@@ -190,7 +190,7 @@
                             (collect element :into dirs)
                             (collect element :into files)))
                       (finally (return (values dirs files))))))
-          <tr <td ,(render-link (string+ relative-path "../") "[parent directory]")>
+          <tr <td ,(render-link (string+ "/" path-prefix relative-path "../") "[parent directory]")>
               <td>>
           (foreach #'render-directory directories)
           (foreach #'render-file files)))>)
