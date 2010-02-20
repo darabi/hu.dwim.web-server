@@ -43,9 +43,12 @@
 
 (def (generic e) (setf selected-component?) (new-value selection-component selectable-component)
   (:method (new-value (selection-component selection/mixin) (selectable-component selectable/mixin))
-    (setf (selected-value? (selection-of selection-component) selectable-component) new-value)
-    (mark-to-be-rendered-component selectable-component)
-    (mark-to-be-rendered-component selection-component)))
+    (bind ((selection (selection-of selection-component))
+           (old-selected-components (selected-value-set selection)))
+      (setf (selected-value? selection selectable-component) new-value)
+      (bind ((new-selected-components (selected-value-set selection)))
+        (foreach #'mark-to-be-rendered-component (set-difference (union old-selected-components new-selected-components)
+                                                                 (intersection old-selected-components new-selected-components)))))))
 
 (def (function e) find-selection-component (selectable-component)
   (find-ancestor-component-with-type selectable-component 'selection/mixin))
