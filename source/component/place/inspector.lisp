@@ -61,3 +61,9 @@
                                  (continue error))))
       (reuse-component-value self (component-dispatch-class self) (component-dispatch-prototype self) place)
       (setf (place-value place) (component-value-of content)))))
+
+(def method revert-editing :after ((self place/value/inspector))
+  (bind ((place (component-value-of self))
+         (content (content-of self)))
+    (reuse-component-value self (component-dispatch-class self) (component-dispatch-prototype self) place)
+    (setf (component-value-of content) (place-value place))))
