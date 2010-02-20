@@ -43,9 +43,12 @@
     (if content
         (setf (component-value-of content) component-value)
         (setf content (make-node/content -self- dispatch-class dispatch-prototype component-value)))
-    (if child-nodes
-        (foreach [setf (component-value-of !1) !2] child-nodes children)
-        (setf child-nodes (mapcar [make-node/child-node -self- dispatch-class dispatch-prototype !1] children)))))
+    (setf child-nodes (iter (for child :in-sequence children)
+                            (for child-node = (find child child-nodes :key #'component-value-of))
+                            (if child-node
+                                (setf (component-value-of child-node) child)
+                                (setf child-node (make-node/child-node -self- dispatch-class dispatch-prototype child)))
+                            (collect child-node)))))
 
 (def (layered-function e) make-node/content (component class prototype value))
 
