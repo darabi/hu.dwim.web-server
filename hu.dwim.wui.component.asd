@@ -188,6 +188,7 @@
                                                          (:file "filter" :depends-on ("presentation"))
                                                          (:file "inspector" :depends-on ("presentation"))
                                                          (:file "maker" :depends-on ("presentation"))
+                                                         (:file "manager" :depends-on ("presentation"))
                                                          (:file "presentation")
                                                          (:file "process" :depends-on ("presentation"))
                                                          (:file "viewer" :depends-on ("presentation"))))
