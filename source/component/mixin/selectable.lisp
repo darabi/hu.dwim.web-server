@@ -58,5 +58,7 @@
     (component-value-of it)))
 
 (def (function e) selectable-component-style-class (selectable-component)
-  (when (selected-component? (find-selection-component selectable-component) selectable-component)
-    " selected"))
+  (string+ (when (selected-component? (find-selection-component selectable-component) selectable-component)
+             " selected")
+           (when (selectable-component? selectable-component)
+             " selectable")))
