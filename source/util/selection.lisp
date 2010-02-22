@@ -96,13 +96,16 @@
     (call-next-method)))
 
 (def method selection-clear ((selection selection))
-  (setf (selected-value-set selection) ()))
+  (setf (selected-value-set selection) ())
+  (values))
 
 (def method selection-select ((selection selection) value)
-  (setf (selected-value? selection value) #t))
+  (setf (selected-value? selection value) #t)
+  (values))
 
 (def method selection-deselect ((selection selection) value)
-  (setf (selected-value? selection value) #f))
+  (setf (selected-value? selection value) #f)
+  (values))
 
 (def method selected-value? ((selection selection) value)
   (member value (selected-value-set selection)))
@@ -166,7 +169,8 @@
       1))
 
 (def method selection-clear ((selection single-value-selection))
-  (setf (selected-value-of selection) nil))
+  (setf (selected-value-of selection) nil)
+  (values))
 
 (def method selected-value? ((selection single-value-selection) value)
   (eq (selected-value-of selection) value))
@@ -231,7 +235,8 @@
 
 (def method selection-clear ((selection value-set-selection))
   (clrhash (selected-value-set-of selection))
-  (invalidate-computed-slot selection 'selected-value-set))
+  (invalidate-computed-slot selection 'selected-value-set)
+  (values))
 
 (def method selected-value? ((selection value-set-selection) value)
   (gethash (hash-key value) (selected-value-set-of selection)))
