@@ -18,6 +18,9 @@
 (def (generic e) selection-maximum-cardinality (selection)
   (:documentation "Returns an integer greater than or equal to selection minimum cardinality. It specifies the possible maximum number of selected values in SELECTION."))
 
+(def (generic e) selection-cardinality-check (selection new-count)
+  (:documentation "Returns TRUE if SELECTION allows the number of selected values to be NEW-COUNT, otherwise signals an error. The default implementation checks for NEW-COUNT being between the values returned by SELECTION-MINIMUM-CARDINALITY and SELECTION-MAXIMUM-CARDINALITY."))
+
 (def (generic e) selection-empty? (selection)
   (:documentation "Returns TRUE if SELECTION currently does not contain any selected value, otherwise returns FALSE."))
 
@@ -66,7 +69,18 @@
 (def (class* e) selection ()
   ())
 
+(def (condition* e) selection-error ()
+  ((selection :type selection))
+  (:report
+   (lambda (error stream)
+     (format stream "Error during processing operation on ~A" (selection-of error)))))
+
 (def method selection? ((selection selection))
+  #t)
+
+(def method selection-cardinality-check ((selection selection) (new-count integer))
+  (unless (<= (selection-minimum-cardinality selection) new-count (selection-maximum-cardinality selection))
+    (cerror "Ignore selection cardinality violation" 'selection-error :selection selection))
   #t)
 
 (def method selection-empty? ((selection selection))
@@ -74,6 +88,10 @@
 
 (def method selection-count ((selection selection))
   (length (selected-value-set selection)))
+
+(def method selection-clear :around ((selection selection))
+  (when (selection-cardinality-check selection 0)
+    (call-next-method)))
 
 (def method selection-clear ((selection selection))
   (setf (selected-value-set selection) ()))
@@ -95,7 +113,8 @@
             (setf (selected-value-set selection) (remove value selected-values)))
         (if selected?
             (setf (selected-value-set selection) (cons value selected-values))
-            (values)))))
+            (values))))
+  selected?)
 
 (def method selected-single-value ((selection selection))
   (bind ((selected-values (selected-value-set selection)))
@@ -105,7 +124,16 @@
         (error "~A contains multiple selected values" selection))))
 
 (def method (setf selected-single-value) (new-value (selection selection))
-  (setf (selected-value-set selection) (list new-value)))
+  (setf (selected-value-set selection) (list new-value))
+  new-value)
+
+(def method (setf selected-single-value) :around (new-value (selection selection))
+  (when (selection-cardinality-check selection 1)
+    (call-next-method)))
+
+(def method (setf selected-value-set) :around (new-value (selection selection))
+  (when (selection-cardinality-check selection (length new-value))
+    (call-next-method)))
 
 ;;;;;;
 ;;; single-value-selection
@@ -145,10 +173,14 @@
   (if (eq (selected-value-of selection) value)
       (if selected?
           (values)
-          (setf (selected-value-of selection) nil))
+          (when (selection-cardinality-check selection 0)
+            (setf (selected-value-of selection) nil)))
       (if selected?
-          (setf (selected-value-of selection) value)
-          (setf (selected-value-of selection) nil))))
+          (when (selection-cardinality-check selection 1)
+            (setf (selected-value-of selection) value))
+          (when (selection-cardinality-check selection 0)
+            (setf (selected-value-of selection) nil))))
+  selected?)
 
 (def method selected-single-value ((selection single-value-selection))
   (selected-value-of selection))
@@ -166,7 +198,8 @@
         ((length= 1 new-value)
          (setf (selected-value-of selection) (first new-value)))
         (t
-         (error "Cannot set selected values to ~A in ~A" new-value selection))))
+         (error "Cannot set selected values to ~A in ~A" new-value selection)))
+  new-value)
 
 ;;;;;;
 ;;; value-set-selection
@@ -203,15 +236,19 @@
 
 (def method (setf selected-value?) (selected? (selection value-set-selection) value)
   (bind ((selected-value-set (selected-value-set-of selection))
+         (count (hash-table-count selected-value-set))
          (key (hash-key value)))
     (if (gethash key selected-value-set)
         (if selected?
             (values)
-            (remhash key selected-value-set))
+            (when (selection-cardinality-check selection (1- count))
+              (remhash key selected-value-set)))
         (if selected?
-            (setf (gethash key selected-value-set) #t)
+            (when (selection-cardinality-check selection (1+ count))
+              (setf (gethash key selected-value-set) #t))
             (values)))
-    (invalidate-computed-slot selection 'selected-value-set)))
+    (invalidate-computed-slot selection 'selected-value-set)
+    selected?))
 
 (def method selected-single-value ((selection value-set-selection))
   (bind ((selected-value-set (selected-value-set-of selection)))
@@ -225,7 +262,8 @@
   (bind ((selected-value-set (selected-value-set-of selection)))
     (clrhash selected-value-set)
     (setf (gethash (hash-key new-value) selected-value-set) #t)
-    (invalidate-computed-slot selection 'selected-value-set)))
+    (invalidate-computed-slot selection 'selected-value-set)
+    new-value))
 
 (def method selected-value-set ((selection value-set-selection))
   (hash-table-keys (selected-value-set-of selection)))
@@ -235,4 +273,5 @@
     (clrhash selected-value-set)
     (iter (for selected-value :in-sequence new-value)
           (setf (gethash (hash-key selected-value) selected-value-set) #t))
-    (invalidate-computed-slot selection 'selected-value-set)))
+    (invalidate-computed-slot selection 'selected-value-set)
+    new-value))
