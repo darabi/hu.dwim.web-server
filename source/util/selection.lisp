@@ -19,7 +19,7 @@
   (:documentation "Returns an integer greater than or equal to selection minimum cardinality. It specifies the possible maximum number of selected values in SELECTION."))
 
 (def (generic e) selection-cardinality-check (selection new-count)
-  (:documentation "Returns TRUE if SELECTION allows the number of selected values to be NEW-COUNT, otherwise signals an error. The default implementation checks for NEW-COUNT being between the values returned by SELECTION-MINIMUM-CARDINALITY and SELECTION-MAXIMUM-CARDINALITY."))
+  (:documentation "Returns TRUE if SELECTION is allowed to have the number of selected values specified by NEW-COUNT, otherwise returns FALSE in which case the selection is not changed. The default implementation signals a continuable error if NEW-COUNT is not between the values returned by SELECTION-MINIMUM-CARDINALITY and SELECTION-MAXIMUM-CARDINALITY."))
 
 (def (generic e) selection-empty? (selection)
   (:documentation "Returns TRUE if SELECTION currently does not contain any selected value, otherwise returns FALSE."))
@@ -79,9 +79,11 @@
   #t)
 
 (def method selection-cardinality-check ((selection selection) (new-count integer))
-  (unless (<= (selection-minimum-cardinality selection) new-count (selection-maximum-cardinality selection))
-    (cerror "Ignore selection cardinality violation" 'selection-error :selection selection))
-  #t)
+  (if (<= (selection-minimum-cardinality selection) new-count (selection-maximum-cardinality selection))
+      #t
+      (progn
+        (cerror "Ignore selection change" 'selection-error :selection selection)
+        #f)))
 
 (def method selection-empty? ((selection selection))
   (null (selected-value-set selection)))
