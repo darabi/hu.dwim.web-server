@@ -42,7 +42,7 @@
 
 (def layered-method make-select-component-command ((component selectable/mixin) class prototype value)
   (command/widget (:ajax (awhen (find-selection-component component) (ajax-of it))
-                   :visible (delay (selectable-component? component)))
+                   :enabled (delay (selectable-component? component)))
     (icon select-component)
     (make-component-action component
       (notf (selected-component? (find-selection-component component) component)))))
