@@ -21,6 +21,9 @@
 (def (generic e) selection-empty? (selection)
   (:documentation "Returns TRUE if SELECTION currently does not contain any selected value, otherwise returns FALSE."))
 
+(def (generic e) selection-count (selection)
+  (:documentation "Returns the number of selected values in SELECTION."))
+
 (def (generic e) selection-clear (selection)
   (:documentation "Removes all selected values from SELECTION making it empty."))
 
@@ -68,6 +71,9 @@
 
 (def method selection-empty? ((selection selection))
   (null (selected-value-set selection)))
+
+(def method selection-count ((selection selection))
+  (length (selected-value-set selection)))
 
 (def method selection-clear ((selection selection))
   (setf (selected-value-set selection) ()))
@@ -124,6 +130,11 @@
 (def method selection-empty? ((selection single-value-selection))
   (null (selected-value-of selection)))
 
+(def method selection-count ((selection single-value-selection))
+  (if (selected-value-of selection)
+      0
+      1))
+
 (def method selection-clear ((selection single-value-selection))
   (setf (selected-value-of selection) nil))
 
@@ -179,6 +190,9 @@
 
 (def method selection-empty? ((selection value-set-selection))
   (zerop (hash-table-count (selected-value-set-of selection))))
+
+(def method selection-count ((selection value-set-selection))
+  (hash-table-count (selected-value-set-of selection)))
 
 (def method selection-clear ((selection value-set-selection))
   (clrhash (selected-value-set-of selection))
