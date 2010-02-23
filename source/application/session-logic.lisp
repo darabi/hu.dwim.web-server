@@ -304,7 +304,7 @@
             (cond
               ((is-session-alive? session)
                (push session live-sessions))
-              ((sb-thread:mutex-owner session)
+              ((sb-thread:mutex-owner (lock-of session))
                ;; if someone has a lock on the session (e.g. a zombie request running on CPU so long that the session under it times out meanwhile), then we must skip that session because it'll lead to a deadlock...
                ;; note: it's safe to call SB-THREAD:MUTEX-OWNER here because noone may lock a session without holding the app lock, which we hold here
                (app.warn "Dead session ~A is also locked in PURGE-SESSIONS, therefore it will be excluded from this round of purging" session))
