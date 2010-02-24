@@ -7,16 +7,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; component/chart
-
-(def (component e) component/chart ()
-  ()
-  (:documentation "TODO"))
-
-;;;;;;
 ;;; chart/abstract
 
-(def (component e) chart/abstract ()
+(def (component e) chart/abstract (component/basic)
   ((configuration-provider
     :type (or symbol function))
    (data-provider
