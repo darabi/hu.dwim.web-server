@@ -236,6 +236,8 @@
   line-height: 17px;
   padding-left: 2px;
   padding-right: 2px;
+  background-repeat: no-repeat;
+  background-position: left center;
   cursor: pointer;
 }
 
