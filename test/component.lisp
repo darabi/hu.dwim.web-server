@@ -56,7 +56,7 @@
 
 (def function make-demo-frame-component-with-content (&optional initial-content-component)
   (frame/widget (:title "hu.dwim.wui component demo"
-                 :stylesheet-uris (make-stylesheet-uris :hu.dwim.wui "css/test.css"))
+                 :stylesheet-uris (make-stylesheet-uris :hu.dwim.wui "static/" "css/test.css"))
     (top/widget (:menu-bar (menu-bar/widget ()
                              (make-debug-menu)))
       (make-component-demo-content initial-content-component))))

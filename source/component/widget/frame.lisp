@@ -161,7 +161,7 @@
          +js-i18n-broker/default-path+
          +js-component-hierarchy-serving-broker/default-path+))
 
-(def (function e) %make-stylesheet-uris (asdf-system-name-or-base-directory path-prefix &rest relative-paths)
+(def function %make-stylesheet-uris (asdf-system-name-or-base-directory path-prefix &rest relative-paths)
   (bind ((base-directory (aif (find-system asdf-system-name-or-base-directory #f)
                               (system-relative-pathname it "www/")
                               asdf-system-name-or-base-directory)))
@@ -187,6 +187,6 @@
                             "css/shell-script.css"
                             "css/presentation.css"))))
 
-(def (function e) make-stylesheet-uris (asdf-system-name-or-base-directory &rest relative-paths)
+(def (function e) make-stylesheet-uris (asdf-system-name-or-base-directory path-prefix &rest relative-paths)
   (append (make-default-stylesheet-uris)
-          (apply #'%make-stylesheet-uris asdf-system-name-or-base-directory "static/" relative-paths)))
+          (apply #'%make-stylesheet-uris asdf-system-name-or-base-directory path-prefix relative-paths)))
