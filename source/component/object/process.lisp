@@ -69,7 +69,7 @@
     (bind (((:slots answer-commands content) component)
            (values (multiple-value-list (call-next-layered-method)))
            (first-value (first values)))
-      (if (hu.dwim.delico:continuationp first-value)
+      (if (hu.dwim.delico:continuation? first-value)
           (setf (hu.dwim.util::continuation-of value) first-value)
           (progn
             (when values
