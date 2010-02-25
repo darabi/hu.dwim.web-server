@@ -35,6 +35,8 @@
   (:method ((component project/detail/inspector) (project project))
     (list (tab-page/widget (:selector (icon switch-to-tab-page :label "Description"))
             (make-instance 'project/description/inspector :component-value project))
+          (tab-page/widget (:selector (icon switch-to-tab-page :label "System"))
+            (make-instance 'project/system/inspector :component-value project))
           (tab-page/widget (:selector (icon switch-to-tab-page :label "Content"))
             (make-instance 'project/content/inspector :component-value project))
           (tab-page/widget (:selector (icon switch-to-tab-page :label "Repository"))
@@ -51,12 +53,18 @@
   ())
 
 (def refresh-component project/description/inspector
-  (bind (((:slots content component-value) -self-)
-         (system (asdf:find-system (project-system-name component-value) #f)))
-    (setf content (or (and system
-                           (slot-boundp system 'asdf::description)
-                           (asdf:system-description system))
-                      "No description"))))
+  (bind (((:slots content component-value) -self-))
+    (setf content (make-value-inspector (description-of component-value)))))
+
+;;;;;;
+;;; project/system/inspector
+
+(def (component e) project/system/inspector (inspector/style t/detail/presentation content/widget)
+  ())
+
+(def refresh-component project/system/inspector
+  (bind (((:slots content component-value) -self-))
+    (setf content (make-value-inspector (asdf:find-system (project-system-name component-value) #f)))))
 
 ;;;;;;
 ;;; project/content/inspector

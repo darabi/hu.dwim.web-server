@@ -26,3 +26,7 @@ div.documentation.inspector {
   white-space: pre-wrap;
   font-family: monospace;
 }
+
+div.hyperlink.inspector {
+  display: inline;
+}
