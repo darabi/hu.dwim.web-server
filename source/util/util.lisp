@@ -396,54 +396,6 @@
              (funcall children-function node))))
 
 ;;;;;;
-;;; Temporary file
-
-(def special-variable *temporary-file-random-state* (make-random-state t))
-(def global-variable *temporary-file-unique-counter* (make-atomic-counter))
-
-(def special-variable *directory-for-temporary-files* nil
-  "Holds the runtime value of the temporary directory, which includes the PID.")
-
-(def (function e) directory-for-temporary-files ()
-  (or *directory-for-temporary-files*
-      (setf *directory-for-temporary-files*
-            (ensure-directories-exist
-             (string+ (iolib.pathnames:file-path-namestring iolib.os:*temporary-directory*)
-                      "/wui-"
-                      (integer-to-string (isys:%sys-getpid))
-                      "/")))))
-
-(def (function e) delete-directory-for-temporary-files ()
-  (when *directory-for-temporary-files*
-    (iolib.os:delete-files *directory-for-temporary-files* :recursive #t)
-    (setf *directory-for-temporary-files* nil)))
-
-(def function filename-for-temporary-file (&optional (prefix nil prefix-provided?))
-  (string+ (directory-for-temporary-files)
-           prefix
-           (when prefix-provided?
-             "-")
-           (integer-to-string (atomic-counter/increment *temporary-file-unique-counter*))
-           "-"
-           (integer-to-string (random 100000 *temporary-file-random-state*))))
-
-(def function open-temporary-file (&rest args &key
-                                         (element-type '(unsigned-byte 8))
-                                         (direction :output)
-                                         name-prefix)
-  (remove-from-plistf args :name-prefix)
-  (iter
-    (for file-name = (filename-for-temporary-file name-prefix))
-    (for file = (apply #'open
-                       file-name
-                       :if-exists nil
-                       :direction direction
-                       :element-type element-type
-                       args))
-    (until file)
-    (finally (return (values file file-name)))))
-
-;;;;;;
 ;;; Dynamic classes
 
 (def special-variable *dynamic-classes* (make-hash-table :test #'equal))

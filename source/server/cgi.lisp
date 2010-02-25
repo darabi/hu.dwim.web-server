@@ -58,7 +58,7 @@
 
 (def (function ed) handle-cgi-request (cgi-file path-prefix &key environment)
   (bind ((cgi-file (truename cgi-file))
-         (temporary-file (filename-for-temporary-file "cgi")))
+         (temporary-file (filename-for-temporary-file "wui-cgi")))
     (cgi.debug "Executing CGI file ~S, matched on path-prefix ~S" cgi-file path-prefix)
     (bind ((final-environment (compute-cgi-environment environment)))
       (cgi.dribble "Executing CGI file ~S, matched on path-prefix ~S, temporary file will be ~S.~% * Input environment:~%     ~S~% * Final environment:~%     ~S. " cgi-file path-prefix temporary-file environment final-environment)

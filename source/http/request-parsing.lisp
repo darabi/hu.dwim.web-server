@@ -164,7 +164,7 @@
       (cond
         ((or (string-equal "file" content-disposition)
              (not (null filename)))
-         (bind (((:values file tmp-filename) (open-temporary-file :name-prefix "upload-")))
+         (bind (((:values file tmp-filename) (open-temporary-file :name-prefix "wui-upload-")))
            (setf (rfc2388-binary:content mime-part) file)
            (http.dribble "Sending mime part data to file ~S (~S)" tmp-filename (rfc2388-binary:content mime-part))
            (bind ((counter 0)
