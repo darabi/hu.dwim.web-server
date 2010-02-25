@@ -10,11 +10,9 @@
 ;;; This is a simple example application with various components
 
 (def special-variable *component-demo-application* (make-instance 'standard-application
-                                                                  :path-prefix "/"
                                                                   :home-package (find-package :hu.dwim.wui.test)
                                                                   :default-locale "en"
-                                                                  :frame-root-component-factory 'make-demo-frame-component-with-content
-                                                                  :ajax-enabled #t))
+                                                                  :frame-root-component-factory 'make-demo-frame-component-with-content))
 
 ;;;;;;
 ;;; Entry point
