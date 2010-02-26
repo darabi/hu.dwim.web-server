@@ -19,18 +19,27 @@
     (optional-list (awhen (find-if [not (null (class-slots (class-of !1)))] value)
                      (make-instance 'sequence/table/inspector
                                     :component-value value
+                                    :component-value-type component-value-type
                                     :edited edited-component
                                     :editable editable-component))
                    (make-instance 'sequence/list/inspector
                                   :component-value value
+                                  :component-value-type component-value-type
                                   :edited edited-component
                                   :editable editable-component)
                    (make-instance 'sequence/tree/inspector
                                   :component-value value
+                                  :component-value-type component-value-type
+                                  :edited edited-component
+                                  :editable editable-component)
+                   (make-instance 'sequence/treeble/inspector
+                                  :component-value value
+                                  :component-value-type component-value-type
                                   :edited edited-component
                                   :editable editable-component)
                    (make-instance 'sequence/reference/inspector
                                   :component-value value
+                                  :component-value-type component-value-type
                                   :edited edited-component
                                   :editable editable-component))))
 

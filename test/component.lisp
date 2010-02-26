@@ -743,6 +743,16 @@
 ;;;;;;
 ;;; Tree
 
+(def class* tree-node ()
+  ((name :type string)
+   (children nil :type sequence)))
+
+(def layered-method collect-tree/children ((component t/node/inspector) (class standard-class) (prototype tree-node) (value tree-node))
+  (children-of value))
+
+(def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype tree-node) (value tree-node))
+  (name-of value))
+
 (def function make-tree-node ()
   (node/widget (:expanded #f)
       "Tree"
@@ -760,7 +770,16 @@
              ,name
            (make-value-inspector (find-class ',supercomponent)))
        (component-demo/widget "Cons tree"
-         ,(make 'list ''("John" ("Mary" ("Fred" "Susanne") "Steve" ("George" "Jenna")) "Kate"))))))
+         ,(make 'list ''("John" ("Mary" ("Fred" "Susanne") "Steve" ("George" "Jenna")) "Kate")))
+       (component-demo/widget "Object tree"
+         ,(make 'list '(list (make-instance 'tree-node
+                                            :name "John"
+                                            :children (list (make-instance 'tree-node :name "Fred")
+                                                            (make-instance 'tree-node :name "Susanne")))
+                             (make-instance 'tree-node
+                                            :name "Mary"
+                                            :children (list (make-instance 'tree-node :name "George")
+                                                            (make-instance 'tree-node :name "Jenna")))))))))
 
 (def function make-tree-maker-node ()
   (make-tree-presentation-node "Maker" make-maker nil))

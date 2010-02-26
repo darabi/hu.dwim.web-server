@@ -150,15 +150,12 @@
   ())
 
 (def layered-method make-tree/root-node ((component sequence/tree/inspector) class prototype value)
-  (if (typep value 'sequence)
-      (make-instance 't/node/inspector
-                     :component-value value
-                     :edited (edited-component? component)
-                     :editable (editable-component? component))
-      (make-value-inspector value
-                            :initial-alternative-type 't/reference/presentation
-                            :edited (edited-component? component)
-                            :editable (editable-component? component))))
+  (make-instance (if (typep value 'sequence)
+                     'sequence/node/inspector
+                     't/node/inspector)
+                 :component-value value
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
 
 ;;;;;;
 ;;; sequence/node/inspector
@@ -167,12 +164,27 @@
   ())
 
 (def layered-method make-node/child-node ((component sequence/node/inspector) class prototype value)
-  (if (typep value 'sequence)
-      (make-instance 'sequence/node/inspector
-                     :component-value value
-                     :edited (edited-component? component)
-                     :editable (editable-component? component))
-      (make-value-inspector value
-                            :initial-alternative-type 't/reference/presentation
-                            :edited (edited-component? component)
-                            :editable (editable-component? component))))
+  (make-instance (if (typep value 'sequence)
+                     'sequence/node/inspector
+                     't/node/inspector)
+                 :component-value value
+                 :edited (edited-component? component)
+                 :editable (editable-component? component)))
+
+;;;;;;
+;;; sequence/treeble/inspector
+
+(def (component e) sequence/treeble/inspector (inspector/basic t/detail/inspector treeble/widget)
+  ())
+
+(def refresh-component sequence/treeble/inspector
+  (bind (((:slots component-value root-nodes columns) -self-)
+         (class (component-dispatch-class -self-))
+         (prototype (component-dispatch-prototype -self-)))
+    (setf columns (make-table-columns -self- class prototype component-value)
+          root-nodes (iter (for node-value :in-sequence component-value)
+                           (for root-node = (find node-value root-nodes :key #'component-value-of))
+                           (if root-node
+                               (setf (component-value-of root-node) node-value)
+                               (setf root-node (make-table-row -self- class prototype node-value)))
+                           (collect root-node)))))
