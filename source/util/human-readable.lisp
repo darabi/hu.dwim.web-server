@@ -20,17 +20,28 @@
 
 (def constant +human-readable-string-separator-character+ #\/)
 
+(def constant +human-readable-string-escape-character+ #\')
+
 (def function merge-human-readable-string (&rest elements)
   (with-output-to-string (stream)
     (iter (for element :in elements)
+          (for position = (position #\/ element))
           (unless (first-iteration-p)
             (write-char +human-readable-string-separator-character+ stream))
-          (write-string element stream))))
+          (if (and position
+                   (not (zerop position)))
+              (progn
+                (write-char +human-readable-string-escape-character+ stream)
+                (write-string element stream)
+                (write-char +human-readable-string-escape-character+ stream))
+              (write-string element stream)))))
 
 (def method serialize/human-readable (object)
   (do-namespace-namespace (name namespace)
     (maphash (lambda (key value)
-               (when (eq value object)
+               (when (and (symbolp name)
+                          (symbolp key)
+                          (eq value object))
                  (return-from serialize/human-readable (merge-human-readable-string (serialize/human-readable nil)
                                                                                     (symbol-name name)
                                                                                     (fully-qualified-symbol-name key)))))
@@ -74,7 +85,13 @@
 ;;; Lookup
 
 (def function split-human-readable-string (string)
-  (split-sequence:split-sequence +human-readable-string-separator-character+ string :remove-empty-subseqs t))
+  (iter (for part :in (cl-ppcre:all-matches-as-strings "/'.+?'|/[^'][^/]*" string))
+        (for length = (length part))
+        (collect (if (and (> length 3)
+                          (char= +human-readable-string-escape-character+ (elt part 1))
+                          (char= +human-readable-string-escape-character+ (elt part (1- length))))
+                     (subseq part 2 (1- length))
+                     (subseq part 1)))))
 
 (def generic deserialize/human-readable-in-context (context string))
 
@@ -105,7 +122,9 @@
                                             (when (length= 2 strings)
                                               (do-namespace-namespace (name namespace)
                                                 (maphash (lambda (key value)
-                                                           (when (equal strings (list (symbol-name name) (fully-qualified-symbol-name key)))
+                                                           (when (and (symbolp name)
+                                                                      (symbolp key)
+                                                                      (equal strings (list (symbol-name name) (fully-qualified-symbol-name key))))
                                                              (return-from deserialize/human-readable-in-context value)))
                                                          namespace)))))
                                          (cdr strings)))
@@ -114,11 +133,13 @@
   (pathname (car strings)))
 
 (def method deserialize/human-readable-in-context ((context (eql :class)) (strings cons))
-  (deserialize/human-readable-in-context (find-class (find-fully-qualified-symbol (car strings)))
+  (deserialize/human-readable-in-context (find-class (find-fully-qualified-symbol (car strings)) nil)
                                          (cdr strings)))
 
 (def method deserialize/human-readable-in-context ((context (eql :function)) (strings cons))
-  (fdefinition (find-fully-qualified-symbol (car strings))))
+  (bind ((name (find-fully-qualified-symbol (car strings))))
+    (when (fboundp name)
+      (fdefinition name))))
 
 (def method deserialize/human-readable-in-context ((class class) (strings cons))
   (deserialize/human-readable-in-context (eswitch ((car strings) :test #'equalp)

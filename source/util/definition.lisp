@@ -76,23 +76,3 @@
                          (:symbol-macro nil)
                          (t nil))
                   (in outer (collect it)))))))
-
-(def function parse-definition-documentation (text)
-  (iter (for part :in (split-sequence-by-partitioning text
-                                                      (lambda (character)
-                                                        (or (upper-case-p character)
-                                                            (member character '(#\- #\/))))
-                                                      (constantly #t)))
-        (for definitions = (when (> (length part) 2)
-                             (bind (((:values symbol symbol-found?) (find-symbol part :hu.dwim.wui)))
-                               (if symbol-found?
-                                   (make-definitions symbol)
-                                   (bind (((:values fully-qualified-symbol fully-qualified-symbol-found?) (find-fully-qualified-symbol part)))
-                                     (when fully-qualified-symbol-found?
-                                       (make-definitions fully-qualified-symbol)))))))
-        (collect (cond ((null definitions)
-                        part)
-                       ((length= 1 definitions)
-                        (make-value-inspector (first definitions) :initial-alternative-type 't/reference/inspector))
-                       (t
-                        (make-value-inspector definitions :initial-alternative-type 't/reference/inspector))))))

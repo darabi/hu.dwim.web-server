@@ -89,7 +89,7 @@ Optimized factory configuration (default):
 (def refresh-component t/documentation/inspector
   (bind (((:slots contents component-value) -self-)
          (documentation (make-documentation -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value)))
-    (setf contents (parse-definition-documentation documentation))))
+    (setf contents (parse-documentation documentation))))
 
 (def render-xhtml t/documentation/inspector
   (with-render-style/abstract (-self-)
@@ -110,6 +110,22 @@ Optimized factory configuration (default):
 
   (:method ((component t/documentation/inspector) (class standard-class) (prototype standard-object) (value standard-object))
     (documentation class t)))
+
+(def function parse-documentation (text)
+  (iter (for part :in (split-sequence-by-partitioning text
+                                                      (lambda (character)
+                                                        (or (upper-case-p character)
+                                                            (member character '(#\- #\/ #\. #\: #\'))))
+                                                      (constantly #t)))
+        (for targets = (when (> (length part) 2)
+                         (deserialize/human-readable part)))
+        (collect (cond ((null targets)
+                        part)
+                       ((and (typep targets 'sequence)
+                             (length= 1 targets))
+                        (make-value-inspector (first targets) :initial-alternative-type 't/reference/inspector))
+                       (t
+                        (make-value-inspector targets :initial-alternative-type 't/reference/inspector))))))
 
 ;;;;;;
 ;;; t/name-value-list/inspector
