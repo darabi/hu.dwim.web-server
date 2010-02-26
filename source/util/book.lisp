@@ -7,19 +7,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Books
+;;; Namespace
 
-(def special-variable *books* (make-hash-table))
-
-(def (function e) find-book (name)
-  (gethash name *books*))
-
-(def (function e) (setf find-book) (new-value name)
-  (setf (gethash name *books*) new-value))
-
-(def (function e) find-user-guide (system-name)
-  (awhen (find-package (system-package-name (find-system (system-documentation-system-name (find-system system-name)))))
-    (find-book (find-symbol "USER-GUIDE" it))))
+(def (namespace e) book ((&rest args &key &allow-other-keys) &body contents)
+  `(book (:name ',-name- ,@args) ,@contents))
 
 ;;;;;;
 ;;; Text
@@ -50,7 +41,8 @@
 ;;; Book
 
 (def class* book (text title-mixin)
-  ((authors nil :type list))
+  ((name :type symbol)
+   (authors nil :type list))
   (:documentation "A BOOK is a mostly textual description of something."))
 
 (def (macro e) book ((&rest args &key &allow-other-keys) &body contents)
@@ -73,9 +65,3 @@
 
 (def (macro e) paragraph ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'paragraph ,@args :contents (list ,@contents)))
-
-;;;;;;
-;;; Definer
-
-(def (definer e :available-flags "e") book (name (&rest args &key &allow-other-keys) &body contents)
-  `(setf (find-book ',name) (book ,args ,@contents)))

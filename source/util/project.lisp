@@ -10,18 +10,12 @@
 ;;; Project
 
 (def (namespace e) project (&rest args &key &allow-other-keys)
-  `(make-instance 'project ,@args))
+  `(make-instance 'project :name ',-name- ,@args))
 
 (def (class* e) project ()
   ((name nil :type string)
    (path :type pathname)
    (description nil)))
-
-(def constructor project
-  (bind (((:slots name path) -self-))
-    (unless name
-      (setf name (or (pathname-name path)
-                     (last-elt (pathname-directory path)))))))
 
 ;;;;;;
 ;;; Util
@@ -45,7 +39,9 @@
         (finally (return (find-project-by-path pathname)))))
 
 (def (function e) project-system-name (project)
-  (name-of project))
+  (bind ((path (path-of project)))
+    (or (pathname-name path)
+        (last-elt (pathname-directory path)))))
 
 (def (function e) project-licence-pathname (project)
   (flet ((try (filename)
