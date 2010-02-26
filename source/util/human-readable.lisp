@@ -27,6 +27,15 @@
             (write-char +human-readable-string-separator-character+ stream))
           (write-string element stream))))
 
+(def method serialize/human-readable (object)
+  (do-namespace-namespace (name namespace)
+    (maphash (lambda (key value)
+               (when (eq value object)
+                 (return-from serialize/human-readable (merge-human-readable-string (serialize/human-readable nil)
+                                                                                    (symbol-name name)
+                                                                                    (fully-qualified-symbol-name key)))))
+             namespace)))
+
 (def method serialize/human-readable ((context null))
   "")
 
@@ -38,12 +47,6 @@
 
 (def method serialize/human-readable ((context (eql :function)))
   (merge-human-readable-string (serialize/human-readable nil) "FUNCTION"))
-
-(def method serialize/human-readable ((context (eql :project)))
-  (merge-human-readable-string (serialize/human-readable nil) "PROJECT"))
-
-(def method serialize/human-readable ((context (eql :book)))
-  (merge-human-readable-string (serialize/human-readable nil) "BOOK"))
 
 (def method serialize/human-readable ((pathname pathname))
   (merge-human-readable-string (serialize/human-readable :file)
@@ -66,14 +69,6 @@
   (merge-human-readable-string (serialize/human-readable (slot-value slot 'sb-pcl::%class))
                                "EFFECTIVE-SLOT"
                                (fully-qualified-symbol-name (slot-definition-name slot))))
-
-(def method serialize/human-readable ((project project))
-  (merge-human-readable-string (serialize/human-readable :project)
-                               (fully-qualified-symbol-name (name-of project))))
-
-(def method serialize/human-readable ((book book))
-  (merge-human-readable-string (serialize/human-readable :book)
-                               (fully-qualified-symbol-name (name-of book))))
 
 ;;;;;;
 ;;; Lookup
@@ -99,17 +94,20 @@
   nil)
 
 (def method deserialize/human-readable-in-context ((context null) (strings cons))
-  (deserialize/human-readable-in-context (eswitch ((car strings) :test #'equalp)
+  (deserialize/human-readable-in-context (switch ((car strings) :test #'equalp)
                                            ("FILE"
                                             :file)
                                            ("CLASS"
                                             :class)
                                            ("FUNCTION"
                                             :function)
-                                           ("PROJECT"
-                                            :project)
-                                           ("BOOK"
-                                            :book))
+                                           (t
+                                            (when (length= 2 strings)
+                                              (do-namespace-namespace (name namespace)
+                                                (maphash (lambda (key value)
+                                                           (when (equal strings (list (symbol-name name) (fully-qualified-symbol-name key)))
+                                                             (return-from deserialize/human-readable-in-context value)))
+                                                         namespace)))))
                                          (cdr strings)))
 
 (def method deserialize/human-readable-in-context ((context (eql :file)) (strings cons))
@@ -132,9 +130,3 @@
 
 (def method deserialize/human-readable-in-context ((elements list) (strings cons))
   (find (car strings) elements :key [fully-qualified-symbol-name (slot-definition-name !1)] :test #'equal))
-
-(def method deserialize/human-readable-in-context ((context (eql :project)) (strings cons))
-  (find-project (find-fully-qualified-symbol (car strings))))
-
-(def method deserialize/human-readable-in-context ((context (eql :book)) (strings cons))
-  (find-book (find-fully-qualified-symbol (car strings))))
