@@ -52,25 +52,25 @@
 
 (def (component e) component ()
   ()
-  (:documentation "COMPONENT is the base class for all COMPONENT-CLASSes. The primitive types STRING and NUMBER are also considered COMPONENTs.
-For debugging purposes NIL is not a valid COMPONENT. This class does not have any slots on purpose.
+  (:documentation "The base class for all components. The primitive types /CLASS/COMMON-LISP:STRING and /CLASS/COMMON-LISP:NUMBER are also considered components.
+For debugging purposes NIL is not a valid component. This class does not have any slots on purpose.
 
 Naming convention for non instantiatable components:
 */mixin       - adds some slots and/or behavior, but it is not usable on its own. It usually has no superclasses, or only other mixin classes.
 */abstract    - base class for similar kind of components, usually related to a mixin that mixes in an instance of this component in a slot. It usually has no superclasses, except other mixins, and usually there is only one abstract superclass of an instantiatable component.
 
 Naming convention for presentations related to a lisp type, they are usually subclasses of alternator components:
-*/maker       - subclasses of MAKER/ABSTRACT
-*/viewer      - subclasses of VIEWER/ABSTRACT
-*/editor      - subclasses of EDITOR/ABSTRACT
-*/inspector   - subclasses of INSPECTOR/ABSTRACT
-*/filter      - subclasses of FILTER/ABSTRACT
-*/finder      - subclasses of FINDER/ABSTRACT
-*/selector    - subclasses of SELECTOR/ABSTRACT
+*/maker       - subclasses of /CLASS/'HU.DWIM.WUI:MAKER/ABSTRACT'
+*/viewer      - subclasses of /CLASS/'HU.DWIM.WUI:VIEWER/ABSTRACT'
+*/editor      - subclasses of /CLASS/'HU.DWIM.WUI:EDITOR/ABSTRACT'
+*/inspector   - subclasses of /CLASS/'HU.DWIM.WUI:INSPECTOR/ABSTRACT'
+*/filter      - subclasses of /CLASS/'HU.DWIM.WUI:FILTER/ABSTRACT'
+*/finder      - subclasses of /CLASS/'HU.DWIM.WUI:FINDER/ABSTRACT'
+*/selector    - subclasses of /CLASS/'HU.DWIM.WUI:SELECTOR/ABSTRACT'
 
 Naming convention for some alternative components:
-*/reference/* - subclasses of reference/abstract
-*/detail/*    - subclasses of detail/abstract
+*/reference/* - subclasses of /CLASS/'HU.DWIM.WUI:T/REFERENCE/PRESENTATION'
+*/detail/*    - subclasses of /CLASS/'HU.DWIM.WUI:T/DETAIL/PRESENTATION'
 
 Components are created by either using the component specific macros, maker functions or by calling generic factory functions
 such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAKE-FILTER, MAKE-FINDER and MAKE-SELECTOR."))
