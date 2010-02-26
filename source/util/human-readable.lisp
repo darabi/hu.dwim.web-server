@@ -31,19 +31,19 @@
   "")
 
 (def method serialize/human-readable ((context (eql :file)))
-  (merge-human-readable-string (serialize/human-readable nil) "file"))
+  (merge-human-readable-string (serialize/human-readable nil) "FILE"))
 
 (def method serialize/human-readable ((context (eql :class)))
-  (merge-human-readable-string (serialize/human-readable nil) "class"))
+  (merge-human-readable-string (serialize/human-readable nil) "CLASS"))
 
 (def method serialize/human-readable ((context (eql :function)))
-  (merge-human-readable-string (serialize/human-readable nil) "function"))
+  (merge-human-readable-string (serialize/human-readable nil) "FUNCTION"))
 
 (def method serialize/human-readable ((context (eql :project)))
-  (merge-human-readable-string (serialize/human-readable nil) "project"))
+  (merge-human-readable-string (serialize/human-readable nil) "PROJECT"))
 
 (def method serialize/human-readable ((context (eql :book)))
-  (merge-human-readable-string (serialize/human-readable nil) "book"))
+  (merge-human-readable-string (serialize/human-readable nil) "BOOK"))
 
 (def method serialize/human-readable ((pathname pathname))
   (merge-human-readable-string (serialize/human-readable :file)
@@ -59,12 +59,12 @@
 
 (def method serialize/human-readable ((slot direct-slot-definition))
   (merge-human-readable-string (serialize/human-readable (slot-value slot 'sb-pcl::%class))
-                               "direct-slot"
+                               "DIRECT-SLOT"
                                (fully-qualified-symbol-name (slot-definition-name slot))))
 
 (def method serialize/human-readable ((slot effective-slot-definition))
   (merge-human-readable-string (serialize/human-readable (slot-value slot 'sb-pcl::%class))
-                               "effective-slot"
+                               "EFFECTIVE-SLOT"
                                (fully-qualified-symbol-name (slot-definition-name slot))))
 
 (def method serialize/human-readable ((project project))
@@ -99,16 +99,16 @@
   nil)
 
 (def method deserialize/human-readable-in-context ((context null) (strings cons))
-  (deserialize/human-readable-in-context (eswitch ((car strings) :test #'equal)
-                                           ("file"
+  (deserialize/human-readable-in-context (eswitch ((car strings) :test #'equalp)
+                                           ("FILE"
                                             :file)
-                                           ("class"
+                                           ("CLASS"
                                             :class)
-                                           ("function"
+                                           ("FUNCTION"
                                             :function)
-                                           ("project"
+                                           ("PROJECT"
                                             :project)
-                                           ("book"
+                                           ("BOOK"
                                             :book))
                                          (cdr strings)))
 
@@ -123,10 +123,10 @@
   (fdefinition (find-fully-qualified-symbol (car strings))))
 
 (def method deserialize/human-readable-in-context ((class class) (strings cons))
-  (deserialize/human-readable-in-context (eswitch ((car strings) :test #'equal)
-                                           ("direct-slot"
+  (deserialize/human-readable-in-context (eswitch ((car strings) :test #'equalp)
+                                           ("DIRECT-SLOT"
                                             (class-direct-slots class))
-                                           ("effective-slot"
+                                           ("EFFECTIVE-SLOT"
                                             (class-slots class)))
                                          (cdr strings)))
 
