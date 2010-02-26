@@ -18,4 +18,5 @@
                :hu.dwim.wui+hu.dwim.reader
                :hu.dwim.wui+stefil)
   :components ((:module "test"
-                :components ((:file "component")))))
+                :components ((:file "component")
+                             (:file "human-readable")))))

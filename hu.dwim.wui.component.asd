@@ -23,6 +23,7 @@
                                            (:file "definition")
                                            (:file "dictionary")
                                            #+sbcl(:file "object-size")
+                                           (:file "human-readable" :depends-on ("book" "project"))
                                            (:file "place")
                                            (:file "project")
                                            (:file "selection")))
