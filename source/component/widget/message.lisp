@@ -46,17 +46,19 @@
   (add-component-message collector message message-args :category :error))
 
 (def method add-component-message ((collector component-messages/widget) message message-args &rest initargs &key category &allow-other-keys)
-  (appendf (messages-of collector)
-           (list (if (typep message 'component-message/widget)
-                     (progn
-                       (when category
-                         (setf (category-of message) category))
-                       message)
-                     (apply #'make-instance 'component-message/widget
-                            :content (if (stringp message)
-                                         (apply #'format nil message message-args)
-                                         message)
-                            initargs)))))
+  (bind ((message-widget (if (typep message 'component-message/widget)
+                             (progn
+                               (when category
+                                 (setf (category-of message) category))
+                               message)
+                             (apply #'make-instance 'component-message/widget
+                                    :content (if (stringp message)
+                                                 (apply #'format nil message message-args)
+                                                 message)
+                                    initargs))))
+    (appendf (messages-of collector)
+             (list message-widget))
+    message-widget))
 
 (def (function e) has-component-message? (collector category)
   (find category (messages-of collector) :key #'category-of))
