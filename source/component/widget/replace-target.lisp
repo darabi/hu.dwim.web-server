@@ -46,7 +46,7 @@
          (component (component-at-place target-place)))
     (setf ajax
           (if (typep component 'parent/mixin)
-              (awhen (find-ancestor-component-with-type component 'id/mixin)
+              (awhen (find-ancestor-component-with-type component 'id/mixin :otherwise #f)
                 (ajax-of it))
               #t))))
 

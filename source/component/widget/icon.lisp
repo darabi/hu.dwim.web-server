@@ -12,10 +12,9 @@
 ;; TODO use strings as icon names instead of symbols
 (def special-variable *icons* (make-hash-table))
 
-(def (function e) find-icon (name &key (otherwise (list :error "The icon ~A cannot be found" name)))
-  (prog1-bind icon (gethash name *icons*)
-    (unless icon
-      (handle-otherwise otherwise))))
+(def (function e) find-icon (name &key (otherwise :error otherwise?))
+  (or (gethash name *icons*)
+      (handle-otherwise (error "The icon ~S cannot be found" name))))
 
 (def function (setf find-icon) (icon name)
   (setf (gethash name *icons*) icon))

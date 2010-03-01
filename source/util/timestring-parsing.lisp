@@ -23,27 +23,31 @@
 (def constant +rfc1123-regexp+ "^(\\w{3}), (\\d{2}) (\\w{3}) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2}) GMT$")
 (def special-variable *rfc1123-scanner* (cl-ppcre:create-scanner +rfc1123-regexp+))
 
-(def (function o) parse-rfc1123-timestring (string &key (otherwise (list :error "Unable to parse ~S as a rfc1123 timestring" string)))
-  (cl-ppcre:do-register-groups (weekday day month year hour minute second)
-      (*rfc1123-scanner* string (handle-otherwise otherwise))
-    (macrolet ((to-integer (&rest vars)
-                 `(progn
-                    ,@(iter (for var :in vars)
-                            (collect `(setf ,var (or (ignore-errors (parse-integer ,var))
-                                                     (return (handle-otherwise otherwise))))))))
-               (lookup (var values)
-                 `(unless (setf ,var (position ,var ,values :test #'equalp))
-                    (return (handle-otherwise otherwise)))))
+(def (function o) parse-rfc1123-timestring (string &key (otherwise :error))
+  (macrolet ((to-integer (&rest vars)
+               `(progn
+                  ,@(iter (for var :in vars)
+                          (collect `(setf ,var (or (ignore-errors (parse-integer ,var))
+                                                   (fail)))))))
+             (lookup (var values)
+               `(unless (setf ,var (position ,var ,values :test #'equalp))
+                  (fail)))
+             (fail ()
+               `(return-from parse-rfc1123-timestring
+                  (handle-otherwise/value otherwise :default-message `("Unable to parse ~S as a rfc1123 timestring" ,string)))))
+    (cl-ppcre:do-register-groups (weekday day month year hour minute second)
+        (*rfc1123-scanner* string (fail))
       (to-integer day year hour minute second)
       (lookup month local-time:+short-month-names+)
-      (lookup weekday local-time:+short-day-names+))
-    (return (%parse-timestring/construct-timestamp weekday second minute hour day month year))))
+      (lookup weekday local-time:+short-day-names+)
+      (return (%parse-timestring/construct-timestamp weekday second minute hour day month year)))))
 
-(def (function io) parse-http-timestring (string &key (otherwise (list :error "Unable to parse ~S as a http timestring" string)))
+(def (function io) parse-http-timestring (string &key (otherwise :error otherwise?))
   (or (when (length= 29 string)
-        (parse-rfc1123-timestring string :otherwise nil))
+        (parse-rfc1123-timestring string :otherwise #f))
       ;; TODO according to http://www.ietf.org/rfc/rfc1945.txt we should understand all of these:
       ;; Sun, 06 Nov 1994 08:49:37 GMT    ; RFC 822, updated by RFC 1123
       ;; Sunday, 06-Nov-94 08:49:37 GMT   ; RFC 850, obsoleted by RFC 1036
       ;; Sun Nov  6 08:49:37 1994         ; ANSI C's asctime() format
-      (handle-otherwise otherwise)))
+      (handle-otherwise
+        (error "Unable to parse ~S as a http timestring" string))))

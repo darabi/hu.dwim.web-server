@@ -113,12 +113,13 @@
 
 (def (icon e) collapse-to-reference)
 
-(def (function e) find-alternative-component (component type &key (otherwise :error))
+(def (function e) find-alternative-component (component type &key (otherwise :error otherwise?))
   (bind ((alternatives (alternatives-of component)))
     (or (some (lambda (class)
                 (find-if [subtypep (class-of !1) class] alternatives))
               (class-precedence-list (find-class type)))
-        (handle-otherwise otherwise))))
+        (handle-otherwise
+          (error "Could not find alternative component of type ~S under ~A" type component)))))
 
 (def (function e) find-reference-alternative-component (component)
   (find-alternative-component component 'reference/widget))

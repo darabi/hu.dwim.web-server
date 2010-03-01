@@ -164,6 +164,6 @@
         slots
         (filter-slots slot-names slots))))
 
-(def function find-slot-value-component (component slot-name &key (otherwise '(:error "Cannot find component for slot")))
+(def function find-slot-value-component (component slot-name &key (otherwise :error))
   (or (find slot-name (contents-of component) :key [slot-definition-name (slot-of (component-value-of !1))])
-      (handle-otherwise otherwise)))
+      (handle-otherwise/value otherwise :default-message `("Cannot find component for slot ~S under ~A" ,slot-name ,component))))

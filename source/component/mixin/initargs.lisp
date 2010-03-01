@@ -26,7 +26,7 @@
     nil))
 
 (def (function e) inherited-initarg (component key)
-  (awhen (find-ancestor-component-with-type component 'initargs/mixin)
+  (awhen (find-ancestor-component-with-type component 'initargs/mixin :otherwise #f)
     (bind ((value (getf (initargs-of it) key :unbound)))
       (if (eq value :unbound)
           (values nil #f)

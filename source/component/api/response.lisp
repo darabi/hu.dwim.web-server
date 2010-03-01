@@ -133,14 +133,15 @@
                    ;; NOTE: due to computed slots we must make sure that the component is refreshed, this might make the component to be rendered
                    (ensure-refreshed component)
                    (if (to-be-rendered-component? component)
-                       (bind ((new-covering-component (find-ancestor-component-with-type component 'id/mixin)))
-                         (assert new-covering-component nil "There is no covering ancestor component with id for ~A" component)
-                         (let ((*print-level* 1))
+                       (bind ((new-covering-component (find-ancestor-component-with-type component 'id/mixin
+                                                                                         :otherwise `(:error "Unable to find covering ancestor component (of type id/mixin) for ~A" ,component))))
+                         (bind ((*print-level* 1))
                            (app.debug "Found to be rendered component ~A covered by component ~A" component new-covering-component))
                          (setf covering-components
                                (cons new-covering-component
                                      (remove-if (lambda (covering-component)
-                                                  (find-ancestor-component covering-component [eq !1 new-covering-component]))
+                                                  (find-ancestor-component covering-component [eq !1 new-covering-component]
+                                                                           :otherwise #f))
                                                 covering-components)))
                          (throw new-covering-component nil))
                        (map-visible-child-components component #'traverse))))))

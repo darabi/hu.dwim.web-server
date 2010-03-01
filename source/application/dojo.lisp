@@ -74,22 +74,17 @@
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
 
-(def (function e) find-latest-dojo-directory-name (directory &key (otherwise :cerror))
-  (bind ((error-message (list "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" directory)))
-    (loop
-      (with-simple-restart (retry "Try searching for dojo directories again in ~A" directory)
-        (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
-                                                 (mapcar [last-elt (pathname-directory !1)]
-                                                         (cl-fad:list-directory directory)))
-                                      #'string>=))))
-          (return
-            (if dojo-dir
-                (string+ dojo-dir "/")
-                (handle-otherwise (case otherwise
-                                    (:error  (list* :error  error-message))
-                                    (:cerror (list* :cerror error-message))
-                                    (:warn   (list* :warn   error-message))
-                                    (t otherwise))))))))))
+(def (function e) find-latest-dojo-directory-name (directory &key (otherwise :cerror otherwise?))
+  (loop
+    (with-simple-restart (retry "Try searching for dojo directories again in ~A" directory)
+      (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
+                                               (mapcar [last-elt (pathname-directory !1)]
+                                                       (cl-fad:list-directory directory)))
+                                    #'string>=))))
+      (return
+        (if dojo-dir
+            (string+ dojo-dir "/")
+            (handle-otherwise/value otherwise :default-message (list "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" directory))))))))
 
 (def with-macro with-dojo-widget-collector ()
   (bind ((*dojo-widget-ids* nil))

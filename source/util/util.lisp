@@ -360,12 +360,14 @@
 ;;;;;;
 ;;; Tree
 
-(def (function o) find-ancestor (node parent-function map-function)
-  (ensure-functionf parent-function map-function)
+(def (function o) find-ancestor (node parent-function predicate &key (otherwise nil otherwise?))
+  (ensure-functionf parent-function predicate)
   (iter (for current-node :initially node :then (funcall parent-function current-node))
         (while current-node)
-        (when (funcall map-function current-node)
-          (return current-node))))
+        (when (funcall predicate current-node)
+          (return current-node))
+        (finally (return (handle-otherwise (error "Could not find ancestor component using visitor ~A starting from ~A using parent-function ~A"
+                                                  predicate node parent-function))))))
 
 (def (function o) find-root (node parent-function)
   (ensure-functionf parent-function)

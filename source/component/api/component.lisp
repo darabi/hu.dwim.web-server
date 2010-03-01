@@ -158,11 +158,13 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 ;;;;;;
 ;;; Parent child relationship
 
-(def (function e) find-ancestor-component (component predicate)
-  (find-ancestor component #'parent-component-of predicate))
+(def (function e) find-ancestor-component (component predicate &key (otherwise :error otherwise?))
+  (or (find-ancestor component #'parent-component-of predicate :otherwise #f)
+      (handle-otherwise (error "Unable to find ancestor component using predicate ~A starting from component ~A" predicate component))))
 
-(def (function e) find-ancestor-component-with-type (component type)
-  (find-ancestor-component component [typep !1 type]))
+(def (function e) find-ancestor-component-with-type (component type &key (otherwise :error otherwise?))
+  (or (find-ancestor-component component (of-type type) :otherwise #f)
+      (handle-otherwise (error "Unable to find ancestor component with type ~S starting from component ~A" type component))))
 
 (def (function e) map-ancestor-components (component visitor &key (include-self #f))
   (ensure-functionf visitor)

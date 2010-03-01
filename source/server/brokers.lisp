@@ -16,7 +16,8 @@
 
 (def method handle-request ((server broker-based-server) (request request))
   (debug-only (assert (and (boundp '*broker-stack*) (eq (first *broker-stack*) server))))
-  (bind ((result (multiple-value-list (query-brokers-for-response request (brokers-of server))))
+  (bind ((result (multiple-value-list (or (query-brokers-for-response request (brokers-of server) :otherwise #f)
+                                          (make-do-nothing-response))))
          (response (first result)))
     (assert (typep response 'response))
     (unwind-protect
@@ -36,7 +37,7 @@
     (shutdown-broker broker))
   (call-next-method))
 
-(def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise [make-not-found-response]))
+(def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise :error otherwise?))
   (bind ((answering-broker nil)
          (results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
@@ -57,7 +58,7 @@
         (progn
           (processed-request-counter/increment answering-broker)
           (values-list results))
-        (handle-otherwise otherwise))))
+        (handle-otherwise (error "~S: Could not find a broker starting from initial-request ~A and initial-brokers ~A" 'query-brokers-for-response initial-request initial-brokers)))))
 
 (def (function o) iterate-brokers-for-response (visitor request initial-brokers brokers recursion-depth)
   (declare (type fixnum recursion-depth))
@@ -121,11 +122,11 @@
 ;;;;;;
 ;;; broker-at-path
 
-(def function broker-path-or-path-prefix (broker &key (otherwise :error))
+(def function broker-path-or-path-prefix (broker &key (otherwise :error otherwise?))
   (typecase broker
     (broker-at-path (path-of broker))
     (broker-at-path-prefix (path-prefix-of broker))
-    (t (handle-otherwise otherwise))))
+    (t (handle-otherwise (error "~S was called on illegal type ~S" 'broker-path-or-path-prefix broker)))))
 
 (def class* broker-at-path (broker)
   ((path)))
