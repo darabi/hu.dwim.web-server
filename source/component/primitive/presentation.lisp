@@ -188,6 +188,10 @@
         ""
         (fully-qualified-symbol-name component-value))))
 
+(def method parse-component-value ((component symbol/presentation) client-value)
+  ;; TODO decide what to do for uninterned symbols. currently it signals an error...
+  (find-symbol* client-value))
+
 ;;;;;;
 ;;; keyword/presentation
 
@@ -199,7 +203,11 @@
     (if (or (not has-component-value?)
             (null component-value))
         ""
-        (string+ ":" (symbol-name component-value)))))
+        (fully-qualified-symbol-name component-value))))
+
+(def method parse-component-value ((component keyword/presentation) client-value)
+  ;; TODO decide what to do for uninterned symbols. currently it signals an error...
+  (find-symbol* client-value :packages :keyword))
 
 ;;;;;;
 ;;; number/presentation
