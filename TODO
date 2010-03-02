@@ -61,7 +61,6 @@ Desired behaviour:
 explicit error answer for ajax requests coming to non-existent
 (probably timed out) sessions. tell the js side that the session does
 not exist anymore
-
 * TODO [#C] detect disabled cookies                                             :Unassigned:minor:TASK:
 
 Description:
@@ -76,5 +75,9 @@ Desired Behaviour:
 
 An error message which tells the user that session cookies have to be
 enabled to be able to use the web app.
+* TODO [#C] think through ajax and actions                                      :Unassigned:minor:TASK:
 
-
+Issues:
+ - there's no support on the server side to make single-shot actions
+ - rendering actions in command.lisp is a mess
+ - the slot name 'ajax' is used for storing a dom-id, which is not suggested by its name
