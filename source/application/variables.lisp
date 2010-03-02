@@ -74,6 +74,11 @@
 (def constant +delayed-content-parameter-name+ "_d")
 (def constant +timestamp-parameter-name+       "_ts")
 
+;; TODO: merge these into a single parameter and provide accessor functions?
+(def constant +shitf-key-parameter-name+       "_sk")
+(def constant +control-key-parameter-name+     "_ck")
+(def constant +alt-key-parameter-name+         "_ak")
+
 (pushnew +ajax-aware-parameter-name+ *clone-request-uri/default-strip-query-parameters*)
 (pushnew +delayed-content-parameter-name+ *clone-request-uri/default-strip-query-parameters*)
 

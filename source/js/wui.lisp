@@ -27,6 +27,22 @@
                (encodeURIComponent value)))
   (return url))
 
+(defun wui.decorate-url-with-modifier-keys (url event)
+  (when event.shiftKey
+    (setf url (wui.append-query-parameter url
+                                          #.(escape-as-uri +shitf-key-parameter-name+)
+                                          "t")))
+  (when event.ctrlKey
+    (setf url (wui.append-query-parameter url
+                                          #.(escape-as-uri +control-key-parameter-name+)
+                                          "t")))
+  (when (or event.altKey
+            event.metaKey)
+    (setf url (wui.append-query-parameter url
+                                          #.(escape-as-uri +alt-key-parameter-name+)
+                                          "t")))
+  (return url))
+
 (defun wui.decorate-url-with-frame-and-action (url (frame-id wui.frame-id) (frame-index wui.frame-index) action-id)
   (setf url (+ url (if (< (.index-of url "?") 0)
                        "?"
@@ -55,6 +71,7 @@
 
 (defun wui.io.action (url &key event (ajax true) (send-client-state true))
   (when event
+    (setf url (wui.decorate-url-with-modifier-keys url event))
     (dojo.stop-event event))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
