@@ -273,7 +273,7 @@
       (labels ((read-next-char (must-exists-p)
                  (when (>= input-index input-length)
                    (if must-exists-p
-                       (uri-parse-error "Unexpected end of input")
+                       (uri-parse-error "Unexpected end of input on ~S" input)
                        (return-from %unescape-as-uri (if seen-escaped?
                                                          (if seen-escaped-non-ascii?
                                                              (utf-8-octets-to-string output)
@@ -291,7 +291,7 @@
                (char-to-int (char)
                  (let ((result (digit-char-p char 16)))
                    (unless result
-                     (uri-parse-error "Expecting a digit and found ~S" char))
+                     (uri-parse-error "Expecting a digit and found ~S in ~S at around position ~S" char input input-index))
                    result))
                (parse ()
                  (let ((next-char (read-next-char nil)))
