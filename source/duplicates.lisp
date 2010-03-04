@@ -47,9 +47,3 @@ the class itself is not included in the mapping. Proper? defaults to nil."
                     :proper? proper?)
     (nreverse result)))
 
-(def function sbcl-with-symbol (package name)
-  #+sbcl (if (and (find-package (string package))
-                  (find-symbol (string name) (string package)))
-             '(:and)
-             '(:or))
-  #-sbcl '(:or))
