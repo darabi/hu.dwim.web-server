@@ -12,6 +12,10 @@
 (def (namespace e) book ((&rest args &key &allow-other-keys) &body contents)
   `(book (:name ',-name- ,@args) ,@contents))
 
+(def (function e) find-user-guide (package-name)
+  (awhen (find-symbol "USER-GUIDE"  package-name)
+    (find-book it)))
+
 ;;;;;;
 ;;; Text
 
