@@ -118,6 +118,7 @@
                                                          (:file "file-up-and-download" :depends-on ("icon"))
                                                          (:file "frame" :depends-on ("top"))
                                                          (:file "frame-size-breakdown")
+                                                         (:file "google")
                                                          (:file "help" :depends-on ("title" "icon"))
                                                          (:file "icon" :depends-on ("widget"))
                                                          (:file "image")
