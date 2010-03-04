@@ -20,48 +20,54 @@
 
 (def function drive-timer (timer)
   "This is the entry point of the timer. There should be one and only one thread calling this function for each timer."
+  (timer.debug "Thread is entering the timer loop DRIVE-TIMER of ~A" timer)
+  (unwind-protect
+       (progn
+         (assert (null (running-thread-of timer)))
+         (setf (running-thread-of timer) (current-thread))
+         (setf (shutdown-initiated-p timer) #f)
+         (with-simple-restart (abort-timer "Break out from the timer loop")
+           (loop
+             :until (shutdown-initiated-p timer)
+             :do (drive-timer/process-entries timer))))
+    (setf (running-thread-of timer) nil)
+    (with-lock-held-on-timer timer
+      (condition-notify (condition-variable-of timer)))
+    (timer.debug "Thread is leaving the timer loop DRIVE-TIMER of ~A" timer)))
+
+(def function drive-timer/process-entries (timer)
   (flet ((reschedule-entries ()
            (setf (entries-of timer)
                  (sort (delete-if (complement #'timer-entry-valid?) (entries-of timer))
                        'local-time:timestamp<
                        :key 'run-at-of))))
     (timer.debug "Thread is entering the timer loop DRIVE-TIMER of ~A" timer)
-    (unwind-protect
-         (progn
-           (assert (null (running-thread-of timer)))
-           (setf (running-thread-of timer) (current-thread))
-           (setf (shutdown-initiated-p timer) #f)
-           (with-simple-restart (abort-timer "Break out from the timer loop")
-             (loop
-                :until (shutdown-initiated-p timer) :do
-                (bind ((entries)
-                       (run-anything? #f))
-                  (with-lock-held-on-timer timer
-                    (timer.dribble "~A sorting ~A entries" timer (length (entries-of timer)))
-                    ;; need to copy, because we will release the lock before processing finishes
-                    (setf entries (copy-list (reschedule-entries))))
-                  (dolist (entry entries)
-                    (when (local-time:timestamp< (run-at-of entry) (local-time:now))
-                      (setf run-anything? #t)
-                      (run-timer-entry entry)))
-                  (unless run-anything?
-                    (with-lock-held-on-timer timer
-                      (bind ((first-entry (first (reschedule-entries)))
-                             (expires-in (or (when first-entry
-                                               (local-time:timestamp-difference (run-at-of first-entry) (local-time:now)))
-                                             ;; this is an ad-hoc large constant to keep the code path uniform. would be safe to wake up though...
-                                             (* 60 60 24 365 10))))
-                        (timer.dribble "~A will fall asleep for ~A seconds" timer expires-in)
-                        (handler-case
-                            (with-deadline (expires-in)
-                              (condition-wait (condition-variable-of timer) (lock-of timer))
-                              (timer.dribble "~A woke up from CONDITION-WAIT" timer))
-                          (deadline-timeout ()
-                            (timer.dribble "~A woke up from CONDITION-WAIT due to the timeout" timer))))))))))
-      (setf (running-thread-of timer) nil)
+    (bind ((entries)
+           (run-anything? #f))
       (with-lock-held-on-timer timer
-        (condition-notify (condition-variable-of timer)))
-      (timer.debug "Thread is leaving the timer loop DRIVE-TIMER of ~A" timer))))
+        (timer.dribble "~A sorting ~A entries" timer (length (entries-of timer)))
+        ;; need to copy, because we will release the lock before processing finishes
+        (setf entries (copy-list (reschedule-entries))))
+      (dolist (entry entries)
+        (when (local-time:timestamp< (run-at-of entry) (local-time:now))
+          (setf run-anything? #t)
+          (run-timer-entry timer entry)))
+      (unless run-anything?
+        (with-lock-held-on-timer timer
+          (bind ((first-entry (first (reschedule-entries)))
+                 (expires-in (or (when first-entry
+                                   (local-time:timestamp-difference (run-at-of first-entry) (local-time:now)))
+                                 ;; this is an ad-hoc large constant to keep the code path uniform. would be safe to wake up though...
+                                 (* 60 60 24 365 10))))
+            (timer.dribble "~A will fall asleep for ~A seconds" timer expires-in)
+            (with-simple-restart (tick-timer "Wake up timer and process possible pending events")
+              (handler-case
+                  (with-deadline (expires-in)
+                    (with-thread-name (string+ " / sleeping until next timer event (" (princ-to-string expires-in) " sec)")
+                      (condition-wait (condition-variable-of timer) (lock-of timer)))
+                    (timer.dribble "~A woke up from CONDITION-WAIT" timer))
+                (deadline-timeout ()
+                  (timer.dribble "~A woke up from CONDITION-WAIT due to the timeout" timer))))))))))
 
 (def (function e) drive-timer/abort (timer)
   (if (eq (current-thread) (running-thread-of timer))
@@ -125,24 +131,23 @@
 (def class* periodic-timer-entry (timer-entry)
   ((interval (mandatory-argument))))
 
-(def generic run-timer-entry (entry)
-  (:method ((entry timer-entry))
+(def generic run-timer-entry (timer entry)
+  (:method ((timer timer) (entry timer-entry))
     (timer.dribble "Running timer entry ~A" entry)
     (awhen (thunk-of entry)
-      (handler-bind
-          ((serious-condition (lambda (level-1-error)
-                                (handler-bind
-                                    ((serious-condition (lambda (level-2-error)
-                                                          (ignore-errors
-                                                            (wui.error "Oops, nested error while running timer entry. Level1 error type: ~S, level2 error type: ~S"
-                                                                       entry (type-of level-1-error) (type-of level-2-error))))))
-                                  (wui.error "Error while running timer entry ~A: ~A" entry level-1-error)))))
-        (with-simple-restart (skip-timer-entry "Skip calling timer entry ~A" entry)
-          (funcall it)))))
+      (block running-timer-entry
+        (with-layered-error-handlers ((lambda (error)
+                                        (handle-toplevel-error timer error))
+                                      (lambda (reason)
+                                        (declare (ignore reason))
+                                        (return-from running-timer-entry)))
+          (with-simple-restart (skip-timer-entry "Skip calling timer entry ~A" entry)
+            (with-thread-name " / running timer entry"
+              (funcall it)))))))
 
-  (:method :after ((entry single-shot-timer-entry))
+  (:method :after ((timer timer) (entry single-shot-timer-entry))
     (timer.debug "Invalidating single shot timer entry ~A" entry)
     (setf (thunk-of entry) nil))
 
-  (:method :after ((self periodic-timer-entry))
-    (setf (run-at-of self) (local-time:adjust-timestamp (local-time:now) (offset :sec (interval-of self))))))
+  (:method :after ((timer timer) (entry periodic-timer-entry))
+    (setf (run-at-of entry) (local-time:adjust-timestamp (local-time:now) (offset :sec (interval-of entry))))))
