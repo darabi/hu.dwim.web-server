@@ -35,7 +35,7 @@
 
 ;; TODO: don't generate such a big code if possible
 ;; TODO: refactor this macro so that subclasses can reuse the code here
-(def (macro e) command/widget ((&key (enabled #t) (visible #t) (default #f) (ajax #f) js scheme path application-relative-path
+(def (macro e) command/widget ((&key (enabled #t) (visible #t) (default #f) (ajax #t ajax-provided?) js scheme path application-relative-path
                                      (delayed-content nil delayed-content-provided?)
                                      (send-client-state #t send-client-state-provided?))
                                 &body content-and-action)
@@ -43,7 +43,7 @@
   (assert (length= 2 content-and-action))
   (bind ((content (first content-and-action))
          (action (second content-and-action)))
-    (once-only (content)
+    (once-only (content action)
       (with-unique-names (action-arguments)
         (flet ((maybe-push (key expression)
                  (when expression
@@ -69,7 +69,9 @@
                             :enabled ,enabled
                             :visible ,visible
                             :default ,default
-                            :ajax ,ajax
+                            :ajax ,(if ajax-provided?
+                                       ajax
+                                       `(typep ,action 'action))
                             :js ,js
                             :action-arguments ,action-arguments)))))))
 
