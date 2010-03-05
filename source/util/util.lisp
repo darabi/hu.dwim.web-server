@@ -174,7 +174,10 @@
 (def (function e) substitute-illegal-characters-in-file-name (name &key (replacement "_"))
   (cl-ppcre:regex-replace-all "/" name replacement))
 
-(def function single-argument-layered-method-definer (name default-layer forms options)
+(def function single-argument-layered-method-definer (name forms &key default-layer options whole)
+  (when (or (getf options :in)
+            (getf options :in-layer))
+    (warn "Most probably there's a misplaced layer definition in a ~S; the form is ~S" name whole))
   (bind ((layer (if (member (first forms) '(:in-layer :in))
                     (progn
                       (pop forms)

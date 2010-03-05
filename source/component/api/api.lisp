@@ -457,9 +457,9 @@
 (def (generic e) mark-rendered-component (component)
   (:documentation "Marks COMPONENT as having been rendered by RENDER-COMPONENT."))
 
-(def (definer e :available-flags "do") render-component (&body forms)
+(def (definer e :available-flags "do") render-component (&whole whole &body forms)
   "Defines a generic RENDER-COMPONENT method for a specific COMPONENT class."
-  (single-argument-layered-method-definer 'render-component nil forms -options-))
+  (single-argument-layered-method-definer 'render-component forms :options -options- :whole whole))
 
 ;;;;;;
 ;;; Render component layer
@@ -474,9 +474,9 @@
        (def (function ,@-options-) ,render-definer-name (component)
          (with-active-layers (,layer-name)
            (render-component component)))
-       (def (definer ,@-options- :available-flags "do") ,render-definer-name (&body forms)
+       (def (definer ,@-options- :available-flags "do") ,render-definer-name (&whole whole &body forms)
          ,documentation
-         (single-argument-layered-method-definer 'render-component ',layer-name forms -options-)))))
+         (single-argument-layered-method-definer 'render-component forms :default-layer ',layer-name :options -options- :whole whole)))))
 
 (def (special-variable e :documentation "The output stream for rendering components in text format.") *text-stream*)
 
@@ -529,9 +529,9 @@
 (def (generic e) mark-refreshed-component (component)
   (:documentation "Marks COMPONENT as having been refreshed after a successful call to REFRESH-COMPONENT."))
 
-(def (definer e :available-flags "do") refresh-component (&body forms)
+(def (definer e :available-flags "do") refresh-component (&whole whole &body forms)
   "Defines a generic REFRESH-COMPONENT for a specific COMPONENT class."
-  (single-argument-layered-method-definer 'refresh-component nil (cons :after forms) -options-))
+  (single-argument-layered-method-definer 'refresh-component (cons :after forms) :options -options- :whole whole))
 
 ;;;;;;
 ;;; Debug component hierarchy
