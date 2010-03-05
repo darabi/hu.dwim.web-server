@@ -172,3 +172,14 @@
 (def method call-in-application-environment :around ((application application-with-home-package) session thunk)
   (bind ((*package* (home-package-of application)))
     (call-next-method)))
+
+;;;;;;
+;;; application-with-layer
+
+(def (class* e) application-with-layer (application)
+  ((layer)))
+
+(def method call-in-application-environment :around ((application application-with-layer) session thunk)
+  (funcall-with-layer-context (adjoin-layer (layer-of application)
+                                            (current-layer-context))
+                              #'call-next-method))
