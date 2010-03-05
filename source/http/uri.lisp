@@ -69,7 +69,7 @@
   (bind ((uri (clone-uri (uri-of *request*))))
     (if (eq strip-query-parameters :all)
         (uri/delete-all-query-parameters uri)
-        (dolist (parameter-name strip-query-parameters)
+        (dolist (parameter-name (ensure-list strip-query-parameters))
           (uri/delete-query-parameters uri parameter-name)))
     uri))
 
