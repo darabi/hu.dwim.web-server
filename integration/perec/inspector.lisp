@@ -12,7 +12,7 @@
   (hu.dwim.meta-model::editable-p slot))
 
 (def layered-method collect-slot-value-list/slots ((component sequence/table/inspector) (class hu.dwim.meta-model::entity) (prototype hu.dwim.perec::persistent-object) (value list))
-  (filter-out-if (lambda (slot)
-                   (or (not (typep slot 'hu.dwim.meta-model::effective-property))
-                       (hu.dwim.meta-model::primary-p slot)))
-                 (call-next-layered-method)))
+  (collect-if (lambda (slot)
+                (or (not (typep slot 'hu.dwim.meta-model::effective-property))
+                    (hu.dwim.meta-model::primary-p slot)))
+              (call-next-layered-method)))

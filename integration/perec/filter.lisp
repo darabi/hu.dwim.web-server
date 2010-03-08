@@ -13,9 +13,9 @@
 
 #+nil
 (def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class hu.dwim.meta-model::entity) (prototype hu.dwim.perec::persistent-object))
-  (filter-out-if (lambda (slot)
-                   (hu.dwim.meta-model::authorize-operation 'hu.dwim.meta-model::filter-entity-property-operation :-entity- class :-property- slot))
-                 (call-next-method)))
+  (collect-if (lambda (slot)
+                (hu.dwim.meta-model::authorize-operation 'hu.dwim.meta-model::filter-entity-property-operation :-entity- class :-property- slot))
+              (call-next-method)))
 
 #+nil
 (def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object))

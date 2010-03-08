@@ -154,9 +154,9 @@
 
 (def function filter-slots (names slots)
   (when names
-    (filter-out-if (lambda (slot)
-                     (member (slot-definition-name slot) names))
-                   slots)))
+    (collect-if (lambda (slot)
+                  (member (slot-definition-name slot) names))
+                slots)))
 
 (def function remove-slots (names slots)
   (if names

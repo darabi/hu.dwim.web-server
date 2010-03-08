@@ -124,7 +124,7 @@
       (vertex/widget
         (cl-graph:add-vertex graph vertice-or-edge))
       (edge/widget
-        (bind ((vertices (filter-out-if (of-type 'vertex/widget) vertices-and-edges)))
+        (bind ((vertices (collect-if (of-type 'vertex/widget) vertices-and-edges)))
           (setf (slot-value vertice-or-edge 'cl-graph:vertex-1) (find (cl-graph:vertex-1 vertice-or-edge) vertices :key #'cl-graph:vertex-id))
           (setf (slot-value vertice-or-edge 'cl-graph:vertex-2) (find (cl-graph:vertex-2 vertice-or-edge) vertices :key #'cl-graph:vertex-id))
           (cl-graph:add-edge graph vertice-or-edge))))))
@@ -244,7 +244,7 @@
     (values))
 
   (:method :before ((box typeset::char-box) x y)
-    (when (functionp typeset::*pre-decoration*) 
+    (when (functionp typeset::*pre-decoration*)
       (funcall typeset::*pre-decoration*
                box
                x (+ y (typeset::baseline box) (typeset::offset box))
@@ -304,7 +304,7 @@
                (end-text-chunk ()
                  (end-string)
                  (setf nb-spaces 0)
-                 (when (some 'stringp text-chunk) 
+                 (when (some 'stringp text-chunk)
                    ;; (print (nreverse text-chunk))
                    <svg:text (:x ,text-x
                               :y ,(svg-y text-y)

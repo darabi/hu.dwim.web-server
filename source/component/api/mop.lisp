@@ -77,6 +77,6 @@
 
 (def method finalize-inheritance :after ((class component-class))
   (bind ((slots (class-slots class)))
-    (setf (computed-slots-of class) (filter-out-if (of-type 'computed-effective-slot-definition) slots)
-          (component-slots-of class) (filter-out-if (of-type 'component-effective-slot-definition) slots))
+    (setf (computed-slots-of class) (collect-if (of-type 'computed-effective-slot-definition) slots)
+          (component-slots-of class) (collect-if (of-type 'component-effective-slot-definition) slots))
     (clear-js-component-hierarchy-cache)))
