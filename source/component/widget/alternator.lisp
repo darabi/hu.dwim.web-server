@@ -87,11 +87,13 @@
                                (setf (default-alternative-type-of component) (type-of (content-of component)))
                                (execute-replace (content-of component) alternative))
                      :content (make-replace-with-alternative-command-content alternative prototype)
-                     :visible (delay (and (not (has-edited-descendant-component-p (content-of component)))
-                                          (not (eq (class-of alternative)
-                                                   (class-of (content-of component))))
-                                          (or (not reference?)
-                                              (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract))))
+                     :visible (delay (to-boolean
+                                      (and (not (has-edited-descendant-component-p (content-of component)))
+                                           (not (eq (class-of alternative)
+                                                    (class-of (content-of component))))
+                                           (or (not reference?)
+                                               (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract
+                                                                                  :otherwise #f)))))
                      :ajax (ajax-of component)))))
 
 (def (generic e) make-replace-with-alternative-command-content (alternative prototype)
