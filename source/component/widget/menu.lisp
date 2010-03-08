@@ -89,14 +89,16 @@
               content)
       (make-instance 'menu-item/widget
                      :content content
-                     :menu-items (mapcar 'make-menu-item menu-items)))))
+                     :menu-items (mapcar (lambda (menu-item)
+                                           (if (typep menu-item 'menu-item/widget)
+                                               menu-item
+                                               (make-menu-item menu-item)))
+                                         menu-items)))))
 
 (def (function e) make-submenu-item (content &rest menu-items)
   (bind ((menu-items (flatten menu-items)))
     (when menu-items
-      (make-instance 'menu-item/widget
-                     :content content
-                     :menu-items (mapcar 'make-menu-item menu-items)))))
+      (make-menu-item content menu-items))))
 
 (def render-xhtml menu-item/widget
   (bind (((:read-only-slots menu-items id style-class custom-style content) -self-))
