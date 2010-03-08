@@ -23,3 +23,10 @@
   (error.internal-server-error.title "Programhiba")
   (error.internal-server-error.message "Váratlan hiba történt az előző művelet végrehajtása közben. Elnézést kérünk az esetleges kellemetlenségért!")
   )
+
+(def js-localization hu
+  (error.ajax.dialog.title "Kommunikációs hiba")
+  (error.message.ajax-request-to-invalid-session "Megszakadt a kapcsolat a szerverrel. Az oldal újratöltésével újból felépítheti a kapcsolatot...")
+  (action.reload-page "Az oldal újratóltése")
+  (action.cancel "Mégse")
+  )
