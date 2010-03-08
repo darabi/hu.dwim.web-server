@@ -7,7 +7,7 @@
 ;;;;;;
 ;;; style-class/mixin
 
-(def (component e) style-class/mixin ()
+(def (component ea) style-class/mixin ()
   ((style-class nil))
   (:documentation "Generic STYLE classification support, rendered as the class attribute in XHTML."))
 

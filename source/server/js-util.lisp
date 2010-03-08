@@ -18,7 +18,7 @@
 ;;; Logging
 
 (macrolet ((forward (name)
-             `(def js-macro ,(symbolicate "log." name) (&rest args)
+             `(def (js-macro e) ,(symbolicate "log." name) (&rest args)
                 (when *debug-client-side*
                  (list* ',(symbolicate "window.console." name) args)))))
   (forward |debug|)
