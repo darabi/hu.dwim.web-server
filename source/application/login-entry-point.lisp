@@ -12,53 +12,32 @@
 (def (constant e) +user-action-query-parameter-name+       "user-action")
 (def (constant e) +continue-url-query-parameter-name+      "continue-url")
 
-(def (layered-function e) valid-login-password? (password)
-  (:method (password)
-    #t))
-
-(def (layered-function e) valid-login-identifier? (identifier)
-  (:method (password)
-    #t))
-
-(def function extract-login-data/identifier-and-password ()
+(def (function e) extract-login-data/identifier-and-password ()
   (with-request-parameters (identifier password)
     (string/trim-whitespace-and-maybe-nil-it identifier)
     (string/trim-whitespace-and-maybe-nil-it password)
-    (setf identifier (or identifier
-                         (cookie-value +login-identifier-cookie-name+)))
-    (when (and (valid-login-identifier? identifier)
-               (valid-login-password? password))
-      (make-instance 'login-data/identifier-and-password
-                     :identifier identifier
-                     :password password))))
+    (make-instance 'login-data/identifier-and-password
+                   :identifier identifier
+                   :password password)))
 
-(def function decorate-login-response/identifier-and-password (response login-data)
-  (assert response)
-  (bind ((identifier (identifier-of login-data)))
-    (when identifier
-      (app.dribble "DECORATE-LOGIN-RESPONSE/IDENTIFIER-AND-PASSWORD is decorating the response with the login identifier cookie value: ~S" identifier)
-      (add-cookie (make-cookie +login-identifier-cookie-name+ identifier
-                               :max-age #.(* 60 60 24 365 100)
-                               :domain (string+ "." (host-of (uri-of *request*)))
-                               :path (path-of (uri-of *request*)))
-                  response)))
-  response)
+;;; these are not with-macro's because their body needs several variables. functionally it's clearer what's going on...
 
-(def (macro e) with-entry-point-logic/login-with-identifier-and-password ((&rest extra-arguments) &body body)
-  `(with-entry-point-logic/login ('extract-login-data/identifier-and-password
-                                  'decorate-login-response/identifier-and-password
-                                  ,@extra-arguments)
-     ,@body))
+(def (function e) call-with-entry-point-logic/login-with-identifier-and-password (response-factory &rest extra-login-arguments &key &allow-other-keys)
+  (apply 'call-with-entry-point-logic/login response-factory 'extract-login-data/identifier-and-password
+         extra-login-arguments))
 
-(def (with-macro* e) with-entry-point-logic/login (login-data-extractor response-decorator &rest extra-login-arguments)
+(def (function e) call-with-entry-point-logic/login (response-factory login-data-extractor &rest extra-login-arguments &key
+                                                                      &allow-other-keys)
   (with-request-parameters (continue-url ((user-action? +user-action-query-parameter-name+) #f)
                                          ((timed-out? +session-timed-out-query-parameter-name+) #f))
     (string/trim-whitespace-and-maybe-nil-it continue-url)
     (with-entry-point-logic (:with-optional-session/frame-logic #t)
       (bind ((login-data (funcall login-data-extractor))
-             (new-session? #f))
+             (new-session? #f)
+             (authentication-happened? #f))
+        (assert login-data)
         (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN, login-data is ~S, user-action? is ~S, continue-url is ~S" login-data user-action? continue-url)
-        (when login-data
+        (progn
           (setf (extra-arguments-of login-data) extra-login-arguments)
           (if (or (null *session*)
                   (not (is-logged-in? *session*)))
@@ -69,18 +48,20 @@
                   (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN will now call LOGIN")
                   (bind ((new-session (login *application* *session* login-data)))
                     (setf new-session? (not (eq *session* new-session)))
-                    (setf *session* new-session))))
+                    (setf *session* new-session)))
+                (setf authentication-happened? #t))
               ;; TODO support re-authentication here when the model supports it
               (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN skipped calling LOGIN because *session* is already logged in")))
-        (bind ((response (if continue-url
-                             (make-redirect-response continue-url)
-                             (-with-macro/body- (login-data '-login-data- :ignorable #t)))))
+        (bind ((response (cond
+                           (continue-url (make-redirect-response continue-url))
+                           (t (funcall response-factory
+                                       :login-data login-data
+                                       :user-action? user-action?
+                                       :authentication-happened? authentication-happened?)))))
           (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN received the response ~A" response)
           ;; it's a wierd situation if there's no response at this point, but let's keep the flexibility...
           (when response
-            (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN is calling response-decorator ~S" response-decorator)
             ;; and we return with the decorated response
-            (setf response (funcall response-decorator response login-data))
             (when new-session?
               (setf response (decorate-session-cookie *application* response))))
           response)))))
