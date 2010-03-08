@@ -4,15 +4,73 @@
 
 /* general */
 
-a:link, a:visited {
-  color: inherit;
+body
+{
+  margin: 0;
+  padding: 0;
+  cursor: default;
 }
 
-body.tundra {
+body.tundra
+{
   color: black;
   background-color: white;
   font-family: Tahoma;
   font-size: 12px;
+}
+
+table
+{
+  border-collapse: collapse;
+}
+
+td
+{
+  vertical-align: top;
+  padding: 0px;
+}
+
+a
+{
+  text-decoration: none;
+}
+
+a:link, a:visited
+{
+  color: inherit;
+}
+
+li
+{
+  cursor: default;
+}
+
+h1
+{
+  padding: 0px;
+  margin: 0px;
+}
+
+img
+{
+  border-width: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+div
+{
+  cursor: inherit;
+}
+
+p
+{
+  margin-top: 0px;
+}
+
+em
+{
+  font-weight: bold;
 }
 
 /* debug */

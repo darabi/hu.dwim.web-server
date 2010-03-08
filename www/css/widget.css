@@ -133,16 +133,6 @@ span.widget {
   padding: 6px;
 }
 
-/* table */
-
-table {
-  border-collapse: collapse;
-}
-
-td {
-  vertical-align: top;
-}
-
 /* frame size breakdown */
 
 table.frame-size-breakdown {
