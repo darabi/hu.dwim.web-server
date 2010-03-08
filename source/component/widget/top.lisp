@@ -12,9 +12,8 @@
 (def (component e) top/widget (component-messages/widget target-place/widget top/abstract style/abstract menu-bar/mixin)
   ())
 
-(def (macro e) top/widget ((&rest args &key (class 'top/widget) &allow-other-keys) &body content)
-  (remove-from-plistf args :class)
-  `(make-instance ,class ,@args :content ,(the-only-element content)))
+(def (macro e) top/widget ((&rest args &key &allow-other-keys) &body content)
+  `(make-instance 'top/widget ,@args :content ,(the-only-element content)))
 
 (def constructor top/widget
   (setf (target-place-of -self-) (make-object-slot-place -self- (find-slot (class-of -self-) 'content))))
