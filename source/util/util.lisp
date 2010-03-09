@@ -74,22 +74,6 @@
 (def macro to-boolean (form)
   `(not (not ,form)))
 
-;; TODO maybe promote to utils? but then resolve the overloaded -body- naming issue...
-(def macro surround-body-when (test surround-with &body body)
-  (cond
-    ((eq test t)
-     `(macrolet ((body ()
-                   `(progn ,',@body)))
-        (,@surround-with)))
-    ((null test)
-     `(progn
-        ,@body))
-    (t `(flet ((-body- () (progn ,@body)))
-          (declare (dynamic-extent #'-body-))
-          (if ,test
-              (,@surround-with)
-              (-body-))))))
-
 (def function mandatory-argument ()
   (error "A mandatory argument was not specified"))
 
