@@ -74,7 +74,7 @@
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
 
-(def (function e) find-latest-dojo-directory-name (directory &key (otherwise :cerror otherwise?))
+(def (function e) find-latest-dojo-directory-name (directory &key (otherwise :cerror))
   (loop
     (with-simple-restart (retry "Try searching for dojo directories again in ~A" directory)
       (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]

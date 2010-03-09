@@ -130,7 +130,7 @@
     (labels ((traverse (component)
                (catch component
                  (with-component-environment component
-                   ;; NOTE: due to computed slots we must make sure that the component is refreshed, this might make the component to be rendered
+                   ;; NOTE: due to computed slots we must make sure that the component is refreshed, which might mark the component to-be-rendered
                    (ensure-refreshed component)
                    (if (to-be-rendered-component? component)
                        (bind ((new-covering-component (find-ancestor-component-with-type component 'id/mixin

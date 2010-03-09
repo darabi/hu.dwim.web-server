@@ -6,6 +6,8 @@
 
 (in-package :hu.dwim.wui)
 
+;; TODO this should be in local-time in an integration
+
 ;; cl-irregsexp is 6 times faster than cl-ppcre in this
 #+nil
 (cl-irregsexp:match-bind (weekday ", " (day (integer :length 2)) " " month " " (year (integer :length 4)) " "

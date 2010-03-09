@@ -56,6 +56,7 @@
   (bind ((place (component-value-of self))
          (content (content-of self)))
     (handler-bind ((type-error (lambda (error)
+                                 ;; TODO localize
                                  (add-component-error-message self "Nem megfelelő adat")
                                  (abort-interaction)
                                  (continue error))))

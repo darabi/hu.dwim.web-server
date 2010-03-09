@@ -42,6 +42,8 @@
 ;;;;;;
 ;;; application slot defaults
 
+;; TODO think through the 'default' prefix. somewhere added, somewhere not... maybe rebind from app context...
+
 (def (special-variable e) *maximum-sessions-per-application-count* most-positive-fixnum
   "The default for the same slot in applications.")
 

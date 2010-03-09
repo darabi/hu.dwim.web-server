@@ -40,6 +40,7 @@
   (aprog1 (call-next-method)
     (setf (ajax-of it) (ajax-of component))))
 
+;; TODO rename to something more descriptive...
 (def (generic e) ajax-of (component)
   (:method ((self component))
     #t)
