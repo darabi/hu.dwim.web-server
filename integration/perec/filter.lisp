@@ -77,7 +77,8 @@
   ((query nil)
    (query-variable-stack nil)))
 
-(def (with-macro* e) with-new-query-variable (variable-name filter-query class-name)
+(def (with-macro* e :macro-only-arguments (variable-name))
+    with-new-query-variable (variable-name filter-query class-name)
   (bind ((query (query-of filter-query))
          (query-variable (hu.dwim.perec::add-query-variable query (gensym (symbol-name class-name)))))
     (push query-variable (query-variable-stack-of filter-query))
