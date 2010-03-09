@@ -6,6 +6,11 @@
   font-size: 24px;
 }
 
+.book .chapter
+{
+  padding-left: 1em;
+}
+
 .chapter .title {
   font-size: 18px;
 }
