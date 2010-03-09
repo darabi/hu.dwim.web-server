@@ -42,31 +42,31 @@
     (menu-item/widget ()
         "Toggle"
       (menu-item/widget ()
-          (command/widget ()
+          (command/widget (:ajax #f)
             "Hierarchy (frame)"
             (make-action (toggle-debug-component-hierarchy))))
       (menu-item/widget ()
-          (command/widget ()
+          (command/widget (:ajax #f)
             "Test mode (application)"
             (make-action (toggle-running-in-test-mode))))
       (menu-item/widget ()
-          (command/widget ()
+          (command/widget (:ajax #f)
             "Ajax (application)"
             (make-action (toggle-ajax-enabled))))
       (menu-item/widget ()
-          (command/widget ()
+          (command/widget (:ajax #f)
             "Profiling (server)"
             (make-action (toggle-profile-request-processing))))
       (menu-item/widget ()
-          (command/widget ()
+          (command/widget (:ajax #f)
             "Debug server side (globally)"
             (make-action (notf *debug-on-error*))))
       (menu-item/widget ()
-          (command/widget ()
+          (command/widget (:ajax #f)
             "Debug server side (application)"
             (make-action (toggle-debug-server-side))))
       (menu-item/widget ()
-          (command/widget ()
+          (command/widget (:ajax #f)
             "Debug client side (frame)"
             (make-action (toggle-debug-client-side)))))
     (menu-item/widget ()
