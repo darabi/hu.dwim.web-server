@@ -176,8 +176,8 @@
   (icon-label.export-ods "ODS")
   (icon-tooltip.export-ods "Export content in ODS format")
 
-  (icon-label.export-ods "SH")
-  (icon-tooltip.export-ods "Export content in shell script format"))
+  (icon-label.export-sh "SH")
+  (icon-tooltip.export-sh "Export content in shell script format"))
 
 ;;;;;;
 ;;; Refreshable
