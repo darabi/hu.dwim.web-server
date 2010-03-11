@@ -13,15 +13,17 @@
   ()
   (:documentation "A COMPONENT that is related to the FOCUS command."))
 
-(def (function e) find-top-component (component)
-  (find-ancestor-component-with-type component 'top/abstract))
+(def (function e) find-top-component (component &key (otherwise :error otherwise?))
+  (or (find-ancestor-component-with-type component 'top/abstract :otherwise #f)
+      (handle-otherwise (error "Unable to find top component starting from component ~A" component))))
 
 (def (function e) top-component? (component)
-  (eq component (find-top-component component)))
+  (eq component (find-top-component component :otherwise #f)))
 
-(def (function e) find-top-component-content (component)
-  (awhen (find-top-component component)
+(def (function e) find-top-component-content (component &key (otherwise :error otherwise?))
+  (awhen (or (find-top-component component :otherwise #f)
+             (handle-otherwise (error "Unable to find top component content starting from component ~A" component)))
     (content-of it)))
 
 (def (function e) top-component-content? (component)
-  (eq component (find-top-component-content component)))
+  (eq component (find-top-component-content component :otherwise #f)))
