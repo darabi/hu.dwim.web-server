@@ -24,6 +24,8 @@
 ;;;;;;
 ;;; Icon
 
+(def (icon e) diagram)
+
 (def (icon e) hide-component)
 
 (def (icon e) show-component)

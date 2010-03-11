@@ -124,8 +124,26 @@
             <div (:id ,id
                   :class ,style-class
                   :style ,custom-style
-                  :dojoType #.+dijit/menu-item+)
-              ,(render-content-for -self-)>
+                  :dojoType #.+dijit/menu-item+
+                  :iconClass ,(typecase content
+                                (icon/widget
+                                 (icon-style-class content))
+                                (command/widget
+                                 (bind ((command-content (content-of content)))
+                                   (when (typep command-content 'icon/widget)
+                                     (icon-style-class command-content))))
+                                (t
+                                 nil)))
+              ,(typecase content
+                 (icon/widget
+                  (render-component (force (label-of content))))
+                 (command/widget
+                  (bind ((command-content (content-of content)))
+                    (if (typep command-content 'icon/widget)
+                        (render-component (force (label-of (content-of content))))
+                        (render-component content))))
+                 (t
+                  (render-component content)))>
             (when (typep content 'command/widget)
               (render-command-onclick-handler content id)))))))
 

@@ -9,6 +9,8 @@
 ;;;;;;
 ;;; book/inspector
 
+(def (icon e) book)
+
 (def (component e) book/inspector (text/inspector exportable/abstract)
   ())
 

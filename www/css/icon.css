@@ -365,3 +365,15 @@
 .generate-new-password.icon {
   background-image: url("/static/wui/icon/20x20/pen-on-document.png");
 }
+
+/* book */
+
+.book.icon {
+  background-image: url("/static/wui/icon/20x20/document.png");
+}
+
+/* diagram */
+
+.diagram.icon {
+  background-image: url("/static/wui/icon/20x20/eye.png");
+}

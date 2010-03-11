@@ -86,8 +86,11 @@
         ,(awhen (force label)
           (render-icon-label icon it))>}))
 
+(def function icon-style-class (component)
+  (string+ "icon " (string-downcase (symbol-name (name-of component)))))
+
 (def method component-style-class ((self icon/widget))
-  (string+ "widget icon " (string-downcase (symbol-name (name-of self)))))
+  (string+ "widget " (icon-style-class self)))
 
 (def method command-position ((self icon/widget))
   ;; TODO: can't we make it faster/better (what about a generic method or something?)
