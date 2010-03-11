@@ -174,7 +174,10 @@
   (icon-tooltip.export-odt "Export content in ODT format")
 
   (icon-label.export-ods "ODS")
-  (icon-tooltip.export-ods "Export content in ODS format"))
+  (icon-tooltip.export-ods "Export content in ODS format")
+
+  (icon-label.export-ods "SH")
+  (icon-tooltip.export-ods "Export content in shell script format"))
 
 ;;;;;;
 ;;; Refreshable

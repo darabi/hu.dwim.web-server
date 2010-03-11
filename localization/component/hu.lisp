@@ -174,7 +174,10 @@
   (icon-tooltip.export-odt "A tartalom mentése ODT formátumban")
 
   (icon-label.export-ods "ODS")
-  (icon-tooltip.export-ods "A tartalom mentése ODS formátumban"))
+  (icon-tooltip.export-ods "A tartalom mentése ODS formátumban")
+
+  (icon-label.export-ods "SH")
+  (icon-tooltip.export-ods "A tartalom mentése parancsfájl formátumban"))
 
 ;;;;;;
 ;;; Refreshable
