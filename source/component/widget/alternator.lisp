@@ -130,3 +130,6 @@
 
 (def (function e) find-default-alternative-component (component)
   (find-alternative-component component (default-alternative-type-of component)))
+
+(def (function e) alternative-deep-arguments (alternator alternative)
+  (getf (component-deep-arguments alternator :alternatives) alternative))

@@ -52,6 +52,7 @@
                                                          (:file "command-bar")
                                                          (:file "content")
                                                          (:file "context-menu")
+                                                         (:file "deep-arguments")
                                                          (:file "disableable")
                                                          (:file "draggable")
                                                          (:file "editable")

@@ -21,7 +21,8 @@
                                     :component-value value
                                     :component-value-type component-value-type
                                     :edited edited-component
-                                    :editable editable-component))
+                                    :editable editable-component
+                                    :deep-arguments (alternative-deep-arguments component 'sequence/table/inspector)))
                    (make-instance 'sequence/list/inspector
                                   :component-value value
                                   :component-value-type component-value-type
@@ -103,7 +104,8 @@
 (def (component e) sequence/table/inspector (inspector/style
                                              t/detail/inspector
                                              table/widget
-                                             component-messages/widget)
+                                             component-messages/widget
+                                             deep-arguments/mixin)
   ())
 
 (def method component-dispatch-class ((component sequence/table/inspector))
@@ -124,7 +126,9 @@
                      (collect row)))))
 
 (def layered-method make-page-navigation-bar ((component sequence/table/inspector) class prototype value)
-  (make-instance 'page-navigation-bar/widget :total-count (length value)))
+  (apply #'make-instance 'page-navigation-bar/widget
+         :total-count (length value)
+         (component-deep-arguments component :page-navigation-bar)))
 
 (def (layered-function e) make-table-row (component class prototype value)
   (:method ((component sequence/table/inspector) class prototype value)

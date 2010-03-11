@@ -12,6 +12,7 @@
 (def (component e) t/inspector (inspector/basic
                                 t/presentation
                                 cloneable/abstract
+                                deep-arguments/mixin
                                 layer/mixin)
   ()
   (:documentation "Generic factory version (all components are available):
