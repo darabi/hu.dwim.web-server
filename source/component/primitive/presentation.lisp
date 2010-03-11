@@ -189,8 +189,8 @@
         (fully-qualified-symbol-name component-value))))
 
 (def method parse-component-value ((component symbol/presentation) client-value)
-  ;; TODO decide what to do for uninterned symbols. currently it signals an error...
-  (find-symbol* client-value))
+  (or (find-fully-qualified-symbol client-value)
+      (invalid-client-value "Symbol with the name ~A not found" client-value)))
 
 ;;;;;;
 ;;; keyword/presentation
@@ -206,8 +206,8 @@
         (fully-qualified-symbol-name component-value))))
 
 (def method parse-component-value ((component keyword/presentation) client-value)
-  ;; TODO decide what to do for uninterned symbols. currently it signals an error...
-  (find-symbol* client-value :packages :keyword))
+  (or (find-fully-qualified-symbol client-value)
+      (invalid-client-value "Keyword with the name ~A not found" client-value)))
 
 ;;;;;;
 ;;; number/presentation
@@ -442,10 +442,10 @@
         (bind ((slot-name (slot-definition-name slot))
                (member-value (component-value-of component))
                (member-value-name (member-value-name/for-localization-entry member-value))
+               ;; NOTE: don't use "." because that is not going to work in CSS
                (icon-name (string+ (string-downcase slot-name) "-" member-value-name)))
-          ;; TODO use . separator, just like for localization entries
           ;; TODO find-icon should use strings
-          (awhen (find-symbol* icon-name :packages (symbol-package slot-name) :otherwise nil)
+          (awhen (find-symbol (string-upcase icon-name) (symbol-package slot-name))
             (find-icon it :otherwise nil)))))))
 
 (def method print-component-value ((component member/presentation))
