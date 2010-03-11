@@ -71,9 +71,6 @@
   (when value
     (make-xml-attribute name value)))
 
-(def macro to-boolean (form)
-  `(not (not ,form)))
-
 (def function mandatory-argument ()
   (error "A mandatory argument was not specified"))
 
