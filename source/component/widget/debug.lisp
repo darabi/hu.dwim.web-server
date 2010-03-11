@@ -36,7 +36,7 @@
   (menu-item/widget ()
       "Debug"
     (menu-item/widget ()
-        (command/widget (:send-client-state #f)
+        (command/widget (:ajax #f :send-client-state #f)
           "Start over (frame)"
           (make-action (reset-root-component))))
     (menu-item/widget ()
