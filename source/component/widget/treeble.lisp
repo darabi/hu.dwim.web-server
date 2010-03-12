@@ -24,9 +24,9 @@
 
 (def render-xhtml treeble/widget
   (bind (((:read-only-slots root-nodes) -self-))
-    (with-render-style/abstract (-self- :element-name "table")
-      <thead <tr ,(render-treeble-columns -self-)>>
-      <tbody ,(foreach #'render-component root-nodes)>)))
+    (with-render-style/abstract (-self-)
+      <table <thead <tr ,(render-treeble-columns -self-)>>
+        <tbody ,(foreach #'render-component root-nodes)>>)))
 
 (def render-csv treeble/widget
   (write-csv-line (columns-of -self-))
