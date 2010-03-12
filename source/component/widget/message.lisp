@@ -76,7 +76,7 @@
 
 (def refresh-component component-message/widget
   (bind (((:slots category style-class) -self-))
-    (setf style-class (string+ (string-downcase category) "-message"))))
+    (setf style-class (string+ (string-downcase category) "-message-border"))))
 
 (def render-xhtml component-message/widget
   (with-render-style/abstract (-self-)

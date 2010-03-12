@@ -781,24 +781,8 @@
 ;;; Style
 
 ;; TODO: move this to the test directory since it is specific to the demo
-(wui.register-component-setup "component-message/widget" (lambda (id)
-                                                           (wui.attach-border id (+ (slot-value (dojo.byId id) 'className) "-border") true)))
-
-(dolist (entry #(#("title/widget"                           "title-border"             true)
-                 #("title-bar/widget"                       "title-border"             true)
-                 #("column/widget"                          "table-header-border"      true)
-                 #("push-button/widget"                     "button-border"            true)
-                 #("switch-to-tab-page/widget"              "tab-page-selector-border" true)
-                 #("usage-help/widget"                      "content-border"           true)
-                 #("table/widget"                           "content-border"           true)
-                 #("treeble/widget"                         "content-border"           true)
-                 #("tree/widget"                            "content-border"           true)
-                 #("t/presentation"                         "content-border"           "DIV")
-                 #("t/detail/presentation"                  false                      false)
-                 #("uri/inspector"                          false                      false)
-                 #("hyperlink/inspector"                    false                      false)
-                 #("text/inspector"                         false                      false)
-                 #("book/inspector"                         "content-border"           "DIV")))
+(dolist (entry #(#("push-button/widget"                     "button-border"            true)
+                 #("switch-to-tab-page/widget"              "tab-page-selector-border" true)))
   (bind ((type (first entry))
          (style-class (second entry))
          (element-name (third entry)))

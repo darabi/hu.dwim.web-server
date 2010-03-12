@@ -7,6 +7,53 @@
 
 (in-package :hu.dwim.wui)
 
+
+;; TODO: move
+(def method component-style-class ((self title/widget))
+  (string+ "title-border " (call-next-method)))
+
+(def method component-style-class ((self title-bar/widget))
+  (string+ "title-border " (call-next-method)))
+
+(def method component-style-class ((self usage-help/widget))
+  (string+ "content-border " (call-next-method)))
+
+(def method component-style-class ((self table/widget))
+  (string+ "content-border " (call-next-method)))
+
+(def method component-style-class ((self tree/widget))
+  (string+ "content-border " (call-next-method)))
+
+(def method component-style-class ((self treeble/widget))
+  (string+ "content-border " (call-next-method)))
+
+(def method component-style-class ((self t/presentation))
+  (string+ "content-border " (call-next-method)))
+
+(def method component-style-class ((self column/widget))
+  (string+ "table-header-border " (call-next-method)))
+
+(def method component-style-class ((self text/inspector))
+  "text inspector")
+
+(def method component-style-class ((self book/inspector))
+  "content-border text inspector")
+
+(def method component-style-class ((self uri/inspector))
+  "uri inspector")
+
+(def method component-style-class ((self hyperlink/inspector))
+  "hyperlink inspector")
+
+
+
+
+
+
+
+
+
+
 (def function make-copy-to-repl-command (component)
   (command/widget (:ajax #t)
     "COPY"
