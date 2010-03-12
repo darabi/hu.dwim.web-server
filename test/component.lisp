@@ -366,13 +366,16 @@
           (name-value-pair/widget ()
             "Age"
             "34"))))
+    (component-demo/widget "Title"
+      (title/widget ()
+        "Hello World"))
     (component-demo/widget "Panel"
       (panel/widget (:title-bar (title-bar/widget ()
                                   "The panel's title")
-                                :command-bar (command-bar/widget ()
-                                               (command/widget ()
-                                                 (icon refresh-component)
-                                                 (make-action))))
+                     :command-bar (command-bar/widget ()
+                                    (command/widget ()
+                                      (icon refresh-component)
+                                      (make-action))))
         "John"))
     (component-demo/widget "Information message"
       (component-message/widget (:category :information)
