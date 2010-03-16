@@ -51,7 +51,8 @@
   self)
 
 (def render-component icon/widget
-  (render-component (label-of -self-)))
+  (awhen (force (label-of -self-))
+    (render-component it)))
 
 (def render-xhtml icon/widget
   (render-icon :icon -self-))

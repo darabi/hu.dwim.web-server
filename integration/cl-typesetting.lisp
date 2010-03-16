@@ -104,13 +104,13 @@
 
 (def (special-variable e) *total-page-count*)
 
-(def layered-method export-pdf (component)
+(def layered-method export-pdf ((self exportable/abstract))
   (with-output-to-export-stream (*pdf-stream* :content-type +pdf-mime-type+ :external-format :iso-8859-1)
     (bind ((typeset::*default-font* (pdf:get-font "Times-Roman"))
            (typeset::*font* typeset::*default-font*)
            (*total-page-count* 0))
       (typeset::with-document ()
-        (render-pdf-pages component)
+        (render-pdf-pages self)
         (when pdf:*page*
           (typeset:finalize-page pdf:*page*))
         (typeset:write-document *pdf-stream*)))))
@@ -129,6 +129,9 @@
 (def render-pdf string ()
   (typeset:put-string -self-))
 
+(def render-pdf command/widget
+  (render-component (content-of -self-)))
+
 (def render-pdf command-bar/widget
   (iter (for command :in (commands-of -self-))
         (unless (first-iteration-p)
@@ -144,6 +147,12 @@
 (def render-pdf primitive/inspector
   (typeset:put-string (print-component-value -self-)))
 
+(def render-pdf list/widget ()
+  (foreach #'render-component (contents-of -self-)))
+
+(def render-pdf element/widget ()
+  (render-component (content-of -self-)))
+
 (def render-pdf table/widget ()
   (typeset:table (:col-widths (normalized-column-widths (columns-of -self-)) :splittable-p #t)
     (typeset:row ()
@@ -152,7 +161,7 @@
 
 (def render-pdf column/widget ()
   (typeset:cell ()
-    (call-next-method)))
+    (call-next-layered-method)))
 
 (def render-pdf cell/widget ()
   (bind (((:read-only-slots horizontal-alignment vertical-alignment column-span row-span) -self-))
@@ -163,7 +172,7 @@
       (surround-body-when horizontal-alignment
           (typeset:paragraph (:h-align horizontal-alignment)
             (-body-))
-        (call-next-method)))))
+        (call-next-layered-method)))))
 
 (def render-pdf row/widget ()
   (typeset:row ()
@@ -196,6 +205,30 @@
              (columns-of *tree*)
              (cells-of -self-)))
   (foreach #'render-component (child-nodes-of -self-)))
+
+(def render-pdf book/text/inspector
+  (typeset:paragraph ()
+    (typeset:with-style (:font-size 24)
+      (render-title-for -self-))
+    (typeset:new-line)
+    (foreach #'render-author (authors-of (component-value-of -self-)))
+    (typeset:new-line)
+    (render-contents-for -self-)))
+
+(def render-pdf chapter/text/inspector
+  (typeset:paragraph ()
+    (typeset:with-style (:font-size 18)
+      (render-title-for -self-))
+    (typeset:new-line)
+    (render-contents-for -self-)))
+
+(def render-pdf paragraph/text/inspector
+  (typeset:paragraph ()
+    (render-contents-for -self-)))
+
+(def render-pdf alternator/widget
+  (typeset:paragraph ()
+    (call-next-layered-method)))
 
 ;;;;;;
 ;;; Utilities
@@ -453,19 +486,19 @@
 (def function render-vertex-content (content &optional max-width)
   (bind ((compiled-content
           (cond ((typep content 'string)
-                 (compile-text ()
-                   (paragraph (:h-align :center
-                               :v-align :center
-                               :color '(0 0 0)
-                               ;; TODO: WTF? parenthesis messes up cl-pdf's output when using FreeSerif font!
-                               :font "Helvetica"
-                               :font-size *vertex-label-font-size*)
-                     (put-string content))))
+                 (typeset:compile-text ()
+                   (typeset:paragraph (:h-align :center
+                                       :v-align :center
+                                       :color '(0 0 0)
+                                       ;; TODO: WTF? parenthesis messes up cl-pdf's output when using FreeSerif font!
+                                       :font "Helvetica"
+                                       :font-size *vertex-label-font-size*)
+                     (typeset:put-string content))))
                 ((typep content 'cons)
                  (eval
                   `(compile-text () ,content)))
                 (t
                  content))))
     (if max-width
-        (make-filled-vbox compiled-content max-width typeset::+HUGE-NUMBER+)
+        (typeset:make-filled-vbox compiled-content max-width typeset::+HUGE-NUMBER+)
         compiled-content)))

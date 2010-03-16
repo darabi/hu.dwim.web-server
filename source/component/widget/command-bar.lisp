@@ -34,6 +34,9 @@
 (def (macro e) command-bar/widget ((&rest args &key &allow-other-keys) &body commands)
   `(make-instance 'command-bar/widget ,@args :commands (optional-list ,@commands)))
 
+(def render-text command-bar/widget
+  (foreach #'render-component (commands-of -self-)))
+
 (def render-xhtml command-bar/widget
   (with-render-style/abstract (-self-)
     (iter (with commands = (commands-of -self-))

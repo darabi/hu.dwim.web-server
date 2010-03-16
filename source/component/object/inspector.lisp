@@ -92,6 +92,9 @@ Optimized factory configuration (default):
          (documentation (make-documentation -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value)))
     (setf contents (parse-documentation documentation))))
 
+(def render-component t/documentation/inspector
+  (render-contents-for -self-))
+
 (def render-xhtml t/documentation/inspector
   (with-render-style/abstract (-self-)
     (render-contents-for -self-)))
