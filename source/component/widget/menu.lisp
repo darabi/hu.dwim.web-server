@@ -62,6 +62,9 @@
 (def (macro e) context-menu/widget ((&rest args &key &allow-other-keys) &body menu-items)
   `(make-instance 'context-menu/widget ,@args :menu-items (flatten (list ,@menu-items))))
 
+(def render-component context-menu/widget
+  (values))
+
 (def render-xhtml context-menu/widget
   (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
     (when menu-items

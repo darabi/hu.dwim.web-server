@@ -40,6 +40,9 @@
   (when (render-command-bar-for-alternative? (content-of self))
     (render-command-bar-for self)))
 
+(def render-component alternator/widget
+  (render-alternator-interior -self-))
+
 (def render-xhtml alternator/widget
   (with-render-alternator/widget -self-
     (render-alternator-interior -self-)))

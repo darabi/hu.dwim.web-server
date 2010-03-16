@@ -41,9 +41,9 @@
 ;;;;;;
 ;;; Text format
 
-(def layered-method export-text (component)
+(def layered-method export-text ((self exportable/abstract))
   (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
-    (render-text component)))
+    (render-text self)))
 
 (def layered-function write-text-line-begin ()
   (:method ()
@@ -56,21 +56,21 @@
 ;;;;;;
 ;;; CSV format
 
-(def layered-method export-csv (component)
+(def layered-method export-csv ((self exportable/abstract))
   (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format :utf-8)
-    (render-csv component)))
+    (render-csv self)))
 
 ;;;;;;
 ;;; ODT format
 
-(def layered-method export-odt (component)
+(def layered-method export-odt ((self exportable/abstract))
   (with-output-to-export-stream (*xml-stream* :content-type +odt-mime-type+ :external-format :utf-8)
-    (render-odt component)))
+    (render-odt self)))
 
 ;;;;;;
 ;;; ODS format
 
-(def layered-method export-ods ((component exportable/abstract))
+(def layered-method export-ods ((self exportable/abstract))
   (with-output-to-export-stream (*xml-stream* :content-type +ods-mime-type+ :external-format :utf-8)
     (emit-xml-prologue :encoding (guess-encoding-for-http-response) :stream *xml-stream* :version "1.1")
     <office:document (xmlns:office "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
@@ -112,11 +112,11 @@
       <office:body
         <office:spreadsheet
          <table:table
-             ,(render-ods component)>>>>))
+             ,(render-ods self)>>>>))
 
 ;;;;;;
 ;;; SH format
 
-(def (layered-method e) export-sh (component)
+(def (layered-method e) export-sh ((self component))
   (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
-    (render-sh component)))
+    (render-sh self)))

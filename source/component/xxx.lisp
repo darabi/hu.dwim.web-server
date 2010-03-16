@@ -239,7 +239,7 @@
 (def (icon e) export-text)
 
 (def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
     (icon export-text)
     (make-component-action component
       (export-text component))))
@@ -247,7 +247,7 @@
 (def (icon e) export-csv)
 
 (def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
     (icon export-csv)
     (make-component-action component
       (export-csv component))))
@@ -257,7 +257,7 @@
 (def special-variable *pdf-stream*)
 
 (def layered-method make-export-command ((format (eql :pdf)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
     (icon export-pdf)
     (make-component-action component
       (export-pdf component))))
@@ -265,7 +265,7 @@
 (def (icon e) export-odt)
 
 (def layered-method make-export-command ((format (eql :odt)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
     (icon export-odt)
     (make-component-action component
       (export-odt component))))
@@ -273,7 +273,7 @@
 (def (icon e) export-ods)
 
 (def layered-method make-export-command ((format (eql :ods)) (component exportable/abstract) class prototype instance)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
     (icon export-ods)
     (make-component-action component
       (export-ods component))))
@@ -281,7 +281,7 @@
 (def (icon e) export-sh)
 
 (def layered-method make-export-command ((format (eql :sh)) component class prototype value)
-  (command/widget (:delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
     (icon export-sh)
     (make-component-action component
       (export-sh component))))
