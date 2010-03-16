@@ -6,6 +6,99 @@
 
 (in-package :hu.dwim.wui)
 
+;;;;;
+;;; Font loading
+;;;
+;;; KLUDGE: this whole font loading stuff and the related fonts in the source tree
+;;;         is a workaround for a couple of hungarian characters and and the stupidity of cl-pdf
+
+(def special-variable *font-name->dwim-font-subset-name-map*
+  (let ((font-map (make-hash-table :test 'equal)))
+    (flet ((insert-hash-entry (key value)
+             (setf (gethash key font-map) value)))
+      (insert-hash-entry "times-roman" "Times-Roman-dwim-subset")
+      (insert-hash-entry "times-bold" "Times-Bold-dwim-subset")
+      (insert-hash-entry "times-italic" "Times-Italic-dwim-subset")
+      (insert-hash-entry "times-bolditalic" "Times-BoldItalic-dwim-subset"))
+    font-map))
+
+(def special-variable *font-name->hungarian-font-subset-name-map*
+  (let ((font-map (make-hash-table :test 'equal)))
+    (flet ((insert-hash-entry (key value)
+             (setf (gethash key font-map) value)))
+      (insert-hash-entry "times-roman" "Times-Roman-Hungarian-subset")
+      (insert-hash-entry "times-bold" "Times-Bold-Hungarian-subset")
+      (insert-hash-entry "times-italic" "Times-Italic-Hungarian-subset")
+      (insert-hash-entry "times-bolditalic" "Times-BoldItalic-Hungarian-subset"))
+    font-map))
+
+(def function get-font-path-list (directory font-extension metrics-extension)
+  (when (cl-fad:directory-exists-p directory)
+    (prog1-bind file-names nil
+      (cl-fad:walk-directory directory (lambda (path)
+                                         (bind ((type (pathname-type path)))
+                                           (when (and type (string= type metrics-extension))
+                                             (push (merge-pathnames (make-pathname :type font-extension) path) file-names))))))))
+
+(def function load-truetype-unicode-font (font-path)
+  (pdf:load-ttu-font
+   (namestring (merge-pathnames (make-pathname :type "ufm") font-path))
+   (namestring (merge-pathnames (make-pathname :type "ttf") font-path))))
+
+(def function load-type1-font (font-path)
+  (pdf:load-t1-font
+   (namestring (merge-pathnames (make-pathname :type "afm") font-path))
+   (namestring (merge-pathnames (make-pathname :type "pfb") font-path))))
+
+(def function load-fonts ()
+  (let ((font-directory (system-relative-pathname :hu.dwim.wui "font/")))
+    (dolist (ttf-font-path (get-font-path-list font-directory "ttf" "ufm"))
+      (wui.info "Loading truetype unicode font ~A." ttf-font-path)
+      (load-truetype-unicode-font ttf-font-path))
+    (dolist (t1-font-path (get-font-path-list font-directory "pfb" "afm"))
+      (wui.info "Loading type1 font ~A." t1-font-path)
+      (load-type1-font t1-font-path))))
+
+;;; Load fonts at startup
+(load-fonts)
+
+;;;;;;
+;;; put-string
+;;;
+;;; KLUDGE: this is a workaround for a couple of hungarian characters and the stupidity of cl-pdf
+
+(let ((put-string-function #'typeset:put-string))
+  (def function typeset-put-string (string)
+    (funcall put-string-function string)))
+
+(def function typeset:put-string (string)
+  (let ((dwim-font-subset (gethash (pdf:name typeset::*font*) *font-name->dwim-font-subset-name-map*))
+        (hungarian-font-subset (gethash (pdf:name typeset::*font*) *font-name->hungarian-font-subset-name-map*)))
+    (if (or dwim-font-subset
+            hungarian-font-subset)
+        (iter (with last = 0)
+              (for char :in-vector string)
+              (for i :from 0)
+              (cond ((and hungarian-font-subset
+                          (member char '(#\LATIN_CAPITAL_LETTER_O_WITH_DOUBLE_ACUTE
+                                         #\LATIN_SMALL_LETTER_O_WITH_DOUBLE_ACUTE
+                                         #\LATIN_CAPITAL_LETTER_U_WITH_DOUBLE_ACUTE
+                                         #\LATIN_SMALL_LETTER_U_WITH_DOUBLE_ACUTE)))
+                     (typeset-put-string (subseq string last i))
+                     (setf last (1+ i))
+                     (typeset:with-style (:font (pdf:get-font hungarian-font-subset  pdf::*latin-2-encoding*))
+                       (typeset-put-string (string char))))
+                    ((and dwim-font-subset
+                          (member char '(#\SUPERSCRIPT_TWO
+                                         #\SUPERSCRIPT_THREE)))
+                     (typeset-put-string (subseq string last i))
+                     (setf last (1+ i))
+                     (typeset:with-style (:font dwim-font-subset)
+                       (typeset-put-string (string char)))))
+              (finally (when (>= i last)
+                         (typeset-put-string (subseq string last (1+ i))))))
+        (typeset-put-string string))))
+
 ;;;;;;
 ;;; Export
 
