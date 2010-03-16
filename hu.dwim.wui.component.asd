@@ -14,6 +14,7 @@
   :long-description "Provides various components, layouts, widgets, charts, books, model documentation components, meta components. Components have server and client side state and behavior."
   :depends-on (:contextl
                :hu.dwim.wui.application
+               :hu.dwim.util.authorization
                :hu.dwim.util.source
                :hu.dwim.util.standard-process)
   :components ((:module "source"
