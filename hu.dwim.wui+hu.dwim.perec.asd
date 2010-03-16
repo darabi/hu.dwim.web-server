@@ -16,7 +16,8 @@
                :hu.dwim.wui)
   :components ((:module "integration"
                 :components ((:module "perec"
-                              :components ((:file "dimensional")
+                              :components ((:file "d-value")
+                                           (:file "dimension")
                                            (:file "filter")
                                            (:file "inspector")
                                            (:file "kludge")
