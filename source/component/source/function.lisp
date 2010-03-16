@@ -15,7 +15,8 @@
 (def subtype-mapper *inspector-type-mapping* (or null function) function/inspector)
 
 (def layered-method make-alternatives ((component function/inspector) (class built-in-class) (prototype function) (value function))
-  (list* (make-instance 'function/lisp-form/inspector :component-value value)
+  (list* (make-instance 'function/documentation/inspector :component-value value)
+         (make-instance 'function/lisp-form/inspector :component-value value)
          (call-next-method)))
 
 ;;;;;;
@@ -30,6 +31,15 @@
                     "Macro")
                    (t "Unknown"))
              ": " (call-next-method))))
+
+;;;;;;
+;;; function/documentation/inspector
+
+(def (component e) function/documentation/inspector (t/documentation/inspector)
+  ())
+
+(def method make-documentation ((component function/documentation/inspector) (class standard-class) (prototype function) (value function))
+  (documentation value t))
 
 ;;;;;;
 ;;; function/lisp-form/inspector

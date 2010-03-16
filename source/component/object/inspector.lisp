@@ -96,7 +96,7 @@ Optimized factory configuration (default):
   (with-render-style/abstract (-self-)
     (render-contents-for -self-)))
 
-(def generic make-documentation (component class prototype value)
+(def (generic e) make-documentation (component class prototype value)
   (:method :around (component class prototype value)
     (or (call-next-method) "No documentation"))
 
