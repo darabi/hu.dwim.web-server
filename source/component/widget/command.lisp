@@ -138,7 +138,7 @@
   (render-component (content-of -self-)))
 
 (def render-component :in passive-layer command/widget
-  (render-content-for -self-))
+  (values))
 
 (def function href-for-command (action action-arguments)
   (bind ((send-client-state? (prog1

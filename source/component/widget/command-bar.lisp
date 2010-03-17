@@ -51,6 +51,9 @@
 (def render-csv command-bar/widget
   (write-csv-separated-elements #\Space (commands-of -self-)))
 
+(def render-component :in passive-layer command-bar/widget
+  (values))
+
 (def generic find-command-bar (component)
   (:method ((self component))
     ;; FIXME: TODO: KLUDGE: command-bar is usually created from refresh and is not available after make-instance
