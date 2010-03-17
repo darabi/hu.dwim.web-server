@@ -48,5 +48,13 @@
       ;; TODO icon
       >))
 
+(def render-text hyperlink/text/inspector
+  (render-content-for -self-)
+  (bind (((:read-only-slots component-value) -self-))
+    (when component-value
+      (write-string " (" *text-stream*)
+      (write-string (print-uri-to-string (uri-of component-value)) *text-stream*)
+      (write-char #\) *text-stream*))))
+
 (def method render-command-bar-for-alternative? ((component hyperlink/text/inspector))
   #f)
