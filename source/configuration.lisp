@@ -128,7 +128,8 @@
 (bind ((extended-package (find-extended-package "HU.DWIM.WUI")))
   (setf (hu.dwim.def::readtable-setup-form-of extended-package)
         `(setup-readtable))
-  (hu.dwim.def::notify-swank-about-package-readtable extended-package))
+  (awhen (find-function 'hu.dwim.def::notify-swank-about-package-readtable :otherwise #f)
+    (funcall it extended-package)))
 
 #+nil
 (def (macro e) transform-js (&body body)
