@@ -239,7 +239,7 @@
 (def (icon e) export-text)
 
 (def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype instance)
-  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component))
     (icon export-text)
     (make-component-action component
       (export-text component))))
@@ -247,7 +247,7 @@
 (def (icon e) export-csv)
 
 (def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype instance)
-  (command/widget (:ajax #f :delayed-content #t :path (export-file-name format component))
+  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component))
     (icon export-csv)
     (make-component-action component
       (export-csv component))))

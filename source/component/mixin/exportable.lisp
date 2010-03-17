@@ -46,7 +46,7 @@
 ;;; Text format
 
 (def layered-method export-text ((self exportable/abstract))
-  (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
+  (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format (guess-encoding-for-http-response))
     (with-active-layers (passive-layer)
       (render-text self))))
 
@@ -62,7 +62,7 @@
 ;;; CSV format
 
 (def layered-method export-csv ((self exportable/abstract))
-  (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format :utf-8)
+  (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format (guess-encoding-for-http-response))
     (with-active-layers (passive-layer)
       (render-csv self))))
 
