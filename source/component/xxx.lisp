@@ -30,6 +30,9 @@
 (def method component-style-class ((self t/presentation))
   (string+ "content-border " (call-next-method)))
 
+(def method component-style-class ((self t/detail/presentation))
+  (%component-style-class self))
+
 (def method component-style-class ((self column/widget))
   (string+ "table-header-border " (call-next-method)))
 

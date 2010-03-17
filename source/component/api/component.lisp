@@ -267,8 +267,11 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 ;;;;;;
 ;;; Component style
 
+(def function %component-style-class (component)
+  (string-downcase (substitute #\Space #\/ (symbol-name (class-name (class-of component))))))
+
 (def method component-style-class ((self component))
-  (string-downcase (substitute #\Space #\/ (symbol-name (class-name (class-of self))))))
+  (%component-style-class self))
 
 ;;;;;;
 ;;; Component value
