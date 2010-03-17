@@ -30,7 +30,7 @@
   (error.internal-server-error "Internal server error")
   (error.access-denied-error "Access denied")
 
-  (render-internal-error-page (&key administrator-email-address &allow-other-keys)
+  (render-error-page/internal-error (&key administrator-email-address &allow-other-keys)
     <div
       <h1 "Internal server error">
       <p "An internal server error has occured while processing your request. We are sorry for the inconvenience.">
@@ -41,7 +41,7 @@
             " email address.">)
       <p <a (:href "#" :onClick `js-inline(history.go -1)) "Go back">>>)
 
-  (render-access-denied-error-page (&key &allow-other-keys)
+  (render-error-page/access-denied (&key &allow-other-keys)
     <div
       <h1 "Access denied">
       <p "You have no permission to access the requested resource.">

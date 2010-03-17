@@ -30,7 +30,7 @@
   (error.internal-server-error "Ismeretlen eredetű hiba")
   (error.access-denied-error "Hozzáférés megtagadva")
 
-  (render-internal-error-page (&key administrator-email-address &allow-other-keys)
+  (render-error-page/internal-error (&key administrator-email-address &allow-other-keys)
     <div
       <h1 "Programhiba">
       <p "A szerverhez érkezett kérés feldolgozása közben váratlan hiba történt. Elnézést kérünk az esetleges kellemetlenségért!">
@@ -41,7 +41,7 @@
             " email címen megteheti.">)
       <p <a (:href "#" :onClick `js-inline(history.go -1)) "Vissza">>>)
 
-  (render-access-denied-error-page (&key &allow-other-keys)
+  (render-error-page/access-denied (&key &allow-other-keys)
     <div
       <h1 "Hozzáférés megtagadva">
       <p "Nincs joga a kívánt oldal megtekintéséhez.">

@@ -49,7 +49,7 @@
        ;; that's why the usage of symbol-value...
        (bind ((args (list :administrator-email-address (and (boundp '*server*)
                                                             (administrator-email-address-of (symbol-value '*server*))))))
-         (apply-localization-function 'render-internal-error-page args)))
+         (apply-localization-function 'render-error-page/internal-error args)))
      (abort-server-request "HANDLE-TOPLEVEL-ERROR succesfully handled the error by sending an error page"))
     (t
      (server.info "Internal server error for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." (raw-uri-of *request*))
@@ -65,7 +65,7 @@
         (progn
           (server.info "Sending an access denied error page for request ~S" request-uri)
           (emit-simple-html-document-http-response (:status +http-forbidden+ :title #"error.access-denied-error")
-            (apply-localization-function 'render-access-denied-error-page)))
+            (apply-localization-function 'render-error-page/access-denied)))
         (server.info "Access denied for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." request-uri)))
   (abort-server-request "HANDLE-TOPLEVEL-ERROR succesfully handled the access denied error by sending an error page"))
 

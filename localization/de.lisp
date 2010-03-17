@@ -30,7 +30,7 @@
   (error.internal-server-error "Interner Serverfehler")
   (error.access-denied-error "Zugriff verweigert")
 
-  (render-internal-error-page (&key administrator-email-address &allow-other-keys)
+  (render-error-page/internal-error (&key administrator-email-address &allow-other-keys)
     <div
       <h1 "Interner Serverfehler">
       <p "Ein Serverfehler ist bei der Bearbeitung Ihrer Anfrage aufgetreten. Wir bitten hierfür um Entschuldigung.">
@@ -40,7 +40,7 @@
             <a (:href ,(mailto-href administrator-email-address)) ,administrator-email-address>>)
       <p <a (:href "#" :onClick `js-inline(history.go -1)) "Zurück">>>)
 
-  (render-access-denied-error-page (&key &allow-other-keys)
+  (render-error-page/access-denied (&key &allow-other-keys)
     <div
       <h1 "Zugriff verweigert">
       <p "Sie sind leider nicht berechtigt, auf die angeforderte Seite zu zu greifen.">
