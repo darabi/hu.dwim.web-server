@@ -137,11 +137,10 @@
   (foreach #'render-component (child-nodes-of -self-)))
 
 (def render-pdf alternator/widget
-  (typeset:paragraph ()
-    (call-next-layered-method)))
+    (call-next-layered-method))
 
 (def render-pdf book/text/inspector
-  (typeset:paragraph ()
+  (typeset:paragraph (:font (pdf:get-font "FreeSerif"))
     (typeset:with-style (:font-size 24)
       (render-title-for -self-))
     (typeset:new-line)
@@ -161,13 +160,17 @@
     (render-contents-for -self-)))
 
 (def render-pdf hyperlink/text/inspector
-  (typeset:paragraph ()
-    (render-content-for -self-)))
+  ;; TODO: how does one render a link?
+  (render-content-for -self-))
 
 (def render-pdf shell-script/text/inspector
-  (typeset:with-style (:font (pdf:get-font "courier"))
+  (typeset:with-style (:font (pdf:get-font "Courier") :font-size 12)
     (iter (for content :in (contents-of -self-))
+          (typeset:new-line)
           (render-component content))))
+
+(def render-pdf uri/external-link/inspector
+  (typeset:put-string (print-uri-to-string (component-value-of -self-))))
 
 ;;;;;;
 ;;; Utilities

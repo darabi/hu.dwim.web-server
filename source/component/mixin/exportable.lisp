@@ -136,6 +136,6 @@
 ;;; SH format
 
 (def (layered-method e) export-sh ((self component))
-  (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
+  (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format (guess-encoding-for-http-response))
     (with-active-layers (passive-layer)
       (render-sh self))))

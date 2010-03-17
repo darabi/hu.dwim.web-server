@@ -69,7 +69,7 @@
     <div (:class "author")
       ,(render-component self)>)
 
-  (:method :in ods-layer ((self string))
+  (:methodq ((self string))
     (render-component self))
 
   (:method ((self component))
