@@ -28,7 +28,7 @@
   (with-render-style/abstract (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
-    <div (:class "title-separator") <br>>
+    <div (:class "separator") <br>>
     (when (expanded-component? -self-)
       <div (:class "content")
         ,(render-contents-for -self-)>)))

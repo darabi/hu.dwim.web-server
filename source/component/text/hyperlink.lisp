@@ -34,9 +34,10 @@
 
 (def render-xhtml hyperlink/text/inspector
   (bind (((:read-only-slots component-value) -self-))
-    <a (:class "external-link widget" :target "_blank" :href ,(print-uri-to-string (uri-of component-value)))
-      ,(render-content-for -self-)
-      ,(render-component (icon external-link))>))
+    (with-render-style/abstract (-self- :element-name "span")
+      <a (:class "external-link widget" :target "_blank" :href ,(print-uri-to-string (uri-of component-value)))
+         ,(render-content-for -self-)
+         ,(render-component (icon external-link))>)))
 
 (def render-odt hyperlink/text/inspector
   (bind (((:read-only-slots component-value) -self-))

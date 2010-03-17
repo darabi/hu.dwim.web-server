@@ -31,7 +31,7 @@
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
     (foreach #'render-author (authors-of (component-value-of -self-)))
-    <div (:class "title-separator") <br>>
+    <div (:class "separator") <br>>
     (when (expanded-component? -self-)
       <div (:class "content")
         ,(render-contents-for -self-)>)))
