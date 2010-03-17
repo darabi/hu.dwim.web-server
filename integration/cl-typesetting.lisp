@@ -8,29 +8,6 @@
 
 ;;;;;
 ;;; Font loading
-;;;
-;;; KLUDGE: this whole font loading stuff and the related fonts in the source tree
-;;;         is a workaround for a couple of hungarian characters and and the stupidity of cl-pdf
-
-(def special-variable *font-name->dwim-font-subset-name-map*
-  (let ((font-map (make-hash-table :test 'equal)))
-    (flet ((insert-hash-entry (key value)
-             (setf (gethash key font-map) value)))
-      (insert-hash-entry "times-roman" "Times-Roman-dwim-subset")
-      (insert-hash-entry "times-bold" "Times-Bold-dwim-subset")
-      (insert-hash-entry "times-italic" "Times-Italic-dwim-subset")
-      (insert-hash-entry "times-bolditalic" "Times-BoldItalic-dwim-subset"))
-    font-map))
-
-(def special-variable *font-name->hungarian-font-subset-name-map*
-  (let ((font-map (make-hash-table :test 'equal)))
-    (flet ((insert-hash-entry (key value)
-             (setf (gethash key font-map) value)))
-      (insert-hash-entry "times-roman" "Times-Roman-Hungarian-subset")
-      (insert-hash-entry "times-bold" "Times-Bold-Hungarian-subset")
-      (insert-hash-entry "times-italic" "Times-Italic-Hungarian-subset")
-      (insert-hash-entry "times-bolditalic" "Times-BoldItalic-Hungarian-subset"))
-    font-map))
 
 (def function get-font-path-list (directory font-extension metrics-extension)
   (when (cl-fad:directory-exists-p directory)
@@ -59,45 +36,7 @@
       (wui.info "Loading type1 font ~A." t1-font-path)
       (load-type1-font t1-font-path))))
 
-;;; Load fonts at startup
 (load-fonts)
-
-;;;;;;
-;;; put-string
-;;;
-;;; KLUDGE: this is a workaround for a couple of hungarian characters and the stupidity of cl-pdf
-
-(let ((put-string-function #'typeset:put-string))
-  (def function typeset-put-string (string)
-    (funcall put-string-function string)))
-
-(def function typeset:put-string (string)
-  (let ((dwim-font-subset (gethash (pdf:name typeset::*font*) *font-name->dwim-font-subset-name-map*))
-        (hungarian-font-subset (gethash (pdf:name typeset::*font*) *font-name->hungarian-font-subset-name-map*)))
-    (if (or dwim-font-subset
-            hungarian-font-subset)
-        (iter (with last = 0)
-              (for char :in-vector string)
-              (for i :from 0)
-              (cond ((and hungarian-font-subset
-                          (member char '(#\LATIN_CAPITAL_LETTER_O_WITH_DOUBLE_ACUTE
-                                         #\LATIN_SMALL_LETTER_O_WITH_DOUBLE_ACUTE
-                                         #\LATIN_CAPITAL_LETTER_U_WITH_DOUBLE_ACUTE
-                                         #\LATIN_SMALL_LETTER_U_WITH_DOUBLE_ACUTE)))
-                     (typeset-put-string (subseq string last i))
-                     (setf last (1+ i))
-                     (typeset:with-style (:font (pdf:get-font hungarian-font-subset  pdf::*latin-2-encoding*))
-                       (typeset-put-string (string char))))
-                    ((and dwim-font-subset
-                          (member char '(#\SUPERSCRIPT_TWO
-                                         #\SUPERSCRIPT_THREE)))
-                     (typeset-put-string (subseq string last i))
-                     (setf last (1+ i))
-                     (typeset:with-style (:font dwim-font-subset)
-                       (typeset-put-string (string char)))))
-              (finally (when (>= i last)
-                         (typeset-put-string (subseq string last (1+ i))))))
-        (typeset-put-string string))))
 
 ;;;;;;
 ;;; Export
@@ -106,7 +45,7 @@
 
 (def layered-method export-pdf ((self exportable/abstract))
   (with-output-to-export-stream (*pdf-stream* :content-type +pdf-mime-type+ :external-format :iso-8859-1)
-    (bind ((typeset::*default-font* (pdf:get-font "Times-Roman"))
+    (bind ((typeset::*default-font* (pdf:get-font "FreeSerif"))
            (typeset::*font* typeset::*default-font*)
            (*total-page-count* 0))
       (typeset::with-document ()
