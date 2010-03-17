@@ -99,5 +99,3 @@
 
 (def (constant e) +page-failed-to-load-id+ "page-failed-to-load")
 (def (constant e) +page-failed-to-load-grace-period-in-millisecs+ 10000)
-
-(def (constant e) +export-uri-path+ "export/")

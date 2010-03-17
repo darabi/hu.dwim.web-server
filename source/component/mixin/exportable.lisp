@@ -23,20 +23,24 @@
 (def (layered-function e) export-file-name (format component)
   (:method :around (format component)
     (awhen (call-next-method)
-      (string+ +export-uri-path+ it "." (string-downcase format))))
+      (string+ it "." (string-downcase format))))
 
   (:method (format component)
-    nil))
+    (lookup-first-matching-resource* (:default "unnamed")
+      ("export.default-filename" (string-downcase format))
+      "export.default-filename")))
 
-(def macro with-output-to-export-stream ((stream-name &key external-format content-type) &body body)
-  (with-unique-names (response-body content-type-tmp)
-    `(bind ((,response-body (with-output-to-sequence (,stream-name :external-format ,external-format
-                                                                   :initial-buffer-size 256)
-                              ,@body)))
-       (make-byte-vector-response* ,response-body :headers (nconc (bind ((,content-type-tmp ,content-type))
-                                                                    (when ,content-type-tmp
-                                                                      (list (cons +header/content-type+ ,content-type-tmp))))
-                                                                  (list (cons +header/content-disposition+ "attachment")))))))
+(def macro with-output-to-export-stream ((stream-name &key external-format content-type file-name) &body body)
+  (with-unique-names (response-body)
+    (once-only (content-type)
+      `(bind ((,response-body (with-output-to-sequence (,stream-name :external-format ,external-format
+                                                                     :initial-buffer-size 256)
+                                ,@body)))
+         (make-byte-vector-response* ,response-body :headers (nconc (when ,content-type
+                                                                      (list (cons +header/content-type+ ,content-type)))
+                                                                    (list (cons +header/content-disposition+
+                                                                                (make-content-disposition-header-value
+                                                                                 :file-name ,file-name)))))))))
 
 ;;;;;;
 ;;; Text format
@@ -109,10 +113,10 @@
 (def layered-method export-odt ((self exportable/abstract))
   (bind ((encoding (guess-encoding-for-http-response)))
     (with-output-to-export-stream (*xml-stream* :content-type +odt-mime-type+ :external-format encoding)
-      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +odt-mime-type+))
-      <office:text
-        ,(with-active-layers (passive-layer)
-           (render-odt self))>)))
+      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +odt-mime-type+)
+        <office:text
+          ,(with-active-layers (passive-layer)
+             (render-odt self))>))))
 
 ;;;;;;
 ;;; ODS format
@@ -120,13 +124,13 @@
 (def layered-method export-ods ((self exportable/abstract))
   (bind ((encoding (guess-encoding-for-http-response)))
     (with-output-to-export-stream (*xml-stream* :content-type +ods-mime-type+ :external-format encoding)
-      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +ods-mime-type+))
-      <office:spreadsheet
-       ;; TODO i think this table:table should be deleted. check if there can be multiple instances of them and what it means.
-       ;; based on that decide where to render it...
-       <table:table
-         ,(with-active-layers (passive-layer)
-            (render-ods self))>>)))
+      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +ods-mime-type+)
+        <office:spreadsheet
+         ;; TODO i think this table:table should be deleted. check if there can be multiple instances of them and what it means.
+         ;; based on that decide where to render it...
+         <table:table
+           ,(with-active-layers (passive-layer)
+              (render-ods self))>>))))
 
 ;;;;;;
 ;;; SH format
