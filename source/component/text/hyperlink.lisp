@@ -38,5 +38,14 @@
       ,(render-content-for -self-)
       ,(render-component (icon external-link))>))
 
+(def render-odt hyperlink/text/inspector
+  (bind (((:read-only-slots component-value) -self-))
+    <text:a (;;xlink:type "simple"
+             ;;office:name "link name"
+             xlink:href ,(print-uri-to-string (uri-of component-value)))
+      ,(render-content-for -self-)
+      ;; TODO icon
+      >))
+
 (def method render-command-bar-for-alternative? ((component hyperlink/text/inspector))
   #f)

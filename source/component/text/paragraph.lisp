@@ -40,7 +40,7 @@
   (:method ((self component))
     (render-component self)))
 
-(def render-odt chapter/text/inspector
+(def render-odt paragraph/text/inspector
   <text:p ,(render-contents-for -self-)>)
 
 (def render-ods paragraph/text/inspector
