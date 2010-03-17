@@ -533,6 +533,12 @@
             (:gzip
              (not-yet-implemented))))))))
 
+(def (function eio) make-content-disposition-header-value (&key (content-disposition "attachment") size file-name)
+  (awhen size
+    (setf content-disposition (string+ content-disposition ";size=" it)))
+  (awhen file-name
+    (setf content-disposition (concatenate 'string content-disposition ";filename=\"" (escape-as-uri it) "\""))))
+
 (def function serve-stream (input-stream &key
                                          (last-modified-at (local-time:now))
                                          content-type
@@ -565,10 +571,10 @@
           (when (and (not content-disposition-size)
                      content-length)
             (setf content-disposition-size content-length))
-          (awhen content-disposition-size
-            (setf content-disposition (concatenate 'string content-disposition ";size=" it))) ;
-          (awhen content-disposition-filename
-            (setf content-disposition (concatenate 'string content-disposition ";filename=\"" it "\""))))
+          (setf content-disposition
+                (make-content-disposition-header-value :content-disposition content-disposition
+                                                       :size content-disposition-size
+                                                       :file-name content-disposition-filename)))
         (awhen content-disposition
           (setf (header-alist-value headers +header/content-disposition+) it))
         ;; TODO set socket buffering option?
