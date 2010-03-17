@@ -40,6 +40,13 @@
           "Start over (frame)"
           (make-action (reset-root-component))))
     (menu-item/widget ()
+        ;; from http://turtle.dojotoolkit.org/~david/recss.html
+        (command/widget (:js (lambda (href)
+                               (declare (ignore href))
+                               `js(wui.reload-css)))
+          "Reload CSS"
+          (make-action)))
+    (menu-item/widget ()
         "Toggle"
       (menu-item/widget ()
           (command/widget (:ajax #f)
@@ -115,11 +122,4 @@
           (replace-target-place/widget ()
               "Render time error"
             (inline-render-component/widget ()
-              (error "This is a demo error for testing purposes. It was signalled from the render method of a component."))))
-      (menu-item/widget ()
-          ;; from http://turtle.dojotoolkit.org/~david/recss.html
-          (command/widget (:js (lambda (href)
-                                 (declare (ignore href))
-                                 `js(wui.reload-css)))
-            "Reload CSS"
-            (make-action))))))
+              (error "This is a demo error for testing purposes. It was signalled from the render method of a component.")))))))
