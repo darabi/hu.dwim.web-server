@@ -161,23 +161,31 @@
 ;;; Export
 
 (def localization hu
+  (export.default-filename "névtelen")
+
   (icon-label.export-text "Szöveg")
   (icon-tooltip.export-text "A tartalom mentése szöveges formátumban")
+  (export.default-filename.txt "szöveg")
 
   (icon-label.export-csv "CSV")
   (icon-tooltip.export-csv "A tartalom mentése CSV formátumban")
+  (export.default-filename.csv "adatok")
 
   (icon-label.export-pdf "PDF")
   (icon-tooltip.export-pdf "A tartalom mentése PDF formátumban")
+  (export.default-filename.pdf "dokumentum")
 
   (icon-label.export-odt "ODT")
   (icon-tooltip.export-odt "A tartalom mentése ODT formátumban")
+  (export.default-filename.odt "dokumentum")
 
   (icon-label.export-ods "ODS")
   (icon-tooltip.export-ods "A tartalom mentése ODS formátumban")
+  (export.default-filename.ods "táblázat")
 
   (icon-label.export-sh "SH")
-  (icon-tooltip.export-sh "A tartalom mentése parancsfájl formátumban"))
+  (icon-tooltip.export-sh "A tartalom mentése parancsfájl formátumban")
+  (export.default-filename.sh "script"))
 
 ;;;;;;
 ;;; Refreshable

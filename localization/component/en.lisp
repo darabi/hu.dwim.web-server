@@ -161,23 +161,31 @@
 ;;; Export
 
 (def localization en
+  (export.default-filename "unnamed")
+
   (icon-label.export-text "Text")
   (icon-tooltip.export-text "Export content in text format")
+  (export.default-filename.txt "text")
 
   (icon-label.export-csv "CSV")
   (icon-tooltip.export-csv "Export content in CSV format")
+  (export.default-filename.csv "data")
 
   (icon-label.export-pdf "PDF")
   (icon-tooltip.export-pdf "Export content in PDF format")
+  (export.default-filename.pdf "document")
 
   (icon-label.export-odt "ODT")
   (icon-tooltip.export-odt "Export content in ODT format")
+  (export.default-filename.odt "document")
 
   (icon-label.export-ods "ODS")
   (icon-tooltip.export-ods "Export content in ODS format")
+  (export.default-filename.ods "spreadsheet")
 
   (icon-label.export-sh "SH")
-  (icon-tooltip.export-sh "Export content in shell script format"))
+  (icon-tooltip.export-sh "Export content in shell script format")
+  (export.default-filename.sh "script"))
 
 ;;;;;;
 ;;; Refreshable
