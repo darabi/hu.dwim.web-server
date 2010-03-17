@@ -125,8 +125,10 @@
    :transformation-pipeline (make-xml-transformation-pipeline)))
 
 ;; TODO this is not exactly the nicest way, but copy-pasting most of this file into package.lisp would also be questionable... so, decision delayed for now.
-(setf (hu.dwim.def::readtable-setup-form-of (find-extended-package "HU.DWIM.WUI"))
-      `(setup-readtable))
+(bind ((extended-package (find-extended-package "HU.DWIM.WUI")))
+  (setf (hu.dwim.def::readtable-setup-form-of extended-package)
+        `(setup-readtable))
+  (hu.dwim.def::notify-swank-about-package-readtable extended-package))
 
 #+nil
 (def (macro e) transform-js (&body body)
