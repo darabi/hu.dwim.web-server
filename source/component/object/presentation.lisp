@@ -136,7 +136,7 @@
   (:method ((component place/name-value-pair/presentation) class prototype value)
     (localized-slot-name (slot-of value)))
 
-  (:method :in raw-names-layer ((component place/name-value-pair/presentation) class prototype value)
+  (:method :in raw-name-layer ((component place/name-value-pair/presentation) class prototype value)
     (fully-qualified-symbol-name (slot-definition-name (slot-of value)))))
 
 (def (layered-function e) make-slot-value-pair/value (component class prototype value))

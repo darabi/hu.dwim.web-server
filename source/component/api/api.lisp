@@ -480,29 +480,39 @@
 
 (def (special-variable e :documentation "The output stream for rendering components in text format.") *text-stream*)
 
-(def (render-component-layer e) text () "Rendering into pure Text.")
+(def (layer e) backend-layer ()
+  ()
+  (:documentation "Base layer for various rendering backends."))
+
+(def (layer e) raw-name-layer ()
+  ()
+  (:documentation "Rendering without localizing names."))
+
+(def (layer e) offline-layer ()
+  ()
+  (:documentation "Rendering into offline content that works without the server."))
+
+(def (layer e) passive-layer ()
+  ()
+  (:documentation "Rendering into passive content that does not provide behaviour."))
+
+(def (render-component-layer e) text (backend) "Rendering into pure Text.")
 
 (def (render-component-layer e) sh (text) "Rendering into Shell Script.")
 
-(def (render-component-layer e) xhtml () "Rendering into XHTML with JavaScript.")
-
-(def (render-component-layer e) offline () "Rendering into offline content that works without the server.")
-
-(def (render-component-layer e) passive () "Rendering into passive content that does not provide behaviour.")
+(def (render-component-layer e) xhtml (backend) "Rendering into XHTML with JavaScript.")
 
 (def (render-component-layer e) offline-xhtml (offline xhtml) "Rendering into offline XHTML with JavaScript that works without the server.")
 
 (def (render-component-layer e) passive-xhtml (passive xhtml) "Rendering into staic XHTML with JavaScript that does not provide behaviour.")
 
-(def (render-component-layer e) csv () "Rendering into Comma Separated Values.")
+(def (render-component-layer e) csv (backend) "Rendering into Comma Separated Values.")
 
-(def (render-component-layer e) pdf () "Rendering into Portable Document Format.")
+(def (render-component-layer e) pdf (backend) "Rendering into Portable Document Format.")
 
-(def (render-component-layer e) ods () "Rendering into Open Office Spreadsheet Document.")
+(def (render-component-layer e) ods (backend) "Rendering into Open Office Spreadsheet Document.")
 
-(def (render-component-layer e) odt () "Rendering into Open Office Text Document.")
-
-(def (render-component-layer e) raw-names () "Rendering without localizing names.")
+(def (render-component-layer e) odt (backend) "Rendering into Open Office Text Document.")
 
 ;;;;;;
 ;;; Refresh component

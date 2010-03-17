@@ -10,7 +10,8 @@
 ;;; layer/mixin
 
 (def (component e) layer/mixin ()
-  ((layer (current-layer))))
+  ((layer (contextl:with-inactive-layers (backend-layer)
+            (current-layer)))))
 
 (def component-environment layer/mixin
   (funcall-with-layer-context (adjoin-layer (layer-of -self-) (current-layer-context)) #'call-next-method))
