@@ -128,7 +128,7 @@
 (bind ((extended-package (find-extended-package "HU.DWIM.WUI")))
   (setf (hu.dwim.def::readtable-setup-form-of extended-package)
         `(setup-readtable))
-  (awhen (find-function 'hu.dwim.def::notify-swank-about-package-readtable :otherwise #f)
+  (awhen (find-function 'hu.dwim.def::notify-swank-about-package-readtable :otherwise nil)
     (funcall it extended-package)))
 
 #+nil
