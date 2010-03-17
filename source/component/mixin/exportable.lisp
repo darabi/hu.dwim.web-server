@@ -65,7 +65,7 @@
 ;;;;;;
 ;;; ODT format
 
-(def with-macro* with-xml-document-header/open-document-format (stream &key (encoding (guess-encoding-for-http-response)))
+(def with-macro* with-xml-document-header/open-document-format (stream &key (encoding (guess-encoding-for-http-response)) mime-type)
   (emit-xml-prologue :encoding encoding :stream stream :version "1.0")
   <office:document (xmlns:office "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
                     xmlns:style "urn:oasis:names:tc:opendocument:xmlns:style:1.0"
@@ -98,7 +98,7 @@
                     xmlns:field "urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0"
                     xmlns:formx "urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0"
                     office:version "1.2"
-                    office:mimetype "application/vnd.oasis.opendocument.spreadsheet")
+                    office:mimetype ,mime-type)
     <office:meta
       <meta:generator "http://dwim.hu/project/hu.dwim.wui">
       <meta:creation-date ()
@@ -109,7 +109,7 @@
 (def layered-method export-odt ((self exportable/abstract))
   (bind ((encoding (guess-encoding-for-http-response)))
     (with-output-to-export-stream (*xml-stream* :content-type +odt-mime-type+ :external-format encoding)
-      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding))
+      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +odt-mime-type+))
       <office:text
         ,(with-active-layers (passive-layer)
            (render-odt self))>)))
@@ -120,7 +120,7 @@
 (def layered-method export-ods ((self exportable/abstract))
   (bind ((encoding (guess-encoding-for-http-response)))
     (with-output-to-export-stream (*xml-stream* :content-type +ods-mime-type+ :external-format encoding)
-      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding))
+      (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +ods-mime-type+))
       <office:spreadsheet
        ;; TODO i think this table:table should be deleted. check if there can be multiple instances of them and what it means.
        ;; based on that decide where to render it...
