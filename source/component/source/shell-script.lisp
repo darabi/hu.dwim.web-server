@@ -64,6 +64,7 @@
 
 (def render-odt shell-script/text/inspector
   (iter (for content :in (contents-of -self-))
+        <text:line-break>
         (render-component content)))
 
 (def layered-method write-text-line-begin :in sh-layer  ()

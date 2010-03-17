@@ -19,10 +19,10 @@
   (write-csv-value (princ-to-string -self-)))
 
 (def render-ods number
-  <text:p ,-self->)
+  <text:p (office:value-type "string") ,-self->)
 
 (def render-odt number
-  <text:p ,-self->)
+  <text:p (office:value-type "string") ,-self->)
 
 ;;;;;;
 ;;; Component dispatch class/prototype

@@ -26,6 +26,12 @@
 
 (def refresh-component paragraph/text/inspector)
 
+(def render-text paragraph/text/inspector
+  (write-text-line-begin)
+  (call-next-layered-method)
+  (write-text-line-separator)
+  (write-text-line-separator))
+
 (def render-xhtml paragraph/text/inspector
   (with-render-style/abstract (-self- :element-name "p")
     (render-contents-for -self-)))

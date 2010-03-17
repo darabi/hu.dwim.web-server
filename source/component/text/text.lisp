@@ -26,11 +26,5 @@
                                                  :editable (editable-component? -self-)]
                            (contents-of component-value)))))
 
-(def render-text t/text/inspector
-  (iter (for content :in (contents-of -self-))
-        (write-text-line-begin)
-        (render-component content)
-        (write-text-line-separator)))
-
 (def method render-command-bar-for-alternative? ((component t/text/inspector))
   #f)

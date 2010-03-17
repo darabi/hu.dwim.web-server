@@ -34,6 +34,9 @@
 (def (macro e) contents/widget ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'contents/widget ,@args :contents (list ,@contents)))
 
+(def render-component contents/widget
+  (render-contents-for -self-))
+
 (def render-xhtml contents/widget
   (with-render-style/abstract (-self-)
     (render-context-menu-for -self-)

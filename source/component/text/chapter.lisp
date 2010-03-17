@@ -34,12 +34,16 @@
         ,(render-contents-for -self-)>)))
 
 (def render-odt chapter/text/inspector
-  <text:p ,(render-title-for -self-)
-          ,(render-contents-for -self-)>)
+  <text:p ,(render-title-for -self-)>
+  (render-contents-for -self-))
 
 (def render-text chapter/text/inspector
   (write-text-line-begin)
-  (render-title-for -self-)
+  (bind ((position (file-position *text-stream*)))
+    (render-title-for -self-)
+    (write-text-line-separator)
+    (write-text-line-begin)
+    (write-characters #\- (- (file-position *text-stream*) position 1) *text-stream*))
   (write-text-line-separator)
   (call-next-method))
 
@@ -49,7 +53,7 @@
 ;;;;;;
 ;;; ods export
 (def render-ods chapter/text/inspector
-    <table:table-row
-      <table:table-cell (office:value-type "string")
-                        <text:p ,(title-of (component-value-of -self-)) >>>
+  <table:table-row
+    <table:table-cell (office:value-type "string")
+      <text:p ,(title-of (component-value-of -self-))>>>
   (foreach #'render-ods (contents-of -self-)))
