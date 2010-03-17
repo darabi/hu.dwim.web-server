@@ -105,6 +105,12 @@
                                          (list (make-instance 'hu.dwim.walker:free-variable-reference-form :name :send-client-state)
                                                (make-instance 'hu.dwim.walker:constant-form :value '|false|)))))))))))
 
+(def render-component :in passive-layer :around command/widget
+  (values))
+
+(def render-text command/widget
+  (render-component (content-of -self-)))
+
 (def render-xhtml command/widget
   ;; TODO the 'ajax' doesn't really suggest that it may also be a dom id...
   ;; FIXME theres quite some duplication with RENDER-COMMAND-ONCLICK-HANDLER
@@ -133,12 +139,6 @@
         <span (:id ,id :class "command widget disabled")
               #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
               ,(render-component content)>)))
-
-(def render-text command/widget
-  (render-component (content-of -self-)))
-
-(def render-component :in passive-layer command/widget
-  (values))
 
 (def function href-for-command (action action-arguments)
   (bind ((send-client-state? (prog1

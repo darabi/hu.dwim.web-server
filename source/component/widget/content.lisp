@@ -16,6 +16,9 @@
 (def (macro e) content/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'content/widget ,@args :content ,(the-only-element content)))
 
+(def render-component content/widget
+  (render-content-for -self-))
+
 (def render-xhtml content/widget
   (with-render-style/abstract (-self-)
     (render-context-menu-for -self-)

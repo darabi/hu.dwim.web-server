@@ -34,6 +34,9 @@
 (def (macro e) command-bar/widget ((&rest args &key &allow-other-keys) &body commands)
   `(make-instance 'command-bar/widget ,@args :commands (optional-list ,@commands)))
 
+(def render-component :in passive-layer :around command-bar/widget
+  (values))
+
 (def render-text command-bar/widget
   (foreach #'render-component (commands-of -self-)))
 
@@ -50,9 +53,6 @@
 
 (def render-csv command-bar/widget
   (write-csv-separated-elements #\Space (commands-of -self-)))
-
-(def render-component :in passive-layer command-bar/widget
-  (values))
 
 (def generic find-command-bar (component)
   (:method ((self component))
