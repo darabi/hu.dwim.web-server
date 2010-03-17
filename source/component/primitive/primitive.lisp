@@ -20,6 +20,9 @@
 (def render-csv primitive/presentation
   (write-csv-value (print-component-value -self-)))
 
+(def render-odt primitive/presentation
+  <text:p ,(print-component-value -self-) >)
+
 (def render-ods primitive/presentation
   <text:p ,(print-component-value -self-) >)
 

@@ -33,6 +33,10 @@
       <div (:class "content")
         ,(render-contents-for -self-)>)))
 
+(def render-odt chapter/text/inspector
+  <text:p ,(render-title-for -self-)
+          ,(render-contents-for -self-)>)
+
 (def render-text chapter/text/inspector
   (write-text-line-begin)
   (render-title-for -self-)

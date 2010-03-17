@@ -40,6 +40,9 @@
   (:method ((self component))
     (render-component self)))
 
+(def render-odt chapter/text/inspector
+  <text:p ,(render-contents-for -self-)>)
+
 (def render-ods paragraph/text/inspector
   <table:table-row
     <table:table-cell (office:value-type "string")

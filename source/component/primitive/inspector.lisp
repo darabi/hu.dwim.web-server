@@ -113,12 +113,6 @@
         (render-string-component -self-)
         `xml,(print-component-value -self-))))
 
-(def render-text string/inspector
-  (render-component (component-value-of -self-)))
-
-(def render-ods string/inspector
-  <text:p ,(component-value-of -self-)>)
-
 ;;;;;;
 ;;; password/inspector
 

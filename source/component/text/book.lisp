@@ -36,6 +36,11 @@
       <div (:class "content")
         ,(render-contents-for -self-)>)))
 
+(def render-odt book/text/inspector
+  <text:p ,(render-title-for -self-)
+          ,(foreach #'render-author (authors-of (component-value-of -self-)))
+          ,(render-contents-for -self-)>)
+
 (def render-text book/text/inspector
   (write-text-line-begin)
   (render-title-for -self-)
