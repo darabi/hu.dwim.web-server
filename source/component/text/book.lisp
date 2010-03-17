@@ -69,7 +69,7 @@
     <div (:class "author")
       ,(render-component self)>)
 
-  (:methodq ((self string))
+  (:method ((self string))
     (render-component self))
 
   (:method ((self component))
