@@ -116,34 +116,24 @@
 
 (def render-pdf row/widget ()
   (typeset:row ()
-    (bind ((table (parent-component-of -self-)))
-      (foreach (lambda (cell column)
-                 (render-cells table -self- column cell))
-               (cells-of -self-)
-               (columns-of table)))))
-
-(def layered-methods render-cells
-  (:method :in pdf-layer ((table table/widget) (row row/widget) (column column/widget) (cell component))
-    (typeset:cell ()
-      (render-component cell)))
-
-  (:method :in pdf-layer ((table table/widget) (row row/widget) (column column/widget) (cell string))
-    (typeset:cell ()
-      (render-component cell))))
+    (render-table-row-cells (parent-component-of -self-) -self-)))
 
 (def render-pdf tree/widget ()
+  (foreach #'render-component (root-nodes-of -self-)))
+
+(def render-pdf node/widget ()
+  (foreach #'render-component (child-nodes-of -self-)))
+
+(def render-pdf treeble/widget ()
   (bind ((columns (columns-of -self-)))
     (typeset:table (:col-widths (normalized-column-widths columns) :splittable-p #t)
       (typeset:row ()
         (foreach #'render-component columns))
       (foreach #'render-component (root-nodes-of -self-)))))
 
-(def render-pdf node/widget ()
+(def render-pdf nodrow/widget ()
   (typeset:row ()
-    (foreach (lambda (column cell)
-               (render-pdf-tree-cell *tree* -self- column cell))
-             (columns-of *tree*)
-             (cells-of -self-)))
+    (render-nodrow-cells -self-))
   (foreach #'render-component (child-nodes-of -self-)))
 
 (def render-pdf alternator/widget
@@ -244,7 +234,7 @@
 
 ;;;;;;
 ;;; Graph stuff
-
+#|
 (def special-variable *vertex-inset* 5)
 
 (def special-variable *dpi* 72.0)
@@ -270,8 +260,8 @@
   (+ (y-of vertex) (/ (height-of vertex) 2.0)))
 
 (def function push-dot-attribute (object key value)
-  (push value (dot-attributes object))
-  (push key (dot-attributes object)))
+  (push value (cl-graph:dot-attributes object))
+  (push key (cl-graph:dot-attributes object)))
 
 
 (def generic compute-vertex-size (vertex content)
@@ -299,9 +289,9 @@
              (when box
                (setf (compiled-content-of vertex) box))
              ;; store sizes in dpi
-             (log.debug "Precalculated vertex size for ~A is (~A, ~A)" vertex width height)
-             (setf (getf (dot-attributes vertex) :width) (/ (+ (* 2 *vertex-inset*) width) *dpi*))
-             (setf (getf (dot-attributes vertex) :height) (/ (+ (* 2 *vertex-inset*) height) *dpi*)))))
+             (wui.debug "Precalculated vertex size for ~A is (~A, ~A)" vertex width height)
+             (setf (getf (cl-graph:dot-attributes vertex) :width) (/ (+ (* 2 *vertex-inset*) width) *dpi*))
+             (setf (getf (cl-graph:dot-attributes vertex) :height) (/ (+ (* 2 *vertex-inset*) height) *dpi*)))))
 
 (def function render-graph (graph &rest args)
   (layout-graph graph)
@@ -451,3 +441,4 @@
     (if max-width
         (typeset:make-filled-vbox compiled-content max-width typeset::+HUGE-NUMBER+)
         compiled-content)))
+|#
