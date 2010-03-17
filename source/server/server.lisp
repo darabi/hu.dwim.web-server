@@ -537,7 +537,8 @@
   (awhen size
     (setf content-disposition (string+ content-disposition ";size=" it)))
   (awhen file-name
-    (setf content-disposition (concatenate 'string content-disposition ";filename=\"" (escape-as-uri it) "\""))))
+    (setf content-disposition (concatenate 'string content-disposition ";filename=\"" (escape-as-uri it) "\"")))
+  content-disposition)
 
 (def function serve-stream (input-stream &key
                                          (last-modified-at (local-time:now))
