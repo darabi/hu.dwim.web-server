@@ -57,10 +57,14 @@
         (write-text-line-separator)))
 
 (def render-ods shell-script/text/inspector
-    <table:table-row
-      <table:table-cell
-       ,(iter (for content :in (contents-of -self-))
-              (render-component content))>>)
+  <table:table-row
+    <table:table-cell
+     ,(iter (for content :in (contents-of -self-))
+            (render-component content))>>)
+
+(def render-odt shell-script/text/inspector
+  (iter (for content :in (contents-of -self-))
+        (render-component content)))
 
 (def layered-method write-text-line-begin :in sh-layer  ()
   (write-string "# " *text-stream*))

@@ -145,6 +145,10 @@
              (cells-of -self-)))
   (foreach #'render-component (child-nodes-of -self-)))
 
+(def render-pdf alternator/widget
+  (typeset:paragraph ()
+    (call-next-layered-method)))
+
 (def render-pdf book/text/inspector
   (typeset:paragraph ()
     (typeset:with-style (:font-size 24)
@@ -165,9 +169,14 @@
   (typeset:paragraph ()
     (render-contents-for -self-)))
 
-(def render-pdf alternator/widget
+(def render-pdf hyperlink/text/inspector
   (typeset:paragraph ()
-    (call-next-layered-method)))
+    (render-content-for -self-)))
+
+(def render-pdf shell-script/text/inspector
+  (typeset:with-style (:font (pdf:get-font "courier"))
+    (iter (for content :in (contents-of -self-))
+          (render-component content))))
 
 ;;;;;;
 ;;; Utilities
