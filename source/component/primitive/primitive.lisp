@@ -17,14 +17,8 @@
 (def refresh-component primitive/presentation
   (mark-to-be-rendered-component -self-))
 
-(def render-csv primitive/presentation
-  (write-csv-value (print-component-value -self-)))
-
-(def render-odt primitive/presentation
-  <text:p ,(print-component-value -self-) >)
-
-(def render-ods primitive/presentation
-  <text:p ,(print-component-value -self-) >)
+(def render-component primitive/presentation
+  (render-component (print-component-value -self-)))
 
 (def generic print-component-value (component)
   (:documentation "Prints the COMPONENT-VALUE of COMPONENT into a STRING."))
