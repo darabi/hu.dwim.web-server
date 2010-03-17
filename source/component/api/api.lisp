@@ -504,7 +504,7 @@
 
 (def (render-component-layer e) offline-xhtml (offline xhtml) "Rendering into offline XHTML with JavaScript that works without the server.")
 
-(def (render-component-layer e) passive-xhtml (passive xhtml) "Rendering into staic XHTML with JavaScript that does not provide behaviour.")
+(def (render-component-layer e) passive-xhtml (passive xhtml) "Rendering into passive XHTML with JavaScript that does not provide behaviour.")
 
 (def (render-component-layer e) csv (backend) "Rendering into Comma Separated Values.")
 

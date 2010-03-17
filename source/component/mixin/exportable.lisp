@@ -43,7 +43,8 @@
 
 (def layered-method export-text ((self exportable/abstract))
   (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
-    (render-text self)))
+    (with-active-layers (passive-layer)
+      (render-text self))))
 
 (def layered-function write-text-line-begin ()
   (:method ()
@@ -58,7 +59,8 @@
 
 (def layered-method export-csv ((self exportable/abstract))
   (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format :utf-8)
-    (render-csv self)))
+    (with-active-layers (passive-layer)
+      (render-csv self))))
 
 ;;;;;;
 ;;; ODT format
@@ -109,7 +111,8 @@
     (with-output-to-export-stream (*xml-stream* :content-type +odt-mime-type+ :external-format encoding)
       (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding))
       <office:text
-        ,(render-odt self)>)))
+        ,(with-active-layers (passive-layer)
+           (render-odt self))>)))
 
 ;;;;;;
 ;;; ODS format
@@ -122,11 +125,13 @@
        ;; TODO i think this table:table should be deleted. check if there can be multiple instances of them and what it means.
        ;; based on that decide where to render it...
        <table:table
-         ,(render-ods self)>>)))
+         ,(with-active-layers (passive-layer)
+            (render-ods self))>>)))
 
 ;;;;;;
 ;;; SH format
 
 (def (layered-method e) export-sh ((self component))
   (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format :utf-8)
-    (render-sh self)))
+    (with-active-layers (passive-layer)
+      (render-sh self))))
