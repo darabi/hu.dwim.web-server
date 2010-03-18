@@ -108,6 +108,12 @@
     ;; nop
     ))
 
+(def function find-session-by-id (application session-id &key (otherwise :error otherwise?))
+  (check-type session-id string)
+  (or (gethash session-id (session-id->session-of application))
+      (handle-otherwise
+        (error "Could not find session ~S of application ~A" session-id application))))
+
 (def (function o) find-session-from-request (application)
   (bind ((session-id (cookie-value +session-cookie-name+))
          (cookie-exists? (not (null session-id)))
@@ -117,7 +123,7 @@
     (app.dribble "Looking for session-id cookie ~S among ~A" +session-cookie-name+ (cookies-of *request*))
     (when session-id
       (app.debug "Found session-id parameter ~S" session-id)
-      (setf session-instance (gethash session-id (session-id->session-of application)))
+      (setf session-instance (find-session-by-id application session-id :otherwise nil))
       (setf session session-instance)
       (when session
         (bind ((alive?))
