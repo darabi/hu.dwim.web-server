@@ -79,13 +79,14 @@
     result))
 
 (def (generic e) make-logout-command (application)
+  (:method :before (application)
+    (assert (eq *application* application)))
   (:method ((application application))
-    (assert (eq *application* application))
-    (command/widget (:send-client-state #f)
+    (command/widget (:ajax #f :send-client-state #f)
       (icon logout)
       (make-action
-        (logout application *session*)
-        (make-redirect-response-for-current-application)))))
+        (logout *application* *session*)
+        (decorate-session-cookie *application* (make-redirect-response-for-current-application))))))
 
 ;;;;;;
 ;;; fake-identifier-and-password-login/widget
@@ -112,5 +113,5 @@
 ;;; Icon
 
 (def (icon e) login)
-
 (def (icon e) logout)
+(def (icon e) cancel-impersonalization)
