@@ -23,4 +23,5 @@
                                            (:file "kludge")
                                            (:file "l10n")
                                            (:file "presentation")
-                                           (:file "process")))))))
+                                           (:file "process")
+                                           (:file "table")))))))
