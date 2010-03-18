@@ -101,7 +101,7 @@
 
 (def render-pdf column/widget ()
   (typeset:cell ()
-    (call-next-layered-method)))
+    (render-header-for -self-)))
 
 (def render-pdf cell/widget ()
   (bind (((:read-only-slots horizontal-alignment vertical-alignment column-span row-span) -self-))
@@ -112,7 +112,7 @@
       (surround-body-when horizontal-alignment
           (typeset:paragraph (:h-align horizontal-alignment)
             (-body-))
-        (call-next-layered-method)))))
+        (render-content-for -self-)))))
 
 (def render-pdf row/widget ()
   (typeset:row ()
@@ -204,7 +204,7 @@
 
 (def function normalized-column-widths (columns)
   (bind ((column-widths (mapcar 'pdf-column-width columns))
-         (total-width (sum column-widths)))
+         (total-width (sum* column-widths)))
     (mapcar (lambda (width)
               ;; TODO: consider page size and orientation
               (* 725 (coerce (/ width total-width) 'double-float)))
