@@ -187,12 +187,18 @@
 ;;; invalid request handling
 
 ;; TODO search all usages of this, and factor out what makes sense
-(def macro emit-error-response-for-ajax-aware-client (() &body body)
+(def macro emit-response-for-ajax-aware-client (() &body body)
   `(emit-http-response ((+header/status+       +http-ok+
                          +header/content-type+ +xml-mime-type+))
      <ajax-response
        <result "success">
        ,@,@body>))
+
+;; TODO this name is so-so. names around making responses should be thought over...
+(def macro make-functional-response/ajax-aware-client (() &body body)
+  `(make-raw-functional-response ()
+     (emit-response-for-ajax-aware-client ()
+       ,@body)))
 
 (def function handle-delayed-request-to-invalid-session/frame/action ()
   ;; what else can we do? it's a *delayed-content-request* not a full page reload...
@@ -202,9 +208,8 @@
   (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
   (cond
     (*ajax-aware-request*
-     (make-raw-functional-response ()
-       (emit-error-response-for-ajax-aware-client ()
-         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-session")>)))
+     (make-functional-response/ajax-aware-client ()
+       <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-session")>))
     ((not *delayed-content-request*)
      (make-redirect-response-for-current-application))
     (t
@@ -214,9 +219,8 @@
   (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
   (cond
     (*ajax-aware-request*
-     (make-raw-functional-response ()
-       (emit-error-response-for-ajax-aware-client ()
-         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-frame")>)))
+     (make-functional-response/ajax-aware-client ()
+       <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-frame")>))
     ((and (eq invalidity-reason :out-of-sync)
           (not *delayed-content-request*))
      (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
@@ -236,9 +240,8 @@
   (app.dribble "Default HANDLE-REQUEST-TO-INVALID-ACTION speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
   (cond
     (*ajax-aware-request*
-     (make-raw-functional-response ()
-       (emit-error-response-for-ajax-aware-client ()
-         <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-action")>)))
+     (make-functional-response/ajax-aware-client ()
+       <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-action")>))
     ((not *delayed-content-request*)
      (make-redirect-response-for-current-application))
     (t (handle-delayed-request-to-invalid-session/frame/action))))

@@ -90,7 +90,7 @@
            *ajax-aware-request*)
       (progn
         (maybe-invoke-debugger/application condition)
-        (emit-error-response-for-ajax-aware-client ()
+        (emit-response-for-ajax-aware-client ()
           <script `js-inline(wui.io.inform-user-about-ajax-error #"error.internal-server-error.message")>))
       (call-next-method)))
 
