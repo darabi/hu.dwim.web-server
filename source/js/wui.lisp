@@ -14,6 +14,11 @@
 (dojo.get-object "wui.field" #t)
 (dojo.get-object "wui.help" #t)
 
+(defun wui.connect (object event function)
+  (if object
+      (dojo.connect object event function)
+      (throw "Don't call dojo.connect on null to add global event handlers")))
+
 (defun wui.shallow-copy (object)
   (return (dojo.mixin (create) object)))
 
@@ -222,12 +227,12 @@
     ;; TODO add a 'float: right' to a container of the buttons
     (reload-button.placeAt dialog.containerNode)
     (cancel-button.placeAt dialog.containerNode)
-    (dojo.connect reload-button "onClick" (lambda ()
-                                            (window.location.reload)))
-    (dojo.connect cancel-button "onClick" (lambda ()
-                                            (bind ((dialog (dijit.byId "wui-ajax-error-dialog")))
-                                              (dialog.hide)
-                                              (dialog.destroyRecursive))))
+    (wui.connect reload-button "onClick" (lambda ()
+                                           (window.location.reload)))
+    (wui.connect cancel-button "onClick" (lambda ()
+                                           (bind ((dialog (dijit.byId "wui-ajax-error-dialog")))
+                                             (dialog.hide)
+                                             (dialog.destroyRecursive))))
     (dialog.show)))
 
 (defun wui.io.import-ajax-received-xhtml-node (node)
@@ -445,17 +450,17 @@
   (bind ((checkbox (dojo.byId checkbox-id))
          (hidden (dojo.byId (+ checkbox-id "_hidden"))))
     (log.debug "Setting up simple checkbox " checkbox ", using hidden input " hidden)
-    (dojo.connect checkbox "onchange"
-                  (lambda (event)
-                    (let ((enabled checkbox.checked))
-                      (log.debug "Propagating checkbox.checked of " checkbox " to the hidden field " hidden " named " hidden.name)
-                      (setf hidden.value (if enabled
-                                             "true"
-                                             "false"))
-                      (setf checkbox.title
-                            (if enabled
-                                checked-tooltip
-                                unchecked-tooltip)))))
+    (wui.connect checkbox "onchange"
+                 (lambda (event)
+                   (let ((enabled checkbox.checked))
+                     (log.debug "Propagating checkbox.checked of " checkbox " to the hidden field " hidden " named " hidden.name)
+                     (setf hidden.value (if enabled
+                                            "true"
+                                            "false"))
+                     (setf checkbox.title
+                           (if enabled
+                               checked-tooltip
+                               unchecked-tooltip)))))
     (setf checkbox.wui-set-checked (lambda (enabled)
                                      (if (= checkbox.checked enabled)
                                          (return false)
@@ -523,7 +528,7 @@
           (listener (lambda ()
                       (wui.field.update-use-in-filter use-in-filter-id (!= "" (.getValue this))))))
      (assert widget)
-     ;; TODO why not dojo.connect?
+     ;; TODO why not wui.connect?
      (widget.connect widget "onKeyUp" listener)
      (widget.connect widget "onChange" listener))))
 
@@ -628,11 +633,11 @@
                     (map 'dojo.disconnect handles)
                     (wui.help.teardown)
                     (dojo.stop-event event))))
-    (handles.push (dojo.connect document "mouseover" (wui.help.make-mouseover-handler url)))
-    (handles.push (dojo.connect document "click" aborter))
-    (handles.push (dojo.connect document "keypress" (lambda (event)
-                                                      (when (= event.charOrCode dojo.keys.ESCAPE)
-                                                        (aborter event)))))
+    (handles.push (wui.connect document "mouseover" (wui.help.make-mouseover-handler url)))
+    (handles.push (wui.connect document "click" aborter))
+    (handles.push (wui.connect document "keypress" (lambda (event)
+                                                     (when (= event.charOrCode dojo.keys.ESCAPE)
+                                                       (aborter event)))))
     (dojo.style document.body "cursor" "help")
     (dojo.stop-event event)))
 

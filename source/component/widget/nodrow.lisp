@@ -57,18 +57,18 @@
     (if child-nodes
         (bind ((id (generate-unique-component-id)))
           <img (:id ,id :src ,(string+ (path-prefix-of *application*)
-                                                  (if expanded-component
-                                                      "static/wui/icon/20x20/arrowhead-down.png"
-                                                      "static/wui/icon/20x20/arrowhead-right.png")))>
-          `js(on-load (dojo.connect (dojo.by-id ,id) "onclick" nil
-                                    (lambda (event)
-                                      (wui.io.action ,(action/href ()
-                                                        (notf expanded-component)
-                                                        ;; NOTE: we make dirty the whole treeble, because it is difficult to replace the rows corresponding to the nodrow
-                                                        (mark-to-be-rendered-component treeble))
-                                                     :event event
-                                                     :ajax ,(when (ajax-enabled? *application*)
-                                                              (id-of treeble)))))))
+                                       (if expanded-component
+                                           "static/wui/icon/20x20/arrowhead-down.png"
+                                           "static/wui/icon/20x20/arrowhead-right.png")))>
+          `js(on-load (wui.connect (dojo.by-id ,id) "onclick" nil
+                                   (lambda (event)
+                                     (wui.io.action ,(action/href ()
+                                                                  (notf expanded-component)
+                                                                  ;; NOTE: we make dirty the whole treeble, because it is difficult to replace the rows corresponding to the nodrow
+                                                                  (mark-to-be-rendered-component treeble))
+                                                    :event event
+                                                    :ajax ,(when (ajax-enabled? *application*)
+                                                                 (id-of treeble)))))))
         <span (:class "non-expandable")>)))
 
 (def (function e) render-nodrow-expander-cell (nodrow)
