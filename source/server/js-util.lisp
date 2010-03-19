@@ -132,22 +132,7 @@
                           ,@ARG-PROCESSORS
                           ,@BODY)))})))
 
-(def (js-macro e) |with-wui-error-handler| (&body body)
-  {with-preserved-readtable-case
-    `(try
-          (progn
-            ,@BODY)
-       (catch (e)
-         (if (= e "graceful-abort")
-             (log.debug "Gracefully aborting execution and returning to toplevel")
-             (progn
-               (log.warn "Exception reached toplevel: " e)
-               (if dojo.config.isDebug
-                   debugger
-                   (let ((message (wui.i18n.localize "unknown-error-at-toplevel")))
-                     (alert message)))))))})
-
-(def (js-macro e) |with-ajax-answer| (data &body body)
+(def (js-macro e) |with-ajax-answer-logic| (data &body body)
   (with-unique-js-names (result-node)
     {with-preserved-readtable-case
       `(progn
@@ -164,13 +149,10 @@
                (let ((error-message (wui.i18n.localize "unknown-server-error")))
                  (when-bind error-node (get-first-child-with-tag-name ,DATA "error-message")
                    (setf error-message (dojox.xml.parser.textContent error-node)))
-                 (when-bind error-handler-node (get-first-child-with-tag-name ,DATA "error-handler")
-                   (eval (dojox.xml.parser.textContent error-handler-node))
-                   (throw "graceful-abort"))
                  (when error-message
-                   (alert error-message))
-                 (throw "graceful-abort"))
-               ,@BODY)))}))
+                   (alert error-message)))
+               (progn
+                 ,@BODY))))}))
 
 (def (js-macro e) |assert| (expression &rest args-to-throw)
   (unless args-to-throw

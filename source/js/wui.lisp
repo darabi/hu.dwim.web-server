@@ -152,8 +152,8 @@
         (let ((script node.text))
           (unless (dojo.string.is-blank script)
             ;;(log.debug "Eval'ing script " (.substring script 0 128))
-            (with-wui-error-handler
-              (eval script))))
+            (log.debug "Eval'ing script tag " node)
+            (eval script)))
         (throw (+ "Script tag with unexpected type: '" type "'")))))
 
 (defun wui.io.xhr-post (params)
@@ -165,35 +165,6 @@
     (default handle-as "xml")
     (default error wui.io.process-ajax-network-error)
     (default load wui.io.process-ajax-answer)
-
-    ;; submit some forms as per caller request
-    #+nil
-    (when (and params.forms-to-submit
-               (> params.forms-to-submit.length 0))
-      (dolist (form params.forms-to-submit)
-        (log.debug "Gathering values from form " form.id " as requested by :forms-to-submit")
-        (dolist (field (wui.form.get-all-fields form))
-          (let ((value (wui.field.get-value field))
-                (name))
-            (if (instanceof field dojo.widget.*widget)
-                (macrolet ((wcase (&rest clauses)
-                             `(cond ,@(iter (for entry :in clauses)
-                                            (for test = (first entry))
-                                            (for body = (rest entry))
-                                            (collect `(,(if (eq test t)
-                                                            t
-                                                            `(and ,test
-                                                                  (instanceof field ,test)))
-                                                        ,@body))))))
-                  (wcase (dojo.widget.*editor2
-                          (setf name field.textarea.name))
-                         (t
-                          ;; the dojo guys say this is ok for any widget: http://trac.dojotoolkit.org/ticket/3283
-                          (setf name field.name))))
-                (setf name field.name))
-            (log.debug "Value of " field ", named" name " is " value)
-            (assert name)
-            (setf (slot-value params.content name) value)))))
 
     (when (and params.url
                params.session-id
@@ -258,57 +229,6 @@
                                               (dialog.hide)
                                               (dialog.destroyRecursive))))
     (dialog.show)))
-
-#+nil
-(defun wui.io.execute-ajax-action (params)
-  (with-wui-error-handler
-    (macrolet ((only-one-of (primary secondary &key (defaulting T))
-                 (let ((primary-name (STRING+ ":" (STRING-DOWNCASE (SYMBOL-NAME primary))))
-                       (secondary-name (STRING+ ":" (STRING-DOWNCASE (SYMBOL-NAME secondary)))))
-                   `(if (slot-value params ',primary)
-                        (when (slot-value params ',secondary)
-                          (log.debug "WARNING: ajax-action got params with both " ,primary-name " and "
-                                     ,secondary-name "! Ignoring " ,secondary-name "..."))
-                        ,(WHEN defaulting
-                           `(setf (slot-value params ',primary) (slot-value params ',secondary))))))
-               (default (name value)
-                 `(unless (slot-value params ',name)
-                    (setf (slot-value params ',name) ,value))))
-      ;; do some sanity checks, defaulting and by-id lookups on the params
-      (only-one-of load handler)
-      (only-one-of error error-handler)
-      (only-one-of mimetype mime-type)
-
-      ;; TODO the extra args we are using (like handler) should be removed before calling dojo to avoid possible conflicts
-
-      (log.debug "execute-ajax-action with params: " params)
-
-      ;; TODO
-      #+nil
-      (unless (wui.may-abandon-the-page params.forms-to-ask params.forms-to-submit)
-        (return false))
-
-      (log.debug "Triggering AJAX action " params.url " with progress label " params.progress-label)
-
-      ;; display the progress indicator
-      ;; TODO for async requests, we could propagate params.abort to the progress code after bind was called and support aborting
-      (when (not (= params.progress-label ""))
-        (setf params.progress-node (wui.io.progress.display params.progress-label)))
-      ;; let's fire the AJAX request! but delay it a bit, so the progress label gets a chance to display
-      (window.set-timeout
-       (lambda ()
-         (let ((ok false))
-           (unwind-protect
-                (let ((result (wui.io.bind params)))
-                  (setf ok true)
-                  ;; FIXME this should return the value from execute-ajax-action, but dojo doesn't return it currently either
-                  ;; TODO maybe this should throw a js exception? clean up js error handling
-                  (return result))
-             (unless ok
-               ;; if some error happened before firing the request, so noone will call our error handler to remove it
-               (awhen params.progress-node
-                 (wui.io.progress.remove it))))))
-       1))))
 
 (defun wui.io.import-ajax-received-xhtml-node (node)
   ;; Makes an XMLHTTP-received node suitable for inclusion in the document.
@@ -425,9 +345,8 @@
                                                   toplevel-p)))
     (return
       (lambda (response args)
-        (log.debug "Response is " response)
-        (log.debug "Args is " args)
-        (with-ajax-answer response
+        (log.debug "Response is " response ", arguments are " args)
+        (with-ajax-answer-logic response
           (node-walker response))))))
 
 (bind ((dom-replacer (wui.io.make-ajax-answer-processor
@@ -452,27 +371,26 @@
                                 (t (log.warn "Replacement node with id '" id "' was not found on the client side"))))))))
   (setf wui.io.process-ajax-answer
         (lambda (response args)
-          (with-wui-error-handler
-            ;; TODO properly handle ajax errors
-            ;; replace some components (dom nodes)
-            (log.debug "Calling dom-replacer...")
-            (dom-replacer response args)
-            (log.debug "...dom-replacer returned")
-            ;; look for 'script' tags and execute them with 'current-ajax-answer' bound
-            (let ((script-evaluator (wui.io.make-ajax-answer-processor "script"
-                                                                       (lambda (script-node)
-                                                                         ;; TODO handle/assert for script type attribute
-                                                                         (let ((script (dojox.xml.parser.textContent script-node)))
-                                                                           (log.debug "About to eval AJAX-received script " #\Newline script)
-                                                                           ;; isolate the local bindings from the script to be executed
-                                                                           ;; and only bind with the given name what we explicitly list here
-                                                                           ((lambda (_script current-ajax-answer)
-                                                                              (eval _script)) script response)
-                                                                           (log.debug "Finished eval-ing AJAX-received script")))
-                                                                       false true)))
-              (log.debug "Calling script-evaluator...")
-              (script-evaluator response args)
-              (log.debug "...script-evaluator returned"))))))
+          ;; TODO properly handle ajax errors
+          ;; replace some components (dom nodes)
+          (log.debug "Calling dom-replacer...")
+          (dom-replacer response args)
+          (log.debug "...dom-replacer returned")
+          ;; look for 'script' tags and execute them with 'current-ajax-answer' bound
+          (let ((script-evaluator (wui.io.make-ajax-answer-processor "script"
+                                                                     (lambda (script-node)
+                                                                       ;; TODO handle/assert for script type attribute
+                                                                       (let ((script (dojox.xml.parser.textContent script-node)))
+                                                                         (log.debug "About to eval AJAX-received script " #\Newline script)
+                                                                         ;; isolate the local bindings from the script to be executed
+                                                                         ;; and only bind with the given name what we explicitly list here
+                                                                         ((lambda (_script current-ajax-answer)
+                                                                            (eval _script)) script response)
+                                                                         (log.debug "Finished eval-ing AJAX-received script")))
+                                                                     false true)))
+            (log.debug "Calling script-evaluator...")
+            (script-evaluator response args)
+            (log.debug "...script-evaluator returned")))))
 
 ;;;;;;
 ;;; debug
