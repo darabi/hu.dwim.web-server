@@ -126,7 +126,7 @@
                                                                       (symbolp key)
                                                                       (equal strings (list (symbol-name name) (fully-qualified-symbol-name key))))
                                                              (return-from deserialize/human-readable-in-context value)))
-                                                         (symbol-value (hu.dwim.def::variable-of namespace)))))))
+                                                         (symbol-value (hu.dwim.def::variable-name-of namespace)))))))
                                          (cdr strings)))
 
 (def method deserialize/human-readable-in-context ((context (eql :file)) (strings cons))
