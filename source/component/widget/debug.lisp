@@ -122,4 +122,38 @@
           (replace-target-place/widget ()
               "Render time error"
             (inline-render-component/widget ()
-              (error "This is a demo error for testing purposes. It was signalled from the render method of a component.")))))))
+              (error "This is a demo error for testing purposes. It was signalled from the render method of a component."))))
+      (menu-item/widget ()
+          (replace-target-place/widget ()
+              "Client side error handling test"
+            (make-instance 'client-side-error-handling-test))))))
+
+;;;;;;
+;;; Debug menu
+
+(def (component e) client-side-error-handling-test (widget/style)
+  ())
+
+(def render-xhtml client-side-error-handling-test
+  (with-render-style/abstract (-self-)
+    (macrolet ((js-link (label js)
+                 `<a (:href "#" :onclick ,,js) ,,label>))
+      <p "This component helps testing how the client side deals with errors.">
+      <ul
+       <li ,(js-link "Calling undefined function" `js-inline(this-function-is-undefined))>
+       <li ,(js-link "Throw 'foo'" `js-inline(throw "foo"))>
+       ;; TODO render-component of command/widget is not what we need here... factor out stuff in command.lisp
+       <li ,(render-component
+             (command/widget (:ajax #t)
+               "Calling an undefined function in JS code returned by an AJAX answer"
+               (make-action
+                 (make-functional-response/ajax-aware-client ()
+                   <script `js-inline(this-function-is-undefined)>))))>
+       <li ,(render-component
+             ;; TODO explicitly set :sync here, but command/widget does not support it
+             (command/widget (:ajax #t)
+               "JS code returned by a delayed AJAX answer logs something to the JS console"
+               (make-action
+                 (sleep 3)
+                 (make-functional-response/ajax-aware-client ()
+                   <script `js-inline(log.info "After some delay on the server, we were rendered back...")>))))>>)))
