@@ -66,15 +66,28 @@
   (values))
 
 (def render-xhtml context-menu/widget
-  (bind (((:read-only-slots menu-items id style-class custom-style) -self-))
+  (bind (((:read-only-slots menu-items id style-class custom-style to-be-rendered-component) -self-)
+         (parent-id (id-of (parent-component-of -self-))))
     (when menu-items
-      (render-dojo-widget (id)
-        <div (:id ,id
-              :class ,style-class
-              :style `str("display: none;" ,custom-style)
-              :dojoType #.+dijit/menu+
-              :targetNodeIds ,(id-of (parent-component-of -self-)))
-          ,(foreach #'render-component menu-items)>))))
+      (if (eq to-be-rendered-component :lazy)
+          (progn
+            <div (:id ,id) "">
+            ;; TODO: use onmousedown, but the context menu does not show up on the first click (parallel download?)
+            `js(on-load (dojo.connect (dojo.by-id ,parent-id) "onmouseenter"
+                                      (lambda (event)
+                                        (unless (dijit.by-id ,id)
+                                          (wui.io.action ,(register-action/href (make-action (setf (to-be-rendered-component? -self-) #t)))
+                                                         :ajax true))))))
+          (render-dojo-widget (id)
+            <div (:id ,id
+                      :class ,style-class
+                      :style `str("display: none;" ,custom-style)
+                      :dojoType #.+dijit/menu+
+                      :targetNodeIds ,parent-id)
+                 ,(foreach #'render-component menu-items)>)))))
+
+(def method mark-to-be-rendered-component ((self context-menu/widget))
+  (setf (to-be-rendered-component? self) :lazy))
 
 ;;;;;;
 ;;; menu-item/widget
