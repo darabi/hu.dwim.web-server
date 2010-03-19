@@ -67,4 +67,6 @@
   (bind ((place (component-value-of self))
          (content (content-of self)))
     (reuse-component-value self (component-dispatch-class self) (component-dispatch-prototype self) place)
-    (setf (component-value-of content) (place-value place))))
+    ;; TODO: what if the place is unbound?
+    (when (place-bound? place)
+      (setf (component-value-of content) (place-value place)))))
