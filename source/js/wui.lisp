@@ -69,7 +69,7 @@
 ;;;;;;
 ;;; io
 
-(defun wui.io.action (url &key event (ajax true) (send-client-state true))
+(defun wui.io.action (url &key event (ajax true) (sync true) (send-client-state true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event))
     (dojo.stop-event event))
@@ -90,6 +90,7 @@
                                                         (dojo.remove-class ajax-target "ajax-target"))))
                  (params (create :url decorated-url
                                  :form form
+                                 :sync sync
                                  :error (lambda (response io-args)
                                           (ajax-request-in-progress-teardown)
                                           (wui.io.process-ajax-network-error response io-args))
