@@ -112,7 +112,7 @@
            (-body-))))))
 
 (def (with-macro* eo) with-action-logic (&key requires-valid-action)
-  (app.debug "WITH-FRAME-LOGIC speaking")
+  (app.debug "WITH-ACTION-LOGIC speaking")
   (assert (and *application* *session* *frame*) () "May not use WITH-ACTION-LOGIC without a proper application/session/frame dynamic environment")
   (bind ((application *application*)
          (session *session*)

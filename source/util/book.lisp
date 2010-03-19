@@ -58,6 +58,7 @@
 (def class* chapter (text title-mixin)
   ())
 
+;; TODO make :title mandatory arg
 (def (macro e) chapter ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'chapter ,@args :contents (list ,@contents)))
 
