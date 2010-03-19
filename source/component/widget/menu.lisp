@@ -79,11 +79,11 @@
                                          (wui.io.action ,(register-action/href (make-action (setf (to-be-rendered-component? -self-) #t))) :ajax ,t))))))
           (render-dojo-widget (id)
             <div (:id ,id
-                      :class ,style-class
-                      :style `str("display: none;" ,custom-style)
-                      :dojoType #.+dijit/menu+
-                      :targetNodeIds ,parent-id)
-                 ,(foreach #'render-component menu-items)>)))))
+                  :class ,style-class
+                  :style `str("display: none;" ,custom-style)
+                  :dojoType #.+dijit/menu+
+                  :targetNodeIds ,parent-id)
+             ,(foreach #'render-component menu-items)>)))))
 
 (def method mark-to-be-rendered-component ((self context-menu/widget))
   (setf (to-be-rendered-component? self) :lazy))
