@@ -26,7 +26,7 @@
       (string+ it "." (string-downcase format))))
 
   (:method (format component)
-    (lookup-first-matching-resource* (:default "unnamed")
+    (lookup-first-matching-resource (:default "unnamed")
       ("export.default-filename" (string-downcase format))
       "export.default-filename")))
 
