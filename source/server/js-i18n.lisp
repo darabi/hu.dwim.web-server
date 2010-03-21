@@ -19,9 +19,7 @@
 
 ;; "Contains the name of resources (either symbols or strings) that should to be sent down to the client."
 (def (namespace :test 'equal
-                :finder-name    %js-i18n-resource?
-                :collector-name collect-js-i18n-resource-names
-                :iterator-name  iterate-js-i18n-resource-registry)
+                :finder-name    %js-i18n-resource?)
   js-i18n-resource-registry)
 
 (def special-variable *js-i18n-resource-registry/last-modified-at* (local-time:now))
@@ -63,13 +61,11 @@
 (def function serve-js-i18n-response ()
   `js(wui.i18n.process-resources
       (array ,@(bind ((entries ()))
-                 (iterate-js-i18n-resource-registry
-                  (lambda (name &rest args)
-                    (declare (ignore args))
-                    (flet ((stringify (value)
-                             (etypecase value
-                               (symbol (string-downcase value))
-                               (string value))))
-                      (push (stringify (localize name)) entries)
-                      (push (stringify name) entries))))
+                 (do-namespace (js-i18n-resource-registry name)
+                   (flet ((stringify (value)
+                            (etypecase value
+                              (symbol (string-downcase value))
+                              (string value))))
+                     (push (stringify (localize name)) entries)
+                     (push (stringify name) entries)))
                  entries))))

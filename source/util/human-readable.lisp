@@ -37,15 +37,14 @@
               (write-string element stream)))))
 
 (def method serialize/human-readable (object)
-  (do-namespace-namespace (name namespace)
-    (maphash (lambda (key value)
-               (when (and (symbolp name)
-                          (symbolp key)
-                          (eq value object))
-                 (return-from serialize/human-readable (merge-human-readable-string (serialize/human-readable nil)
-                                                                                    (symbol-name name)
-                                                                                    (fully-qualified-symbol-name key)))))
-             namespace)))
+  (do-all-namespaces (namespace)
+    (iterate-namespace namespace
+                       (lambda (name value)
+                         (when (and (symbolp name)
+                                    (eq value object))
+                           (return-from serialize/human-readable (merge-human-readable-string (serialize/human-readable nil)
+                                                                                              (symbol-name (hu.dwim.def::name-of namespace))
+                                                                                              (fully-qualified-symbol-name name))))))))
 
 (def method serialize/human-readable ((context null))
   "")
@@ -111,23 +110,24 @@
   nil)
 
 (def method deserialize/human-readable-in-context ((context null) (strings cons))
-  (deserialize/human-readable-in-context (switch ((car strings) :test #'equalp)
-                                           ("FILE"
-                                            :file)
-                                           ("CLASS"
-                                            :class)
-                                           ("FUNCTION"
-                                            :function)
-                                           (t
-                                            (when (length= 2 strings)
-                                              (do-namespace-namespace (name namespace)
-                                                (maphash (lambda (key value)
-                                                           (when (and (symbolp name)
-                                                                      (symbolp key)
-                                                                      (equal strings (list (symbol-name name) (fully-qualified-symbol-name key))))
-                                                             (return-from deserialize/human-readable-in-context value)))
-                                                         (symbol-value (hu.dwim.def::variable-name-of namespace)))))))
-                                         (cdr strings)))
+  (deserialize/human-readable-in-context
+   (switch ((car strings) :test #'equalp)
+     ("FILE"
+      :file)
+     ("CLASS"
+      :class)
+     ("FUNCTION"
+      :function)
+     (t
+      (when (length= 2 strings)
+        (do-all-namespaces (namespace)
+          (iterate-namespace namespace
+                             (lambda (name value)
+                               (when (and (symbolp name)
+                                          (equal strings (list (symbol-name (hu.dwim.def::name-of namespace))
+                                                               (fully-qualified-symbol-name name))))
+                                 (return-from deserialize/human-readable-in-context value))))))))
+   (cdr strings)))
 
 (def method deserialize/human-readable-in-context ((context (eql :file)) (strings cons))
   (pathname (car strings)))
