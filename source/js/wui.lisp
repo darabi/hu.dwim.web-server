@@ -15,9 +15,9 @@
 (dojo.get-object "wui.help" #t)
 
 (defun wui.connect (object event function)
-  (if object
-      (dojo.connect object event function)
-      (throw "Don't call dojo.connect on null to add global event handlers")))
+  (assert object "wui.connect called with nil object")
+  (assert function "wui.connect called with nil function")
+  (dojo.connect object event function))
 
 (defun wui.shallow-copy (object)
   (return (dojo.mixin (create) object)))
@@ -67,7 +67,9 @@
            window.location.port
            url))))
 
+;; this is a condition object, even if it looks like a function...
 (defun wui.communication-error (message)
+  (setf this.type "wui.communication-error")
   (setf this.message message))
 
 
@@ -210,7 +212,7 @@
         (return result)))))
 
 (defun wui.io.process-ajax-network-error (response io-args)
-  (log.error "Processing AJAX network error, name " response.name ", message: " response.message)
+  (log.error "wui.io.process-ajax-network-error called on response " response ", io-args " io-args)
   (if dojo.config.isDebug
       debugger
       (window.location.reload)))
@@ -309,14 +311,14 @@
       (wui.map-child-nodes
        root
        (lambda (toplevel-node)
-         (log.debug "Walking at node " toplevel-node.tag-name)
+         (log.debug "Walking at node " toplevel-node)
          ;; node.get-elements-by-tag-name returns recursively all nodes of a document node, so that won't work here
          (when (= toplevel-node.tag-name tag-name)
            (if toplevel-p
                (let ((node toplevel-node)
                      (original-node node)
                      (id (.getAttribute node "id")))
-                 (log.debug "Processing " tag-name " node with id " id)
+                 (log.debug "Processing " node " with id " id)
                  (when import-node-p
                    (setf node (wui.io.import-ajax-received-xhtml-node node)))
                  (visitor node original-node))
@@ -358,22 +360,22 @@
                       "dom-replacements"
                       (lambda (replacement-node)
                         (bind ((id (.getAttribute replacement-node "id")))
-                              (cond
-                                ((and id ($ id))
-                                 (let ((old-node ($ id))
-                                       (parent-node (slot-value old-node 'parent-node)))
-                                   (hide-dom-node old-node)
-                                   (log.debug "About to replace old node with id " id)
-                                   (.replace-child parent-node replacement-node old-node)
-                                   (when dojo.config.isDebug
-                                     (dojo.add-class replacement-node "ajax-replacement")
-                                     (wui.last-ajax-replacements.push replacement-node))
-                                   (log.debug "Successfully replaced node with id " id)
-                                   (return true)))
-                                ((= replacement-node.tagName "script")
-                                 (log.debug "Found a toplevel script node in dom-replacements, calling eval...")
-                                 (wui.io.eval-script-tag replacement-node))
-                                (t (log.warn "Replacement node with id '" id "' was not found on the client side"))))))))
+                          (cond
+                            ((and id ($ id))
+                             (let ((old-node ($ id))
+                                   (parent-node (slot-value old-node 'parent-node)))
+                               (hide-dom-node old-node)
+                               (log.debug "About to replace old node with id " id)
+                               (.replace-child parent-node replacement-node old-node)
+                               (when dojo.config.isDebug
+                                 (dojo.add-class replacement-node "ajax-replacement")
+                                 (wui.last-ajax-replacements.push replacement-node))
+                               (log.debug "Successfully replaced node with id " id)
+                               (return true)))
+                            ((= replacement-node.tagName "script")
+                             (log.debug "Found a toplevel script node in dom-replacements, calling eval...")
+                             (wui.io.eval-script-tag replacement-node))
+                            (t (log.warn "Replacement node with id '" id "' was not found on the client side"))))))))
   (setf wui.io.process-ajax-answer
         (lambda (response args)
           ;; TODO properly handle ajax errors

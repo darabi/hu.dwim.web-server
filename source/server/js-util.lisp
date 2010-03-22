@@ -151,7 +151,8 @@
     (setf args-to-throw (list (concatenate 'string "Assertion failed: " (princ-to-string expression)))))
   (bind ((enter-debugger? *debug-client-side*))
    {with-preserved-readtable-case
-       `(unless ,EXPRESSION
-          ,@(WHEN ENTER-DEBUGGER?
-             '(debugger))
-          (throw ,@ARGS-TO-THROW))}))
+     `(unless ,EXPRESSION
+        ,@(WHEN ENTER-DEBUGGER?
+                '((log.debug "Assertion failed, entering debugger before throwing this: " args-to-throw)
+                  debugger))
+        (throw ,@ARGS-TO-THROW))}))
