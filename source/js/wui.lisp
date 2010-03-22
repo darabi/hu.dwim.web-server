@@ -359,23 +359,18 @@
 (bind ((dom-replacer (wui.io.make-ajax-answer-processor
                       "dom-replacements"
                       (lambda (replacement-node)
-                        (bind ((id (.getAttribute replacement-node "id")))
-                          (cond
-                            ((and id ($ id))
-                             (let ((old-node ($ id))
-                                   (parent-node (slot-value old-node 'parent-node)))
-                               (hide-dom-node old-node)
-                               (log.debug "About to replace old node with id " id)
-                               (.replace-child parent-node replacement-node old-node)
-                               (when dojo.config.isDebug
-                                 (dojo.add-class replacement-node "ajax-replacement")
-                                 (wui.last-ajax-replacements.push replacement-node))
-                               (log.debug "Successfully replaced node with id " id)
-                               (return true)))
-                            ((= replacement-node.tagName "script")
-                             (log.debug "Found a toplevel script node in dom-replacements, calling eval...")
-                             (wui.io.eval-script-tag replacement-node))
-                            (t (log.warn "Replacement node with id '" id "' was not found on the client side"))))))))
+                        (bind ((id (.getAttribute replacement-node "id"))
+                               (old-node ($ id)))
+                          (assert old-node "Old version of replacement node " replacement-node " with id '" id "' was not found on the client side")
+                          (let ((parent-node (slot-value old-node 'parent-node)))
+                            (hide-dom-node old-node)
+                            (log.debug "About to replace old node with id " id)
+                            (.replace-child parent-node replacement-node old-node)
+                            (when dojo.config.isDebug
+                              (dojo.add-class replacement-node "ajax-replacement")
+                              (wui.last-ajax-replacements.push replacement-node))
+                            (log.debug "Successfully replaced node with id " id)
+                            (return true)))))))
   (setf wui.io.process-ajax-answer
         (lambda (response args)
           ;; TODO properly handle ajax errors
