@@ -87,16 +87,17 @@
   ())
 
 (def render-xhtml project/repository/inspector
-  (bind (((:slots component-value) -self-))
+  (bind (((:slots component-value) -self-)
+         (project-name (string-downcase (name-of component-value))))
     (cond ((probe-file (merge-pathnames "_darcs" (path-of component-value)))
            ;; TODO: how do we get the repository entry point?
            <iframe (:width "100%" :height "600px" :style "border: none;"
-                    :src `str("/darcsweb/darcsweb.cgi?r=LIVE " ,(name-of component-value) ";a=summary"))>)
+                    :src `str("/darcsweb/darcsweb.cgi?r=LIVE " ,project-name ";a=summary"))>)
           ((probe-file (merge-pathnames ".git" (path-of component-value)))
            ;; TODO: how do we get the repository entry point?
            <iframe (:width "100%" :height "600px" :style "border: none;"
-                    :src `str("/gitweb/gitweb.cgi?p=" ,(name-of component-value) "/.git;a=summary"))>)
-          (t <span "Unknown or no repository for " ,(name-of component-value)>))))
+                    :src `str("/gitweb/gitweb.cgi?p=" ,project-name "/.git;a=summary"))>)
+          (t <span "Unknown or no repository for " ,project-name>))))
 
 ;;;;;;
 ;;; project/test/inspector
@@ -107,7 +108,8 @@
 (def refresh-component project/test/inspector
   (bind (((:slots content component-value) -self-)
          (project-system (asdf:find-system (project-system-name component-value) #f))
-         (test-system (when project-system
+         (test-system (when (and project-system
+                                 (typep project-system 'hu.dwim.system))
                         (asdf:find-system (system-test-system-name project-system) #f)))
          (test-package-name (when test-system
                               (system-package-name test-system)))
