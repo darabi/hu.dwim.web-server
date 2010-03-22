@@ -94,12 +94,7 @@
         ;; NOTE: this must run before any other js code tinkers with the dojo widgets.
         `xml,@(with-collapsed-js-scripts
                `js(on-load
-                   (let ((widget-ids (array ,@*dojo-widget-ids*)))
-                     (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
-                     (dolist (widget-id widget-ids)
-                       (awhen (dijit.byId widget-id)
-                         (.destroyRecursive it)))
-                     (dojo.parser.instantiate (map 'dojo.by-id widget-ids)))))))))
+                   (wui.io.instantiate-dojo-widgets (array ,@*dojo-widget-ids*))))))))
 
 (def macro render-dojo-widget ((&optional (id '(generate-unique-string/frame "_w")))
                                 &body body)

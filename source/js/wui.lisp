@@ -124,6 +124,13 @@
               (form.submit))
             (setf window.location.href decorated-url)))))
 
+(defun wui.io.instantiate-dojo-widgets (widget-ids)
+  (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
+  (dolist (widget-id widget-ids)
+    (awhen (dijit.byId widget-id)
+      (.destroyRecursive it)))
+  (dojo.parser.instantiate (map 'dojo.by-id widget-ids)))
+
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)
   (wui.io.bind (create :sync true
