@@ -50,21 +50,20 @@
            (when icon-uri
              <link (:rel "icon"
                     :type "image/x-icon"
-                    :href ,(append-file-write-date-to-uri (etypecase icon-uri
-                                                            (string (string+ path-prefix icon-uri))
-                                                            (uri (prefix-uri-path (clone-uri icon-uri) path-prefix)))
-                                                          +timestamp-parameter-name+
-                                                          file-name))>))
+                    :href ,(bind ((uri (clone-uri icon-uri)))
+                             (prefix-uri-path uri path-prefix)
+                             (append-file-write-date-to-uri uri +timestamp-parameter-name+ file-name)
+                             (print-uri-to-string uri)))>))
         <title ,(title-of -self-)>
         ,(foreach (lambda (el)
                     (bind (((stylesheet-uri &optional file-name) (ensure-list el)))
                       <link (:rel "stylesheet"
                              :type "text/css"
-                             :href ,(append-file-write-date-to-uri (etypecase stylesheet-uri
-                                                                     (string (string+ path-prefix stylesheet-uri))
-                                                                     (uri (prefix-uri-path (clone-uri stylesheet-uri) path-prefix)))
-                                                                   +timestamp-parameter-name+
-                                                                   file-name))>))
+                             :href ,(bind ((uri (clone-uri stylesheet-uri)))
+                                      (prefix-uri-path uri path-prefix)
+                                      (when file-name
+                                        (append-file-write-date-to-uri uri +timestamp-parameter-name+ file-name))
+                                      (print-uri-to-string uri)))>))
                   (stylesheet-uris-of -self-))
         <script (:type #.+javascript-mime-type+)
           ,(format nil "djConfig = { parseOnLoad: ~A, isDebug: ~A, debugAtAllCosts: ~A, locale: ~A }"
@@ -72,23 +71,26 @@
                    (to-js-boolean debug-client-side?)
                    (to-js-boolean debug-client-side?)
                    (to-js-literal (default-locale-of application)))>
-        <script (:type         #.+javascript-mime-type+
-                 :src          ,(bind ((dojo-release-uri (dojo-release-uri-of -self-)))
-                                  (string+ (unless (host-of dojo-release-uri)
-                                             path-prefix)
-                                           (print-uri-to-string dojo-release-uri)
-                                           (dojo-file-name-of -self-)
-                                           (when debug-client-side?
-                                             ".uncompressed.js"))))
+        <script (:type #.+javascript-mime-type+
+                 :src  ,(bind ((uri (clone-uri (dojo-release-uri-of -self-))))
+                          ;; TODO use append-file-write-date-to-uri?
+                          (prefix-uri-path uri path-prefix)
+                          (append-path-to-uri uri (dojo-file-name-of -self-))
+                          (when debug-client-side?
+                            (append-path-to-uri uri ".uncompressed.js"))
+                          (print-uri-to-string uri)))
                  ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                  "">
         ,(foreach (lambda (el)
-                    (bind (((script-url &optional file-name) (ensure-list el)))
-                      <script (:type         #.+javascript-mime-type+
-                               :src          ,(bind ((url script-url))
-                                                (unless (starts-with #\/ url)
-                                                  (setf url (string+ path-prefix url)))
-                                                (append-file-write-date-to-uri url +timestamp-parameter-name+ file-name)))
+                    (bind (((script-uri &optional file-name) (ensure-list el)))
+                      <script (:type #.+javascript-mime-type+
+                               :src  ,(bind ((uri (clone-uri script-uri)))
+                                        (unless (starts-with #\/ (path-of uri))
+                                          (prefix-uri-path uri path-prefix))
+                                        (append-file-write-date-to-uri uri +timestamp-parameter-name+ file-name)
+                                        (when debug-client-side?
+                                          (setf (uri-query-parameter-value uri "debug") "t"))
+                                        (print-uri-to-string uri)))
                               ;; it must have an empty body because browsers don't like collapsed <script ... /> in the head
                               "">))
                   (script-uris-of -self-))>
@@ -159,24 +161,25 @@
   (bind ((base-directory (aif (find-system asdf-system-name-or-base-directory #f)
                               (system-relative-pathname it "www/")
                               asdf-system-name-or-base-directory)))
-    (list (string+ path-prefix path) (merge-pathnames path base-directory))))
+    (list (parse-uri (string+ path-prefix path)) (merge-pathnames path base-directory))))
 
 (def (function e) make-default-script-uris ()
-  (list "wui/js/wui.js"
-         +js-i18n-broker/default-path+
-         +js-component-hierarchy-serving-broker/default-path+))
+  (load-time-value
+   (list (parse-uri "/wui/js/wui.js")
+         (parse-uri +js-i18n-broker/default-path+)
+         (parse-uri +js-component-hierarchy-serving-broker/default-path+))))
 
 (def function %make-stylesheet-uris (asdf-system-name-or-base-directory path-prefix &rest relative-paths)
   (bind ((base-directory (aif (find-system asdf-system-name-or-base-directory #f)
                               (system-relative-pathname it "www/")
                               asdf-system-name-or-base-directory)))
     (iter (for path :in relative-paths)
-          (collect (list (string+ path-prefix path)
+          (collect (list (parse-uri (string+ path-prefix path))
                          (assert-file-exists (merge-pathnames path base-directory)))))))
 
 (def (function e) make-default-stylesheet-uris ()
   (flet ((dojo-relative-path (path)
-           (string+ "static/wui/dojo/" *dojo-directory-name* path)))
+           (parse-uri (string+ "static/wui/dojo/" *dojo-directory-name* path))))
     (append
      (mapcar #'dojo-relative-path
              '("dojo/resources/dojo.css"

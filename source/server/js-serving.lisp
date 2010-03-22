@@ -32,38 +32,40 @@
   (list (namestring truename) content-encoding *debug-client-side*))
 
 (def method make-file-serving-response-for-directory-entry ((broker js-directory-serving-broker) truename path-prefix relative-path root-directory)
-  (bind ((compress? (default-response-compression))
-         (key (js-directory-serving-broker/make-cache-key truename (when compress? :deflate)))
-         (cache (file-path->cache-entry-of broker))
-         (cache-entry (gethash key cache))
-         (file-write-date (file-write-date truename))
-         (bytes-to-serve nil))
-    (if (and cache-entry
-             (<= file-write-date (file-write-date-of cache-entry)))
-        (progn
-          (files.dribble "Found cached entry for ~A, in ~A" truename broker)
-          (setf (last-used-at-of cache-entry) (get-monotonic-time))
-          (setf bytes-to-serve (bytes-to-respond-of cache-entry)))
-        (unless (cl-fad:directory-pathname-p truename)
-          (files.debug "Compiling and updating cache entry for ~A, in ~A" truename broker)
-          (setf bytes-to-serve (compile-js-file-to-byte-vector broker truename :encoding :utf-8))
-          (when compress?
-            (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.util:deflate-sequence bytes-to-serve :window-bits -15)))
-              (files.debug "Compressed response for cache entry ~A, original-size ~A, compressed-size ~A, ratio: ~,3F" truename (length bytes-to-serve) compressed-bytes-length (/ compressed-bytes-length (length bytes-to-serve)))
-              (setf bytes-to-serve (coerce-to-simple-ub8-vector compressed-bytes compressed-bytes-length))
-              (assert (= (length bytes-to-serve) compressed-bytes-length))))
-          (unless cache-entry
-            (setf cache-entry (make-directory-serving-broker/cache-entry truename))
-            (setf (gethash key cache) cache-entry))
-          (setf (file-write-date-of cache-entry) file-write-date)
-          (setf (bytes-to-respond-of cache-entry) bytes-to-serve)))
-    (aprog1
-        (make-byte-vector-response* bytes-to-serve
-                                    :last-modified-at (local-time:universal-to-timestamp file-write-date)
-                                    :seconds-until-expires (* 60 60)
-                                    :content-type (content-type-for +javascript-mime-type+ :utf-8))
-      (when compress?
-        (setf (header-value it +header/content-encoding+) +content-encoding/deflate+)))))
+  (with-request-parameters ((debug nil))
+    (bind ((*debug-client-side* (to-boolean debug))
+           (compress? (default-response-compression))
+           (cache-key (js-directory-serving-broker/make-cache-key truename (when compress? :deflate)))
+           (cache (file-path->cache-entry-of broker))
+           (cache-entry (gethash cache-key cache))
+           (file-write-date (file-write-date truename))
+           (bytes-to-serve nil))
+      (if (and cache-entry
+               (<= file-write-date (file-write-date-of cache-entry)))
+          (progn
+            (files.dribble "Found cached entry for ~A, in ~A" truename broker)
+            (setf (last-used-at-of cache-entry) (get-monotonic-time))
+            (setf bytes-to-serve (bytes-to-respond-of cache-entry)))
+          (unless (cl-fad:directory-pathname-p truename)
+            (files.debug "Compiling and updating cache entry for ~A, in ~A" truename broker)
+            (setf bytes-to-serve (compile-js-file-to-byte-vector broker truename :encoding :utf-8))
+            (when compress?
+              (bind (((:values compressed-bytes compressed-bytes-length) (hu.dwim.util:deflate-sequence bytes-to-serve :window-bits -15)))
+                (files.debug "Compressed response for cache entry ~A, original-size ~A, compressed-size ~A, ratio: ~,3F" truename (length bytes-to-serve) compressed-bytes-length (/ compressed-bytes-length (length bytes-to-serve)))
+                (setf bytes-to-serve (coerce-to-simple-ub8-vector compressed-bytes compressed-bytes-length))
+                (assert (= (length bytes-to-serve) compressed-bytes-length))))
+            (unless cache-entry
+              (setf cache-entry (make-directory-serving-broker/cache-entry truename))
+              (setf (gethash cache-key cache) cache-entry))
+            (setf (file-write-date-of cache-entry) file-write-date)
+            (setf (bytes-to-respond-of cache-entry) bytes-to-serve)))
+      (aprog1
+          (make-byte-vector-response* bytes-to-serve
+                                      :last-modified-at (local-time:universal-to-timestamp file-write-date)
+                                      :seconds-until-expires (* 60 60)
+                                      :content-type (content-type-for +javascript-mime-type+ :utf-8))
+        (when compress?
+          (setf (header-value it +header/content-encoding+) +content-encoding/deflate+))))))
 
 (def generic compile-js-file-to-byte-vector (broker filename &key encoding)
   (:method ((broker js-directory-serving-broker) filename &key (encoding +default-encoding+))

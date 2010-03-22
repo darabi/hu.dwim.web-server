@@ -162,14 +162,10 @@
   file)
 
 (def function append-file-write-date-to-uri (uri parameter-name &optional file-name)
-  (if file-name
-      (bind ((*print-pretty* #f)
-             (value (mod (file-write-date file-name) 10000)))
-        (etypecase uri
-          (uri (setf (uri-query-parameter-value uri parameter-name) value))
-          ;; TODO this is not correct, but parsing the uri string is not such a good idea here either... decide.
-          (string (string+ uri "?" parameter-name "=" (princ-to-string value)))))
-      uri))
+  (setf (uri-query-parameter-value uri parameter-name) (if file-name
+                                                           (mod (file-write-date file-name) 10000)
+                                                           nil))
+  uri)
 
 (def (function e) substitute-illegal-characters-in-file-name (name &key (replacement "_"))
   (cl-ppcre:regex-replace-all "/" name replacement))
