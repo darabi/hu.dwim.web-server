@@ -48,6 +48,7 @@
                                           "t")))
   (return url))
 
+#+nil ; currently unused
 (defun wui.decorate-url-with-frame-and-action (url (frame-id wui.frame-id) (frame-index wui.frame-index) action-id)
   (setf url (+ url (if (< (.index-of url "?") 0)
                        "?"
@@ -94,29 +95,27 @@
                  (ajax-request-in-progress-teardown (lambda ()
                                                       (when ajax-target
                                                         (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
-                                                        (dojo.remove-class ajax-target "ajax-target"))))
-                 (params (create :url decorated-url
-                                 :form form
-                                 :sync sync
-                                 :error (lambda (response io-args)
-                                          (ajax-request-in-progress-teardown)
-                                          (wui.io.process-ajax-network-error response io-args))
-                                 :load (lambda (response io-args)
-                                         (ajax-request-in-progress-teardown)
-                                         (wui.io.process-ajax-answer response io-args)))))
+                                                        (dojo.remove-class ajax-target "ajax-target")))))
             (when dojo.config.isDebug
               (when wui.last-ajax-replacements
                 (dolist (node wui.last-ajax-replacements)
                   (dojo.remove-class node "ajax-replacement")))
               (setf wui.last-ajax-replacements (array)))
-            (when send-client-state
-              (setf params.form form))
             (when ajax-target
               (dojo.add-class ajax-target "ajax-target")
               (dojo.add-class ajax-request-in-progress-indicator "ajax-request-in-progress")
               (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
               (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
-            (wui.io.xhr-post params)))
+            (wui.io.xhr-post :url decorated-url
+                             :sync sync
+                             :form (when send-client-state
+                                     form)
+                             :on-error (lambda (response io-args)
+                                         (ajax-request-in-progress-teardown)
+                                         (wui.io.process-ajax-network-error response io-args))
+                             :on-success (lambda (response io-args)
+                                           (ajax-request-in-progress-teardown)
+                                           (wui.io.process-ajax-answer response io-args)))))
         (if (and send-client-state
                  form
                  (< 0 form.elements.length))
@@ -163,53 +162,23 @@
             (eval script)))
         (throw (+ "Script tag with unexpected type: '" type "'")))))
 
-(defun wui.io.xhr-post (params)
-  (setf params (wui.shallow-copy params))
-  (macrolet ((default (name value)
-               `(when (= (slot-value params ',name) undefined)
-                  (setf (slot-value params ',name) ,value))))
-    (default sync false) ;; TODO make true the default, and if true then find a way to numb event handlers meanwhile
-    (default handle-as "xml")
-    (default error wui.io.process-ajax-network-error)
-    (default load wui.io.process-ajax-answer)
-
-    (when (and params.url
-               params.session-id
-               params.frame-id
-               params.action-id)
-      (log.debug "Decorating wui.io.bind url with session, frame and action params. Before decoration the url is: " params.url)
-      (setf params.url (wui.decorate-url-with-frame-and-action params.url
-                                                               params.frame-id
-                                                               params.frame-index
-                                                               params.action-id)))
-
-    ;; absolutize url if it's a relative one.
-    (when params.url
-      (setf params.url (wui.absolute-url-from params.url)))
-
-    (let ((result (dojo.xhr-post params)))
-      (return result))
-
-    #+nil
-    (let ((progress-label-remover (lambda ()
-                                    (awhen params.progress-node
-                                      (wui.io.progress.remove it)))))
-      (wui.event.kw-connect (create
-                             :src-obj params
-                             :src-func (list "load" "error")
-                             :advice-type "after"
-                             :advice-func progress-label-remover))
-      (wui.event.kw-connect (create
-                             :src-obj params
-                             :src-func "load"
-                             :advice-type "after"
-                             :advice-func wui.io.session-timeout-warning.notify-activity))
-      (log.debug "Calling dojo.io.bind with " params)
-      (let ((result (dojo.io.bind params)))
-        (dojo.event.connect-before params "abort" (lambda ()
-                                                    (progress-label-remover)
-                                                    (setf wui.io.polling.enabled-p false)))
-        (return result)))))
+;; TODO implement something smarter to deal with the user clicking around on the client while the server is busy.
+;; when sync is false, the user can stack up many ajax requests queueing on the server at the session lock...
+(defun wui.io.xhr-post (&key url form
+                        (sync false)
+                        ;; TODO rename
+                        (on-error wui.io.process-ajax-network-error)
+                        (on-success wui.io.process-ajax-answer)
+                        (handle-as "xml"))
+  ;; absolutize url if it's a relative one.
+  (when url
+    (setf url (wui.absolute-url-from url)))
+  (bind ((params (create :url url
+                         :sync sync
+                         :handle-as handle-as
+                         :error on-error
+                         :load on-success)))
+    (return (dojo.xhr-post params))))
 
 (defun wui.io.process-ajax-network-error (response io-args)
   (log.error "wui.io.process-ajax-network-error called on response " response ", io-args " io-args)
