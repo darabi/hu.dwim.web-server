@@ -152,7 +152,11 @@
   (bind ((enter-debugger? *debug-client-side*))
    {with-preserved-readtable-case
      `(unless ,EXPRESSION
-        ,@(WHEN ENTER-DEBUGGER?
-                '((log.debug "Assertion failed, entering debugger before throwing this: " args-to-throw)
-                  debugger))
-        (throw ,@ARGS-TO-THROW))}))
+        (bind ((argument-for-throw (array ,@ARGS-TO-THROW)))
+          #+nil
+          (when (= 1 argument-for-throw.length)
+            (setf argument-for-throw (aref argument-for-throw 0)))
+          ,@(WHEN ENTER-DEBUGGER?
+              '((log.debug "Assertion failed, entering debugger before throwing this: " argument-for-throw)
+                debugger))
+           (throw argument-for-throw)))}))
