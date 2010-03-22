@@ -44,7 +44,7 @@
   (make-load-form-saving-slots self :environment env))
 
 (def print-object (uri :identity nil)
-  (write-uri -self- *standard-output* nil))
+  (write-uri -self- *standard-output* :escape #f))
 
 (def (function ie) make-uri (&key scheme host port path query fragment)
   (make-instance 'uri :scheme scheme :host host :port port :path path
@@ -82,10 +82,9 @@
   (cdr (assoc name (query-parameters-of uri) :test #'string=)))
 
 (def (function e) (setf uri-query-parameter-value) (value uri name)
-  (bind ((entry (assoc name (query-parameters-of uri) :test #'string=)))
-    (if entry
-        (setf (cdr entry) value)
-        (add-query-parameter-to-uri uri name value)))
+  (if value
+      (setf (assoc-value (query-parameters-of uri) name :test #'string=) value)
+      (removef (query-parameters-of uri) name :test #'string= :key #'car))
   value)
 
 (def (function e) uri/delete-query-parameters (uri &rest names)
@@ -115,7 +114,7 @@
   (setf (path-of uri) (concatenate 'string path-to-prefix (path-of uri)))
   uri)
 
-(def (function o) write-uri-sans-query (uri stream &optional (escape t))
+(def (function o) write-uri-sans-query (uri stream &key (escape #t))
   "Write URI to STREAM, only write scheme, host and path."
   (bind ((scheme (scheme-of uri))
          (host (host-of uri))
@@ -157,12 +156,12 @@
                       string stream)))
       (when path
         (out path))
-      (write-query-parameters (query-parameters-of uri) stream escape)
+      (write-query-parameters (query-parameters-of uri) stream :escape escape)
       (awhen (fragment-of uri)
         (write-char #\# stream)
         (out it)))))
 
-(def (function o) write-query-parameters (parameters stream &optional (escape t))
+(def (function o) write-query-parameters (parameters stream &key (escape t))
   (labels ((out (string)
              (funcall (if escape
                           #'write-as-uri
@@ -191,14 +190,17 @@
           (write-char (if (first-time-p) #\? #\&) stream)
           (write-query-part name value))))
 
-(def (function o) write-uri (uri &optional (stream *standard-output*) (escape t))
-  (write-uri-sans-query uri stream escape)
+(def (function o) write-uri (uri stream &key (escape t) (extra-parameters '()))
+  (write-uri-sans-query uri stream :escape escape)
   (labels ((out (string)
              (funcall (if escape
                           #'write-as-uri
                           #'write-string)
                       string stream)))
-    (write-query-parameters (query-parameters-of uri) stream escape)
+    (bind ((parameters (query-parameters-of uri)))
+      (when extra-parameters
+        (setf parameters (append extra-parameters parameters)))
+      (write-query-parameters parameters stream :escape escape))
     (awhen (fragment-of uri)
       (write-char #\# stream)
       (out it))))
@@ -208,11 +210,11 @@
       (escape-as-uri uri)
       (print-uri-to-string uri)))
 
-(def (function e) print-uri-to-string (uri &optional (escape t))
+(def (function e) print-uri-to-string (uri &key (escape #t) (extra-parameters '()))
   (bind ((*print-pretty* #f)
          (*print-circle* #f))
     (with-output-to-string (string)
-      (write-uri uri string escape))))
+      (write-uri uri string :escape escape :extra-parameters extra-parameters))))
 
 #+nil
 (def (function e) print-relative-uri-to-string (uri &optional (escape t))
@@ -221,11 +223,11 @@
     (with-output-to-string (string)
       (write-relative-uri uri string escape))))
 
-(def function print-uri-to-string-sans-query (uri)
+(def function print-uri-to-string-sans-query (uri &key (escape #t))
   (bind ((*print-pretty* #f)
          (*print-circle* #f))
     (with-output-to-string (string)
-      (write-uri-sans-query uri string))))
+      (write-uri-sans-query uri string :escape escape))))
 
 (def (constant :test 'equalp) +uri-escaping-ok-table+
   (bind ((result (make-array 256
