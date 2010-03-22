@@ -7,14 +7,6 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; Debug client side
-
-(def special-variable *debug-client-side* (not *load-as-production?*)
-  "The default, system wide, value for the debug-client-side slots of frames.")
-
-(def generic compile-time-debug-client-side? (application))
-
-;;;;;;
 ;;; Logging
 
 (macrolet ((forward (name)

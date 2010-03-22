@@ -56,7 +56,6 @@
   (slot-name.session-id->session "session map")
   (slot-name.administrator-email-address "administrator email address")
   (slot-name.running-in-test-mode "running in test mode")
-  (slot-name.compile-time-debug-client-side "compile time debug client side")
   (slot-name.ajax-enabled "ajax enabled")
   (slot-name.dojo-skin-name "dojo skin name")
   (slot-name.dojo-file-name "dojo file name")

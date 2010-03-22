@@ -32,7 +32,7 @@
    (administrator-email-address nil :type (or null string))
    (lock)
    (running-in-test-mode #f :type boolean :accessor running-in-test-mode? :export :accessor)
-   (compile-time-debug-client-side *default-compile-time-debug-client-side* :type boolean :accessor compile-time-debug-client-side? :export :accessor)
+   (debug-client-side :type boolean :writer (setf debug-client-side?))
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:default-initargs :path-prefix "/"))
 
@@ -52,11 +52,10 @@
      (debug-on-error? *server* error))
     (t (call-next-method))))
 
-(def method compile-time-debug-client-side? :around ((self application))
-  (if (slot-boundp self 'compile-time-debug-client-side)
-      (call-next-method)
-      (or (running-in-test-mode? self)
-          (not *load-as-production?*))))
+(def method debug-client-side? ((self application))
+  (if (slot-boundp self 'debug-client-side)
+      (slot-value self 'debug-client-side)
+      *debug-client-side*))
 
 (def (function e) human-readable-broker-path (server application)
   (bind ((path (broker-path-to-broker server application)))

@@ -28,10 +28,8 @@
       (when truename
         (make-file-serving-response-for-directory-entry broker truename path-prefix relative-path root-directory)))))
 
-(def function js-directory-serving-broker/make-cache-key (truename &optional content-encoding)
-  (if content-encoding
-      (list (namestring truename) content-encoding)
-      (namestring truename)))
+(def function js-directory-serving-broker/make-cache-key (truename content-encoding)
+  (list (namestring truename) content-encoding *debug-client-side*))
 
 (def method make-file-serving-response-for-directory-entry ((broker js-directory-serving-broker) truename path-prefix relative-path root-directory)
   (bind ((compress? (default-response-compression))

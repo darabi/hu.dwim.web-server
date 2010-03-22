@@ -19,10 +19,15 @@
    (dojo-release-uri (parse-uri (string+ "static/wui/dojo/" *dojo-directory-name* "dojo/")))
    (dojo-file-name *dojo-file-name*)
    (parse-dojo-widgets-on-load #f :type boolean)
-   (debug-client-side *debug-client-side* :type boolean)))
+   (debug-client-side :type boolean :writer (setf debug-client-side?))))
 
 (def (macro e) frame/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'frame/widget ,@args :content ,(the-only-element content)))
+
+(def method debug-client-side? ((self frame/widget))
+  (if (slot-boundp self 'debug-client-side)
+      (slot-value self 'debug-client-side)
+      (debug-client-side? *application*)))
 
 (def method parent-component-of ((self frame/widget))
   nil)

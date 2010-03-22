@@ -6,6 +6,13 @@
 
 (in-package :hu.dwim.wui)
 
+(def special-variable *debug-client-side* (not *load-as-production?*)
+  "Should the client side run in debug mode?")
+
+(def (generic e) debug-client-side? (context)
+  (:method ((context t))
+    *debug-client-side*))
+
 (def (special-variable e :documentation "The SERVER associated with the currently processed HTTP REQUEST.")
   *server*)
 

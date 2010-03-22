@@ -58,7 +58,7 @@
              (*fallback-locale-for-functional-localizations* (default-locale-of application))
              (*rendering-phase-reached* #f)
              (*inside-user-code* #f)
-             (*debug-client-side* (compile-time-debug-client-side? application))
+             (*debug-client-side* (debug-client-side? application))
              (*ajax-aware-request* (ajax-aware-request?))
              (*delayed-content-request* (or *ajax-aware-request*
                                             (delayed-content-request?))))
