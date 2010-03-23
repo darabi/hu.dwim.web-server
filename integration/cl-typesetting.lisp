@@ -55,13 +55,52 @@
         (typeset:write-document *pdf-stream*)))))
 
 (def (layered-function e) render-pdf-pages (component)
-  (:method ((component component))
+  (:method ((self component))
     (typeset:draw-pages (typeset:compile-text ()
                           (with-active-layers (passive-layer)
-                            (render-pdf component)))
+                            (render-pdf self)))
                         :margins '(72 72 72 50)
-                        :header (render-pdf-header component)
-                        :footer (render-pdf-footer component))))
+                        :header (render-pdf-header self)
+                        :footer (render-pdf-footer self))))
+
+(def (layered-function e) render-pdf-header (component)
+  (:method ((self component))
+    (lambda (page)
+      (unless (= pdf:*page-number* 1)
+        (typeset:compile-text ()
+          (typeset:paragraph (:font (pdf:get-font "FreeSerif") :font-size 10 :h-align :right)
+            (typeset:put-string "A dokumentum elkészítésének időpontja: ")
+            (typeset:with-style (:font (pdf:get-font "FreeSerifBold"))
+              (typeset:put-string (hu.dwim.wui::localized-timestamp (local-time:now))))
+            (typeset:hrule :dy 1/2)))))))
+
+(def layered-function render-pdf-footer (component)
+  (:method ((self component))
+    (lambda (page)
+      (typeset:compile-text ()
+        (typeset:paragraph (:font (pdf:get-font "FreeSerif") :font-size 10 :h-align :center)
+          (setf *total-page-count* (max *total-page-count* pdf:*page-number*))
+          (typeset:put-string (format nil "~d / ~d oldal" pdf:*page-number* *total-page-count*)))))))
+
+(def layered-function render-pdf-table-of-contents (component)
+  (:method ((self component))
+    ;; TODO: KLUDGE: add table-of-contents and its component
+    (typeset:paragraph (:font (pdf:get-font "FreeSerif") :font-size 14 :h-align :center)
+      "Tartalomjegyzék"
+      (typeset:vspace 10))
+    (iter (for chapter :in '(((1))))
+          (for depth = (length (first chapter)))
+          (typeset:paragraph (:h-align :left-but-last
+                              :left-margin (case depth (1 0) (2 10) (t 20))
+                              :top-margin (case depth (1 3) (t 0))
+                              :bottom-margin (case depth (1 2) (t 0))
+                              :font-size (case depth (1 12) (2 10) (t 9))
+                              :font "FreeSerif")
+            (typeset:put-string "Chapter 1")
+            (typeset::dotted-hfill)
+            (typeset:with-style (:font-size 10 :font "FreeSerif")
+              (typeset::put-ref-point-page-number 1))))
+    (typeset:new-page)))
 
 ;;;;;;
 ;;; Render pdf
@@ -83,9 +122,6 @@
         (unless (first-iteration-p)
           (typeset:put-string " "))
         (render-component command)))
-
-(def render-pdf primitive/inspector
-  (typeset:put-string (print-component-value -self-)))
 
 (def render-pdf list/widget ()
   (foreach #'render-component (contents-of -self-)))
@@ -118,6 +154,14 @@
   (typeset:row ()
     (render-table-row-cells (parent-component-of -self-) -self-)))
 
+(def layered-method render-table-row-cell :in pdf-layer ((table table/widget) (row row/widget) (column column/widget) (cell component))
+  (typeset:cell ()
+    (render-component cell)))
+
+(def layered-method render-table-row-cell :in pdf-layer ((table table/widget) (row row/widget) (column column/widget) (cell string))
+  (typeset:cell ()
+    (render-component cell)))
+
 (def render-pdf tree/widget ()
   (foreach #'render-component (root-nodes-of -self-)))
 
@@ -136,28 +180,31 @@
     (render-nodrow-cells -self-))
   (foreach #'render-component (child-nodes-of -self-)))
 
-(def render-pdf alternator/widget
-    (call-next-layered-method))
-
 (def render-pdf book/text/inspector
+  (typeset:paragraph (:font-size 24 :h-align :center)
+    (render-title-for -self-)
+    (typeset:new-page))
+  (render-pdf-table-of-contents -self-)
   (typeset:paragraph (:font (pdf:get-font "FreeSerif"))
-    (typeset:with-style (:font-size 24)
-      (render-title-for -self-))
-    (typeset:new-line)
     (foreach #'render-author (authors-of (component-value-of -self-)))
     (typeset:new-line)
     (render-contents-for -self-)))
 
 (def render-pdf chapter/text/inspector
+  (typeset:paragraph (:font-size 18)
+    (render-title-for -self-)
+    (typeset:new-line))
   (typeset:paragraph ()
-    (typeset:with-style (:font-size 18)
-      (render-title-for -self-))
-    (typeset:new-line)
     (render-contents-for -self-)))
 
 (def render-pdf paragraph/text/inspector
   (typeset:paragraph ()
-    (render-contents-for -self-)))
+    (render-contents-for -self-)
+    (typeset:vspace 6)))
+
+(def render-pdf title/widget
+  (typeset:paragraph (:font-size 14)
+    (render-content-for -self-)))
 
 (def render-pdf hyperlink/text/inspector
   ;; TODO: how does one render a link?
@@ -174,14 +221,6 @@
 
 ;;;;;;
 ;;; Utilities
-
-(def (layered-function e) render-pdf-header (component)
-  (:method ((component component))
-    (values)))
-
-(def (layered-function e) render-pdf-footer (component)
-  (:method ((component component))
-    (values)))
 
 (def (function e) digest->bar-code (digest)
   (iter (with bar-code = 0)
@@ -206,8 +245,8 @@
   (bind ((column-widths (mapcar 'pdf-column-width columns))
          (total-width (sum* column-widths)))
     (mapcar (lambda (width)
-              ;; TODO: consider page size and orientation
-              (* 725 (coerce (/ width total-width) 'double-float)))
+              ;; TODO: consider page size and orientation 725 for landscape, 430 for portrait
+              (* 430 (coerce (/ width total-width) 'double-float)))
             column-widths)))
 
 
@@ -233,11 +272,9 @@
 
 
 
-;; TODO: factor/move?!
-
 ;;;;;;
-;;; Graph stuff
-#|
+;;; graph/widget
+
 (def special-variable *vertex-inset* 5)
 
 (def special-variable *dpi* 72.0)
@@ -256,112 +293,50 @@
 
 (def special-variable *vertex-label-font-size* 11)
 
-(def function center-x-of (vertex)
-  (+ (x-of vertex) (/ (width-of vertex) 2.0)))
-
-(def function center-y-of (vertex)
-  (+ (y-of vertex) (/ (height-of vertex) 2.0)))
-
-(def function push-dot-attribute (object key value)
-  (push value (cl-graph:dot-attributes object))
-  (push key (cl-graph:dot-attributes object)))
-
-
-(def generic compute-vertex-size (vertex content)
-  (:method (vertex (content (eql nil)))
-           (values))
-
-  (:method (vertex content)
-           ;; NOTE: size measurement seems to work in a somewhat bad way
-           ;; if you don't know what is going on here, it's better not to change anything
-           (bind (box width height)
-             ;; first make it as wide as it wants to be
-             (unless width
-               (setf box (render-vertex-content content))
-               (setf width (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dx))
-               ;; to calculate the height we have to fit in a box
-               (setf box (render-vertex-content content width))
-               ;; TODO: WTF 5?
-               (setf height (+ 5 (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dy))))
-             ;; if it is wider than the maximum, then rewrap the whole thing
-             (when (> width *max-vertex-width*)
-               (setf box (render-vertex-content content *max-vertex-width*))
-               (setf width *max-vertex-width*)
-               ;; TODO: WTF 5?
-               (setf height (+ 5 (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dy))))
-             (when box
-               (setf (compiled-content-of vertex) box))
-             ;; store sizes in dpi
-             (wui.debug "Precalculated vertex size for ~A is (~A, ~A)" vertex width height)
-             (setf (getf (cl-graph:dot-attributes vertex) :width) (/ (+ (* 2 *vertex-inset*) width) *dpi*))
-             (setf (getf (cl-graph:dot-attributes vertex) :height) (/ (+ (* 2 *vertex-inset*) height) *dpi*)))))
-
-(def function render-graph (graph &rest args)
-  (layout-graph graph)
-  (apply 'user-drawn-box
-         :inline #t
-         :stroke-fn (lambda (box x y)
-                      (declare (ignore box))
-                      (stroke-graph graph x y))
-         :dx (* (scale-of graph) (width-of graph)) :dy (* (scale-of graph) (height-of graph))
-         args))
+(def render-pdf graph/widget
+  (bind (((:slots x y width height max-width max-height scale) -self-))
+    (cl-graph:layout-graph-with-graphviz -self-)
+    (typeset:user-drawn-box :inline #t
+                            :stroke-fn (lambda (box x y)
+                                         (declare (ignore box))
+                                         (stroke-graph -self- x y))
+                            :dx (* scale width) :dy (* scale height))))
 
 (def function stroke-graph (graph x y)
   (pdf:with-saved-state
-    (pdf:set-color-fill (background-color-of graph))
+    (pdf:set-color-fill '(1 1 1))
     (pdf:translate x y)
     (pdf:scale (scale-of graph) (scale-of graph))
     (pdf:translate (- (x-of graph)) (- (+ (y-of graph) (height-of graph))))
     (when (border-width-of graph)
-      (pdf:set-color-stroke (border-color-of graph))
+      (pdf:set-color-stroke '(0 0 0))
       (pdf:set-line-width (border-width-of graph))
       (pdf:basic-rect (x-of graph) (y-of graph) (width-of graph) (height-of graph))
       (pdf:fill-and-stroke))
-    (iterate-edges graph
-                   (lambda (edge)
-                     (stroke-edge edge)))
-    (iterate-nodes graph
-                   (lambda (vertex)
-                     (stroke-vertex vertex)))))
+    (cl-graph:iterate-edges graph 'stroke-edge)
+    (cl-graph:iterate-vertexes graph 'stroke-vertex)))
 
 (def function stroke-vertex (vertex)
   (pdf:with-saved-state
-    (pdf:set-color-fill (background-color-of vertex))
+    (pdf:set-color-fill '(1 1 1))
     (when (border-width-of vertex)
-      (pdf:set-color-stroke (border-color-of vertex))
+      (pdf:set-color-stroke '(0 0 0))
       (pdf:set-line-width (border-width-of vertex))
       (pdf:basic-rect (x-of vertex)
                       (y-of vertex)
                       (width-of vertex)
                       (height-of vertex))
       (pdf:fill-and-stroke)))
-  (stroke-vertex-content vertex (compiled-content-of vertex)))
-
-(def generic stroke-vertex-content (vertex content)
-  (:method (vertex (content string))
-           (when content
-             (pdf:set-color-fill '(0.0 0.0 0.0))
-             (pdf:draw-centered-text (center-x-of vertex) (- (center-y-of vertex) (* 0.3 *vertex-label-font-size*))
-                                     (format nil "~A" content)
-                                     (pdf:get-font *vertex-label-font*) *vertex-label-font-size*)))
-
-  (:method (vertex (content (eql nil)))
-           (values))
-
-  (:method (vertex (box typeset::box))
-           (typeset::stroke box
-                            (+ *vertex-inset* (x-of vertex))
-                            (+ (- *vertex-inset*) (y-of vertex) (height-of vertex))))
-
-  (:method (vertex (box typeset::text-content))
-           (typeset::stroke box
-                            (+ *vertex-inset* (x-of vertex))
-                            (+ (- *vertex-inset*) (y-of vertex) (height-of vertex)))))
+  (typeset::stroke (typeset:make-filled-vbox (typeset:compile-text ()
+                                               (typeset:paragraph (:font (pdf:get-font "FreeSerif") :color '(0 0 0))
+                                                 (render-pdf (content-of vertex))))
+                                             (width-of vertex) typeset::+HUGE-NUMBER+)
+                   (+ *vertex-inset* (x-of vertex))
+                   (+ (- *vertex-inset*) (y-of vertex) (height-of vertex))))
 
 (def function stroke-edge (edge)
   (pdf:with-saved-state
-    (pdf:set-color-stroke (line-color-of edge))
-    (pdf:set-color-fill (line-color-of edge))
+    (pdf:set-color-stroke '(0 0 0))
     (pdf:set-line-width (width-of edge))
     (let ((points (points-of edge))
           x1 y1 x2 y2 x3 y3 prev-x1 prev-y1)
@@ -425,23 +400,42 @@
       (pdf:draw-centered-text x y (label-of edge)
                               (pdf:get-font *edge-label-font*) *edge-label-font-size*))))
 
-(def function render-vertex-content (content &optional max-width)
-  (bind ((compiled-content
-          (cond ((typep content 'string)
-                 (typeset:compile-text ()
-                   (typeset:paragraph (:h-align :center
-                                       :v-align :center
-                                       :color '(0 0 0)
-                                       ;; TODO: WTF? parenthesis messes up cl-pdf's output when using FreeSerif font!
-                                       :font "Helvetica"
-                                       :font-size *vertex-label-font-size*)
-                     (typeset:put-string content))))
-                ((typep content 'cons)
-                 (eval
-                  `(compile-text () ,content)))
-                (t
-                 content))))
-    (if max-width
-        (typeset:make-filled-vbox compiled-content max-width typeset::+HUGE-NUMBER+)
-        compiled-content)))
-|#
+#+nil
+(def generic compute-vertex-size (vertex content)
+  (:method (vertex (content (eql nil)))
+    (values))
+
+  (:method (vertex content)
+    ;; NOTE: size measurement seems to work in a somewhat bad way
+    ;; if you don't know what is going on here, it's better not to change anything
+    (bind (box width height)
+      ;; first make it as wide as it wants to be
+      (unless width
+        (setf box (render-vertex-content content))
+        (setf width (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dx))
+        ;; to calculate the height we have to fit in a box
+        (setf box (render-vertex-content content width))
+        ;; TODO: WTF 5?
+        (setf height (+ 5 (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dy))))
+      ;; if it is wider than the maximum, then rewrap the whole thing
+      (when (> width *max-vertex-width*)
+        (setf box (render-vertex-content content *max-vertex-width*))
+        (setf width *max-vertex-width*)
+        ;; TODO: WTF 5?
+        (setf height (+ 5 (typeset::compute-boxes-natural-size (typeset::boxes box) #'typeset::dy))))
+      (when box
+        (setf (compiled-content-of vertex) box))
+      ;; store sizes in dpi
+      (wui.debug "Precalculated vertex size for ~A is (~A, ~A)" vertex width height)
+      (setf (getf (cl-graph:dot-attributes vertex) :width) (/ (+ (* 2 *vertex-inset*) width) *dpi*))
+      (setf (getf (cl-graph:dot-attributes vertex) :height) (/ (+ (* 2 *vertex-inset*) height) *dpi*)))))
+
+(def function center-x-of (vertex)
+  (+ (x-of vertex) (/ (width-of vertex) 2.0)))
+
+(def function center-y-of (vertex)
+  (+ (y-of vertex) (/ (height-of vertex) 2.0)))
+
+(def function push-dot-attribute (object key value)
+  (push value (cl-graph:dot-attributes object))
+  (push key (cl-graph:dot-attributes object)))
