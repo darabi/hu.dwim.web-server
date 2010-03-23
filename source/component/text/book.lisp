@@ -20,6 +20,9 @@
   (list* (make-instance 'book/text/inspector :component-value value)
          (call-next-method)))
 
+(def layered-method export-file-name (format (component book/inspector) (value book))
+  (title-of value))
+
 ;;;;;;
 ;;; book/text/inspector
 

@@ -20,12 +20,12 @@
                  (make-export-command :odt component class prototype value)
                  (make-export-command :sh component class prototype value)))
 
-(def (layered-function e) export-file-name (format component)
-  (:method :around (format component)
+(def (layered-function e) export-file-name (format component value)
+  (:method :around (format component value)
     (awhen (call-next-method)
       (string+ it "." (string-downcase format))))
 
-  (:method (format component)
+  (:method (format component value)
     (lookup-first-matching-resource* (:default "unnamed")
       ("export.default-filename" (string-downcase format))
       "export.default-filename")))
