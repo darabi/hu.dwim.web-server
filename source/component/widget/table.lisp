@@ -43,5 +43,8 @@
                       (render-component row))>>
       (render-page-navigation-bar-for -self-))))
 
+(def render-odt table/widget
+  <table:table>)
+
 (def layered-method make-page-navigation-bar ((component table/widget) class prototype value)
   (make-instance 'page-navigation-bar/widget :total-count (length (rows-of component))))

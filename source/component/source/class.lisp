@@ -15,11 +15,28 @@
 (def subtype-mapper *inspector-type-mapping* (or null class) class/inspector)
 
 (def layered-method make-alternatives ((component class/inspector) (class standard-class) (prototype class) (value class))
-  (list* (make-instance 'class/subclass-hierarchy/tree/inspector :component-value value)
-         (make-instance 'class/superclass-hierarchy/tree/inspector :component-value value)
-         (make-instance 'class/lisp-form/inspector :component-value value)
-         (make-instance 'class/documentation/inspector :component-value value)
-         (call-next-method)))
+  (bind (((:read-only-slots editable-component edited-component component-value-type) component))
+    (list* (make-instance 'class/documentation/inspector
+                          :component-value value
+                          :component-value-type component-value-type
+                          :edited edited-component
+                          :editable editable-component)
+           (make-instance 'class/lisp-form/inspector
+                          :component-value value
+                          :component-value-type component-value-type
+                          :edited edited-component
+                          :editable editable-component)
+           (make-instance 'class/subclass-hierarchy/tree/inspector
+                          :component-value value
+                          :component-value-type component-value-type
+                          :edited edited-component
+                          :editable editable-component)
+           (make-instance 'class/superclass-hierarchy/tree/inspector
+                          :component-value value
+                          :component-value-type component-value-type
+                          :edited edited-component
+                          :editable editable-component)
+           (call-next-method))))
 
 ;;;;;;
 ;;; t/reference/inspector
@@ -40,8 +57,27 @@
 ;;;;;;
 ;;; class/documentation/inspector
 
-(def (component e) class/documentation/inspector (t/documentation/inspector)
-  ())
+(def (component e) class/documentation/inspector (t/documentation/inspector title/mixin)
+  ((direct-slots :type component)))
+
+(def refresh-component class/documentation/inspector
+  (bind (((:slots direct-slots component-value) -self-))
+    (setf direct-slots (make-instance 'standard-slot-definition-sequence/table/inspector :component-value (class-direct-slots component-value)))))
+
+(def render-component class/documentation/inspector
+  (render-title-for -self-)
+  (render-contents-for -self-)
+  (render-component (direct-slots-of -self-)))
+
+(def render-xhtml class/documentation/inspector
+  (with-render-style/abstract (-self-)
+    (render-title-for -self-)
+    (render-contents-for -self-)
+    (render-component (direct-slots-of -self-))))
+
+(def layered-method make-title ((self class/documentation/inspector) (class standard-class) (prototype standard-class) (value standard-class))
+  (title/widget ()
+    (localized-class-name value :capitalize-first-letter #t)))
 
 ;;;;;;
 ;;; class/subclass-hierarchy/tree/inspector
