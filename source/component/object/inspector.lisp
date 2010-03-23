@@ -58,11 +58,13 @@ Optimized factory configuration (default):
 
 (def layered-method make-alternatives ((component t/inspector) class prototype value)
   (bind (((:read-only-slots editable-component edited-component component-value-type) component))
-    (list (make-instance 't/name-value-list/inspector
-                         :component-value value
-                         :component-value-type component-value-type
-                         :edited edited-component
-                         :editable editable-component)
+    (list (apply #'make-instance
+                 't/name-value-list/inspector
+                 :component-value value
+                 :component-value-type component-value-type
+                 :edited edited-component
+                 :editable editable-component
+                 (alternative-deep-arguments component 't/name-value-list/inspector))
           (make-instance 't/reference/inspector
                          :component-value value
                          :component-value-type component-value-type
@@ -135,10 +137,14 @@ Optimized factory configuration (default):
 ;;; t/name-value-list/inspector
 
 (def (component e) t/name-value-list/inspector (inspector/basic t/name-value-list/presentation)
-  ())
+  ((slot-names nil :type list)))
 
 (def layered-method collect-slot-value-list/slots ((component t/name-value-list/inspector) class prototype value)
-  (class-slots class))
+  (bind (((:read-only-slots slot-names) component)
+         (slots (class-slots class)))
+    (if slot-names
+        (filter-slots slot-names slots)
+        slots)))
 
 (def layered-method make-slot-value-list/place-group ((component t/name-value-list/inspector) class prototype value)
   (make-place-group nil (mapcar [make-object-slot-place (component-value-of component) !1] value)))
