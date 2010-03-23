@@ -232,8 +232,8 @@
                                                                     :component-value value
                                                                     :edited (edited-component? component)
                                                                     :editable (editable-component? component))))
-                                        (list :content (icon expand-component) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
-                                        (list :content (icon collapse-component) :ajax (delay (id-of replacement-component))))))
+                                        (list :content (icon/widget expand-component) :visible (delay (not (has-edited-descendant-component-p component))) :ajax (delay (id-of component)))
+                                        (list :content (icon/widget collapse-component) :ajax (delay (id-of replacement-component))))))
 
 ;;;;;;
 ;;; t/entire-row/inspector

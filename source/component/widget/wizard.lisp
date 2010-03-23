@@ -56,14 +56,14 @@
 (def (layered-function e) make-finish-wizard-command (component class prototype value)
   (:method ((component wizard/widget) class prototype value)
     (command/widget ()
-      (icon finish-wizard)
+      (icon/widget finish-wizard)
       (make-component-action component
         (finish-wizard component class prototype value)))))
 
 (def (layered-function e) make-cancel-wizard-command (component class prototype value)
   (:method ((component wizard/widget) class prototype value)
     (command/widget ()
-      (icon cancel-wizard)
+      (icon/widget cancel-wizard)
       (make-component-action component
         (cancel-wizard component class prototype value)))))
 

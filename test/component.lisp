@@ -213,9 +213,9 @@
         "Kate"))
     (component-demo/widget "Tab container"
       (tab-container/widget ()
-        (tab-page/widget (:selector (icon switch-to-tab-page :label "Male"))
+        (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Male"))
           "John")
-        (tab-page/widget (:selector (icon switch-to-tab-page :label "Female"))
+        (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Female"))
           "Mary")))
     (component-demo/widget "Menu bar"
       (menu-bar/widget ()
@@ -298,11 +298,11 @@
         (vertical-list/layout ()
           (command-bar/widget ()
             (command/widget ()
-              (icon refresh-component)
+              (icon/widget refresh-component)
               (make-action
                 (setf string "refresh")))
             (command/widget ()
-              (icon select-component)
+              (icon/widget select-component)
               (make-action
                 (setf string "select"))))
           (inline-render-xhtml/widget ()
@@ -312,17 +312,17 @@
     (component-demo/widget "Push button"
       (push-button/widget ()
         (command/widget ()
-          (icon refresh-component)
+          (icon/widget refresh-component)
           (make-action))))
     (component-demo/widget "Toggle button"
       (toggle-button/widget ()
         (command/widget ()
-          (icon refresh-component)
+          (icon/widget refresh-component)
           (make-action))))
     (component-demo/widget "Drop down button"
       (drop-down-button/widget ()
         (command/widget ()
-          (icon refresh-component)
+          (icon/widget refresh-component)
           (make-action))))
     (component-demo/widget "File download"
       (download-file/widget :file-name (system-relative-pathname :hu.dwim.wui "test/component.lisp")))
@@ -374,7 +374,7 @@
                                   "The panel's title")
                      :command-bar (command-bar/widget ()
                                     (command/widget ()
-                                      (icon refresh-component)
+                                      (icon/widget refresh-component)
                                       (make-action))))
         "John"))
     (component-demo/widget "Information message"
@@ -948,17 +948,17 @@
     (component-demo/widget "Call"
       (make-value-inspector (standard-process
                               (call-component "Hello World" (answer/widget ()
-                                                                (icon answer-component :label "Finish"))))))
+                                                                (icon/widget answer-component :label "Finish"))))))
     (component-demo/widget "Sequential"
       (make-value-inspector (standard-process
                               (call-component "John" (answer/widget ()
-                                                         (icon answer-component :label "Next")))
+                                                         (icon/widget answer-component :label "Next")))
                               (call-component "Mary" (answer/widget ()
-                                                         (icon answer-component :label "Next")))
+                                                         (icon/widget answer-component :label "Next")))
                               (call-component "Steve" (answer/widget ()
-                                                          (icon answer-component :label "Next")))
+                                                          (icon/widget answer-component :label "Next")))
                               (call-component "Kate" (answer/widget ()
-                                                         (icon answer-component :label "Finish"))))))
+                                                         (icon/widget answer-component :label "Finish"))))))
     (component-demo/widget "Loop"
       (make-value-inspector (standard-process
                               (iter (with max = 4)
@@ -966,22 +966,22 @@
                                     (for label = (if (= i (1- max)) "Finish" "Next"))
                                     (call-component (format nil "At ~A" i)
                                                     (answer/widget ()
-                                                        (icon answer-component :label label)))))))
+                                                        (icon/widget answer-component :label label)))))))
     (component-demo/widget "Branch"
       (make-value-inspector (standard-process
                               (ecase (call-component "John"
                                                      (list (answer/widget ()
-                                                               (icon answer-component :label "Male")
+                                                               (icon/widget answer-component :label "Male")
                                                              :male)
                                                            (answer/widget ()
-                                                               (icon answer-component :label "Female")
+                                                               (icon/widget answer-component :label "Female")
                                                              :female)))
                                 (:male (call-component "Steve"
                                                        (answer/widget ()
-                                                           (icon answer-component :label "Finish"))))
+                                                           (icon/widget answer-component :label "Finish"))))
                                 (:female (call-component "Kate"
                                                          (answer/widget ()
-                                                             (icon answer-component :label "Finish"))))))))
+                                                             (icon/widget answer-component :label "Finish"))))))))
     (component-demo/widget "Recursive branch"
       (make-value-inspector (standard-process
                               (recursive-branch "Root" 4))))))
@@ -991,9 +991,9 @@
     (recursive-branch (format nil "~A.~A" label
                               (call-component label
                                               (if (= level 1)
-                                                  (answer/widget () (icon answer-component :label "Finish"))
-                                                  (list (answer/widget () (icon answer-component :label "0") 0)
-                                                        (answer/widget () (icon answer-component :label "1") 1)))))
+                                                  (answer/widget () (icon/widget answer-component :label "Finish"))
+                                                  (list (answer/widget () (icon/widget answer-component :label "0") 0)
+                                                        (answer/widget () (icon/widget answer-component :label "1") 1)))))
                       (1- level))))
 
 ;;;;;;

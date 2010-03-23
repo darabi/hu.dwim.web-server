@@ -13,14 +13,14 @@
   ((directory "/tmp/")
    (file-name)
    (url-prefix "static/"))
-  (:default-initargs :content (icon download-file) :action nil))
+  (:default-initargs :content (icon/widget download-file) :action nil))
 
 (def (macro e) download-file/widget (&rest args &key &allow-other-keys)
   `(make-instance 'download-file/widget ,@args))
 
 (def constructor (download-file/widget (label nil label?) &allow-other-keys) ()
   (when label?
-    (setf (content-of -self-) (icon download-file :label label))))
+    (setf (content-of -self-) (icon/widget download-file :label label))))
 
 (def refresh-component download-file/widget
   (bind (((:slots file-name action url-prefix) -self-))

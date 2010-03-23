@@ -68,7 +68,7 @@
 
 (def layered-method make-context-menu-items ((component alternator/widget) class prototype value)
   (append (call-next-method)
-          (list (make-submenu-item (icon show-submenu :label "View")
+          (list (make-submenu-item (icon/widget show-submenu :label "View")
                                    (make-switch-to-alternative-commands component class prototype value)))))
 
 (def layered-method make-command-bar-commands ((component alternator/widget) class prototype value)
@@ -101,13 +101,13 @@
 (def (generic e) make-replace-with-alternative-command-content (alternative prototype)
   (:method (alternative (prototype component))
     (bind ((name (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
-      (icon switch-to-alternative :label name :tooltip name)))
+      (icon/widget switch-to-alternative :label name :tooltip name)))
 
   (:method ((alternative string) (prototype string))
-    (icon switch-to-alternative :label alternative :tooltip alternative))
+    (icon/widget switch-to-alternative :label alternative :tooltip alternative))
 
   (:method (alternative (prototype reference/widget))
-    (icon collapse-to-reference)))
+    (icon/widget collapse-to-reference)))
 
 (def method join-editing ((alternator alternator/widget))
   (unless (typep (content-of alternator) 'reference/widget)

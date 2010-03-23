@@ -31,7 +31,7 @@
   (bind (((:slots component-value content ajax action) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf content (icon expand-from-reference :label (make-reference-content -self- class prototype component-value))
+    (setf content (icon/widget expand-from-reference :label (make-reference-content -self- class prototype component-value))
           ajax (ajax-of (parent-component-of -self-))
           action (make-action (execute-replace -self- (delay (find-default-alternative-component (parent-component-of -self-))))))))
 

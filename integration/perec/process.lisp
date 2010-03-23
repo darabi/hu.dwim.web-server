@@ -117,22 +117,22 @@
                                                          (roll-process process-component (component-dispatch-class process-component) (component-dispatch-prototype process-component) process
                                                                        (lambda (process)
                                                                          (nth-value 1 (hu.dwim.meta-model::start-persistent-process process))))))
-                                      (list :content (icon start-process))
-                                      (list :content (icon navigate-back))))
+                                      (list :content (icon/widget start-process))
+                                      (list :content (icon/widget navigate-back))))
 
 (def (function e) make-continue-persistent-process-command (component process)
   (make-replace-and-push-back-command component (delay (prog1-bind process-component (make-instance 'standard-process/user-interface/inspector :component-value process)
                                                          (roll-process process-component (component-dispatch-class process-component) (component-dispatch-prototype process-component) process
                                                                        (lambda (process)
                                                                          (nth-value 1 (hu.dwim.meta-model::continue-persistent-process process))))))
-                                      (list :content (icon continue-process) :visible (delay (hu.dwim.perec::revive-instance process)
+                                      (list :content (icon/widget continue-process) :visible (delay (hu.dwim.perec::revive-instance process)
                                                                                              (process-in-progress? process)))
-                                      (list :content (icon navigate-back))))
+                                      (list :content (icon/widget navigate-back))))
 
 (def (function e) make-cancel-persistent-process-command (component)
   (command/widget (:visible (delay (or (process-paused? (component-value-of component))
                                        (process-in-progress? (component-value-of component)))))
-    (icon cancel-process)
+    (icon/widget cancel-process)
     (make-component-action component
       (hu.dwim.rdbms::with-transaction
         (hu.dwim.perec::revive-instance (component-value-of component))
@@ -144,7 +144,7 @@
 (def (function e) make-pause-persistent-process-command (component)
   (command/widget (:visible (delay (or (process-paused? (component-value-of component))
                                        (process-in-progress? (component-value-of component)))))
-    (icon pause-process)
+    (icon/widget pause-process)
     (make-component-action component
       (hu.dwim.rdbms::with-transaction
         (hu.dwim.perec::revive-instance (component-value-of component))

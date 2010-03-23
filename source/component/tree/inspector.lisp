@@ -73,8 +73,6 @@
                         :edited (edited-component? component)
                         :editable (editable-component? component)))
 
-
-;;;;;;
 ;;;;;;
 ;;; t/tree-level/inspector
 

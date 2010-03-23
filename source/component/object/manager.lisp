@@ -11,7 +11,7 @@
 
 (def (function e) make-manager (type)
   (tab-container/widget ()
-    (tab-page/widget (:selector (icon switch-to-tab-page :label "Search"))
+    (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Search"))
       (make-filter type))
-    (tab-page/widget (:selector (icon switch-to-tab-page :label "Create"))
+    (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Create"))
       (make-maker type))))

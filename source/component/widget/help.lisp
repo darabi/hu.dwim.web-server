@@ -17,7 +17,7 @@
 
 (def (component e) context-sensitive-help (content/mixin frame-unique-id/mixin)
   ()
-  (:default-initargs :content (icon context-sensitive-help)))
+  (:default-initargs :content (icon/widget context-sensitive-help)))
 
 (def render-xhtml context-sensitive-help
   (when *frame*

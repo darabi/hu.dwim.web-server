@@ -169,7 +169,7 @@
 (def function render-show-context-menu-command-for (component)
   (declare (ignore component))
   ;; TODO: add js to really show the menu
-  (render-component (icon show-context-menu :label nil)))
+  (render-component (icon/widget show-context-menu :label nil)))
 
 (def method command-position ((self menu-item/widget))
   (if (menu-items-of self)

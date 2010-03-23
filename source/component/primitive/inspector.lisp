@@ -303,12 +303,12 @@
   (bind (((:slots upload-command download-command directory file-name url-prefix) -self-)
          ((:values class instance slot) (extract-primitive-component-place -self-)))
     (setf upload-command (command/widget ()
-                           (icon upload-file)
+                           (icon/widget upload-file)
                            (make-action
                              (upload-file -self-))))
     (setf download-command (command/widget (:delayed-content #t
                                             :path (download-file-name -self- class instance slot))
-                             (icon download-file)
+                             (icon/widget download-file)
                              (make-action
                                (download-file -self-))))))
 

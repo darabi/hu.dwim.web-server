@@ -10,7 +10,7 @@
 ;;; tab-page/widget
 
 (def (component e) tab-page/widget (widget/basic content/abstract)
-  ((selector (icon switch-to-tab-page) :type component))
+  ((selector (icon/widget switch-to-tab-page) :type component))
   (:documentation "A TAB-PAGE/WIDGET has a CONTENT and a SELECTOR."))
 
 (def (macro e) tab-page/widget ((&rest args &key &allow-other-keys) &body content)

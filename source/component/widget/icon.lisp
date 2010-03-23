@@ -103,9 +103,6 @@
 ;;;;;;
 ;;; Definer
 
-(def (macro e) icon (name &rest args)
-  `(icon/widget ,name ,@args))
-
 (def (definer e :available-flags "e") icon (name &key image-path (label nil label-p) (tooltip nil tooltip-p))
   (bind ((name-as-string (string-downcase name)))
     `(progn

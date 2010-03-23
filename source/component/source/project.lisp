@@ -33,17 +33,17 @@
 
 (def (generic e) make-project-tab-pages (component project)
   (:method ((component project/detail/inspector) (project project))
-    (list (tab-page/widget (:selector (icon switch-to-tab-page :label "Description"))
+    (list (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Description"))
             (make-instance 'project/description/inspector :component-value project))
-          (tab-page/widget (:selector (icon switch-to-tab-page :label "System"))
+          (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "System"))
             (make-instance 'project/system/inspector :component-value project))
-          (tab-page/widget (:selector (icon switch-to-tab-page :label "Content"))
+          (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Content"))
             (make-instance 'project/content/inspector :component-value project))
-          (tab-page/widget (:selector (icon switch-to-tab-page :label "Repository"))
+          (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Repository"))
             (make-instance 'project/repository/inspector :component-value project))
-          (tab-page/widget (:selector (icon switch-to-tab-page :label "Test Suite"))
+          (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Test Suite"))
             (make-instance 'project/test/inspector :component-value project))
-          (tab-page/widget (:selector (icon switch-to-tab-page :label "Licence"))
+          (tab-page/widget (:selector (icon/widget switch-to-tab-page :label "Licence"))
             (make-instance 'project/licence/inspector :component-value project)))))
 
 ;;;;;;

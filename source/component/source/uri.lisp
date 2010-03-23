@@ -30,7 +30,7 @@
     (bind ((uri (print-uri-to-string (component-value-of -self-))))
       ;; TODO: refactor this to use the external-link/widget
       <a (:href ,uri :target "_blank")
-        ,uri ,(render-component (icon external-link))>)))
+        ,uri ,(render-component (icon/widget external-link))>)))
 
 (def render-text uri/external-link/inspector
   (render-component (print-uri-to-string (component-value-of -self-))))

@@ -71,7 +71,7 @@
   (command/widget (:visible (delay (or (eq :multiple (evaluation-mode-of component))
                                        (empty-layout? (result-of component))))
                    :ajax (ajax-of component))
-    (icon evaluate-form)
+    (icon/widget evaluate-form)
     (make-component-action component
       (setf (result-of component)
             (handler-case (make-value-inspector (evaluate-form component class prototype value))

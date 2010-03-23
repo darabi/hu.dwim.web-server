@@ -61,7 +61,7 @@
 
 (def function make-default-identifier-and-password-login-command ()
   (command/widget (:default #t)
-    (icon login)
+    (icon/widget login)
     (bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
       (setf (uri-query-parameter-value uri +user-action-query-parameter-name+) t)
       (copy-uri-query-parameters (uri-of *request*) uri +continue-url-query-parameter-name+)
@@ -83,7 +83,7 @@
     (assert (eq *application* application)))
   (:method ((application application))
     (command/widget (:ajax #f :send-client-state #f)
-      (icon logout)
+      (icon/widget logout)
       (make-action
         (logout *application* *session*)
         (decorate-session-cookie *application* (make-redirect-response-for-current-application))))))

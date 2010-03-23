@@ -90,7 +90,7 @@
 (def (icon e) answer-component)
 
 (def (component e) answer/widget (command/widget)
-  ((content (icon answer-component))
+  ((content (icon/widget answer-component))
    (action nil)
    (return-value)))
 

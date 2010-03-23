@@ -88,14 +88,14 @@
 
 (def layered-method make-refresh-component-command ((component refreshable/mixin) class prototype value)
   (command/widget ()
-    (icon refresh-component)
+    (icon/widget refresh-component)
     (make-component-action component
       (refresh-component component))))
 
 (def layered-method make-select-component-command ((component selectable/mixin) class prototype value)
   (command/widget (:ajax (awhen (find-selection-component component) (ajax-of it))
                    :enabled (delay (selectable-component? component)))
-    (icon select-component)
+    (icon/widget select-component)
     (make-component-action component
       (notf (selected-component? (find-selection-component component) component)))))
 
@@ -133,7 +133,7 @@
 
 (def (function e) render-hide-command-for (component)
   (render-component (command/widget ()
-                      (icon hide-component :label nil)
+                      (icon/widget hide-component :label nil)
                       (make-action
                         (hide-component component)))))
 
@@ -151,7 +151,7 @@
 (def (icon e) revert-editing)
 
 (def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
-  (optional-list* (make-submenu-item (icon menu :label "Edit") (make-editing-commands component class prototype instance))
+  (optional-list* (make-submenu-item (icon/widget menu :label "Edit") (make-editing-commands component class prototype instance))
                   (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
@@ -167,7 +167,7 @@
   (command/widget (:visible (or (editable-component? component)
                                 (delay (not (edited-component? component))))
                    :ajax (ajax-of component))
-    (icon begin-editing)
+    (icon/widget begin-editing)
     (make-component-action component
       (with-interaction component
         (begin-editing component)))))
@@ -175,7 +175,7 @@
 (def layered-method make-save-editing-command (component class prototype value)
   (command/widget (:visible (delay (edited-component? component))
                    :ajax (ajax-of component))
-    (icon save-editing)
+    (icon/widget save-editing)
     (make-component-action component
       (with-interaction component
         (save-editing component)))))
@@ -183,7 +183,7 @@
 (def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
   (command/widget (:visible (delay (edited-component? component))
                    :ajax (ajax-of component))
-    (icon cancel-editing)
+    (icon/widget cancel-editing)
     (make-component-action component
       (with-interaction component
         (cancel-editing component)))))
@@ -191,7 +191,7 @@
 (def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
   (command/widget (:visible (delay (edited-component? component))
                    :ajax (ajax-of component))
-    (icon store-editing)
+    (icon/widget store-editing)
     (make-component-action component
       (with-interaction component
         (save-editing component)))))
@@ -199,7 +199,7 @@
 (def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
   (command/widget (:visible (delay (edited-component? component))
                    :ajax (ajax-of component))
-    (icon revert-editing)
+    (icon/widget revert-editing)
     (make-component-action component
       (with-interaction component
         (revert-editing component)))))
@@ -216,7 +216,7 @@
 (def layered-method make-refresh-component-command ((component editable/mixin) class prototype instance)
   (command/widget (:visible (delay (not (edited-component? component)))
                    :ajax (ajax-of component))
-    (icon refresh-component)
+    (icon/widget refresh-component)
     (make-component-action component
       (refresh-component component))))
 
@@ -232,7 +232,7 @@
 ;;; Exportable
 
 (def layered-method make-context-menu-items ((component exportable/abstract) class prototype instance)
-  (optional-list* (make-submenu-item (icon menu :label "Export") (make-export-commands component class prototype instance))
+  (optional-list* (make-submenu-item (icon/widget menu :label "Export") (make-export-commands component class prototype instance))
                   (call-next-method)))
 
 (def layered-method make-command-bar-commands ((component exportable/abstract) class prototype instance)
@@ -243,7 +243,7 @@
 
 (def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype value)
   (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon export-text)
+    (icon/widget export-text)
     (make-component-action component
       (export-text component))))
 
@@ -251,7 +251,7 @@
 
 (def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype value)
   (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon export-csv)
+    (icon/widget export-csv)
     (make-component-action component
       (export-csv component))))
 
@@ -261,7 +261,7 @@
 
 (def layered-method make-export-command ((format (eql :pdf)) (component exportable/abstract) class prototype value)
   (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon export-pdf)
+    (icon/widget export-pdf)
     (make-component-action component
       (export-pdf component))))
 
@@ -269,7 +269,7 @@
 
 (def layered-method make-export-command ((format (eql :odt)) (component exportable/abstract) class prototype value)
   (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon export-odt)
+    (icon/widget export-odt)
     (make-component-action component
       (export-odt component))))
 
@@ -277,7 +277,7 @@
 
 (def layered-method make-export-command ((format (eql :ods)) (component exportable/abstract) class prototype value)
   (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon export-ods)
+    (icon/widget export-ods)
     (make-component-action component
       (export-ods component))))
 
@@ -285,7 +285,7 @@
 
 (def layered-method make-export-command ((format (eql :sh)) component class prototype value)
   (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon export-sh)
+    (icon/widget export-sh)
     (make-component-action component
       (export-sh component))))
 
@@ -296,7 +296,7 @@
 
 (def layered-method make-open-in-new-frame-command ((component component) class prototype value)
   (command/widget (:delayed-content #t :js (lambda (href) `js(window.open ,href)))
-    (icon open-in-new-frame)
+    (icon/widget open-in-new-frame)
     (make-component-action component
       (open-in-new-frame component class prototype value))))
 
@@ -307,11 +307,11 @@
 (def layered-method make-focus-command ((component component) class prototype value)
   (bind ((original-component (delay (find-top-component-content component))))
     (make-replace-and-push-back-command original-component component
-                                        (list :content (icon focus-in) :visible (delay (not (top-component-content? component))))
-                                        (list :content (icon focus-out)))))
+                                        (list :content (icon/widget focus-in) :visible (delay (not (top-component-content? component))))
+                                        (list :content (icon/widget focus-out)))))
 
 (def layered-method make-context-menu-items ((component command-bar/mixin) class prototype value)
-  (optional-list* (make-submenu-item (icon menu :label "Move") (make-move-commands component class prototype value))
+  (optional-list* (make-submenu-item (icon/widget menu :label "Move") (make-move-commands component class prototype value))
                   (call-next-method)))
 
 (def layered-method make-move-commands ((component command-bar/mixin) class prototype value)
@@ -324,7 +324,7 @@
 
 (def layered-method make-close-component-command ((component closable/abstract) class prototype value)
   (command/widget ()
-    (icon close-component)
+    (icon/widget close-component)
     (make-component-action component
       (close-component component class prototype value))))
 
@@ -335,7 +335,7 @@
 
 (def layered-method make-context-menu-items ((component component) class prototype value)
   (append (call-next-method)
-          (list (make-menu-item (icon menu :label #"context-menu.move-commands")
+          (list (make-menu-item (icon/widget menu :label #"context-menu.move-commands")
                                 (make-move-commands component class prototype value)))))
 
 ;;;;;;
@@ -356,27 +356,27 @@
 
 (def layered-method make-hide-command ((component hideable/mixin) class prototype value)
   (command/widget ()
-    (icon hide-component)
+    (icon/widget hide-component)
     (make-component-action component
       (hide-component component))))
 
 (def layered-method make-show-command ((component hideable/mixin) class prototype value)
   (command/widget ()
-    (icon show-component)
+    (icon/widget show-component)
     (make-component-action component
       (show-component component))))
 
 (def layered-method make-show-component-recursively-command ((component hideable/mixin) class prototype value)
   (command/widget ()
-    (icon show-component)
+    (icon/widget show-component)
     (make-component-action component
       (show-component-recursively component))))
 
 (def layered-method make-toggle-visiblity-command ((component hideable/mixin) class prototype value)
   (command/widget ()
     (if (visible-component? component)
-        (icon hide-component)
-        (icon show-component))
+        (icon/widget hide-component)
+        (icon/widget show-component))
     (make-component-action component
       (if (visible-component? component)
           (hide-component component)
@@ -384,7 +384,7 @@
 
 (def layered-method make-context-menu-items ((component hideable/mixin) class prototype value)
   (list* (menu-item ()
-             (icon menu :label "Show/Hide")
+             (icon/widget menu :label "Show/Hide")
            (make-hide-command component class prototype value)
            (make-show-component-recursively-command component class prototype value))
          (call-next-method)))

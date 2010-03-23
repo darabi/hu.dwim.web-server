@@ -86,7 +86,7 @@
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (> position 0))
                      :ajax (ajax-of parent-component))
-      (icon go-to-first-page)
+      (icon/widget go-to-first-page)
       (make-action
         (setf (component-value-of jumper) (setf position 0))
         (mark-to-be-rendered-component parent-component)))))
@@ -95,7 +95,7 @@
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (> position 0))
                      :ajax (ajax-of parent-component))
-      (icon go-to-previous-page)
+      (icon/widget go-to-previous-page)
       (make-action
         (setf (component-value-of jumper) (decf position (min position page-size)))
         (mark-to-be-rendered-component parent-component)))))
@@ -104,7 +104,7 @@
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (< position (- total-count page-size)))
                      :ajax (ajax-of parent-component))
-      (icon go-to-next-page)
+      (icon/widget go-to-next-page)
       (make-action
         (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size))))
         (mark-to-be-rendered-component parent-component)))))
@@ -113,7 +113,7 @@
   (bind (((:slots parent-component position page-size total-count jumper) component))
     (command/widget (:enabled (delay (< position (- total-count page-size)))
                      :ajax (ajax-of parent-component))
-      (icon go-to-last-page)
+      (icon/widget go-to-last-page)
       (make-action
         (setf (component-value-of jumper) (setf position (- total-count page-size)))
         (mark-to-be-rendered-component parent-component)))))
