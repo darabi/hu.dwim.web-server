@@ -65,10 +65,13 @@
 ;;;;;;
 ;;; Util
 
-(def function localized-dimension-name (dimension)
-  (bind ((name (string-downcase (hu.dwim.perec::name-of dimension))))
-    (lookup-first-matching-resource
-      ("dimension-name" name))))
+(def function localized-dimension-name (dimension &key capitalize-first-letter)
+  (bind ((name (string-downcase (hu.dwim.perec::name-of dimension)))
+         (localized-name (lookup-first-matching-resource
+                           ("dimension-name" name))))
+    (if capitalize-first-letter
+        (capitalize-first-letter localized-name)
+        localized-name)))
 
 (def function make-coordinate-inspector (dimension coordinate)
   (if (typep dimension 'hu.dwim.perec::ordering-dimension)
