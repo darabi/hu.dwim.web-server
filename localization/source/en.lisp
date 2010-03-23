@@ -28,4 +28,5 @@
   (class-name.package-definition "package definition")
 
   (slot-name.name "name")
+  (slot-name.%type "type")
   (slot-name.source-file "source file"))
