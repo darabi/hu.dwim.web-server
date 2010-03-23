@@ -193,7 +193,7 @@
     <span (:class ,(unless found? +missing-localization-style-class+))
       ,str>))
 
-(def constant +timestamp-format+ '((:year 4) #\- (:month 2) #\- (:day 2) #\ 
+(def constant +timestamp-format+ '((:year 4) #\- (:month 2) #\- (:day 2) #\Space
                                    (:hour 2) #\: (:min 2) #\: (:sec 2)))
 
 (def (function e) localized-timestamp (timestamp &key verbosity (relative-mode #f) display-day-of-week)
@@ -305,22 +305,25 @@
     value)
 
   (:method ((value sequence))
-    (if (emptyp value)
-        (lookup-resource "sequence.empty")
-        (bind ((length (length value))
-               (first (elt value 0))
-               (class (class-of first))
-               (elements-name (lookup-resource "sequence.element")))
-          (string+ (princ-to-string length)
-                              " "
-                              (when (every (of-type class) value)
-                                (localized-class-name class))
-                              " "
-                              (if (= length 1)
-                                  elements-name
-                                  (plural-of elements-name))
-                              " "
-                              (call-next-method)))))
+    (cond ((emptyp value)
+           (lookup-resource "sequence.empty"))
+          ((proper-list-p value)
+           (bind ((length (length value))
+                  (first (elt value 0))
+                  (class (class-of first))
+                  (elements-name (lookup-resource "sequence.element")))
+             (string+ (princ-to-string length)
+                      " "
+                      (when (every (of-type class) value)
+                        (localized-class-name class))
+                      " "
+                      (if (= length 1)
+                          elements-name
+                          (plural-of elements-name))
+                      " "
+                      (call-next-method))))
+          (t
+           (call-next-method))))
 
   (:method ((class class))
     (localized-class-name class))

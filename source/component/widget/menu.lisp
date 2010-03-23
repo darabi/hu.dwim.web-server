@@ -89,8 +89,8 @@
   (setf (to-be-rendered-component? self) :lazy))
 
 (def method map-visible-child-components ((component context-menu/widget) function)
-  (if (eq (to-be-rendered-component? component) #t)
-      (call-next-method)))
+  (when (eq (to-be-rendered-component? component) #t)
+    (call-next-method)))
 
 ;;;;;;
 ;;; menu-item/widget
