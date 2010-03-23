@@ -105,6 +105,9 @@
            (declare (special %graph-height%))
            (cl-graph::iterate-nodes -self- #'render-component))>>))
 
+(def render-odt graph/widget
+  <text:p "Not yet implemented">)
+
 (def function add-vertices-and-edges (graph vertices-and-edges)
   (dolist (vertice-or-edge vertices-and-edges)
     (etypecase vertice-or-edge
@@ -160,12 +163,10 @@
 
 (def (component e) edge/widget (widget/basic cl-graph:dot-edge)
   ((points :type list)
-   (line-color '(0.0 0.0 0.0) :type list)
    (width 1 :type number)
    (label nil :type component)
    (label-x :type number)
    (label-y :type number)
-   (label-color '(0.0 0.0 0.0) :type list)
    (head-arrow nil :type arrow/widget)
    (tail-arrow nil :type arrow/widget)))
 
