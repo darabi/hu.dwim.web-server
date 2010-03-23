@@ -70,7 +70,7 @@
                    (to-js-boolean (parse-dojo-widgets-on-load? -self-))
                    (to-js-boolean debug-client-side?)
                    (to-js-boolean debug-client-side?)
-                   (to-js-literal (default-locale-of application)))>
+                   (to-js-literal (first (ensure-list (default-locale-of application)))))>
         <script (:type #.+javascript-mime-type+
                  :src  ,(bind ((uri (clone-uri (dojo-release-uri-of -self-))))
                           ;; TODO use append-file-write-date-to-uri?
