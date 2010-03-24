@@ -87,9 +87,9 @@
 (def (js-macro e) $ (&body things)
   (if (length= 1 things)
       {with-preserved-readtable-case
-       `(dojo.by-id ,(FIRST THINGS))}
+       `(dojo.byId ,(FIRST THINGS))}
       {with-preserved-readtable-case
-       `(map 'dojo.by-id ,THINGS)}))
+       `(map 'dojo.byId ,THINGS)}))
 
 (def js-macro |defun| (name args &body body)
   (bind ((name-pieces (cl-ppcre:split "\\." (symbol-name name)))

@@ -129,7 +129,7 @@
   (dolist (widget-id widget-ids)
     (awhen (dijit.byId widget-id)
       (.destroyRecursive it)))
-  (dojo.parser.instantiate (map 'dojo.by-id widget-ids)))
+  (dojo.parser.instantiate (map 'dojo.byId widget-ids)))
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)

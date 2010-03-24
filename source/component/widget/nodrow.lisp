@@ -60,7 +60,7 @@
                                        (if expanded-component
                                            "static/wui/icon/20x20/arrowhead-down.png"
                                            "static/wui/icon/20x20/arrowhead-right.png")))>
-          `js(on-load (wui.connect (dojo.by-id ,id) "onclick" nil
+          `js(on-load (wui.connect (dojo.byId ,id) "onclick" nil
                                    (lambda (event)
                                      (wui.io.action ,(action/href ()
                                                                   (notf expanded-component)

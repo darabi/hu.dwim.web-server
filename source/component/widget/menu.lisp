@@ -73,7 +73,7 @@
           (progn
             <div (:id ,id) "">
             ;; TODO: use onmousedown, but the context menu does not show up on the first click (parallel download?)
-            `js(on-load (wui.connect (dojo.by-id ,parent-id) "onmouseenter"
+            `js(on-load (wui.connect (dojo.byId ,parent-id) "onmouseenter"
                                      (lambda (event)
                                        (unless (dijit.by-id ,id)
                                          (wui.io.action ,(register-action/href (make-action (setf (to-be-rendered-component? -self-) #t))) :ajax ,t))))))

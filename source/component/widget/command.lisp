@@ -81,7 +81,7 @@
                       (force ajax))))
       ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
       ;;         removed by destroy when simply replaced by some other content, this may leak memory on the cleint side
-      `js(when (dojo.by-id ,id)
+      `js(when (dojo.byId ,id)
            (wui.io.action ,href
                           :event event
                           :ajax ,(when (ajax-enabled? *application*)
@@ -130,12 +130,12 @@
                 #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
                 ,(render-component content)>
           `js(on-load
-              (wui.connect (dojo.by-id ,id) "onclick" (lambda (event) ,(funcall onclick-js href))))
+              (wui.connect (dojo.byId ,id) "onclick" (lambda (event) ,(funcall onclick-js href))))
           ;; TODO: use wui.connect for keyboard events
           (when default
             (bind ((submit-id (generate-unique-component-id)))
               <input (:id ,submit-id :type "submit" :style "display: none;")>
-              `js(on-load (wui.connect (dojo.by-id ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
+              `js(on-load (wui.connect (dojo.byId ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
         <span (:id ,id :class "command widget disabled")
               #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
               ,(render-component content)>)))
@@ -157,7 +157,7 @@
          ((:values href send-client-state?) (href-for-command action action-arguments))
          (onclick-js (or (js-of command)
                          (%default-onclick-js id (ajax-of command) send-client-state?))))
-    `js(on-load (wui.connect (dojo.by-id ,id) "onclick"
+    `js(on-load (wui.connect (dojo.byId ,id) "onclick"
                              (lambda (event)
                                ,(funcall onclick-js href))))))
 
