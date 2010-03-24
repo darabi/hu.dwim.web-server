@@ -83,10 +83,16 @@
                   :style `str("display: none;" ,custom-style)
                   :dojoType #.+dijit/menu+
                   :targetNodeIds ,parent-id)
-             ,(foreach #'render-component menu-items)>)))))
+              ,(foreach #'render-component menu-items)>)))))
 
 (def method mark-to-be-rendered-component ((self context-menu/widget))
   (setf (to-be-rendered-component? self) :lazy))
+
+(def method mark-rendered-component ((self context-menu/widget))
+  (setf (to-be-rendered-component? self) :lazy))
+
+(def method to-be-rendered-component? ((self context-menu/widget))
+  (eq (call-next-method) #t))
 
 (def method map-visible-child-components ((component context-menu/widget) function)
   (when (eq (to-be-rendered-component? component) #t)
