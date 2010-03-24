@@ -65,42 +65,29 @@
 
 (def (layered-function e) render-pdf-header (component)
   (:method ((self component))
-    (lambda (page)
-      (unless (= pdf:*page-number* 1)
-        (typeset:compile-text ()
-          (typeset:paragraph (:font (pdf:get-font "FreeSerif") :font-size 10 :h-align :right)
-            (typeset:put-string "A dokumentum elkészítésének időpontja: ")
-            (typeset:with-style (:font (pdf:get-font "FreeSerifBold"))
-              (typeset:put-string (hu.dwim.wui::localized-timestamp (local-time:now))))
-            (typeset:hrule :dy 1/2)))))))
+    (bind ((component-value (component-value-of self)))
+      (lambda (page)
+        (unless (and (= pdf:*page-number* 1)
+                     (typep component-value 'book))
+          (typeset:compile-text ()
+            (typeset:paragraph (:font "FreeSerif" :font-size 12)
+              (typeset:hbox (:align :center :adjustable-p #t)
+                (when (typep component-value 'title-mixin)
+                  (typeset:put-string (title-of component-value)))
+                :hfill
+                (typeset:put-string (hu.dwim.wui::localized-timestamp (local-time:now))))
+              (typeset:hrule :dy 1/2))))))))
 
 (def layered-function render-pdf-footer (component)
   (:method ((self component))
-    (lambda (page)
-      (typeset:compile-text ()
-        (typeset:paragraph (:font (pdf:get-font "FreeSerif") :font-size 10 :h-align :center)
-          (setf *total-page-count* (max *total-page-count* pdf:*page-number*))
-          (typeset:put-string (format nil "~d / ~d oldal" pdf:*page-number* *total-page-count*)))))))
-
-(def layered-function render-pdf-table-of-contents (component)
-  (:method ((self component))
-    ;; TODO: KLUDGE: add table-of-contents and its component
-    (typeset:paragraph (:font (pdf:get-font "FreeSerif") :font-size 14 :h-align :center)
-      "Tartalomjegyzék"
-      (typeset:vspace 10))
-    (iter (for chapter :in '(((1))))
-          (for depth = (length (first chapter)))
-          (typeset:paragraph (:h-align :left-but-last
-                              :left-margin (case depth (1 0) (2 10) (t 20))
-                              :top-margin (case depth (1 3) (t 0))
-                              :bottom-margin (case depth (1 2) (t 0))
-                              :font-size (case depth (1 12) (2 10) (t 9))
-                              :font "FreeSerif")
-            (typeset:put-string "Chapter 1")
-            (typeset::dotted-hfill)
-            (typeset:with-style (:font-size 10 :font "FreeSerif")
-              (typeset::put-ref-point-page-number 1))))
-    (typeset:new-page)))
+    (bind ((component-value (component-value-of self)))
+      (lambda (page)
+        (unless (and (= pdf:*page-number* 1)
+                     (typep component-value 'book))
+          (typeset:compile-text ()
+            (typeset:paragraph (:font "FreeSerif" :font-size 12 :h-align :center)
+              (setf *total-page-count* (max *total-page-count* pdf:*page-number*))
+              (typeset:put-string (format nil "~d / ~d oldal" pdf:*page-number* *total-page-count*)))))))))
 
 ;;;;;;
 ;;; Render pdf
@@ -182,20 +169,59 @@
 
 (def render-pdf book/text/inspector
   (typeset:paragraph (:font-size 24 :h-align :center)
+    (typeset:vspace 320)
     (render-title-for -self-)
     (typeset:new-page))
-  (render-pdf-table-of-contents -self-)
-  (typeset:paragraph (:font (pdf:get-font "FreeSerif"))
+  (render-component (toc-of -self-))
+  (typeset:paragraph (:font "FreeSerif")
     (foreach #'render-author (authors-of (component-value-of -self-)))
     (typeset:new-line)
     (render-contents-for -self-)))
 
+(def render-pdf book/toc/inspector
+  (typeset:paragraph (:font "FreeSerif" :font-size 14 :h-align :center)
+    "Tartalomjegyzék"
+    (typeset:vspace 10))
+  (render-contents-for -self-)
+  #+nil
+  (iter (for chapter :in '(((1))))
+        (for depth = (length (first chapter)))
+        (typeset:paragraph (:h-align :left-but-last
+                            :left-margin (case depth (1 0) (2 10) (t 20))
+                            :top-margin (case depth (1 3) (t 0))
+                            :bottom-margin (case depth (1 2) (t 0))
+                            :font-size (case depth (1 12) (2 10) (t 9))
+                            :font "FreeSerif")
+          (typeset:put-string "Chapter 1")
+          (typeset::dotted-hfill)
+          (typeset:with-style (:font-size 10 :font "FreeSerif")
+            (typeset::put-ref-point-page-number 1))))
+  (typeset:new-page))
+
+(def render-pdf chapter/toc/inspector
+  (bind (((:read-only-slots numbering) -self-)
+         (depth (1+ (count #\. numbering))))
+    (typeset:paragraph (:h-align :left-but-last
+                        :left-margin (case depth (1 0) (2 10) (t 20))
+                        :top-margin (case depth (1 3) (t 0))
+                        :bottom-margin (case depth (1 2) (t 0))
+                        :font-size (case depth (1 12) (2 10) (t 9))
+                        :font "FreeSerif")
+      (render-component (reference-of -self-))
+      (typeset::dotted-hfill)
+      (typeset::put-ref-point-page-number numbering)))
+  (render-contents-for -self-))
+
 (def render-pdf chapter/text/inspector
-  (typeset:paragraph (:font-size 18)
-    (render-title-for -self-)
-    (typeset:new-line))
-  (typeset:paragraph ()
-    (render-contents-for -self-)))
+  (bind ((numbering (toc-numbering -self-)))
+    (typeset:mark-ref-point numbering)
+    (typeset:paragraph (:font-size 18)
+      (render-component numbering)
+      (typeset:put-string " ")
+      (render-title-for -self-)
+      (typeset:new-line))
+    (typeset:paragraph ()
+      (render-contents-for -self-))))
 
 (def render-pdf paragraph/text/inspector
   (typeset:paragraph ()
@@ -211,7 +237,7 @@
   (render-content-for -self-))
 
 (def render-pdf shell-script/text/inspector
-  (typeset:with-style (:font (pdf:get-font "Courier") :font-size 12)
+  (typeset:with-style (:font "Courier" :font-size 12)
     (iter (for content :in (contents-of -self-))
           (typeset:new-line)
           (render-component content))))
@@ -221,20 +247,6 @@
 
 ;;;;;;
 ;;; Utilities
-
-(def (function e) digest->bar-code (digest)
-  (iter (with bar-code = 0)
-        (for index :from (1- (length digest)) :downto 0)
-        (for digest-byte :in-vector digest)
-        (setf (ldb (byte 8 (* 8 index)) bar-code) digest-byte)
-        (finally (return bar-code))))
-
-(def (function e) render-pdf-bar-code (bar-code box x y)
-  (pdf:draw-bar-code128 (format nil "~10,'0d" bar-code) x y
-                        :width (typeset::dx box) :height (typeset::dy box) :font-size 6 :start-stop-factor 0.4 :segs-per-char 6.5))
-
-(def (function e) render-pdf-dots (count)
-  (typeset:put-string (make-array count :initial-element #\. :element-type 'character)))
 
 (def generic pdf-column-width (column)
   (:method ((column column/widget))
@@ -328,7 +340,7 @@
                       (height-of vertex))
       (pdf:fill-and-stroke)))
   (typeset::stroke (typeset:make-filled-vbox (typeset:compile-text ()
-                                               (typeset:paragraph (:font (pdf:get-font "FreeSerif") :color '(0 0 0))
+                                               (typeset:paragraph (:font "FreeSerif" :color '(0 0 0))
                                                  (render-pdf (content-of vertex))))
                                              (width-of vertex) typeset::+HUGE-NUMBER+)
                    (+ *vertex-inset* (x-of vertex))

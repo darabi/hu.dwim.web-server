@@ -16,7 +16,14 @@
 
 (def layered-method make-alternatives ((component chapter/inspector) (class standard-class) (prototype chapter) (value chapter))
   (list* (make-instance 'chapter/text/inspector :component-value value)
+         (make-instance 'chapter/toc/inspector :component-value value)
          (call-next-method)))
+
+;;;;;;
+;;; t/reference/inspector
+
+(def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype chapter) (value chapter))
+  (string+ (toc-numbering component) " " (title-of value)))
 
 ;;;;;;
 ;;; chapter/text/inspector
@@ -28,8 +35,8 @@
   (with-render-style/abstract (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
-    <div (:class "separator") <br>>
     (when (expanded-component? -self-)
+      <div (:class "separator") <br>>
       <div (:class "content")
         ,(render-contents-for -self-)>)))
 

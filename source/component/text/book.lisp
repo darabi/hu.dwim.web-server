@@ -18,24 +18,36 @@
 
 (def layered-method make-alternatives ((component book/inspector) (class standard-class) (prototype book) (value book))
   (list* (make-instance 'book/text/inspector :component-value value)
+         (make-instance 'book/toc/inspector :component-value value)
          (call-next-method)))
 
 (def layered-method export-file-name (format (component book/inspector) (value book))
   (title-of value))
 
 ;;;;;;
+;;; t/reference/inspector
+
+(def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype book) (value book))
+  (title-of value))
+
+;;;;;;
 ;;; book/text/inspector
 
 (def (component e) book/text/inspector (t/text/inspector collapsible/abstract title/mixin exportable/abstract)
-  ())
+  ((toc :type component)))
+
+(def refresh-component book/text/inspector
+  (bind (((:slots toc component-value) -self-))
+    (setf toc (make-instance 'book/toc/inspector :component-value component-value))))
 
 (def render-xhtml book/text/inspector
   (with-render-style/abstract (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
     (foreach #'render-author (authors-of (component-value-of -self-)))
-    <div (:class "separator") <br>>
     (when (expanded-component? -self-)
+      <div (:class "separator") <br>>
+      (render-component (toc-of -self-))
       <div (:class "content")
         ,(render-contents-for -self-)>)))
 
