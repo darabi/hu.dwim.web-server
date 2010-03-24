@@ -675,19 +675,6 @@
       (log.warn "Cannot attach border to element")))
 
 ;;;;;;
-;;; Style
-
-;; TODO: move this to the test directory since it is specific to the demo
-(dolist (entry #(#("push-button/widget"                     "button-border"            true)
-                 #("switch-to-tab-page/widget"              "tab-page-selector-border" true)))
-  (bind ((type (first entry))
-         (style-class (second entry))
-         (element-name (third entry)))
-    (rebind (style-class element-name)
-      (log.debug "Registering component setup callback for type " type)
-      (wui.register-component-setup type (lambda (id) (wui.attach-border id style-class element-name))))))
-
-;;;;;;
 ;;; End of story
 
 (log.debug "Finished evaluating wui.js")
