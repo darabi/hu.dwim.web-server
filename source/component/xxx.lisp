@@ -232,12 +232,9 @@
 ;;; Exportable
 
 (def layered-method make-context-menu-items ((component exportable/abstract) class prototype instance)
-  (optional-list* (make-submenu-item (icon/widget menu :label "Export") (make-export-commands component class prototype instance))
-                  (call-next-method)))
-
-(def layered-method make-command-bar-commands ((component exportable/abstract) class prototype instance)
-  (optional-list* (make-export-commands component class prototype instance)
-                  (call-next-method)))
+  (optional-list* (make-submenu-item (icon/widget menu :label "Export")
+                                     (make-export-commands component class prototype instance))
+                  (call-next-layered-method)))
 
 (def (icon e) export-text)
 
