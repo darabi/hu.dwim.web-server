@@ -10,10 +10,16 @@
 ;;; remote-setup/mixin
 
 (def (component e) remote-setup/mixin (frame-unique-id/mixin)
-  ()
-  (:documentation "A COMPONENT that will be unconditionally set up on the remote side."))
+  ((remote-setup
+    #f
+    :type boolean))
+  (:documentation "A COMPONENT that will be conditionally set up on the remote side."))
 
 (def (layered-function e) render-remote-setup (component)
+  (:method :around ((self id/mixin))
+    (when (remote-setup? self)
+      (call-next-method)))
+
   (:method :in xhtml-layer ((self id/mixin))
     `js(on-load (wui.setup-component ,(id-of self) ,(instance-class-name-as-string self)))))
 
