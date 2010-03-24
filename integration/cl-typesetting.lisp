@@ -396,7 +396,7 @@
            (last-point (lastcar points))
            (x (/ (+ (first first-point) (first last-point)) 2))
            (y (/ (+ (second first-point) (second last-point)) 2)))
-      (pdf:set-color-fill (label-color-of edge))
+      (pdf:set-color-fill '(0 0 0))
       (pdf:draw-centered-text x y (label-of edge)
                               (pdf:get-font *edge-label-font*) *edge-label-font-size*))))
 
