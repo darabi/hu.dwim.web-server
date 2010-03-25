@@ -5,45 +5,6 @@
 #+STARTUP: hidestars
 #+STARTUP: overview
 
-This is the collection of bugs and tasks for hu.dwim.wui as an
-org-mode (http://orgmode.org) file.
-
-Introduction
-============
-
-If you are using Linux, chances are that you can install org-mode from
-your distro's package repository (in Debian/Ubuntu, the package is
-called org-mode). After installation, the emacs info system contains a
-chapter about org-mode. Try C-h i m org<TAB>.
-
-To specify:
-
-1) the priority of a heading (A=highest to C=lowest), place
-   the point on that heading and press S-<up> and S-<down>.
-
-2) the status (TODO, DONE) of a heading, use S-<left> and S-<right>
-
-3) assignee, type and severity of a topic, tags are used. Place the
-   cursor on a heading and C-c C-c. You will be presented with a group
-   of tags some of which are mutually exclusive (the shortcuts for the
-   tags are given in parentheses):
-
-   + Assignee: Attila(a), Levy(l), Tomi(t), Kami(k), Unassigned(u)
-
-   + Type: BUG (B), FEATURE (F), TASK (T)
-
-   + Severity: critical (c), major (m), minor (n)
-
-You can add sub-headings to a heading by using one more asterisk at
-the start of a new line. Try out TAB on a heading with sub-headings.
-
-Useful commands:
-
-- <tab>   expand collapse heading
-- C-c /   org-sparse-tree
-- C-c \   org-tags-sparse-tree
-- C-c C-e org-export
-
 * TODO [#A] make context-menu/widget rendering lazy                             :Unassigned:major:FEATURE:
 
 Currently, all menus are rendered and sent to the browser
