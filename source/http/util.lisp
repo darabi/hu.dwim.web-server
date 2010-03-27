@@ -85,10 +85,13 @@
      (send-http-headers ,headers ,cookies)
      ,@body))
 
-(def (macro e) emit-simple-html-document-http-response ((&key title status headers cookies) &body body)
+;; TODO rename to emit-http-response/simple-html-document
+(def (macro e) emit-simple-html-document-http-response ((&key title status (cacheable #t) headers cookies) &body body)
   `(emit-http-response* ((append
                           ,@(when headers (list headers))
                           ,@(when status `((list (cons +header/status+ ,status))))
+                          (unless ,cacheable
+                            +disallow-response-caching-header-values+)
                           '((#.+header/content-type+ . #.+utf-8-html-content-type+)))
                          ,cookies)
      (emit-html-document (:content-type +html-content-type+ :title ,title)
