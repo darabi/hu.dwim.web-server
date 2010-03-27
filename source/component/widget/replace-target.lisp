@@ -41,14 +41,14 @@
                              (replace-target-place -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) (component-value-of -self-)))))
 
 (def refresh-component replace-target-place/widget
-  (bind (((:slots ajax) -self-)
-         (target-place (target-place-of (find-replace-target-place-widget -self-)))
-         (component (component-at-place target-place)))
-    (setf ajax
-          (if (typep component 'parent/mixin)
-              (awhen (find-ancestor-component-with-type component 'id/mixin :otherwise #f)
-                (ajax-of it))
-              #t))))
+  (bind (((:slots ajax) -self-))
+    (when ajax
+      (bind ((target-place (target-place-of (find-replace-target-place-widget -self-)))
+             (component (component-at-place target-place)))
+        (setf ajax (if (typep component 'parent/mixin)
+                       (awhen (find-ancestor-component-with-type component 'id/mixin :otherwise #f)
+                         (ajax-of it))
+                       #t))))))
 
 (def function find-replace-target-place-widget (component)
   (find-ancestor-component component
