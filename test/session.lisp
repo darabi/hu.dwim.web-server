@@ -15,7 +15,7 @@
           (assert (and (boundp '*frame*)
                        *frame*))
           (make-raw-functional-response ()
-            (emit-simple-html-document-http-response ()
+            (emit-http-response/simple-html-document ()
               <p "We have a session now... "
                  <span ,(or (root-component-of *frame*)
                             (setf (root-component-of *frame*) "Hello world from a session!"))>
@@ -23,7 +23,7 @@
                     "delete session">>)))
         (bind ((application *application*)) ; need to capture it in the closure
           (make-raw-functional-response ()
-            (emit-simple-html-document-http-response ()
+            (emit-http-response/simple-html-document ()
               <p "There's no session... "
                  <a (:href ,(string+ (path-prefix-of application) "new/"))
                     "create new session">>))))))

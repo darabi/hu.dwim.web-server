@@ -70,7 +70,7 @@
 
   (:method (context (error serious-condition))
     (server.info "Sending an internal server error page for request ~S" (raw-uri-of *request*))
-    (emit-simple-html-document-http-response (:status +http-internal-server-error+
+    (emit-http-response/simple-html-document (:status +http-internal-server-error+
                                               :title #"error.internal-server-error.title"
                                               :cacheable #f)
       ;; TODO this *server* reference here is leaking from server/
@@ -84,7 +84,7 @@
                             (raw-uri-of *request*)
                             "<unavailable>")))
       (server.info "Sending an access denied error page for request ~S" request-uri)
-      (emit-simple-html-document-http-response (:status +http-forbidden+
+      (emit-http-response/simple-html-document (:status +http-forbidden+
                                                 :title #"error.access-denied-error"
                                                 :cacheable #f)
         (apply-localization-function 'render-error-page/access-denied)))))

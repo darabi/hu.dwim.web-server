@@ -17,7 +17,7 @@
         (&key login-data (user-action? #f) (authentication-happened? #f) &allow-other-keys)
       (declare (ignore login-data user-action? authentication-happened?))
       (make-raw-functional-response ()
-        (emit-simple-html-document-http-response (:title "Login" :status +http-ok+)
+        (emit-http-response/simple-html-document (:title "Login" :status +http-ok+)
           (if *session*
               <table ()
                 <tr <td "*session*"> <td ,(princ-to-string *session*) >>

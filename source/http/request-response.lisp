@@ -456,7 +456,7 @@
     (setf (header-value it +header/status+) +http-not-found+)))
 
 (def method send-response ((self not-found-response))
-  (emit-simple-html-document-http-response (:status +http-not-found+
+  (emit-http-response/simple-html-document (:status +http-not-found+
                                             :title "Page not found"
                                             :headers (headers-of self)
                                             :cookies (cookies-of self)

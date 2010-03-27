@@ -32,7 +32,7 @@
 (def entry-point (*parameter-application* :path "")
   (with-request-parameters ((number "0" number?) ((the-answer "theanswer") "not supplied" the-answer?))
     (make-raw-functional-response ()
-      (emit-simple-html-document-http-response (:title "foo")
+      (emit-http-response/simple-html-document (:title "foo")
         <p "Parameters:"
           <a (:href ,(string+ (path-prefix-of *parameter-application*)
                               (unless (or number? the-answer?)
