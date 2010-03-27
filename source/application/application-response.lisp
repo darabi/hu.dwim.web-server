@@ -83,16 +83,22 @@
                 (make-do-nothing-response))))))))
 
 ;;;;;;
-;;; Error handling in AJAX requests
+;;; Error handling
 
-(def method handle-toplevel-error :around ((application application) condition)
-  (if (and (boundp '*ajax-aware-request*)
-           *ajax-aware-request*)
-      (progn
-        (maybe-invoke-debugger/application condition)
-        (emit-response-for-ajax-aware-client ()
-          <script `js-inline(wui.io.inform-user-about-ajax-error #"error.internal-server-error.message")>))
+(def method handle-toplevel-error/emit-response ((application application) (error serious-condition))
+  (if *ajax-aware-request*
+      (emit-response-for-ajax-aware-client ()
+        <script `js-inline(wui.io.inform-user-about-ajax-error #"error.internal-server-error.message")>)
       (call-next-method)))
+
+(def method handle-toplevel-error :before ((application application) (error serious-condition))
+  (when (and (not *inside-user-code*)
+             *session*)
+    ;; oops, this error comes from inside WUI or at least not from an action or from RENDER. let's try to invalidate the session if there's any...
+    (server.warn "Invalidating session ~A because an error came from inside WUI while processing a request coming to it" *session*)
+    (mark-session-invalid *session*)
+    (setf *session* nil)
+    (setf *frame* nil)))
 
 ;;;;;;
 ;;; Utils
