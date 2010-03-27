@@ -19,6 +19,9 @@
 (def (special-variable :documentation "Holds the broker path while processing the rules. Whenever a broker provides a new set of rules to dispatch on, it is pushed at the head of the *BROKER-STACK* list.")
   *broker-stack*)
 
+(def (special-variable :documentation "If HANDLE-TOPLEVEL-ERROR gets called then this will be its context argument.")
+  *context-of-error* nil)
+
 (def (special-variable :documentation "A stack of currently matching path elements while request handling is going deeper and deeper in the broker tree.")
   *matching-uri-path-element-stack*)
 

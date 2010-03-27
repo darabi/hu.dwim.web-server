@@ -34,7 +34,8 @@ Custom implementations should look something like this:
   (:method :around (application session thunk)
     (when (boundp 'call-in-application-environment/guard)
       (cerror "ignore" "~S has been called recursively" 'call-in-application-environment))
-    (bind ((call-in-application-environment/guard #t))
+    (bind ((call-in-application-environment/guard #t)
+           (*context-of-error* application))
       (declare (special call-in-application-environment/guard))
       (call-next-method))))
 

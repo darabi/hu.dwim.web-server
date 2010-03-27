@@ -323,10 +323,8 @@
            (incf (failed-request-count-of server))
            (unless (typep condition 'access-denied-error)
              (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition))
-           (bind ((broker (when (boundp '*broker-stack*)
-                            (first *broker-stack*))))
-             ;; no need to handle (nested) errors here, see WITH-LAYERED-ERROR-HANDLERS
-             (handle-toplevel-error broker condition))
+           ;; no need to worry about (nested) errors here, see WITH-LAYERED-ERROR-HANDLERS
+           (handle-toplevel-error *context-of-error* condition)
            (server.dribble "HANDLE-TOPLEVEL-ERROR returned, worker continues...")))
     (debug-only
       (assert (notany #'boundp '(*server* *broker-stack* *request* *response* *request-remote-address* *request-remote-address/string* *request-id*
@@ -395,7 +393,8 @@
 (def method handle-request :around ((server server) (request request))
   (bind ((start-time (get-monotonic-time))
          (start-bytes-allocated (get-bytes-allocated))
-         (raw-uri (raw-uri-of request)))
+         (raw-uri (raw-uri-of request))
+         (*context-of-error* server))
     (http.info "Handling request ~S from ~S for ~S, method ~S" *request-id* *request-remote-address/string* raw-uri (http-method-of request))
     (multiple-value-prog1
         (if (profile-request-processing? server)
