@@ -14,7 +14,7 @@
         (if action
             (progn
               (app.debug "Looked up as valid action ~A" action)
-              action)
+              (values action action-id))
             (values))))))
 
 (def class* action (string-id-for-funcallable-mixin)

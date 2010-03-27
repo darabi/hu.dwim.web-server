@@ -246,7 +246,7 @@
            (write-sequence (string-to-iso-8859-1-octets value) stream)
            (write-crlf stream)
            (values)))
-    (bind ((status (or (cdr (assoc +header/status+ headers :test #'string=))
+    (bind ((status (or (assoc-value headers +header/status+ :test #'string=)
                        +http-ok+))
            (date-header-seen? #f))
       (http.debug "Sending headers (Status: ~S)" status)
@@ -456,9 +456,11 @@
     (setf (header-value it +header/status+) +http-not-found+)))
 
 (def method send-response ((self not-found-response))
-  (emit-simple-html-document-http-response (:title "Page not found"
+  (emit-simple-html-document-http-response (:status +http-not-found+
+                                            :title "Page not found"
                                             :headers (headers-of self)
-                                            :cookies (cookies-of self))
+                                            :cookies (cookies-of self)
+                                            :cacheable #f)
     <h1 "Page not found">
     <p <span (:style "background-color: #fdd;") ,(print-uri-to-string (uri-of *request*) :escape #f)>
        " was not found on this server">))

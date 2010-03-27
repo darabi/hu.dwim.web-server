@@ -18,19 +18,19 @@
 (def (special-variable e :documentation "The FRAME associated with the currently processed HTTP REQUEST.")
   *frame*)
 
-(def (special-variable e :documentation "The ACTION associated with the currently processed HTTP REQUEST.")
+(def (special-variable e :documentation "Bound in the dynamic extent of WITH-ACTION-LOGIC. Its value is either NIL or an action if one was successfully associated with the http request.")
   *action*)
 
-(def (special-variable :documentation "This variable is bound in application contexts and set to T when the render protocol is invoked. Needed for the error handling code to decide what to do.")
+(def (special-variable :documentation "It's set to true when the rendering protocol is invoked, and with that it provides information for the error handling code.")
   *rendering-phase-reached*)
 
-(def (special-variable :documentation "This variable is bound in application contexts and set to T when the request processing reached the point of querying the entry points. Needed for the error handling code to decide what to do.")
+(def (special-variable :documentation "It's bound to true while in the dynamic extent of user code (the bodies of entry points, actions and the render methods of components).")
   *inside-user-code*)
 
-(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that it's a lazy request for some part of the screen whose rendering was delayed. AJAX requests are implicitly delayed content requests.")
+(def (special-variable e :documentation "When true, it means that the current request will render a bit more content for the current snapshot (as opposed to do a full redraw). AJAX requests are implicitly delayed content requests.")
   *delayed-content-request*)
 
-(def (special-variable e :documentation "Rebound when actions are processed and RENDER is called. When true, it means that the request was fired by the client side JS stack and expects an XML answer.")
+(def (special-variable e :documentation "When true, it means that the request was fired by the client side JS stack and expects an XML answer.")
   *ajax-aware-request*)
 
 (def (special-variable e :documentation "Bound inside entry-points, and contains part of the path of the request url that comes after the application's url prefix.")

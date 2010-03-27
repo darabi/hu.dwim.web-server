@@ -84,8 +84,7 @@
       `js(when (dojo.byId ,id)
            (wui.io.action ,href
                           :event event
-                          :ajax ,(when (ajax-enabled? *application*)
-                                       (force ajax))
+                          :ajax ,ajax
                           :send-client-state ,send-client-state?))
       ;; TODO add a *special* that collects the args of all action's and runs a js side loop to process the literal arrays
       ;; TODO add special handling of apply to qq so that the 'this' arg of .apply is not needed below (wui.io.action twice)
