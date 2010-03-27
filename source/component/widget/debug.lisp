@@ -112,21 +112,9 @@
               "User agent breakdown"
             (make-value-inspector (make-http-user-agent-breakdown *server*)))))
     (menu-item/widget ()
-        "Miscellaneous"
-      (menu-item/widget ()
-          (command/widget ()
-            "Action time error"
-            (make-action
-              (error "This is a demo error for testing purposes. It was signalled from the body of an action."))))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Render time error"
-            (inline-render-component/widget ()
-              (error "This is a demo error for testing purposes. It was signalled from the render method of a component."))))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Client side error handling test"
-            (make-instance 'client-side-error-handling-test))))))
+        (replace-target-place/widget ()
+            "Error handling tests..."
+          (make-instance 'client-side-error-handling-test)))))
 
 ;;;;;;
 ;;; Debug menu
@@ -138,11 +126,23 @@
   (with-render-style/abstract (-self-)
     (macrolet ((js-link (label js)
                  `<a (:href "#" :onclick ,,js) ,,label>))
-      <p "This component helps testing how the client side deals with errors.">
+      <p "This component helps testing how errors in different situations are dealt with.">
       <ul
        <li ,(js-link "Calling undefined function" `js-inline(this-function-is-undefined))>
        <li ,(js-link "Throw 'foo'" `js-inline(throw "foo"))>
-       ;; TODO render-component of command/widget is not what we need here... factor out stuff in command.lisp
+       ;; TODO all these render-component's are not what we need here... factor out stuff in command.lisp for a functional interface
+       <li ,(render-component
+             (command/widget (:ajax #f)
+               "Action time error, non-AJAX"
+               (make-action
+                 (error "This is a demo error for testing purposes. It was signalled from the body of an action.")))) >
+       <li ,(render-component
+             (aprog1
+                 (replace-target-place/widget (:ajax #f)
+                     "Render time error"
+                   (inline-render-component/widget ()
+                     (error "This is a demo error for testing purposes. It was signalled from the render method of a component.")))
+               (setf (parent-component-of it) -self-)))>
        <li ,(render-component
              (command/widget (:ajax #t)
                "Calling an undefined function in JS code returned by an AJAX answer"
