@@ -21,9 +21,9 @@
   ()
   (:metaclass funcallable-standard-class))
 
-(def method call-action :around (application session frame (action action))
-  (bind ((*action* action))
-    (call-next-method)))
+(def method call-action :before (application session frame (action action))
+  (assert (boundp '*action*))
+  (setf *action* action))
 
 (def (macro e) make-action (&body body)
   (with-unique-names (action)

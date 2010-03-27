@@ -129,6 +129,7 @@
                 (notify-activity frame)
                 (process-client-state-sinks frame (query-parameters-of *request*))
                 (bind ((action (find-action-from-request frame))
+                       (*action* action)
                        (incoming-frame-index (parameter-value +frame-index-parameter-name+))
                        (current-frame-index (frame-index-of frame))
                        (next-frame-index (next-frame-index-of frame)))
