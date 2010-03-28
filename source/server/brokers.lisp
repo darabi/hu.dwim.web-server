@@ -17,7 +17,7 @@
 (def method handle-request ((server broker-based-server) (request request))
   (debug-only (assert (and (boundp '*broker-stack*) (eq (first *broker-stack*) server))))
   (bind ((result (multiple-value-list (or (query-brokers-for-response request (brokers-of server) :otherwise #f)
-                                          (make-do-nothing-response))))
+                                          (make-not-found-response))))
          (response (first result)))
     (assert (typep response 'response))
     (unwind-protect
