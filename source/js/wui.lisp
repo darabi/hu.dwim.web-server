@@ -14,10 +14,17 @@
 (dojo.get-object "wui.field" #t)
 (dojo.get-object "wui.help" #t)
 
-(defun wui.connect (object event function)
-  (assert object "wui.connect called with nil object")
+(defun wui.connect (objects event function)
+  (assert objects "wui.connect called with nil object")
   (assert function "wui.connect called with nil function")
-  (dojo.connect object event function))
+  (flet ((lookup (id)
+           (bind ((result (dojo.byId id)))
+             (assert result "lookup of the dom node " id " in wui.connect failed")
+             (return result))))
+    (if (dojo.isArray object)
+        (dolist (object objects)
+          (dojo.connect (lookup object) event function))
+        (dojo.connect (lookup objects) event function))))
 
 (defun wui.shallow-copy (object)
   (return (dojo.mixin (create) object)))
@@ -77,7 +84,7 @@
 ;;;;;;
 ;;; io
 
-(defun wui.io.action (url &key event (ajax true) (sync true) (send-client-state true))
+(defun wui.io.action (url &key event (ajax true) target-dom-node (sync true) (send-client-state true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event))
     (dojo.stop-event event))
@@ -87,35 +94,33 @@
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
     (if ajax
-        (bind ((ajax-target (if (=== ajax true)
-                                nil
-                                (dojo.byId ajax))))
+        (bind ((ajax-target (dojo.byId target-dom-node))
+               (ajax-request-in-progress-indicator (document.create-element "div"))
+               (ajax-request-in-progress-teardown (lambda ()
+                                                    (when ajax-target
+                                                      (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
+                                                      (dojo.remove-class ajax-target "ajax-target")))))
           (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
-          (bind ((ajax-request-in-progress-indicator (document.create-element "div"))
-                 (ajax-request-in-progress-teardown (lambda ()
-                                                      (when ajax-target
-                                                        (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
-                                                        (dojo.remove-class ajax-target "ajax-target")))))
-            (when dojo.config.isDebug
-              (when wui.last-ajax-replacements
-                (dolist (node wui.last-ajax-replacements)
-                  (dojo.remove-class node "ajax-replacement")))
-              (setf wui.last-ajax-replacements (array)))
-            (when ajax-target
-              (dojo.add-class ajax-target "ajax-target")
-              (dojo.add-class ajax-request-in-progress-indicator "ajax-request-in-progress")
-              (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
-              (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
-            (wui.io.xhr-post :url decorated-url
-                             :sync sync
-                             :form (when send-client-state
-                                     form)
-                             :on-error (lambda (response io-args)
+          (when dojo.config.isDebug
+            (when wui.last-ajax-replacements
+              (dolist (node wui.last-ajax-replacements)
+                (dojo.remove-class node "ajax-replacement")))
+            (setf wui.last-ajax-replacements (array)))
+          (when ajax-target
+            (dojo.add-class ajax-target "ajax-target")
+            (dojo.add-class ajax-request-in-progress-indicator "ajax-request-in-progress")
+            (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
+            (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
+          (wui.io.xhr-post :url decorated-url
+                           :sync sync
+                           :form (when send-client-state
+                                   form)
+                           :on-error (lambda (response io-args)
+                                       (ajax-request-in-progress-teardown)
+                                       (wui.io.process-ajax-network-error response io-args))
+                           :on-success (lambda (response io-args)
                                          (ajax-request-in-progress-teardown)
-                                         (wui.io.process-ajax-network-error response io-args))
-                             :on-success (lambda (response io-args)
-                                           (ajax-request-in-progress-teardown)
-                                           (wui.io.process-ajax-answer response io-args)))))
+                                         (wui.io.process-ajax-answer response io-args))))
         (if (and send-client-state
                  form
                  (< 0 form.elements.length))

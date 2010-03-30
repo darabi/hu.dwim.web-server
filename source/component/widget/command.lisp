@@ -75,35 +75,6 @@
                             :js ,js
                             :action-arguments ,action-arguments)))))))
 
-(def function %default-onclick-js (id ajax send-client-state?)
-  (lambda (href)
-    (bind ((ajax (and (ajax-enabled? *application*)
-                      (force ajax))))
-      ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
-      ;;         removed by destroy when simply replaced by some other content, this may leak memory on the cleint side
-      `js(when (dojo.byId ,id)
-           (wui.io.action ,href
-                          :event event
-                          :ajax ,ajax
-                          :send-client-state ,send-client-state?))
-      ;; TODO add a *special* that collects the args of all action's and runs a js side loop to process the literal arrays
-      ;; TODO add special handling of apply to qq so that the 'this' arg of .apply is not needed below (wui.io.action twice)
-      ;; TODO do something like this below instead of the above, once qq properly emits commas in the output of (create ,@emtpy-list)
-      #+nil
-      (if (and (eq ajax #t)
-               send-client-state?)
-          `js(wui.io.action ,href :event event)
-          `js(.apply wui.io.action wui.io.action
-                     (array ,href
-                            (create
-                             :event event
-                             ,@(append (unless (eq ajax #t)
-                                         (list (make-instance 'hu.dwim.walker:free-variable-reference-form :name :ajax)
-                                               (make-instance 'hu.dwim.quasi-quote.js:js-unquote :form 'ajax)))
-                                       (unless send-client-state?
-                                         (list (make-instance 'hu.dwim.walker:free-variable-reference-form :name :send-client-state)
-                                               (make-instance 'hu.dwim.walker:constant-form :value '|false|)))))))))))
-
 (def render-component :in passive-layer :around command/widget
   (values))
 
@@ -111,54 +82,63 @@
   (render-component (content-of -self-)))
 
 (def render-xhtml command/widget
-  ;; TODO the 'ajax' doesn't really suggest that it may also be a dom id...
-  ;; FIXME theres quite some duplication with RENDER-COMMAND-ONCLICK-HANDLER
   (bind (((:read-only-slots content action enabled-component default ajax js action-arguments id) -self-)
-         (style-class (component-style-class -self-)))
-    (if (force enabled-component)
-        (bind (((:values href send-client-state?) (href-for-command action action-arguments))
-               (onclick-js (or js
-                               (%default-onclick-js id ajax send-client-state?)))
-               (name (when (running-in-test-mode? *application*)
-                       (if (typep content 'icon/widget)
-                           (symbol-name (name-of content))
-                           (princ-to-string content)))))
-          ;; TODO: name is not a valid attribute but needed for test code to be able to find commands
-          ;; TODO: when rendering a span, tab navigation skips the commands
-          <span (:id ,id :class ,style-class :name ,name)
-                #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
-                ,(render-component content)>
-          `js(on-load
-              (wui.connect (dojo.byId ,id) "onclick" (lambda (event) ,(funcall onclick-js href))))
-          ;; TODO: use wui.connect for keyboard events
-          (when default
-            (bind ((submit-id (generate-unique-component-id)))
-              <input (:id ,submit-id :type "submit" :style "display: none;")>
-              `js(on-load (wui.connect (dojo.byId ,submit-id) "onclick" (lambda (event) ,(funcall onclick-js href)))))))
-        <span (:id ,id :class "command widget disabled")
-              #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
-              ,(render-component content)>)))
-
-(def function href-for-command (action action-arguments)
-  (bind ((send-client-state? (prog1
+         (send-client-state? (prog1
                                  (getf action-arguments :send-client-state #t)
-                               (remove-from-plistf action-arguments :send-client-state)))
-         (href (etypecase action
-                 (action (apply 'register-action/href action action-arguments))
-                 ;; TODO: wastes resources. store back the printed uri? see below also...
-                 (uri (print-uri-to-string action)))))
-    (values href send-client-state?)))
+                               (remove-from-plistf action-arguments :send-client-state))))
+    (render-command/xhtml action content
+                          :id id :style-class (component-style-class -self-) :action-arguments action-arguments
+                          :js js :enabled enabled-component :default default :ajax ajax
+                          :send-client-state send-client-state?)))
+
+(def function render-command/xhtml (action content &key (id (generate-unique-component-id))
+                                           style-class action-arguments js
+                                           (enabled #t) default (ajax (typep action 'action))
+                                           (send-client-state #t))
+  (if (force enabled)
+      (bind ((name (when (running-in-test-mode? *application*)
+                     (if (typep content 'icon/widget)
+                         (symbol-name (name-of content))
+                         (princ-to-string content))))
+             (submit-id nil))
+        ;; NOTE name is not a valid attribute in xhtml, but in test mode it's rendered to help test code finding commands
+        ;; TODO: if we render it as a span, then tab navigation skips the commands
+        <span (:id ,id :class ,style-class ,(maybe-make-xml-attribute "name" name))
+          #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
+          ,(render-component content)>
+        (when default
+          (setf submit-id (generate-unique-component-id))
+          <input (:id ,submit-id :type "submit" :style "display: none;")>)
+        ;; TODO: use wui.connect for keyboard events (to trigger the default action with enter?)
+        (render-command-js-event-handler "onclick" (if submit-id (list id submit-id) id) action
+                                         :js js :ajax ajax
+                                         :action-arguments action-arguments
+                                         :send-client-state send-client-state))
+      <span (:id ,id :class "command widget disabled")
+        #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
+        ,(render-component content)>))
+
+(def function render-command-js-event-handler (event-name id action &key action-arguments js
+                                                          (ajax (typep action 'action))
+                                                          (send-client-state #t))
+  ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit target-id argument all the way up
+  ;; TODO and then probably delete this function and call render-action-js-event-handler directly...
+  (check-type ajax (or boolean string))
+  (render-action-js-event-handler event-name id action :action-arguments action-arguments :js js
+                                  :target-id (when (stringp ajax) ajax) :ajax (to-boolean ajax)
+                                  :send-client-state send-client-state))
 
 (def (function e) render-command-onclick-handler (command id)
-  ;; FIXME share code with (def render-xhtml command/widget ...)
   (bind ((action (action-of command))
          (action-arguments (action-arguments-of command))
-         ((:values href send-client-state?) (href-for-command action action-arguments))
-         (onclick-js (or (js-of command)
-                         (%default-onclick-js id (ajax-of command) send-client-state?))))
-    `js(on-load (wui.connect (dojo.byId ,id) "onclick"
-                             (lambda (event)
-                               ,(funcall onclick-js href))))))
+         (send-client-state? (prog1
+                                 (getf action-arguments :send-client-state #t)
+                               (remove-from-plistf action-arguments :send-client-state))))
+    (render-command-js-event-handler "onclick" id action
+                                     :js (js-of command)
+                                     :ajax (ajax-of command)
+                                     :action-arguments action-arguments
+                                     :send-client-state send-client-state?)))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))

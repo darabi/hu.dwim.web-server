@@ -93,6 +93,56 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
+(def function render-action-js-event-handler (event-name id action &key action-arguments js target-id
+                                                         (ajax (typep action 'action))
+                                                         (send-client-state #t))
+  (check-type ajax boolean)
+  (check-type target-id (or null string))
+  (flet ((make-constant-form (value)
+           (check-type value string)
+           (make-instance 'hu.dwim.walker:constant-form :value value))
+         (%default-onclick-js (ajax target-dom-node send-client-state?)
+           (lambda (href)
+             ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
+             ;;         removed by destroy when simply replaced by some other content, this may leak memory on the cleint side
+             `js(progn     ; TODO reinstate this: when (dojo.byId ,id)
+                  (wui.io.action ,href
+                                 :event event
+                                 :ajax ,(to-boolean ajax)
+                                 :target-dom-node ,target-dom-node
+                                 :send-client-state ,(to-boolean send-client-state?)))
+             ;; TODO add a *special* that collects the args of all action's and runs a js side loop to process the literal arrays
+             ;; TODO add special handling of apply to qq so that the 'this' arg of .apply is not needed below (wui.io.action twice)
+             ;; TODO do something like this below instead of the above, once qq properly emits commas in the output of (create ,@emtpy-list)
+             #+nil
+             (if (and (eq ajax #t)
+                      send-client-state?)
+                 `js(wui.io.action ,href :event event)
+                 `js(.apply wui.io.action ,href
+                            (create
+                             :event event
+                             ,@(append (unless (eq ajax #t)
+                                         (list (make-instance 'hu.dwim.walker:constant-form :value :ajax)
+                                               (make-instance 'hu.dwim.quasi-quote.js:js-unquote :form 'ajax)))
+                                       (unless send-client-state?
+                                         (list (make-instance 'hu.dwim.walker:constant-form :value :send-client-state)
+                                               (make-instance 'hu.dwim.walker:constant-form :value '|false|))))))))))
+    (bind ((href (etypecase action
+                   (action (apply 'register-action/href action action-arguments))
+                   ;; TODO: wastes resources. store back the printed uri? see below also...
+                   (uri (print-uri-to-string action)))))
+      `js(on-load
+          (wui.connect ,(etypecase id
+                          (cons   (make-array-form (mapcar #'make-constant-form id)))
+                          (string id))
+                       ,event-name
+                       (lambda (event)
+                         ;; TODO fix qq js and inline %default-onclick-js here
+                         ,(funcall (or js (%default-onclick-js (and (ajax-enabled? *application*)
+                                                                    ajax)
+                                                               target-id send-client-state))
+                                   href)))))))
+
 ;; TODO this is broken
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
   (bind ((walked-body (hu.dwim.walker:walk-form `(progn ,@body) :environment (hu.dwim.walker:make-walk-environment env)))
