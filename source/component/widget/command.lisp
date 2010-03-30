@@ -40,7 +40,7 @@
                                      (send-client-state #t send-client-state-provided?))
                                 &body content-and-action)
   ;; &body here is only for nicer indenting in emacs. content and action should be mandatory arguments, consider dropping &body...
-  (assert (length= 2 content-and-action))
+  (assert (<= 1 (length content-and-action) 2))
   (bind ((content (first content-and-action))
          (action (second content-and-action)))
     (once-only (content action)

@@ -128,9 +128,15 @@
                                          (list (make-instance 'hu.dwim.walker:constant-form :value :send-client-state)
                                                (make-instance 'hu.dwim.walker:constant-form :value '|false|))))))))))
     (bind ((href (etypecase action
-                   (action (apply 'register-action/href action action-arguments))
-                   ;; TODO: wastes resources. store back the printed uri? see below also...
-                   (uri (print-uri-to-string action)))))
+                   (null
+                    (unless js
+                      (error "~S was called with NIL action and no custom js" 'render-action-js-event-handler))
+                    nil)
+                   (action
+                    (apply 'register-action/href action action-arguments))
+                   (uri
+                    ;; TODO: wastes resources. store back the printed uri? see below also...
+                    (print-uri-to-string action)))))
       `js(on-load
           (wui.connect ,(etypecase id
                           (cons   (make-array-form (mapcar #'make-constant-form id)))
@@ -138,10 +144,10 @@
                        ,event-name
                        (lambda (event)
                          ;; TODO fix qq js and inline %default-onclick-js here
-                         ,(funcall (or js (%default-onclick-js (and (ajax-enabled? *application*)
-                                                                    ajax)
-                                                               target-id send-client-state))
-                                   href)))))))
+                         ,(apply (or js (%default-onclick-js (and (ajax-enabled? *application*)
+                                                                  ajax)
+                                                             target-id send-client-state))
+                                 (when href (list href)))))))))
 
 ;; TODO this is broken
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
