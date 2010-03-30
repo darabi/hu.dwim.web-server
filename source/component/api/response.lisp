@@ -115,13 +115,12 @@
           ;; FF does not like proper xml prologue, probably the other browsers even more so...
           ;; (emit-xml-prologue :encoding (guess-encoding-for-http-response) :stream *xml-stream* :version "1.1")
           <ajax-response
-           ,@(with-collapsed-js-scripts
-               (with-dojo-widget-collector
-                 <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
-                   ,(foreach (lambda (to-be-rendered-component)
-                               (with-restored-component-environment (parent-component-of to-be-rendered-component)
-                                 (call-render-xhtml to-be-rendered-component)))
-                             to-be-rendered-components)>))
+           ,@(with-xhtml-body-environment ()
+               <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
+                 ,(foreach (lambda (to-be-rendered-component)
+                             (with-restored-component-environment (parent-component-of to-be-rendered-component)
+                               (call-render-xhtml to-be-rendered-component)))
+                           to-be-rendered-components)>)
            <result "success">>)
         (call-render-xhtml component))))
 

@@ -85,9 +85,8 @@
     (octets-to-string
      (with-output-to-sequence (buffer-stream :external-format +default-encoding+ :initial-buffer-size 256)
        (emit-into-xml-stream buffer-stream
-         `xml,@(with-collapsed-js-scripts
-                (with-dojo-widget-collector
-                  (-body-)))
+         `xml,@(with-xhtml-body-environment ()
+                 (-with-macro/body-))
          +void+))
      :encoding +default-encoding+)))
 

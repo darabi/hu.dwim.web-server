@@ -140,9 +140,8 @@
                     :value ,(first (ensure-list (parameter-value +scroll-x-parameter-name+))))>
             <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
-          ,@(with-collapsed-js-scripts
-             (with-dojo-widget-collector
-               (render-content-for -self-))
+          ,@(with-xhtml-body-environment ()
+              (render-content-for -self-)
              `js(on-load
                  (log.debug "Clearing the failed to load timer")
                  (clearTimeout document.wui-failed-to-load-timer)

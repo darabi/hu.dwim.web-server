@@ -86,13 +86,17 @@
             (string+ dojo-dir "/")
             (handle-otherwise/value otherwise :default-message (list "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.wui/etc/build-dojo.sh" directory))))))))
 
-(def with-macro with-dojo-widget-collector ()
+(pushnew 'dojo-widget-collector/wrapper *xhtml-body-environment-wrappers*)
+
+(def function dojo-widget-collector/wrapper (thunk)
   (bind ((*dojo-widget-ids* nil))
     (multiple-value-prog1
-        (-body-)
+        (funcall thunk)
       (when *dojo-widget-ids*
-        ;; NOTE: this must run before any other js code tinkers with the dojo widgets.
-        `xml,@(with-collapsed-js-scripts
+        ;; NOTE: instantiation must happend before any other js code tinkers with the dojo widgets,
+        ;; therefore we wrap here again with the js script collapser to emit us before the parent
+        ;; WITH-XHTML-BODY-ENVIRONMENT emits the rest of the js stuff.
+        `xml,@(with-xhtml-body-environment (:wrappers '(js-script-collapser/wrapper))
                `js(on-load
                    (wui.io.instantiate-dojo-widgets (array ,@*dojo-widget-ids*))))))))
 

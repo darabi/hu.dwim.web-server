@@ -96,8 +96,21 @@
      (emit-html-document (:content-type +html-content-type+ :title ,title)
        ,@body)))
 
-(def (with-macro e) with-collapsed-js-scripts ()
-  "Run -WITH-MACRO/BODY- and collect all (non-inline) emitted js into a the result list (usable in <xml ,@(with-collapsed-js-scripts ...)> contexts)."
+(def special-variable *xhtml-body-environment*)
+
+(def special-variable *xhtml-body-environment-wrappers* '(js-script-collapser/wrapper))
+
+(def with-macro* with-xhtml-body-environment (&key (wrappers *xhtml-body-environment-wrappers*))
+  (labels ((call-in-environment (thunk wrappers)
+             (if wrappers
+                 (progn
+                   (wui.debug "Wrapping xhtml body with ~S" (first wrappers))
+                   (funcall (first wrappers) (lambda ()
+                                               (call-in-environment thunk (rest wrappers)))))
+                 (funcall thunk))))
+    (call-in-environment #'-with-macro/body- wrappers)))
+
+(def function js-script-collapser/wrapper (thunk)
   (bind ((result nil)
          (script-body (with-output-to-sequence (*js-stream* :element-type (if *transform-quasi-quote-to-binary*
                                                                               '(unsigned-byte 8)
@@ -105,7 +118,7 @@
                                                             :external-format (if *response*
                                                                                  (external-format-of *response*)
                                                                                  +default-encoding+))
-                        (setf result (-body-)))))
+                        (setf result (funcall thunk)))))
     (append
      (ensure-list result)
      (unless (zerop (length script-body))
@@ -152,8 +165,8 @@
                 stylesheet-uris)
       ,@head>
      <body (,@body-element-attributes)
-       ,@(with-collapsed-js-scripts
-          (list (-body-)))>>))
+       ,@(with-xhtml-body-environment ()
+           (list (-body-)))>>))
 
 (def (macro e) with-request-parameters (args &body body)
   `(with-request-parameters* *request* ,args ,@body))

@@ -17,7 +17,6 @@
   `(make-instance 'tooltip/widget ,@args :content ,(the-only-element content)))
 
 (def render-component tooltip/widget
-  <div ,@(with-collapsed-js-scripts
-          (with-dojo-widget-collector
-            (with-active-layers (passive-xhtml-layer)
-              (render-content-for -self-))))>)
+  <div ,@(with-xhtml-body-environment ()
+           (with-active-layers (passive-xhtml-layer)
+             (render-content-for -self-)))>)
