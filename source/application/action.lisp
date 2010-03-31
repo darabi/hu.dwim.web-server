@@ -119,10 +119,18 @@
                                                         x))
                                      (write-char #\'))))
                        (with-array-wrapping
-                           (iter (for (id href ajax target-dom-node send-client-state event-name) :in arguments)
+                           (iter (for (id href target-dom-node one-shot event-name ajax send-client-state) :in arguments)
+                                 (for send-client-state/defaults? = send-client-state)
+                                 (for ajax/defaults? = (and send-client-state/defaults?
+                                                            ajax))
+                                 (for event-name/defaults? = (and ajax/defaults?
+                                                                  (equal event-name "onclick")))
+                                 (for one-shot/defaults? = (and event-name/defaults?
+                                                                (not one-shot)))
                                  (unless (first-time-p)
                                    (write-char #\,))
-                                 (with-array-wrapping                                 ; id
+                                 (with-array-wrapping
+                                   ;; id
                                    (etypecase id
                                      (cons
                                       (with-array-wrapping
@@ -132,26 +140,37 @@
                                                 (write-js-string el))))
                                      (string
                                       (write-js-string id)))
+                                   ;; href
                                    (write-char #\,)
-                                   (write-js-string href :escape #t)                  ; href
+                                   (write-js-string href :escape #t)
+                                   ;; target-dom-node
                                    (write-char #\,)
-                                   (write-small-js-boolean ajax)                      ; ajax?
-                                   (write-char #\,)
-                                   (if target-dom-node                                ; target-dom-node
+                                   (if target-dom-node
                                        (write-js-string target-dom-node)
                                        (write-string "null"))
-                                   (write-char #\,)
-                                   (write-small-js-boolean send-client-state)         ; send-client-state?
-                                   (unless (equal event-name "onclick")               ; event-name
+                                   (unless one-shot/defaults?
+                                     ;; one-shot
                                      (write-char #\,)
-                                     (write-js-string event-name)))))))))
+                                     (write-small-js-boolean one-shot)
+                                     (unless event-name/defaults?
+                                       ;; event-name
+                                       (write-char #\,)
+                                       (write-js-string event-name)
+                                       ;; ajax?
+                                       (unless ajax/defaults?
+                                         (write-char #\,)
+                                         (write-small-js-boolean ajax)
+                                         (unless send-client-state/defaults?
+                                           ;; send-client-state?
+                                           (write-char #\,)
+                                           (write-small-js-boolean send-client-state))))))))))))
           (bind ((serialized-arguments (serialize-action-arguments (nreverse *action-js-event-handlers*))))
             `js(on-load
                 (wui.io.connect-action-handlers ,(make-string-quasi-quote nil serialized-arguments)))))))))
 
 (def function render-action-js-event-handler (event-name id action &key action-arguments js target-dom-node
                                                          (ajax (typep action 'action))
-                                                         (send-client-state #t))
+                                                         (send-client-state #t) (one-shot #f))
   (check-type ajax boolean)
   (check-type target-dom-node (or null string))
   (assert (or action js) () "~S was called without either an action or custom js" 'render-action-js-event-handler)
@@ -168,15 +187,19 @@
                    (uri    (print-uri-to-string action)))))
       (if js
           `js(on-load
-               (wui.connect ,(etypecase id
-                               (cons   (make-array-form (mapcar #'make-constant-form id)))
-                               (string id))
-                            ,event-name
-                            (lambda (event)
-                              ,(apply js (when href (list href))))))
+               (bind ((connection))
+                 (setf connection (wui.connect ,(etypecase id
+                                                  (cons   (make-array-form (mapcar #'make-constant-form id)))
+                                                  (string id))
+                                               ,event-name
+                                               (lambda (event)
+                                                 ,(apply js (when href (list href)))
+                                                 ;; TODO comma should be one up, but nested `js is broken currently
+                                                 (when ,one-shot
+                                                   (wui.disconnect connection)))))))
           ;; we delay rendering standard event handlers and send them down in one go as a big array which is processed by the client js code.
           (progn
-            (push (list id href ajax target-dom-node send-client-state event-name)
+            (push (list id href target-dom-node one-shot event-name ajax send-client-state)
                   *action-js-event-handlers*)
             ;; we need to keep qq contract here regarding the return value...
             (values))))))

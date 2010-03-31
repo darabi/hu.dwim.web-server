@@ -24,7 +24,11 @@
     (if (dojo.isArray object)
         (dolist (object objects)
           (dojo.connect (lookup object) event function))
-        (dojo.connect (lookup objects) event function))))
+        (return (dojo.connect (lookup objects) event function)))))
+
+(defun wui.disconnect (connection)
+  (assert connection "wui.disconnect called with nil connection")
+  (dojo.disconnect connection))
 
 (defun wui.shallow-copy (object)
   (return (dojo.mixin (create) object)))
@@ -130,25 +134,34 @@
             (setf window.location.href decorated-url)))))
 
 (defun wui.io.connect-action-handlers (handlers)
-  (flet ((to-boolean (x)
+  (flet ((to-boolean (x default-value)
            (cond
              ((= x 1) (return true))
              ((= x 0) (return false))
-             (t (assert false "?! we are expecting either 1 or 0 instead of " x)))))
-    (dolist (handler handlers)
-      (bind ((id                (.shift handler))
-             (href              (.shift handler))
-             (ajax              (to-boolean (.shift handler)))
-             (target-dom-node   (.shift handler))
-             (send-client-state (to-boolean (.shift handler)))
-             (event-name        (or (.shift handler) "onclick")))
-        (wui.connect id event-name (rebind/expression (href ajax target-dom-node send-client-state)
-                                     (lambda (event)
-                                       (wui.io.action href
-                                                      :event event
-                                                      :ajax ajax
-                                                      :target-dom-node target-dom-node
-                                                      :send-client-state send-client-state))))))))
+             (t (if (=== default-value undefined)
+                    (assert false "?! we are expecting either 1 or 0 instead of " x)
+                    (return default-value)))))
+         (connect-action-handler (handler)
+           (bind ((id                (.shift handler))
+                  (href              (.shift handler))
+                  (target-dom-node   (.shift handler))
+                  (one-shot          (to-boolean (.shift handler) false))
+                  (event-name        (or (.shift handler) "onclick"))
+                  (ajax              (to-boolean (.shift handler) true))
+                  (send-client-state (to-boolean (.shift handler) true))
+                  (connection        nil))
+             (setf connection (wui.connect id event-name
+                                           (lambda (event)
+                                             (wui.io.action href
+                                                            :event event
+                                                            :ajax ajax
+                                                            :target-dom-node target-dom-node
+                                                            :send-client-state send-client-state)
+                                             (when one-shot
+                                               (log.debug "Disconnecting one-shot event handler after firing; href " href ", connection " connection ", target-dom-node " target-dom-node)
+                                               (wui.disconnect connection))))))))
+    ;; NOTE it's important to properly rebind the variables that are captured in the handler closure -- a dolist here is not enough, we need to go through a function call...
+    (map 'connect-action-handler handlers)))
 
 (defun wui.io.instantiate-dojo-widgets (widget-ids)
   (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
