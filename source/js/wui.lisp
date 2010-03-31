@@ -8,11 +8,11 @@
 
 (log.debug "Started evaluating wui.js")
 
-(dojo.get-object "wui" #t)
-(dojo.get-object "wui.io" #t)
-(dojo.get-object "wui.i18n" #t)
-(dojo.get-object "wui.field" #t)
-(dojo.get-object "wui.help" #t)
+(dojo.getObject "wui" #t)
+(dojo.getObject "wui.io" #t)
+(dojo.getObject "wui.i18n" #t)
+(dojo.getObject "wui.field" #t)
+(dojo.getObject "wui.help" #t)
 
 (defun wui.connect (objects event function)
   (assert objects "wui.connect called with nil object")
@@ -91,7 +91,7 @@
 (defun wui.io.action (url &key event (ajax true) target-dom-node (sync true) (send-client-state true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event))
-    (dojo.stop-event event))
+    (dojo.stopEvent event))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if ajax "t" "")))
@@ -103,17 +103,17 @@
                (ajax-request-in-progress-teardown (lambda ()
                                                     (when ajax-target
                                                       (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
-                                                      (dojo.remove-class ajax-target "ajax-target")))))
+                                                      (dojo.removeClass ajax-target "ajax-target")))))
           (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
           (when dojo.config.isDebug
             (when wui.last-ajax-replacements
               (dolist (node wui.last-ajax-replacements)
-                (dojo.remove-class node "ajax-replacement")))
+                (dojo.removeClass node "ajax-replacement")))
             (setf wui.last-ajax-replacements (array)))
           (when ajax-target
-            (dojo.add-class ajax-target "ajax-target")
-            (dojo.add-class ajax-request-in-progress-indicator "ajax-request-in-progress")
-            (dojo.content-box ajax-request-in-progress-indicator (dojo.content-box ajax-target))
+            (dojo.addClass ajax-target "ajax-target")
+            (dojo.addClass ajax-request-in-progress-indicator "ajax-request-in-progress")
+            (dojo.contentBox ajax-request-in-progress-indicator (dojo.contentBox ajax-target))
             (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
           (wui.io.xhr-post :url decorated-url
                            :sync sync
@@ -204,7 +204,7 @@
   (let ((type (node.getAttribute "type")))
     (if (= type "text/javascript")
         (let ((script node.text))
-          (unless (dojo.string.is-blank script)
+          (unless (dojo.string.isBlank script)
             ;;(log.debug "Eval'ing script " (.substring script 0 128))
             (log.debug "Eval'ing script tag " node)
             (eval script)))
@@ -226,7 +226,7 @@
                          :handle-as handle-as
                          :error on-error
                          :load on-success)))
-    (return (dojo.xhr-post params))))
+    (return (dojo.xhrPost params))))
 
 (defun wui.io.process-ajax-network-error (response io-args)
   (log.error "wui.io.process-ajax-network-error called on response " response ", io-args " io-args)
@@ -384,7 +384,7 @@
                             (log.debug "About to replace old node with id " id)
                             (.replace-child parent-node replacement-node old-node)
                             (when dojo.config.isDebug
-                              (dojo.add-class replacement-node "ajax-replacement")
+                              (dojo.addClass replacement-node "ajax-replacement")
                               (wui.last-ajax-replacements.push replacement-node))
                             (log.debug "Successfully replaced node with id " id)
                             (return true)))))))
@@ -446,15 +446,15 @@
 ;;; highlight
 
 (defun wui.highlight-mouse-enter-handler (event (element :by-id))
-  (dojo.add-class element "highlighted")
+  (dojo.addClass element "highlighted")
   (let ((parent element.parent-node))
     (while (not (= parent document))
-      (dojo.remove-class parent "highlighted")
+      (dojo.removeClass parent "highlighted")
       (setf parent parent.parent-node)))
-  (dojo.stop-event event))
+  (dojo.stopEvent event))
 
 (defun wui.highlight-mouse-leave-handler (event (element :by-id))
-  (dojo.remove-class element "highlighted"))
+  (dojo.removeClass element "highlighted"))
 
 ;;;;;
 ;;; fields
@@ -639,7 +639,7 @@
                               (setf wui.help.tooltip help)
                               (help.open event.target))))
                         wui.help.popup-timeout))
-      (dojo.stop-event event))))
+      (dojo.stopEvent event))))
 
 (defun wui.help.setup (event url)
   (bind ((handles (array))
@@ -647,14 +647,14 @@
                     (dojo.style document.body "cursor" "default")
                     (map 'dojo.disconnect handles)
                     (wui.help.teardown)
-                    (dojo.stop-event event))))
+                    (dojo.stopEvent event))))
     (handles.push (wui.connect document "mouseover" (wui.help.make-mouseover-handler url)))
     (handles.push (wui.connect document "click" aborter))
     (handles.push (wui.connect document "keypress" (lambda (event)
                                                      (when (= event.charOrCode dojo.keys.ESCAPE)
                                                        (aborter event)))))
     (dojo.style document.body "cursor" "help")
-    (dojo.stop-event event)))
+    (dojo.stopEvent event)))
 
 (defun wui.help.teardown ()
   (when wui.help.tooltip
