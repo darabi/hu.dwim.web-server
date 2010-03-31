@@ -121,36 +121,44 @@
 
 (def render-xhtml client-side-error-handling-test
   (with-render-style/abstract (-self-)
-    (macrolet ((js-link (label js)
-                 `<a (:href "#" :onclick ,,js) ,,label>))
-      <p "This component helps testing how errors in different situations are dealt with.">
-      <ul
-       <li ,(js-link "Calling undefined function" `js-inline(this-function-is-undefined))>
-       <li ,(js-link "Throw 'foo'" `js-inline(throw "foo"))>
-       ;; TODO all these render-component's are not what we need here... factor out stuff in command.lisp for a functional interface
-       <li ,(render-component
-             (command/widget (:ajax #f)
-               "Action time error, non-AJAX"
-               (make-action
-                 (error "This is a demo error for testing purposes. It was signalled from the body of an action.")))) >
-       <li ,(render-component
-             (aprog1
-                 (replace-target-place/widget (:ajax #f)
-                     "Render time error"
-                   (inline-render-component/widget ()
-                     (error "This is a demo error for testing purposes. It was signalled from the render method of a component.")))
-               (setf (parent-component-of it) -self-)))>
-       <li ,(render-component
-             (command/widget (:ajax #t)
-               "Calling an undefined function in JS code returned by an AJAX answer"
-               (make-action
-                 (make-functional-response/ajax-aware-client ()
-                   <script `js-inline(this-function-is-undefined)>))))>
-       <li ,(render-component
-             ;; TODO explicitly set :sync here, but command/widget does not support it
-             (command/widget (:ajax #t)
-               "JS code returned by a delayed AJAX answer logs something to the JS console"
-               (make-action
-                 (sleep 3)
-                 (make-functional-response/ajax-aware-client ()
-                   <script `js-inline(log.info "After some delay on the server, we were rendered back...")>))))>>)))
+    (bind ((error-action (make-action
+                           (error "This is a demo error for testing purposes. It was signalled from the body of an action.")))
+           (slow-js-logging-ajax-action (make-action
+                                          (sleep 2)
+                                          (make-functional-response/ajax-aware-client ()
+                                            <script `js-inline(log.info "After some delay on the server, we were rendered back...")>))))
+     (flet ((command (action content &rest args)
+              (apply 'render-command/xhtml action content :style-class "command" args))
+            (replace-target-place-command (component replacement-component content &rest args)
+              (apply 'render-replace-target-place-command/xhtml component replacement-component content :style-class "command" args))
+            (make-inline-component-with-rendering-error ()
+              (bind ((us nil))
+                (setf us (inline-render-component/widget ()
+                           (error "This is a demo error signaled from the render method of the inline component ~A" us))))))
+       <p "These actions help testing how errors in different situations are dealt with.">
+       <ul
+        <li <b "JavaScript errors">>
+        <li ,(command nil "OnClick calls undefined function" :js (lambda () `js(this-function-is-undefined)))>
+        <li ,(command nil "OnClick throws 'foo'" :js (lambda () `js(throw "foo")))>
+        <li ,(command (make-action
+                        (make-functional-response/ajax-aware-client ()
+                          <script `js-inline(this-function-is-undefined)>))
+                      "JavaScript code returned in an AJAX answer calls an undefined function"
+                      :ajax #t)>
+        <li <b "Errors in actions (check your server side debugger when debugging is turned on)">>
+        <li ,(command error-action "Action time error in a full page reload" :ajax #f)>
+        <li ,(command error-action "Action time error in an AJAX request" :ajax #t)>
+        <li <b "Errors in render methods">>
+        <li ,(replace-target-place-command -self- (make-inline-component-with-rendering-error)
+                                           "Render time error in a full page reload"
+                                           :ajax #f)>
+        <li ,(replace-target-place-command -self- (make-inline-component-with-rendering-error)
+                                           "Render time error in an AJAX request"
+                                           :ajax #T)>
+        <li <b "Synchronous/asynchronous behavior">>
+        <li ,(command slow-js-logging-ajax-action
+                      "JavaScript code returned in a slow AJAX request logs something to the JavaScript console. Synchronous."
+                      :ajax #t :sync #t)>
+        <li ,(command slow-js-logging-ajax-action
+                      "JavaScript code returned in a slow AJAX request logs something to the JavaScript console. Asynchronous."
+                      :ajax #t :sync #f)>>))))
