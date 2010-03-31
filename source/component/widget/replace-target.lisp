@@ -27,6 +27,7 @@
 ;;;;;;
 ;;; replace-target-place/widget
 
+;; TODO rename to replace-target-place-command/widget?
 (def (component e) replace-target-place/widget (command/widget)
   ((replacement-component :type t))
   (:documentation "A REPLACE-TARGET-PLACE/WIDGET is a COMMAND/WIDGET that will replace the TARGET-PLAGE of its nearest TARGET-PLACE/WIDGET ancestor."))
@@ -49,6 +50,12 @@
                        (awhen (find-ancestor-component-with-type component 'id/mixin :otherwise #f)
                          (ajax-of it))
                        #t))))))
+
+(def function render-replace-target-place-command/xhtml (component replacement-component content &rest args &key &allow-other-keys)
+  (apply 'render-command/xhtml (make-component-action component
+                                 (bind ((target-place (target-place-of (find-replace-target-place-widget component))))
+                                   (setf (component-at-place target-place) replacement-component)))
+         content args))
 
 (def function find-replace-target-place-widget (component)
   (find-ancestor-component component
