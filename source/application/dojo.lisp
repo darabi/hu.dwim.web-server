@@ -89,7 +89,7 @@
 (pushnew 'dojo-widget-collector/wrapper *xhtml-body-environment-wrappers*)
 
 (def function dojo-widget-collector/wrapper (thunk)
-  (bind ((*dojo-widget-ids* nil))
+  (bind ((*dojo-widget-ids* '()))
     (multiple-value-prog1
         (funcall thunk)
       (when *dojo-widget-ids*

@@ -195,7 +195,7 @@
         (return (eval return-value-string))))))
 
 (defun wui.io.postprocess-inserted-node (original-node imported-node)
-  ;; this was needed before WITH-COLLAPSED-JS-SCRIPTS collected all js fragments into a toplevel script node in the ajax answer. might come handy for something later, so leave it for now...
+  ;; this used to be needed before WITH-COLLAPSED-JS-SCRIPTS started to collect all js fragments into a toplevel script node in the ajax answer. might come handy for something later, so leave it for now...
   )
 
 (defun wui.io.eval-script-tag (node)
@@ -563,6 +563,7 @@
 
 (defun wui.apply-generic-function (generic-function dispatch-type args)
   (bind ((class-precedence-list (slot-value wui.component-class-precedence-lists dispatch-type)))
+    (assert class-precedence-list)
     (dolist (class class-precedence-list)
       (bind ((fn (slot-value generic-function class)))
         (when fn

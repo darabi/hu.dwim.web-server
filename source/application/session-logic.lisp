@@ -148,7 +148,7 @@
                                  (app.dribble "Found an action and frame is in sync...")
                                  (unless *delayed-content-request*
                                    (setf original-frame-index (step-to-next-frame-index frame)))
-                                 (app.dribble "Calling action...")
+                                 (app.debug "Calling the action now...")
                                  (bind ((response (call-action application session frame action)))
                                    (app.dribble "Action returned response ~A" response)
                                    (when (typep response 'response)

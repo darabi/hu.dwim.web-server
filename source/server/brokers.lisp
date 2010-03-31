@@ -38,6 +38,7 @@
   (call-next-method))
 
 (def (function o) query-brokers-for-response (initial-request initial-brokers &key (otherwise :error otherwise?))
+  (server.debug "QUERY-BROKERS-FOR-RESPONSE starts with brokers ~A" initial-brokers)
   (bind ((answering-broker nil)
          (results (multiple-value-list
                    (iterate-brokers-for-response (lambda (broker request)
