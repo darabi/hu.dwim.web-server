@@ -109,9 +109,8 @@
         (when default
           (setf submit-id (generate-unique-component-id))
           <input (:id ,submit-id :type "submit" :style "display: none;")>)
-        ;; TODO: use wui.connect for keyboard events (to trigger the default action with enter?)
         (render-command-js-event-handler "onclick" (if submit-id (list id submit-id) id) action
-                                         :js js :ajax ajax :sync sync
+                                         :js js :ajax (force ajax) :sync sync
                                          :action-arguments action-arguments
                                          :send-client-state send-client-state))
       <span (:id ,id :class "command widget disabled")
@@ -136,7 +135,7 @@
                                (remove-from-plistf action-arguments :send-client-state))))
     (render-command-js-event-handler "onclick" id action
                                      :js (js-of command)
-                                     :ajax (ajax-of command)
+                                     :ajax (force (ajax-of command))
                                      :action-arguments action-arguments
                                      :send-client-state send-client-state?)))
 
