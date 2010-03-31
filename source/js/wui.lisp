@@ -149,12 +149,14 @@
                   (event-name        (or (.shift handler) "onclick"))
                   (ajax              (to-boolean (.shift handler) true))
                   (send-client-state (to-boolean (.shift handler) true))
+                  (sync              (to-boolean (.shift handler) true))
                   (connection        nil))
              (setf connection (wui.connect id event-name
                                            (lambda (event)
                                              (wui.io.action href
                                                             :event event
                                                             :ajax ajax
+                                                            :sync sync
                                                             :target-dom-node target-dom-node
                                                             :send-client-state send-client-state)
                                              (when one-shot

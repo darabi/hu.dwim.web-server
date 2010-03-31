@@ -94,7 +94,7 @@
 (def function render-command/xhtml (action content &key (id (generate-unique-component-id))
                                            style-class action-arguments js
                                            (enabled #t) default (ajax (typep action 'action))
-                                           (send-client-state #t))
+                                           (send-client-state #t) (sync #t))
   (if (force enabled)
       (bind ((name (when (running-in-test-mode? *application*)
                      (if (typep content 'icon/widget)
@@ -111,7 +111,7 @@
           <input (:id ,submit-id :type "submit" :style "display: none;")>)
         ;; TODO: use wui.connect for keyboard events (to trigger the default action with enter?)
         (render-command-js-event-handler "onclick" (if submit-id (list id submit-id) id) action
-                                         :js js :ajax ajax
+                                         :js js :ajax ajax :sync sync
                                          :action-arguments action-arguments
                                          :send-client-state send-client-state))
       <span (:id ,id :class "command widget disabled")
@@ -120,13 +120,13 @@
 
 (def function render-command-js-event-handler (event-name id action &key action-arguments js
                                                           (ajax (typep action 'action))
-                                                          (send-client-state #t))
+                                                          (send-client-state #t) (sync #t))
   ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit target-dom-node argument all the way up
   ;; TODO and then probably delete this function and call render-action-js-event-handler directly...
   (check-type ajax (or boolean string))
   (render-action-js-event-handler event-name id action :action-arguments action-arguments :js js
                                   :target-dom-node (when (stringp ajax) ajax) :ajax (to-boolean ajax)
-                                  :send-client-state send-client-state))
+                                  :send-client-state send-client-state :sync sync))
 
 (def (function e) render-command-onclick-handler (command id)
   (bind ((action (action-of command))

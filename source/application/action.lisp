@@ -119,8 +119,10 @@
                                                         x))
                                      (write-char #\'))))
                        (with-array-wrapping
-                           (iter (for (id href target-dom-node one-shot event-name ajax send-client-state) :in arguments)
-                                 (for send-client-state/defaults? = send-client-state)
+                           (iter (for (id href target-dom-node one-shot event-name ajax send-client-state sync) :in arguments)
+                                 (for sync/defaults? = sync)
+                                 (for send-client-state/defaults? = (and sync/defaults?
+                                                                         send-client-state))
                                  (for ajax/defaults? = (and send-client-state/defaults?
                                                             ajax))
                                  (for event-name/defaults? = (and ajax/defaults?
@@ -156,24 +158,28 @@
                                        ;; event-name
                                        (write-char #\,)
                                        (write-js-string event-name)
-                                       ;; ajax?
+                                       ;; ajax
                                        (unless ajax/defaults?
                                          (write-char #\,)
                                          (write-small-js-boolean ajax)
                                          (unless send-client-state/defaults?
-                                           ;; send-client-state?
+                                           ;; send-client-state
                                            (write-char #\,)
-                                           (write-small-js-boolean send-client-state))))))))))))
+                                           (write-small-js-boolean send-client-state)
+                                           (unless sync/defaults?
+                                             ;; sync
+                                             (write-char #\,)
+                                             (write-small-js-boolean sync)))))))))))))
           (bind ((serialized-arguments (serialize-action-arguments (nreverse *action-js-event-handlers*))))
             `js(on-load
                 (wui.io.connect-action-handlers ,(make-string-quasi-quote nil serialized-arguments)))))))))
 
 (def function render-action-js-event-handler (event-name id action &key action-arguments js target-dom-node
-                                                         (ajax (typep action 'action))
-                                                         (send-client-state #t) (one-shot #f))
+                                                         (ajax (typep action 'action)) (send-client-state #t) (one-shot #f)
+                                                         (sync #t))
   (check-type ajax boolean)
   (check-type target-dom-node (or null string))
-  (assert (or action js) () "~S was called without either an action or custom js" 'render-action-js-event-handler)
+  (assert (or action js) () "~S needs either an action or a custom js" 'render-action-js-event-handler)
   ;; TODO FIXME there used to be a (when (dojo.byId ,id) ...) wrapping around the wui.io.action call with the following comment:
   ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
   ;;         removed by destroy when simply replaced by some other content, this may leak memory on the cleint side
@@ -187,7 +193,7 @@
                    (uri    (print-uri-to-string action)))))
       (if js
           `js(on-load
-               (bind ((connection))
+               (bind ((connection nil))
                  (setf connection (wui.connect ,(etypecase id
                                                   (cons   (make-array-form (mapcar #'make-constant-form id)))
                                                   (string id))
@@ -199,7 +205,7 @@
                                                    (wui.disconnect connection)))))))
           ;; we delay rendering standard event handlers and send them down in one go as a big array which is processed by the client js code.
           (progn
-            (push (list id href target-dom-node one-shot event-name ajax send-client-state)
+            (push (list id href target-dom-node one-shot event-name ajax send-client-state sync)
                   *action-js-event-handlers*)
             ;; we need to keep qq contract here regarding the return value...
             (values))))))
