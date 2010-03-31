@@ -59,6 +59,7 @@
   ((http-user-agent (identify-http-user-agent *request*) :type http-user-agent)
    (application nil :type application)
    (client-timezone (default-timezone-of *application*) :type local-time::timezone)
+   (frame-timeout *default-frame-timeout* :type integer)
    (frame-id->frame (make-hash-table :test 'equal) :type hash-table)
    (lock nil)
    (computed-universe nil)
@@ -69,8 +70,9 @@
       (slot-value session 'debug-on-error)
       (debug-on-error? (application-of session) error)))
 
-(def (function e) mark-session-invalid (session)
-  (setf (is-session-valid? session) #f))
+(def (function e) mark-session-invalid (&optional (session *session*))
+  (setf (is-session-valid? session) #f)
+  (maphash-values #'mark-frame-invalid (frame-id->frame-of session)))
 
 (def function is-session-alive? (session)
   (cond

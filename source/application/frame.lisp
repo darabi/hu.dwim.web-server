@@ -74,10 +74,9 @@
 (def (macro e) with-unique-strings/frame ((&rest names) &body body)
   (%expand-with-unique-strings 'generate-unique-string/frame names body))
 
-#+nil ;; TODO this should be a generic if needed at all
-(def function invalidate-frame (frame)
+(def function mark-frame-invalid (&optional (frame *frame*))
   (setf (is-frame-valid? frame) #f)
-  (setf (root-component-of frame) nil) ; TODO push down to subclass
+  (setf (root-component-of frame) nil)
   (clrhash (action-id->action-of frame))
   (clrhash (client-state-sink-id->client-state-sink-of frame))
   frame)
@@ -114,7 +113,7 @@
   (assert-session-lock-held session)
   (bind ((frame-id->frame (frame-id->frame-of session)))
     (iter (for (frame-id frame) :in-hashtable frame-id->frame)
-          (when (is-timed-out? frame)
+          (unless (is-frame-alive? frame)
             (remhash frame-id frame-id->frame))))
   (values))
 

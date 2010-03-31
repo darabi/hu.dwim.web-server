@@ -24,7 +24,6 @@
    (default-timezone local-time:*default-timezone* :type local-time::timezone)
    (session-class nil :type (or null standard-class))
    (session-timeout *default-session-timeout* :type number)
-   (frame-timeout *default-frame-timeout* :type integer)
    (sessions-last-purged-at (get-monotonic-time) :type number)
    (maximum-sessions-count *maximum-sessions-per-application-count* :type integer)
    (session-id->session (make-hash-table :test 'equal) :type hash-table :export :accessor)
@@ -152,7 +151,7 @@
   (app.debug "Creating new frame for session ~A of app ~A" session application)
   (assert-session-lock-held session)
   (make-instance 'frame
-                 :time-to-live (frame-timeout-of application)))
+                 :time-to-live (frame-timeout-of session)))
 
 (def function maybe-invoke-debugger/application (condition &key (context (or (and (boundp '*session*)
                                                                                   *session*)
