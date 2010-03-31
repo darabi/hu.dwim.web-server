@@ -125,7 +125,7 @@
                                                          (:file "icon" :depends-on ("widget"))
                                                          (:file "image")
                                                          (:file "inline")
-                                                         (:file "internal-error" :depends-on ("message" "command-bar" "command"))
+                                                         (:file "internal-error" :depends-on ("title" "message" "command-bar" "command"))
                                                          (:file "list")
                                                          (:file "menu" :depends-on ("command"))
                                                          (:file "message")
