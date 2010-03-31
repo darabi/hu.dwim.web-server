@@ -93,11 +93,11 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
-(def function render-action-js-event-handler (event-name id action &key action-arguments js target-id
+(def function render-action-js-event-handler (event-name id action &key action-arguments js target-dom-node
                                                          (ajax (typep action 'action))
                                                          (send-client-state #t))
   (check-type ajax boolean)
-  (check-type target-id (or null string))
+  (check-type target-dom-node (or null string))
   (flet ((make-constant-form (value)
            (check-type value string)
            (make-instance 'hu.dwim.walker:constant-form :value value))
@@ -146,7 +146,7 @@
                          ;; TODO fix qq js and inline %default-onclick-js here
                          ,(apply (or js (%default-onclick-js (and (ajax-enabled? *application*)
                                                                   ajax)
-                                                             target-id send-client-state))
+                                                             target-dom-node send-client-state))
                                  (when href (list href)))))))))
 
 ;; TODO this is broken

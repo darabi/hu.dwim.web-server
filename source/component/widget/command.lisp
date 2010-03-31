@@ -121,11 +121,11 @@
 (def function render-command-js-event-handler (event-name id action &key action-arguments js
                                                           (ajax (typep action 'action))
                                                           (send-client-state #t))
-  ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit target-id argument all the way up
+  ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit target-dom-node argument all the way up
   ;; TODO and then probably delete this function and call render-action-js-event-handler directly...
   (check-type ajax (or boolean string))
   (render-action-js-event-handler event-name id action :action-arguments action-arguments :js js
-                                  :target-id (when (stringp ajax) ajax) :ajax (to-boolean ajax)
+                                  :target-dom-node (when (stringp ajax) ajax) :ajax (to-boolean ajax)
                                   :send-client-state send-client-state))
 
 (def (function e) render-command-onclick-handler (command id)
