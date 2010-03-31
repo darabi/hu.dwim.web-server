@@ -129,6 +129,27 @@
               (form.submit))
             (setf window.location.href decorated-url)))))
 
+(defun wui.io.connect-action-handlers (handlers)
+  (flet ((to-boolean (x)
+           (cond
+             ((= x 1) (return true))
+             ((= x 0) (return false))
+             (t (assert false "?! we are expecting either 1 or 0 instead of " x)))))
+    (dolist (handler handlers)
+      (bind ((id                (.shift handler))
+             (href              (.shift handler))
+             (ajax              (to-boolean (.shift handler)))
+             (target-dom-node   (.shift handler))
+             (send-client-state (to-boolean (.shift handler)))
+             (event-name        (or (.shift handler) "onclick")))
+        (wui.connect id event-name (rebind/expression (href ajax target-dom-node send-client-state)
+                                     (lambda (event)
+                                       (wui.io.action href
+                                                      :event event
+                                                      :ajax ajax
+                                                      :target-dom-node target-dom-node
+                                                      :send-client-state send-client-state))))))))
+
 (defun wui.io.instantiate-dojo-widgets (widget-ids)
   (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
   (dolist (widget-id widget-ids)

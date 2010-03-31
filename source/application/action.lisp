@@ -93,61 +93,93 @@
     (setf (uri-query-parameter-value uri +frame-index-parameter-name+) (next-frame-index-of *frame*)))
   (:method-combination progn))
 
+(def special-variable *action-js-event-handlers*)
+
+(appendf *xhtml-body-environment-wrappers* '(action-js-event-handlers/wrapper))
+
+(def function action-js-event-handlers/wrapper (thunk)
+  (bind ((*action-js-event-handlers* '()))
+    (multiple-value-prog1
+        (funcall thunk)
+      (when *action-js-event-handlers*
+        (labels ((serialize-action-arguments (arguments)
+                   (with-output-to-string (*standard-output*)
+                     (macrolet ((with-array-wrapping (&body body)
+                                  `(progn
+                                     (write-char #\[)
+                                     ,@body
+                                     (write-char #\])))
+                                (write-small-js-boolean (x)
+                                  `(write-char (if ,x #\1 #\0)))
+                                (write-js-string (x &key escape)
+                                  `(progn
+                                     (write-char #\')
+                                     (write-string ,(if escape
+                                                        `(escape-as-js-string ,x)
+                                                        x))
+                                     (write-char #\'))))
+                       (with-array-wrapping
+                           (iter (for (id href ajax target-dom-node send-client-state event-name) :in arguments)
+                                 (unless (first-time-p)
+                                   (write-char #\,))
+                                 (with-array-wrapping                                 ; id
+                                   (etypecase id
+                                     (cons
+                                      (with-array-wrapping
+                                          (iter (for el :in id)
+                                                (unless (first-time-p)
+                                                  (write-char #\,))
+                                                (write-js-string el))))
+                                     (string
+                                      (write-js-string id)))
+                                   (write-char #\,)
+                                   (write-js-string href :escape #t)                  ; href
+                                   (write-char #\,)
+                                   (write-small-js-boolean ajax)                      ; ajax?
+                                   (write-char #\,)
+                                   (if target-dom-node                                ; target-dom-node
+                                       (write-js-string target-dom-node)
+                                       (write-string "null"))
+                                   (write-char #\,)
+                                   (write-small-js-boolean send-client-state)         ; send-client-state?
+                                   (unless (equal event-name "onclick")               ; event-name
+                                     (write-char #\,)
+                                     (write-js-string event-name)))))))))
+          (bind ((serialized-arguments (serialize-action-arguments (nreverse *action-js-event-handlers*))))
+            `js(on-load
+                (wui.io.connect-action-handlers ,(make-string-quasi-quote nil serialized-arguments)))))))))
+
 (def function render-action-js-event-handler (event-name id action &key action-arguments js target-dom-node
                                                          (ajax (typep action 'action))
                                                          (send-client-state #t))
   (check-type ajax boolean)
   (check-type target-dom-node (or null string))
+  (assert (or action js) () "~S was called without either an action or custom js" 'render-action-js-event-handler)
+  ;; TODO FIXME there used to be a (when (dojo.byId ,id) ...) wrapping around the wui.io.action call with the following comment:
+  ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
+  ;;         removed by destroy when simply replaced by some other content, this may leak memory on the cleint side
+  ;; in the refactor it was deleted due to some headaches... reinstate if neccessary.
   (flet ((make-constant-form (value)
            (check-type value string)
-           (make-instance 'hu.dwim.walker:constant-form :value value))
-         (%default-onclick-js (ajax target-dom-node send-client-state?)
-           (lambda (href)
-             ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
-             ;;         removed by destroy when simply replaced by some other content, this may leak memory on the cleint side
-             `js(progn     ; TODO reinstate this: when (dojo.byId ,id)
-                  (wui.io.action ,href
-                                 :event event
-                                 :ajax ,(to-boolean ajax)
-                                 :target-dom-node ,target-dom-node
-                                 :send-client-state ,(to-boolean send-client-state?)))
-             ;; TODO add a *special* that collects the args of all action's and runs a js side loop to process the literal arrays
-             ;; TODO add special handling of apply to qq so that the 'this' arg of .apply is not needed below (wui.io.action twice)
-             ;; TODO do something like this below instead of the above, once qq properly emits commas in the output of (create ,@emtpy-list)
-             #+nil
-             (if (and (eq ajax #t)
-                      send-client-state?)
-                 `js(wui.io.action ,href :event event)
-                 `js(.apply wui.io.action ,href
-                            (create
-                             :event event
-                             ,@(append (unless (eq ajax #t)
-                                         (list (make-instance 'hu.dwim.walker:constant-form :value :ajax)
-                                               (make-instance 'hu.dwim.quasi-quote.js:js-unquote :form 'ajax)))
-                                       (unless send-client-state?
-                                         (list (make-instance 'hu.dwim.walker:constant-form :value :send-client-state)
-                                               (make-instance 'hu.dwim.walker:constant-form :value '|false|))))))))))
+           (make-instance 'hu.dwim.walker:constant-form :value value)))
     (bind ((href (etypecase action
-                   (null
-                    (unless js
-                      (error "~S was called with NIL action and no custom js" 'render-action-js-event-handler))
-                    nil)
-                   (action
-                    (apply 'register-action/href action action-arguments))
-                   (uri
-                    ;; TODO: wastes resources. store back the printed uri? see below also...
-                    (print-uri-to-string action)))))
-      `js(on-load
-          (wui.connect ,(etypecase id
-                          (cons   (make-array-form (mapcar #'make-constant-form id)))
-                          (string id))
-                       ,event-name
-                       (lambda (event)
-                         ;; TODO fix qq js and inline %default-onclick-js here
-                         ,(apply (or js (%default-onclick-js (and (ajax-enabled? *application*)
-                                                                  ajax)
-                                                             target-dom-node send-client-state))
-                                 (when href (list href)))))))))
+                   (null   nil)
+                   (action (apply 'register-action/href action action-arguments))
+                   (uri    (print-uri-to-string action)))))
+      (if js
+          `js(on-load
+               (wui.connect ,(etypecase id
+                               (cons   (make-array-form (mapcar #'make-constant-form id)))
+                               (string id))
+                            ,event-name
+                            (lambda (event)
+                              ,(apply js (when href (list href))))))
+          ;; we delay rendering standard event handlers and send them down in one go as a big array which is processed by the client js code.
+          (progn
+            (push (list id href ajax target-dom-node send-client-state event-name)
+                  *action-js-event-handlers*)
+            ;; we need to keep qq contract here regarding the return value...
+            (values))))))
 
 ;; TODO this is broken
 (def (macro e) js-to-lisp-rpc (&environment env &body body)
