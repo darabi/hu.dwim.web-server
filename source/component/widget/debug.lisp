@@ -40,7 +40,6 @@
           "Start over (frame)"
           (make-action (reset-root-component))))
     (menu-item/widget ()
-        ;; from http://turtle.dojotoolkit.org/~david/recss.html
         (command/widget (:js (lambda () `js(wui.reload-css)))
           "Reload CSS"))
     (menu-item/widget ()

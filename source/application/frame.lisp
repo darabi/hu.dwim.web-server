@@ -6,14 +6,6 @@
 
 (in-package :hu.dwim.wui)
 
-(def (condition* e) frame-related-request-processing-error (request-processing-error)
-  ((frame nil)))
-
-(def (condition* e) frame-index-missing-error (frame-related-request-processing-error)
-  ())
-(def function frame-index-missing-error (&optional (frame *frame*))
-  (error 'frame-index-missing-error :frame frame))
-
 (def function generate-frame-index (&optional previous)
   (if (and (running-in-test-mode? *application*)
            (or (not previous)

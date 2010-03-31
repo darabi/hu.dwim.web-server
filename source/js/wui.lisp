@@ -91,6 +91,7 @@
 (defun wui.io.action (url &key event (ajax true) target-dom-node (sync true) (send-client-state true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event))
+    (log.debug "wui.io.action is stopping event " event)
     (dojo.stopEvent event))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
@@ -160,7 +161,7 @@
                                                             :target-dom-node target-dom-node
                                                             :send-client-state send-client-state)
                                              (when one-shot
-                                               (log.debug "Disconnecting one-shot event handler after firing; href " href ", connection " connection ", target-dom-node " target-dom-node)
+                                               (log.debug "Disconnecting one-shot event handler after firing; id " id ", href " href ", connection " connection ", target-dom-node " target-dom-node)
                                                (wui.disconnect connection))))))))
     ;; NOTE it's important to properly rebind the variables that are captured in the handler closure -- a dolist here is not enough, we need to go through a function call...
     (map 'connect-action-handler handlers)))
@@ -214,7 +215,6 @@
 ;; when sync is false, the user can stack up many ajax requests queueing on the server at the session lock...
 (defun wui.io.xhr-post (&key url form
                         (sync false)
-                        ;; TODO rename
                         (on-error wui.io.process-ajax-network-error)
                         (on-success wui.io.process-ajax-answer)
                         (handle-as "xml"))
@@ -414,6 +414,7 @@
 ;;;;;;
 ;;; debug
 
+;; from http://turtle.dojotoolkit.org/~david/recss.html
 (defun wui.reload-css ()
   (dolist (link (document.getElementsByTagName "link"))
     (when (and (>= (.indexOf (.toLowerCase link.rel) "stylesheet") 0)
