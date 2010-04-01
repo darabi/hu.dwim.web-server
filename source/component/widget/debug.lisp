@@ -29,19 +29,29 @@
 (def (function e) toggle-debug-client-side (&optional (frame *frame*))
   (notf (debug-client-side? (root-component-of frame))))
 
-(def (function e) reset-root-component (&optional (frame *frame*))
+(def (function e) clear-root-component (&optional (frame *frame*))
   (setf (root-component-of frame) nil))
 
 (def (function e) make-debug-menu ()
   (menu-item/widget ()
       "Debug"
     (menu-item/widget ()
-        (command/widget (:ajax #f :send-client-state #f)
-          "Start over (frame)"
-          (make-action (reset-root-component))))
-    (menu-item/widget ()
         (command/widget (:js (lambda () `js(wui.reload-css)))
           "Reload CSS"))
+    (menu-item/widget ()
+        "Invalidate"
+      (menu-item/widget ()
+          (command/widget (:ajax #f :send-client-state #f)
+            "Invalidate session"
+            (make-action (mark-session-invalid))))
+      (menu-item/widget ()
+          (command/widget (:ajax #f :send-client-state #f)
+            "Invalidate frame"
+            (make-action (mark-frame-invalid))))
+      (menu-item/widget ()
+          (command/widget (:ajax #f :send-client-state #f)
+            "Clear the frame's root component"
+            (make-action (clear-root-component)))))
     (menu-item/widget ()
         "Toggle"
       (menu-item/widget ()
