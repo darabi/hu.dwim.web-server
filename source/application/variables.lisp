@@ -71,7 +71,6 @@
 (def constant +frame-index-parameter-name+     "_x")
 (def constant +ajax-aware-parameter-name+      "_j")
 (def constant +delayed-content-parameter-name+ "_d")
-(def constant +timestamp-parameter-name+       "_ts")
 
 ;; TODO: merge these into a single parameter and provide accessor functions?
 (def constant +shitf-key-parameter-name+       "_sk")

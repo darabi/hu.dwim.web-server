@@ -161,10 +161,15 @@
   (assert (cl-fad:file-exists-p file))
   file)
 
-(def function append-file-write-date-to-uri (uri parameter-name &optional file-name)
-  (setf (uri-query-parameter-value uri parameter-name) (if file-name
-                                                           (mod (file-write-date file-name) 10000)
-                                                           nil))
+(def constant +timestamp-parameter-name+ "_ts")
+
+(def function append-timestamp-to-uri (uri timestamp)
+  (labels ((to-timestamp-string (thing)
+             (etypecase thing
+               (integer (integer-to-string (mod thing 10000)))
+               (local-time:timestamp (to-timestamp-string (local-time:sec-of thing))))))
+    (setf (uri-query-parameter-value uri +timestamp-parameter-name+)
+          (to-timestamp-string (force timestamp))))
   uri)
 
 (def function single-argument-layered-method-definer (name forms &key default-layer options whole)
