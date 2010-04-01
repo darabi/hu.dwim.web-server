@@ -74,7 +74,7 @@
             <div (:id ,id) "">
             (render-action-js-event-handler "onmousedown" parent-id (make-action
                                                                       (setf (to-be-rendered-component? -self-) #t))
-                                            :one-shot #t))
+                                            :one-shot #t :sync #t))
           (render-dojo-widget (id)
             <div (:id ,id
                   :class ,style-class
