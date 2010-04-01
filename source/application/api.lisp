@@ -6,6 +6,9 @@
 
 (in-package :hu.dwim.wui)
 
+(def (generic e) handle-toplevel-error/application/emit-response (application error ajax-aware?)
+  (:documentation "Just like HANDLE-TOPLEVEL-ERROR/EMIT-RESPONSE but only called in the context of an application."))
+
 (def (generic e) make-new-session (application))
 (def (generic e) make-new-frame (application session))
 
