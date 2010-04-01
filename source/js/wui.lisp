@@ -90,9 +90,7 @@
 
 (defun wui.io.action (url &key event (ajax true) target-dom-node (sync true) (send-client-state true))
   (when event
-    (setf url (wui.decorate-url-with-modifier-keys url event))
-    (log.debug "wui.io.action is stopping event " event)
-    (dojo.stopEvent event))
+    (setf url (wui.decorate-url-with-modifier-keys url event)))
   (bind ((decorated-url (wui.append-query-parameter url
                                                     #.(escape-as-uri +ajax-aware-parameter-name+)
                                                     (if ajax "t" "")))
@@ -134,7 +132,45 @@
               (form.submit))
             (setf window.location.href decorated-url)))))
 
-(defun wui.io.connect-action-handlers (handlers)
+(defun wui.io.make-action-event-handler (href &key target-dom-node (ajax true) (send-client-state true) (sync true))
+  (return
+    (lambda (event)
+      (wui.io.action href
+                     :event event
+                     :ajax ajax
+                     :sync sync
+                     :target-dom-node target-dom-node
+                     :send-client-state send-client-state))))
+
+(defun wui.io.connect-action-event-handler (id event-name thunk &key one-shot (stop-event true))
+  (flet ((connect-one (id)
+           (bind ((connection nil))
+             (setf connection (wui.connect id event-name
+                                           (lambda (event)
+                                             (when stop-event
+                                               (log.debug "Action handler on id " id ", node " (dojo.byId id) " is stopping event " event)
+                                               (dojo.stopEvent event))
+                                             (when one-shot
+                                               (log.debug "Disconnecting one-shot event handler after firing; id " id  ", node " (dojo.byId id) ", connection " connection)
+                                               (wui.disconnect connection))
+                                             (thunk event)))))))
+    (if (dojo.isArray id)
+        (dolist (one id)
+          (connect-one one))
+        (return (connect-one id))))
+
+  (bind ((connection nil))
+    (setf connection (wui.connect id event-name
+                                  (lambda (event)
+                                    (when stop-event
+                                      (log.debug "Action handler on id " id ", node " (dojo.byId id) " is stopping event " event)
+                                      (dojo.stopEvent event))
+                                    (when one-shot
+                                      (log.debug "Disconnecting one-shot event handler after firing; id " id  ", node " (dojo.byId id) ", connection " connection)
+                                      (wui.disconnect connection))
+                                    (thunk event))))))
+
+(defun wui.io.connect-action-event-handlers (handlers)
   (flet ((to-boolean (x default-value)
            (cond
              ((= x 1) (return true))
@@ -142,29 +178,25 @@
              (t (if (=== default-value undefined)
                     (assert false "?! we are expecting either 1 or 0 instead of " x)
                     (return default-value)))))
-         (connect-action-handler (handler)
+         (connect-one (handler)
            (bind ((id                (.shift handler))
                   (href              (.shift handler))
                   (target-dom-node   (.shift handler))
                   (one-shot          (to-boolean (.shift handler) false))
                   (event-name        (or (.shift handler) "onclick"))
                   (ajax              (to-boolean (.shift handler) true))
+                  (stop-event        (to-boolean (.shift handler) true))
                   (send-client-state (to-boolean (.shift handler) true))
-                  (sync              (to-boolean (.shift handler) true))
-                  (connection        nil))
-             (setf connection (wui.connect id event-name
-                                           (lambda (event)
-                                             (wui.io.action href
-                                                            :event event
-                                                            :ajax ajax
-                                                            :sync sync
-                                                            :target-dom-node target-dom-node
-                                                            :send-client-state send-client-state)
-                                             (when one-shot
-                                               (log.debug "Disconnecting one-shot event handler after firing; id " id ", href " href ", connection " connection ", target-dom-node " target-dom-node)
-                                               (wui.disconnect connection))))))))
-    ;; NOTE it's important to properly rebind the variables that are captured in the handler closure -- a dolist here is not enough, we need to go through a function call...
-    (map 'connect-action-handler handlers)))
+                  (sync              (to-boolean (.shift handler) true)))
+             (wui.io.connect-action-event-handler
+              id event-name (wui.io.make-action-event-handler href
+                                                              :target-dom-node target-dom-node
+                                                              :ajax ajax
+                                                              :send-client-state send-client-state
+                                                              :sync sync)
+              :one-shot one-shot
+              :stop-event stop-event))))
+    (map 'connect-one handlers)))
 
 (defun wui.io.instantiate-dojo-widgets (widget-ids)
   (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
