@@ -35,6 +35,9 @@
   (write-string ", actions: ")
   (princ (hash-table-count (action-id->action-of -self-))))
 
+(def method debug-client-side? ((self frame))
+  (debug-client-side? (root-component-of self)))
+
 (def (function ei) generate-unique-string (prefix context)
   (bind ((*print-pretty* #f))
     (with-output-to-string (str)
