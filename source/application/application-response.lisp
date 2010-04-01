@@ -90,7 +90,8 @@
 
 (def method handle-toplevel-error/application/emit-response ((application application) (error serious-condition) (ajax-aware? (eql #t)))
   (emit-response-for-ajax-aware-client ()
-    <script `js-inline(wui.io.inform-user-about-ajax-error "error.internal-server-error")>))
+    <script `js-inline(wui.inform-user-about-error "error.internal-server-error"
+                                                   :title "error.internal-server-error.title")>))
 
 (def method handle-toplevel-error :before ((application application) (error serious-condition))
   (when (and (not *inside-user-code*)

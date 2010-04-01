@@ -17,6 +17,13 @@
 (defun wui.connect (objects event function)
   (assert objects "wui.connect called with nil object")
   (assert function "wui.connect called with nil function")
+  (unless dojo.config.isDebug
+    (bind ((original-function function))
+      (setf function (lambda ()
+                       (try
+                            (.apply original-function this arguments)
+                         (catch (e)
+                           (wui.inform-user-about-error "error.generic-javascript-error")))))))
   (flet ((lookup (id)
            (bind ((result (dojo.byId id)))
              (assert result "lookup of the dom node " id " in wui.connect failed")
@@ -84,6 +91,25 @@
   (setf this.type "wui.communication-error")
   (setf this.message message))
 
+;; TODO factor out dialog code?
+(defun wui.inform-user-about-error (message &key (title #"error.generic-javascript-error.title"))
+  (log.debug "Informing user about error, message is '" message "', title is '" title "'")
+  (dojo.require "dijit.Dialog")
+  (setf message (wui.i18n.localize message))
+  (setf title (wui.i18n.localize title))
+  (bind ((dialog (new dijit.Dialog (create :title title)))
+         (reload-button (new dijit.form.Button (create :label #"action.reload-page")))
+         (cancel-button (new dijit.form.Button (create :label #"action.cancel"))))
+    (.placeAt (new dijit.layout.ContentPane (create :content message)) dialog.containerNode)
+    ;; TODO add a 'float: right' or equivalent to the container of the buttons
+    (reload-button.placeAt dialog.containerNode)
+    (cancel-button.placeAt dialog.containerNode)
+    (wui.connect reload-button "onClick" (lambda ()
+                                           (window.location.reload)))
+    (wui.connect cancel-button "onClick" (lambda ()
+                                           (dialog.hide)
+                                           (dialog.destroyRecursive)))
+    (dialog.show)))
 
 ;;;;;;
 ;;; io
@@ -260,31 +286,17 @@
                          :load on-success)))
     (return (dojo.xhrPost params))))
 
-(defun wui.io.process-ajax-network-error (response io-args)
-  (log.error "wui.io.process-ajax-network-error called on response " response ", io-args " io-args)
-  (if dojo.config.isDebug
-      debugger
-      (window.location.reload)))
-
-;; TODO factor out dialog code
-(defun wui.io.inform-user-about-ajax-error (message)
-  (log.debug "Informing user about AJAX error, message is '" message "'")
-  (dojo.require "dijit.Dialog")
-  (setf message (wui.i18n.localize message))
-  (bind ((dialog (new dijit.Dialog (create :id "wui-ajax-error-dialog" :title #"error.ajax.dialog.title")))
-         (reload-button (new dijit.form.Button (create :label #"action.reload-page")))
-         (cancel-button (new dijit.form.Button (create :label #"action.cancel"))))
-    (.placeAt (new dijit.layout.ContentPane (create :content message)) dialog.containerNode)
-    ;; TODO add a 'float: right' to a container of the buttons
-    (reload-button.placeAt dialog.containerNode)
-    (cancel-button.placeAt dialog.containerNode)
-    (wui.connect reload-button "onClick" (lambda ()
-                                           (window.location.reload)))
-    (wui.connect cancel-button "onClick" (lambda ()
-                                           (bind ((dialog (dijit.byId "wui-ajax-error-dialog")))
-                                             (dialog.hide)
-                                             (dialog.destroyRecursive))))
-    (dialog.show)))
+(defun wui.io.process-ajax-network-error (response ioArgs)
+  (log.error "wui.io.process-ajax-network-error called with response " response ", ioArgs " ioArgs)
+  (bind ((network-error? ioArgs.error))
+    ;; NOTE: this is a fragile way to differentiate between network errors and random js errors. http://bugs.dojotoolkit.org/ticket/6814
+    (cond
+      (network-error?
+       (wui.inform-user-about-error "error.network-error"
+                                    :title "error.network-error.title"))
+      ((not dojo.config.isDebug)
+       (wui.inform-user-about-error "error.generic-javascript-error"
+                                    :title "error.generic-javascript-error.title")))))
 
 (defun wui.io.import-ajax-received-xhtml-node (node)
   ;; Makes an XMLHTTP-received node suitable for inclusion in the document.
@@ -623,7 +635,7 @@
 (defun wui.i18n.localize (name)
   (let ((value (aref wui.i18n.resources name)))
     (unless value
-      (log.error "Resource not found for key '" name "'")
+      (log.warn "Resource not found for key '" name "'")
       (setf value name))
     (return value)))
 

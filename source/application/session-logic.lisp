@@ -210,7 +210,7 @@
   (cond
     (*ajax-aware-request*
      (make-functional-response/ajax-aware-client ()
-       <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-session")>))
+       <script `js-inline(wui.inform-user-about-error "error.ajax.request-to-invalid-session")>))
     ((not *delayed-content-request*)
      (make-redirect-response-for-current-application))
     (t
