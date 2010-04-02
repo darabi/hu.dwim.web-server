@@ -55,17 +55,16 @@
   (bind (((:slots child-nodes expanded-component) nodrow)
          (treeble *tree*))
     (if child-nodes
-        (bind ((id (generate-unique-component-id)))
-          <img (:id ,id :src ,(string+ (path-prefix-of *application*)
-                                       (if expanded-component
-                                           "static/wui/icon/20x20/arrowhead-down.png"
-                                           "static/wui/icon/20x20/arrowhead-right.png")))>
-          (render-action-js-event-handler "onclick" id
-                                          (make-action
-                                            (notf expanded-component)
-                                            ;; NOTE: we make dirty the whole treeble, because it is difficult to replace the rows corresponding to the nodrow
-                                            (mark-to-be-rendered-component treeble))
-                                          :target-dom-node (id-of treeble)))
+        (render-command/xhtml (make-action
+                                (notf expanded-component)
+                                ;; NOTE: we make dirty the whole treeble, because it is difficult to replace the rows corresponding to the nodrow
+                                (mark-to-be-rendered-component treeble))
+                              (make-instance 'icon/widget
+                                             :name (if expanded-component
+                                                       'collapse-component
+                                                       'expand-component)
+                                             :label nil)
+                              :subject-dom-node (id-of treeble))
         <span (:class "non-expandable")>)))
 
 (def (function e) render-nodrow-expander-cell (nodrow)
