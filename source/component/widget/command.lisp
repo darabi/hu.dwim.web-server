@@ -85,16 +85,26 @@
   (bind (((:read-only-slots content action enabled-component default ajax js action-arguments id) -self-)
          (send-client-state? (prog1
                                  (getf action-arguments :send-client-state #t)
-                               (remove-from-plistf action-arguments :send-client-state))))
+                               (remove-from-plistf action-arguments :send-client-state)))
+         (ajax (force ajax)))
+    ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit target-dom-node argument all the way up
     (render-command/xhtml action content
-                          :id id :style-class (component-style-class -self-) :action-arguments action-arguments
-                          :js js :enabled enabled-component :default default :ajax ajax
+                          :id id
+                          :style-class (component-style-class -self-)
+                          :action-arguments action-arguments
+                          :js js
+                          :enabled enabled-component
+                          :default default
+                          :target-dom-node (when (stringp ajax) ajax)
+                          :ajax (to-boolean ajax)
                           :send-client-state send-client-state?)))
 
 (def function render-command/xhtml (action content &key (id (generate-unique-component-id))
-                                           style-class action-arguments js
-                                           (enabled #t) default (ajax (typep action 'action))
+                                           style-class action-arguments js (enabled #t) default
+                                           target-dom-node (ajax (typep action 'action))
                                            (send-client-state #t) (sync #t))
+  (check-type ajax boolean)
+  (check-type target-dom-node (or null string))
   (if (force enabled)
       (bind ((name (when (running-in-test-mode? *application*)
                      (if (typep content 'icon/widget)
@@ -109,35 +119,29 @@
         (when default
           (setf submit-id (generate-unique-component-id))
           <input (:id ,submit-id :type "submit" :style "display: none;")>)
-        (render-command-js-event-handler "onclick" (if submit-id (list id submit-id) id) action
-                                         :js js :ajax (force ajax) :sync sync
-                                         :action-arguments action-arguments
-                                         :send-client-state send-client-state))
+        (render-action-js-event-handler "onclick" (if submit-id (list id submit-id) id) action
+                                        :action-arguments action-arguments
+                                        :js js
+                                        :target-dom-node target-dom-node
+                                        :ajax ajax
+                                        :send-client-state send-client-state
+                                        :sync sync))
       <span (:id ,id :class "command widget disabled")
         #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
         ,(render-component content)>))
 
-(def function render-command-js-event-handler (event-name id action &key action-arguments js
-                                                          (ajax (typep action 'action))
-                                                          (send-client-state #t) (sync #t))
-  ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit target-dom-node argument all the way up
-  ;; TODO and then probably delete this function and call render-action-js-event-handler directly...
-  (check-type ajax (or boolean string))
-  (render-action-js-event-handler event-name id action :action-arguments action-arguments :js js
-                                  :target-dom-node (when (stringp ajax) ajax) :ajax (to-boolean ajax)
-                                  :send-client-state send-client-state :sync sync))
-
-(def (function e) render-command-onclick-handler (command id)
-  (bind ((action (action-of command))
-         (action-arguments (action-arguments-of command))
+(def (function e) render-command-onclick-handler (command target-id)
+  (bind (((:read-only-slots action ajax js action-arguments) command)
          (send-client-state? (prog1
                                  (getf action-arguments :send-client-state #t)
-                               (remove-from-plistf action-arguments :send-client-state))))
-    (render-command-js-event-handler "onclick" id action
-                                     :js (js-of command)
-                                     :ajax (force (ajax-of command))
-                                     :action-arguments action-arguments
-                                     :send-client-state send-client-state?)))
+                               (remove-from-plistf action-arguments :send-client-state)))
+         (ajax (force ajax)))
+    (render-action-js-event-handler "onclick" target-id action
+                                    :action-arguments action-arguments
+                                    :js js
+                                    :target-dom-node (when (stringp ajax) ajax)
+                                    :ajax (to-boolean ajax)
+                                    :send-client-state send-client-state?)))
 
 (def (function e) execute-command (command)
   (bind ((executable? #t))
