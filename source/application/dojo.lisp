@@ -97,8 +97,9 @@
         ;; therefore we wrap here again with the js script collapser to emit us before the parent
         ;; WITH-XHTML-BODY-ENVIRONMENT emits the rest of the js stuff.
         `xml,@(with-xhtml-body-environment (:wrappers '(js-script-collapser/wrapper))
-               `js(on-load
-                   (wui.io.instantiate-dojo-widgets (array ,@*dojo-widget-ids*))))))))
+                `js(on-load
+                    ;; using `js-onload here is a no go (ordering issue)
+                    (wui.io.instantiate-dojo-widgets (array ,@*dojo-widget-ids*))))))))
 
 (def macro render-dojo-widget ((&optional (id '(generate-unique-string/frame "_w")))
                                 &body body)

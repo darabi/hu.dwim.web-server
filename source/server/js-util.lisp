@@ -32,7 +32,7 @@
 
 (def (js-macro e) |on-load| (&body body)
   {with-preserved-readtable-case
-   `(dojo.add-on-load
+   `(dojo.addOnLoad
      (lambda ()
        ,@BODY))})
 
@@ -84,12 +84,9 @@
           ,THEN
           ,ELSE))})
 
-(def (js-macro e) $ (&body things)
-  (if (length= 1 things)
-      {with-preserved-readtable-case
-       `(dojo.byId ,(FIRST THINGS))}
-      {with-preserved-readtable-case
-       `(map 'dojo.byId ,THINGS)}))
+(def (js-macro e) $ (thing)
+  {with-preserved-readtable-case
+    `(dojo.byId ,THING)})
 
 (def js-macro |defun| (name args &body body)
   (bind ((name-pieces (cl-ppcre:split "\\." (symbol-name name)))

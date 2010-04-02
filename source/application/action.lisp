@@ -119,6 +119,9 @@
                                                         x))
                                      (write-char #\'))))
                        (with-array-wrapping
+                         ;; emit the action arguments in the order the js side expects them, and only emit
+                         ;; them while they differ from the default value to minimize output.
+                         ;; TODO it's time for some macrology here...
                          (iter (for (id href target-dom-node one-shot event-name ajax stop-event send-client-state sync) :in arguments)
                                (for sync/defaults? = sync)
                                (for send-client-state/defaults? = (and sync/defaults?
@@ -177,6 +180,7 @@
                                              (write-char #\,)
                                              (write-small-js-boolean sync))))))))))))))
           (bind ((serialized-arguments (serialize-action-arguments (nreverse *action-js-event-handlers*))))
+            ;; keep it a simple `js not `js-onload so that we don't 'pollute' that array with another huge one
             `js(on-load
                 (wui.io.connect-action-event-handlers ,(make-string-quasi-quote nil serialized-arguments)))))))))
 
@@ -198,6 +202,7 @@
                    (null   nil)
                    (action (apply 'register-action/href action action-arguments))
                    (uri    (print-uri-to-string action)))))
+      ;; TODO the branches of this if should either be in two separate functions, or an assert should be added for ignored &key arguments in the true branch (ajax, send-client-state, target-dom-node, sync)
       (if js
           `js(on-load
               (wui.io.connect-action-event-handler ,(etypecase id

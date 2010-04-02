@@ -74,7 +74,7 @@
                    (to-js-literal (first (ensure-list (default-locale-of application)))))>
         <script (:type #.+javascript-mime-type+
                  :src  ,(bind ((uri (clone-uri (dojo-release-uri-of -self-))))
-                          ;; TODO use append-file-write-date-to-uri?
+                          ;; we have the dojo release version in the url, so timestamps here are not important
                           (prefix-uri-path uri path-prefix)
                           (append-path-to-uri uri (dojo-file-name-of -self-))
                           (when debug-client-side?

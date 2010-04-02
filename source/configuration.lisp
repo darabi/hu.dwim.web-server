@@ -9,6 +9,8 @@
 ;;; These definitions need to be available by the time we are reading the other files, therefore
 ;;; they are in a standalone file.
 
+;; TODO the `js variants should be smart enough to enable the js-sharpquote reader inside them...
+
 (def constant +default-encoding+ :utf-8)
 
 (def special-variable *transform-quasi-quote-to-inline-emitting* t)
