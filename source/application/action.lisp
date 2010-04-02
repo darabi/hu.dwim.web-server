@@ -122,7 +122,7 @@
                          ;; emit the action arguments in the order the js side expects them, and only emit
                          ;; them while they differ from the default value to minimize output.
                          ;; TODO it's time for some macrology here...
-                         (iter (for (id href target-dom-node one-shot event-name ajax stop-event send-client-state sync) :in arguments)
+                         (iter (for (id href subject-dom-node one-shot event-name ajax stop-event send-client-state sync) :in arguments)
                                (for sync/defaults? = sync)
                                (for send-client-state/defaults? = (and sync/defaults?
                                                                        send-client-state))
@@ -150,10 +150,10 @@
                                  ;; href
                                  (write-char #\,)
                                  (write-js-string href :escape #t)
-                                 ;; target-dom-node
+                                 ;; subject-dom-node
                                  (write-char #\,)
-                                 (if target-dom-node
-                                     (write-js-string target-dom-node)
+                                 (if subject-dom-node
+                                     (write-js-string subject-dom-node)
                                      (write-string "null"))
                                  (unless one-shot/defaults?
                                    ;; one-shot
@@ -184,12 +184,13 @@
             `js(on-load
                 (wui.io.connect-action-event-handlers ,(make-string-quasi-quote nil serialized-arguments)))))))))
 
-(def function render-action-js-event-handler (event-name id action &key action-arguments js target-dom-node
+(def function render-action-js-event-handler (event-name id action &key action-arguments js subject-dom-node
                                                          (ajax (typep action 'action)) (stop-event #t)
                                                          (send-client-state #t) (one-shot #f)
                                                          (sync #t))
+  "SUBJECT-DOM-NODE is used as a hint for the ajax progress indication."
   (check-type ajax boolean)
-  (check-type target-dom-node (or null string))
+  (check-type subject-dom-node (or null string))
   (assert (or action js) () "~S needs either an action or a custom js" 'render-action-js-event-handler)
   ;; TODO FIXME there used to be a (when (dojo.byId ,id) ...) wrapping around the wui.io.action call with the following comment:
   ;; KLUDGE: this condition prevents firing obsolete actions, they are not necessarily
@@ -202,7 +203,7 @@
                    (null   nil)
                    (action (apply 'register-action/href action action-arguments))
                    (uri    (print-uri-to-string action)))))
-      ;; TODO the branches of this if should either be in two separate functions, or an assert should be added for ignored &key arguments in the true branch (ajax, send-client-state, target-dom-node, sync)
+      ;; TODO the branches of this if should either be in two separate functions, or an assert should be added for ignored &key arguments in the true branch (ajax, send-client-state, subject-dom-node, sync)
       (if js
           `js(on-load
               (wui.io.connect-action-event-handler ,(etypecase id
@@ -215,7 +216,7 @@
                                                    :stop-event ,stop-event))
           ;; we delay rendering standard event handlers and send them down in one go as a big array which is processed by the client js code.
           (progn
-            (push (list id href target-dom-node one-shot event-name ajax stop-event send-client-state sync)
+            (push (list id href subject-dom-node one-shot event-name ajax stop-event send-client-state sync)
                   *action-js-event-handlers*)
             ;; we need to keep qq contract here regarding the return value...
             (values))))))

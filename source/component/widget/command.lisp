@@ -87,7 +87,7 @@
                                  (getf action-arguments :send-client-state #t)
                                (remove-from-plistf action-arguments :send-client-state)))
          (ajax (force ajax)))
-    ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit target-dom-node argument all the way up
+    ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit subject-dom-node argument all the way up
     (render-command/xhtml action content
                           :id id
                           :style-class (component-style-class -self-)
@@ -95,16 +95,16 @@
                           :js js
                           :enabled enabled-component
                           :default default
-                          :target-dom-node (when (stringp ajax) ajax)
+                          :subject-dom-node (when (stringp ajax) ajax)
                           :ajax (to-boolean ajax)
                           :send-client-state send-client-state?)))
 
 (def function render-command/xhtml (action content &key (id (generate-unique-component-id))
                                            style-class action-arguments js (enabled #t) default
-                                           target-dom-node (ajax (typep action 'action))
+                                           subject-dom-node (ajax (typep action 'action))
                                            (send-client-state #t) (sync #t))
   (check-type ajax boolean)
-  (check-type target-dom-node (or null string))
+  (check-type subject-dom-node (or null string))
   (if (force enabled)
       (bind ((name (when (running-in-test-mode? *application*)
                      (if (typep content 'icon/widget)
@@ -122,7 +122,7 @@
         (render-action-js-event-handler "onclick" (if submit-id (list id submit-id) id) action
                                         :action-arguments action-arguments
                                         :js js
-                                        :target-dom-node target-dom-node
+                                        :subject-dom-node subject-dom-node
                                         :ajax ajax
                                         :send-client-state send-client-state
                                         :sync sync))
@@ -139,7 +139,7 @@
     (render-action-js-event-handler "onclick" target-id action
                                     :action-arguments action-arguments
                                     :js js
-                                    :target-dom-node (when (stringp ajax) ajax)
+                                    :subject-dom-node (when (stringp ajax) ajax)
                                     :ajax (to-boolean ajax)
                                     :send-client-state send-client-state?)))
 

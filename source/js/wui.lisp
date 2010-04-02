@@ -114,7 +114,7 @@
 ;;;;;;
 ;;; io
 
-(defun wui.io.action (url &key event (ajax true) target-dom-node (sync true) (send-client-state true))
+(defun wui.io.action (url &key event (ajax true) subject-dom-node (sync true) (send-client-state true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event)))
   (bind ((decorated-url (wui.append-query-parameter url
@@ -123,7 +123,7 @@
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
     (if ajax
-        (bind ((ajax-target (dojo.byId target-dom-node))
+        (bind ((ajax-target (dojo.byId subject-dom-node))
                (ajax-request-in-progress-indicator (document.create-element "div"))
                (ajax-request-in-progress-teardown (lambda ()
                                                     (when ajax-target
@@ -158,14 +158,14 @@
               (form.submit))
             (setf window.location.href decorated-url)))))
 
-(defun wui.io.make-action-event-handler (href &key target-dom-node (ajax true) (send-client-state true) (sync true))
+(defun wui.io.make-action-event-handler (href &key subject-dom-node (ajax true) (send-client-state true) (sync true))
   (return
     (lambda (event)
       (wui.io.action href
                      :event event
                      :ajax ajax
                      :sync sync
-                     :target-dom-node target-dom-node
+                     :subject-dom-node subject-dom-node
                      :send-client-state send-client-state))))
 
 (defun wui.io.connect-action-event-handler (id event-name thunk &key one-shot (stop-event true))
@@ -207,7 +207,7 @@
          (connect-one (handler)
            (bind ((id                (.shift handler))
                   (href              (.shift handler))
-                  (target-dom-node   (.shift handler))
+                  (subject-dom-node  (.shift handler))
                   (one-shot          (to-boolean (.shift handler) false))
                   (event-name        (or (.shift handler) "onclick"))
                   (ajax              (to-boolean (.shift handler) true))
@@ -216,7 +216,7 @@
                   (sync              (to-boolean (.shift handler) true)))
              (wui.io.connect-action-event-handler
               id event-name (wui.io.make-action-event-handler href
-                                                              :target-dom-node target-dom-node
+                                                              :subject-dom-node subject-dom-node
                                                               :ajax ajax
                                                               :send-client-state send-client-state
                                                               :sync sync)
