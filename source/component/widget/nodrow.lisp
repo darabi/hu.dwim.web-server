@@ -60,15 +60,12 @@
                                        (if expanded-component
                                            "static/wui/icon/20x20/arrowhead-down.png"
                                            "static/wui/icon/20x20/arrowhead-right.png")))>
-          `js(on-load (wui.connect (dojo.byId ,id) "onclick" nil
-                                   (lambda (event)
-                                     (wui.io.action ,(action/href ()
-                                                                  (notf expanded-component)
-                                                                  ;; NOTE: we make dirty the whole treeble, because it is difficult to replace the rows corresponding to the nodrow
-                                                                  (mark-to-be-rendered-component treeble))
-                                                    :event event
-                                                    :ajax ,(when (ajax-enabled? *application*)
-                                                                 (id-of treeble)))))))
+          (render-action-js-event-handler "onclick" id
+                                          (make-action
+                                            (notf expanded-component)
+                                            ;; NOTE: we make dirty the whole treeble, because it is difficult to replace the rows corresponding to the nodrow
+                                            (mark-to-be-rendered-component treeble))
+                                          :target-dom-node (id-of treeble)))
         <span (:class "non-expandable")>)))
 
 (def (function e) render-nodrow-expander-cell (nodrow)
