@@ -222,7 +222,7 @@
                                                               :sync sync)
               :one-shot one-shot
               :stop-event stop-event))))
-    (map 'connect-one handlers)))
+    (foreach #'connect-one handlers)))
 
 (defun wui.io.instantiate-dojo-widgets (widget-ids)
   (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
@@ -690,7 +690,7 @@
   (bind ((handles (array))
          (aborter (lambda (event)
                     (dojo.style document.body "cursor" "default")
-                    (map 'dojo.disconnect handles)
+                    (foreach 'dojo.disconnect handles)
                     (wui.help.teardown)
                     (dojo.stopEvent event))))
     (handles.push (wui.connect document "mouseover" (wui.help.make-mouseover-handler url)))
