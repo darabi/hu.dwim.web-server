@@ -24,26 +24,23 @@
   (check-type target-id string)
   (etypecase tooltip
     (string
-     `js(on-load
-         ;; TODO this should work (dijit.showTooltip ,tooltip ,target-id (array ,@position))
-         (new dijit.Tooltip
-              (create :connectId (array ,target-id)
-                      :label ,tooltip
-                      :position (array ,@position)))))
+     ;; TODO this should work (dijit.showTooltip ,tooltip ,target-id (array ,@position))
+     `js-onload(new dijit.Tooltip
+                    (create :connectId (array ,target-id)
+                            :label ,tooltip
+                            :position (array ,@position))))
     ((or action uri)
-     `js(on-load
-         (new dojox.widget.DynamicTooltip
-              (create :connectId (array ,target-id)
-                      :position (array ,@position)
-                      :href ,(etypecase tooltip
-                               (action (register-action/href tooltip :delayed-content #t))
-                               (uri (print-uri-to-string tooltip)))))))
+     `js-onload(new dojox.widget.DynamicTooltip
+                    (create :connectId (array ,target-id)
+                            :position (array ,@position)
+                            :href ,(etypecase tooltip
+                                              (action (register-action/href tooltip :delayed-content #t))
+                                              (uri (print-uri-to-string tooltip))))))
     ;; action is subtypep function, therefore this order and the small code duplication...
     (function
-     `js(on-load
-         (new dijit.Tooltip
-              (create :connectId (array ,target-id)
-                      :label ,(babel:octets-to-string (with-output-to-sequence (*xml-stream* :external-format (external-format-of *response*))
-                                                        (funcall tooltip))
-                                                      :encoding (external-format-of *response*))
-                      :position (array ,@position)))))))
+     `js-onload(new dijit.Tooltip
+                    (create :connectId (array ,target-id)
+                            :label ,(babel:octets-to-string (with-output-to-sequence (*xml-stream* :external-format (external-format-of *response*))
+                                                              (funcall tooltip))
+                                                            :encoding (external-format-of *response*))
+                            :position (array ,@position))))))

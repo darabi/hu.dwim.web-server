@@ -286,9 +286,7 @@
                           (progn
                             (app.warn "Unable to parse the client timezone offset: ~S" value)
                             (setf (client-timezone-of (context.session *context*)) +utc-zone+)))))) >
-    `js(on-load
-        (setf (slot-value ($ ,id) 'value)
-              (dojo.date.to-rfc-3339 (new *date))))))
+    `js-onload(setf (slot-value ($ ,id) 'value) (dojo.date.stamp.toISOString (new *date)))))
 
 ;; TODO: resolve this duality among localize and localized-instance-name, why do we have both?
 ;; TODO localized-instance-name is quite a bad name, because it's not the instance's name, only a mere human readable, short text representation

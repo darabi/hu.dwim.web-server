@@ -144,12 +144,12 @@
                     :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
           ,@(with-xhtml-body-environment ()
               (render-content-for -self-)
-             `js(on-load
-                 (log.debug "Clearing the failed to load timer")
-                 (clearTimeout document.wui-failed-to-load-timer)
-                 ;; KLUDGE: this should be done after, not only the page, but all widgets are loaded
-                 (log.debug "Clearing the margin -10000px hackery")
-                 (dojo.style document.body "margin" "0px")))>>>))
+             `js-onload(progn
+                         (log.debug "Clearing the failed to load timer")
+                         (clearTimeout document.wui-failed-to-load-timer)
+                         ;; KLUDGE: this should be done after, not only the page, but all widgets are loaded
+                         (log.debug "Clearing the margin -10000px hackery")
+                         (dojo.style document.body "margin" "0px")))>>>))
 
 (def method supports-debug-component-hierarchy? ((self frame/widget))
   #f)

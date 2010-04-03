@@ -42,8 +42,7 @@
             ,(if (and checked-image
                       unchecked-image)
                  <img>)>
-          `js(on-load
-              (wui.field.setup-custom-checkbox ,id ,checked-image ,unchecked-image ,checked-tooltip ,unchecked-tooltip ,checked-class ,unchecked-class)))
+          `js-onload(wui.field.setup-custom-checkbox ,id ,checked-image ,unchecked-image ,checked-tooltip ,unchecked-tooltip ,checked-class ,unchecked-class))
         (progn
           ;; TODO :accesskey (accesskey field)
           ;; :title (or (tooltip field) (if value
@@ -56,8 +55,7 @@
                   :type "checkbox"
                   :checked ,checked
                   ,(maybe-make-xml-attribute "onChange" on-change))>
-          `js(on-load
-              (wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip)))))
+          `js-onload(wui.field.setup-simple-checkbox ,id ,checked-tooltip ,unchecked-tooltip))))
   (values))
 
 ;;;;;;

@@ -205,15 +205,14 @@
                    (uri    (print-uri-to-string action)))))
       ;; TODO the branches of this if should either be in two separate functions, or an assert should be added for ignored &key arguments in the true branch (ajax, send-client-state, subject-dom-node, sync)
       (if js
-          `js(on-load
-              (wui.io.connect-action-event-handler ,(etypecase id
-                                                      (cons   (make-array-form (mapcar #'make-constant-form id)))
-                                                      (string id))
-                                                   ,event-name
-                                                   (lambda (event)
-                                                     ,(apply js (when href (list href))))
-                                                   :one-shot ,one-shot
-                                                   :stop-event ,stop-event))
+          `js-onload(wui.io.connect-action-event-handler ,(etypecase id
+                                                            (cons   (make-array-form (mapcar #'make-constant-form id)))
+                                                            (string id))
+                                                         ,event-name
+                                                         (lambda (event)
+                                                           ,(apply js (when href (list href))))
+                                                         :one-shot ,one-shot
+                                                         :stop-event ,stop-event)
           ;; we delay rendering standard event handlers and send them down in one go as a big array which is processed by the client js code.
           (progn
             (push (list id href subject-dom-node one-shot event-name ajax stop-event send-client-state sync)

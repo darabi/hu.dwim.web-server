@@ -55,9 +55,8 @@
                        :name "password"
                        :value ,password
                        :type "password")>>>
-       <tr <td (:colspan 2) ,(render-command-bar-for -self-)>>>
-     `js(on-load
-         (.focus ($ ,focused-field-id)))>))
+       <tr <td (:colspan 2) ,(render-command-bar-for -self-)>>>>
+    `js-onload(.focus ($ ,focused-field-id))))
 
 (def function make-default-identifier-and-password-login-command ()
   (command/widget (:default #t)

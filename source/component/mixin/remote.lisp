@@ -21,7 +21,7 @@
       (call-next-method)))
 
   (:method :in xhtml-layer ((self id/mixin))
-    `js(on-load (wui.setup-component ,(id-of self) ,(instance-class-name-as-string self)))))
+    `js-onload(wui.setup-component ,(id-of self) ,(instance-class-name-as-string self))))
 
 (def render-xhtml :after remote-setup/mixin
   (render-remote-setup -self-))
