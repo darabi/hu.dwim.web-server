@@ -29,3 +29,7 @@
 
 (def method collapse-component ((self collapsible/mixin))
   (setf (expanded-component? self) #f))
+
+(def method map-visible-child-components ((component collapsible/mixin) function)
+  (when (expanded-component? component)
+    (call-next-method)))
