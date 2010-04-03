@@ -31,7 +31,8 @@
           :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-context-menu-for -self-)
       ,(render-list-layout orientation (make-page-navigation-contents page-navigation-bar contents))
-      ,(render-page-navigation-bar-for -self-)>))
+      ,(render-page-navigation-bar-for -self-)
+      ,(render-command-bar-for -self-)>))
 
 (def layered-method make-page-navigation-bar ((component list/widget) class prototype value)
   (make-instance 'page-navigation-bar/widget :total-count (length (contents-of component))))
