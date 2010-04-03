@@ -72,6 +72,21 @@
       (if (eq to-be-rendered-component :lazy)
           (progn
             <div (:id ,id) "">
+            ;; TODO due to the custom :js this hinders the optimization in render-action-js-event-handler
+            (render-action-js-event-handler "oncontextmenu" parent-id (make-action
+                                                                        (setf (to-be-rendered-component? -self-) #t))
+                                            :js (lambda (href)
+                                                  `js(progn
+                                                       ((wui.io.make-action-event-handler ,href
+                                                                                          :ajax true
+                                                                                          :send-client-state false
+                                                                                          :sync true)
+                                                        event)
+                                                       ;; TODO don't use dojo internals. find a way to reinvoke the same event, or make sure some other way that the context menu comes up
+                                                       (._scheduleOpen (dijit.byId ,id) event.target nil (create :x event.pageX :y event.pageY))))
+                                            :one-shot #t :stop-event #t)
+            ;; this is a safe fallback kept for reference. shortcomings: left clicking anything will force the context menu to download.
+            #+nil
             (render-action-js-event-handler "onmousedown" parent-id (make-action
                                                                       (setf (to-be-rendered-component? -self-) #t))
                                             :one-shot #t :sync #t))
