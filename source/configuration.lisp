@@ -111,6 +111,31 @@
                                       result))))
    :dispatched-quasi-quote-name 'js-piece)
   (enable-quasi-quoted-js-syntax
+   :transformation-pipeline (make-js-transformation-pipeline :embedded-in-xml nil :output-postfix nil :output-prefix nil)
+   :toplevel-reader-wrapper (lambda (reader)
+                              (named-lambda js-onload/toplevel-wrapper (&rest args)
+                                (bind ((toplevel? (zerop *quasi-quote-nesting-level*))
+                                       ((:values result js?) (apply reader args)))
+                                  (if js?
+                                      (progn
+                                        (when toplevel?
+                                          (assert (hu.dwim.quasi-quote::toplevel-quasi-quote-macro-call? result)))
+                                        (bind ((form `(progn
+                                                        (push (,(if *transform-quasi-quote-to-binary*
+                                                                    'with-output-to-sequence
+                                                                    'with-output-to-string)
+                                                                (*js-stream*)
+                                                                ,(if toplevel?
+                                                                     result
+                                                                     (hu.dwim.quasi-quote::run-transformation-pipeline result)))
+                                                              *js-onload-callbacks*)
+                                                        +void+)))
+                                          (if toplevel?
+                                              form
+                                              (make-side-effect form))))
+                                      result))))
+   :dispatched-quasi-quote-name 'js-onload)
+  (enable-quasi-quoted-js-syntax
    :transformation-pipeline (bind ((toplevel-pipeline (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t :inline-emitting nil))
                                    (nested-pipeline (make-js-transformation-pipeline :embedded-in-xml t :inline-into-xml-attribute t)))
                               (lambda ()

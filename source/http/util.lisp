@@ -98,7 +98,8 @@
 
 (def special-variable *xhtml-body-environment*)
 
-(def special-variable *xhtml-body-environment-wrappers* '(js-script-collapser/wrapper))
+(def special-variable *xhtml-body-environment-wrappers* '(js-script-collapser/wrapper
+                                                          js-onload-callbacks/wrapper))
 
 (def with-macro* with-xhtml-body-environment (&key (wrappers *xhtml-body-environment-wrappers*))
   (labels ((call-in-environment (thunk wrappers)
@@ -126,6 +127,25 @@
                (write-sequence #.(format nil "<script type=\"text/javascript\">// <![CDATA[~%") *xml-stream*)
                (write-sequence script-body *xml-stream*)
                (write-sequence #.(format nil "~%// ]]></script>") *xml-stream*)))))))
+
+(def special-variable *js-onload-callbacks*)
+
+(def function js-onload-callbacks/wrapper (thunk)
+  (bind ((*js-onload-callbacks* '()))
+    (multiple-value-prog1
+        (funcall thunk)
+      (when *js-onload-callbacks*
+        `js(foreach 'dojo.addOnLoad
+                    ,(iter (initially (write-byte #.(char-code #\[) *js-stream*))
+                           (for el :in (nreverse *js-onload-callbacks*))
+                           (unless (first-time-p)
+                             (write-byte #.(char-code #\,) *js-stream*))
+                           (write-sequence #.(babel:string-to-octets "function () {" :encoding :utf-8) *js-stream*)
+                           (write-sequence el *js-stream*)
+                           (write-byte #.(char-code #\}) *js-stream*)
+                           (finally
+                            (write-byte #.(char-code #\]) *js-stream*)
+                            (return +void+))))))))
 
 (def (with-macro* e) emit-html-document (&key title
                                               content-type
