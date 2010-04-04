@@ -146,14 +146,12 @@
 (def (js-macro e) |assert| (expression &rest args-to-throw)
   (unless args-to-throw
     (setf args-to-throw (list (concatenate 'string "Assertion failed: " (princ-to-string expression)))))
-  (bind ((enter-debugger? *debug-client-side*))
-   {with-preserved-readtable-case
-     `(unless ,EXPRESSION
-        (bind ((argument-for-throw (array ,@ARGS-TO-THROW)))
-          #+nil
-          (when (= 1 argument-for-throw.length)
-            (setf argument-for-throw (aref argument-for-throw 0)))
-          ,@(WHEN ENTER-DEBUGGER?
-              '((log.debug "Assertion failed, entering debugger before throwing this: " argument-for-throw)
-                debugger))
-           (throw argument-for-throw)))}))
+  {with-preserved-readtable-case
+    `(unless ,EXPRESSION
+       ,(IF *DEBUG-CLIENT-SIDE*
+            `(bind ((to-be-thrown (array ,@ARGS-TO-THROW)))
+               (log.error "Assertion failed, will throw " to-be-thrown)
+               (when dojo.config.isDebug
+                 debugger)
+               (throw to-be-thrown))
+            `(throw (array ,@ARGS-TO-THROW))))})
