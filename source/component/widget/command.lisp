@@ -44,34 +44,29 @@
   (bind ((content (first content-and-action))
          (action (second content-and-action)))
     (once-only (content action)
+      (unless ajax-provided?
+        (setf ajax `(typep ,action 'action)))
       (with-unique-names (action-arguments)
         (flet ((maybe-push (key expression)
                  (when expression
-                   `(awhen ,expression
-                      (push it ,action-arguments)
-                      (push ,key ,action-arguments)))))
-          `(bind ((,action-arguments ()))
+                   `((awhen ,expression
+                       (push it ,action-arguments)
+                       (push ,key ,action-arguments))))))
+          `(bind ((,action-arguments (list ,@(when delayed-content-provided?
+                                                   `(:delayed-content ,delayed-content))
+                                           ,@(when send-client-state-provided?
+                                                   `(:send-client-state ,send-client-state)))))
              (debug-only (assert ,content () "Command factory called without a valid CONTENT"))
-             ,(when delayed-content-provided?
-                    `(progn
-                       (push ,delayed-content ,action-arguments)
-                       (push :delayed-content ,action-arguments)))
-             ,(when send-client-state-provided?
-                    `(progn
-                       (push ,send-client-state ,action-arguments)
-                       (push :send-client-state ,action-arguments)))
-             ,(maybe-push :scheme scheme)
-             ,(maybe-push :path path)
-             ,(maybe-push :application-relative-path application-relative-path)
+             ,@(maybe-push :scheme scheme)
+             ,@(maybe-push :path path)
+             ,@(maybe-push :application-relative-path application-relative-path)
              (make-instance 'command/widget
                             :content ,content
                             :action ,action
                             :enabled ,enabled
                             :visible ,visible
                             :default ,default
-                            :ajax ,(if ajax-provided?
-                                       ajax
-                                       `(typep ,action 'action))
+                            :ajax ,ajax
                             :js ,js
                             :action-arguments ,action-arguments)))))))
 
