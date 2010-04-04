@@ -33,7 +33,7 @@
   (render-error-page/internal-error (&key administrator-email-address &allow-other-keys)
     <div
       <h1 "Internal server error">
-      <p "An internal server error has occured while processing your request. We are sorry for the inconvenience.">
+      <p "An internal server error has occurred while processing your request. We are sorry for the inconvenience.">
       <p "The developers will be notified about this error and will hopefully fix it in the near future.">
       ,(when administrator-email-address
          <p "You may contact the administrators at the "

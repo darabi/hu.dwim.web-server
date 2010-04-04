@@ -24,6 +24,7 @@
 
 (def js-localization hu
   (error.ajax.request-to-invalid-session "Megszakadt a kapcsolat a szerverrel. Az oldal újratöltésével újból felépítheti a kapcsolatot...")
+  (error.ajax.request-to-invalid-frame "TODO error.ajax.request-to-invalid-frame")
   (error.network-error.title "Kommunikációs hiba")
   (error.network-error "Hiba történt a szerverrel való kommunikáció közben. Ezt okozhatja átmeneti hálózati hiba, ezért kérem próbálkozzon újra, és/vagy próbálja meg újratölteni az oldalt! Amennyiben a hiba huzamosan fennáll, akkor kérem lépjen kapcsolatba az üzemeltetőkkel!")
   (error.generic-javascript-error.title "Váratlan kliens oldali hiba")
