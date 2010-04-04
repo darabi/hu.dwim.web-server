@@ -33,13 +33,12 @@
     nil
     :type t)))
 
-;; TODO: don't generate such a big code if possible
 ;; TODO: refactor this macro so that subclasses can reuse the code here
 (def (macro e) command/widget ((&key (enabled #t) (visible #t) (default #f) (ajax #t ajax-provided?) js scheme path application-relative-path
                                      (delayed-content nil delayed-content-provided?)
                                      (send-client-state #t send-client-state-provided?))
                                 &body content-and-action)
-  ;; &body here is only for nicer indenting in emacs. content and action should be mandatory arguments, consider dropping &body...
+  ;; KLUDGE &body here is only for nicer indenting in emacs. content and action should be mandatory arguments, consider dropping &body...
   (assert (<= 1 (length content-and-action) 2))
   (bind ((content (first content-and-action))
          (action (second content-and-action)))

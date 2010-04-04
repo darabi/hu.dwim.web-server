@@ -53,6 +53,8 @@
 ;;;;;;
 ;;; context-menu/widget
 
+;; dojo context menus are broken on opera up to at least v10.10: http://bugs.dojotoolkit.org/ticket/9227
+
 (def (icon e) show-context-menu)
 
 (def (component e) context-menu/widget (widget/style menu-items/mixin)
@@ -108,6 +110,7 @@
   (eq (call-next-method) #t))
 
 (def method map-visible-child-components ((component context-menu/widget) function)
+  ;; QUESTION to-be-rendered-component? decides about what is visible? sounds weird... comment or fix...
   (when (eq (to-be-rendered-component? component) #t)
     (call-next-method)))
 

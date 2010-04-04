@@ -95,7 +95,7 @@
   (wui.inform-user-about-error "error.generic-javascript-error" :title "error.generic-javascript-error.title"))
 
 ;; TODO factor out dialog code?
-(defun wui.inform-user-about-error (message &key (title #"error.generic-javascript-error.title"))
+(defun wui.inform-user-about-error (message &key (title "error.generic-javascript-error.title"))
   (log.debug "Informing user about error, message is '" message "', title is '" title "'")
   (dojo.require "dijit.Dialog")
   (setf message (wui.i18n.localize message))
@@ -180,6 +180,8 @@
                                                (log.debug "Action handler on id " id ", node " (dojo.byId id) " is stopping event " event)
                                                (dojo.stopEvent event))
                                              (when one-shot
+                                               ;; TODO support different one-shot strategies? 1) disconnect, 2) use a captured boolean guard.
+                                               ;; 2) with stop-event could be used to hide events from covering parent nodes
                                                (log.debug "Disconnecting one-shot event handler after firing; id " id  ", node " (dojo.byId id) ", connection " connection)
                                                (wui.disconnect connection))
                                              (thunk event)))))))

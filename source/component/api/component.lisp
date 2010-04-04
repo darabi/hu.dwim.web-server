@@ -201,7 +201,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                            (return-from find-descendant-component child)))))
 
 (def (function e) find-descendant-component-with-type (component type)
-  (find-descendant-component component [typep !1 type]))
+  (find-descendant-component component (of-type type)))
 
 (def (function e) map-child-components (component visitor &optional (child-slot-provider [class-slots (class-of !1)]))
   (ensure-functionf visitor)

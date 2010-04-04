@@ -27,14 +27,14 @@
 ;;;;;;
 ;;; replace-target-place/widget
 
-;; TODO rename to replace-target-place-command/widget?
+;; TODO rename to replace-target-place/command/widget?
 (def (component e) replace-target-place/widget (command/widget)
   ((replacement-component :type t))
   (:documentation "A REPLACE-TARGET-PLACE/WIDGET is a COMMAND/WIDGET that will replace the TARGET-PLAGE of its nearest TARGET-PLACE/WIDGET ancestor."))
 
 (def (macro e) replace-target-place/widget ((&rest args &key &allow-other-keys) content &body forms)
   `(make-instance 'replace-target-place/widget ,@args
-                  :content ,content 
+                  :content ,content
                   :replacement-component (one-time-delay ,@forms)))
 
 (def constructor replace-target-place/widget

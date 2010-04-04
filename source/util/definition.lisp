@@ -56,6 +56,7 @@
           (with package = (symbol-package name))
           (for type :in swank-backend::*definition-types* :by #'cddr)
           ;; KLUDGE: remove ignore-errors as soon as this does not error out (sb-introspect:find-definition-sources-by-name 'common-lisp:structure-object :structure)
+          ;; https://bugs.launchpad.net/sbcl/+bug/458015
           (iter (for specification :in (ignore-errors (sb-introspect:find-definition-sources-by-name name type)))
                 (for pathname = (sb-introspect::definition-source-pathname specification))
                 (awhen (case type

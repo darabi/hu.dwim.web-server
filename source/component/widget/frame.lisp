@@ -41,10 +41,10 @@
          (debug-client-side? (debug-client-side? -self-))
          (javascript-supported? (not (request-parameter-value *request* +no-javascript-error-parameter-name+))))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
-    <html (:xmlns     #.+xml-namespace-uri/xhtml+
-           xmlns:dojo #.+xml-namespace-uri/dojo+)
+    <html (:xmlns     +xml-namespace-uri/xhtml+
+           xmlns:dojo +xml-namespace-uri/dojo+)
       <head
-        <meta (:http-equiv #.+header/content-type+
+        <meta (:http-equiv +header/content-type+
                :content ,(content-type-for (content-mime-type-of -self-) encoding))>
         ,(bind (((icon-uri &optional timestamp) (ensure-list (page-icon-uri-of -self-))))
            (when icon-uri
@@ -66,13 +66,14 @@
                                         (append-timestamp-to-uri uri timestamp))
                                       (print-uri-to-string uri)))>))
                   (stylesheet-uris-of -self-))
-        <script (:type #.+javascript-mime-type+)
-          ,(format nil "djConfig = { parseOnLoad: ~A, isDebug: ~A, debugAtAllCosts: ~A, locale: ~A }"
-                   (to-js-boolean (parse-dojo-widgets-on-load? -self-))
-                   (to-js-boolean debug-client-side?)
-                   (to-js-boolean debug-client-side?)
-                   (to-js-literal (first (ensure-list (default-locale-of application)))))>
-        <script (:type #.+javascript-mime-type+
+        <script (:type +javascript-mime-type+)
+          ,(string+ "djConfig = { parseOnLoad: " (to-js-boolean (parse-dojo-widgets-on-load? -self-))
+                    ", isDebug: " (to-js-boolean debug-client-side?)
+                    ", debugAtAllCosts: " (to-js-boolean debug-client-side?)
+                    ;; TODO locale should come from either the session or from frame/widget
+                    ", locale: " (to-js-literal (locale-name (locale (first (ensure-list (default-locale-of application))))))
+                    "}")>
+        <script (:type +javascript-mime-type+
                  :src  ,(bind ((uri (clone-uri (dojo-release-uri-of -self-))))
                           ;; we have the dojo release version in the url, so timestamps here are not important
                           (prefix-uri-path uri path-prefix)
@@ -84,7 +85,7 @@
                  "">
         ,(foreach (lambda (entry)
                     (bind (((script-uri &optional timestamp) (ensure-list entry)))
-                      <script (:type #.+javascript-mime-type+
+                      <script (:type +javascript-mime-type+
                                :src  ,(bind ((uri (clone-uri script-uri)))
                                         (unless (starts-with #\/ (path-of uri))
                                           (prefix-uri-path uri path-prefix))
@@ -101,7 +102,7 @@
         ;; TODO: this causes problems when content-type is application/xhtml+xml
         ;;       should solve the no javascript issue in a different way
         ,(when javascript-supported?
-           <noscript <meta (:http-equiv #.+header/refresh+
+           <noscript <meta (:http-equiv +header/refresh+
                             :content ,(string+ "0; URL="
                                                (application-relative-path-for-no-javascript-support-error *application*)
                                                "?"
@@ -124,7 +125,7 @@
                                                                             (setf failed-page.style.display ""))
                                                                           ,+page-failed-to-load-grace-period-in-millisecs+)))
                     (on-load
-                     ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
+                     ;; KLUDGE "content" cross reference is fragile...
                      (wui.reset-scroll-position "content")
                      (setf wui.session-id  ,(or (awhen *session* (id-of it)) ""))
                      (setf wui.frame-id    ,(or (awhen *frame* (id-of it)) ""))
@@ -136,19 +137,16 @@
         <form (:method "post"
                :enctype #.+form-encoding/multipart-form-data+
                :action "")
-          ;; KLUDGE not here, scroll stuff shouldn't be part of wui proper
           <div (:style "display: none")
-            <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
+            <input (:id +scroll-x-parameter-name+ :name +scroll-x-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-x-parameter-name+))))>
-            <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
+            <input (:id +scroll-y-parameter-name+ :name +scroll-y-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
           ,@(with-xhtml-body-environment ()
               (render-content-for -self-)
              `js-onload(progn
-                         (log.debug "Clearing the failed to load timer")
+                         (log.debug "Loaded successfully, clearing the failed to load timer and showing the page")
                          (clearTimeout document.wui-failed-to-load-timer)
-                         ;; KLUDGE: this should be done after, not only the page, but all widgets are loaded
-                         (log.debug "Clearing the margin -10000px hackery")
                          (dojo.style document.body "margin" "0px")))>>>))
 
 (def method supports-debug-component-hierarchy? ((self frame/widget))
