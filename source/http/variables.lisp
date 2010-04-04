@@ -100,7 +100,10 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (macrolet ((x (&rest pairs)
              `(progn
                 ,@(iter (for (name value) :on pairs :by #'cddr)
-                        (collect `(def (constant e) ,name (coerce ,value 'simple-base-string)))))))
+                        (collect `(progn
+                                    (def (constant e) ,name (coerce ,value 'simple-base-string))
+                                    ;; we also define lower-case constants, because the quasi-quote readers are case sensitive
+                                    (def (constant e) ,(intern (string-downcase name)) (coerce ,value 'simple-base-string))))))))
   ;; constants for optimization
   (x
    +utf-8-html-content-type+            "text/html; charset=utf-8"
