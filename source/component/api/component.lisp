@@ -459,7 +459,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 
 (def (generic e) visible-child-component-slots (component)
   (:method ((self component))
-    (class-slots (class-of self))))
+    (component-slots-of (class-of self))))
 
 (def (generic e) map-visible-child-components (component function)
   (:method ((component component) function)
