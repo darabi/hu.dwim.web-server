@@ -108,7 +108,7 @@
                                                          (:file "border")
                                                          (:file "button")
                                                          (:file "cell" :depends-on ("table" "row" "column"))
-                                                         (:file "collapsible" :depends-on ("command"))
+                                                         (:file "collapsible" :depends-on ("command" "content"))
                                                          (:file "column")
                                                          (:file "command" :depends-on ("icon"))
                                                          (:file "command-bar" :depends-on ("command"))
@@ -251,6 +251,6 @@
                                                          (:file "system")
                                                          (:file "type")
                                                          (:file "uri")
-                                                         (:file "variable")))
-                                           ;; KLUDGE: kill this
-                                           (:file "xxx" :depends-on ("object"))))))))
+                                                         (:file "variable")))))
+                             ;; KLUDGE: kill this
+                             (:file "xxx" :pathname "component/xxx.lisp" :depends-on ("component"))))))
