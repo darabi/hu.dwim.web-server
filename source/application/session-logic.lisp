@@ -222,7 +222,7 @@
   (cond
     (*ajax-aware-request*
      (make-functional-response/ajax-aware-client ()
-       <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-frame")>))
+       <script `js-inline(wui.inform-user-about-error "error.ajax.request-to-invalid-frame")>))
     ((and (eq invalidity-reason :out-of-sync)
           (not *delayed-content-request*))
      (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
@@ -243,7 +243,7 @@
   (cond
     (*ajax-aware-request*
      (make-functional-response/ajax-aware-client ()
-       <script `js-inline(wui.io.inform-user-about-ajax-error "error.message.ajax-request-to-invalid-action")>))
+       <script `js-inline(wui.inform-user-about-js-error)>))
     ((not *delayed-content-request*)
      (make-redirect-response-for-current-application))
     (t (handle-delayed-request-to-invalid-session/frame/action))))

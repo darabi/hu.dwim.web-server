@@ -91,6 +91,9 @@
   (setf this.type "wui.communication-error")
   (setf this.message message))
 
+(defun wui.inform-user-about-js-error ()
+  (wui.inform-user-about-error "error.generic-javascript-error" :title "error.generic-javascript-error.title"))
+
 ;; TODO factor out dialog code?
 (defun wui.inform-user-about-error (message &key (title #"error.generic-javascript-error.title"))
   (log.debug "Informing user about error, message is '" message "', title is '" title "'")
