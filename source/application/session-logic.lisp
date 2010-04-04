@@ -90,16 +90,17 @@
   (app.debug "WITH-FRAME-LOGIC speaking, requires-valid-frame ~A, ensure-frame ~A" requires-valid-frame ensure-frame)
   (bind ((application *application*)
          (session *session*)
-         ((:values frame frame-id-parameter-received? invalidity-reason frame-instance) (when session
-                                                                                          (find-frame-for-request session))))
+         ((:values frame nil invalidity-reason frame-instance) (when session
+                                                                 (find-frame-for-request session))))
     (setf *frame* frame)
     (app.debug "WITH-FRAME-LOGIC looked up frame ~A from session ~A" frame session)
     (if frame
         (-body-)
         (cond
           ((and requires-valid-frame
-                (or (not session)
-                    frame-id-parameter-received?))
+                (not frame)
+                (or (not ensure-frame)
+                    (not *session*)))
            (handle-request-to-invalid-frame application session frame-instance invalidity-reason))
           ((and ensure-frame
                 *session*)
