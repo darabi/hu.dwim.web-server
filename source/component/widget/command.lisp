@@ -20,7 +20,7 @@
     :type boolean
     :documentation "TRUE means the action will execute on pressing enter.")
    (ajax
-    #f
+    (ajax-enabled? *application*)
     :type (or boolean string)
     :documentation "TRUE means the action supports ajax, but there will be no precise indication at the remote side. A string specifies the id of the component which will be used to indicate the processing of the action.")
    (action
