@@ -82,38 +82,31 @@
 ;;;;;;
 ;;; Command factory
 
+(def macro make-page-navigation-command (component icon visible-expression action-expression)
+  `(bind (((:slots parent-component position page-size total-count jumper) ,component))
+     (command/widget (:enabled (delay ,visible-expression)
+                      :subject-component parent-component)
+       (icon/widget ,icon)
+       (make-action
+         (setf (component-value-of jumper) ,action-expression)
+         (mark-to-be-rendered-component parent-component)))))
+
 (def layered-method make-go-to-first-page-command ((component page-navigation-bar/widget) class prototype value)
-  (bind (((:slots parent-component position page-size total-count jumper) component))
-    (command/widget (:enabled (delay (> position 0))
-                     :ajax (ajax-of parent-component))
-      (icon/widget go-to-first-page)
-      (make-action
-        (setf (component-value-of jumper) (setf position 0))
-        (mark-to-be-rendered-component parent-component)))))
+  (make-page-navigation-command component go-to-first-page
+                                (plusp position)
+                                (setf position 0)))
 
 (def layered-method make-go-to-previous-page-command ((component page-navigation-bar/widget) class prototype value)
-  (bind (((:slots parent-component position page-size total-count jumper) component))
-    (command/widget (:enabled (delay (> position 0))
-                     :ajax (ajax-of parent-component))
-      (icon/widget go-to-previous-page)
-      (make-action
-        (setf (component-value-of jumper) (decf position (min position page-size)))
-        (mark-to-be-rendered-component parent-component)))))
+  (make-page-navigation-command component go-to-previous-page
+                                (plusp position)
+                                (decf position (min position page-size))))
 
 (def layered-method make-go-to-next-page-command ((component page-navigation-bar/widget) class prototype value)
-  (bind (((:slots parent-component position page-size total-count jumper) component))
-    (command/widget (:enabled (delay (< position (- total-count page-size)))
-                     :ajax (ajax-of parent-component))
-      (icon/widget go-to-next-page)
-      (make-action
-        (setf (component-value-of jumper) (incf position (min page-size (- total-count page-size))))
-        (mark-to-be-rendered-component parent-component)))))
+  (make-page-navigation-command component go-to-next-page
+                                (< position (- total-count page-size))
+                                (incf position (min page-size (- total-count page-size)))))
 
 (def layered-method make-go-to-last-page-command ((component page-navigation-bar/widget) class prototype value)
-  (bind (((:slots parent-component position page-size total-count jumper) component))
-    (command/widget (:enabled (delay (< position (- total-count page-size)))
-                     :ajax (ajax-of parent-component))
-      (icon/widget go-to-last-page)
-      (make-action
-        (setf (component-value-of jumper) (setf position (- total-count page-size)))
-        (mark-to-be-rendered-component parent-component)))))
+  (make-page-navigation-command component go-to-last-page
+                                (< position (- total-count page-size))
+                                (setf position (- total-count page-size))))

@@ -36,16 +36,3 @@
 (def layered-method refresh-component :before ((self frame-unique-id/mixin))
   (ensure-frame-unique-id self))
 
-(def layered-method make-refresh-component-command ((component frame-unique-id/mixin) class prototype value)
-  (aprog1 (call-next-method)
-    (setf (ajax-of it) (ajax-of component))))
-
-;; TODO what is this? client-side-identity-of? rename to something more descriptive...
-(def (generic e) ajax-of (component)
-  (:method ((self component))
-    #t)
-
-  (:method ((self frame-unique-id/mixin))
-    (ensure-frame-unique-id self)))
-
-(def (generic e) (setf ajax-of) (new-value component))

@@ -77,7 +77,9 @@ Optimized factory configuration (default):
   (make-replace-and-push-back-command (delay (result-of component))
                                       (delay (with-restored-component-environment component
                                                (make-result component class prototype (execute-filter component class prototype value))))
-                                      (list :content (icon/widget execute-filter) :default #t #+nil :ajax #+nil (ajax-of component))
+                                      (list :content (icon/widget execute-filter)
+                                            :default #t
+                                            :subject-component component)
                                       (list :content (icon/widget navigate-back))))
 
 (def layered-method make-result ((component t/filter) class prototype (value list))

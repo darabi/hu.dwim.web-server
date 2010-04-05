@@ -21,8 +21,12 @@
     :documentation "TRUE means the action will execute on pressing enter.")
    (ajax
     (ajax-enabled? *application*)
-    :type (or boolean string)
-    :documentation "TRUE means the action supports ajax, but there will be no precise indication at the remote side. A string specifies the id of the component which will be used to indicate the processing of the action.")
+    :type boolean
+    :documentation "TRUE means the action supports ajax, but there will be no precise indication at the remote side.")
+   (subject-component
+    nil
+    :type (or null t) ; FIXME :type (or null component) would try to set the parent-component slot of components that are put in this slot. we obviously don't want that...
+    :documentation "Specifies the component which will be used to indicate the progress when the command is issued.")
    (action
     :type (or uri action)
     :documentation "The action (function) that will be called when this command is activated.")
@@ -34,7 +38,8 @@
     :type t)))
 
 ;; TODO: refactor this macro so that subclasses can reuse the code here
-(def (macro e) command/widget ((&key (enabled #t) (visible #t) (default #f) (ajax #t ajax-provided?) js scheme path application-relative-path
+(def (macro e) command/widget ((&key (enabled #t) (visible #t) (default #f) (ajax #t ajax-provided?) subject-component
+                                     js scheme path application-relative-path
                                      (delayed-content nil delayed-content-provided?)
                                      (send-client-state #t send-client-state-provided?))
                                 &body content-and-action)
@@ -66,6 +71,7 @@
                             :visible ,visible
                             :default ,default
                             :ajax ,ajax
+                            :subject-component ,subject-component
                             :js ,js
                             :action-arguments ,action-arguments)))))))
 
@@ -79,9 +85,7 @@
   (bind (((:read-only-slots content action enabled-component default ajax js action-arguments id) -self-)
          (send-client-state? (prog1
                                  (getf action-arguments :send-client-state #t)
-                               (remove-from-plistf action-arguments :send-client-state)))
-         (ajax (force ajax)))
-    ;; TODO the name 'ajax' doesn't really suggest that it may also be a dom id... add an explicit subject-dom-node argument all the way up
+                               (remove-from-plistf action-arguments :send-client-state))))
     (render-command/xhtml action content
                           :id id
                           :style-class (component-style-class -self-)
@@ -89,8 +93,8 @@
                           :js js
                           :enabled enabled-component
                           :default default
-                          :subject-dom-node (when (stringp ajax) ajax)
-                          :ajax (to-boolean ajax)
+                          :subject-dom-node (subject-dom-node-for-command -self-)
+                          :ajax (to-boolean (force ajax))
                           :send-client-state send-client-state?)))
 
 (def function render-command/xhtml (action content &key (id (generate-unique-component-id))
@@ -124,17 +128,23 @@
         #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
         ,(render-component content)>))
 
+(def function subject-dom-node-for-command (command)
+  (bind ((subject-component (force (subject-component-of command))))
+    (etypecase subject-component
+      (id/mixin (id-of subject-component))
+      ;; TODO if there's parent/mixin we could find an id/mixin on the parent chain... but should we?
+      ((or null component) nil))))
+
 (def (function e) render-command-onclick-handler (command target-id)
   (bind (((:read-only-slots action ajax js action-arguments) command)
          (send-client-state? (prog1
                                  (getf action-arguments :send-client-state #t)
-                               (remove-from-plistf action-arguments :send-client-state)))
-         (ajax (force ajax)))
+                               (remove-from-plistf action-arguments :send-client-state))))
     (render-action-js-event-handler "onclick" target-id action
                                     :action-arguments action-arguments
                                     :js js
-                                    :subject-dom-node (when (stringp ajax) ajax)
-                                    :ajax (to-boolean ajax)
+                                    :subject-dom-node (subject-dom-node-for-command command)
+                                    :ajax (to-boolean (force ajax))
                                     :send-client-state send-client-state?)))
 
 (def (function e) execute-command (command)

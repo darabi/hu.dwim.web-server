@@ -77,4 +77,4 @@
                    :action (make-action
                              (execute-replace (delay (content-of tab-container)) component))
                    :content (clone-component (selector-of component))
-                   :ajax (ajax-of tab-container))))
+                   :subject-component tab-container)))

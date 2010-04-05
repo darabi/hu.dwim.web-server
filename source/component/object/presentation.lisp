@@ -28,12 +28,12 @@
   ())
 
 (def refresh-component t/reference/presentation
-  (bind (((:slots component-value content ajax action) -self-)
+  (bind (((:slots component-value content subject-component action) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf content (icon/widget expand-from-reference :label (make-reference-content -self- class prototype component-value))
-          ajax (ajax-of (parent-component-of -self-))
-          action (make-action (execute-replace -self- (delay (find-default-alternative-component (parent-component-of -self-))))))))
+    (setf content (icon/widget expand-from-reference :label (make-reference-content -self- class prototype component-value)))
+    (setf subject-component (delay (parent-component-of -self-)))
+    (setf action (make-action (execute-replace -self- (delay (find-default-alternative-component (parent-component-of -self-))))))))
 
 (def layered-method make-reference-content (component class prototype value)
   (localized-instance-name value))

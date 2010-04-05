@@ -42,7 +42,7 @@
                              (replace-target-place -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) (component-value-of -self-)))))
 
 (def refresh-component replace-target-place/widget
-  (bind (((:slots ajax) -self-))
+  (bind (((:slots subject-component) -self-))
     (when ajax
       (bind ((target-place (target-place-of (find-replace-target-place-widget -self-)))
              (component (component-at-place target-place)))

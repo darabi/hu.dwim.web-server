@@ -96,7 +96,7 @@
                                                     (class-of (content-of component))))
                                            (or (not reference?)
                                                (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract :otherwise #f)))))
-                     :ajax (ajax-of component)))))
+                     :subject-component component))))
 
 (def (generic e) make-replace-with-alternative-command-content (alternative prototype)
   (:method (alternative (prototype component))

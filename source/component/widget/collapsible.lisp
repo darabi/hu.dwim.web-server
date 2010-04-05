@@ -49,14 +49,14 @@
 
 (def (layered-function e) make-collapse-command (component class prototype value)
   (:method ((component collapsible/abstract) class prototype value)
-    (command/widget (:ajax (ajax-of component))
+    (command/widget (:subject-component component)
       (icon/widget collapse-component :label nil)
       (make-component-action component
         (collapse-component component)))))
 
 (def (layered-function e) make-expand-command (component class prototype value)
   (:method ((component collapsible/abstract) class prototype value)
-    (command/widget (:ajax (ajax-of component))
+    (command/widget (:subject-component component)
       (icon/widget expand-component :label nil)
       (make-component-action component
         (expand-component component)))))

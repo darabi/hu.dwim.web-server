@@ -234,9 +234,9 @@
                                                                     :editable (editable-component? component))))
                                         (list :content (icon/widget expand-component)
                                               :visible (delay (not (has-edited-descendant-component-p component)))
-                                              :subject-dom-node (id-of component))
+                                              :subject-component component)
                                         (list :content (icon/widget collapse-component)
-                                              :subject-dom-node (id-of replacement-component)))))
+                                              :subject-component (delay replacement-component)))))
 
 ;;;;;;
 ;;; t/entire-row/inspector

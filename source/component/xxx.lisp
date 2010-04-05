@@ -92,8 +92,14 @@
     (make-component-action component
       (refresh-component component))))
 
+(def layered-method make-refresh-component-command :around ((component refreshable/mixin) class prototype value)
+  (aprog1
+      (call-next-method)
+    (unless (subject-component-of it)
+      (setf (subject-component-of it) component))))
+
 (def layered-method make-select-component-command ((component selectable/mixin) class prototype value)
-  (command/widget (:ajax (awhen (find-selection-component component) (ajax-of it))
+  (command/widget (:subject-component (find-selection-component component)
                    :enabled (delay (selectable-component? component)))
     (icon/widget select-component)
     (make-component-action component
@@ -166,7 +172,7 @@
 (def layered-method make-begin-editing-command ((component editable/mixin) class prototype value)
   (command/widget (:visible (or (editable-component? component)
                                 (delay (not (edited-component? component))))
-                   :ajax (ajax-of component))
+                   :subject-component component)
     (icon/widget begin-editing)
     (make-component-action component
       (with-interaction component
@@ -174,7 +180,7 @@
 
 (def layered-method make-save-editing-command (component class prototype value)
   (command/widget (:visible (delay (edited-component? component))
-                   :ajax (ajax-of component))
+                   :subject-component component)
     (icon/widget save-editing)
     (make-component-action component
       (with-interaction component
@@ -182,7 +188,7 @@
 
 (def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
   (command/widget (:visible (delay (edited-component? component))
-                   :ajax (ajax-of component))
+                   :subject-component component)
     (icon/widget cancel-editing)
     (make-component-action component
       (with-interaction component
@@ -190,7 +196,7 @@
 
 (def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
   (command/widget (:visible (delay (edited-component? component))
-                   :ajax (ajax-of component))
+                   :subject-component component)
     (icon/widget store-editing)
     (make-component-action component
       (with-interaction component
@@ -198,7 +204,7 @@
 
 (def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
   (command/widget (:visible (delay (edited-component? component))
-                   :ajax (ajax-of component))
+                   :subject-component component)
     (icon/widget revert-editing)
     (make-component-action component
       (with-interaction component
@@ -215,7 +221,7 @@
 
 (def layered-method make-refresh-component-command ((component editable/mixin) class prototype instance)
   (command/widget (:visible (delay (not (edited-component? component)))
-                   :ajax (ajax-of component))
+                   :subject-component component)
     (icon/widget refresh-component)
     (make-component-action component
       (refresh-component component))))

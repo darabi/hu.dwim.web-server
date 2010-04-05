@@ -70,7 +70,7 @@
 (def layered-method make-evaluate-form-command ((component t/lisp-form/invoker) class prototype value)
   (command/widget (:visible (delay (or (eq :multiple (evaluation-mode-of component))
                                        (empty-layout? (result-of component))))
-                   :ajax (ajax-of component))
+                   :subject-component component)
     (icon/widget evaluate-form)
     (make-component-action component
       (setf (result-of component)
