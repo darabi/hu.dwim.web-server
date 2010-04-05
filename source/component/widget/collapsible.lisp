@@ -68,8 +68,9 @@
   ())
 
 (def method visible-child-component-slots ((self collapsible-content/abstract))
-  (unless (expanded-component? self)
-    (remove-slots '(content) (call-next-method))))
+  (if (expanded-component? self)
+      (call-next-method)
+      (remove-slots '(content) (call-next-method))))
 
 ;;;;;;
 ;;; collapsible-contents/abstract
@@ -78,8 +79,9 @@
   ())
 
 (def method visible-child-component-slots ((self collapsible-contents/abstract))
-  (unless (expanded-component? self)
-    (remove-slots '(contents) (call-next-method))))
+  (if (expanded-component? self)
+      (call-next-method)
+      (remove-slots '(contents) (call-next-method))))
 
 ;;;;;;
 ;;; collapsible/widget
