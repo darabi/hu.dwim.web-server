@@ -117,7 +117,14 @@
 ;;;;;;
 ;;; io
 
-(defun wui.io.action (url &key event (ajax true) subject-dom-node (sync true) (send-client-state true))
+(setf wui.io.sync-action-in-progress false)
+
+(defun wui.io.action (url &key on-success on-error event (ajax true) subject-dom-node (sync true) (xhr-sync false) (send-client-state true))
+  (when wui.io.sync-action-in-progress
+    (log.warn "Ignoring a (wui.io.action :sync true ...) call because there's already a pending :sync true action")
+    (return))
+  (when sync
+    (setf wui.io.sync-action-in-progress true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event)))
   (bind ((decorated-url (wui.append-query-parameter url
@@ -131,7 +138,9 @@
                (ajax-request-in-progress-teardown (lambda ()
                                                     (when ajax-target
                                                       (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
-                                                      (dojo.removeClass ajax-target "ajax-target")))))
+                                                      (dojo.removeClass ajax-target "ajax-target"))
+                                                    (when sync
+                                                      (setf wui.io.sync-action-in-progress false)))))
           (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
           (when dojo.config.isDebug
             (when wui.last-ajax-replacements
@@ -144,15 +153,20 @@
             (dojo.contentBox ajax-request-in-progress-indicator (dojo.contentBox ajax-target))
             (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
           (wui.io.xhr-post :url decorated-url
-                           :sync sync
+                           ;; :sync true pretty much stops the whole browser tab including animated images...
+                           :sync xhr-sync
                            :form (when send-client-state
                                    form)
                            :on-error (lambda (response io-args)
                                        (ajax-request-in-progress-teardown)
-                                       (wui.io.process-ajax-network-error response io-args))
+                                       (wui.io.process-ajax-network-error response io-args)
+                                       (when on-error
+                                         (on-error)))
                            :on-success (lambda (response io-args)
                                          (ajax-request-in-progress-teardown)
-                                         (wui.io.process-ajax-answer response io-args))))
+                                         (wui.io.process-ajax-answer response io-args)
+                                         (when on-success
+                                           (on-success)))))
         (if (and send-client-state
                  form
                  (< 0 form.elements.length))
@@ -161,13 +175,17 @@
               (form.submit))
             (setf window.location.href decorated-url)))))
 
-(defun wui.io.make-action-event-handler (href &key subject-dom-node (ajax true) (send-client-state true) (sync true))
+(defun wui.io.make-action-event-handler (href &key on-success on-error subject-dom-node (ajax true)
+                                         (send-client-state true) (sync true) (xhr-sync false))
   (return
     (lambda (event)
       (wui.io.action href
                      :event event
                      :ajax ajax
                      :sync sync
+                     :xhr-sync xhr-sync
+                     :on-error on-error
+                     :on-success on-success
                      :subject-dom-node subject-dom-node
                      :send-client-state send-client-state))))
 
