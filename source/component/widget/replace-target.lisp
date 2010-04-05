@@ -39,17 +39,16 @@
 
 (def constructor replace-target-place/widget
   (setf (action-of -self-) (make-component-action -self-
-                             (replace-target-place -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) (component-value-of -self-)))))
+                             (replace-target-place -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) (component-value-of -self-))))
+  (setf (subject-component-of -self-) (delay (find-subject-component-for-replace-target-place/widget -self-))))
 
-(def refresh-component replace-target-place/widget
-  (bind (((:slots subject-component) -self-))
-    (when ajax
-      (bind ((target-place (target-place-of (find-replace-target-place-widget -self-)))
-             (component (component-at-place target-place)))
-        (setf ajax (if (typep component 'parent/mixin)
-                       (awhen (find-ancestor-component-with-type component 'id/mixin :otherwise #f)
-                         (ajax-of it))
-                       #t))))))
+(def function find-subject-component-for-replace-target-place/widget (widget)
+  (when-bind target-place/widget (find-replace-target-place-widget widget :otherwise nil)
+    (bind ((target-place (target-place-of target-place/widget))
+           (component (component-at-place target-place)))
+      (when (typep component 'parent/mixin)
+        ;; TODO shouldn't it be in closer relationship with collect-covering-to-be-rendered-descendant-components ?
+        (find-ancestor-component-with-type component 'id/mixin :otherwise nil)))))
 
 (def function render-replace-target-place-command/xhtml (component replacement-component content &rest args &key &allow-other-keys)
   (apply 'render-command/xhtml (make-component-action component
@@ -57,11 +56,14 @@
                                    (setf (component-at-place target-place) replacement-component)))
          content args))
 
-(def function find-replace-target-place-widget (component)
-  (find-ancestor-component component
-                           (lambda (ancestor)
-                             (and (typep ancestor 'target-place/widget)
-                                  (target-place-of ancestor)))))
+(def function find-replace-target-place-widget (component &key (otherwise :error otherwise?))
+  (or (find-ancestor-component component
+                               (lambda (ancestor)
+                                 (and (typep ancestor 'target-place/widget)
+                                      (target-place-of ancestor)))
+                               :otherwise #f)
+      (handle-otherwise
+        (error "Unable to find the target-place/widget for ~A" component))))
 
 (def (generic e) replace-target-place (component class prototype value)
   (:method ((component replace-target-place/widget) class prototype value)
