@@ -50,7 +50,7 @@
          (response-body (second cache-entry)))
     (when (or (not response-body)
               (local-time:timestamp< generated-at *js-i18n-resource-registry/last-modified-at*))
-      (setf response-body (emit-into-js-stream-buffer
+      (setf response-body (emit-into-js-stream-buffer (:external-format :utf-8)
                             (serve-js-i18n-response)))
       (setf (js-i18n-response-cache-entry cache-key) (list (local-time:now) response-body)))
     (make-byte-vector-response* response-body

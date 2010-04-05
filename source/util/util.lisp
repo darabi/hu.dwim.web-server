@@ -289,46 +289,6 @@
     (values key value)))
 
 ;;;;;;
-;;; XML emitting
-
-(def (special-variable e :documentation "The stream for quasi quoted XML output. It is written as a side effect when evaluating quasi quoted XML forms.")
-  *xml-stream*)
-
-(def (macro e) with-xml-stream (stream &body body)
-  `(bind ((*xml-stream* ,stream))
-     ,@body))
-
-(def (macro e) emit-into-xml-stream (stream &body body)
-  `(bind ((*xml-stream* ,stream))
-     (emit (progn ,@body))))
-
-(def (macro e) emit-into-xml-stream-buffer (&body body)
-  (with-unique-names (buffer)
-    `(with-output-to-sequence (,buffer :external-format +default-external-format+)
-       (bind ((*xml-stream* ,buffer))
-         (emit (progn ,@body))))))
-
-;;;;;;
-;;; JavaScript emitting
-
-(def (special-variable e :documentation "The stream for quasi quoted JavaScript output. It is written as a side effect when evaluating quasi quoted JavaScript forms.")
-  *js-stream*)
-
-(def (macro e) with-js-stream (stream &body body)
-  `(bind ((*js-stream* ,stream))
-     ,@body))
-
-(def (macro e) emit-into-js-stream (stream &body body)
-  `(bind ((*js-stream* ,stream))
-     (emit (progn ,@body))))
-
-(def (macro e) emit-into-js-stream-buffer (&body body)
-  (with-unique-names (buffer)
-    `(with-output-to-sequence (,buffer :external-format +default-external-format+)
-       (bind ((*js-stream* ,buffer))
-         (emit (progn ,@body))))))
-
-;;;;;;
 ;;; Debug on error
 
 (def class* debug-context-mixin ()

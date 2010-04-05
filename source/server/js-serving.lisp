@@ -101,7 +101,7 @@
 (def method produce-response ((self js-component-hierarchy-serving-broker) request)
   (make-byte-vector-response* (or *js-component-hierarchy-cache*
                                   (setf *js-component-hierarchy-cache*
-                                        (emit-into-js-stream-buffer
+                                        (emit-into-js-stream-buffer (:external-format :utf-8)
                                           (serve-js-component-hierarchy))))
                               :last-modified-at *js-component-hierarchy-cache/last-modified-at*
                               :seconds-until-expires (* 60 60)
