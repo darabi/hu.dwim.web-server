@@ -75,22 +75,28 @@
           (progn
             <div (:id ,id) "">
             ;; TODO due to the custom :js this hinders the optimization in render-action-js-event-handler
-            (render-action-js-event-handler "oncontextmenu" parent-id (make-action
-                                                                        (setf (to-be-rendered-component? -self-) #t))
-                                            :js (lambda (href)
-                                                  `js(progn
-                                                       ((wui.io.make-action-event-handler ,href
-                                                                                          :ajax true
-                                                                                          :send-client-state false
-                                                                                          :sync true)
-                                                        event)
-                                                       ;; TODO don't use dojo internals. find a way to reinvoke the same event, or make sure some other way that the context menu comes up
-                                                       (._scheduleOpen (dijit.byId ,id) event.target nil (create :x event.pageX :y event.pageY))))
-                                            :one-shot #t :stop-event #t)
-            ;; this is a safe fallback kept for reference. shortcomings: left clicking anything will force the context menu to download.
+            (flet ((render-context-menu-js (href)
+                     `js(bind ((coordinates (create :x event.pageX :y event.pageY)))
+                          ;; take a snapshot of the coordinates before a potentially long operation
+                          ((wui.io.make-action-event-handler
+                            ,href
+                            :ajax true
+                            :subject-dom-node ,parent-id
+                            :send-client-state false
+                            :sync true
+                            :on-success (lambda ()
+                                          ;; TODO don't use dojo internals. find a way to reinvoke the same event, or make sure some other way that the context menu comes up
+                                          (._scheduleOpen (dijit.byId ,id) event.target nil coordinates)))
+                           event))))
+              (render-action-js-event-handler "oncontextmenu" parent-id (make-action
+                                                                          (setf (to-be-rendered-component? -self-) #t))
+                                              :js #'render-context-menu-js
+                                              :one-shot #t :stop-event #t))
+            ;; anohter alternative, but left clicking anything will force the context menu to download, and i think :xhr-sync true is also missing...
             #+nil
             (render-action-js-event-handler "onmousedown" parent-id (make-action
                                                                       (setf (to-be-rendered-component? -self-) #t))
+                                            :subject-dom-node parent-id
                                             :one-shot #t :sync #t))
           (render-dojo-widget (id)
             <div (:id ,id
