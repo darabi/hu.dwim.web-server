@@ -33,7 +33,10 @@
 ;;;;;;
 ;;; book/text/inspector
 
-(def (component e) book/text/inspector (t/text/inspector collapsible/abstract title/mixin exportable/abstract)
+(def (component e) book/text/inspector (t/text/inspector
+                                        collapsible-contents/abstract
+                                        title/mixin
+                                        exportable/abstract)
   ((toc :type component)))
 
 (def refresh-component book/text/inspector

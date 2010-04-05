@@ -28,7 +28,9 @@
 ;;;;;;
 ;;; chapter/text/inspector
 
-(def (component e) chapter/text/inspector (t/text/inspector collapsible/abstract title/mixin)
+(def (component e) chapter/text/inspector (t/text/inspector
+                                           collapsible-contents/abstract
+                                           title/mixin)
   ())
 
 (def render-xhtml chapter/text/inspector

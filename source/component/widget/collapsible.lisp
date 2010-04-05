@@ -62,6 +62,26 @@
         (expand-component component)))))
 
 ;;;;;;
+;;; collapsible-content/abstract
+
+(def (component e) collapsible-content/abstract (collapsible/abstract content/abstract)
+  ())
+
+(def method visible-child-component-slots ((self collapsible-content/abstract))
+  (unless (expanded-component? self)
+    (remove-slots '(content) (call-next-method))))
+
+;;;;;;
+;;; collapsible-contents/abstract
+
+(def (component e) collapsible-contents/abstract (collapsible/abstract content/abstract)
+  ())
+
+(def method visible-child-component-slots ((self collapsible-contents/abstract))
+  (unless (expanded-component? self)
+    (remove-slots '(contents) (call-next-method))))
+
+;;;;;;
 ;;; collapsible/widget
 
 (def (component e) collapsible/widget (widget/style collapsible/abstract)
