@@ -33,14 +33,17 @@
 (def (macro e) name-value-group/widget ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'name-value-group/widget ,@args :contents (list ,@contents)))
 
+(def function is-name-value-group-collapsible? (self)
+  (bind ((parent-component (parent-component-of self)))
+    (or (not (typep parent-component 'name-value-list/widget))
+        (not (length= 1 (contents-of parent-component))))))
+
 (def render-xhtml name-value-group/widget
   <tbody (:id ,(id-of -self-) :class "name-value-group widget")
-    ,(bind ((parent-component (parent-component-of -self-)))
-       (unless (and (typep parent-component 'name-value-list/widget)
-                    (length= 1 (contents-of parent-component)))
-         <tr (:class "title")
-             <td ,(render-collapse-or-expand-command-for -self-)>
-             <td (:colspan 2) ,(render-title-for -self-)>>))
+    ,(when (is-name-value-group-collapsible? -self-)
+       <tr (:class "title")
+         <td ,(render-collapse-or-expand-command-for -self-)>
+         <td (:colspan 2) ,(render-title-for -self-)>>)
     ,(when (expanded-component? -self-)
        (foreach (lambda (content)
                   (bind ((id (generate-unique-component-id)))
@@ -51,6 +54,11 @@
                       <td>
                       ,(render-component content)>))
                 (contents-of -self-)))>)
+
+(def method visible-child-component-slots ((self name-value-group/widget))
+  (remove-slots (unless (is-name-value-group-collapsible? self)
+                  '(expand-command collapse-command))
+                (call-next-method)))
 
 ;;;;;;
 ;;; name-value-pair/widget
