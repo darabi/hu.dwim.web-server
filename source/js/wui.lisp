@@ -117,14 +117,9 @@
 ;;;;;;
 ;;; io
 
-(setf wui.io.sync-action-in-progress false)
+(setf wui.io.sync-ajax-action-in-progress false)
 
 (defun wui.io.action (url &key on-success on-error event (ajax true) subject-dom-node (sync true) (xhr-sync false) (send-client-state true))
-  (when wui.io.sync-action-in-progress
-    (log.warn "Ignoring a (wui.io.action :sync true ...) call because there's already a pending :sync true action")
-    (return))
-  (when sync
-    (setf wui.io.sync-action-in-progress true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event)))
   (bind ((decorated-url (wui.append-query-parameter url
@@ -133,40 +128,46 @@
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
     (if ajax
-        (bind ((ajax-target (dojo.byId subject-dom-node))
-               (ajax-request-in-progress-indicator (document.create-element "div"))
-               (ajax-request-in-progress-teardown (lambda ()
-                                                    (when ajax-target
-                                                      (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
-                                                      (dojo.removeClass ajax-target "ajax-target"))
-                                                    (when sync
-                                                      (setf wui.io.sync-action-in-progress false)))))
-          (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
-          (when dojo.config.isDebug
-            (when wui.last-ajax-replacements
-              (dolist (node wui.last-ajax-replacements)
-                (dojo.removeClass node "ajax-replacement")))
-            (setf wui.last-ajax-replacements (array)))
-          (when ajax-target
-            (dojo.addClass ajax-target "ajax-target")
-            (dojo.addClass ajax-request-in-progress-indicator "ajax-request-in-progress")
-            (dojo.contentBox ajax-request-in-progress-indicator (dojo.contentBox ajax-target))
-            (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
-          (wui.io.xhr-post :url decorated-url
-                           ;; :sync true pretty much stops the whole browser tab including animated images...
-                           :sync xhr-sync
-                           :form (when send-client-state
-                                   form)
-                           :on-error (lambda (response io-args)
-                                       (ajax-request-in-progress-teardown)
-                                       (wui.io.process-ajax-network-error response io-args)
-                                       (when on-error
-                                         (on-error)))
-                           :on-success (lambda (response io-args)
+        (progn
+          (when wui.io.sync-ajax-action-in-progress
+            (log.warn "Ignoring a (wui.io.action :sync true :ajax true ...) call because there's already a pending sync action")
+            (return))
+          (when sync
+            (setf wui.io.sync-ajax-action-in-progress true))
+          (bind ((ajax-target (dojo.byId subject-dom-node))
+                 (ajax-request-in-progress-indicator (document.create-element "div"))
+                 (ajax-request-in-progress-teardown (lambda ()
+                                                      (when ajax-target
+                                                        (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
+                                                        (dojo.removeClass ajax-target "ajax-target"))
+                                                      (when sync
+                                                        (setf wui.io.sync-ajax-action-in-progress false)))))
+            (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
+            (when dojo.config.isDebug
+              (when wui.last-ajax-replacements
+                (dolist (node wui.last-ajax-replacements)
+                  (dojo.removeClass node "ajax-replacement")))
+              (setf wui.last-ajax-replacements (array)))
+            (when ajax-target
+              (dojo.addClass ajax-target "ajax-target")
+              (dojo.addClass ajax-request-in-progress-indicator "ajax-request-in-progress")
+              (dojo.contentBox ajax-request-in-progress-indicator (dojo.contentBox ajax-target))
+              (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
+            (wui.io.xhr-post :url decorated-url
+                             ;; :sync true pretty much stops the whole browser tab including animated images...
+                             :sync xhr-sync
+                             :form (when send-client-state
+                                     form)
+                             :on-error (lambda (response io-args)
                                          (ajax-request-in-progress-teardown)
-                                         (wui.io.process-ajax-answer response io-args)
-                                         (when on-success
-                                           (on-success)))))
+                                         (wui.io.process-ajax-network-error response io-args)
+                                         (when on-error
+                                           (on-error)))
+                             :on-success (lambda (response io-args)
+                                           (ajax-request-in-progress-teardown)
+                                           (wui.io.process-ajax-answer response io-args)
+                                           (when on-success
+                                             (on-success))))))
         (if (and send-client-state
                  form
                  (< 0 form.elements.length))
