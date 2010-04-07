@@ -138,7 +138,8 @@
                  (ajax-request-in-progress-indicator (document.create-element "div"))
                  (ajax-request-in-progress-teardown (lambda ()
                                                       (when ajax-target
-                                                        (ajax-request-in-progress-indicator.parent-node.remove-child ajax-request-in-progress-indicator)
+                                                        ;; dojo.destroy can deal with parentNode = null (because the indicator dom node gets GC'd, possibly due to its parent node having been ajax-replaced?)
+                                                        (dojo.destroy ajax-request-in-progress-indicator)
                                                         (dojo.removeClass ajax-target "ajax-target"))
                                                       (when sync
                                                         (setf wui.io.sync-ajax-action-in-progress false)))))
