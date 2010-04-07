@@ -205,7 +205,7 @@
                                                             (cons   (make-array-form (mapcar #'make-constant-form id)))
                                                             (string id))
                                                          ,event-name
-                                                         (lambda (event)
+                                                         (lambda (event connection)
                                                            ,(apply js (when href (list href))))
                                                          :one-shot ,one-shot
                                                          :stop-event ,stop-event)

@@ -198,18 +198,25 @@
 (defun wui.io.make-action-event-handler (href &key on-success on-error subject-dom-node (ajax true)
                                          (send-client-state true) (sync true) (xhr-sync false))
   (return
-    (lambda (event)
+    (lambda (event connection)
+      (log.debug "An action event handler made by wui.io.make-action-event-handler is being invoked on event " event ", connection " connection)
+      (assert event)
+      (assert connection)
       (wui.io.action href
                      :event event
                      :ajax ajax
                      :sync sync
                      :xhr-sync xhr-sync
-                     :on-error on-error
-                     :on-success on-success
+                     :on-error (when on-error
+                                 (lambda ()
+                                   (on-error event connection)))
+                     :on-success (when on-success
+                                   (lambda ()
+                                     (on-success event connection)))
                      :subject-dom-node subject-dom-node
                      :send-client-state send-client-state))))
 
-(defun wui.io.connect-action-event-handler (id event-name thunk &key one-shot (stop-event true))
+(defun wui.io.connect-action-event-handler (id event-name handler &key one-shot (stop-event true))
   (flet ((connect-one (id)
            (bind ((connection nil))
              (setf connection (wui.connect id event-name
@@ -222,22 +229,12 @@
                                                ;; 2) with stop-event could be used to hide events from covering parent nodes
                                                (log.debug "Disconnecting one-shot event handler after firing; id " id  ", node " (dojo.byId id) ", connection " connection)
                                                (wui.disconnect connection))
-                                             (thunk event)))))))
+                                             (handler event connection))))
+             (return connection))))
     (if (dojo.isArray id)
         (dolist (one id)
           (connect-one one))
-        (return (connect-one id))))
-
-  (bind ((connection nil))
-    (setf connection (wui.connect id event-name
-                                  (lambda (event)
-                                    (when stop-event
-                                      (log.debug "Action handler on id " id ", node " (dojo.byId id) " is stopping event " event)
-                                      (dojo.stopEvent event))
-                                    (when one-shot
-                                      (log.debug "Disconnecting one-shot event handler after firing; id " id  ", node " (dojo.byId id) ", connection " connection)
-                                      (wui.disconnect connection))
-                                    (thunk event))))))
+        (return (connect-one id)))))
 
 (defun wui.io.connect-action-event-handlers (handlers)
   (flet ((to-boolean (x default-value)
@@ -273,6 +270,21 @@
     (awhen (dijit.byId widget-id)
       (.destroyRecursive it)))
   (dojo.parser.instantiate (wui.map dojo.byId widget-ids)))
+
+(defun wui.io.lazy-context-menu-handler (event connection href id parent-id)
+  ((wui.io.make-action-event-handler
+    href
+    :ajax true
+    :subject-dom-node parent-id
+    :send-client-state false
+    :sync true
+    :on-success (lambda (event connection)
+                  (aif (dijit.byId id)
+                       ;; TODO why does it ever happen that the ajax answer is empty?
+                       ;; TODO don't use dojo internals. find a way to reinvoke the same event, or make sure some other way that the context menu comes up
+                       (._scheduleOpen it event.target nil (create :x event.pageX :y event.pageY))
+                       (log.warn "Context menu was not found after processing the ajax answer (empty ajax answer?). The id we looked for is " id))))
+   event connection))
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)
