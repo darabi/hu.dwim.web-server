@@ -224,6 +224,12 @@
   background-image: url("/static/wui/icon/20x20/file-upload.png");
 }
 
+/* maker */
+
+.make-new-instance.icon {
+  background-image: url("/static/wui/icon/20x20/document.png");
+}
+
 /* filter */
 
 .execute-filter.icon {
@@ -339,11 +345,11 @@
 /* authentication */
 
 .login.icon {
-  background-image: url("/static/wui/icon/20x20/green-checkmark.png");
+  background-image: url("/static/wui/icon/24x24/login.png");
 }
 
 .logout.icon {
-  background-image: url("/static/wui/icon/20x20/red-arrow-on-door.png");
+  background-image: url("/static/wui/icon/24x24/logout.png");
 }
 
 /* impersonalization */
@@ -376,4 +382,10 @@
 
 .diagram.icon {
   background-image: url("/static/wui/icon/20x20/eye.png");
+}
+
+/* help */
+
+.context-sensitive-help.icon {
+  background-image: url("/static/wui/icon/20x20/magnifier.png");
 }

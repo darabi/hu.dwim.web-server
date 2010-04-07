@@ -41,4 +41,5 @@
     (render-context-menu-for -self-)
     (render-content-for -self-)))
 
+;; TODO: rename
 (def (layered-function e) make-slot-value/content (component class prototype value))

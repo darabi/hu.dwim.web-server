@@ -33,94 +33,95 @@
   (setf (root-component-of frame) nil))
 
 (def (function e) make-debug-menu ()
-  (menu-item/widget ()
-      "Debug"
+  (when (authorize-operation *application* '(make-debug-menu))
     (menu-item/widget ()
-        (command/widget (:js (lambda () `js(wui.reload-css)))
-          "Reload CSS"))
-    (menu-item/widget ()
-        "Invalidate"
+        "Debug"
       (menu-item/widget ()
-          (command/widget (:ajax #f :send-client-state #f)
-            "Invalidate session"
-            (make-action (mark-session-invalid))))
+          (command/widget (:js (lambda () `js(wui.reload-css)))
+            "Reload CSS"))
       (menu-item/widget ()
-          (command/widget (:ajax #f :send-client-state #f)
-            "Invalidate frame"
-            (make-action (mark-frame-invalid))))
+          "Invalidate"
+        (menu-item/widget ()
+            (command/widget (:ajax #f :send-client-state #f)
+              "Invalidate session"
+              (make-action (mark-session-invalid))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f :send-client-state #f)
+              "Invalidate frame"
+              (make-action (mark-frame-invalid))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f :send-client-state #f)
+              "Clear the frame's root component"
+              (make-action (clear-root-component)))))
       (menu-item/widget ()
-          (command/widget (:ajax #f :send-client-state #f)
-            "Clear the frame's root component"
-            (make-action (clear-root-component)))))
-    (menu-item/widget ()
-        "Toggle"
+          "Toggle"
+        (menu-item/widget ()
+            (command/widget (:ajax #f)
+              "Hierarchy (frame)"
+              (make-action (toggle-debug-component-hierarchy))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f)
+              "Test mode (application)"
+              (make-action (toggle-running-in-test-mode))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f)
+              "Ajax (application)"
+              (make-action (toggle-ajax-enabled))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f)
+              "Profiling (server)"
+              (make-action (toggle-profile-request-processing))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f)
+              "Debug server side (globally)"
+              (make-action (notf *debug-on-error*))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f)
+              "Debug server side (application)"
+              (make-action (toggle-debug-server-side))))
+        (menu-item/widget ()
+            (command/widget (:ajax #f)
+              "Debug client side (frame)"
+              (make-action (toggle-debug-client-side)))))
       (menu-item/widget ()
-          (command/widget (:ajax #f)
-            "Hierarchy (frame)"
-            (make-action (toggle-debug-component-hierarchy))))
-      (menu-item/widget ()
-          (command/widget (:ajax #f)
-            "Test mode (application)"
-            (make-action (toggle-running-in-test-mode))))
-      (menu-item/widget ()
-          (command/widget (:ajax #f)
-            "Ajax (application)"
-            (make-action (toggle-ajax-enabled))))
-      (menu-item/widget ()
-          (command/widget (:ajax #f)
-            "Profiling (server)"
-            (make-action (toggle-profile-request-processing))))
-      (menu-item/widget ()
-          (command/widget (:ajax #f)
-            "Debug server side (globally)"
-            (make-action (notf *debug-on-error*))))
-      (menu-item/widget ()
-          (command/widget (:ajax #f)
-            "Debug server side (application)"
-            (make-action (toggle-debug-server-side))))
-      (menu-item/widget ()
-          (command/widget (:ajax #f)
-            "Debug client side (frame)"
-            (make-action (toggle-debug-client-side)))))
-    (menu-item/widget ()
-        "Inspect"
+          "Inspect"
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "Server"
+              (make-value-inspector *server*)))
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "Application"
+              (make-value-inspector *application*)))
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "Session"
+              (make-value-inspector *session*)))
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "Frame"
+              (make-value-inspector *frame*)))
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "Request"
+              (make-value-inspector *request*)))
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "Response"
+              (make-value-inspector *response*)))
+        #+sbcl
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "Frame size breakdown"
+              (make-instance 'frame-size-breakdown/widget)))
+        (menu-item/widget ()
+            (replace-target-place/widget ()
+                "User agent breakdown"
+              (make-value-inspector (make-http-user-agent-breakdown *server*)))))
       (menu-item/widget ()
           (replace-target-place/widget ()
-              "Server"
-            (make-value-inspector *server*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Application"
-            (make-value-inspector *application*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Session"
-            (make-value-inspector *session*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Frame"
-            (make-value-inspector *frame*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Request"
-            (make-value-inspector *request*)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Response"
-            (make-value-inspector *response*)))
-      #+sbcl
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "Frame size breakdown"
-            (make-instance 'frame-size-breakdown/widget)))
-      (menu-item/widget ()
-          (replace-target-place/widget ()
-              "User agent breakdown"
-            (make-value-inspector (make-http-user-agent-breakdown *server*)))))
-    (menu-item/widget ()
-        (replace-target-place/widget ()
-            "Error handling tests..."
-          (make-instance 'client-side-error-handling-test)))))
+              "Error handling tests..."
+            (make-instance 'client-side-error-handling-test))))))
 
 ;;;;;;
 ;;; Debug menu

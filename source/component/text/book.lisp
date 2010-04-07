@@ -24,6 +24,12 @@
 (def layered-method export-file-name (format (component book/inspector) (value book))
   (title-of value))
 
+(def (function e) make-book-menu-item (name)
+  (menu-item/widget ()
+      (replace-target-place/widget ()
+          (icon/widget book :label (hu.dwim.wui::title-of (find-book name)))
+        (make-value-viewer (find-book name)))))
+
 ;;;;;;
 ;;; t/reference/inspector
 

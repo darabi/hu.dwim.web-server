@@ -65,24 +65,24 @@ Optimized factory configuration (default):
     (render-result-for -self-)))
 
 (def layered-method make-command-bar-commands ((component t/maker) class prototype value)
-  (optional-list* (make-execute-maker-command component class prototype value)
-                  (call-next-method)))
+  (optional-list* (make-make-new-instance-command component class prototype value) (call-next-method)))
 
-(def (icon e) execute-maker)
+(def (icon e) make-new-instance)
 
-(def layered-method make-execute-maker-command ((component t/maker) class prototype value)
-  (make-replace-and-push-back-command (delay (result-of component))
-                                      (delay (with-restored-component-environment component
-                                               (make-result component class prototype (execute-maker component class prototype value))))
-                                      (list :content (icon/widget execute-maker)
-                                            :default #t
-                                            :subject-component component)
-                                      (list :content (icon/widget navigate-back))))
+(def layered-method make-make-new-instance-command ((component t/maker) class prototype value)
+  (when (authorize-operation *application* `(make-make-new-instance-command :class ,class))
+    (make-replace-and-push-back-command (delay (result-of component))
+                                        (delay (with-restored-component-environment component
+                                                 (make-result component class prototype (make-new-instance component class prototype value))))
+                                        (list :content (icon/widget make-new-instance)
+                                              :default #t
+                                              :subject-component component)
+                                        (list :content (icon/widget navigate-back)))))
 
 (def layered-method make-result ((component t/maker) class prototype value)
   (make-inspector (class-name (component-dispatch-class component)) :value value))
 
-(def (layered-function e) execute-maker (component class prototype value)
+(def (layered-function e) make-new-instance (component class prototype value)
   (:method ((component t/maker) class prototype value)
     ;; TODO: copy the form builder from the old code base
     (make-instance class)))

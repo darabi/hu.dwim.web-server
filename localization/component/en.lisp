@@ -10,17 +10,17 @@
 ;;; Icon
 
 (def localization en
-  (icon-label.new "New")
-  (icon-tooltip.new "Start editing a new object")
+  (icon-label.begin-making-new-instance "New")
+  (icon-tooltip.begin-making-new-instance "Start editing a new object")
 
-  (icon-label.create "Create")
-  (icon-tooltip.create "Create object")
+  (icon-label.make-new-instance "Create")
+  (icon-tooltip.make-new-instance "Create object")
 
-  (icon-label.delete "Delete")
-  (icon-tooltip.delete "Delete object")
+  (icon-label.delete-instance "Delete")
+  (icon-tooltip.delete-instance "Delete object")
 
-  (icon-label.close "Close")
-  (icon-tooltip.close "Close the component")
+  (icon-label.close-component "Close")
+  (icon-tooltip.close-component "Close the component")
 
   (icon-label.navigate-back "Back")
   (icon-tooltip.navigate-back "Move back")
@@ -264,10 +264,11 @@
 
 (def localization en
   (login.title "Login")
-  (login.identifier "Identifier")
-  (login.password "Password")
   (login.message.authentication-failed "Authentication failed")
   (login.message.session-timed-out "Your session has timed out, please log in again")
+
+  (slot-name.identifier "Identifier")
+  (slot-name.password "Password")
 
   (icon-label.login "Login")
   (icon-tooltip.login "Gain privileges by authentication")

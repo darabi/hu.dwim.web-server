@@ -64,8 +64,7 @@
 ;;;;;;
 ;;; collapsible-content/abstract
 
-(def (component e) collapsible-content/abstract (collapsible/abstract
-                                                 content/abstract)
+(def (component e) collapsible-content/abstract (collapsible/abstract content/abstract)
   ())
 
 (def method visible-child-component-slots ((self collapsible-content/abstract))
@@ -76,8 +75,7 @@
 ;;;;;;
 ;;; collapsible-contents/abstract
 
-(def (component e) collapsible-contents/abstract (collapsible/abstract
-                                                  contents/abstract)
+(def (component e) collapsible-contents/abstract (collapsible/abstract contents/abstract)
   ())
 
 (def method visible-child-component-slots ((self collapsible-contents/abstract))

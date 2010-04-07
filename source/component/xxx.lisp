@@ -93,10 +93,11 @@
       (refresh-component component))))
 
 (def layered-method make-refresh-component-command :around ((component refreshable/mixin) class prototype value)
-  (aprog1
-      (call-next-method)
-    (unless (subject-component-of it)
-      (setf (subject-component-of it) component))))
+  (when (authorize-operation *application* `(make-refresh-component-command :class ,class))
+    (aprog1
+        (call-next-method)
+      (when (not (subject-component-of it))
+        (setf (subject-component-of it) component)))))
 
 (def layered-method make-select-component-command ((component selectable/mixin) class prototype value)
   (command/widget (:subject-component (find-selection-component component)
@@ -170,54 +171,60 @@
 ;;; Editable
 
 (def layered-method make-begin-editing-command ((component editable/mixin) class prototype value)
-  (command/widget (:visible (or (editable-component? component)
-                                (delay (not (edited-component? component))))
-                   :subject-component component)
-    (icon/widget begin-editing)
-    (make-component-action component
-      (with-interaction component
-        (begin-editing component)))))
+  (when (authorize-operation *application* `(make-begin-editing-command :class ,class))
+    (command/widget (:visible (or (editable-component? component)
+                                  (delay (not (edited-component? component))))
+                     :subject-component component)
+      (icon/widget begin-editing)
+      (make-component-action component
+        (with-interaction component
+          (begin-editing component))))))
 
 (def layered-method make-save-editing-command (component class prototype value)
-  (command/widget (:visible (delay (edited-component? component))
-                   :subject-component component)
-    (icon/widget save-editing)
-    (make-component-action component
-      (with-interaction component
-        (save-editing component)))))
+  (when (authorize-operation *application* `(make-save-editing-command :class ,class))
+    (command/widget (:visible (delay (edited-component? component))
+                     :subject-component component)
+      (icon/widget save-editing)
+      (make-component-action component
+        (with-interaction component
+          (save-editing component))))))
 
 (def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
-  (command/widget (:visible (delay (edited-component? component))
-                   :subject-component component)
-    (icon/widget cancel-editing)
-    (make-component-action component
-      (with-interaction component
-        (cancel-editing component)))))
+  (when (authorize-operation *application* `(make-cancel-editing-command :class ,class))
+    (command/widget (:visible (delay (edited-component? component))
+                     :subject-component component)
+      (icon/widget cancel-editing)
+      (make-component-action component
+        (with-interaction component
+          (cancel-editing component))))))
 
 (def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
-  (command/widget (:visible (delay (edited-component? component))
-                   :subject-component component)
-    (icon/widget store-editing)
-    (make-component-action component
-      (with-interaction component
-        (save-editing component)))))
+  (when (authorize-operation *application* `(make-store-editing-command :class ,class))
+    (command/widget (:visible (delay (edited-component? component))
+                     :subject-component component)
+      (icon/widget store-editing)
+      (make-component-action component
+        (with-interaction component
+          (save-editing component))))))
 
 (def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
-  (command/widget (:visible (delay (edited-component? component))
-                   :subject-component component)
-    (icon/widget revert-editing)
-    (make-component-action component
-      (with-interaction component
-        (revert-editing component)))))
+  (when (authorize-operation *application* `(make-revert-editing-command :class ,class))
+    (command/widget (:visible (delay (edited-component? component))
+                     :subject-component component)
+      (icon/widget revert-editing)
+      (make-component-action component
+        (with-interaction component
+          (revert-editing component))))))
 
 (def layered-method make-editing-commands ((component editable/mixin) class prototype instance)
-  (cond ((editable-component? component)
-         (list (make-begin-editing-command component class prototype instance)
-               (make-save-editing-command component class prototype instance)
-               (make-cancel-editing-command component class prototype instance)))
-        ((edited-component? component)
-         (list (make-store-editing-command component class prototype instance)
-               (make-revert-editing-command component class prototype instance)))))
+  (when (authorize-operation *application* '(make-editing-commands))
+    (cond ((editable-component? component)
+           (list (make-begin-editing-command component class prototype instance)
+                 (make-save-editing-command component class prototype instance)
+                 (make-cancel-editing-command component class prototype instance)))
+          ((edited-component? component)
+           (list (make-store-editing-command component class prototype instance)
+                 (make-revert-editing-command component class prototype instance))))))
 
 (def layered-method make-refresh-component-command ((component editable/mixin) class prototype instance)
   (command/widget (:visible (delay (not (edited-component? component)))
@@ -298,27 +305,29 @@
 (def (icon e) open-in-new-frame)
 
 (def layered-method make-open-in-new-frame-command ((component component) class prototype value)
-  (command/widget (:delayed-content #t :js (lambda (href) `js(window.open ,href)))
-    (icon/widget open-in-new-frame)
-    (make-component-action component
-      (open-in-new-frame component class prototype value))))
+  (when (authorize-operation *application* '(make-open-in-new-frame-command))
+    (command/widget (:delayed-content #t :js (lambda (href) `js(window.open ,href)))
+      (icon/widget open-in-new-frame)
+      (make-component-action component
+        (open-in-new-frame component class prototype value)))))
 
 (def (icon e) focus-in)
 
 (def (icon e) focus-out)
 
 (def layered-method make-focus-command ((component component) class prototype value)
-  (bind ((original-component (delay (find-top-component-content component))))
-    (make-replace-and-push-back-command original-component component
-                                        (list :content (icon/widget focus-in) :visible (delay (not (top-component-content? component))))
-                                        (list :content (icon/widget focus-out)))))
+  (when (authorize-operation *application* '(make-focus-command))
+    (bind ((original-component (delay (find-top-component-content component))))
+      (make-replace-and-push-back-command original-component component
+                                          (list :content (icon/widget focus-in) :visible (delay (not (top-component-content? component))))
+                                          (list :content (icon/widget focus-out))))))
 
 (def layered-method make-context-menu-items ((component command-bar/mixin) class prototype value)
   (optional-list* (make-submenu-item (icon/widget menu :label "Move") (make-move-commands component class prototype value))
-                  (call-next-method)))
+                  (call-next-layered-method)))
 
 (def layered-method make-move-commands ((component command-bar/mixin) class prototype value)
-  (optional-list* (make-focus-command component class prototype value) (call-next-method)))
+  (optional-list* (make-focus-command component class prototype value) (call-next-layered-method)))
 
 ;;;;;
 ;;; Closeable

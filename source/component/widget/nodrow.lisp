@@ -28,7 +28,7 @@
     <tr (:id ,id :style ,custom-style :class ,(string+ (nodrow-style-class -self-) (when onclick-handler? " selectable"))
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
-      ,(render-nodrow-cells -self-) >
+      ,(render-nodrow-cells -self-)>
     (when expanded-component
       (foreach #'render-component child-nodes))))
 

@@ -11,16 +11,6 @@
 
 (def subtype-mapper *filter-type-mapping* (hu.dwim.perec::set hu.dwim.perec::persistent-object) sequence/filter)
 
-#+nil
-(def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class hu.dwim.meta-model::entity) (prototype hu.dwim.perec::persistent-object))
-  (collect-if (lambda (slot)
-                (hu.dwim.meta-model::authorize-operation 'hu.dwim.meta-model::filter-entity-property-operation :-entity- class :-property- slot))
-              (call-next-method)))
-
-#+nil
-(def layered-method collect-standard-object-detail-filter-slots ((component standard-object-detail-filter) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object))
-  (remove-if #'hu.dwim.perec:persistent-object-internal-slot-p (call-next-method)))
-
 (def layered-method execute-filter ((component t/filter) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) value)
   (hu.dwim.perec::with-transaction
     (hu.dwim.perec::execute-query (make-filter-query component class prototype value))))

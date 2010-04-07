@@ -126,6 +126,9 @@
 (def (layered-function e) make-switch-to-alternative-commands (component class prototype value)
   (:documentation "Creates a list of COMMANDs to switch between alternative views for COMPONENT with SWITCH-TO-ALTERNATIVE."))
 
+(def (layered-function e) make-switch-to-alternative-command (component class prototype value alternative)
+  (:documentation "TODO"))
+
 (def (layered-function e) make-switch-to-tab-page-command (component class prototype value)
   (:documentation "TODO"))
 
@@ -186,7 +189,7 @@
 (def (layered-function e) make-execute-filter-command (component class prototype value)
   (:documentation "TODO"))
 
-(def (layered-function e) make-execute-maker-command (component class prototype value)
+(def (layered-function e) make-make-new-instance-command (component class prototype value)
   (:documentation "TODO"))
 
 (def (layered-function e) make-select-component-command (component class prototype value)

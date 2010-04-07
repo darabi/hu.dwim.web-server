@@ -38,13 +38,15 @@
   ())
 
 (def layered-method make-slot-value/content ((component place/value/inspector) class prototype value)
-  (if (place-bound? value)
-      (make-inspector (place-type value)
-                      :value (place-value value)
-                      :editable (editable-component? component)
-                      :edited (edited-component? component)
-                      :initial-alternative-type 't/reference/inspector)
-      (make-instance 'unbound/inspector)))
+  (if (authorize-operation *application* '(make-slot-value/content))
+      (if (place-bound? value)
+          (make-inspector (place-type value)
+                          :value (place-value value)
+                          :editable (editable-component? component)
+                          :edited (edited-component? component)
+                          :initial-alternative-type 't/reference/inspector)
+          (make-instance 'unbound/inspector))
+      (empty/layout)))
 
 ;; TODO: dispatch on generic place/??/inspector base class
 (def method editable-component? ((self place/value/inspector))

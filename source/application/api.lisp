@@ -110,3 +110,10 @@ In case of success it returns a valid web session (potentially a freshly created
   (:documentation "Should return T if we are in an authenticated session opened by a succesful LOGIN call.")
   (:method (session)
     #f))
+
+;;;;;;
+;;; Authorization
+
+(def (generic e) authorize-operation (application form)
+  (:method (application form)
+    #t))

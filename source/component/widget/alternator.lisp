@@ -67,46 +67,43 @@
                                                    (default-alternative-type-of self)))))
 
 (def layered-method make-context-menu-items ((component alternator/widget) class prototype value)
-  (append (call-next-method)
-          (list (make-submenu-item (icon/widget show-submenu :label "View")
-                                   (make-switch-to-alternative-commands component class prototype value)))))
+  (optional-list* (make-submenu-item (icon/widget show-submenu :label "View")
+                                     (make-switch-to-alternative-commands component class prototype value))
+                  (call-next-layered-method)))
 
 (def layered-method make-command-bar-commands ((component alternator/widget) class prototype value)
-  (optional-list* (make-replace-with-alternative-command component (find-reference-alternative-component component)) (call-next-method)))
+  (optional-list* (make-switch-to-alternative-command component class prototype value (find-reference-alternative-component component))
+                  (call-next-layered-method)))
 
 (def layered-method make-switch-to-alternative-commands ((component alternator/widget) class prototype value)
-  (bind (((:read-only-slots alternatives) component))
-    (delete nil
-            (mapcar (lambda (alternative)
-                      (make-replace-with-alternative-command component alternative))
-                    alternatives))))
+  (iter (for alternative :in (alternatives-of component))
+        (awhen (make-switch-to-alternative-command component class prototype value alternative)
+          (collect it))))
 
-(def (generic e) make-replace-with-alternative-command (component alternative)
-  (:method ((component alternator/widget) alternative)
-    (bind ((prototype (class-prototype (class-of alternative)))
-           (reference? (typep prototype 'reference/widget)))
+(def layered-method make-switch-to-alternative-command ((component alternator/widget) class prototype value alternative)
+  (when (authorize-operation *application* `(make-switch-to-alternative-command :class ,class :instance ,value :alternative ,(class-name (class-of alternative))))
+    (bind ((reference? (typep alternative 'reference/widget)))
       (make-instance 'command/widget
                      :action (make-action
                                (setf (default-alternative-type-of component) (type-of (content-of component)))
                                (execute-replace (content-of component) alternative))
-                     :content (make-replace-with-alternative-command-content alternative prototype)
-                     :visible (delay (to-boolean
-                                      (and (not (has-edited-descendant-component-p (content-of component)))
-                                           (not (eq (class-of alternative)
-                                                    (class-of (content-of component))))
-                                           (or (not reference?)
-                                               (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract :otherwise #f)))))
+                     :content (make-switch-to-alternative-command-content alternative)
+                     :visible (delay (to-boolean (and (not (has-edited-descendant-component-p (content-of component)))
+                                                      (not (eq (class-of alternative)
+                                                               (class-of (content-of component))))
+                                                      (or (not reference?)
+                                                          (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract :otherwise #f)))))
                      :subject-component component))))
 
-(def (generic e) make-replace-with-alternative-command-content (alternative prototype)
-  (:method (alternative (prototype component))
-    (bind ((name (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of prototype))))))))
+(def (generic e) make-switch-to-alternative-command-content (alternative)
+  (:method ((alternative component))
+    (bind ((name (string-capitalize (substitute #\Space #\- (trim-suffix "-component" (string-downcase (class-name (class-of alternative))))))))
       (icon/widget switch-to-alternative :label name :tooltip name)))
 
-  (:method ((alternative string) (prototype string))
+  (:method ((alternative string))
     (icon/widget switch-to-alternative :label alternative :tooltip alternative))
 
-  (:method (alternative (prototype reference/widget))
+  (:method ((alternative reference/widget))
     (icon/widget collapse-to-reference)))
 
 (def method join-editing ((alternator alternator/widget))

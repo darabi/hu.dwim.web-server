@@ -73,7 +73,7 @@
     (when menu-items
       (if (eq to-be-rendered-component :lazy)
           (progn
-            <div (:id ,id) "">
+            <span (:id ,id) "">
             ;; TODO due to the custom :js this hinders the optimization in render-action-js-event-handler
             (flet ((render-context-menu-js (href)
                      `js(bind ((coordinates (create :x event.pageX :y event.pageY)))
@@ -175,18 +175,18 @@
                   :iconClass ,(typecase content
                                 (icon/widget
                                  (icon-style-class content))
-                                (command/widget
-                                 (bind ((command-content (content-of content)))
-                                   (when (typep command-content 'icon/widget)
-                                     (icon-style-class command-content))))
+                                (content/mixin
+                                 (bind ((content-content (content-of content)))
+                                   (when (typep content-content 'icon/widget)
+                                     (icon-style-class content-content))))
                                 (t
                                  nil)))
               ,(typecase content
                  (icon/widget
                   (render-component (force (label-of content))))
-                 (command/widget
-                  (bind ((command-content (content-of content)))
-                    (if (typep command-content 'icon/widget)
+                 (content/mixin
+                  (bind ((content-content (content-of content)))
+                    (if (typep content-content 'icon/widget)
                         (render-component (force (label-of (content-of content))))
                         (render-component content))))
                  (t

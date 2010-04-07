@@ -28,12 +28,13 @@
   ())
 
 (def refresh-component t/reference/presentation
-  (bind (((:slots component-value content subject-component action) -self-)
+  (bind (((:slots component-value content subject-component enabled-component action) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
     (setf content (icon/widget expand-from-reference :label (make-reference-content -self- class prototype component-value)))
     (setf subject-component (delay (parent-component-of -self-)))
-    (setf action (make-action (execute-replace -self- (delay (find-default-alternative-component (parent-component-of -self-))))))))
+    (setf action (make-action (execute-replace -self- (delay (find-default-alternative-component (parent-component-of -self-))))))
+    (setf enabled-component (authorize-operation *application* `(make-switch-to-alternative-command :class ,class :instance ,component-value :alternative ,(class-name (class-of -self-)))))))
 
 (def layered-method make-reference-content (component class prototype value)
   (localized-instance-name value))
@@ -61,7 +62,9 @@
         (setf content (make-slot-value-list/content -self- class prototype content-value)))))
 
 ;; TODO: rename
-(def (layered-function e) collect-slot-value-list/slots (component class prototype value))
+(def (layered-function e) collect-slot-value-list/slots (component class prototype value)
+  (:method :around (component class prototype value)
+    (collect-if [authorize-operation *application* `(read-slot-value :class ,class :instance ,value :slot ,!1)] (call-next-layered-method))))
 
 ;; TODO: rename
 (def (layered-function e) make-slot-value-list/content (component class prototype value))

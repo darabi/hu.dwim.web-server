@@ -10,17 +10,17 @@
 ;;; Icon
 
 (def localization hu
-  (icon-label.new "Új")
-  (icon-tooltip.new "Új objektum szerkesztése")
+  (icon-label.begin-making-new-instance "Új")
+  (icon-tooltip.begin-making-new-instance "Új objektum szerkesztése")
 
-  (icon-label.create "Létrehozás")
-  (icon-tooltip.create "Új objektum felvétele")
+  (icon-label.make-new-instance "Létrehozás")
+  (icon-tooltip.make-new-instance "Új objektum felvétele")
 
-  (icon-label.delete "Törlés")
-  (icon-tooltip.delete "Az objektum törlése")
+  (icon-label.delete-instance "Törlés")
+  (icon-tooltip.delete-instance "Az objektum törlése")
 
-  (icon-label.close "Bezárás")
-  (icon-tooltip.close "A komponens bezárása")
+  (icon-label.close-component "Bezárás")
+  (icon-tooltip.close-component "A komponens bezárása")
 
   (icon-label.navigate-back "Vissza")
   (icon-tooltip.navigate-back "Vissza a helyére")
@@ -264,10 +264,11 @@
 
 (def localization hu
   (login.title "Belépés")
-  (login.identifier "Azonosító")
-  (login.password "Jelszó")
   (login.message.authentication-failed "Azonosítás sikertelen")
   (login.message.session-timed-out "Lejárt a biztonsági idő, kérem lépjen be újra")
+
+  (slot-name.identifier "Azonosító")
+  (slot-name.password "Jelszó")
 
   (icon-label.login "Belépés")
   (icon-tooltip.login "Azonosítás és jogosultságok kérése")

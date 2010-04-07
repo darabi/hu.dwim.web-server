@@ -10,17 +10,17 @@
 ;;; Icon
 
 (def localization de
-  (icon-label.new "Neu")
-  (icon-tooltip.new "Ein neues Objekt anlegen und sofort bearbeiten")
+  (icon-label.begin-making-new-instance "Neu")
+  (icon-tooltip.begin-making-new-instance "Ein neues Objekt anlegen und sofort bearbeiten")
 
-  (icon-label.create "Objekt anlegen")
-  (icon-tooltip.create "Ein neues Objekt anlegen")
+  (icon-label.make-new-instance "Objekt anlegen")
+  (icon-tooltip.make-new-instance "Ein neues Objekt anlegen")
 
-  (icon-label.delete "Löschen")
-  (icon-tooltip.delete "Ein Objekt löschen")
+  (icon-label.delete-instance "Löschen")
+  (icon-tooltip.delete-instance "Ein Objekt löschen")
 
-  (icon-label.close "Schließen")
-  (icon-tooltip.close "Dieses Unterformular schließen")
+  (icon-label.close-component "Schließen")
+  (icon-tooltip.close-component "Dieses Unterformular schließen")
 
   (icon-label.navigate-back "Zurück")
   (icon-tooltip.back "Einen Schritt zurück gehen")
@@ -256,10 +256,11 @@
 
 (def localization de
   (login.title "Login")
-  (login.identifier "Identifier")
-  (login.password "Password")
   (login.message.authentication-failed "Authentication failed")
   (login.message.session-timed-out "Your session has timed out, please log in again")
+
+  (slot-name.identifier "Identifier")
+  (slot-name.password "Password")
 
   (icon-label.login "Login")
   (icon-tooltip.login "Gain privileges by authentication")

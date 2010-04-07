@@ -26,5 +26,5 @@
     (setf (root-component-of *frame*) (call-frame-root-component-factory clone))
     (make-redirect-response-with-frame-id-decorated *frame*)))
 
-(def (layered-function e) make-frame-component-with-content (application session frame component)
+(def (generic e) make-frame-component-with-content (application session frame component)
   (:documentation "Creates a new FRAME component for APPLICATION with the provided COMPONENT as content."))

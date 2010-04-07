@@ -9,8 +9,19 @@
 ;;;;;;
 ;;; login/widget
 
-(def (component e) login/widget ()
+(def (component e) login/widget (title/mixin
+                                 command-bar/mixin
+                                 component-messages/widget
+                                 remote-setup/mixin)
   ())
+
+(def layered-method make-command-bar-commands ((component login/widget) class prototype value)
+  (optional-list* (make-login-command component class prototype value) (call-next-layered-method)))
+
+(def (layered-function e) make-login-command (component class prototype value))
+
+(def method component-style-class ((self login/widget))
+  (string+ "content-border " (call-next-method)))
 
 ;;;;;;
 ;;; identifier-and-password-login/widget
@@ -19,20 +30,13 @@
 ;;       needs refactoring, less direct manipulation and more generalism through inheritance
 ;; TODO rename to something that tells that this component works without sessions
 ;; TODO make a potentially smarter counterpart that uses features which require a session/frame?
-(def (component e) identifier-and-password-login/widget (login/widget
-                                                         title/mixin
-                                                         command-bar/mixin
-                                                         component-messages/widget
-                                                         remote-setup/mixin)
+(def (component e) identifier-and-password-login/widget (login/widget)
   ((identifier nil)
    (password nil))
   (:default-initargs :title #"login.title"))
 
 (def (macro e) identifier-and-password-login/widget (&rest args &key &allow-other-keys)
   `(make-instance 'identifier-and-password-login/widget ,@args))
-
-(def layered-method make-command-bar-commands ((component identifier-and-password-login/widget) class prototype value)
-  (list (make-default-identifier-and-password-login-command)))
 
 (def render-xhtml identifier-and-password-login/widget
   (bind (((:read-only-slots id identifier password) -self-)
@@ -44,12 +48,12 @@
      ,(render-title-for -self-)
      ,(render-component-messages-for -self-)
      <table
-       <tr <td (:class "label") ,#"login.identifier<>">
+       <tr <td (:class "label") ,#"slot-name.identifier<>">
            <td (:class "value")
                <input (:id "identifier-field"
                        :name "identifier"
                        :value ,identifier)>>>
-       <tr <td (:class "label") ,#"login.password<>">
+       <tr <td (:class "label") ,#"slot-name.password<>">
            <td (:class "value")
                <input (:id "password-field"
                        :name "password"
@@ -58,7 +62,7 @@
        <tr <td (:colspan 2) ,(render-command-bar-for -self-)>>>>
     `js-onload(.focus ($ ,focused-field-id))))
 
-(def function make-default-identifier-and-password-login-command ()
+(def layered-method make-login-command ((component identifier-and-password-login/widget) class prototype value)
   (command/widget (:default #t)
     (icon/widget login)
     (bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
@@ -66,26 +70,45 @@
       (copy-uri-query-parameters (uri-of *request*) uri +continue-url-query-parameter-name+)
       uri)))
 
-(def (function e) make-identifier-and-password-login/widget (&key (commands (list (make-default-identifier-and-password-login-command)))
-                                                                  identifier password title id)
-  (bind ((result (make-instance 'identifier-and-password-login/widget :identifier identifier :password password)))
-    (when title
-      (setf (title-of result) title))
-    (when commands
-      (setf (commands-of (command-bar-of result)) (ensure-list commands)))
-    (when id
-      (setf (id-of result) id))
-    result))
-
 (def (generic e) make-logout-command (application)
   (:method :before (application)
     (assert (eq *application* application)))
+
   (:method ((application application))
     (command/widget (:ajax #f :send-client-state #f)
       (icon/widget logout)
       (make-action
         (logout *application* *session*)
         (decorate-session-cookie *application* (make-redirect-response-for-current-application))))))
+
+;;;;;;
+;;; login-data/login/inspector
+
+(def (component e) login-data/login/inspector (t/name-value-list/inspector login/widget)
+  ()
+  (:default-initargs :editable #f :edited #t))
+
+(def method component-style-class ((self login-data/login/inspector))
+  (string+ "content-border " (call-next-method)))
+
+(def render-xhtml login-data/login/inspector
+  (with-render-style/abstract (-self-)
+    (render-component-messages-for -self-)
+    (render-content-for -self-)
+    (render-command-bar-for -self-)))
+
+(def layered-method make-login-command ((component login-data/login/inspector) (class standard-class) (prototype login-data) (value login-data))
+  (when (authorize-operation *application* '(make-login-command))
+    (unless (is-logged-in? *session*)
+      (command/widget (:default #t :ajax #f)
+        (icon/widget login)
+        (make-action
+          ;; TODO: KLUDGE: API to rebuild current component value
+          (login *application* *session* #+nil(component-value-of component)
+                 (make-instance 'login-data/identifier-and-password
+                                :identifier "admin"
+                                :password "engedjbe"))
+          (clear-root-component))))))
 
 ;;;;;;
 ;;; fake-identifier-and-password-login/widget

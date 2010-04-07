@@ -65,8 +65,7 @@ Optimized factory configuration (default):
                        :component-value-type (component-value-type-of component))))
 
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
-  (optional-list* (make-execute-filter-command component class prototype value)
-                  (call-next-method)))
+  (optional-list* (make-execute-filter-command component class prototype value) (call-next-method)))
 
 (def method collect-filter-predicates ((self t/filter))
   '(equal))
@@ -74,13 +73,14 @@ Optimized factory configuration (default):
 (def (icon e) execute-filter)
 
 (def layered-method make-execute-filter-command ((component t/filter) class prototype value)
-  (make-replace-and-push-back-command (delay (result-of component))
-                                      (delay (with-restored-component-environment component
-                                               (make-result component class prototype (execute-filter component class prototype value))))
-                                      (list :content (icon/widget execute-filter)
-                                            :default #t
-                                            :subject-component component)
-                                      (list :content (icon/widget navigate-back))))
+  (when (authorize-operation *application* `(make-execute-filter-command :class ,class))
+    (make-replace-and-push-back-command (delay (result-of component))
+                                        (delay (with-restored-component-environment component
+                                                 (make-result component class prototype (execute-filter component class prototype value))))
+                                        (list :content (icon/widget execute-filter)
+                                              :default #t
+                                              :subject-component component)
+                                        (list :content (icon/widget navigate-back)))))
 
 (def layered-method make-result ((component t/filter) class prototype (value list))
   (make-inspector `(or null (cons ,(class-name (component-dispatch-class component)) t)) :value value))

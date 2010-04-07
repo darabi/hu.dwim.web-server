@@ -29,4 +29,3 @@
 
 (def method collapse-component ((self collapsible/mixin))
   (setf (expanded-component? self) #f))
-
