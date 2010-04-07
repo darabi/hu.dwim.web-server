@@ -33,7 +33,7 @@
 
   (:readtable-setup
    (hu.dwim.wui::setup-readtable)
-   (enable-string-quote-syntax)))
+   (hu.dwim.syntax-sugar:enable-string-quote-syntax)))
 
 (in-package :hu.dwim.wui.test)
 
