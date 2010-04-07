@@ -76,6 +76,12 @@
   (clrhash (client-state-sink-id->client-state-sink-of frame))
   frame)
 
+(def (function e) the-only-root-component (&optional (application *application*))
+  "Helper for the REPL."
+  (bind ((session (the-only-element (hash-table-values (hu.dwim.wui::session-id->session-of application))))
+         (frame (the-only-element (hash-table-values (hu.dwim.wui::frame-id->frame-of session)))))
+    (root-component-of frame)))
+
 (def function is-frame-alive? (frame)
   (cond
     ((not (is-frame-valid? frame)) (values #f :invalidated))
