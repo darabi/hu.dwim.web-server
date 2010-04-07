@@ -23,7 +23,7 @@
   (show-maybe component
               :answer-commands answer-commands
               :when (or (not subject)
-                        (and (hu.dwim.meta-model::has-authenticated-session)
+                        (and (hu.dwim.meta-model::has-authenticated-session?)
                              (hu.dwim.perec:p-eq subject (hu.dwim.meta-model::current-effective-subject))))
               :wait-reason (when subject
                              (make-instance 'hu.dwim.meta-model::wait-for-subject
@@ -37,7 +37,7 @@
   "Shows a user interface component to any one of the subjects matching to the given expression"
   `(show-maybe ,component
                :answer-commands ,answer-commands
-               :when (and (hu.dwim.meta-model::has-authenticated-session)
+               :when (and (hu.dwim.meta-model::has-authenticated-session?)
                           (bind ((hu.dwim.meta-model::-authenticated-subject- (hu.dwim.meta-model::current-authenticated-subject))
                                  (hu.dwim.meta-model::-effective-subject- (hu.dwim.meta-model::current-effective-subject)))
                             ,expression))
