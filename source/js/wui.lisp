@@ -37,6 +37,24 @@
   (assert connection "wui.disconnect called with nil connection")
   (dojo.disconnect connection))
 
+(defun wui.map (fn array)
+  (do ((i 0 (1+ i)))
+      ((>= i array.length))
+    (setf (aref array i) (fn (aref array i))))
+  (return array))
+
+(defun wui.map-child-nodes (node visitor)
+  ;; NOTE: some usages if this function are due to the fact that in some cases node.childNodes does not work in IE
+  (let ((children (array))
+        (child node.firstChild))
+    ;; NOTE: copy the children this way, so that IE is happy
+    (while child
+      (children.push child)
+      (setf child child.nextSibling))
+    (dolist (child children)
+      (visitor child))
+    (return children)))
+
 (defun wui.shallow-copy (object)
   (return (dojo.mixin (create) object)))
 
@@ -254,7 +272,7 @@
   (dolist (widget-id widget-ids)
     (awhen (dijit.byId widget-id)
       (.destroyRecursive it)))
-  (dojo.parser.instantiate (map 'dojo.byId widget-ids)))
+  (dojo.parser.instantiate (wui.map dojo.byId widget-ids)))
 
 #+nil ;; TODO
 (defun wui.io.eval-js-at-url (url error-handler)
@@ -378,16 +396,6 @@
        (return result))))
   (log.warn "Unknown browser in import-ajax-received-xhtml-node, this will probably cause some troubles later. Browser is " navigator.userAgent)
   (return (document.importNode node true)))
-
-(defun wui.map-child-nodes (node visitor)
-  (let ((children (array))
-        (child node.firstChild))
-    ;; NOTE: copy the children so that destructive operations can be mapped
-    (while child
-      (children.push child)
-      (setf child child.nextSibling))
-    (dolist (child children)
-      (visitor child))))
 
 ;; Return a lambda that when passed a root node, will call the visitor with each of those children
 ;; that have the given tag-name.
