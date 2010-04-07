@@ -41,8 +41,8 @@
          (debug-client-side? (debug-client-side? -self-))
          (javascript-supported? (not (request-parameter-value *request* +no-javascript-error-parameter-name+))))
     (emit-xhtml-prologue encoding +xhtml-1.1-doctype+)
-    <html (:xmlns     +xml-namespace-uri/xhtml+
-           xmlns:dojo +xml-namespace-uri/dojo+)
+    <html (:xmlns     #.+xml-namespace-uri/xhtml+
+           xmlns:dojo #.+xml-namespace-uri/dojo+)
       <head
         <meta (:http-equiv +header/content-type+
                :content ,(content-type-for (content-mime-type-of -self-) encoding))>
@@ -138,9 +138,9 @@
                :enctype #.+form-encoding/multipart-form-data+
                :action "")
           <div (:style "display: none")
-            <input (:id +scroll-x-parameter-name+ :name +scroll-x-parameter-name+ :type "hidden"
+            <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-x-parameter-name+))))>
-            <input (:id +scroll-y-parameter-name+ :name +scroll-y-parameter-name+ :type "hidden"
+            <input (:id #.+scroll-y-parameter-name+ :name #.+scroll-y-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-y-parameter-name+))))>>
           ,@(with-xhtml-body-environment ()
               (render-content-for -self-)
