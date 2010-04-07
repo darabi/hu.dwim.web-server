@@ -50,8 +50,9 @@ See also the REQUEST-CONTENT-LENGTH-LIMIT slot of BASIC-BACKEND.")
 (macrolet ((x (&body entries)
              `(progn
                 ,@(iter (for (name value) :on entries :by #'cddr)
-                        (collect `(def constant ,name ,value))
-                        (collect `(export ',name))))))
+                        (collect `(def (constant e) ,name ,value))
+                        ;; we also define lower-case constants, because the quasi-quote readers are case sensitive
+                        (collect `(def (constant e) ,(intern (string-downcase name)) ,value))))))
   (x
    +header/accept+              "Accept"
    +header/accept-charset+      "Accept-Charset"
