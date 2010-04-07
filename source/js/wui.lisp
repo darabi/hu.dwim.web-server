@@ -304,6 +304,7 @@
   (when url
     (setf url (wui.absolute-url-from url)))
   (bind ((params (create :url url
+                         :form form
                          :sync sync
                          :handle-as handle-as
                          :error on-error
