@@ -102,11 +102,8 @@
       (command/widget (:default #t :ajax #f)
         (icon/widget login)
         (make-action
-          ;; TODO: KLUDGE: API to rebuild current component value
-          (login *application* *session* #+nil(component-value-of component)
-                 (make-instance 'login-data/identifier-and-password
-                                :identifier "admin"
-                                :password "engedjbe"))
+          (store-editing component)
+          (login *application* *session* (component-value-of component))
           (clear-root-component))))))
 
 ;;;;;;
