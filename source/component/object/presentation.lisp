@@ -63,8 +63,13 @@
 
 ;; TODO: rename
 (def (layered-function e) collect-slot-value-list/slots (component class prototype value)
-  (:method :around (component class prototype value)
-    (collect-if [authorize-operation *application* `(read-slot-value :class ,class :instance ,value :slot ,!1)] (call-next-layered-method))))
+  (:method :around ((component filter/abstract) class prototype value)
+    (collect-if [authorize-operation *application* `(filter-slot-value :class ,class :prototype ,prototype :slot ,!1)]
+                (call-next-layered-method)))
+
+  (:method :around ((component inspector/abstract) class prototype value)
+    (collect-if [authorize-operation *application* `(inspect-slot-value :class ,class :prototype ,prototype :slot ,!1)]
+                (call-next-layered-method))))
 
 ;; TODO: rename
 (def (layered-function e) make-slot-value-list/content (component class prototype value))

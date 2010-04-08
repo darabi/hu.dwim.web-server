@@ -11,4 +11,9 @@
                   hu.dwim.perec::persistent
                   hu.dwim.perec::transaction
                   hu.dwim.perec::transaction-event)
-                (call-next-method)))
+                (call-next-layered-method)))
+
+(def layered-method collect-slot-value-list/slots :around ((component maker/abstract) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) value)
+  (remove-if [and (typep !1 'hu.dwim.meta-model::effective-property)
+                   (not (hu.dwim.meta-model::editable-p !1))]
+             (call-next-layered-method)))
