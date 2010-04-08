@@ -103,8 +103,12 @@
         (icon/widget login)
         (make-action
           (store-editing component)
-          (login *application* *session* (component-value-of component))
-          (clear-root-component))))))
+          (handler-case
+              (progn
+                (login *application* *session* (component-value-of component))
+                (clear-root-component))
+            (error/login-failed ()
+              (add-component-error-message component #"login.message.authentication-failed"))))))))
 
 ;;;;;;
 ;;; fake-identifier-and-password-login/widget
