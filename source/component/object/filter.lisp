@@ -65,7 +65,7 @@ Optimized factory configuration (default):
                        :component-value-type (component-value-type-of component))))
 
 (def layered-method make-command-bar-commands ((component t/filter) class prototype value)
-  (optional-list* (make-execute-filter-command component class prototype value) (call-next-method)))
+  (optional-list* (make-execute-filter-command component class prototype value) (call-next-layered-method)))
 
 (def method collect-filter-predicates ((self t/filter))
   '(equal))
@@ -76,7 +76,8 @@ Optimized factory configuration (default):
   (when (authorize-operation *application* `(make-execute-filter-command :class ,class))
     (make-replace-and-push-back-command (delay (result-of component))
                                         (delay (with-restored-component-environment component
-                                                 (make-result component class prototype (execute-filter component class prototype value))))
+                                                 (with-interaction component
+                                                   (make-result component class prototype (execute-filter component class prototype value)))))
                                         (list :content (icon/widget execute-filter)
                                               :default #t
                                               :subject-component component)
@@ -87,7 +88,7 @@ Optimized factory configuration (default):
 
 (def layered-method make-result :around ((component t/filter) class prototype value)
   (prog1-bind component
-      (call-next-method)
+      (call-next-layered-method)
     (if value
         (add-component-information-message component (matches-were-found (length value)))
         (add-component-warning-message component #"no-matches-were-found"))))
@@ -168,7 +169,7 @@ Optimized factory configuration (default):
                    :action nil :enabled #f)))
 
 (def layered-method make-filter-predicate ((component t/name-value-list/filter) class prototype value)
-  (bind ((predicate (call-next-method)))
+  (bind ((predicate (call-next-layered-method)))
     (lambda (candidate)
       (and (typep candidate (component-value-type-of component))
            (funcall predicate candidate)))))

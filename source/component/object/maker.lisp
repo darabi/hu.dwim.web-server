@@ -73,7 +73,8 @@ Optimized factory configuration (default):
   (when (authorize-operation *application* `(make-make-new-instance-command :class ,class))
     (make-replace-and-push-back-command (delay (result-of component))
                                         (delay (with-restored-component-environment component
-                                                 (make-result component class prototype (make-new-instance component class prototype value))))
+                                                 (with-interaction component
+                                                   (make-result component class prototype (make-new-instance component class prototype value)))))
                                         (list :content (icon/widget make-new-instance)
                                               :default #t
                                               :subject-component component)
