@@ -7,14 +7,6 @@
 (in-package :hu.dwim.wui)
 
 (def localization de
-  (render-frame-out-of-sync-error (refresh-href new-frame-href &key &allow-other-keys)
-    <div
-      <p "Browser window went out of sync with the server...">
-      <p "Please avoid using the " <i "Back">
-         " button of your browser and/or opening links in new windows by copy-pasting URL's or using the " <i "Open in new window">
-         " feature of your browser. To achieve the same effect, you can use the navigation actions provided by the application.">
-      <p <a (:href ,refresh-href) "Bring me back to the application">>
-      <p <a (:href ,new-frame-href) "Reset my view of the application">>>)
   (render-application-internal-error-page (&key administrator-email-address &allow-other-keys)
     <div
       <p "The developers will be notified about this error and they will hopefully fix it soon.">
