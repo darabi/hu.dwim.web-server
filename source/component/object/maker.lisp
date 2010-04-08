@@ -85,8 +85,15 @@ Optimized factory configuration (default):
 
 (def (layered-function e) make-new-instance (component class prototype value)
   (:method ((component t/maker) class prototype value)
-    ;; TODO: copy the form builder from the old code base
-    (make-instance class)))
+    (apply #'make-instance class (make-maker-initargs component class prototype value))))
+
+(def (layered-function e) make-maker-initargs (component class prototype value)
+  (:method ((component content/mixin) class prototype value)
+    (make-maker-initargs (content-of component) class prototype value)))
+
+(def layered-method make-maker-initargs ((component contents/mixin) class prototype value)
+  (iter (for content :in (contents-of component))
+        (appending (make-maker-initargs content class prototype value))))
 
 ;;;;;;
 ;;; t/reference/maker
@@ -168,3 +175,11 @@ Optimized factory configuration (default):
 
 (def layered-method make-slot-value-pair/value ((component place/name-value-pair/maker) class prototype value)
   (make-instance 'place/value/maker :component-value value))
+
+(def layered-method make-maker-initargs ((component place/name-value-pair/maker) class prototype value)
+  (bind ((place (component-value-of component))
+         (slot (slot-of place))
+         (initargs (slot-definition-initargs slot)))
+    (assert (length= 1 initargs))
+    ;; TODO: first?
+    (list (first initargs) (component-value-of (content-of (value-of component))))))
