@@ -308,28 +308,28 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
     (call-in-component-environment self #'call-next-method))
 
   (:method ((self component))
-    (map-editable-child-components self #'store-editing)))
+    (map-edited-child-components self #'store-editing)))
 
 (def methods revert-editing
   (:method :around ((self component))
     (call-in-component-environment self #'call-next-method))
 
   (:method ((self component))
-    (map-editable-child-components self #'revert-editing)))
+    (map-edited-child-components self #'revert-editing)))
 
 (def methods join-editing
   (:method :around ((self component))
     (call-in-component-environment self #'call-next-method))
 
   (:method ((self component))
-    (map-editable-child-components self #'join-editing)))
+    (map-edited-child-components self #'join-editing)))
 
 (def methods leave-editing
   (:method :around ((self component))
     (call-in-component-environment self #'call-next-method))
 
   (:method ((self component))
-    (map-editable-child-components self #'leave-editing)))
+    (map-edited-child-components self #'leave-editing)))
 
 ;;;;;;
 ;;; Traverse editable components
@@ -357,6 +357,40 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (map-editable-descendant-components component (lambda (descendant)
                                                   (when (funcall function descendant)
                                                     (return-from find-editable-descendant-component descendant))))
+  nil)
+
+(def (function e) has-editable-child-component-p (component)
+  (find-editable-child-component component #'editable-component?))
+
+(def (function e) has-editable-descendant-component-p (component)
+  (find-editable-descendant-component component #'editable-component?))
+
+;;;;;;
+;;; Traverse edited components
+
+(def (function e) map-edited-child-components (component function)
+  (ensure-functionf function)
+  (map-child-components component (lambda (child)
+                                    (when (edited-component? child)
+                                      (funcall function child)))))
+
+(def (function e) map-edited-descendant-components (component function)
+  (ensure-functionf function)
+  (map-edited-child-components component (lambda (child)
+                                             (funcall function child)
+                                             (map-edited-descendant-components child function))))
+
+(def (function e) find-edited-child-component (component function)
+  (ensure-functionf function)
+  (map-edited-child-components component (lambda (child)
+                                             (when (funcall function child)
+                                               (return-from find-edited-child-component child))))
+  nil)
+
+(def (function e) find-edited-descendant-component (component function)
+  (map-edited-descendant-components component (lambda (descendant)
+                                                  (when (funcall function descendant)
+                                                    (return-from find-edited-descendant-component descendant))))
   nil)
 
 (def (function e) has-edited-child-component-p (component)

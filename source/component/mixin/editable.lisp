@@ -10,6 +10,7 @@
 ;;; editable/mixin
 
 (def (component e) editable/mixin ()
+  ;; TODO: rename?
   ((editable-component
     #t
     :type boolean
