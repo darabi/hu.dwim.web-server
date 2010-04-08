@@ -65,7 +65,7 @@ Optimized factory configuration (default):
     (render-result-for -self-)))
 
 (def layered-method make-command-bar-commands ((component t/maker) class prototype value)
-  (optional-list* (make-make-new-instance-command component class prototype value) (call-next-method)))
+  (optional-list* (make-make-new-instance-command component class prototype value) (call-next-layered-method)))
 
 (def (icon e) make-new-instance)
 

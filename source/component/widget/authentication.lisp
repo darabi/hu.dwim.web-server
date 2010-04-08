@@ -85,8 +85,7 @@
 ;;; login-data/login/inspector
 
 (def (component e) login-data/login/inspector (t/name-value-list/inspector login/widget)
-  ()
-  (:default-initargs :editable #f :edited #t))
+  ())
 
 (def method component-style-class ((self login-data/login/inspector))
   (string+ "content-border " (call-next-method)))
