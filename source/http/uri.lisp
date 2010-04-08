@@ -6,6 +6,15 @@
 
 (in-package :hu.dwim.wui)
 
+#|
+
+most importantly because / is not the same as %2F
+
+I'd guess that the correct order is to split on slashes -first-, then decode.
+foom I think you will be RFCly correct if you split on slashes, then split on ;, then decode.
+
+|#
+
 ;; http://www.faqs.org/rfcs/rfc2396.html
 
 (export '(uri-of host-of scheme-of path-of fragment-of))

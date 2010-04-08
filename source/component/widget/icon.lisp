@@ -10,6 +10,7 @@
 ;;; Icons cache
 
 ;; TODO use strings as icon names instead of symbols
+;; TODO use (def namespace ...)
 (def special-variable *icons* (make-hash-table))
 
 (def (function e) find-icon (name &key (otherwise :error otherwise?))

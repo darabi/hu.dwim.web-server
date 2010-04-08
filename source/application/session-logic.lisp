@@ -108,6 +108,8 @@
            (setf frame (make-new-frame application session))
            (register-frame application session frame)
            (setf *frame* frame)
+           ;; we just created a frame, maybe we should set the frame index to avoid an extra redirect?
+           ;; (setf (parameter-value +frame-index-parameter-name+) (frame-index-of *frame*))
            (-body-))
           (t
            (-body-))))))
@@ -213,12 +215,13 @@
      (make-functional-response/ajax-aware-client ()
        <script `js-inline(wui.inform-user-about-error "error.ajax.request-to-invalid-session")>))
     ((not *delayed-content-request*)
+     (app.debug "Default HANDLE-REQUEST-TO-INVALID-SESSION is sending a redirect response to ~A" application)
      (make-redirect-response-for-current-application))
     (t
      (handle-delayed-request-to-invalid-session/frame/action))))
 
 (def method handle-request-to-invalid-frame ((application application) session frame invalidity-reason)
-  (app.dribble "Default HANDLE-REQUEST-TO-INVALID-FRAME speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
+  (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
   (cond
     (*ajax-aware-request*
      (make-functional-response/ajax-aware-client ()
@@ -230,12 +233,13 @@
      (handle-delayed-request-to-invalid-session/frame/action))))
 
 (def method handle-request-to-invalid-action ((application application) session frame action invalidity-reason)
-  (app.dribble "Default HANDLE-REQUEST-TO-INVALID-ACTION speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
+  (app.debug "Default HANDLE-REQUEST-TO-INVALID-ACTION speaking, invalidity-reason is ~S, *ajax-aware-request* is ~S" invalidity-reason *ajax-aware-request*)
   (cond
     (*ajax-aware-request*
      (make-functional-response/ajax-aware-client ()
        <script `js-inline(wui.inform-user-about-js-error)>))
     ((not *delayed-content-request*)
+     (app.debug "Default HANDLE-REQUEST-TO-INVALID-ACTION is sending a redirect response to ~A" application)
      (make-redirect-response-for-current-application))
     (t (handle-delayed-request-to-invalid-session/frame/action))))
 

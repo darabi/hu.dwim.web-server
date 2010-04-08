@@ -72,17 +72,20 @@ Custom implementations should look something like this:
 (def (generic e) handle-request-to-invalid-session (application session invalidity-reason)
   (:method :before (application session invalidity-reason)
     (check-type invalidity-reason session-invalidity-reason)
-    (check-type session (or null session))))
+    (check-type session (or null session))
+    (app.dribble "HANDLE-REQUEST-TO-INVALID-SESSION invoked. Application ~A, session ~A, invalidity-reason ~S, *ajax-aware-request* ~S" application session invalidity-reason *ajax-aware-request*)))
 
 (def (generic e) handle-request-to-invalid-frame (application session frame invalidity-reason)
   (:method :before (application session frame invalidity-reason)
     (check-type invalidity-reason frame-invalidity-reason)
-    (check-type frame (or null frame))))
+    (check-type frame (or null frame))
+    (app.dribble "HANDLE-REQUEST-TO-INVALID-FRAME invoked. Application ~A, session ~A, frame ~A, invalidity-reason ~S, *ajax-aware-request* ~S" application session frame invalidity-reason *ajax-aware-request*)))
 
 (def (generic e) handle-request-to-invalid-action (application session frame action invalidity-reason)
   (:method :before (application session frame action invalidity-reason)
     (check-type invalidity-reason action-invalidity-reason)
-    (check-type action (or null action))))
+    (check-type action (or null action))
+    (app.dribble "HANDLE-REQUEST-TO-INVALID-ACTION invoked. Application ~A, session ~A, frame ~A, action ~A, invalidity-reason ~S, *ajax-aware-request* ~S" application session frame action invalidity-reason *ajax-aware-request*)))
 
 (def generic entry-point-equals-for-redefinition (a b)
   (:method (a b)
