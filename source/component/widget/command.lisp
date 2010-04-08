@@ -108,22 +108,26 @@
                      (if (typep content 'icon/widget)
                          (symbol-name (name-of content))
                          (princ-to-string content))))
-             (submit-id nil))
+             (submit-id (when default
+                          (generate-unique-component-id))))
         ;; NOTE name is not a valid attribute in xhtml, but in test mode it's rendered to help test code finding commands
         ;; TODO: if we render it as a span, then tab navigation skips the commands
         <span (:id ,id :class ,style-class ,(maybe-make-xml-attribute "name" name))
           #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
           ,(render-component content)>
-        (when default
-          (setf submit-id (generate-unique-component-id))
-          <input (:id ,submit-id :type "submit" :style "display: none;")>)
         (render-action-js-event-handler "onclick" (if submit-id (list id submit-id) id) action
                                         :action-arguments action-arguments
                                         :js js
                                         :subject-dom-node subject-dom-node
                                         :ajax ajax
                                         :send-client-state send-client-state
-                                        :sync sync))
+                                        :sync sync)
+        (when default
+          ;; NOTE: we must do this after render-action-js-event-handler, because the action gets registered in it and we use its id here
+          ;; TODO add client side warning for multiple default actions?
+          <input (:id ,submit-id :type "submit" :style "display: none;"
+                  :name #.+action-id-parameter-name+ :value ,(when (typep action 'action)
+                                                               (id-of action)))>))
       <span (:id ,id :class "command widget disabled")
         #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
         ,(render-component content)>))
