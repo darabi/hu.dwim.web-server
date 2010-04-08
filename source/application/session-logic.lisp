@@ -223,15 +223,6 @@
     (*ajax-aware-request*
      (make-functional-response/ajax-aware-client ()
        <script `js-inline(wui.inform-user-about-error "error.ajax.request-to-invalid-frame")>))
-    ((and (eq invalidity-reason :out-of-sync)
-          (not *delayed-content-request*))
-     (bind ((refresh-href   (print-uri-to-string (make-uri-for-current-frame)))
-            (new-frame-href (print-uri-to-string (make-uri-for-new-frame)))
-            (args (list refresh-href new-frame-href)))
-       (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a frame out of sync response")
-       (disallow-response-caching
-        (make-functional-html-response ((+header/status+ +http-not-acceptable+))
-          (apply-localization-function 'render-frame-out-of-sync-error args)))))
     ((not *delayed-content-request*)
      (app.debug "Default HANDLE-REQUEST-TO-INVALID-FRAME is sending a redirect response to ~A" application)
      (make-redirect-response-for-current-application))
