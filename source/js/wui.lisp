@@ -146,44 +146,34 @@
          (form (aref document.forms 0)))
     (wui.save-scroll-position "content")
     (if ajax
-        (progn
+        (bind ((ajax-target (dojo.byId subject-dom-node))
+               (ajax-indicator-teardown nil))
           (when wui.io.sync-ajax-action-in-progress
             (log.warn "Ignoring a (wui.io.action :sync true :ajax true ...) call because there's already a pending sync action")
             (return))
+          (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
           (when sync
             (setf wui.io.sync-ajax-action-in-progress true))
-          (bind ((ajax-target (dojo.byId subject-dom-node))
-                 (ajax-request-in-progress-indicator (document.create-element "div"))
-                 (ajax-request-in-progress-teardown (lambda ()
-                                                      (when ajax-target
-                                                        ;; dojo.destroy can deal with parentNode = null (because the indicator dom node gets GC'd, possibly due to its parent node having been ajax-replaced?)
-                                                        (dojo.destroy ajax-request-in-progress-indicator)
-                                                        (dojo.removeClass ajax-target "ajax-target"))
-                                                      (when sync
-                                                        (setf wui.io.sync-ajax-action-in-progress false)))))
-            (log.debug "Will fire an ajax request, ajax-target: " ajax-target)
-            (when dojo.config.isDebug
-              (when wui.last-ajax-replacements
-                (dolist (node wui.last-ajax-replacements)
-                  (dojo.removeClass node "ajax-replacement")))
-              (setf wui.last-ajax-replacements (array)))
+          (flet ((xhr-finished ()
+                   (when ajax-indicator-teardown
+                     (ajax-indicator-teardown))
+                   (when sync
+                     (setf wui.io.sync-ajax-action-in-progress false))))
             (when ajax-target
-              (dojo.addClass ajax-target "ajax-target")
-              (dojo.addClass ajax-request-in-progress-indicator "ajax-request-in-progress")
-              (dojo.contentBox ajax-request-in-progress-indicator (dojo.contentBox ajax-target))
-              (dojo.place ajax-request-in-progress-indicator ajax-target "before"))
+              (setf ajax-indicator-teardown (wui.io.install-ajax-progress-indicator ajax-target)))
             (wui.io.xhr-post :url decorated-url
                              ;; :sync true pretty much stops the whole browser tab including animated images...
                              :sync xhr-sync
                              :form (when send-client-state
                                      form)
                              :on-error (lambda (response io-args)
-                                         (ajax-request-in-progress-teardown)
+                                         (xhr-finished)
                                          (wui.io.process-ajax-network-error response io-args)
                                          (when on-error
                                            (on-error)))
                              :on-success (lambda (response io-args)
-                                           (ajax-request-in-progress-teardown)
+                                           (xhr-finished)
+                                           (wui.io.clear-ajax-replacement-markers)
                                            (wui.io.process-ajax-answer response io-args)
                                            (when on-success
                                              (on-success))))))
@@ -194,6 +184,32 @@
               (setf (slot-value form 'action) decorated-url)
               (form.submit))
             (setf window.location.href decorated-url)))))
+
+(defun wui.io.install-ajax-progress-indicator (target-node)
+  (bind ((animation nil)
+         (progress-node (document.create-element "div")))
+    (dojo.style progress-node "opacity" 0)
+    (dojo.addClass target-node "ajax-target")
+    (dojo.addClass progress-node "ajax-request-in-progress")
+    (dojo.contentBox progress-node (dojo.contentBox target-node))
+    (dojo.place progress-node target-node "before")
+    (setf animation
+          (.play (dojo.fx.combine (array
+                                   (dojo.animateProperty (create :node target-node
+                                                                 :duration 1000
+                                                                 :rate 50
+                                                                 :properties (create :opacity (create :start 1 :end 0.3))))
+                                   (dojo.animateProperty (create :node progress-node
+                                                                 :duration 1000
+                                                                 :rate 50
+                                                                 :properties (create :opacity (create :start 0 :end 1))))))))
+    (return
+      (lambda ()
+        (.stop animation)
+        ;; dojo.destroy can deal with parentNode = null (which sometimes happens maybe because the indicator dom node gets GC'd, possibly due to its parent node having been ajax-replaced?)
+        (dojo.destroy progress-node)
+        (dojo.removeClass target-node "ajax-target")
+        (dojo.style target-node "opacity" 1)))))
 
 (defun wui.io.make-action-event-handler (href &key on-success on-error subject-dom-node (ajax true)
                                          (send-client-state true) (sync true) (xhr-sync false))
@@ -285,30 +301,6 @@
                        (._scheduleOpen it event.target nil (create :x event.pageX :y event.pageY))
                        (log.warn "Context menu was not found after processing the ajax answer (empty ajax answer?). The id we looked for is " id))))
    event connection))
-
-#+nil ;; TODO
-(defun wui.io.eval-js-at-url (url error-handler)
-  (wui.io.bind (create :sync true
-                       :url url
-                       :session-id wui.session-id
-                       :frame-id wui.frame-id
-                       :load (lambda (type data event)
-                               (log.debug "About to eval received script in eval-js-at-url")
-                               (eval data))
-                       :error error-handler
-                       :mimetype "text/plain"
-                       :method "get")))
-
-#+nil ;; TODO
-(defun wui.io.default-js-to-lisp-rpc-handler (type data event)
-  (wui.io.process-ajax-answer type data event)
-  ;; TODO this with-stuff deserves a cleanup. it's only here to skip the body in case of an error...
-  (with-wui-error-handler
-    (with-ajax-answer data
-      (let ((return-value-node (aref (data.get-elements-by-tag-name "return-value") 0))
-            (return-value-string return-value-node.firstChild))
-        (log.debug "Return value (as string) is " return-value-string ", as node " return-value-node)
-        (return (eval return-value-string))))))
 
 (defun wui.io.postprocess-inserted-node (original-node imported-node)
   ;; this used to be needed before WITH-COLLAPSED-JS-SCRIPTS started to collect all js fragments into a toplevel script node in the ajax answer. might come handy for something later, so leave it for now...
@@ -463,6 +455,19 @@
         (with-ajax-answer-logic response
           (node-walker response))))))
 
+(setf wui.io.marked-ajax-replacements (array))
+
+(defun wui.io.mark-ajax-replacement (node)
+  (when dojo.config.isDebug
+    (dojo.addClass node "ajax-replacement")
+    (wui.io.marked-ajax-replacements.push node)))
+
+(defun wui.io.clear-ajax-replacement-markers ()
+  (when dojo.config.isDebug
+    (dolist (node wui.io.marked-ajax-replacements)
+      (dojo.removeClass node "ajax-replacement"))
+    (setf wui.io.marked-ajax-replacements (array))))
+
 (bind ((dom-replacer (wui.io.make-ajax-answer-processor
                       "dom-replacements"
                       (lambda (replacement-node)
@@ -473,9 +478,7 @@
                                 (hide-dom-node old-node)
                                 (log.debug "About to replace old node with id " id)
                                 (.replace-child parent-node replacement-node old-node)
-                                (when dojo.config.isDebug
-                                  (dojo.addClass replacement-node "ajax-replacement")
-                                  (wui.last-ajax-replacements.push replacement-node))
+                                (wui.io.mark-ajax-replacement replacement-node)
                                 (log.debug "Successfully replaced node with id " id)
                                 (return true))
                               (progn
@@ -712,9 +715,7 @@
 (defun wui.help.make-mouseover-handler (url)
   (return
     (lambda (event)
-      (when wui.help.timer
-        (clearTimeout wui.help.timer)
-        (setf wui.help.timer nil))
+      (clearTimeout wui.help.timer) ; safe to call with garbage
       (setf wui.help.timer
             (setTimeout (lambda ()
                           (bind ((decorated-url url)

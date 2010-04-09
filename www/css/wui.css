@@ -102,10 +102,6 @@ em
 
 /* ajax */
 
-.ajax-target {
-  opacity: 0.5;
-}
-
 .reference.ajax-target {
   background-image: url("/static/wui/image/miscellaneous/in-progress.gif");
   background-repeat: no-repeat;
