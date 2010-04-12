@@ -37,6 +37,11 @@
   (assert connection "wui.disconnect called with nil connection")
   (dojo.disconnect connection))
 
+(defun wui.maybe-invoke-debugger ()
+  ;; doesn't work in chrome? (apply window.console.error arguments)
+  (when dojo.config.isDebug
+    debugger))
+
 (defun wui.map (fn array)
   (do ((i 0 (1+ i)))
       ((>= i array.length))
@@ -200,16 +205,15 @@
                                                                  :rate 50
                                                                  :properties (create :opacity (create :start 1 :end 0.3))))
                                    (dojo.animateProperty (create :node progress-node
-                                                                 :duration 1000
+                                                                 :duration 500
                                                                  :rate 50
-                                                                 :properties (create :opacity (create :start 0 :end 1))))))))
+                                                                 :properties (create :opacity (create :start 0.3 :end 1))))))))
     (return
       (lambda ()
         (.stop animation)
         ;; dojo.destroy can deal with parentNode = null (which sometimes happens maybe because the indicator dom node gets GC'd, possibly due to its parent node having been ajax-replaced?)
         (dojo.destroy progress-node)
-        (dojo.removeClass target-node "ajax-target")
-        (dojo.style target-node "opacity" 1)))))
+        (dojo.removeClass target-node "ajax-target")))))
 
 (defun wui.io.make-action-event-handler (href &key on-success on-error subject-dom-node (ajax true)
                                          (send-client-state true) (sync true) (xhr-sync false))
@@ -234,19 +238,23 @@
 
 (defun wui.io.connect-action-event-handler (id event-name handler &key one-shot (stop-event true))
   (flet ((connect-one (id)
-           (bind ((connection nil))
-             (setf connection (wui.connect id event-name
-                                           (lambda (event)
-                                             (when stop-event
-                                               (log.debug "Action handler on id " id ", node " (dojo.byId id) " is stopping event " event)
-                                               (dojo.stopEvent event))
-                                             (when one-shot
-                                               ;; TODO support different one-shot strategies? 1) disconnect, 2) use a captured boolean guard.
-                                               ;; 2) with stop-event could be used to hide events from covering parent nodes
-                                               (log.debug "Disconnecting one-shot event handler after firing; id " id  ", node " (dojo.byId id) ", connection " connection)
-                                               (wui.disconnect connection))
-                                             (handler event connection))))
-             (return connection))))
+           (if ($ id)
+               (bind ((connection nil))
+                 (setf connection (wui.connect id event-name
+                                               (lambda (event)
+                                                 (when stop-event
+                                                   (log.debug "Action handler on id " id ", node " (dojo.byId id) " is stopping event " event)
+                                                   (dojo.stopEvent event))
+                                                 (when one-shot
+                                                   ;; TODO support different one-shot strategies? 1) disconnect, 2) use a captured boolean guard.
+                                                   ;; 2) with stop-event could be used to hide events from covering parent nodes
+                                                   (log.debug "Disconnecting one-shot event handler after firing; id " id  ", node " (dojo.byId id) ", connection " connection)
+                                                   (wui.disconnect connection))
+                                                 (handler event connection))))
+                 (return connection))
+               (progn
+                 (log.error "Node not found when trying to connect event handler. Id is " id)
+                 (wui.maybe-invoke-debugger)))))
     (if (dojo.isArray id)
         (dolist (one id)
           (connect-one one))
@@ -474,17 +482,20 @@
                         (bind ((id (.getAttribute replacement-node "id"))
                                (old-node ($ id)))
                           (if old-node
-                              (let ((parent-node (slot-value old-node 'parent-node)))
-                                (hide-dom-node old-node)
+                              (bind ((parent-node (slot-value old-node 'parent-node))
+                                     (old-opacity (Math.min (dojo.style old-node "opacity") 0.5)))
                                 (log.debug "About to replace old node with id " id)
+                                (dojo.style replacement-node "opacity" old-opacity)
                                 (.replace-child parent-node replacement-node old-node)
+                                (.play (dojo.animateProperty (create :node replacement-node
+                                                                     :duration 500
+                                                                     :rate 50
+                                                                     :properties (create :opacity (create :start old-opacity :end 1)))))
                                 (wui.io.mark-ajax-replacement replacement-node)
-                                (log.debug "Successfully replaced node with id " id)
-                                (return true))
+                                (log.debug "Successfully replaced node with id " id))
                               (progn
                                 (log.error "Old version of replacement node " replacement-node " with id '" id "' was not found on the client side")
-                                (when dojo.config.isDebug
-                                  debugger))))))))
+                                (wui.maybe-invoke-debugger))))))))
   (setf wui.io.process-ajax-answer
         (lambda (response args)
           ;; TODO properly handle ajax errors
