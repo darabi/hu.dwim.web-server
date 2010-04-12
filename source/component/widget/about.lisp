@@ -22,14 +22,17 @@
     (render-about/dwim)
     (render-about/thellminar)))
 
+(def method component-style-class ((self about/widget))
+  (string+ "content-border " (call-next-method)))
+
 (def (function e) render-about/contributors (id title url image-url image-alt people)
   (bind ((box-id (string+ id "-about-box"))
          (title-id (string+ box-id "-title")))
     <div (:id ,title-id :class "title") ,title>
-    <a (:href ,url :target "_blank")
-       <img (:src ,image-url :alt ,image-alt)>>
-    (iter (for person :in-sequence people)
-          <div ,person>)))
+    <table <tr <td <a (:href ,url :target "_blank")
+                      <img (:src ,image-url :alt ,image-alt)>>>
+               <td ,(iter (for person :in-sequence people)
+                          <div ,person>)>>>))
 
 (def (function e) render-about/dwim ()
   (render-about/contributors "dwim" "Szoftvertechnológia" "http://dwim.hu"

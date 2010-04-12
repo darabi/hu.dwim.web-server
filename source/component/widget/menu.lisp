@@ -175,8 +175,8 @@
                  (content/mixin
                   (bind ((content-content (content-of content)))
                     (if (typep content-content 'icon/widget)
-                        (render-component (force (label-of (content-of content))))
-                        (render-component content))))
+                        (render-component (force (label-of content-content)))
+                        (render-component content-content))))
                  (t
                   (render-component content)))>
             (when (typep content 'command/widget)

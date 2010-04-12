@@ -15,9 +15,6 @@
 (def method component-style-class ((self title-bar/widget))
   (string+ "title-border " (call-next-method)))
 
-(def method component-style-class ((self usage-help/widget))
-  (string+ "content-border " (call-next-method)))
-
 (def method component-style-class ((self table/widget))
   (string+ "content-border " (call-next-method)))
 

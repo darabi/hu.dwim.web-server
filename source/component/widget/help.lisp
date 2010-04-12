@@ -60,9 +60,9 @@
     (add-component-error-message -self- "*** Nincs engedélyezve az internet böngészőjében a JavaScript programok futtatása, így az alkalmazás sajnos egyátalán nem használható. Kérjük engedélyezze a JavaScript futtatását a beállításokban!"))
   (unless (supported? (identify-http-user-agent *request*))
     (add-component-error-message -self- "Ezt az internet böngészőt vagy annak az éppen használt verzióját az alkalmazás nem támogatja. Az alábbi oldalon olvashatja a támogatott böngészők listáját és a letöltésükhöz szükséges információkat. A kellemetlenségért elnézését kérjük!"))
-  <div (:id ,(id-of -self-) :class "usage-help widget")
-    ,(render-title-for -self-)
-    ,(render-component-messages-for -self-)
+  (with-render-style/abstract (-self-)
+    (render-title-for -self-)
+    (render-component-messages-for -self-)
     ;; TODO: make this a book and localize it
     <div (:id "help")
       <h2 "Követelmények">
@@ -109,4 +109,7 @@
               <li <a (:href "https://www.microsoft.com/windows/ie/downloads/default.mspx" :target "_blank") "angol nyelvű">>>
           <h3 "Adobe Acrobat Reader">
           <ul <li <a (:href "http://letoltes.prim.hu/letoltes/program/58499/" :target "_blank") "magyar nyelvű">>
-              <li <a (:href "http://www.adobe.com/products/acrobat/readstep2.html" :target "_blank") "angol nyelvű">>>>>)
+              <li <a (:href "http://www.adobe.com/products/acrobat/readstep2.html" :target "_blank") "angol nyelvű">>>>))
+
+(def method component-style-class ((self usage-help/widget))
+  (string+ "content-border " (call-next-method)))
