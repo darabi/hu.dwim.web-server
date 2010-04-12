@@ -7,15 +7,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; button/widget
+;;; button/abstract
 
-(def (component e) button/widget (widget/basic style/abstract content/abstract)
+(def (component e) button/abstract (widget/basic style/abstract content/abstract)
   ())
 
 ;;;;;;
 ;;; push-button/widget
 
-(def (component e) push-button/widget (button/widget)
+(def (component e) push-button/widget (button/abstract)
   ())
 
 (def (macro e) push-button/widget ((&rest args &key &allow-other-keys) &body content)
@@ -29,7 +29,7 @@
 ;;;;;;
 ;;; toggle-button/widget
 
-(def (component e) toggle-button/widget (button/widget)
+(def (component e) toggle-button/widget (button/abstract)
   ((pushed-in :type boolean)))
 
 (def (macro e) toggle-button/widget ((&rest args &key &allow-other-keys) &body content)
@@ -44,7 +44,7 @@
 ;;; drop-down-button/widget
 
 ;; TODO: add contents and what? is it really a button or what?
-(def (component e) drop-down-button/widget (button/widget)
+(def (component e) drop-down-button/widget (button/abstract)
   ())
 
 (def (macro e) drop-down-button/widget ((&rest args &key &allow-other-keys) &body content)

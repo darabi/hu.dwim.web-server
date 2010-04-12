@@ -217,7 +217,7 @@
           (revert-editing component))))))
 
 (def layered-method make-editing-commands ((component editable/mixin) class prototype instance)
-  (when (authorize-operation *application* '(make-editing-commands))
+  (when (authorize-operation *application* `(make-editing-commands :class ,class))
     (cond ((editable-component? component)
            (list (make-begin-editing-command component class prototype instance)
                  (make-save-editing-command component class prototype instance)
