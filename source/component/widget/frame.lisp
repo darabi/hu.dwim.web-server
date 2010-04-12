@@ -139,9 +139,11 @@
                ;; NOTE this is needed for default actions.
                ;; Firefox calls onClick on the single :type "submit" input, so it doesn't need anything special.
                ;; Chrome on the other hand simply submits the form, so we need to store an url here that points to the next frame, and render an action-id <input > for default actions. See command rendering for that.
-               :action ,(bind ((frame-uri (make-uri-for-current-application)))
-                          (setf (uri-query-parameter-value frame-uri +frame-index-parameter-name+) (next-frame-index-of *frame*))
-                          (print-uri-to-string frame-uri)))
+               ,(when *frame*
+                  (make-xml-attribute "action"
+                                      (bind ((frame-uri (make-uri-for-current-application)))
+                                        (setf (uri-query-parameter-value frame-uri +frame-index-parameter-name+) (next-frame-index-of *frame*))
+                                        (print-uri-to-string frame-uri)))))
           <div (:style "display: none")
             <input (:id #.+scroll-x-parameter-name+ :name #.+scroll-x-parameter-name+ :type "hidden"
                     :value ,(first (ensure-list (parameter-value +scroll-x-parameter-name+))))>
