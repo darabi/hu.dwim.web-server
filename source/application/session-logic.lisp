@@ -176,7 +176,7 @@
                     ;; at the time the frame is first registered, there's no frame index param in the url, so just fall through here and
                     ;; end up at the entry points.
                     )
-                  (app.dribble "Action logic fell through, proceeding to the thunk...")
+                  (app.dribble "Action logic fell through, proceeding to the body thunk...")
                   (if requires-valid-action
                       (handle-request-to-invalid-action application session frame action :nonexistent)
                       (values (convert-to-primitive-response* (-body-))))))

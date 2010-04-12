@@ -1050,7 +1050,7 @@
           (cell/widget ()
             (make-instance 'place/value/inspector :component-value (make-object-slot-place *request* 'hu.dwim.wui::http-method)))
           (cell/widget ()
-            (make-instance 'place/value/inspector :component-value (make-object-slot-place *application* 'hu.dwim.wui::frame-timeout))))
+            (make-instance 'place/value/inspector :component-value (make-object-slot-place *application* 'hu.dwim.wui::session-timeout))))
         (row/widget ()
           (cell/widget ()
             (make-instance 'place/value/inspector :component-value (make-object-slot-place *frame* 'hu.dwim.wui::action-id->action)))

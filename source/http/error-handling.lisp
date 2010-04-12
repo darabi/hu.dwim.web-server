@@ -40,14 +40,13 @@
       (call-next-method)))
 
   (:method (context (error serious-condition))
-    (server.error (build-backtrace-string error))
     (cond
       ((null *request*)
        (server.info "Internal server error while the request it not yet parsed, so closing the socket as-is without sending any useful error message.")
        (abort-server-request "HANDLE-TOPLEVEL-ERROR bailed out without any response because *request* was not yet parsed"))
       ((not (network-stream-has-been-written-to?))
        (handle-toplevel-error/emit-response context error)
-       (abort-server-request "HANDLE-TOPLEVEL-ERROR succesfully handled the error by sending an error page"))
+       (abort-server-request "HANDLE-TOPLEVEL-ERROR succesfully handled the error by calling HANDLE-TOPLEVEL-ERROR/EMIT-RESPONSE"))
       (t
        (server.info "Internal server error for request ~S and the headers are already sent, so closing the socket as-is without sending any useful error message." (raw-uri-of *request*))
        (abort-server-request "HANDLE-TOPLEVEL-ERROR bailed out without any response because the HTTP headers are already sent")))

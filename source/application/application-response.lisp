@@ -89,6 +89,7 @@
   (handle-toplevel-error/application/emit-response application error *ajax-aware-request*))
 
 (def method handle-toplevel-error/application/emit-response ((application application) (error serious-condition) (ajax-aware? (eql #t)))
+  (app.debug "HANDLE-TOPLEVEL-ERROR/APPLICATION/EMIT-RESPONSE is sending an internal error response for the ajax aware request")
   (emit-response-for-ajax-aware-client ()
     <script `js-inline(wui.inform-user-about-error "error.internal-server-error"
                                                    :title "error.internal-server-error.title")>))

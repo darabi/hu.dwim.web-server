@@ -55,6 +55,7 @@
                 (close-response response)))))
         (progn
           (assert (eq application *application*))
+          (app.debug "HANDLE-TOPLEVEL-ERROR/APPLICATION/EMIT-RESPONSE is sending a redirect response for application ~A" application)
           (bind ((response (make-redirect-response-for-current-application)))
             (unwind-protect
                  (send-response response)
