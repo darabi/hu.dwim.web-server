@@ -322,7 +322,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
     (call-in-component-environment self #'call-next-method))
 
   (:method ((self component))
-    (map-edited-child-components self #'join-editing)))
+    (map-editable-child-components self #'join-editing)))
 
 (def methods leave-editing
   (:method :around ((self component))

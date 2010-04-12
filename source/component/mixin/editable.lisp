@@ -60,7 +60,8 @@ and CANCEL-EDITING to continuously leave the component in edit mode.
   (leave-editing self))
 
 (def method join-editing :before ((self editable/mixin))
-  (setf (edited-component? self) #t))
+  (when (authorize-operation *application* `(join-editing :class ,(component-dispatch-class self) :value ,(component-value-of self)))
+    (setf (edited-component? self) #t)))
 
 (def method leave-editing :before ((self editable/mixin))
   (setf (edited-component? self) #f))
