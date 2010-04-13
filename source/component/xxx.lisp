@@ -249,52 +249,58 @@
 (def (icon e) export-text)
 
 (def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype value)
-  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon/widget export-text)
-    (make-component-action component
-      (export-text component))))
+  (when (authorize-operation *application* `(make-expand-command :format ,format))
+    (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
+      (icon/widget export-text)
+      (make-component-action component
+        (export-text component)))))
 
 (def (icon e) export-csv)
 
 (def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype value)
-  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon/widget export-csv)
-    (make-component-action component
-      (export-csv component))))
+  (when (authorize-operation *application* `(make-expand-command :format ,format))
+    (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
+      (icon/widget export-csv)
+      (make-component-action component
+        (export-csv component)))))
 
 (def (icon e) export-pdf)
 
 (def special-variable *pdf-stream*)
 
 (def layered-method make-export-command ((format (eql :pdf)) (component exportable/abstract) class prototype value)
-  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon/widget export-pdf)
-    (make-component-action component
-      (export-pdf component))))
+  (when (authorize-operation *application* `(make-expand-command :format ,format))
+    (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
+      (icon/widget export-pdf)
+      (make-component-action component
+        (export-pdf component)))))
 
 (def (icon e) export-odt)
 
 (def layered-method make-export-command ((format (eql :odt)) (component exportable/abstract) class prototype value)
-  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon/widget export-odt)
-    (make-component-action component
-      (export-odt component))))
+  (when (authorize-operation *application* `(make-expand-command :format ,format))
+    (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
+      (icon/widget export-odt)
+      (make-component-action component
+        (export-odt component)))))
 
 (def (icon e) export-ods)
 
 (def layered-method make-export-command ((format (eql :ods)) (component exportable/abstract) class prototype value)
-  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon/widget export-ods)
-    (make-component-action component
-      (export-ods component))))
+  (when (authorize-operation *application* `(make-expand-command :format ,format))
+    (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
+      (icon/widget export-ods)
+      (make-component-action component
+        (export-ods component)))))
 
 (def (icon e) export-sh)
 
 (def layered-method make-export-command ((format (eql :sh)) component class prototype value)
-  (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
-    (icon/widget export-sh)
-    (make-component-action component
-      (export-sh component))))
+  (when (authorize-operation *application* `(make-expand-command :format ,format))
+    (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
+      (icon/widget export-sh)
+      (make-component-action component
+        (export-sh component)))))
 
 ;;;;;;
 ;;; Cloneable
