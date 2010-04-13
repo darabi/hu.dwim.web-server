@@ -16,14 +16,14 @@
   )
 
 (def js-localization en
-  (error.ajax.request-to-invalid-session "Your connection to the server has timed out. You can reconnect by refreshing the page...")
+  (error.ajax.request-to-invalid-session "The connection to the server has timed out. You can reconnect by refreshing the page.")
   (error.ajax.request-to-invalid-frame "TODO error.ajax.request-to-invalid-frame")
   (error.network-error.title "Communication error")
-  (error.network-error "There was an error while communicating with the server. This might be due to a transient network error, so please try again and/or try refreshing the page. If the problem persist, then please contact customer care.")
+  (error.network-error "There was an error while communicating with the server. This might be due to a transient network error, so please try refreshing the page. If the problem persist, then please contact the operator.")
   (error.generic-javascript-error.title "Unexpected client side error")
-  (error.generic-javascript-error "There was an unexpected error on the client side. This might be due to a browser incompatibility, so please try updating your browser and/or try using another one. If the problem persist using a supported browsed, then please contact customer care.")
+  (error.generic-javascript-error "There was an unexpected error on the client side. This might be due to a browser incompatibility, so please make sure your browser is supported and updated. If the problem persist using a supported browser, then please contact the operator.")
   (error.internal-server-error.title "Internal server error")
-  (error.internal-server-error "An internal server error has occurred, we are sorry for the inconvenience.")
+  (error.internal-server-error "An internal server error has occurred, we are sorry for the inconvenience. Please try again")
   (action.reload-page "Refresh page")
   (action.cancel "Cancel")
   )
