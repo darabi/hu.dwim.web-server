@@ -23,8 +23,6 @@
          (*frame* (make-new-frame *application* *session*)))
     (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*) *frame* +frame-id-length+))
     (register-frame *application* *session* *frame*)
-    (setf (root-component-of *frame*) (call-frame-root-component-factory clone))
+    (setf (root-component-of *frame*) (make-frame-root-component clone))
     (make-redirect-response-with-frame-id-decorated *frame*)))
 
-(def (generic e) make-frame-component-with-content (application session frame component)
-  (:documentation "Creates a new FRAME component for APPLICATION with the provided COMPONENT as content."))

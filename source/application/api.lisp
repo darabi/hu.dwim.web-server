@@ -29,6 +29,9 @@ Custom implementations should look something like this:
   'your-session-mixin)")
   (:method-combination list))
 
+(def (generic e) make-frame-component-using-application (application session frame component)
+  (:documentation "Should create a new FRAME/WIDGET component for APPLICATION with the provided COMPONENT as the main content."))
+
 (def (generic e) call-in-application-environment (application session thunk)
   (:documentation "Everything related to an application goes through this method, so it can be used to set up wrappers like WITH-TRANSACTION. The SESSION argument may or may not be a valid session.")
   (:method (application session thunk)

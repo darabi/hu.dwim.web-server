@@ -27,7 +27,6 @@
    (sessions-last-purged-at (get-monotonic-time) :type number)
    (maximum-sessions-count *maximum-sessions-per-application-count* :type integer)
    (session-id->session (make-hash-table :test 'equal) :type hash-table :export :accessor)
-   (frame-root-component-factory 'default-frame-root-component-factory :type (or symbol function) :documentation "A funcallable with (body-content &key &allow-other-keys) lambda-list, which is invoked to make the toplevel components for new frames. By default calls MAKE-FRAME-COMPONENT-WITH-CONTENT.")
    (administrator-email-address nil :type (or null string))
    (lock)
    (running-in-test-mode #f :type boolean :accessor running-in-test-mode? :export :accessor)
@@ -35,11 +34,8 @@
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:default-initargs :path-prefix "/"))
 
-(def function default-frame-root-component-factory (content)
-  (make-frame-component-with-content *application* *session* *frame* content))
-
-(def function call-frame-root-component-factory (content)
-  (funcall (frame-root-component-factory-of *application*) content))
+(def (function e) make-frame-root-component (content)
+  (make-frame-component-using-application *application* *session* *frame* content))
 
 (def method debug-on-error? ((application application) error)
   (cond

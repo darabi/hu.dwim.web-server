@@ -31,32 +31,27 @@
 
 (def method handle-toplevel-error/application/emit-response ((application application) (error serious-condition) (ajax-aware? (eql #f)))
   (bind ((*response* nil)) ; avoid an assert from firing. is this a KLUDGE?
-    (if (and *session*
-             *frame*)
-        (bind ((request-uri (raw-uri-of *request*)))
-          (app.info "Sending an internal server error page for request ~S coming to application ~A" request-uri application)
-          (bind ((rendering-phase-reached *rendering-phase-reached*)
-                 (component (call-frame-root-component-factory
-                             (make-instance 'internal-error-message/widget
-                                            :rendering-phase-reached rendering-phase-reached
-                                            :error error
-                                            :original-root-component (root-component-of *frame*)
-                                            :content (inline-render-component/widget ()
-                                                       ;; TODO split the content of render-application-internal-error-page into separate l10n entries and drop the call to apply-localization-function
-                                                       ;; TODO don't use component-message/widget here
-                                                       (render-component (component-message/widget (:category :error)
-                                                                           #"error.internal-server-error"))
-                                                       (apply-localization-function 'render-application-internal-error-page
-                                                                                    (list :administrator-email-address (administrator-email-address-of application))))))))
-            (setf (root-component-of *frame*) component)
-            (bind ((response (make-root-component-rendering-response *frame*)))
-              (unwind-protect
-                   (send-response response)
-                (close-response response)))))
-        (progn
-          (assert (eq application *application*))
-          (app.debug "HANDLE-TOPLEVEL-ERROR/APPLICATION/EMIT-RESPONSE is sending a redirect response for application ~A" application)
-          (bind ((response (make-redirect-response-for-current-application)))
-            (unwind-protect
-                 (send-response response)
-              (close-response response)))))))
+    (bind ((request-uri (raw-uri-of *request*)))
+      (app.info "Sending an internal server error page for request ~S coming to application ~A" request-uri application)
+      (bind ((rendering-phase-reached *rendering-phase-reached*)
+             (component (make-frame-root-component
+                         (make-instance 'internal-error-message/widget
+                                        :rendering-phase-reached rendering-phase-reached
+                                        :error error
+                                        :original-root-component (when *frame*
+                                                                   (root-component-of *frame*))
+                                        :content (inline-render-component/widget ()
+                                                   ;; TODO split the content of render-application-internal-error-page into separate l10n entries and drop the call to apply-localization-function
+                                                   ;; TODO don't use component-message/widget here
+                                                   (render-component (component-message/widget (:category :error)
+                                                                       #"error.internal-server-error"))
+                                                   (apply-localization-function 'render-application-internal-error-page
+                                                                                (list :administrator-email-address (administrator-email-address-of application))))))))
+        (bind ((response (if *frame*
+                             (progn
+                               (setf (root-component-of *frame*) component)
+                               (make-root-component-rendering-response *frame*))
+                             (make-component-rendering-response component))))
+          (unwind-protect
+               (send-response response)
+            (close-response response)))))))
