@@ -127,7 +127,11 @@
           ;; TODO add client side warning for multiple default actions?
           <input (:id ,submit-id :type "submit" :style "display: none;"
                   :name #.+action-id-parameter-name+ :value ,(when (typep action 'action)
-                                                               (id-of action)))>))
+                                                               (id-of action)))>
+          (when (and (not *frame*)
+                     (typep action 'uri))
+            ;; this is needed on Chrome, which doesn't call onclick on the submit input dom node
+            `js(setf (slot-value (aref document.forms 0) 'action) ,(print-uri-to-string action)))))
       <span (:id ,id :class "command widget disabled")
         #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
         ,(render-component content)>))
