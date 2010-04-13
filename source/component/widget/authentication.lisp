@@ -9,10 +9,9 @@
 ;;;;;;
 ;;; login/widget
 
-(def (component e) login/widget (title/mixin
-                                 command-bar/mixin
-                                 component-messages/widget
-                                 remote-setup/mixin)
+(def (component e) login/widget (component-messages/widget
+                                 title/mixin
+                                 command-bar/mixin)
   ())
 
 (def layered-method make-command-bar-commands ((component login/widget) class prototype value)
@@ -31,37 +30,35 @@
 ;; TODO: this is kind separate from all the other components which is bad because it does not combine well with other features
 ;;       needs refactoring, less direct manipulation and more generalism through inheritance
 ;; TODO rename to something that tells that this component works without sessions
-;; TODO make a potentially smarter counterpart that uses features which require a session/frame?
 (def (component e) identifier-and-password-login/widget (login/widget)
   ((identifier nil)
    (password nil))
-  (:default-initargs :title #"login.title"))
+  (:default-initargs :title (title/widget () #"login.title")))
 
 (def (macro e) identifier-and-password-login/widget (&rest args &key &allow-other-keys)
   `(make-instance 'identifier-and-password-login/widget ,@args))
 
 (def render-xhtml identifier-and-password-login/widget
-  (bind (((:read-only-slots id identifier password) -self-)
+  (bind (((:read-only-slots identifier password) -self-)
          (focused-field-id (if identifier
                                "password-field"
                                "identifier-field")))
-    <div (:id ,id
-          :class "identifier-and-password-login/widget")
-     ,(render-title-for -self-)
-     ,(render-component-messages-for -self-)
-     <table
-       <tr <td (:class "label") ,#"slot-name.identifier<>">
-           <td (:class "value")
-               <input (:id "identifier-field"
-                       :name "identifier"
-                       :value ,identifier)>>>
-       <tr <td (:class "label") ,#"slot-name.password<>">
-           <td (:class "value")
-               <input (:id "password-field"
-                       :name "password"
-                       :value ,password
-                       :type "password")>>>
-       <tr <td (:colspan 2) ,(render-command-bar-for -self-)>>>>
+    (with-render-style/abstract (-self-)
+      (render-title-for -self-)
+      (render-component-messages-for -self-)
+      <table
+          <tr <td (:class "label") ,#"slot-name.identifier<>">
+              <td (:class "value")
+                  <input (:id "identifier-field"
+                              :name "identifier"
+                              :value ,identifier)>>>
+        <tr <td (:class "label") ,#"slot-name.password<>">
+            <td (:class "value")
+                <input (:id "password-field"
+                            :name "password"
+                            :value ,password
+                            :type "password")>>>
+        <tr <td (:colspan 2) ,(render-command-bar-for -self-)>>>)
     `js-onload(.focus ($ ,focused-field-id))))
 
 (def layered-method make-login-command ((component identifier-and-password-login/widget) class prototype value)
