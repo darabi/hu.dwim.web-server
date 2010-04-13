@@ -104,7 +104,7 @@
                                             :depends-on ("layout")
                                             :components ((:file "about" :depends-on ("widget"))
                                                          (:file "alternator" :depends-on ("reference" "command" "menu"))
-                                                         (:file "authentication" :depends-on ("command"))
+                                                         (:file "authentication" :depends-on ("command" "title"))
                                                          (:file "border")
                                                          (:file "button")
                                                          (:file "checkbox")
