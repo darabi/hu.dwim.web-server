@@ -17,7 +17,8 @@
   `(make-instance 'component-messages/widget ,@args :messages (list ,@messages)))
 
 (def render-xhtml component-messages/widget
-  (render-component-messages-for -self-))
+  (with-render-style/abstract (-self-)
+    (render-component-messages-for -self-)))
 
 (def (function e) render-component-messages-for (collector)
   (bind ((messages (messages-of collector)))
@@ -27,7 +28,7 @@
                     ,(foreach #'render-component it)>)))
       (multiple-value-prog1
           (when messages
-            <div (:class "component-messages")
+            <div (:class "component-messages messages")
                  ,(render-message-category :information)
                  ,(render-message-category :warning)
                  ,(render-message-category :error)>)

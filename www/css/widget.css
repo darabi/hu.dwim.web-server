@@ -45,6 +45,18 @@ span.widget {
   margin-right: 3px;
 }
 
+/* title */
+
+.title.widget {
+  margin-bottom: 3px;
+}
+
+/* component messages */
+
+.component-messages.messages {
+  margin-bottom: 3px;
+}
+
 /* name-value-pair */
 
 .name-value-pair {
