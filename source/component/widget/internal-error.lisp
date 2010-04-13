@@ -9,7 +9,11 @@
 ;;;;;;
 ;;; internal-error-message/widget
 
-(def (component e) internal-error-message/widget (panel/widget)
+(def (component e) internal-error-message/widget (component-messages/widget
+                                                  content/abstract
+                                                  title-bar/mixin
+                                                  command-bar/mixin
+                                                  frame-unique-id/mixin)
   ((rendering-phase-reached :type boolean)
    (error :type serious-condition)
    (original-root-component)))
@@ -19,15 +23,24 @@
     (setf title-bar (title/widget ()
                       #"error.internal-server-error.title"))))
 
+(def render-xhtml internal-error-message/widget
+  (with-render-style/abstract (-self-)
+    (render-title-bar-for -self-)
+    (render-component-messages-for -self-)
+    <div ,(render-content-for -self-)>
+    (render-command-bar-for -self-)))
+
 (def layered-method make-command-bar-commands ((self internal-error-message/widget) class prototype value)
   (bind (((:read-only-slots rendering-phase-reached original-root-component) self))
-    (list* (make-instance 'command/widget
-                          :content (icon/widget navigate-back)
-                          :action (if rendering-phase-reached
-                                      (make-uri-for-new-frame)
-                                      (make-action
-                                        (setf (root-component-of *frame*) original-root-component))))
-           (call-next-method))))
+    (if *frame*
+        (list* (make-instance 'command/widget
+                              :content (icon/widget navigate-back)
+                              :action (if rendering-phase-reached
+                                          (make-uri-for-new-frame)
+                                          (make-action
+                                            (setf (root-component-of *frame*) original-root-component))))
+               (call-next-method))
+        (list))))
 
 (def method handle-toplevel-error/application/emit-response ((application application) (error serious-condition) (ajax-aware? (eql #f)))
   (bind ((*response* nil)) ; avoid an assert from firing. is this a KLUDGE?

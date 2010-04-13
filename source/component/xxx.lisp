@@ -27,6 +27,9 @@
 (def method component-style-class ((self t/presentation))
   (string+ "content-border " (call-next-method)))
 
+(def method component-style-class ((self internal-error-message/widget))
+  (string+ "content-border " (call-next-method)))
+
 (def method component-style-class ((self t/detail/presentation))
   (%component-style-class self))
 
