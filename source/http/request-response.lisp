@@ -171,11 +171,13 @@
       ,@body)
     *request*))
 
-(def (function e) request-parameter-value (request name)
+(def (function e) request-parameter-value (request name &optional default)
   (bind ((entry (assoc name (query-parameters-of request) :test #'string=))
          (value (cdr entry)))
-    (when (equal value "")
-      (setf value nil))
+    (if entry
+        (when (equal value "")
+          (setf value nil))
+        (setf value default))
     (values value (not (null entry)))))
 
 (def (function e) map-request-parameters (visitor request)
