@@ -19,21 +19,23 @@
 ;;; Util
 
 (def function ensure-client-state-sink (component)
-  (setf (client-state-sink-of component)
-        (client-state-sink (client-value)
-          (handler-bind (;; TODO later, we could deal with this in a more meaningful way...
-                         #+nil
-                         (invalid-client-value (lambda (error)
-                                                 )))
-            (bind (((:values new-value no-value?) (parse-component-value component client-value))
-                   (bound? (slot-boundp component 'component-value))
-                   (old-value (when bound? (component-value-of component))))
-              (if no-value?
-                  (when bound?
-                    (slot-makunbound component 'component-value))
-                  (unless (and bound?
-                               (equal old-value new-value))
-                    (setf (component-value-of component) new-value))))))))
+  (setf (client-state-sink-of component) (client-state-sink (client-value)
+                                           (default-client-state-sink-handler component client-value))))
+
+(def function default-client-state-sink-handler (component client-value)
+  (handler-bind ( ;; TODO later, we could deal with this in a more meaningful way...
+                 #+nil
+                 (invalid-client-value (lambda (error)
+                                         )))
+    (bind (((:values new-value no-value?) (parse-component-value component client-value))
+           (bound? (slot-boundp component 'component-value))
+           (old-value (when bound? (component-value-of component))))
+      (if no-value?
+          (when bound?
+            (slot-makunbound component 'component-value))
+          (unless (and bound?
+                       (equal old-value new-value))
+            (setf (component-value-of component) new-value))))))
 
 (def function component-value-and-bound? (component)
   (bind ((has-component-value? (slot-boundp component 'component-value)))
