@@ -21,9 +21,10 @@
 (def function ensure-client-state-sink (component)
   (setf (client-state-sink-of component)
         (client-state-sink (client-value)
-          (handler-bind ((invalid-client-value (lambda (error)
-                                                 (setf (component-value-of component) error)
-                                                 (return))))
+          (handler-bind (;; TODO later, we could deal with this in a more meaningful way...
+                         #+nil
+                         (invalid-client-value (lambda (error)
+                                                 )))
             (bind (((:values new-value no-value?) (parse-component-value component client-value))
                    (bound? (slot-boundp component 'component-value))
                    (old-value (when bound? (component-value-of component))))
