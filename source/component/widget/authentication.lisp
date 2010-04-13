@@ -16,7 +16,9 @@
   ())
 
 (def layered-method make-command-bar-commands ((component login/widget) class prototype value)
-  (optional-list* (make-login-command component class prototype value) (call-next-layered-method)))
+  (optional-list* (make-login-command component class prototype value)
+                  ;; TODO: this would add a refresh-component command, uncomment when refresh-component is removed from widgets
+                  #+nil (call-next-layered-method) nil))
 
 (def (layered-function e) make-login-command (component class prototype value))
 
