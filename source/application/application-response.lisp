@@ -114,17 +114,21 @@
     (make-redirect-response uri)))
 
 (def (function e) make-uri-for-current-application (&optional relative-path)
-  (assert *application*)
   (bind ((uri (clone-request-uri)))
     (uri/delete-all-query-parameters uri)
-    (decorate-uri uri *application*)
-    (when *session*
-      (decorate-uri uri *session*))
-    (when *frame*
-      (decorate-uri uri *frame*))
+    (decorate-uri-for-current-application uri)
     (when relative-path
       (append-path-to-uri uri relative-path))
     uri))
+
+(def (function e) decorate-uri-for-current-application (uri)
+  (assert *application*)
+  (decorate-uri uri *application*)
+  (when *session*
+    (decorate-uri uri *session*))
+  (when *frame*
+    (decorate-uri uri *frame*))
+  uri)
 
 (def function make-uri-for-current-frame ()
   (bind ((uri (clone-request-uri)))
