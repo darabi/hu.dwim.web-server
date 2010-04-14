@@ -34,8 +34,8 @@
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled?))
   (:default-initargs :path-prefix "/"))
 
-(def (function e) make-frame-root-component (content)
-  (make-frame-component-using-application *application* *session* *frame* content))
+(def (function e) make-frame-root-component (&optional content)
+  (make-frame-root-component-using-application *application* *session* *frame* content))
 
 (def method debug-on-error? ((application application) error)
   (cond

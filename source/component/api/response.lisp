@@ -46,24 +46,37 @@
                      :frame frame)
     (setf (header-value it +header/content-type+) content-type)))
 
-(def (function e) make-root-component-rendering-response (frame &key (encoding +default-encoding+) (content-type (content-type-for +html-mime-type+ encoding)))
-  (bind ((session (session-of frame))
-         (application (application-of session)))
-    (make-component-rendering-response (root-component-of frame)
-                                       :application application
-                                       :session session
-                                       :frame frame
-                                       :encoding encoding
-                                       :content-type content-type)))
+(def (function e) make-component-rendering-response/from-current-frame ()
+  (assert (eq (session-of *frame*) *session*))
+  (assert (eq (application-of *session*) *application*))
+  (make-component-rendering-response (root-component-of *frame*)))
 
-(def (function e) make-frame-root-component-rendering-response (frame-factory)
-  (if *session*
-      (if (root-component-of *frame*)
-          (make-root-component-rendering-response *frame*)
-          (progn
-            (setf (root-component-of *frame*) (funcall frame-factory))
-            (make-redirect-response-for-current-application)))
-      (make-component-rendering-response (funcall frame-factory))))
+(def (function e) make-frame-root-component-rendering-response (&key
+                                                                 content-component
+                                                                 root-component
+                                                                 (root-component-factory 'make-frame-root-component)
+                                                                 (requires-valid-session #t)
+                                                                 (requires-valid-frame requires-valid-session))
+  (when (and requires-valid-session
+             (not *session*))
+    (error "~S requires a valid session" 'make-frame-root-component-rendering-response))
+  (when (and requires-valid-frame
+             (not *frame*))
+    (error "~S requires a valid frame" 'make-frame-root-component-rendering-response))
+  (flet ((compute-root-component ()
+           (or root-component
+               (and content-component
+                    (funcall root-component-factory content-component))
+               (funcall root-component-factory))))
+    (if (and *session*
+             *frame*)
+        (progn
+          (when (or root-component
+                    content-component
+                    (not (root-component-of *frame*)))
+            (setf (root-component-of *frame*) (compute-root-component)))
+          (make-component-rendering-response/from-current-frame))
+        (make-component-rendering-response (compute-root-component)))))
 
 (def method convert-to-primitive-response ((self component-rendering-response))
   (disallow-response-caching self)

@@ -63,7 +63,7 @@
         (bind ((response (if *frame*
                              (progn
                                (setf (root-component-of *frame*) component)
-                               (make-root-component-rendering-response *frame*))
+                               (make-component-rendering-response/from-current-frame))
                              (make-component-rendering-response component))))
           (unwind-protect
                (send-response response)

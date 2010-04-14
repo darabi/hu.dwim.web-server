@@ -71,7 +71,7 @@
               (with-session-logic (:requires-valid-session #t)
                 (with-frame-logic (:requires-valid-frame #t)
                   (with-action-logic ()
-                    (make-root-component-rendering-response *frame*)))))
+                    (make-component-rendering-response/from-current-frame)))))
             (bind ((response (query-brokers-for-response request (entry-points-of application) :otherwise nil)))
               (when response
                 (unwind-protect
