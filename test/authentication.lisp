@@ -27,7 +27,7 @@
                    <a (:href ,(bind ((uri (make-uri-for-current-application +login-entry-point-path+)))
                                     (setf (uri-query-parameter-value uri "identifier") identifier)
                                     (setf (uri-query-parameter-value uri "password") password)
-                                    (setf (uri-query-parameter-value uri "user-action") "t")
+                                    (setf (uri-query-parameter-value uri +user-action-query-parameter-name+) "t")
                                     (print-uri-to-string uri)))
                       "Login with " ,identifier "/" ,password >
                    <br>))

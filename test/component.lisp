@@ -11,8 +11,7 @@
 
 (def special-variable *component-demo-application* (make-instance 'standard-application
                                                                   :home-package (find-package :hu.dwim.wui.test)
-                                                                  :default-locale "en"
-                                                                  :frame-root-component-factory 'make-demo-frame-component-with-content))
+                                                                  :default-locale "en"))
 
 ;;;;;;
 ;;; Entry point
@@ -21,13 +20,7 @@
 
 (def entry-point (*component-demo-application* :path "")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (assert (and (boundp '*session*) *session*))
-    (assert (and (boundp '*frame*) *frame*))
-    (if (root-component-of *frame*)
-        (make-root-component-rendering-response *frame*)
-        (progn
-          (setf (root-component-of *frame*) (make-demo-frame-component))
-          (make-redirect-response-for-current-application)))))
+    (make-frame-root-component-rendering-response :root-component-factory 'make-demo-frame-component)))
 
 (def function startup-test-server-with-component-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)
