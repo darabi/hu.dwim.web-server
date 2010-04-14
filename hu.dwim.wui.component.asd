@@ -102,7 +102,7 @@
                                                          (:file "xy" :depends-on ("layout"))))
                                            (:module "widget"
                                             :depends-on ("layout")
-                                            :components ((:file "about" :depends-on ("widget"))
+                                            :components ((:file "about" :depends-on ("widget" "cell" "title"))
                                                          (:file "alternator" :depends-on ("reference" "command" "menu"))
                                                          (:file "authentication" :depends-on ("command" "title"))
                                                          (:file "border")
