@@ -28,12 +28,15 @@
 
 (def (function e) call-with-entry-point-logic/login (response-factory login-data-extractor &rest extra-login-arguments &key
                                                                       &allow-other-keys)
-  (with-request-parameters (continue-url ((user-action? +user-action-query-parameter-name+) #f)
-                                         ((timed-out? +session-timed-out-query-parameter-name+) #f))
+  (with-request-parameters (continue-url
+                            ((user-action? +user-action-query-parameter-name+) #f)
+                            ((timed-out? +session-timed-out-query-parameter-name+) #f))
+    (declare (ignore timed-out?))
     (string/trim-whitespace-and-maybe-nil-it continue-url)
     (with-entry-point-logic (:with-optional-session/frame-logic #t)
       (bind ((login-data (funcall login-data-extractor))
              (new-session? #f)
+             (authentication-failure-reason nil)
              (authentication-happened? #f))
         (assert login-data)
         (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN, login-data is ~S, user-action? is ~S, continue-url is ~S" login-data user-action? continue-url)
@@ -42,9 +45,9 @@
           (if (or (null *session*)
                   (not (is-logged-in? *session*)))
               (block call-login
-                (handler-bind ((error/login-failed (lambda (error)
-                                                     (declare (ignore error))
-                                                     (return-from call-login nil))))
+                (handler-bind ((error/authentication (lambda (error)
+                                                       (setf authentication-failure-reason error)
+                                                       (return-from call-login nil))))
                   (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN will now call LOGIN")
                   (bind ((new-session (login *application* *session* login-data)))
                     (setf new-session? (not (eq *session* new-session)))
@@ -53,11 +56,18 @@
               ;; TODO support re-authentication here when the model supports it
               (app.debug "WITH-ENTRY-POINT-LOGIC/LOGIN skipped calling LOGIN because *session* is already logged in")))
         (bind ((response (cond
-                           (continue-url (make-redirect-response continue-url))
-                           (t (funcall response-factory
-                                       :login-data login-data
-                                       :user-action? user-action?
-                                       :authentication-happened? authentication-happened?)))))
+                           ((and continue-url
+                                 *session*
+                                 (is-logged-in? *session*))
+                            (bind ((target-uri (parse-uri continue-url)))
+                              (decorate-uri-for-current-application target-uri)
+                              (make-redirect-response target-uri)))
+                           (t
+                            (funcall response-factory
+                                     :login-data login-data
+                                     :user-action? user-action?
+                                     :authentication-failure-reason authentication-failure-reason
+                                     :authentication-happened? authentication-happened?)))))
           (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN received the response ~A" response)
           ;; it's a wierd situation if there's no response at this point, but let's keep the flexibility...
           (when response

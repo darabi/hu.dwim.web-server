@@ -106,7 +106,7 @@
               (progn
                 (login *application* *session* (component-value-of component))
                 (clear-root-component))
-            (error/login-failed ()
+            (error/authentication ()
               (add-component-error-message component #"login.message.authentication-failed"))))))))
 
 ;;;;;;

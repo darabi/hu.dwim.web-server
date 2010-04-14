@@ -16,7 +16,11 @@
 (def function too-many-sessions (application)
   (error 'too-many-sessions :request *request* :application application))
 
-(def condition* error/login-failed (simple-error)
+(def (condition* e) error/authentication (error)
+  ())
+
+(def condition* error/login-failed (simple-error
+                                    error/authentication)
   ((login-data)))
 
 (def function error/login-failed (login-data format-control &rest format-arguments)
