@@ -33,7 +33,7 @@
                             ((timed-out? +session-timed-out-query-parameter-name+) #f))
     (declare (ignore timed-out?))
     (string/trim-whitespace-and-maybe-nil-it continue-url)
-    (with-entry-point-logic (:with-optional-session/frame-logic #t)
+    (with-entry-point-logic (:with-optional-session/frame/action-logic #t)
       (bind ((login-data (funcall login-data-extractor))
              (new-session? #f)
              (authentication-failure-reason nil)

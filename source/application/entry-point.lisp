@@ -42,7 +42,7 @@
                            (> a-priority b-priority))))))
   entry-point)
 
-(def (with-macro* e) with-entry-point-logic (&key (with-optional-session/frame-logic #f)
+(def (with-macro* e) with-entry-point-logic (&key (with-optional-session/frame/action-logic #f)
                                                   (with-session-logic #t)
                                                   (requires-valid-session with-session-logic)
                                                   (ensure-session #f)
@@ -51,14 +51,15 @@
                                                   (ensure-frame #f)
                                                   (with-action-logic with-frame-logic)
                                                   (requires-valid-action #f))
-  (when with-optional-session/frame-logic
-    ;; TODO style warn when any of these is provided
+  (when with-optional-session/frame/action-logic
+    ;; TODO style warn when any of these are provided
     (setf with-session-logic #t)
-    (setf requires-valid-session #f)
     (setf with-frame-logic #t)
-    (setf ensure-frame #t)
-    (setf requires-valid-frame #f)
     (setf with-action-logic #t)
+    (setf ensure-session #f)
+    (setf ensure-frame #t)
+    (setf requires-valid-session #f)
+    (setf requires-valid-frame #f)
     (setf requires-valid-action #f))
   (when (and with-frame-logic (not with-session-logic))
     (error "Can't use WITH-FRAME-LOGIC without WITH-SESSION-LOGIC"))
