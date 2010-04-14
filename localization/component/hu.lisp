@@ -70,6 +70,9 @@
   (icon-label.hide-component "Elrejtés")
   (icon-tooltip.hide-component "Objektum elrejtése")
 
+  (icon-label.show-component "Megjelenítés")
+  (icon-tooltip.show-component "Elrejtett részek megjelenítése")
+
   (icon-label.external-link nil)
   (icon-tooltip.external-link "Külső hivatkozás")
 

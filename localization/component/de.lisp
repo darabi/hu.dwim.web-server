@@ -70,6 +70,9 @@
   (icon-label.hide-component "Verbergen")
   (icon-tooltip.hide-component "ein Objekt verbergen")
 
+  (icon-label.show-component "TODO")
+  (icon-tooltip.show-component "TODO")
+
   (icon-label.external-link nil)
   (icon-tooltip.external-link "Externer Link")
 
