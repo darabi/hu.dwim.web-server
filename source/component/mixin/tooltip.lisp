@@ -24,7 +24,7 @@
   (check-type target-id string)
   (etypecase tooltip
     (string
-     ;; TODO this should work (dijit.showTooltip ,tooltip ,target-id (array ,@position))
+     ;; alternative onhover: (dijit.showTooltip ,tooltip ,target-id (array ,@position))
      `js-onload(new dijit.Tooltip
                     (create :connectId (array ,target-id)
                             :label ,tooltip
@@ -37,10 +37,10 @@
                                               (action (register-action/href tooltip :delayed-content #t))
                                               (uri (print-uri-to-string tooltip))))))
     ;; action is subtypep function, therefore this order and the small code duplication...
-    (function
+    (computation
      `js-onload(new dijit.Tooltip
                     (create :connectId (array ,target-id)
-                            :label ,(babel:octets-to-string (with-output-to-sequence (*xml-stream* :external-format (external-format-of *response*))
-                                                              (funcall tooltip))
+                            :label ,(babel:octets-to-string (emit-into-xml-stream-buffer (:external-format (external-format-of *response*))
+                                                              (force tooltip))
                                                             :encoding (external-format-of *response*))
                             :position (array ,@position))))))

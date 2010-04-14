@@ -50,6 +50,7 @@
                                                        (return-from call-login nil))))
                   (app.dribble "WITH-ENTRY-POINT-LOGIC/LOGIN will now call LOGIN")
                   (bind ((new-session (login *application* *session* login-data)))
+                    (check-type new-session session)
                     (setf new-session? (not (eq *session* new-session)))
                     (setf *session* new-session)))
                 (setf authentication-happened? #t))

@@ -142,6 +142,7 @@
 
 (setf wui.io.sync-ajax-action-in-progress false)
 
+;; open dojo issue about error handler not being called: http://bugs.dojotoolkit.org/ticket/10985
 (defun wui.io.action (url &key on-success on-error event (ajax true) subject-dom-node (sync true) (xhr-sync false) (send-client-state true))
   (when event
     (setf url (wui.decorate-url-with-modifier-keys url event)))
@@ -198,6 +199,7 @@
     (dojo.addClass progress-node "ajax-request-in-progress")
     (dojo.contentBox progress-node (dojo.contentBox target-node))
     (dojo.place progress-node target-node "before")
+    (log.debug "Fading out target-node " target-node)
     (setf animation
           (.play (dojo.fx.combine (array
                                    (dojo.animateProperty (create :node target-node
@@ -276,7 +278,7 @@
            (cond
              ((= x 1) (return true))
              ((= x 0) (return false))
-             (t (if (=== default-value undefined)
+             (t (if (eq default-value undefined)
                     (assert false "?! we are expecting either 1 or 0 instead of " x)
                     (return default-value)))))
          (connect-one (handler)
@@ -299,6 +301,7 @@
               :stop-event stop-event))))
     (foreach #'connect-one handlers)))
 
+;; open dojo issue about (sometimes defaulting) node.type taking precedence over node.dojoType: http://bugs.dojotoolkit.org/ticket/10951
 (defun wui.io.instantiate-dojo-widgets (widget-ids)
   (log.debug "Instantiating (and destroying previous versions of) the following widgets " widget-ids)
   (dolist (widget-id widget-ids)

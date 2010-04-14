@@ -37,7 +37,7 @@
 ;; TODO switch default content-type to +xhtml-mime-type+ (search for other uses, too)
 ;; seems like with xhtml there are random problems, like some dojo x.innerHTML throws...
 (def (function e) make-component-rendering-response (component &key (application *application*) (session *session*) (frame *frame*)
-                                                               (encoding +default-encoding+) (content-type (content-type-for +html-mime-type+ encoding)))
+                                                               (encoding (guess-encoding-for-http-response)) (content-type (content-type-for +html-mime-type+ encoding)))
   (aprog1
       (make-instance 'component-rendering-response
                      :component component
