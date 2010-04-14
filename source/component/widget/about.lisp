@@ -28,14 +28,13 @@
   (string+ "content-border " (call-next-method)))
 
 (def (function e) render-about/contributors (id title url image-url image-alt people)
-  (bind ((box-id (string+ id "-about-box"))
-         (title-id (string+ box-id "-title")))
+  <div (:id ,id)
     <h1 ,title>
     <table <tr <td <a (:href ,url :target "_blank")
                       <img (:src ,image-url :alt ,image-alt)>>>
                <td (:class ,+table-cell-vertical-alignment-style-class/center+)
                    ,(iter (for person :in-sequence people)
-                          <div ,person>)>>>))
+                          <div ,person>)>>>>)
 
 (def (function e) render-about/dwim ()
   (render-about/contributors "dwim" "Szoftver" "http://dwim.hu"
@@ -46,6 +45,6 @@
                                    "Mészáros Bálint")))
 
 (def (function e) render-about/thellminar ()
-  (render-about/contributors "thellminar" "Stílus" "http://www.thellminar.hu"
+  (render-about/contributors "thellminar" "Grafika" "http://www.thellminar.hu"
                              "/static/wui/image/about/thellminar-logo.png" "ThellMinar"
                              (list "Páka Tamás")))
