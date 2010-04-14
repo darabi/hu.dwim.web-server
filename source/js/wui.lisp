@@ -213,7 +213,18 @@
         (.stop animation)
         ;; dojo.destroy can deal with parentNode = null (which sometimes happens maybe because the indicator dom node gets GC'd, possibly due to its parent node having been ajax-replaced?)
         (dojo.destroy progress-node)
-        (dojo.removeClass target-node "ajax-target")))))
+        (dojo.removeClass target-node "ajax-target")
+        (.play (wui.io.make-ajax-replacement-fade-in target-node))))))
+
+(defun wui.io.make-ajax-replacement-fade-in (node start-opacity)
+  (return
+    (dojo.animateProperty
+     (create :node node
+             :duration 500
+             :rate 50
+             :properties (create :opacity (create :start (or start-opacity
+                                                             (dojo.style node "opacity"))
+                                                  :end 1))))))
 
 (defun wui.io.make-action-event-handler (href &key on-success on-error subject-dom-node (ajax true)
                                          (send-client-state true) (sync true) (xhr-sync false))
@@ -485,13 +496,21 @@
                               (bind ((parent-node (slot-value old-node 'parent-node))
                                      (old-opacity (Math.min (dojo.style old-node "opacity") 0.5)))
                                 (log.debug "About to replace old node with id " id)
+                                (when (dojo.hasClass replacement-node "context-menu")
+                                  ;; KLUDGE dijit context menu looses dom node identity, so fading cannot work on it
+                                  (setf old-opacity 1))
                                 (dojo.style replacement-node "opacity" old-opacity)
                                 (.replace-child parent-node replacement-node old-node)
-                                (.play (dojo.animateProperty (create :node replacement-node
-                                                                     :duration 500
-                                                                     :rate 50
-                                                                     :properties (create :opacity (create :start old-opacity :end 1)))))
                                 (wui.io.mark-ajax-replacement replacement-node)
+                                (log.debug "Fading back replacement-node " replacement-node)
+                                (bind ((animation (wui.io.make-ajax-replacement-fade-in replacement-node old-opacity)))
+                                  (wui.connect animation "onEnd"
+                                               (lambda ()
+                                                 (unless (eq replacement-node (dojo.byId id))
+                                                   ;; KLUDGE this should not happen, but it happens with context menus...
+                                                   (log.warn "Setting opacity to 1 of orphaned replacement-node with id " id)
+                                                   (dojo.style (dojo.byId id) "opacity" 1))))
+                                  (.play animation))
                                 (log.debug "Successfully replaced node with id " id))
                               (progn
                                 (log.error "Old version of replacement node " replacement-node " with id '" id "' was not found on the client side")
