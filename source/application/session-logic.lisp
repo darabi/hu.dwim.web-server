@@ -108,9 +108,7 @@
            (setf frame (make-new-frame application session))
            (register-frame application session frame)
            (setf *frame* frame)
-           ;; we just created a frame, maybe we should set the frame index to avoid an extra redirect?
-           ;; (setf (parameter-value +frame-index-parameter-name+) (frame-index-of *frame*))
-           (-body-))
+           (make-redirect-response-with-frame-parameters-decorated))
           (t
            (-body-))))))
 
