@@ -340,6 +340,7 @@
   background-image: url("/static/wui/icon/14x14/expand-reference.png");
   width: 14px;
   padding-left: 14px;
+  white-space: normal;
 }
 
 .collapse-to-reference.icon {

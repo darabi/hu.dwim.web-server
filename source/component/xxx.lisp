@@ -48,15 +48,6 @@
 (def method component-style-class ((self hyperlink/inspector))
   "hyperlink inspector")
 
-
-
-
-
-
-
-
-
-
 (def function make-copy-to-repl-command (component)
   (command/widget (:ajax #t)
     "COPY"
@@ -346,39 +337,14 @@
     (make-component-action component
       (close-component component class prototype value))))
 
-#|
 
-;;;;;;
-;;; Command
-
-(def layered-method make-context-menu-items ((component component) class prototype value)
-  (append (call-next-method)
-          (list (make-menu-item (icon/widget menu :label #"context-menu.move-commands")
-                                (make-move-commands component class prototype value)))))
-
-;;;;;;
-;;; Component value basic
-
-(def (component e) component-value/basic (cloneable/mixin)
-  ())
-
-(def method clone-component :around ((self component-value/basic))
-  ;; this must be done at the very last, after all primary method customization
-  (prog1-bind clone (call-next-method)
-    (setf (component-value-of clone) (component-value-of self))))
-
-
-
-;;;;;;
-;;; Command
-
-(def layered-method make-hide-command ((component hideable/mixin) class prototype value)
+(def layered-method make-hide-component-command ((component hideable/mixin) class prototype value)
   (command/widget ()
     (icon/widget hide-component)
     (make-component-action component
       (hide-component component))))
 
-(def layered-method make-show-command ((component hideable/mixin) class prototype value)
+(def layered-method make-show-component-command ((component hideable/mixin) class prototype value)
   (command/widget ()
     (icon/widget show-component)
     (make-component-action component
@@ -401,39 +367,7 @@
           (show-component component)))))
 
 (def layered-method make-context-menu-items ((component hideable/mixin) class prototype value)
-  (list* (menu-item ()
-             (icon/widget menu :label "Show/Hide")
-           (make-hide-command component class prototype value)
-           (make-show-component-recursively-command component class prototype value))
-         (call-next-method)))
-
-;;;;;;
-;;; Default icons
-;;; TODO: move the icons where they are actually used
-
-(def (icon e) new)
-
-(def (icon e) create)
-
-(def (icon e) delete)
-
-(def (icon e) close)
-
-(def (icon e) expand)
-
-(def (icon e) collapse)
-
-(def (icon e) filter)
-
-(def (icon e) find)
-
-(def (icon e) set-to-nil)
-
-(def (icon e) set-to-unbound)
-
-(def (icon e) select)
-
-(def (icon e) finish)
-
-(def (icon e) cancel)
-|#
+  (list* (make-submenu-item (icon/widget menu :label "Show/Hide")
+                            (make-hide-component-command component class prototype value)
+                            (make-show-component-recursively-command component class prototype value))
+         (call-next-layered-method)))

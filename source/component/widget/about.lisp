@@ -28,7 +28,8 @@
   (string+ "content-border " (call-next-method)))
 
 (def (function e) render-about/contributors (id title url image-url image-alt people)
-  <div (:id ,id)
+  (bind ((box-id (string+ id "-about-box"))
+         (title-id (string+ box-id "-title")))
     <h1 ,title>
     <table <tr <td <a (:href ,url :target "_blank")
                       <img (:src ,image-url :alt ,image-alt)>>>

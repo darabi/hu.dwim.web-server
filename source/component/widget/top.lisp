@@ -9,7 +9,11 @@
 ;;;;;;
 ;;; top/widget
 
-(def (component e) top/widget (component-messages/widget target-place/widget top/abstract style/abstract menu-bar/mixin)
+(def (component e) top/widget (component-messages/widget
+                               target-place/widget
+                               top/abstract
+                               menu-bar/mixin
+                               context-menu/mixin)
   ())
 
 (def (macro e) top/widget ((&rest args &key &allow-other-keys) &body content)
@@ -21,5 +25,6 @@
 (def render-xhtml top/widget
   (with-render-style/abstract (-self-)
     (render-menu-bar-for -self-)
+    (render-context-menu-for -self-)
     (render-component-messages-for -self-)
     (render-content-for -self-)))
