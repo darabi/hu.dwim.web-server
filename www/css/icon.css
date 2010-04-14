@@ -30,7 +30,13 @@
 /* hideable */
 
 .hide-component.icon {
-  background-image: url("/static/wui/icon/20x20/yellow-x.png");
+  background-image: url("/static/wui/icon/20x20/eye.png");
+}
+
+/* hideable */
+
+.show-component.icon {
+  background-image: url("/static/wui/icon/20x20/eye.png");
 }
 
 /* closable */
