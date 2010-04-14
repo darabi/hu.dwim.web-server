@@ -24,5 +24,5 @@
     (setf (id-of *frame*) (insert-with-new-random-hash-table-key (frame-id->frame-of *session*) *frame* +frame-id-length+))
     (register-frame *application* *session* *frame*)
     (setf (root-component-of *frame*) (make-frame-root-component clone))
-    (make-redirect-response-with-frame-id-decorated *frame*)))
+    (make-redirect-response-with-frame-parameters-decorated *frame*)))
 

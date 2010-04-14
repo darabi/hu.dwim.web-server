@@ -106,7 +106,7 @@
 ;;;;;;
 ;;; Utils
 
-(def (function e) make-redirect-response-with-frame-id-decorated (&optional (frame *frame*))
+(def (function e) make-redirect-response-with-frame-parameters-decorated (&optional (frame *frame*))
   (bind ((uri (clone-request-uri)))
     (assert (and frame (not (null (id-of frame)))))
     (setf (uri-query-parameter-value uri +frame-id-parameter-name+) (id-of frame))
