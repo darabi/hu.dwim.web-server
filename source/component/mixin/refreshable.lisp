@@ -20,6 +20,9 @@
   ;; we put it in a :before so that more specialized :before's can happend before this one
   (ensure-refreshed -self-))
 
+(def layered-method render-component-stub :before ((self refreshable/mixin))
+  (ensure-refreshed self))
+
 (def layered-method refresh-component :after ((self refreshable/mixin))
   (mark-refreshed-component self))
 

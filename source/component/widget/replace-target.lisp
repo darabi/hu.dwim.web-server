@@ -20,6 +20,10 @@
                   :content ,(the-only-element content)
                   :target-place ,target-place))
 
+(def constructor target-place/widget
+  (unless (slot-boundp -self- 'target-place)
+    (setf (target-place-of -self-) (make-object-slot-place -self- (find-slot (class-of -self-) 'content)))))
+
 (def render-xhtml target-place/widget
   <div (:class "target-place widget")
     ,(render-content-for -self-)>)

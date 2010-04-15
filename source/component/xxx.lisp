@@ -86,7 +86,7 @@
 (def layered-method make-refresh-component-command :around ((component refreshable/mixin) class prototype value)
   (when (authorize-operation *application* `(make-refresh-component-command :class ,class))
     (aprog1
-        (call-next-method)
+        (call-next-layered-method)
       (when (not (subject-component-of it))
         (setf (subject-component-of it) component)))))
 
@@ -99,7 +99,7 @@
 
 (def layered-method make-context-menu-items ((component selectable/mixin) class prototype value)
   (optional-list* (make-menu-item (make-select-component-command component class prototype value))
-                  (call-next-method)))
+                  (call-next-layered-method)))
 
 (def function command-with-icon-name? (component name)
   (and (typep component 'command/widget)
@@ -150,13 +150,13 @@
 
 (def layered-method make-context-menu-items ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
   (optional-list* (make-submenu-item (icon/widget menu :label "Edit") (make-editing-commands component class prototype instance))
-                  (call-next-method)))
+                  (call-next-layered-method)))
 
 (def layered-method make-command-bar-commands ((component editable/mixin) (class standard-class) (prototype standard-object) (instance standard-object))
   (append (when (editable-component? component)
             (list (make-save-editing-command component class prototype instance)
                   (make-cancel-editing-command component class prototype instance)))
-          (call-next-method)))
+          (call-next-layered-method)))
 
 ;;;;;;
 ;;; Editable
@@ -367,7 +367,7 @@
           (show-component component)))))
 
 (def layered-method make-context-menu-items ((component hideable/mixin) class prototype value)
-  (list* (make-submenu-item (icon/widget menu :label "Show/Hide")
+  (list* (make-submenu-item (icon/widget menu :label "Show")
                             (make-hide-component-command component class prototype value)
                             (make-show-component-recursively-command component class prototype value))
          (call-next-layered-method)))

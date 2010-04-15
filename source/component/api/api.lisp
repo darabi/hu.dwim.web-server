@@ -451,6 +451,12 @@
 (def (layered-function e) render-component (component)
   (:documentation "Renders COMPONENT according to the current RENDER-COMPONENT-LAYER either by returning the result or by doing side effects (to a stream for example)."))
 
+(def (layered-function e) render-component-stub (component)
+  (:documentation "Renders COMPONENT as a stub that can be later replaced by an incremental render."))
+
+(def (generic e) lazily-rendered-component? (component)
+  (:documentation "TRUE means COMPONENT does not need to be fully rendered to the remote side, FALSE otherwise."))
+
 (def (generic e) to-be-rendered-component? (component)
   (:documentation "TRUE means COMPONENT needs to be rendered to the remote side, FALSE otherwise."))
 

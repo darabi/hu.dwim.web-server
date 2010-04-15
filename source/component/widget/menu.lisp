@@ -57,7 +57,7 @@
 
 (def (icon e) show-context-menu)
 
-(def (component e) context-menu/widget (widget/style menu-items/mixin)
+(def (component e) context-menu/widget (widget/style menu-items/mixin lazy/mixin)
   ()
   (:documentation "A CONTEXT-MENU/WIDGET is attached to its PARENT-COMPONENT as its CONTEXT-MENU."))
 
@@ -68,45 +68,32 @@
   (values))
 
 (def render-xhtml context-menu/widget
-  (bind (((:read-only-slots menu-items id style-class custom-style to-be-rendered-component) -self-)
+  (bind (((:read-only-slots menu-items id style-class custom-style) -self-)
          (parent-id (id-of (parent-component-of -self-))))
     (when menu-items
-      (if (eq to-be-rendered-component :lazy)
-          (progn
-            <span (:id ,id) "">
-            ;; TODO due to the custom :js this hinders the optimization in render-action-js-event-handler
-            (render-action-js-event-handler "oncontextmenu" parent-id (make-action
-                                                                        (setf (to-be-rendered-component? -self-) #t))
-                                            :js (lambda (href)
-                                                  `js(wui.io.lazy-context-menu-handler event connection ,href ,id ,parent-id))
-                                            :one-shot #t :stop-event #t)
-            ;; anohter alternative, but left clicking anything will force the context menu to download, and i think :xhr-sync true is also missing...
-            #+nil
-            (render-action-js-event-handler "onmousedown" parent-id (make-action
-                                                                      (setf (to-be-rendered-component? -self-) #t))
-                                            :subject-dom-node parent-id
-                                            :one-shot #t :sync #t))
-          (render-dojo-widget (id)
-            <div (:id ,id
-                  :class ,style-class
-                  :style `str("display: none;" ,custom-style)
-                  :dojoType #.+dijit/menu+
-                  :targetNodeIds ,parent-id)
-              ,(foreach #'render-component menu-items)>)))))
+      (render-dojo-widget (id)
+        <div (:id ,id
+              :class ,style-class
+              :style `str("display: none;" ,custom-style)
+              :dojoType #.+dijit/menu+
+              :targetNodeIds ,parent-id)
+          ,(foreach #'render-component menu-items)>))))
 
-(def method mark-to-be-rendered-component ((self context-menu/widget))
-  (setf (to-be-rendered-component? self) :lazy))
-
-(def method mark-rendered-component ((self context-menu/widget))
-  (setf (to-be-rendered-component? self) :lazy))
-
-(def method to-be-rendered-component? ((self context-menu/widget))
-  (eq (call-next-method) #t))
-
-(def method map-visible-child-components ((component context-menu/widget) function)
-  ;; QUESTION to-be-rendered-component? decides about what is visible? sounds weird... comment or fix...
-  (when (eq (to-be-rendered-component? component) #t)
-    (call-next-method)))
+(def layered-method render-component-stub :in xhtml-layer :after ((-self- context-menu/widget))
+  (bind (((:read-only-slots id) -self-)
+         (parent-id (id-of (parent-component-of -self-))))
+    ;; TODO due to the custom :js this hinders the optimization in render-action-js-event-handler
+    (render-action-js-event-handler "oncontextmenu" parent-id (make-action
+                                                                (setf (lazily-rendered-component? -self-) #f))
+                                    :js (lambda (href)
+                                          `js(wui.io.lazy-context-menu-handler event connection ,href ,id ,parent-id))
+                                    :one-shot #t :stop-event #t)
+    ;; another alternative, but left clicking anything will force the context menu to download, and i think :xhr-sync true is also missing...
+    #+nil
+    (render-action-js-event-handler "onmousedown" parent-id (make-action
+                                                              (setf (to-be-rendered-component? -self-) #t))
+                                    :subject-dom-node parent-id
+                                    :one-shot #t :sync #t)))
 
 ;;;;;;
 ;;; menu-item/widget
@@ -169,13 +156,29 @@
                                      (icon-style-class content-content))))
                                 (t
                                  nil)))
+                 ;; KLUDGE: kill when command/widget is refactored into mouse event support
+                 ;; some parts of the RENDER-COMPONENT protocol is repeated here, because
+                 ;; menu-item/widget must look ahead to support icons properly, bah
               ,(typecase content
                  (icon/widget
-                  (render-component (force (label-of content))))
+                  (ensure-refreshed content)
+                  (render-component (force (label-of content)))
+                  ;; KLUDGE: kill when command/widget is refactored into mouse event support
+                  (when (typep content 'renderable/mixin)
+                    (mark-rendered-component content)))
                  (content/mixin
                   (bind ((content-content (content-of content)))
+                    (ensure-refreshed content)
+                    ;; KLUDGE: kill when command/widget is refactored into mouse event support
+                    (when (typep content 'renderable/mixin)
+                      (mark-rendered-component content))
                     (if (typep content-content 'icon/widget)
-                        (render-component (force (label-of content-content)))
+                        (progn
+                          (ensure-refreshed content-content)
+                          (render-component (force (label-of content-content)))
+                          ;; KLUDGE: kill when command/widget is refactored into mouse event support
+                          (when (typep content-content 'renderable/mixin)
+                            (mark-rendered-component content-content)))
                         (render-component content-content))))
                  (t
                   (render-component content)))>

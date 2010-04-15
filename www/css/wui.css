@@ -129,3 +129,12 @@ span .ajax-request-in-progress {
 .ajax-replacement {
   border: 1px red solid;
 }
+
+.content-border.ajax-replacement {
+  border-image: none;
+  -moz-border-image: none;
+  -webkit-border-image: none;
+  border-width: 1px;
+  -moz-border-width: 1px;
+  -webkit-border-width: 1px;
+}

@@ -60,6 +60,9 @@
 ;;;;;;
 ;;; Render component
 
+(def method lazily-rendered-component? ((self number))
+  #f)
+
 (def method to-be-rendered-component? ((self number))
   #f)
 

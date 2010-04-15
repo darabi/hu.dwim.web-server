@@ -19,9 +19,6 @@
 (def (macro e) top/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'top/widget ,@args :content ,(the-only-element content)))
 
-(def constructor top/widget
-  (setf (target-place-of -self-) (make-object-slot-place -self- (find-slot (class-of -self-) 'content))))
-
 (def render-xhtml top/widget
   (with-render-style/abstract (-self-)
     (render-menu-bar-for -self-)

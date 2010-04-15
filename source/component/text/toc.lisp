@@ -34,6 +34,7 @@
 
 (def render-xhtml book/toc/inspector
   <div (:class "toc") "Tartalomjegyzék">
+  (render-context-menu-for -self-)
   (render-contents-for -self-))
 
 (def function toc-numbering (component)
@@ -63,4 +64,5 @@
 (def render-xhtml chapter/toc/inspector
   (bind (((:read-only-slots reference) -self-))
     (render-component reference)
+    (render-context-menu-for -self-)
     (render-contents-for -self-)))

@@ -13,6 +13,10 @@
   ((id :type string :documentation "A life time permanent string identifier."))
   (:documentation "A COMPONENT with a life time permanent string identifier."))
 
+(def layered-method render-component-stub :in xhtml-layer ((-self- id/mixin))
+  (setf (rendered-component? -self-) :stub)
+  <div (:id ,(id-of -self-) :style "display: none;") "">)
+
 (debug-only
   (def method (setf id-of) :before (new-value (self id/mixin))
     (assert (not (id-of self)))))
@@ -35,4 +39,3 @@
 
 (def layered-method refresh-component :before ((self frame-unique-id/mixin))
   (ensure-frame-unique-id self))
-

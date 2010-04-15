@@ -24,21 +24,16 @@
     :documentation "TRUE means the COMPONENT is visible on the remote side, FALSE otherwise."))
   (:documentation "A COMPONENT that can be HIDDEN or SHOWN."))
 
-(def render-component :around hideable/mixin
-  (when (visible-component? -self-)
-    (call-next-layered-method)))
+(def render-component :in xhtml-layer :around hideable/mixin
+  (if (visible-component? -self-)
+      (call-next-layered-method)
+      (render-component-stub -self-)))
 
 (def method visible-component? :around ((self hideable/mixin))
   (force (call-next-method)))
 
 (def method hide-component ((self hideable/mixin))
-  (setf (visible-component? self) #f)
-  (when (typep self 'parent/mixin)
-    (awhen (find-ancestor-component-with-type (parent-component-of self) 'id/mixin :otherwise #f)
-      (mark-to-be-rendered-component it))))
+  (setf (visible-component? self) #f))
 
 (def method show-component ((self hideable/mixin))
-  (setf (visible-component? self) #t)
-  (when (typep self 'parent/mixin)
-    (awhen (find-ancestor-component-with-type (parent-component-of self) 'id/mixin :otherwise #f)
-      (mark-to-be-rendered-component it))))
+  (setf (visible-component? self) #t))

@@ -428,7 +428,10 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 
 (def render-component :around component
   (with-component-environment -self-
-    (call-next-method)))
+    (call-next-layered-method)))
+
+(def method lazily-rendered-component? ((self component))
+  #f)
 
 (def method to-be-rendered-component? ((self component))
   #f)
@@ -436,8 +439,14 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 (def method mark-to-be-rendered-component ((self component))
   (map-child-components self #'mark-to-be-rendered-component))
 
+(def method mark-to-be-rendered-component :before ((self component))
+  (incremental.dribble "Calling MARK-TO-BE-RENDERED-COMPONENT on ~A" self))
+
 (def method mark-rendered-component ((self component))
-  (operation-not-supported "Cannot MARK-RENDERED-COMPONENT ~A, you may want to subclass RENDERABLE/MIXIN"))
+  (operation-not-supported "Cannot MARK-RENDERED-COMPONENT ~A, you may want to subclass RENDERABLE/MIXIN" self))
+
+(def method mark-rendered-component :before ((self component))
+  (incremental.dribble "Calling MARK-RENDERED-COMPONENT on ~A" self))
 
 ;;;;;;
 ;;; Refresh component

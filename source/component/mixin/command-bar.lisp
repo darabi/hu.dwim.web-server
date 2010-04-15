@@ -17,11 +17,11 @@
   (:documentation "A COMPONENT with a COMMAND-BAR."))
 
 (def refresh-component command-bar/mixin
-  (bind (((:slots command-bar) -self-))
-    (bind ((class (component-dispatch-class -self-))
-           (prototype (component-dispatch-prototype -self-))
-           (value (component-value-of -self-)))
-      (setf command-bar (make-command-bar -self- class prototype value)))))
+  (bind (((:slots command-bar) -self-)
+         (class (component-dispatch-class -self-))
+         (prototype (component-dispatch-prototype -self-))
+         (value (component-value-of -self-)))
+    (setf command-bar (make-command-bar -self- class prototype value))))
 
 (def (function e) render-command-bar-for (component)
   (awhen (command-bar-of component)

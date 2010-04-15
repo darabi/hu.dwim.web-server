@@ -46,7 +46,7 @@
           (with length = (length commands))
           (with index = 0)
           (for command :in commands)
-          (when (force (visible-component? command))
+          (when (visible-component? command)
             <span (:class ,(element-style-class index length))
               ,(render-component command)>
             (incf index)))))

@@ -64,6 +64,7 @@
                                                          (:file "id" :depends-on ("refreshable"))
                                                          (:file "initargs")
                                                          (:file "layer")
+                                                         (:file "lazy")
                                                          (:file "menu")
                                                          (:file "menu-bar")
                                                          (:file "mouse")
