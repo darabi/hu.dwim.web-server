@@ -339,35 +339,39 @@
 
 
 (def layered-method make-hide-component-command ((component hideable/mixin) class prototype value)
-  (command/widget ()
-    (icon/widget hide-component)
-    (make-component-action component
-      (hide-component component))))
+  (when (authorize-operation *application* '(make-hide-component-command))
+    (command/widget ()
+      (icon/widget hide-component)
+      (make-component-action component
+        (hide-component component)))))
 
 (def layered-method make-show-component-command ((component hideable/mixin) class prototype value)
-  (command/widget ()
-    (icon/widget show-component)
-    (make-component-action component
-      (show-component component))))
+  (when (authorize-operation *application* '(make-show-component-command))
+    (command/widget ()
+      (icon/widget show-component)
+      (make-component-action component
+        (show-component component)))))
 
 (def layered-method make-show-component-recursively-command ((component hideable/mixin) class prototype value)
-  (command/widget ()
-    (icon/widget show-component)
-    (make-component-action component
-      (show-component-recursively component))))
+  (when (authorize-operation *application* '(make-show-component-recursively-command))
+    (command/widget ()
+      (icon/widget show-component)
+      (make-component-action component
+        (show-component-recursively component)))))
 
 (def layered-method make-toggle-visiblity-command ((component hideable/mixin) class prototype value)
-  (command/widget ()
-    (if (visible-component? component)
-        (icon/widget hide-component)
-        (icon/widget show-component))
-    (make-component-action component
+  (when (authorize-operation *application* '(make-toggle-visiblity-command))
+    (command/widget ()
       (if (visible-component? component)
-          (hide-component component)
-          (show-component component)))))
+          (icon/widget hide-component)
+          (icon/widget show-component))
+      (make-component-action component
+        (if (visible-component? component)
+            (hide-component component)
+            (show-component component))))))
 
 (def layered-method make-context-menu-items ((component hideable/mixin) class prototype value)
-  (list* (make-submenu-item (icon/widget menu :label "Show")
-                            (make-hide-component-command component class prototype value)
-                            (make-show-component-recursively-command component class prototype value))
-         (call-next-layered-method)))
+  (optional-list* (make-submenu-item (icon/widget menu :label "Show")
+                                     (make-hide-component-command component class prototype value)
+                                     (make-show-component-recursively-command component class prototype value))
+                  (call-next-layered-method)))

@@ -28,7 +28,8 @@
     (render-component it)))
 
 (def layered-method make-context-menu ((component context-menu/mixin) class prototype value)
-  (make-instance 'context-menu/widget :menu-items (make-context-menu-items component class prototype value)))
+  (awhen (make-context-menu-items component class prototype value)
+    (make-instance 'context-menu/widget :menu-items it)))
 
 (def layered-method make-context-menu :in passive-layer ((component context-menu/mixin) class prototype value)
   nil)

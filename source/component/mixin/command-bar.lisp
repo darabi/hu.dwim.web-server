@@ -28,7 +28,8 @@
     (render-component it)))
 
 (def layered-method make-command-bar ((component command-bar/mixin) class prototype value)
-  (make-instance 'command-bar/widget :commands (make-command-bar-commands component class prototype value)))
+  (awhen (make-command-bar-commands component class prototype value)
+    (make-instance 'command-bar/widget :commands it)))
 
 (def layered-method make-command-bar :in passive-layer ((component command-bar/mixin) class prototype value)
   nil)
