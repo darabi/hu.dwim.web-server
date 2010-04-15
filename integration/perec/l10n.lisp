@@ -37,3 +37,10 @@
                           (emit " = ")
                           (emit (localize-value value))))))))
         (call-next-method))))
+
+(def method localized-slot-name ((slot hu.dwim.perec::persistent-association-end-effective-slot-definition) &key &allow-other-keys)
+  (bind ((slot-name (slot-definition-name slot)))
+    (lookup-first-matching-resource
+      ((class-name (owner-class-of-effective-slot-definition slot)) slot-name)
+      ("slot-name" slot-name)
+      ("class-name" (class-name (hu.dwim.perec::associated-class-of slot))))))
