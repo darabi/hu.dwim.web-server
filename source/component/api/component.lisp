@@ -111,7 +111,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                                ,@forms)))
 
 (def (with-macro e) with-restored-component-environment (component)
-  (bind ((path (nreverse (collect-path-to-root-component component))))
+  (bind ((path (nreverse (collect-ancestor-components component))))
     (labels ((%call-with-restored-component-environment (remaining-path)
                (if remaining-path
                    (with-component-environment (car remaining-path)
@@ -175,11 +175,6 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
     (when include-self
       (funcall visitor component))
     (traverse component)))
-
-(def (function e) collect-path-to-root-component (component)
-  (iter (for ancestor-component :initially component :then (parent-component-of ancestor-component))
-        (while ancestor-component)
-        (collect ancestor-component)))
 
 (def (function e) collect-ancestor-components (component &key (include-self #f))
   (nconc (when include-self
