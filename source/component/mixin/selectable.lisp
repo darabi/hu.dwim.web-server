@@ -51,7 +51,7 @@
                                                                  (intersection old-selected-components new-selected-components)))))))
 
 (def (function e) find-selection-component (selectable-component)
-  (find-ancestor-component-with-type selectable-component 'selection/mixin :otherwise #f))
+  (find-ancestor-component-of-type 'selection/mixin selectable-component :otherwise #f))
 
 (def (function e) selected-component-value (selection-component)
   (awhen (selected-component-of selection-component)

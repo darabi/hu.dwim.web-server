@@ -139,7 +139,7 @@
 (def refresh-component t/tree-level/reference/inspector
   (bind (((:slots action component-value) -self-))
     (setf action (make-action
-                   (setf (component-value-of (find-ancestor-component-with-type -self- 't/tree-level/inspector)) component-value)))))
+                   (setf (component-value-of (find-ancestor-component-of-type 't/tree-level/inspector -self-)) component-value)))))
 
 ;;;;;;
 ;;; t/tree-level/path/inspector

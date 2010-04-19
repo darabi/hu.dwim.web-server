@@ -152,7 +152,7 @@
   (bind (((:slots content action component-value) -self-))
     (setf content (fully-qualified-symbol-name (class-name component-value)))
     (setf action (make-action
-                   (setf (component-value-of (find-ancestor-component-with-type -self- 'class/tree-level/inspector)) component-value)))))
+                   (setf (component-value-of (find-ancestor-component-of-type 'class/tree-level/inspector -self-)) component-value)))))
 
 ;;;;;;
 ;;; class/tree-level/path/inspector

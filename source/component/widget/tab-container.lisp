@@ -72,7 +72,7 @@
   ())
 
 (def layered-method make-switch-to-tab-page-command ((component tab-page/widget) class prototype value)
-  (bind ((tab-container (find-ancestor-component-with-type component 'tab-container/widget)))
+  (bind ((tab-container (find-ancestor-component-of-type 'tab-container/widget component)))
     (make-instance 'switch-to-tab-page/widget
                    :action (make-action
                              (execute-replace (delay (content-of tab-container)) component))

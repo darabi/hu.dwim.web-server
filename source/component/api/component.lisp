@@ -162,7 +162,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (or (find-ancestor component #'parent-component-of predicate :otherwise #f)
       (handle-otherwise (error "Unable to find ancestor component using predicate ~A starting from component ~A" predicate component))))
 
-(def (function e) find-ancestor-component-with-type (component type &key (otherwise :error otherwise?))
+(def (function eio) find-ancestor-component-of-type (type component &key (otherwise :error otherwise?))
   (or (find-ancestor-component component (of-type type) :otherwise #f)
       (handle-otherwise (error "Unable to find ancestor component with type ~S starting from component ~A" type component))))
 
@@ -195,13 +195,24 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                       (return-from find-child-component child))))
   nil)
 
-(def (function e) find-descendant-component (component predicate)
-  (map-descendant-components component (lambda (child)
-                                         (when (funcall predicate child)
-                                           (return-from find-descendant-component child)))))
+(def (function e) find-descendant-component-if (predicate root-component &key (otherwise nil))
+  (map-descendant-components root-component
+                             (lambda (child)
+                               (when (funcall predicate child)
+                                 (return-from find-descendant-component-if child))))
+  (handle-otherwise/value otherwise :default-message `("Could not find descendant component matching preficate ~A, starting from ~A" ,predicate ,root-component)))
 
-(def (function e) find-descendant-component-with-type (component type)
-  (find-descendant-component component (of-type type)))
+(def (function e) find-descendant-component (item root-component &key test key (otherwise nil))
+  (setf test (if test (ensure-function test) #'eql))
+  (setf key (if key (ensure-function key) #'identity))
+  (or (find-descendant-component-if (lambda (child)
+                                      (funcall test item (funcall key child)))
+                                    root-component :otherwise #f)
+      (handle-otherwise/value otherwise :default-message `("Could not find item ~A starting from ~A and using key ~A" ,item ,root-component ,key))))
+
+(def (function eio) find-descendant-component-of-type (type root-component &key (otherwise nil))
+  (or (find-descendant-component-if (of-type type) root-component :otherwise #f)
+      (handle-otherwise/value otherwise :default-message `("Could not find component of type ~S starting from ~A" ,type ,root-component))))
 
 (def (function e) map-child-components (component visitor &optional (child-slot-provider [class-slots (class-of !1)]))
   (ensure-functionf visitor)

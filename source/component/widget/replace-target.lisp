@@ -52,7 +52,7 @@
            (component (component-at-place target-place)))
       (when (typep component 'parent/mixin)
         ;; TODO shouldn't it be in closer relationship with collect-covering-to-be-rendered-descendant-components ?
-        (find-ancestor-component-with-type component 'id/mixin :otherwise nil)))))
+        (find-ancestor-component-of-type 'id/mixin component :otherwise nil)))))
 
 (def function render-replace-target-place-command/xhtml (component replacement-component content &rest args &key &allow-other-keys)
   (apply 'render-command/xhtml (make-component-action component

@@ -92,7 +92,7 @@
                                                       (not (eq (class-of alternative)
                                                                (class-of (content-of component))))
                                                       (or (not reference?)
-                                                          (find-ancestor-component-with-type (parent-component-of component) 'inspector/abstract :otherwise #f)))))
+                                                          (find-ancestor-component-of-type 'inspector/abstract (parent-component-of component) :otherwise #f)))))
                      :subject-component component))))
 
 (def (generic e) make-switch-to-alternative-command-content (alternative)

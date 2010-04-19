@@ -53,7 +53,7 @@
 
 (def (generic e) answer-component (component value)
   (:method ((component component) value)
-    (answer-component (find-ancestor-component-with-type component 'standard-process/user-interface/inspector) value))
+    (answer-component (find-ancestor-component-of-type 'standard-process/user-interface/inspector component) value))
 
   (:method ((component standard-process/user-interface/inspector) value)
     (roll-process component (component-dispatch-class component) (component-dispatch-prototype component) (component-value-of component)

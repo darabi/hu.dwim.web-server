@@ -40,9 +40,9 @@
 (def function toc-numbering (component)
   (bind ((component-value (component-value-of component)))
     ;; TODO: toc/mixin?
-    (awhen (find-descendant-component (toc-of (find-ancestor-component-with-type component 'book/text/inspector))
-                                      (lambda (descendant)
-                                        (eq (component-value-of descendant) component-value)))
+    (awhen (find-descendant-component component-value
+                                      (toc-of (find-ancestor-component-of-type 'book/text/inspector component))
+                                      :key 'component-value-of)
       (numbering-of (content-of it)))))
 
 ;;;;;;
@@ -54,7 +54,7 @@
 
 (def refresh-component chapter/toc/inspector
   (bind (((:slots numbering reference component-value) -self-))
-    (setf numbering (awhen (find-ancestor-component-with-type (parent-component-of -self-) 't/toc/inspector)
+    (setf numbering (awhen (find-ancestor-component-of-type 't/toc/inspector (parent-component-of -self-))
                       (bind ((numbering (integer-to-string (1+ (position -self- (contents-of it) :key 'content-of)))))
                         (if (typep it 'chapter/toc/inspector)
                             (string+ (numbering-of it) "." numbering)
