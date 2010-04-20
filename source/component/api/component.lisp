@@ -227,10 +227,9 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                       component :otherwise #f)
         (handle-otherwise (error "~S: Could not find item ~A starting from ~A and using key ~A" 'find-descendant-component item component key)))))
 
-;; TODO otherwise error
-(def (function eio) find-descendant-component-of-type (type component &key (otherwise nil))
+(def (function eio) find-descendant-component-of-type (type component &key (otherwise :error otherwise?))
   (or (find-descendant-component-if (of-type type) component :otherwise #f)
-      (handle-otherwise/value otherwise :default-message `("Could not find component of type ~S starting from ~A" ,type ,component))))
+      (handle-otherwise (error "Could not find descendant component of type ~S starting from ~A" type component))))
 
 (def (function eo) map-child-components (component visitor &optional (child-slot-provider [class-slots (class-of !1)]))
   (bind ((visitor (ensure-function visitor))
