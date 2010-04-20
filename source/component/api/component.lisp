@@ -409,13 +409,12 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                              (funcall visitor child)
                                              (map-edited-descendant-components child visitor)))))
 
-;; TODO
-(def (function eo) find-edited-child-component (component predicate)
+(def (function eo) find-edited-child-component-if (predicate component &key (otherwise :error otherwise?))
   (bind ((predicate (ensure-function predicate)))
     (map-edited-child-components component (lambda (child)
                                              (when (funcall predicate child)
-                                               (return-from find-edited-child-component child)))))
-  nil)
+                                               (return-from find-edited-child-component-if child)))))
+  (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-edited-child-component-if predicate component)))
 
 ;; TODO
 (def (function e) find-edited-descendant-component (component predicate)
