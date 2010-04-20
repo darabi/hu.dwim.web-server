@@ -236,7 +236,7 @@
                                                                     :edited (edited-component? component)
                                                                     :editable (editable-component? component))))
                                         (list :content (icon/widget expand-component)
-                                              :visible (delay (not (has-edited-descendant-component-p component)))
+                                              :visible (delay (not (has-edited-descendant-component? component)))
                                               :subject-component component)
                                         (list :content (icon/widget collapse-component)
                                               :subject-component (delay replacement-component)))))

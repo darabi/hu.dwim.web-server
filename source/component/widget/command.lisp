@@ -223,7 +223,7 @@
              (original-place (make-component-place original-component))
              (back-command (apply #'make-back-command original-component original-place replacement-component replacement-place
                                   (append back-command-args
-                                          `(:visible ,(delay (and (not (has-edited-descendant-component-p replacement-component))
+                                          `(:visible ,(delay (and (not (has-edited-descendant-component? replacement-component))
                                                                   (eq (force replacement-component) (component-at-place original-place)))))))))
         (push-command back-command replacement-component)
         (when replacement-place

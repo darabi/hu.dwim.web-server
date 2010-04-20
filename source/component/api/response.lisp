@@ -135,7 +135,7 @@ There's an important invariant kept, namely calling FULL-RENDER at T0 (the initi
 Interesting use cases for INCREMENTAL-RENDER involves changing VISIBLE-COMPONENT?, TO-BE-RENDERED-COMPONENT?, LAZILY-RENDERED-COMPONENT? and not calling RENDER-COMPONENT on a child component."
   (bind ((to-be-rendered-components
           ;; KLUDGE: finding top/abstract and going down from there
-          (bind ((top (find-descendant-component-with-type component 'top/abstract)))
+          (bind ((top (find-descendant-component-of-type 'top/abstract component)))
             (assert top nil "There is no TOP component below ~A, AJAX cannot be used in this situation at the moment" component)
             (collect-covering-to-be-rendered-descendant-components top))))
     (setf (header-value *response* +header/content-type+) +xml-mime-type+)
@@ -187,15 +187,18 @@ e.g. render-component conditionally calls render-component on a child component
                                   visible-component?
                                   to-be-rendered-component?))
                          ;; NOTE: stubs will be rendered by hideable/mixin automatically
-                         (bind ((new-covering-component (find-ancestor-component component [and (typep !1 'id/mixin) (rendered-component? !1)]
-                                                                                 :otherwise `(:error "Unable to find covering ancestor component (of type id/mixin) for ~A" ,component))))
+                         (bind ((new-covering-component (or (find-ancestor-component-if (lambda (ancestor)
+                                                                                          (and (typep ancestor 'id/mixin)
+                                                                                               (rendered-component? ancestor)))
+                                                                                        component :otherwise #f)
+                                                            (error "Unable to find covering ancestor component (of type id/mixin) for ~A" component))))
                            (bind ((*print-level* 1))
                              (incremental.debug "Found to be rendered component ~A covered by component ~A (~A ~A ~A ~A)"
                                                 component new-covering-component rendered-component? visible-component? to-be-rendered-component? lazily-rendered-component?))
                            (setf covering-components
                                  (cons new-covering-component
                                        (remove-if (lambda (covering-component)
-                                                    (find-ancestor-component covering-component [eq !1 new-covering-component] :otherwise #f))
+                                                    (find-ancestor-component new-covering-component covering-component :otherwise #f))
                                                   covering-components)))
                            (throw new-covering-component nil))
                          (unless (eq rendered-component? :stub)

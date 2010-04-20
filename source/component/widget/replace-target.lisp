@@ -61,11 +61,10 @@
          content args))
 
 (def function find-replace-target-place-widget (component &key (otherwise :error otherwise?))
-  (or (find-ancestor-component component
-                               (lambda (ancestor)
-                                 (and (typep ancestor 'target-place/widget)
-                                      (target-place-of ancestor)))
-                               :otherwise #f)
+  (or (find-ancestor-component-if (lambda (ancestor)
+                                    (and (typep ancestor 'target-place/widget)
+                                         (target-place-of ancestor)))
+                                  component :otherwise #f)
       (handle-otherwise
         (error "Unable to find the target-place/widget for ~A" component))))
 

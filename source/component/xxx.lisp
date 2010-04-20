@@ -123,9 +123,8 @@
 
   (:method ((self command-bar/mixin) name)
     (or (call-next-method)
-        (find-child-component (command-bar-of self)
-                              (lambda (child)
-                                (command-with-icon-name? child name))))))
+        (find-child-component-if [command-with-icon-name? !1 name]
+                                 (command-bar-of self)))))
 
 (def (function e) render-hide-command-for (component)
   (render-component (command/widget ()

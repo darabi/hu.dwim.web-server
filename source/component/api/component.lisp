@@ -156,88 +156,113 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   #t)
 
 ;;;;;;
-;;; Parent child relationship
+;;; Ancestors
 
-(def (function e) find-ancestor-component (component predicate &key (otherwise :error otherwise?))
+(def (function eo) find-ancestor-component-if (predicate component &key (otherwise :error otherwise?))
   (or (find-ancestor component #'parent-component-of predicate :otherwise #f)
       (handle-otherwise (error "Unable to find ancestor component using predicate ~A starting from component ~A" predicate component))))
 
+(def (function eo) find-ancestor-component (item component &key test key (otherwise :error otherwise?))
+  (bind ((test (if test (ensure-function test) #'eql))
+         (key (if key (ensure-function key) #'identity)))
+    (or (find-ancestor-component-if (lambda (child)
+                                      (funcall test item (funcall key child)))
+                                    component :otherwise #f)
+        (handle-otherwise (error "~S: Could not find item ~A starting from ~A and using key ~A" 'find-ancestor-component item component key)))))
+
 (def (function eio) find-ancestor-component-of-type (type component &key (otherwise :error otherwise?))
-  (or (find-ancestor-component component (of-type type) :otherwise #f)
+  (or (find-ancestor-component-if (of-type type) component :otherwise #f)
       (handle-otherwise (error "Unable to find ancestor component with type ~S starting from component ~A" type component))))
 
-(def (function e) map-ancestor-components (component visitor &key (include-self #f))
-  (ensure-functionf visitor)
-  (labels ((traverse (current)
-             (awhen (parent-component-of current)
-               (funcall visitor it)
-               (traverse it))))
-    (when include-self
-      (funcall visitor component))
-    (traverse component)))
+;; TODO map-* should have the fn at first position?
+(def (function eo) map-ancestor-components (component visitor &key (include-self #f))
+  (bind ((visitor (ensure-function visitor)))
+    (labels ((traverse (current)
+               (awhen (parent-component-of current)
+                 (funcall visitor it)
+                 (traverse it))))
+      (when include-self
+        (funcall visitor component))
+      (traverse component))))
 
-(def (function e) collect-ancestor-components (component &key (include-self #f))
+(def (function eo) collect-ancestor-components (component &key (include-self #f))
   (nconc (when include-self
            (list component))
          (iter (for parent :first component :then (parent-component-of parent))
                (while parent)
                (collect parent))))
 
-(def (function e) find-child-component (component function)
-  (ensure-functionf function)
-  (map-child-components component (lambda (child)
-                                    (when (funcall function child)
-                                      (return-from find-child-component child))))
-  nil)
+;;;;;;
+;;; Children
 
-(def (function e) find-descendant-component-if (predicate root-component &key (otherwise nil))
-  (map-descendant-components root-component
-                             (lambda (child)
-                               (when (funcall predicate child)
-                                 (return-from find-descendant-component-if child))))
-  (handle-otherwise/value otherwise :default-message `("Could not find descendant component matching preficate ~A, starting from ~A" ,predicate ,root-component)))
+(def (function eo) find-child-component-if (predicate component &key (otherwise nil))
+  (bind ((predicate (ensure-function predicate)))
+    (map-child-components component (lambda (child)
+                                      (when (funcall predicate child)
+                                        (return-from find-child-component-if child)))))
+  (handle-otherwise/value otherwise :default-message `("Could not find child component matching predicate ~A, starting from ~A" ,predicate ,component)))
 
-(def (function e) find-descendant-component (item root-component &key test key (otherwise nil))
-  (setf test (if test (ensure-function test) #'eql))
-  (setf key (if key (ensure-function key) #'identity))
-  (or (find-descendant-component-if (lambda (child)
-                                      (funcall test item (funcall key child)))
-                                    root-component :otherwise #f)
-      (handle-otherwise/value otherwise :default-message `("Could not find item ~A starting from ~A and using key ~A" ,item ,root-component ,key))))
+(def (function eo) find-child-component (item component &key test key (otherwise :error otherwise?))
+  (bind ((test (if test (ensure-function test) #'eql))
+         (key (if key (ensure-function key) #'identity)))
+    (or (find-child-component-if (lambda (child)
+                                   (funcall test item (funcall key child)))
+                                 component)
+        (handle-otherwise (error "~S: Could not find item ~A starting from ~A and using key ~A" 'find-child-component item component key)))))
 
-(def (function eio) find-descendant-component-of-type (type root-component &key (otherwise nil))
-  (or (find-descendant-component-if (of-type type) root-component :otherwise #f)
-      (handle-otherwise/value otherwise :default-message `("Could not find component of type ~S starting from ~A" ,type ,root-component))))
+;; TODO otherwise error
+(def (function eo) find-descendant-component-if (predicate component &key (otherwise nil))
+  (bind ((predicate (ensure-function predicate)))
+    (map-descendant-components component
+                               (lambda (child)
+                                 (when (funcall predicate child)
+                                   (return-from find-descendant-component-if child)))))
+  (handle-otherwise/value otherwise :default-message `("Could not find descendant component matching predicate ~A, starting from ~A" ,predicate ,component)))
 
-(def (function e) map-child-components (component visitor &optional (child-slot-provider [class-slots (class-of !1)]))
-  (ensure-functionf visitor)
-  (iter (with class = (class-of component))
-        (for slot :in (funcall child-slot-provider component))
-        (when (and (child-component-slot? component slot)
-                   (slot-boundp-using-class class component slot))
-          (bind ((value (slot-value-using-class class component slot)))
-            (typecase value
-              (component
-               (funcall visitor value))
-              (list
-               (dolist (element value)
-                 (when (typep element 'component)
-                   (funcall visitor element))))
-              (hash-table
-               (iter (for (key element) :in-hashtable value)
-                     (when (typep element 'component)
-                       (funcall visitor element)))))))))
+;; TODO otherwise error
+(def (function eo) find-descendant-component (item component &key test key (otherwise nil))
+  (bind ((test (if test (ensure-function test) #'eql))
+         (key (if key (ensure-function key) #'identity)))
+    (or (find-descendant-component-if (lambda (child)
+                                        (funcall test item (funcall key child)))
+                                      component :otherwise #f)
+        (handle-otherwise/value otherwise :default-message `("Could not find item ~A starting from ~A and using key ~A" ,item ,component ,key)))))
 
-(def (function e) map-descendant-components (component visitor &key (include-self #f))
-  (ensure-functionf visitor)
-  (labels ((traverse (parent-component)
-             (map-child-components parent-component
-                                   (lambda (child-component)
-                                     (funcall visitor child-component)
-                                     (traverse child-component)))))
-    (when include-self
-      (funcall visitor component))
-    (traverse component)))
+;; TODO otherwise error
+(def (function eio) find-descendant-component-of-type (type component &key (otherwise nil))
+  (or (find-descendant-component-if (of-type type) component :otherwise #f)
+      (handle-otherwise/value otherwise :default-message `("Could not find component of type ~S starting from ~A" ,type ,component))))
+
+(def (function eo) map-child-components (component visitor &optional (child-slot-provider [class-slots (class-of !1)]))
+  (bind ((visitor (ensure-function visitor))
+         (child-slot-provider (ensure-function child-slot-provider)))
+    (iter (with class = (class-of component))
+          (for slot :in (funcall child-slot-provider component))
+          (when (and (child-component-slot? component slot)
+                     (slot-boundp-using-class class component slot))
+            (bind ((value (slot-value-using-class class component slot)))
+              (typecase value
+                (component
+                 (funcall visitor value))
+                (list
+                 (dolist (element value)
+                   (when (typep element 'component)
+                     (funcall visitor element))))
+                (hash-table
+                 (iter (for (nil element) :in-hashtable value)
+                       (when (typep element 'component)
+                         (funcall visitor element))))))))))
+
+(def (function eo) map-descendant-components (component visitor &key (include-self #f))
+  (bind ((visitor (ensure-function visitor)))
+    (labels ((traverse (parent-component)
+               (map-child-components parent-component
+                                     (lambda (child-component)
+                                       (funcall visitor child-component)
+                                       (traverse child-component)))))
+      (when include-self
+        (funcall visitor component))
+      (traverse component))))
 
 ;;;;;;
 ;;; Component environment
@@ -340,70 +365,76 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 ;;;;;;
 ;;; Traverse editable components
 
-(def (function e) map-editable-child-components (component function)
-  (ensure-functionf function)
-  (map-child-components component (lambda (child)
-                                    (when (editable-component? child)
-                                      (funcall function child)))))
+(def (function eo) map-editable-child-components (component visitor)
+  (bind ((visitor (ensure-function visitor)))
+    (map-child-components component (lambda (child)
+                                      (when (editable-component? child)
+                                        (funcall visitor child))))))
 
-(def (function e) map-editable-descendant-components (component function)
-  (ensure-functionf function)
-  (map-editable-child-components component (lambda (child)
-                                             (funcall function child)
-                                             (map-editable-descendant-components child function))))
+(def (function eo) map-editable-descendant-components (component visitor)
+  (bind ((visitor (ensure-function visitor)))
+    (map-editable-child-components component (lambda (child)
+                                               (funcall visitor child)
+                                               (map-editable-descendant-components child visitor)))))
 
-(def (function e) find-editable-child-component (component function)
-  (ensure-functionf function)
-  (map-editable-child-components component (lambda (child)
-                                             (when (funcall function child)
-                                               (return-from find-editable-child-component child))))
+;; TODO otherwise
+(def (function eo) find-editable-child-component-if (predicate component)
+  (bind ((predicate (ensure-function predicate)))
+    (map-editable-child-components component (lambda (child)
+                                               (when (funcall predicate child)
+                                                 (return-from find-editable-child-component-if child)))))
   nil)
 
-(def (function e) find-editable-descendant-component (component function)
-  (map-editable-descendant-components component (lambda (descendant)
-                                                  (when (funcall function descendant)
-                                                    (return-from find-editable-descendant-component descendant))))
+;; TODO otherwise
+(def (function eo) find-editable-descendant-component-if (predicate component)
+  (bind ((predicate (ensure-function predicate)))
+    (map-editable-descendant-components component (lambda (descendant)
+                                                    (when (funcall predicate descendant)
+                                                      (return-from find-editable-descendant-component-if descendant)))))
   nil)
 
-(def (function e) has-editable-child-component-p (component)
-  (find-editable-child-component component #'editable-component?))
+(def (function e) has-editable-child-component? (component)
+  (find-editable-child-component-if #'editable-component? component))
 
-(def (function e) has-editable-descendant-component-p (component)
-  (find-editable-descendant-component component #'editable-component?))
+(def (function e) has-editable-descendant-component? (component)
+  (find-editable-descendant-component-if #'editable-component? component))
 
 ;;;;;;
 ;;; Traverse edited components
 
-(def (function e) map-edited-child-components (component function)
-  (ensure-functionf function)
-  (map-child-components component (lambda (child)
-                                    (when (edited-component? child)
-                                      (funcall function child)))))
+(def (function eo) map-edited-child-components (component visitor)
+  (bind ((visitor (ensure-function visitor)))
+    (map-child-components component (lambda (child)
+                                      (when (edited-component? child)
+                                        (funcall visitor child))))))
 
-(def (function e) map-edited-descendant-components (component function)
-  (ensure-functionf function)
-  (map-edited-child-components component (lambda (child)
-                                             (funcall function child)
-                                             (map-edited-descendant-components child function))))
+(def (function eo) map-edited-descendant-components (component visitor)
+  (bind ((visitor (ensure-function visitor)))
+    (map-edited-child-components component (lambda (child)
+                                             (funcall visitor child)
+                                             (map-edited-descendant-components child visitor)))))
 
-(def (function e) find-edited-child-component (component function)
-  (ensure-functionf function)
-  (map-edited-child-components component (lambda (child)
-                                             (when (funcall function child)
-                                               (return-from find-edited-child-component child))))
+;; TODO
+(def (function eo) find-edited-child-component (component predicate)
+  (bind ((predicate (ensure-function predicate)))
+    (map-edited-child-components component (lambda (child)
+                                             (when (funcall predicate child)
+                                               (return-from find-edited-child-component child)))))
   nil)
 
-(def (function e) find-edited-descendant-component (component function)
-  (map-edited-descendant-components component (lambda (descendant)
-                                                  (when (funcall function descendant)
-                                                    (return-from find-edited-descendant-component descendant))))
+;; TODO
+(def (function e) find-edited-descendant-component (component predicate)
+  (bind ((predicate (ensure-function predicate)))
+    (map-edited-descendant-components component (lambda (descendant)
+                                                  (when (funcall predicate descendant)
+                                                    (return-from find-edited-descendant-component descendant)))))
   nil)
 
-(def (function e) has-edited-child-component-p (component)
-  (find-editable-child-component component #'edited-component?))
+(def (function e) has-edited-child-component? (component)
+  (find-editable-child-component-if #'edited-component? component))
 
-(def (function e) has-edited-descendant-component-p (component)
-  (find-editable-descendant-component component #'edited-component?))
+(def (function e) has-edited-descendant-component? (component)
+  (find-editable-descendant-component-if #'edited-component? component))
 
 ;;;;;;
 ;;; Export component
