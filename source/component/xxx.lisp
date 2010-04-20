@@ -114,12 +114,12 @@
   (:method ((self context-menu/mixin) name)
     (or (call-next-method)
         (find-descendant-component-if [command-with-icon-name? !1 name]
-                                      (context-menu-of self))))
+                                      (context-menu-of self) :otherwise nil)))
 
   (:method ((self menu-bar/mixin) name)
     (or (call-next-method)
         (find-descendant-component-if [command-with-icon-name? !1 name]
-                                      (menu-bar-of self))))
+                                      (menu-bar-of self) :otherwise nil)))
 
   (:method ((self command-bar/mixin) name)
     (or (call-next-method)

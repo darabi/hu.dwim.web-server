@@ -210,14 +210,13 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                  component)
         (handle-otherwise (error "~S: Could not find item ~A starting from ~A and using key ~A" 'find-child-component item component key)))))
 
-;; TODO otherwise error
-(def (function eo) find-descendant-component-if (predicate component &key (otherwise nil))
+(def (function eo) find-descendant-component-if (predicate component &key (otherwise :error otherwise?))
   (bind ((predicate (ensure-function predicate)))
     (map-descendant-components component
                                (lambda (child)
                                  (when (funcall predicate child)
-                                   (return-from find-descendant-component-if child)))))
-  (handle-otherwise/value otherwise :default-message `("Could not find descendant component matching predicate ~A, starting from ~A" ,predicate ,component)))
+                                   (return-from find-descendant-component-if child))))
+    (handle-otherwise (error "Could not find descendant component matching predicate ~A, starting from ~A" predicate component))))
 
 (def (function eo) find-descendant-component (item component &key test key (otherwise :error otherwise?))
   (bind ((test (if test (ensure-function test) #'eql))
