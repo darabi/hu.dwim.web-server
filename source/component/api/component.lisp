@@ -199,8 +199,8 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (bind ((predicate (ensure-function predicate)))
     (map-child-components component (lambda (child)
                                       (when (funcall predicate child)
-                                        (return-from find-child-component-if child))))
-    (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-child-component-if predicate component))))
+                                        (return-from find-child-component-if child)))))
+  (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-child-component-if predicate component)))
 
 (def (function eo) find-child-component (item component &key test key (otherwise :error otherwise?))
   (bind ((test (if test (ensure-function test) #'eql))
@@ -215,8 +215,8 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
     (map-descendant-components component
                                (lambda (child)
                                  (when (funcall predicate child)
-                                   (return-from find-descendant-component-if child))))
-    (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-descendant-component-if predicate component))))
+                                   (return-from find-descendant-component-if child)))))
+  (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-descendant-component-if predicate component)))
 
 (def (function eo) find-descendant-component (item component &key test key (otherwise :error otherwise?))
   (bind ((test (if test (ensure-function test) #'eql))
@@ -378,15 +378,15 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (bind ((predicate (ensure-function predicate)))
     (map-editable-child-components component (lambda (child)
                                                (when (funcall predicate child)
-                                                 (return-from find-editable-child-component-if child))))
-    (handle-otherwise (error "~S failed using preficate ~A, starting from ~A" 'find-editable-child-component-if predicate component))))
+                                                 (return-from find-editable-child-component-if child)))))
+  (handle-otherwise (error "~S failed using preficate ~A, starting from ~A" 'find-editable-child-component-if predicate component)))
 
 (def (function eo) find-editable-descendant-component-if (predicate component &key (otherwise :error otherwise?))
   (bind ((predicate (ensure-function predicate)))
     (map-editable-descendant-components component (lambda (descendant)
                                                     (when (funcall predicate descendant)
-                                                      (return-from find-editable-descendant-component-if descendant))))
-    (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-editable-descendant-component-if predicate component))))
+                                                      (return-from find-editable-descendant-component-if descendant)))))
+  (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-editable-descendant-component-if predicate component)))
 
 (def (function e) has-editable-child-component? (component)
   (find-editable-child-component-if #'editable-component? component :otherwise #f))
