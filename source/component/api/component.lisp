@@ -381,19 +381,18 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                                  (return-from find-editable-child-component-if child))))
     (handle-otherwise (error "~S failed using preficate ~A, starting from ~A" 'find-editable-child-component-if predicate component))))
 
-;; TODO otherwise
-(def (function eo) find-editable-descendant-component-if (predicate component)
+(def (function eo) find-editable-descendant-component-if (predicate component &key (otherwise :error otherwise?))
   (bind ((predicate (ensure-function predicate)))
     (map-editable-descendant-components component (lambda (descendant)
                                                     (when (funcall predicate descendant)
-                                                      (return-from find-editable-descendant-component-if descendant)))))
-  nil)
+                                                      (return-from find-editable-descendant-component-if descendant))))
+    (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-editable-descendant-component-if predicate component))))
 
 (def (function e) has-editable-child-component? (component)
   (find-editable-child-component-if #'editable-component? component :otherwise #f))
 
 (def (function e) has-editable-descendant-component? (component)
-  (find-editable-descendant-component-if #'editable-component? component))
+  (find-editable-descendant-component-if #'editable-component? component :otherwise #f))
 
 ;;;;;;
 ;;; Traverse edited components
@@ -430,7 +429,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (find-editable-child-component-if #'edited-component? component :otherwise #f))
 
 (def (function e) has-edited-descendant-component? (component)
-  (find-editable-descendant-component-if #'edited-component? component))
+  (find-editable-descendant-component-if #'edited-component? component :otherwise #f))
 
 ;;;;;;
 ;;; Export component
