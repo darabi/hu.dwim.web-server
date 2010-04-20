@@ -195,12 +195,12 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 ;;;;;;
 ;;; Children
 
-(def (function eo) find-child-component-if (predicate component &key (otherwise nil))
+(def (function eo) find-child-component-if (predicate component &key (otherwise :error otherwise?))
   (bind ((predicate (ensure-function predicate)))
     (map-child-components component (lambda (child)
                                       (when (funcall predicate child)
-                                        (return-from find-child-component-if child)))))
-  (handle-otherwise/value otherwise :default-message `("Could not find child component matching predicate ~A, starting from ~A" ,predicate ,component)))
+                                        (return-from find-child-component-if child))))
+    (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-child-component-if predicate component))))
 
 (def (function eo) find-child-component (item component &key test key (otherwise :error otherwise?))
   (bind ((test (if test (ensure-function test) #'eql))
