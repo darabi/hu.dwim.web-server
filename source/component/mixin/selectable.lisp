@@ -50,8 +50,9 @@
         (foreach #'mark-to-be-rendered-component (set-difference (union old-selected-components new-selected-components)
                                                                  (intersection old-selected-components new-selected-components)))))))
 
-(def (function e) find-selection-component (selectable-component)
-  (find-ancestor-component-of-type 'selection/mixin selectable-component :otherwise #f))
+(def (function eo) find-selection-component (selectable-component &key (otherwise :error otherwise?))
+  (or (find-ancestor-component-of-type 'selection/mixin selectable-component :otherwise #f)
+      (handle-otherwise (error "~S failed; starting from ~A" 'find-selection-component selectable-component))))
 
 (def (function e) selected-component-value (selection-component)
   (awhen (selected-component-of selection-component)
