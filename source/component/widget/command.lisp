@@ -103,6 +103,7 @@
                                            (send-client-state #t) (sync #t))
   (check-type ajax boolean)
   (check-type subject-dom-node (or null string))
+  (check-type id string)
   (if (force enabled)
       (bind ((name (when (running-in-test-mode? *application*)
                      (if (typep content 'icon/widget)

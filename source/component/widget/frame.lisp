@@ -69,6 +69,7 @@
         <script (:type +javascript-mime-type+)
           ,(string+ "djConfig = { parseOnLoad: " (to-js-boolean (parse-dojo-widgets-on-load? -self-))
                     ", isDebug: " (to-js-boolean debug-client-side?)
+                    ;; TODO add separate flag for debugAtAllCosts
                     ", debugAtAllCosts: " (to-js-boolean debug-client-side?)
                     ;; TODO locale should come from either the session or from frame/widget
                     ", locale: " (to-js-literal (locale-name (locale (first (ensure-list (default-locale-of application))))))

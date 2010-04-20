@@ -6,6 +6,8 @@
 
 (in-package :hu.dwim.wui)
 
+;; TODO map-* should have the visitor at first position?
+
 ;;;;;;
 ;;; Component definer
 
@@ -174,7 +176,6 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (or (find-ancestor-component-if (of-type type) component :otherwise #f)
       (handle-otherwise (error "~S failed; type ~S, starting from ~A" 'find-ancestor-component-of-type type component))))
 
-;; TODO map-* should have the fn at first position?
 (def (function eo) map-ancestor-components (component visitor &key (include-self #f))
   (bind ((visitor (ensure-function visitor)))
     (labels ((traverse (current)

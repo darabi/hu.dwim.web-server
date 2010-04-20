@@ -520,8 +520,8 @@
                                 (wui.maybe-invoke-debugger))))))))
   (setf wui.io.process-ajax-answer
         (lambda (response args)
-          ;; TODO properly handle ajax errors
           ;; replace some components (dom nodes)
+          (log.debug "wui.io.process-ajax-answer speaking. Called with response " response ", args " args)
           (log.debug "Calling dom-replacer...")
           (dom-replacer response args)
           (log.debug "...dom-replacer returned")

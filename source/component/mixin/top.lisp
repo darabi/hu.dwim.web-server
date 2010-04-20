@@ -18,6 +18,7 @@
       (handle-otherwise (error "Unable to find top component starting from component ~A" component))))
 
 (def (function e) top-component? (component)
+  (check-type component component*)
   (eq component (find-top-component component :otherwise #f)))
 
 (def (function e) find-top-component-content (component &key (otherwise :error otherwise?))
@@ -27,4 +28,5 @@
         (handle-otherwise (error "Unable to find top component content starting from component ~A" component)))))
 
 (def (function e) top-component-content? (component)
+  (check-type component component*)
   (eq component (find-top-component-content component :otherwise #f)))

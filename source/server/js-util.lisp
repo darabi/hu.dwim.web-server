@@ -125,7 +125,7 @@
   (with-unique-js-names (result-node)
     {with-preserved-readtable-case
       `(progn
-         (log.info "Processing AJAX answer")
+         (log.info "Processing AJAX answer " ,DATA)
          (setf ,DATA (get-first-child-with-tag-name ,DATA "ajax-response"))
          (unless ,DATA
            (log.warn "AJAX ajax-response node is nil, probably a malformed response, maybe a full page load due to an unregistered action id?")

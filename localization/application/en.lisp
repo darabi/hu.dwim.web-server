@@ -19,7 +19,7 @@
   (error.ajax.request-to-invalid-session "The connection to the server has timed out. You can reconnect by refreshing the page.")
   (error.ajax.request-to-invalid-frame "TODO error.ajax.request-to-invalid-frame")
   (error.network-error.title "Communication error")
-  (error.network-error "There was an error while communicating with the server. This might be due to a transient network error, so please try refreshing the page. If the problem persist, then please contact the operator.")
+  (error.network-error "There was an error while communicating with the server. This might be due to a transient network error, so please try reloading the page. If the problem persist, then please contact the administrators.")
   (error.generic-javascript-error.title "Unexpected client side error")
   (error.generic-javascript-error "There was an unexpected error on the client side. This might be due to a browser incompatibility, so please make sure your browser is supported and updated. If the problem persist using a supported browser, then please contact the operator.")
   (error.internal-server-error.title "Internal server error")
