@@ -347,9 +347,9 @@
       result)))
 
 ;;;;;;
-;;; time/presentation
+;;; time-of-day/presentation
 
-(def (component e) time/presentation (primitive/presentation)
+(def (component e) time-of-day/presentation (primitive/presentation)
   ())
 
 (def function render-time-component (component &key (id (generate-unique-component-id "_tmw")) on-change (printer #'print-component-value))
@@ -368,14 +368,14 @@
 (def function print-time-value (value)
   (local-time:format-timestring nil value :format '(#\T (:hour 2) #\: (:min 2) #\: (:sec 2)) :timezone local-time:+utc-zone+))
 
-(def method print-component-value ((component time/presentation))
+(def method print-component-value ((component time-of-day/presentation))
   (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))
     (if (and has-component-value?
              component-value)
         (print-time-value component-value)
         "")))
 
-(def method parse-component-value ((component time/presentation) client-value)
+(def method parse-component-value ((component time-of-day/presentation) client-value)
   (unless (string= client-value "")
     (aprog1 (local-time:parse-timestring client-value :allow-missing-date-part #t :allow-missing-timezone-part #t)
       (unless it

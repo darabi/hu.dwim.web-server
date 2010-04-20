@@ -165,14 +165,14 @@
   (render-date-component -self-))
 
 ;;;;;;
-;;; time/maker
+;;; time-of-day/maker
 
-(def (component e) time/maker (time/presentation primitive/maker)
+(def (component e) time-of-day/maker (time-of-day/presentation primitive/maker)
   ())
 
-(def subtype-mapper *maker-type-mapping* (or null local-time:time-of-day) time/maker)
+(def subtype-mapper *maker-type-mapping* (or null local-time:time-of-day) time-of-day/maker)
 
-(def render-xhtml time/maker
+(def render-xhtml time-of-day/maker
   (render-time-component -self-))
 
 ;;;;;;

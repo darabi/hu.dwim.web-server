@@ -29,19 +29,19 @@
 (def method predicate-function ((component timestamp/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than-or-equal)))
   'local-time:timestamp>=)
 
-(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'equal)))
+(def method predicate-function ((component time-of-day/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'equal)))
   'local-time:timestamp=)
 
-(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than)))
+(def method predicate-function ((component time-of-day/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than)))
   'local-time:timestamp<)
 
-(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than-or-equal)))
+(def method predicate-function ((component time-of-day/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'less-than-or-equal)))
   'local-time:timestamp<=)
 
-(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than)))
+(def method predicate-function ((component time-of-day/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than)))
   'local-time:timestamp>)
 
-(def method predicate-function ((component time/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than-or-equal)))
+(def method predicate-function ((component time-of-day/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'greater-than-or-equal)))
   'local-time:timestamp>=)
 
 (def method predicate-function ((component date/filter) (class hu.dwim.perec::persistent-class) (predicate (eql 'equal)))

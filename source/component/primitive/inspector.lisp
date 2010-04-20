@@ -210,14 +210,14 @@
       `xml,(print-component-value -self-)))
 
 ;;;;;;
-;;; time/inspector
+;;; time-of-day/inspector
 
-(def (component e) time/inspector (time/presentation primitive/inspector)
+(def (component e) time-of-day/inspector (time-of-day/presentation primitive/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null local-time:time-of-day) time/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null local-time:time-of-day) time-of-day/inspector)
 
-(def render-xhtml time/inspector
+(def render-xhtml time-of-day/inspector
   (if (edited-component? -self-)
       (render-time-component -self-)
       `xml,(print-component-value -self-)))

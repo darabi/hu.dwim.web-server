@@ -175,17 +175,17 @@
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
-;;; time/filter
+;;; time-of-day/filter
 
-(def (component e) time/filter (time/presentation primitive/filter)
+(def (component e) time-of-day/filter (time-of-day/presentation primitive/filter)
   ())
 
-(def subtype-mapper *filter-type-mapping* (or null local-time:time-of-day) time/filter)
+(def subtype-mapper *filter-type-mapping* (or null local-time:time-of-day) time-of-day/filter)
 
-(def render-xhtml time/filter
+(def render-xhtml time-of-day/filter
   (render-time-component -self- :on-change (make-update-use-in-filter-js -self-)))
 
-(def method collect-filter-predicates ((self time/filter))
+(def method collect-filter-predicates ((self time-of-day/filter))
   '(equal less-than less-than-or-equal greater-than greater-than-or-equal))
 
 ;;;;;;
