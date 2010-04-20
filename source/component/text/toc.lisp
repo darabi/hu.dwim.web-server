@@ -42,7 +42,7 @@
     ;; TODO: toc/mixin?
     (awhen (find-descendant-component component-value
                                       (toc-of (find-ancestor-component-of-type 'book/text/inspector component))
-                                      :key 'component-value-of)
+                                      :key 'component-value-of :otherwise #f)
       (numbering-of (content-of it)))))
 
 ;;;;;;
