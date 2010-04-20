@@ -374,13 +374,12 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                                (funcall visitor child)
                                                (map-editable-descendant-components child visitor)))))
 
-;; TODO otherwise
-(def (function eo) find-editable-child-component-if (predicate component)
+(def (function eo) find-editable-child-component-if (predicate component &key (otherwise :error otherwise?))
   (bind ((predicate (ensure-function predicate)))
     (map-editable-child-components component (lambda (child)
                                                (when (funcall predicate child)
-                                                 (return-from find-editable-child-component-if child)))))
-  nil)
+                                                 (return-from find-editable-child-component-if child))))
+    (handle-otherwise (error "~S failed using preficate ~A, starting from ~A" 'find-editable-child-component-if predicate component))))
 
 ;; TODO otherwise
 (def (function eo) find-editable-descendant-component-if (predicate component)
@@ -391,7 +390,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   nil)
 
 (def (function e) has-editable-child-component? (component)
-  (find-editable-child-component-if #'editable-component? component))
+  (find-editable-child-component-if #'editable-component? component :otherwise #f))
 
 (def (function e) has-editable-descendant-component? (component)
   (find-editable-descendant-component-if #'editable-component? component))
@@ -428,7 +427,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   nil)
 
 (def (function e) has-edited-child-component? (component)
-  (find-editable-child-component-if #'edited-component? component))
+  (find-editable-child-component-if #'edited-component? component :otherwise #f))
 
 (def (function e) has-edited-descendant-component? (component)
   (find-editable-descendant-component-if #'edited-component? component))
