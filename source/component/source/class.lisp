@@ -85,7 +85,7 @@
 (def (component e) class/subclass-hierarchy/tree/inspector (t/tree/inspector)
   ())
 
-(def layered-method make-tree/root-node ((component class/subclass-hierarchy/tree/inspector) (class class) (prototype class) (value class))
+(def layered-method make-node-presentation ((component class/subclass-hierarchy/tree/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/subclass-hierarchy/node/inspector :component-value value))
 
 ;;;;;;
@@ -94,10 +94,10 @@
 (def (component e) class/subclass-hierarchy/node/inspector (t/node/inspector)
   ())
 
-(def layered-method make-node/child-node ((component class/subclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
+(def layered-method make-node-presentation ((component class/subclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/subclass-hierarchy/node/inspector :component-value value :expanded #f))
 
-(def layered-method collect-tree/children ((component class/subclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
+(def layered-method collect-presented-children ((component class/subclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
   (sort (copy-list (class-direct-subclasses value)) #'string< :key (compose #'fully-qualified-symbol-name #'class-name)))
 
 ;;;;;;
@@ -106,7 +106,7 @@
 (def (component e) class/superclass-hierarchy/tree/inspector (t/tree/inspector)
   ())
 
-(def layered-method make-tree/root-node ((component class/superclass-hierarchy/tree/inspector) (class class) (prototype class) (value class))
+(def layered-method make-node-presentation ((component class/superclass-hierarchy/tree/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/superclass-hierarchy/node/inspector :component-value value))
 
 ;;;;;;
@@ -115,10 +115,10 @@
 (def (component e) class/superclass-hierarchy/node/inspector (t/node/inspector)
   ())
 
-(def layered-method make-node/child-node ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
+(def layered-method make-node-presentation ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/superclass-hierarchy/node/inspector :component-value value :expanded #f))
 
-(def layered-method collect-tree/children ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
+(def layered-method collect-presented-children ((component class/superclass-hierarchy/node/inspector) (class class) (prototype class) (value class))
   (sort (copy-list (class-direct-superclasses value)) #'string< :key (compose #'fully-qualified-symbol-name #'class-name)))
 
 ;;;;;;
@@ -127,19 +127,19 @@
 (def (component e) class/tree-level/inspector (t/tree-level/inspector)
   ())
 
-(def layered-method make-tree-level/path ((component class/tree-level/inspector) (class class) (prototype class) (value list))
+(def layered-method make-path-presentation ((component class/tree-level/inspector) (class class) (prototype class) (value list))
   (make-instance 'class/tree-level/path/inspector :component-value value))
 
-(def layered-method make-tree-level/previous-sibling ((component class/tree-level/inspector) (class class) (prototype class) value)
+(def layered-method make-previous-sibling-presentation ((component class/tree-level/inspector) (class class) (prototype class) value)
   (make-instance 'class/tree-level/reference/inspector :component-value value))
 
-(def layered-method make-tree-level/next-sibling ((component class/tree-level/inspector) (class class) (prototype class) value)
+(def layered-method make-next-sibling-presentation ((component class/tree-level/inspector) (class class) (prototype class) value)
   (make-instance 'class/tree-level/reference/inspector :component-value value))
 
-(def layered-method make-tree-level/descendants ((component class/tree-level/inspector) (class class) (prototype class) (value class))
+(def layered-method make-descendants-presentation ((component class/tree-level/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/tree/inspector :component-value value))
 
-(def layered-method make-tree-level/node ((component class/tree-level/inspector) (class class) (prototype class) (value class))
+(def layered-method make-node-presentation ((component class/tree-level/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/reference/inspector :component-value value))
 
 ;;;;;;
@@ -163,7 +163,7 @@
 (def method component-dispatch-class ((self class/tree-level/path/inspector))
   (class-of (first (component-value-of self))))
 
-(def layered-method make-path/content ((component class/tree-level/path/inspector) (class class) (prototype class) (value class))
+(def layered-method make-content-presentation ((component class/tree-level/path/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/reference/inspector :component-value value))
 
 ;;;;;;
@@ -172,7 +172,7 @@
 (def (component e) class/tree-level/tree/inspector (class/subclass-hierarchy/tree/inspector)
   ())
 
-(def layered-method make-tree/root-node ((component class/tree-level/tree/inspector) (class class) (prototype class) (value class))
+(def layered-method make-node-presentation ((component class/tree-level/tree/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/node/inspector :component-value value))
 
 ;;;;;;
@@ -181,10 +181,10 @@
 (def (component e) class/tree-level/node/inspector (class/subclass-hierarchy/node/inspector)
   ())
 
-(def layered-method make-node/child-node ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
+(def layered-method make-node-presentation ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/node/inspector :component-value value))
 
-(def layered-method make-node/content ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
+(def layered-method make-content-presentation ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/reference/inspector :component-value value))
 
 ;;;;;;

@@ -24,7 +24,7 @@
 (def (component e) system/depends-on-hierarchy/tree/inspector (t/tree/inspector)
   ())
 
-(def layered-method make-tree/root-node ((component system/depends-on-hierarchy/tree/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
+(def layered-method make-node-presentation ((component system/depends-on-hierarchy/tree/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (make-instance 'system/depends-on-hierarchy/node/inspector :component-value value))
 
 ;;;;;;
@@ -33,10 +33,10 @@
 (def (component e) system/depends-on-hierarchy/node/inspector (t/node/inspector)
   ())
 
-(def layered-method make-node/child-node ((component system/depends-on-hierarchy/node/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
+(def layered-method make-node-presentation ((component system/depends-on-hierarchy/node/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (make-instance 'system/depends-on-hierarchy/node/inspector :component-value value :expanded #f))
 
-(def layered-method collect-tree/children ((component system/depends-on-hierarchy/node/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
+(def layered-method collect-presented-children ((component system/depends-on-hierarchy/node/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
   (mapcar #'asdf:find-system
           (cdr (find-if (lambda (description)
                           (eq 'asdf:load-op (first description)))

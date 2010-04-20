@@ -31,5 +31,5 @@
 (def (component e) place/value/filter (filter/basic place/value/presentation)
   ())
 
-(def layered-method make-slot-value/content ((component place/value/filter) class prototype value)
+(def layered-method make-content-presentation ((component place/value/filter) class prototype value)
   (make-filter (place-type value) :initial-alternative-type 't/reference/filter))

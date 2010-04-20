@@ -138,14 +138,13 @@ Optimized factory configuration (default):
 (def (component e) t/name-value-list/filter (filter/basic t/name-value-list/presentation)
   ())
 
-(def layered-method collect-slot-value-list/slots ((component t/name-value-list/filter) class prototype value)
+(def layered-method collect-presented-slots ((component t/name-value-list/filter) class prototype value)
   (class-slots (component-dispatch-class component)))
 
-(def layered-method make-slot-value-list/place-group ((component t/name-value-list/filter) class prototype value)
+(def layered-method make-presented-place-group ((component t/name-value-list/filter) class prototype value)
   (make-place-group nil (mapcar [make-object-slot-place (class-prototype (component-dispatch-class component)) !1] value)))
 
-;; TODO: rename
-(def layered-methods make-slot-value-list/content
+(def layered-methods make-content-presentation
   (:method ((component t/name-value-list/filter) class prototype (value place-group))
     (make-instance 'place-group-list/name-value-list/filter
                    :component-value value
@@ -179,10 +178,10 @@ Optimized factory configuration (default):
 (def (component e) place-group-list/name-value-list/filter (filter/basic place-group-list/name-value-list/presentation)
   ())
 
-(def layered-method collect-slot-value-group/slots ((component place-group-list/name-value-list/filter) class prototype (value place-group))
+(def layered-method collect-presented-place-groups ((component place-group-list/name-value-list/filter) class prototype (value place-group))
   (list value))
 
-(def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/filter) class prototype (value place-group))
+(def layered-method make-content-presentation ((component place-group-list/name-value-list/filter) class prototype (value place-group))
   (make-instance 'place-group/name-value-group/filter
                  :component-value value
                  :component-value-type (component-value-type-of component)))
@@ -202,7 +201,7 @@ Optimized factory configuration (default):
 (def (component e) place-group/name-value-group/filter (filter/basic place-group/name-value-group/presentation)
   ())
 
-(def layered-method make-slot-value-group/content ((component place-group/name-value-group/filter) class prototype (value object-slot-place))
+(def layered-method make-content-presentation ((component place-group/name-value-group/filter) class prototype (value object-slot-place))
   (make-instance 'place/name-value-pair/filter
                  :component-value value
                  :component-value-type (component-value-type-of component)))
@@ -217,7 +216,7 @@ Optimized factory configuration (default):
    (negated #f :type boolean)
    (selected-predicate nil :type symbol)))
 
-(def layered-method make-slot-value-pair/value ((component place/name-value-pair/filter) class prototype value)
+(def layered-method make-value-presentation ((component place/name-value-pair/filter) class prototype value)
   (make-instance 'place/value/filter
                  :component-value value
                  :component-value-type (component-value-type-of component)))

@@ -59,14 +59,16 @@
   (bind (((:slots component-value content) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
-         (slots (collect-slot-value-list/slots -self- class prototype component-value))
-         (content-value (make-slot-value-list/place-group -self- class prototype slots)))
+         (slots (collect-presented-slots -self- class prototype component-value))
+         (places (collect-presented-places -self- class prototype slots))
+         (content-value (make-presented-place-group -self- class prototype places)))
     (if content
         (setf (component-value-of content) content-value)
-        (setf content (make-slot-value-list/content -self- class prototype content-value)))))
+        (setf content (make-content-presentation -self- class prototype content-value)))))
 
-;; TODO: rename
-(def (layered-function e) collect-slot-value-list/slots (component class prototype value)
+(def (layered-function e) collect-presented-places (component class prototype value))
+
+(def (layered-function e) collect-presented-slots (component class prototype value)
   (:method :around ((component filter/abstract) class prototype value)
     (collect-if [authorize-operation *application* `(filter-slot-value :class ,class :prototype ,prototype :slot ,!1)]
                 (call-next-layered-method)))
@@ -75,10 +77,7 @@
     (collect-if [authorize-operation *application* `(inspect-slot-value :class ,class :prototype ,prototype :slot ,!1)]
                 (call-next-layered-method))))
 
-;; TODO: rename
-(def (layered-function e) make-slot-value-list/content (component class prototype value))
-
-(def (layered-function e) make-slot-value-list/place-group (component class prototype value))
+(def (layered-function e) make-presented-place-group (component class prototype value))
 
 ;;;;;;
 ;;; place-group-list/name-value-list/presentation
@@ -90,17 +89,16 @@
   (bind (((:slots component-value contents) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
-         (content-values (collect-slot-value-group/slots -self- class prototype component-value)))
+         (content-values (collect-presented-place-groups -self- class prototype component-value)))
     (setf contents
           (iter (for content-value :in content-values)
                 (for slot-value-group = nil #+nil (find)) ;; TODO:
                 (if slot-value-group
                     (setf (component-value-of slot-value-group) content-value)
-                    (setf slot-value-group (make-slot-value-list/content -self- class prototype content-value)))
+                    (setf slot-value-group (make-content-presentation -self- class prototype content-value)))
                 (collect slot-value-group)))))
 
-;; TODO: rename
-(def (layered-function e) collect-slot-value-group/slots (component class prototype value))
+(def (layered-function e) collect-presented-place-groups (component class prototype value))
 
 ;;;;;;
 ;;; place-group/name-value-group/presentation
@@ -117,11 +115,8 @@
                          (for slot-value-pair = nil #+nil(find)) ;; TODO:
                          (if slot-value-pair
                              (setf (component-value-of slot-value-pair) place)
-                             (setf slot-value-pair (make-slot-value-group/content -self- class prototype place)))
+                             (setf slot-value-pair (make-content-presentation -self- class prototype place)))
                          (collect slot-value-pair)))))
-
-(def (layered-function e) make-slot-value-group/content (component class prototype value))
-
 
 ;;;;;;
 ;;; place/name-value-pair/presentation
@@ -137,18 +132,18 @@
          (slot (slot-of component-value)))
     (if component-value
         (progn
-          (setf name (make-slot-value-pair/name -self- class prototype component-value))
+          (setf name (make-name-presentation -self- class prototype component-value))
           (if value
               (setf (component-value-of value) (make-object-slot-place instance slot))
-              (setf value (make-slot-value-pair/value -self- class prototype component-value))))
+              (setf value (make-value-presentation -self- class prototype component-value))))
         (setf name nil
               value nil))))
 
-(def (layered-function e) make-slot-value-pair/name (component class prototype value)
+(def (layered-function e) make-name-presentation (component class prototype value)
   (:method ((component place/name-value-pair/presentation) class prototype value)
     (localized-slot-name (slot-of value)))
 
   (:method :in raw-name-layer ((component place/name-value-pair/presentation) class prototype value)
     (fully-qualified-symbol-name (slot-definition-name (slot-of value)))))
 
-(def (layered-function e) make-slot-value-pair/value (component class prototype value))
+(def (layered-function e) make-value-presentation (component class prototype value))

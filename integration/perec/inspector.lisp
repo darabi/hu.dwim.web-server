@@ -11,7 +11,7 @@
 (def method object-slot-place-editable? ((place object-slot-place) (class hu.dwim.meta-model::entity) (instance hu.dwim.perec::persistent-object) (slot hu.dwim.meta-model::effective-property))
   (hu.dwim.meta-model::editable-p slot))
 
-(def layered-method collect-slot-value-list/slots ((component sequence/table/inspector) (class hu.dwim.meta-model::entity) (prototype hu.dwim.perec::persistent-object) (value list))
+(def layered-method collect-presented-slots ((component sequence/table/inspector) (class hu.dwim.meta-model::entity) (prototype hu.dwim.perec::persistent-object) (value list))
   (collect-if (lambda (slot)
                 (or (not (typep slot 'hu.dwim.meta-model::effective-property))
                     (hu.dwim.meta-model::primary-p slot)))

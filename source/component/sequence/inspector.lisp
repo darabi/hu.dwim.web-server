@@ -64,13 +64,13 @@
                          (for element = (find element-value contents :key #'component-value-of))
                          (if element
                              (setf (component-value-of element) element-value)
-                             (setf element (make-list/element -self- class prototype element-value)))
+                             (setf element (make-element-presentation -self- class prototype element-value)))
                          (collect element)))))
 
 (def layered-method make-page-navigation-bar ((component sequence/list/inspector) class prototype value)
   (make-instance 'page-navigation-bar/widget :total-count (length value)))
 
-(def (layered-function e) make-list/element (component class prototype value)
+(def (layered-function e) make-element-presentation (component class prototype value)
   (:method ((component sequence/list/inspector) class prototype value)
     (make-instance 't/element/inspector
                    :component-value value
@@ -89,14 +89,13 @@
          (prototype (component-dispatch-prototype -self-)))
     (if content
         (setf (component-value-of content) component-value)
-        (setf content (make-element/content -self- class prototype component-value)))))
+        (setf content (make-content-presentation -self- class prototype component-value)))))
 
-(def layered-function make-element/content (component class prototype value)
-  (:method ((component t/element/inspector) class prototype value)
-    (make-value-inspector value
-                          :initial-alternative-type 't/reference/inspector
-                          :edited (edited-component? component)
-                          :editable (editable-component? component))))
+(def layered-method make-content-presentation ((component t/element/inspector) class prototype value)
+  (make-value-inspector value
+                        :initial-alternative-type 't/reference/inspector
+                        :edited (edited-component? component)
+                        :editable (editable-component? component)))
 
 ;;;;;;
 ;;; sequence/table/inspector
@@ -117,12 +116,12 @@
   (bind (((:slots component-value rows columns) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf columns (make-table-columns -self- class prototype component-value)
+    (setf columns (make-column-presentations -self- class prototype component-value)
           rows (iter (for row-value :in-sequence component-value)
                      (for row = (find row-value rows :key #'component-value-of))
                      (if row
                          (setf (component-value-of row) row-value)
-                         (setf row (make-table-row -self- class prototype row-value)))
+                         (setf row (make-row-presentation -self- class prototype row-value)))
                      (collect row)))))
 
 (def layered-method make-page-navigation-bar ((component sequence/table/inspector) class prototype value)
@@ -130,14 +129,14 @@
          :total-count (length value)
          (component-deep-arguments component :page-navigation-bar)))
 
-(def (layered-function e) make-table-row (component class prototype value)
+(def (layered-function e) make-row-presentation (component class prototype value)
   (:method ((component sequence/table/inspector) class prototype value)
     (make-instance 't/row/inspector
                    :component-value value
                    :edited (edited-component? component)
                    :editable (editable-component? component))))
 
-(def (layered-function e) make-table-type-column (component class prototype value)
+(def (layered-function e) make-type-column-presentation (component class prototype value)
   (:method ((component sequence/table/inspector) class prototype value)
     (make-instance 'place/column/inspector
                    :component-value "BLAH" ;; TODO:
@@ -146,15 +145,15 @@
                                    (bind ((class (class-of (component-value-of row))))
                                      (make-value-viewer class :initial-alternative-type 't/reference/inspector))))))
 
-(def (layered-function e) make-table-columns (component class prototype value)
-  (:method ((component sequence/table/inspector) class prototype value)
+(def (layered-function e) make-column-presentations (component class prototype value)
+  (:method ((component columns/mixin) class prototype value)
     (append (optional-list (when-bind the-class (component-dispatch-class component)
                              (when (closer-mop:class-direct-subclasses the-class)
-                               (make-table-type-column component class prototype value))))
-            (make-table-place-columns component class prototype value))))
+                               (make-type-column-presentation component class prototype value))))
+            (make-place-column-presentations component class prototype value))))
 
-(def (layered-function e) make-table-place-columns (component class prototype value)
-  (:method ((component sequence/table/inspector) class prototype value)
+(def (layered-function e) make-place-column-presentations (component class prototype value)
+  (:method ((component columns/mixin) class prototype value)
     (bind (((:slots command-bar columns rows component-value) component)
            (slot-name->slot-map nil))
       ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
@@ -163,9 +162,9 @@
                  (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
                    (push (cons slot-name slot) slot-name->slot-map)))))
         (when class
-          (foreach #'register-slot (collect-slot-value-list/slots component class (class-prototype class) component-value)))
+          (foreach #'register-slot (collect-presented-slots component class (class-prototype class) component-value)))
         (iter (for value :in-sequence component-value)
-              (foreach #'register-slot (collect-slot-value-list/slots component (class-of value) value component-value))))
+              (foreach #'register-slot (collect-presented-slots component (class-of value) value component-value))))
       (mapcar (lambda (slot-name->slot)
                 (make-instance 'place/column/inspector
                                :component-value "BLAH" ;; TODO:
@@ -179,8 +178,11 @@
                                                      (empty/layout/singleton))))))
               (nreverse slot-name->slot-map)))))
 
-(def layered-method collect-slot-value-list/slots ((component sequence/table/inspector) class prototype value)
+(def layered-method collect-presented-slots ((component columns/mixin) class prototype value)
   (class-slots class))
+
+(def layered-method collect-presented-places ((component columns/mixin) class prototype value)
+  (mapcar [make-object-slot-place value !1] (collect-presented-slots component class prototype value)))
 
 ;;;;;;
 ;;; place/column/inspector
@@ -212,8 +214,9 @@
                                                                          (render-component-messages-for row))))))
 
 (def layered-method render-onclick-handler ((row t/row/inspector) button)
-  (when-bind expand-command (find-command row 'expand-component)
-    (render-command-onclick-handler expand-command (id-of row))))
+  (if-bind expand-command (find-command row 'expand-component)
+    (render-command-onclick-handler expand-command (id-of row))
+    (call-next-layered-method)))
 
 (def layered-method make-context-menu-items ((component t/row/inspector) class prototype value)
   (append (optional-list (make-menu-item (make-expand-command component class prototype value))) (call-next-method)))

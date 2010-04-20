@@ -113,13 +113,13 @@ Optimized factory configuration (default):
 (def (component e) t/name-value-list/maker (maker/basic t/name-value-list/presentation)
   ())
 
-(def layered-method collect-slot-value-list/slots ((component t/name-value-list/maker) class prototype value)
+(def layered-method collect-presented-slots ((component t/name-value-list/maker) class prototype value)
   (class-slots (component-dispatch-class component)))
 
-(def layered-method make-slot-value-list/place-group ((component t/name-value-list/maker) class prototype value)
+(def layered-method make-presented-place-group ((component t/name-value-list/maker) class prototype value)
   (make-place-group nil (mapcar [make-object-slot-place (class-prototype (component-dispatch-class component)) !1] value)))
 
-(def layered-methods make-slot-value-list/content
+(def layered-methods make-content-presentation
   (:method ((component t/name-value-list/maker) class prototype (value place-group))
     (make-instance 'place-group-list/name-value-list/maker
                    :component-value value
@@ -148,10 +148,10 @@ Optimized factory configuration (default):
 (def (component e) place-group-list/name-value-list/maker (maker/basic place-group-list/name-value-list/presentation)
   ())
 
-(def layered-method collect-slot-value-group/slots ((component place-group-list/name-value-list/maker) class prototype (value place-group))
+(def layered-method collect-presented-place-groups ((component place-group-list/name-value-list/maker) class prototype (value place-group))
   (list value))
 
-(def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/maker) class prototype (value place-group))
+(def layered-method make-content-presentation ((component place-group-list/name-value-list/maker) class prototype (value place-group))
   (make-instance 'place-group/name-value-group/maker
                  :component-value value
                  :component-value-type (component-value-type-of component)))
@@ -162,7 +162,7 @@ Optimized factory configuration (default):
 (def (component e) place-group/name-value-group/maker (maker/basic place-group/name-value-group/presentation)
   ())
 
-(def layered-method make-slot-value-group/content ((component place-group/name-value-group/maker) class prototype (value object-slot-place))
+(def layered-method make-content-presentation ((component place-group/name-value-group/maker) class prototype (value object-slot-place))
   (make-instance 'place/name-value-pair/maker
                  :component-value value
                  :component-value-type (component-value-type-of component)))
@@ -173,7 +173,7 @@ Optimized factory configuration (default):
 (def (component e) place/name-value-pair/maker (maker/basic place/name-value-pair/presentation)
   ())
 
-(def layered-method make-slot-value-pair/value ((component place/name-value-pair/maker) class prototype value)
+(def layered-method make-value-presentation ((component place/name-value-pair/maker) class prototype value)
   (make-instance 'place/value/maker :component-value value))
 
 (def layered-method make-maker-initargs ((component place/name-value-pair/maker) class prototype value)

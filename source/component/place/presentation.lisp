@@ -34,12 +34,9 @@
          (prototype (component-dispatch-prototype -self-)))
     (if content
         (setf (component-value-of content) (place-value component-value))
-        (setf content (make-slot-value/content -self- class prototype component-value)))))
+        (setf content (make-content-presentation -self- class prototype component-value)))))
 
 (def render-xhtml place/value/presentation
   (with-render-style/abstract (-self- :element-name "span")
     (render-context-menu-for -self-)
     (render-content-for -self-)))
-
-;; TODO: rename
-(def (layered-function e) make-slot-value/content (component class prototype value))

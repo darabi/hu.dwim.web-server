@@ -95,10 +95,12 @@
 (def (layered-function e) make-context-sensitive-help (component class prototype value)
   (:documentation "Creates a COMPONENT that provides help using the given COMPONENT."))
 
+(def (layered-function e) make-content-presentation (component class prototype value)
+  (:documentation "TODO"))
+
 ;;;;;;
 ;;; Command factories
 
-;; TODO: why do we have some -component when we already have -command?
 (def (layered-function e) make-refresh-component-command (component class prototype value)
   (:documentation "Creates a COMMAND that calls REFRESH-COMPONENT."))
 

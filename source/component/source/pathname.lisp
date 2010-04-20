@@ -77,7 +77,7 @@
 (def (component e) pathname/directory/tree/inspector (t/tree/inspector)
   ())
 
-(def layered-method make-tree/root-node ((component pathname/directory/tree/inspector) (class structure-class) (prototype pathname) (value pathname))
+(def layered-method make-node-presentation ((component pathname/directory/tree/inspector) (class structure-class) (prototype pathname) (value pathname))
   (make-instance 'pathname/directory/node/inspector :component-value value))
 
 ;;;;;;
@@ -86,10 +86,10 @@
 (def (component e) pathname/directory/node/inspector (t/node/inspector)
   ())
 
-(def layered-method collect-tree/children ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
+(def layered-method collect-presented-children ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
   (sort (copy-list (directory (merge-pathnames "*.*" value))) #'string< :key #'namestring))
 
-(def layered-method make-node/child-node ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
+(def layered-method make-node-presentation ((component pathname/directory/node/inspector) (class structure-class) (prototype pathname) (value pathname))
   (if (pathname-name value)
       (make-instance 'pathname/file/node/inspector :component-value value :expanded #f)
       (make-instance 'pathname/directory/node/inspector :component-value value :expanded #f)))
@@ -100,5 +100,5 @@
 (def (component e) pathname/file/node/inspector (t/node/inspector)
   ())
 
-(def layered-method collect-tree/children ((component pathname/file/node/inspector) (class structure-class) (prototype pathname) (value pathname))
+(def layered-method collect-presented-children ((component pathname/file/node/inspector) (class structure-class) (prototype pathname) (value pathname))
   nil)

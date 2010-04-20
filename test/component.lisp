@@ -743,7 +743,7 @@
   ((name :type string)
    (children nil :type sequence)))
 
-(def layered-method collect-tree/children ((component t/node/inspector) (class standard-class) (prototype tree-node) (value tree-node))
+(def layered-method collect-presented-children ((component t/node/inspector) (class standard-class) (prototype tree-node) (value tree-node))
   (children-of value))
 
 (def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) (prototype tree-node) (value tree-node))

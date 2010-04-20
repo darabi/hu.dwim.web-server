@@ -37,13 +37,13 @@
 (def (component e) standard-slot-definition-sequence/table/inspector (sequence/table/inspector)
   ())
 
-(def layered-method make-table-row ((component standard-slot-definition-sequence/table/inspector) class prototype value)
+(def layered-method make-row-presentation ((component standard-slot-definition-sequence/table/inspector) class prototype value)
   (make-instance 'standard-slot-definition/row/inspector
                  :component-value value
                  :edited (edited-component? component)
                  :editable (editable-component? component)))
 
-(def layered-method collect-slot-value-list/slots ((component standard-slot-definition-sequence/table/inspector) class prototype value)
+(def layered-method collect-presented-slots ((component standard-slot-definition-sequence/table/inspector) class prototype value)
   (filter-slots '(sb-pcl::name sb-pcl::%type) (call-next-layered-method)))
 
 ;;;;;;

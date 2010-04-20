@@ -23,12 +23,15 @@
   `(make-instance 'nodrow/widget ,@args :child-nodes (list ,@child-nodes)))
 
 (def render-xhtml nodrow/widget
-  (bind (((:read-only-slots child-nodes expanded-component id custom-style) -self-)
-         (onclick-handler? (render-onclick-handler -self- :left)))
-    <tr (:id ,id :style ,custom-style :class ,(string+ (nodrow-style-class -self-) (when onclick-handler? " selectable"))
+  (bind (((:read-only-slots child-nodes expanded-component id custom-style) -self-))
+    <tr (:id ,id :style ,custom-style :class `str("content " ,(nodrow-style-class -self-)
+                                                             ,(selectable-component-style-class -self-)
+                                                             ,(unless child-nodes " leaf"))
          :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
          :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))
       ,(render-nodrow-cells -self-)>
+    (render-onclick-handler -self- :left)
+    (render-context-menu-for -self-)
     (when expanded-component
       (foreach #'render-component child-nodes))))
 
@@ -45,7 +48,8 @@
       <table:table-row-group ,(foreach #'render-component (child-nodes-of -self-))>)))
 
 (def layered-method render-onclick-handler ((self nodrow/widget) (button (eql :left)))
-  nil)
+  (when-bind select-command (find-command self 'select-component)
+    (render-command-onclick-handler select-command (id-of self))))
 
 (def (layered-function e) nodrow-style-class (component)
   (:method ((self nodrow/widget))

@@ -12,5 +12,5 @@
 (def (component e) lisp-form-list/repl/inspector (sequence/inspector)
   ())
 
-(def layered-method make-list/element ((component lisp-form-list/repl/inspector) class prototype value)
+(def layered-method make-element-presentation ((component lisp-form-list/repl/inspector) class prototype value)
   (not-yet-implemented))

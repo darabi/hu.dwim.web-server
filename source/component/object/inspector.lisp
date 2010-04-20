@@ -139,18 +139,20 @@ Optimized factory configuration (default):
 (def (component e) t/name-value-list/inspector (inspector/basic t/name-value-list/presentation)
   ((slot-names nil :type list)))
 
-(def layered-method collect-slot-value-list/slots ((component t/name-value-list/inspector) class prototype value)
+(def layered-method collect-presented-slots ((component t/name-value-list/inspector) class prototype value)
   (bind (((:read-only-slots slot-names) component)
          (slots (class-slots class)))
     (if slot-names
         (filter-slots slot-names slots)
         slots)))
 
-(def layered-method make-slot-value-list/place-group ((component t/name-value-list/inspector) class prototype value)
-  (make-place-group nil (mapcar [make-object-slot-place (component-value-of component) !1] value)))
+(def layered-method collect-presented-places ((component t/name-value-list/inspector) class prototype value)
+  (mapcar [make-object-slot-place (component-value-of component) !1] value))
 
-;; TODO: rename
-(def layered-methods make-slot-value-list/content
+(def layered-method make-presented-place-group ((component t/name-value-list/inspector) class prototype value)
+  (make-place-group nil value))
+
+(def layered-methods make-content-presentation
   (:method ((component t/name-value-list/inspector) class prototype (value place-group))
     (make-instance 'place-group-list/name-value-list/inspector
                    :component-value value
@@ -186,10 +188,10 @@ Optimized factory configuration (default):
 (def (component e) place-group-list/name-value-list/inspector (inspector/basic place-group-list/name-value-list/presentation)
   ())
 
-(def layered-method collect-slot-value-group/slots ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
+(def layered-method collect-presented-place-groups ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
   (list value))
 
-(def layered-method make-slot-value-list/content ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
+(def layered-method make-content-presentation ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
   (make-instance 'place-group/name-value-group/inspector
                  :component-value value
                  :component-value-type (component-value-type-of component)
@@ -202,7 +204,7 @@ Optimized factory configuration (default):
 (def (component e) place-group/name-value-group/inspector (inspector/basic place-group/name-value-group/presentation)
   ())
 
-(def layered-method make-slot-value-group/content ((component place-group/name-value-group/inspector) class prototype (value object-slot-place))
+(def layered-method make-content-presentation ((component place-group/name-value-group/inspector) class prototype (value object-slot-place))
   (make-instance 'place/name-value-pair/inspector
                  :component-value value
                  :component-value-type (component-value-type-of component)
@@ -215,7 +217,7 @@ Optimized factory configuration (default):
 (def (component e) place/name-value-pair/inspector (inspector/basic place/name-value-pair/presentation)
   ())
 
-(def layered-method make-slot-value-pair/value ((component place/name-value-pair/inspector) class prototype value)
+(def layered-method make-value-presentation ((component place/name-value-pair/inspector) class prototype value)
   (make-instance 'place/value/inspector
                  :component-value value
                  :component-value-type (component-value-type-of component)

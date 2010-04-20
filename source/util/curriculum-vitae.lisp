@@ -147,7 +147,7 @@
   (bind (((:slots component-value contents) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
-         (slots (collect-slot-value-list/slots -self- class prototype component-value)))
+         (slots (collect-presented-slots -self- class prototype component-value)))
     (setf contents
           (iter (for slot :in slots)
                 (for slot-value = nil #+nil (find)) ;; TODO:
@@ -157,7 +157,7 @@
                     (setf slot-value (make-value-inspector slot-value-place)))
                 (collect slot-value)))))
 
-(def layered-method collect-slot-value-list/slots ((component t/slot-value-contents/inspector) class prototype value)
+(def layered-method collect-presented-slots ((component t/slot-value-contents/inspector) class prototype value)
   (bind ((slot-names (slot-names-of component))
          (slots (class-slots class)))
     (if (eq slot-names t)

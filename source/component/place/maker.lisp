@@ -34,5 +34,5 @@
 (def (macro e) place/value/maker (place &rest args &key &allow-other-keys)
   `(make-instance 'place/value/maker ,@args :component-value ,place))
 
-(def layered-method make-slot-value/content ((component place/value/maker) class prototype value)
+(def layered-method make-content-presentation ((component place/value/maker) class prototype value)
   (make-maker (place-type value) :initial-alternative-type 't/reference/maker))

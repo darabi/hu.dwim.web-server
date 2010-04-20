@@ -34,5 +34,5 @@
 (def (component e) standard-method-sequence/lisp-form-list/inspector (sequence/list/inspector)
   ())
 
-(def layered-method make-list/element ((component standard-method-sequence/lisp-form-list/inspector) class prototype value)
+(def layered-method make-element-presentation ((component standard-method-sequence/lisp-form-list/inspector) class prototype value)
   (make-instance 'standard-method/lisp-form/inspector :component-value value))

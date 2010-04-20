@@ -59,7 +59,11 @@
                         (if (typep it 'chapter/toc/inspector)
                             (string+ (numbering-of it) "." numbering)
                             numbering)))
-          reference (make-instance 't/reference/inspector :component-value component-value))))
+          reference (make-instance 't/reference/inspector :component-value component-value
+                                   :js (lambda (href)
+                                         (declare (ignore href))
+                                         ;; TODO: er, not self but the component which actually shows the referred chapter
+                                         `js(.scrollIntoView (document.getElementById ,(id-of -self-)) true))))))
 
 (def render-xhtml chapter/toc/inspector
   (bind (((:read-only-slots reference) -self-))

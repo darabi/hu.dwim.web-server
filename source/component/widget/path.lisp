@@ -22,7 +22,7 @@
          (component-value (component-value-of -self-)))
     (if contents
         (foreach [setf (component-value-of !1) !2] contents component-value)
-        (setf contents (mapcar [make-path/content -self- dispatch-class dispatch-prototype !1] component-value)))))
+        (setf contents (mapcar [make-content-presentation -self- dispatch-class dispatch-prototype !1] component-value)))))
 
 (def render-xhtml path/widget
   <span (:class "path")
@@ -30,5 +30,3 @@
                (unless (first-iteration-p)
                  `xml," / ")
                (render-component content))>)
-
-(def (layered-function e) make-path/content (component class prototype value))

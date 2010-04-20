@@ -30,7 +30,7 @@
 (def layered-method refresh-component :before ((self pivot-table-component))
   (bind (((:slots sheet-axes row-axes row-headers column-axes column-headers cell-axes header-cell instances content) self))
     (with-active-layers (pivot-table-layer)
-      (labels ((make-content (axes sheet-path)
+      (labels ((make-content-presentation (axes sheet-path)
                  (if axes
                      (bind ((axis (first axes))
                             (categories (categories-of (ensure-refreshed axis))))
@@ -38,11 +38,11 @@
                            (make-instance 'tab-container-component
                                           :pages (mapcar [make-instance 'tab-page-component
                                                                         :header !1
-                                                                        :content (make-content (rest axes) (cons !1 sheet-path))]
+                                                                        :content (make-content-presentation (rest axes) (cons !1 sheet-path))]
                                                          categories))
                            (make-pivot-sheet-table-component self sheet-path)))
                      (make-pivot-sheet-table-component self sheet-path))))
-        (setf content (make-content sheet-axes nil))))))
+        (setf content (make-content-presentation sheet-axes nil))))))
 
 (def generic make-pivot-sheet-table-component (component sheet-path)
   (:method ((self pivot-table-component) sheet-path)

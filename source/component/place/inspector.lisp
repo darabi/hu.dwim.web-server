@@ -37,8 +37,8 @@
 (def (component e) place/value/inspector (inspector/basic place/value/presentation)
   ())
 
-(def layered-method make-slot-value/content ((component place/value/inspector) class prototype value)
-  (if (authorize-operation *application* '(make-slot-value/content))
+(def layered-method make-content-presentation ((component place/value/inspector) class prototype value)
+  (if (authorize-operation *application* '(make-content-presentation))
       (if (place-bound? value)
           (make-inspector (place-type value)
                           :value (place-value value)
