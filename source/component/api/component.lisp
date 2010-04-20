@@ -160,7 +160,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
 
 (def (function eo) find-ancestor-component-if (predicate component &key (otherwise :error otherwise?))
   (or (find-ancestor component #'parent-component-of predicate :otherwise #f)
-      (handle-otherwise (error "Unable to find ancestor component using predicate ~A starting from component ~A" predicate component))))
+      (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-ancestor-component-if predicate component))))
 
 (def (function eo) find-ancestor-component (item component &key test key (otherwise :error otherwise?))
   (bind ((test (if test (ensure-function test) #'eql))
@@ -168,11 +168,11 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
     (or (find-ancestor-component-if (lambda (child)
                                       (funcall test item (funcall key child)))
                                     component :otherwise #f)
-        (handle-otherwise (error "~S: Could not find item ~A starting from ~A and using key ~A" 'find-ancestor-component item component key)))))
+        (handle-otherwise (error "~S failed; item ~A, starting from ~A, key ~A" 'find-ancestor-component item component key)))))
 
 (def (function eio) find-ancestor-component-of-type (type component &key (otherwise :error otherwise?))
   (or (find-ancestor-component-if (of-type type) component :otherwise #f)
-      (handle-otherwise (error "Unable to find ancestor component with type ~S starting from component ~A" type component))))
+      (handle-otherwise (error "~S failed; type ~S, starting from ~A" 'find-ancestor-component-of-type type component))))
 
 ;; TODO map-* should have the fn at first position?
 (def (function eo) map-ancestor-components (component visitor &key (include-self #f))
@@ -207,8 +207,8 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
          (key (if key (ensure-function key) #'identity)))
     (or (find-child-component-if (lambda (child)
                                    (funcall test item (funcall key child)))
-                                 component)
-        (handle-otherwise (error "~S: Could not find item ~A starting from ~A and using key ~A" 'find-child-component item component key)))))
+                                 component :otherwise #f)
+        (handle-otherwise (error "~S failed; item ~A, starting from ~A, key ~A" 'find-child-component item component key)))))
 
 (def (function eo) find-descendant-component-if (predicate component &key (otherwise :error otherwise?))
   (bind ((predicate (ensure-function predicate)))
@@ -216,7 +216,7 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
                                (lambda (child)
                                  (when (funcall predicate child)
                                    (return-from find-descendant-component-if child))))
-    (handle-otherwise (error "Could not find descendant component matching predicate ~A, starting from ~A" predicate component))))
+    (handle-otherwise (error "~S failed; predicate ~A, starting from ~A" 'find-descendant-component-if predicate component))))
 
 (def (function eo) find-descendant-component (item component &key test key (otherwise :error otherwise?))
   (bind ((test (if test (ensure-function test) #'eql))
@@ -224,11 +224,11 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
     (or (find-descendant-component-if (lambda (child)
                                         (funcall test item (funcall key child)))
                                       component :otherwise #f)
-        (handle-otherwise (error "~S: Could not find item ~A starting from ~A and using key ~A" 'find-descendant-component item component key)))))
+        (handle-otherwise (error "~S failed; item ~A, starting from ~A, key ~A" 'find-descendant-component item component key)))))
 
 (def (function eio) find-descendant-component-of-type (type component &key (otherwise :error otherwise?))
   (or (find-descendant-component-if (of-type type) component :otherwise #f)
-      (handle-otherwise (error "Could not find descendant component of type ~S starting from ~A" type component))))
+      (handle-otherwise (error "~S failed; type ~S, starting from ~A" 'find-descendant-component-of-type type component))))
 
 (def (function eo) map-child-components (component visitor &optional (child-slot-provider [class-slots (class-of !1)]))
   (bind ((visitor (ensure-function visitor))
