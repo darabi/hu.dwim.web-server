@@ -9,12 +9,14 @@
 ;;;;;;
 ;;; Logging
 
-(macrolet ((forward (name)
+(macrolet ((forward (name &optional only-in-debug)
              `(def (js-macro e) ,(symbolicate "log." name) (&rest args)
-                (when *debug-client-side*
+                (when ,(if only-in-debug
+                           '*debug-client-side*
+                           t)
                  (list* ',(symbolicate "window.console." name) args)))))
-  (forward |debug|)
-  (forward |info|)
+  (forward |debug| t)
+  (forward |info| t)
   (forward |warn|)
   (forward |error|)
   (forward |critical|))
