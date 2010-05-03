@@ -37,6 +37,14 @@
   (:method ((self selection/mixin))
     (selected-value-set (selection-of self))))
 
+(def (generic e) select-component (selection-component selectable-component)
+  (:method ((selection-component selection/mixin) (selectable-component selectable/mixin))
+    (setf (selected-component? selection-component selectable-component) #t)))
+
+(def (generic e) deselect-component (selection-component selectable-component)
+  (:method ((selection-component selection/mixin) (selectable-component selectable/mixin))
+    (setf (selected-component? selection-component selectable-component) #f)))
+
 (def (generic e) selected-component? (selection-component selectable-component)
   (:method ((selection-component selection/mixin) (selectable-component selectable/mixin))
     (selected-value? (selection-of selection-component) selectable-component)))
