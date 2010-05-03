@@ -7,6 +7,49 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; dimensions/mixin
+
+(def (component e) dimensions/mixin ()
+  ((dimensions :type list)))
+
+(def constructor dimensions/mixin ()
+  (bind (((:slots dimensions) -self-))
+    (setf dimensions (mapcar 'hu.dwim.perec:lookup-dimension dimensions))))
+
+;;;;;;
+;;; coordinates-dependent/mixin
+
+(def (component e) coordinates-dependent/mixin (dimensions/mixin)
+  ((coordinates nil :type list)))
+
+(def refresh-component coordinates-dependent/mixin
+  (bind (((:slots dimensions coordinates) -self-))
+    (setf coordinates (mapcar 'hu.dwim.perec:coordinate dimensions))))
+
+(def method to-be-refreshed-component? :around ((self coordinates-dependent/mixin))
+  (or (call-next-method)
+      (bind (((:read-only-slots dimensions coordinates) self))
+        (iter (for dimension :in dimensions)
+              (for coordinate :in coordinates)
+              ;; KLUDGE: ensure-list works because a range coordinate is already a list
+              (unless (hu.dwim.perec:coordinate-equal dimension (ensure-list coordinate) (ensure-list (hu.dwim.perec:coordinate dimension)))
+                (return-from to-be-refreshed-component? #t))))))
+
+;;;;;;
+;;; coordinates-provider/mixin
+
+(def (component e) coordinates-provider/mixin (dimensions/mixin)
+  ((coordinates :type list)))
+
+(def component-environment coordinates-provider/mixin
+  (bind (((:read-only-slots dimensions coordinates) -self-))
+    (hu.dwim.perec:with-coordinates dimensions (force coordinates)
+      (with-error-log-decorator (make-error-log-decorator
+                                  (format t "~%The environment of the coordinates-provider ~A follows:" -self-)
+                                  (foreach [format t "~%  ~S: ~@<~A~:>" (hu.dwim.perec:name-of !1) !2] dimensions (force coordinates)))
+        (call-next-method)))))
+
+;;;;;;
 ;;; t/inspector
 
 (def layered-method make-alternatives ((component t/inspector) (class standard-class) (prototype hu.dwim.perec::dimension) (value hu.dwim.perec::dimension))
