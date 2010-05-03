@@ -87,5 +87,5 @@
   (when (permanent? component)
     (call-next-method)))
 
-(def layered-method close-component ((component component-message/widget) class prototype value)
+(def method close-component ((component component-message/widget) class prototype value)
   (deletef (messages-of (parent-component-of component)) component))

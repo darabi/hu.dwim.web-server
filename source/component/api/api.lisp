@@ -215,22 +215,19 @@
 ;;;;;;
 ;;; Close component
 
-;; TODO: are these really layered?
-(def (layered-function e) close-component (component class prototype value)
+(def (generic e) close-component (component class prototype value)
   (:documentation "TODO"))
 
 ;;;;;;
 ;;; Open component in new frame
 
-;; TODO: are these really layered?
-(def (layered-function e) open-in-new-frame (component class prototype value)
+(def (generic e) open-in-new-frame (component class prototype value)
   (:documentation "Opens a new FRAME with the result of CLONE-COMPONENT called on COMPONENT."))
 
 ;;;;;;
 ;;; Alternative component views
 
-;; TODO: are these really layered?
-(def (layered-function e) switch-to-alternative (component alternative)
+(def (generic e) switch-to-alternative (component alternative)
   (:documentation "TODO"))
 
 ;;;;;;

@@ -16,5 +16,5 @@
 (def layered-method make-move-commands ((component closable/abstract) class prototype value)
   (optional-list* (make-close-component-command component class prototype value) (call-next-method)))
 
-(def layered-method close-component ((component closable/abstract) class prototype value)
+(def method close-component ((component closable/abstract) class prototype value)
   (execute-replace (make-component-place component) (make-instance 'empty/layout)))
