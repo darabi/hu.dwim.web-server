@@ -252,15 +252,14 @@
                                                       "%b. %e."))))
                                              "%b. %e.")
                                          "%Y. %b. %e."))
-                 (format-string (concatenate 'string
-                                             format-string/date
-                                             (if (or day-of-week-already-encoded?
-                                                     (not day-of-week-should-be-encoded?)
-                                                     (and display-day-of-week-provided?
-                                                          (not display-day-of-week)))
-                                                 ""
-                                                 " %A")
-                                             " %H:%M:%S")))
+                 (format-string (string+ format-string/date
+                                         (if (or day-of-week-already-encoded?
+                                                 (not day-of-week-should-be-encoded?)
+                                                 (and display-day-of-week-provided?
+                                                      (not display-day-of-week)))
+                                             ""
+                                             " %A")
+                                         " %H:%M:%S")))
             (cl-l10n::print-time-string format-string stream
                                         (local-time:universal-time
                                          (local-time:adjust-local-time! local-time

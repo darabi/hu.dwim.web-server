@@ -45,7 +45,8 @@
 ;;; Book
 
 (def class* book (text title-mixin)
-  ((name :type symbol)
+  ((subtitle nil :type string)
+   (name :type symbol)
    (authors nil :type list))
   (:documentation "A BOOK is a mostly textual description of something."))
 
@@ -70,3 +71,12 @@
 
 (def (macro e) paragraph ((&rest args &key &allow-other-keys) &body contents)
   `(make-instance 'paragraph ,@args :contents (list ,@contents)))
+
+;;;;;;
+;;; Glossary
+
+(def class* glossary (text)
+  ())
+
+(def (macro e) glossary ((&rest args &key &allow-other-keys) &body contents)
+  `(make-instance 'glossary ,@args :contents (list ,@contents)))
