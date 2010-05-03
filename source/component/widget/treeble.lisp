@@ -22,6 +22,9 @@
 (def (macro e) treeble/widget ((&rest args &key &allow-other-keys) &body root-nodes)
   `(make-instance 'treeble/widget ,@args :root-nodes (list ,@root-nodes)))
 
+(def method component-style-class ((self treeble/widget))
+  (string+ "content-border " (call-next-method)))
+
 (def render-xhtml treeble/widget
   (bind (((:read-only-slots root-nodes) -self-))
     (with-render-style/abstract (-self-)

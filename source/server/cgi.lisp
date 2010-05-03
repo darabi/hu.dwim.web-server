@@ -28,7 +28,7 @@
          (request-uri-path (path-of request-uri))
          (remaining-path (remaining-path-of-request-uri))
          (script-name (subseq request-uri-path (length remaining-path))))
-    (debug-only (assert (equal script-name (apply #'concatenate 'string (reverse *matching-uri-path-element-stack*)))))
+    (debug-only (assert (equal script-name (apply #'string+ (reverse *matching-uri-path-element-stack*)))))
     (debug-only (assert (string= (string+ script-name remaining-path) request-uri-path)))
     (nconc (loop
              :for (name . value) :in start-environment

@@ -116,11 +116,11 @@ foom I think you will be RFCly correct if you split on slashes, then split on ;,
   uri)
 
 (def (function e) append-path-to-uri (uri path-to-append)
-  (setf (path-of uri) (concatenate 'string (path-of uri) path-to-append))
+  (setf (path-of uri) (string+ (path-of uri) path-to-append))
   uri)
 
 (def (function e) prefix-uri-path (uri path-to-prefix)
-  (setf (path-of uri) (concatenate 'string path-to-prefix (path-of uri)))
+  (setf (path-of uri) (string+ path-to-prefix (path-of uri)))
   uri)
 
 (def (function o) write-uri-sans-query (uri stream &key (escape #t))

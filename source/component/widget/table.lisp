@@ -26,6 +26,9 @@
 (def (macro e) table/widget ((&rest args &key &allow-other-keys) &body rows)
   `(make-instance 'table/widget ,@args :rows (list ,@rows)))
 
+(def method component-style-class ((self table/widget))
+  (string+ "content-border " (call-next-method)))
+
 (def render-xhtml table/widget
   (bind (((:read-only-slots rows page-navigation-bar) -self-)
          (position (position-of page-navigation-bar))

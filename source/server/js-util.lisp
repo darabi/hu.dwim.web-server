@@ -147,7 +147,7 @@
 
 (def (js-macro e) |assert| (expression &rest args-to-throw)
   (unless args-to-throw
-    (setf args-to-throw (list (concatenate 'string "Assertion failed: " (princ-to-string expression)))))
+    (setf args-to-throw (list (string+ "Assertion failed: " (princ-to-string expression)))))
   {with-preserved-readtable-case
     `(unless ,EXPRESSION
        ,(IF *DEBUG-CLIENT-SIDE*

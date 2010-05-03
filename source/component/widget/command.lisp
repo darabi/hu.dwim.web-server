@@ -133,7 +133,7 @@
                      (typep action 'uri))
             ;; this is needed on Chrome, which doesn't call onclick on the submit input dom node
             `js(setf (slot-value (aref document.forms 0) 'action) ,(print-uri-to-string action)))))
-      <span (:id ,id :class "command widget disabled")
+      <span (:id ,id :class `str("disabled " ,style-class))
         #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
         ,(render-component content)>))
 
@@ -175,7 +175,7 @@
 
 (def method component-style-class ((self command/widget))
   (if (eq 'command/widget (class-name (class-of self)))
-      (call-next-method)
+      (string+ "button-border " (call-next-method))
       (string+ (call-next-method) " command")))
 
 ;;;;;;

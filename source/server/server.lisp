@@ -263,7 +263,7 @@
                                ;; TODO until we have proper connection multiplexing, the sockets towards the clients should be blocking
                                (setf (iolib.streams:fd-non-blocking stream-socket) #f)
                                ;; TODO is this a constant or depends on server network load?
-                               (setf (iolib:socket-option stream-socket :receive-timeout) 15) 
+                               (setf (iolib:socket-option stream-socket :receive-timeout) 15)
                                (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
            (values)))
     (if threaded?
@@ -536,7 +536,7 @@
   (awhen size
     (setf content-disposition (string+ content-disposition ";size=" it)))
   (awhen file-name
-    (setf content-disposition (concatenate 'string content-disposition ";filename=\"" (escape-as-uri it) "\"")))
+    (setf content-disposition (string+ content-disposition ";filename=\"" (escape-as-uri it) "\"")))
   content-disposition)
 
 (def function serve-stream (input-stream &key
@@ -627,10 +627,9 @@
                                                        (mime-types-for-extension it)))
                                               (content-type-for +plain-text-mime-type+ encoding)))))))
             (unless content-disposition-filename-p
-              (setf content-disposition-filename (concatenate 'string
-                                                              (pathname-name file-name)
-                                                              (awhen (pathname-type file-name)
-                                                                (concatenate 'string "." it))))))
+              (setf content-disposition-filename (string+ (pathname-name file-name)
+                                                          (awhen (pathname-type file-name)
+                                                            (string+ "." it))))))
           (setf client-stream-dirty? #t)
           (apply 'serve-stream
                  file

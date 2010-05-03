@@ -18,6 +18,9 @@
    (error :type serious-condition)
    (original-root-component)))
 
+(def method component-style-class ((self internal-error-message/widget))
+  (string+ "content-border " (call-next-method)))
+
 (def refresh-component internal-error-message/widget
   (bind (((:slots title-bar) -self-))
     (setf title-bar (title/widget ()

@@ -275,7 +275,7 @@
         (error "~S is not implemented for your platform." 'is-lock-held?))))
 
 (def function mailto-href (email-address)
-  (concatenate 'string "mailto:" email-address))
+  (string+ "mailto:" email-address))
 
 (def (function io) new-random-hash-table-key (hash-table key-length &key prefix)
   (iter (for key = (random-string key-length +ascii-alphabet+ prefix))

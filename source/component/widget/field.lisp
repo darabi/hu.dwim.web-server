@@ -28,7 +28,7 @@
                      (id-of (client-state-sink (client-value)
                               (funcall value-sink (string-to-lisp-boolean client-value)))))))
          (custom (or checked-image checked-class))
-         (hidden-id (concatenate 'string id "_hidden"))
+         (hidden-id (string+ id "_hidden"))
          (checked (when value "")))
     <input (:id ,hidden-id
             :name ,name

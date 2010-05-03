@@ -24,6 +24,9 @@
 (def (macro e) tree/widget ((&rest args &key &allow-other-keys) &body root-nodes)
   `(make-instance 'tree/widget ,@args :root-nodes (list ,@root-nodes)))
 
+(def method component-style-class ((self tree/widget))
+  (string+ "content-border " (call-next-method)))
+
 (def render-xhtml tree/widget
   (bind (((:read-only-slots root-nodes) -self-))
     (with-render-style/abstract (-self-)

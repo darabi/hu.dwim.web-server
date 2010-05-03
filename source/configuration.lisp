@@ -177,7 +177,7 @@
     (once-only (content)
       `(progn
          ,(when js-quoted?
-            `(setf ,content (concatenate 'string "\'" (escape-as-js-string ,content) "\'")))
+            `(setf ,content (string+ "\'" (escape-as-js-string ,content) "\'")))
          (make-instance 'string-quasi-quote
                         :body ,content
                         :transformation-pipeline ',(if *transform-quasi-quote-to-binary*

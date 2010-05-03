@@ -16,6 +16,9 @@
 (def (macro e) title/widget ((&rest args &key &allow-other-keys) &body content)
   `(make-instance 'title/widget ,@args :content ,(the-only-element content)))
 
+(def method component-style-class ((self title/widget))
+  (string+ "title-border " (call-next-method)))
+
 (def render-component title/widget
   (render-content-for -self-))
 
@@ -32,6 +35,9 @@
 
 (def (macro e) title-bar/widget ((&rest args &key &allow-other-keys) &body title)
   `(make-instance 'title-bar/widget ,@args :title ,(the-only-element title)))
+
+(def method component-style-class ((self title-bar/widget))
+  (string+ "title-border " (call-next-method)))
 
 (def render-xhtml title-bar/widget
   (bind ((parent-component (parent-component-of -self-)))
