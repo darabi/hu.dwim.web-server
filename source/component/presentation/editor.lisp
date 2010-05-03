@@ -43,12 +43,6 @@
   ())
 
 ;;;;;;
-;;; editor/full
-
-(def (component e) editor/full (editor/style presentation/full)
-  ())
-
-;;;;;;
 ;;; Editor factory
 
 (def layered-method make-editor (type &rest args &key &allow-other-keys)

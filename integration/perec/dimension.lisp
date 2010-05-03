@@ -13,7 +13,7 @@
   (list* (make-instance 'dimension/documentation/inspector
                         :component-value value
                         :component-value-type (component-value-type-of component))
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; dimension/documentation/inspector

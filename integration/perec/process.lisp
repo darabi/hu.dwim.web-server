@@ -13,7 +13,7 @@
   (list* (make-instance 'standard-process/user-interface/inspector
                         :component-value value
                         :component-value-type (component-value-type-of component))
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; Show
@@ -58,7 +58,7 @@
 ;;; Persistent processs
 
 (def layered-method make-context-menu-items ((component standard-process/user-interface/inspector) (class hu.dwim.meta-model::persistent-process-class) (prototype hu.dwim.meta-model::persistent-process) (value hu.dwim.meta-model::persistent-process))
-  (append (call-next-method)
+  (append (call-next-layered-method)
           (optional-list (make-cancel-persistent-process-command component)
                          (make-pause-persistent-process-command component))))
 
@@ -107,10 +107,10 @@
                        (make-continue-persistent-process-command component value))))))
 
 (def layered-method make-context-menu-items ((component t/inspector) (class hu.dwim.meta-model::persistent-process-class) (prototype hu.dwim.meta-model::persistent-process) (value hu.dwim.meta-model::persistent-process))
-  (append (make-persistent-process-commands component class prototype value) (call-next-method)))
+  (append (make-persistent-process-commands component class prototype value) (call-next-layered-method)))
 
 (def layered-method make-command-bar-commands ((component t/inspector) (class hu.dwim.meta-model::persistent-process-class) (prototype hu.dwim.meta-model::persistent-process) (value hu.dwim.meta-model::persistent-process))
-  (append (make-persistent-process-commands component class prototype value) (call-next-method)))
+  (append (make-persistent-process-commands component class prototype value) (call-next-layered-method)))
 
 (def (function e) make-start-persistent-process-command (component process)
   (make-replace-and-push-back-command component (delay (prog1-bind process-component (make-instance 'standard-process/user-interface/inspector :component-value (force process))

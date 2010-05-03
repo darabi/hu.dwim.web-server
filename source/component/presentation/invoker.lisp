@@ -39,9 +39,3 @@
 
 (def (component e) invoker/style (invoker/basic presentation/style)
   ())
-
-;;;;;;
-;;; invoker/full
-
-(def (component e) invoker/full (invoker/style presentation/full)
-  ())

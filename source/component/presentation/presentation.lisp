@@ -30,9 +30,3 @@
 
 (def (component e) presentation/style (presentation/basic component/style)
   ())
-
-;;;;;;
-;;; presentation/full
-
-(def (component e) presentation/full (presentation/style component/full)
-  ())

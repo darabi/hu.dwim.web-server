@@ -25,4 +25,3 @@
     (register-frame *application* *session* *frame*)
     (setf (root-component-of *frame*) (make-frame-root-component clone))
     (make-redirect-response-with-frame-parameters-decorated *frame*)))
-

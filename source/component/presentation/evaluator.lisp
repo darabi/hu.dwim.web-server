@@ -39,9 +39,3 @@
 
 (def (component e) evaluator/style (evaluator/basic presentation/style)
   ())
-
-;;;;;;
-;;; evaluator/full
-
-(def (component e) evaluator/full (evaluator/style presentation/full)
-  ())

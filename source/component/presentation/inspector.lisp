@@ -46,12 +46,6 @@
   ())
 
 ;;;;;;
-;;; inspector/full
-
-(def (component e) inspector/full (inspector/style presentation/full)
-  ())
-
-;;;;;;
 ;;; Inspector factory
 
 (def (special-variable e) *inspector-type-mapping* (make-linear-type-mapping))

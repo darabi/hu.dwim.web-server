@@ -22,7 +22,7 @@
   (list* (make-instance 'd-value/table/inspector
                         :component-value value
                         :component-value-type (component-value-type-of component))
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; t/reference/inspector

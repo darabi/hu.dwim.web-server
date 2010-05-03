@@ -41,12 +41,6 @@
   ())
 
 ;;;;;;
-;;; selector/full
-
-(def (component e) selector/full (selector/style presentation/full)
-  ())
-
-;;;;;;
 ;;; Selector factory
 
 (def layered-method make-selector (type &rest args &key &allow-other-keys)

@@ -30,9 +30,3 @@
 
 (def (component e) widget/style (widget/basic component/style)
   ())
-
-;;;;;;
-;;; widget/full
-
-(def (component e) widget/full (widget/style component/full)
-  ())

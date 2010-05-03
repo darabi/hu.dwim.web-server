@@ -49,12 +49,6 @@
   ())
 
 ;;;;;;
-;;; filter/full
-
-(def (component e) filter/full (filter/style presentation/full)
-  ())
-
-;;;;;;
 ;;; Filter factory
 
 (def (special-variable e) *filter-type-mapping* (make-linear-type-mapping))

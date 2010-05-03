@@ -99,13 +99,6 @@ such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAK
   (:documentation "A COMPONENT/STYLE includes a set of style related mixins. It supports styles with STYLE-CLASS and CUSTOM-STYLE, it also provides remote setup with the help of a unique ID, and ENABLE-COMPONENT along with DISABLE-COMPONENT for better user experience."))
 
 ;;;;;;
-;;; component/full
-
-(def (component e) component/full (component/style collapsible/mixin tooltip/mixin)
-  ()
-  (:documentation "A COMPONENT/FULL includes all generally useful mixins and might be extended later. Currently it supports EXPAND-COMPONENT and COLLAPSE-COMPONENT, it also provides tooltips."))
-
-;;;;;;
 ;;; Component environment
 
 (def (macro e) with-component-environment (component &body forms)

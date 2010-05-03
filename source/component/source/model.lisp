@@ -29,9 +29,3 @@
 
 (def (component e) model/style (model/basic component/style)
   ())
-
-;;;;;;
-;;; model/full
-
-(def (component e) model/full (model/style component/full)
-  ())

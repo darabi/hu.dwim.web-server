@@ -42,12 +42,6 @@
   ())
 
 ;;;;;;
-;;; viewer/full
-
-(def (component e) viewer/full (viewer/style presentation/full)
-  ())
-
-;;;;;;
 ;;; Viewer factory
 
 (def layered-method make-viewer (type &rest args &key &allow-other-keys)

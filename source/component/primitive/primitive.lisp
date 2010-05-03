@@ -45,9 +45,3 @@
 
 (def (component e) primitive/style (primitive/basic component/style)
   ())
-
-;;;;;;
-;;; primitive/full
-
-(def (component e) primitive/full (primitive/style component/full)
-  ())

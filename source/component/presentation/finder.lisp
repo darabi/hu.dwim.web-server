@@ -41,12 +41,6 @@
   ())
 
 ;;;;;;
-;;; finder/full
-
-(def (component e) finder/full (finder/style presentation/full)
-  ())
-
-;;;;;;
 ;;; Finder factory
 
 (def layered-method make-finder (type &rest args &key &allow-other-keys)

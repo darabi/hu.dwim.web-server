@@ -45,12 +45,6 @@
   ())
 
 ;;;;;;
-;;; maker/full
-
-(def (component e) maker/full (maker/style presentation/full)
-  ())
-
-;;;;;;
 ;;; Maker factory
 
 (def (special-variable e) *maker-type-mapping* (make-linear-type-mapping))

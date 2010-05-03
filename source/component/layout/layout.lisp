@@ -30,9 +30,3 @@
 
 (def (component e) layout/style (layout/basic component/style)
   ())
-
-;;;;;;
-;;; layout/full
-
-(def (component e) layout/full (layout/style component/full)
-  ())
