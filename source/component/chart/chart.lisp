@@ -24,13 +24,13 @@
 
 (def function render-chart (component kind)
   ;; TODO: move this to frame or something higher?
-  (bind ((path (concatenate 'string "/static/amCharts/" kind "/")))
-    <script (:type "text/javascript" :src ,(concatenate 'string path "swfobject.js")) "">
+  (bind ((path (string+ "/static/wui/amCharts/" kind "/")))
+    <script (:type "text/javascript" :src ,(string+ path "swfobject.js")) "">
     (bind ((id (generate-unique-component-id))
            (data-provider (data-provider-of component)))
       ;; TODO: generate variable name
       <div (:id ,id) ,#"chart.missing-flash-plugin">
-      `js(let ((chart (new SWFObject ,(concatenate 'string  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8")))
+      `js(let ((chart (new SWFObject ,(string+  path kind ".swf") ,kind ,(width-of component) ,(height-of component) "8")))
            (chart.addParam "wmode" "transparent")
            (chart.addVariable "path" ,path)
            (chart.addVariable "settings_file"
