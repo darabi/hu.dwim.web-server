@@ -7,9 +7,20 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
+;;; sequence/abstract
+
+(def (component e) sequence/abstract (inspector/abstract)
+  ())
+
+(def method component-dispatch-class ((component sequence/abstract))
+  ;; TODO: KLUDGE: this should be an argument
+  (awhen (component-value-of component)
+    (class-of (first-elt it))))
+
+;;;;;;
 ;;; sequence/inspector
 
-(def (component e) sequence/inspector (t/inspector)
+(def (component e) sequence/inspector (t/inspector sequence/abstract)
   ())
 
 (def subtype-mapper *inspector-type-mapping* sequence sequence/inspector)
@@ -47,13 +58,13 @@
 ;;;;;;
 ;;; sequence/reference/inspector
 
-(def (component e) sequence/reference/inspector (t/reference/inspector)
+(def (component e) sequence/reference/inspector (t/reference/inspector sequence/abstract)
   ())
 
 ;;;;;;
 ;;; sequence/list/inspector
 
-(def (component e) sequence/list/inspector (inspector/style t/detail/inspector list/widget)
+(def (component e) sequence/list/inspector (inspector/style t/detail/inspector sequence/abstract list/widget)
   ())
 
 (def refresh-component sequence/list/inspector
@@ -102,15 +113,11 @@
 
 (def (component e) sequence/table/inspector (inspector/style
                                              t/detail/inspector
+                                             sequence/abstract
                                              table/widget
                                              component-messages/widget
                                              deep-arguments/mixin)
   ())
-
-(def method component-dispatch-class ((component sequence/table/inspector))
-  ;; TODO: KLUDGE: this should be an argument
-  (awhen (component-value-of component)
-    (class-of (first-elt it))))
 
 (def refresh-component sequence/table/inspector
   (bind (((:slots component-value rows columns) -self-)
@@ -152,6 +159,7 @@
                                (make-type-column-presentation component class prototype value))))
             (make-place-column-presentations component class prototype value))))
 
+;; TODO: split for sequence/table/inspector and sequence/treeble/inspector, the latter must recurse down
 (def (layered-function e) make-place-column-presentations (component class prototype value)
   (:method ((component columns/mixin) class prototype value)
     (bind (((:slots command-bar columns rows component-value) component)
@@ -170,8 +178,7 @@
                                :component-value "BLAH" ;; TODO:
                                :header (localized-slot-name (cdr slot-name->slot))
                                :cell-factory (lambda (row-component)
-                                               (bind ((slot (find-slot (class-of (component-value-of row-component)) (car slot-name->slot)
-                                                                       :otherwise nil)))
+                                               (bind ((slot (find-slot (class-of (component-value-of row-component)) (car slot-name->slot) :otherwise nil)))
                                                  (if slot
                                                      (make-instance 'place/cell/inspector
                                                                     :component-value (make-object-slot-place (component-value-of row-component) slot))

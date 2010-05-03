@@ -189,7 +189,7 @@
 ;;;;;;
 ;;; sequence/tree/inspector
 
-(def (component e) sequence/tree/inspector (t/tree/inspector)
+(def (component e) sequence/tree/inspector (t/tree/inspector sequence/abstract)
   ())
 
 (def layered-method make-node-presentation ((component sequence/tree/inspector) class prototype value)
@@ -203,7 +203,7 @@
 ;;;;;;
 ;;; sequence/node/inspector
 
-(def (component e) sequence/node/inspector (t/node/inspector)
+(def (component e) sequence/node/inspector (t/node/inspector sequence/abstract)
   ())
 
 (def layered-method make-node-presentation ((component sequence/node/inspector) class prototype value)
@@ -217,7 +217,7 @@
 ;;;;;;
 ;;; sequence/treeble/inspector
 
-(def (component e) sequence/treeble/inspector (inspector/basic t/detail/inspector treeble/widget)
+(def (component e) sequence/treeble/inspector (inspector/basic t/detail/inspector sequence/abstract treeble/widget)
   ())
 
 (def refresh-component sequence/treeble/inspector
