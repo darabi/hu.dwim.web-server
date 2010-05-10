@@ -353,7 +353,7 @@
   (setf (gethash class-names *dynamic-classes*) class))
 
 (def function dynamic-class-name (class-names)
-  (format-symbol *package* "~{~A~^-~}" class-names))
+  (format-symbol *package* "~{~A~^&~}" class-names))
 
 (def function dynamic-class-metaclass (class-names)
   (bind ((metaclasses
