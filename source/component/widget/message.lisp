@@ -57,8 +57,7 @@
                                                  (apply #'format nil message message-args)
                                                  message)
                                     initargs))))
-    (appendf (messages-of collector)
-             (list message-widget))
+    (appendf (messages-of collector) (list message-widget))
     message-widget))
 
 (def (function e) has-component-message? (collector category)

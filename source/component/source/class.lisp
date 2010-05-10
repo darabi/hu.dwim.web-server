@@ -36,13 +36,13 @@
                           :component-value-type component-value-type
                           :edited edited-component
                           :editable editable-component)
-           (call-next-method))))
+           (call-next-layered-method))))
 
 ;;;;;;
 ;;; t/reference/inspector
 
 (def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) prototype (value class))
-  (string+ (localized-class-name class :capitalize-first-letter #t) ": " (call-next-method)))
+  (string+ (localized-class-name class :capitalize-first-letter #t) ": " (call-next-layered-method)))
 
 ;;;;;;
 ;;; class/lisp-form/inspector
