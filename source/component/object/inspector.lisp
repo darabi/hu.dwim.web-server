@@ -13,7 +13,8 @@
                                 t/presentation
                                 cloneable/abstract
                                 deep-arguments/mixin
-                                layer/mixin)
+                                layer/mixin
+                                title/mixin)
   ()
   (:documentation "Generic factory version (all components are available):
 
@@ -70,6 +71,11 @@ Optimized factory configuration (default):
                          :component-value-type component-value-type
                          :edited edited-component
                          :editable editable-component))))
+
+(def render-component t/inspector
+  (with-render-alternator/widget -self-
+    (render-title-for -self-)
+    (render-alternator-interior -self-)))
 
 ;;;;;;
 ;;; t/reference/inspector

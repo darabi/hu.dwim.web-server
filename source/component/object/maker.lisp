@@ -13,6 +13,7 @@
                             t/presentation
                             cloneable/abstract
                             layer/mixin
+                            title/mixin
                             component-result/mixin)
   ()
   (:documentation "Generic factory version (all components are available):
@@ -61,6 +62,7 @@ Optimized factory configuration (default):
 
 (def render-component t/maker
   (with-render-alternator/widget -self-
+    (render-title-for -self-)
     (render-alternator-interior -self-)
     (render-result-for -self-)))
 

@@ -13,6 +13,7 @@
                              t/presentation
                              cloneable/abstract
                              layer/mixin
+                             title/mixin
                              component-result/mixin)
   ()
   (:documentation "Generic factory configuration (all components are available):
@@ -53,6 +54,7 @@ Optimized factory configuration (default):
 
 (def render-component t/filter
   (with-render-alternator/widget -self-
+    (render-title-for -self-)
     (render-alternator-interior -self-)
     (render-result-for -self-)))
 
