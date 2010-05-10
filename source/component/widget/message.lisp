@@ -37,14 +37,14 @@
 (def (function e) remove-component-messages-if (collector predicate)
   (setf (messages-of collector) (delete-if predicate (messages-of collector))))
 
-(def method add-component-information-message ((collector component-messages/widget) message &rest message-args)
-  (add-component-message collector message message-args :category :information))
+(def method add-component-information-message ((component component) message &rest message-args)
+  (add-component-message component message message-args :category :information))
 
-(def method add-component-warning-message ((collector component-messages/widget) message &rest message-args)
-  (add-component-message collector message message-args :category :warning))
+(def method add-component-warning-message ((component component) message &rest message-args)
+  (add-component-message component message message-args :category :warning))
 
-(def method add-component-error-message ((collector component-messages/widget) message &rest message-args)
-  (add-component-message collector message message-args :category :error))
+(def method add-component-error-message ((component component) message &rest message-args)
+  (add-component-message component message message-args :category :error))
 
 (def method add-component-message ((collector component-messages/widget) message message-args &rest initargs &key category &allow-other-keys)
   (bind ((message-widget (if (typep message 'component-message/widget)
