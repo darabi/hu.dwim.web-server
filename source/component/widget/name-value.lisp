@@ -40,10 +40,15 @@
 
 (def render-xhtml name-value-group/widget
   <tbody (:id ,(id-of -self-) :class "name-value-group widget")
-    ,(when (is-name-value-group-collapsible? -self-)
-       <tr (:class "title")
-         <td ,(render-collapse-or-expand-command-for -self-)>
-         <td (:colspan 2) ,(render-title-for -self-)>>)
+    ,(bind ((collapsible? (is-name-value-group-collapsible? -self-))
+            (title (title-of -self-)))
+       (when (or collapsible? title)
+         <tr <td ,(when collapsible?
+                    (render-collapse-or-expand-command-for -self-)) >
+             ,(when title
+                <td (:colspan 2)
+                  <div (:class "place-group-header-border")
+                    ,(render-title-for -self-)>>)>))
     ,(when (expanded-component? -self-)
        (foreach (lambda (content)
                   (bind ((id (generate-unique-component-id)))

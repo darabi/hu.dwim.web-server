@@ -110,7 +110,8 @@
   (bind (((:slots component-value contents title) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf title (name-of component-value)
+    (setf title (awhen (name-of component-value)
+                  (localize (string+ "place-group." (string-downcase it))))
           contents (iter (for place :in (places-of component-value))
                          (for slot-value-pair = nil #+nil(find)) ;; TODO:
                          (if slot-value-pair
