@@ -144,12 +144,12 @@
                    :editable (editable-component? component))))
 
 (def (layered-function e) make-type-column-presentation (component class prototype value)
-  (:method ((component sequence/table/inspector) class prototype value)
+  (:method ((component columns/mixin) class prototype value)
     (make-instance 'place/column/inspector
                    :component-value "BLAH" ;; TODO:
                    :header #"object-list-table.column.type"
-                   :cell-factory (lambda (row)
-                                   (bind ((class (class-of (component-value-of row))))
+                   :cell-factory (lambda (component)
+                                   (bind ((class (class-of (component-value-of component))))
                                      (make-value-viewer class :initial-alternative-type 't/reference/inspector))))))
 
 (def (layered-function e) make-column-presentations (component class prototype value)
@@ -162,7 +162,7 @@
 ;; TODO: split for sequence/table/inspector and sequence/treeble/inspector, the latter must recurse down
 (def (layered-function e) make-place-column-presentations (component class prototype value)
   (:method ((component columns/mixin) class prototype value)
-    (bind (((:slots command-bar columns rows component-value) component)
+    (bind (((:slots command-bar columns component-value) component)
            (slot-name->slot-map nil))
       ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
       (flet ((register-slot (slot)
@@ -177,12 +177,12 @@
                 (make-instance 'place/column/inspector
                                :component-value "BLAH" ;; TODO:
                                :header (localized-slot-name (cdr slot-name->slot))
-                               :cell-factory (lambda (row-component)
-                                               (bind ((slot (find-slot (class-of (component-value-of row-component)) (car slot-name->slot) :otherwise nil)))
+                               :cell-factory (lambda (component)
+                                               (bind ((slot (find-slot (class-of (component-value-of component)) (car slot-name->slot) :otherwise nil)))
                                                  (if slot
                                                      (make-instance 'place/cell/inspector
-                                                                    :component-value (make-object-slot-place (component-value-of row-component) slot))
-                                                     (empty/layout/singleton))))))
+                                                                    :component-value (make-object-slot-place (component-value-of component) slot))
+                                                     (empty/layout))))))
               (nreverse slot-name->slot-map)))))
 
 (def layered-method collect-presented-slots ((component columns/mixin) class prototype value)
@@ -274,9 +274,9 @@
 
 (def refresh-component place/cell/inspector
     (bind (((:slots component-value content) -self-))
-      (if component-value
-          (setf content (make-instance 'place/value/inspector
+      (setf content (if component-value
+                        (make-instance 'place/value/inspector
                                        :component-value component-value
                                        :edited (edited-component? -self-)
-                                       :editable (editable-component? -self-)))
-          (setf content (empty/layout)))))
+                                       :editable (editable-component? -self-))
+                        (empty/layout)))))

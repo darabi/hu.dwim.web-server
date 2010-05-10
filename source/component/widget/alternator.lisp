@@ -47,6 +47,10 @@
   (with-render-alternator/widget -self-
     (render-alternator-interior -self-)))
 
+(def method selected-component-of ((self alternator/widget))
+  (awhen (content-of self)
+    (selected-component-of it)))
+
 (def method visible-child-component-slots ((component alternator/widget))
   (remove-slots (unless (render-command-bar-for-alternative? (content-of component))
                   '(command-bar))

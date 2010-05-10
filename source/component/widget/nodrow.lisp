@@ -75,11 +75,14 @@
   (bind ((expander-cell (elt (cells-of nodrow) (expander-column-index-of *tree*))))
     <td (:class "expander cell widget")
         ,(render-nodrow-expander nodrow)
-        ,(if (stringp expander-cell)
-             (render-component expander-cell)
-             (progn
-               (ensure-refreshed expander-cell)
-               (render-component (content-of expander-cell))))>))
+        ,(typecase
+          (stringp
+           (render-component expander-cell))
+          (content/mixin
+            (ensure-refreshed expander-cell)
+            (render-component (content-of expander-cell)))
+          (t
+           (render-component expander-cell)))>))
 
 (def (layered-function e) render-nodrow-cells (component)
   (:method ((self nodrow/widget))
