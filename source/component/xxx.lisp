@@ -138,7 +138,7 @@
 ;;; Editable
 
 (def layered-method make-begin-editing-command ((component editable/mixin) class prototype value)
-  (when (authorize-operation *application* `(make-begin-editing-command :class ,class))
+  (when (authorize-operation *application* `(make-begin-editing-command :class ,class :instance ,value))
     (command/widget (:visible (or (editable-component? component)
                                   (delay (not (edited-component? component))))
                      :subject-component component)
@@ -148,7 +148,7 @@
           (begin-editing component))))))
 
 (def layered-method make-save-editing-command (component class prototype value)
-  (when (authorize-operation *application* `(make-save-editing-command :class ,class))
+  (when (authorize-operation *application* `(make-save-editing-command :class ,class :instance ,value))
     (command/widget (:visible (delay (edited-component? component))
                      :subject-component component)
       (icon/widget save-editing)
@@ -157,7 +157,7 @@
           (save-editing component))))))
 
 (def layered-method make-cancel-editing-command ((component editable/mixin) class prototype value)
-  (when (authorize-operation *application* `(make-cancel-editing-command :class ,class))
+  (when (authorize-operation *application* `(make-cancel-editing-command :class ,class :instance ,value))
     (command/widget (:visible (delay (edited-component? component))
                      :subject-component component)
       (icon/widget cancel-editing)
@@ -166,7 +166,7 @@
           (cancel-editing component))))))
 
 (def layered-method make-store-editing-command ((component editable/mixin) class prototype value)
-  (when (authorize-operation *application* `(make-store-editing-command :class ,class))
+  (when (authorize-operation *application* `(make-store-editing-command :class ,class :instance ,value))
     (command/widget (:visible (delay (edited-component? component))
                      :subject-component component)
       (icon/widget store-editing)
@@ -174,8 +174,8 @@
         (with-interaction component
           (save-editing component))))))
 
-(def layered-method make-revert-editing-command ((component editable/mixin) class prototype instance)
-  (when (authorize-operation *application* `(make-revert-editing-command :class ,class))
+(def layered-method make-revert-editing-command ((component editable/mixin) class prototype value)
+  (when (authorize-operation *application* `(make-revert-editing-command :class ,class :instance ,value))
     (command/widget (:visible (delay (edited-component? component))
                      :subject-component component)
       (icon/widget revert-editing)
@@ -183,17 +183,17 @@
         (with-interaction component
           (revert-editing component))))))
 
-(def layered-method make-editing-commands ((component editable/mixin) class prototype instance)
-  (when (authorize-operation *application* `(make-editing-commands :class ,class))
+(def layered-method make-editing-commands ((component editable/mixin) class prototype value)
+  (when (authorize-operation *application* `(make-editing-commands :class ,class :instance ,value))
     (cond ((editable-component? component)
-           (list (make-begin-editing-command component class prototype instance)
-                 (make-save-editing-command component class prototype instance)
-                 (make-cancel-editing-command component class prototype instance)))
+           (list (make-begin-editing-command component class prototype value)
+                 (make-save-editing-command component class prototype value)
+                 (make-cancel-editing-command component class prototype value)))
           ((edited-component? component)
-           (list (make-store-editing-command component class prototype instance)
-                 (make-revert-editing-command component class prototype instance))))))
+           (list (make-store-editing-command component class prototype value)
+                 (make-revert-editing-command component class prototype value))))))
 
-(def layered-method make-refresh-component-command ((component editable/mixin) class prototype instance)
+(def layered-method make-refresh-component-command ((component editable/mixin) class prototype value)
   (command/widget (:visible (delay (not (edited-component? component)))
                    :subject-component component)
     (icon/widget refresh-component)
