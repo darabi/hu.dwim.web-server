@@ -54,8 +54,7 @@
 
 (def (component e) component ()
   ()
-  (:documentation "The base class for all components. The primitive types /CLASS/COMMON-LISP:STRING and /CLASS/COMMON-LISP:NUMBER are also considered components.
-For debugging purposes NIL is not a valid component. This class does not have any slots on purpose.
+  (:documentation "The base class for all components. The primitive types /CLASS/COMMON-LISP:STRING and /CLASS/COMMON-LISP:NUMBER are also considered components. For debugging purposes and to avoid silent errors NIL is not a valid component. This class does not have any slots on purpose.
 
 Naming convention for non instantiatable components:
 */mixin       - adds some slots and/or behavior, but it is not usable on its own. It usually has no superclasses, or only other mixin classes.
@@ -74,8 +73,7 @@ Naming convention for some alternative components:
 */reference/* - subclasses of /CLASS/'HU.DWIM.WUI:T/REFERENCE/PRESENTATION'
 */detail/*    - subclasses of /CLASS/'HU.DWIM.WUI:T/DETAIL/PRESENTATION'
 
-Components are created by either using the component specific macros, maker functions or by calling generic factory functions
-such as MAKE-INSTANCE, MAKE-MAKER, MAKE-VIEWER, MAKE-EDITOR, MAKE-INSPECTOR, MAKE-FILTER, MAKE-FINDER and MAKE-SELECTOR."))
+Components are created by either using the component specific macros, one of the component specific factory functions or by calling generic factory functions such as /FUNCTION/COMMON-LISP:MAKE-INSTANCE, /FUNCTION/HU.DWIM.WUI:MAKE-MAKER, /FUNCTION/HU.DWIM.WUI:MAKE-VIEWER, /FUNCTION/HU.DWIM.WUI:MAKE-EDITOR, /FUNCTION/HU.DWIM.WUI:MAKE-INSPECTOR, /FUNCTION/HU.DWIM.WUI:MAKE-FILTER, /FUNCTION/HU.DWIM.WUI:MAKE-FINDER and /FUNCTION/HU.DWIM.WUI:MAKE-SELECTOR."))
 
 ;;;;;;
 ;;; component/minimal

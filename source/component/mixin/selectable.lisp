@@ -6,6 +6,8 @@
 
 (in-package :hu.dwim.wui)
 
+;;; TODO: the selection is lost on refresh-component
+
 ;;;;;;
 ;;; selectable/mixin
 

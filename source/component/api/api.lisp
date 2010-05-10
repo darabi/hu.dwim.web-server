@@ -6,7 +6,12 @@
 
 (in-package :hu.dwim.wui)
 
-;; TODO: move some not so generic functions from this file to the place their methods are first defined
+;;; TODO: move some not so generic functions from this file to the place their methods are first defined
+;;; TODO: there are three different uses of refresh-component
+;;;       - when the user clicks refresh
+;;;       - lazy making of the component recursively
+;;;       - when the component becomes out of date programatically
+;;; TODO: when do we want to use layered functions? e.g. in render-component, refresh-component and factory methods, what about event handlers?
 
 ;;;;;;
 ;;; Component factories for types
