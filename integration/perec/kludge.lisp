@@ -35,8 +35,13 @@
 
 ;; TODO: KLUDGE: move
 (def method reuse-component-value ((component component) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) (value hu.dwim.perec::persistent-object))
-  (unless (eq value (class-prototype class))
-    (hu.dwim.perec::load-instance value)))
+  (if (eq value (class-prototype class))
+      value
+      (hu.dwim.perec::load-instance value)))
+
+(def method reuse-component-value ((component component) (class hu.dwim.perec::persistent-class) (prototype hu.dwim.perec::persistent-object) (value list))
+  (iter (for element :in value)
+        (collect (reuse-component-value component class prototype element))))
 
 ;; KLUDGE: TODO: redefined for now
 #+nil
