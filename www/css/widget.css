@@ -97,6 +97,11 @@ span.widget {
   background-color: #fafafa;
 }
 
+.row > th {
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
 .row > td {
   vertical-align: middle;
   padding-top: 2px;
@@ -112,6 +117,11 @@ span.widget {
   background-image: url( "/static/wui/image/table-row/background.png" );
   background-repeat: repeat-x;
   background-color: #fafafa;
+}
+
+.nodrow > th {
+  padding-left: 1px;
+  padding-right: 1px;
 }
 
 .nodrow > td {

@@ -39,7 +39,7 @@
                                        (page-size-of page-navigation-bar))))))
     (with-render-style/abstract (-self-)
       (render-context-menu-for -self-)
-      <table <thead <tr ,(render-columns-for -self-)>>
+      <table <thead <tr (:class "row") ,(render-columns-for -self-)>>
         <tbody ,(iter (for index :from 0)
                       (for *row-index* = (+ position index))
                       (for row :in-sequence visible-rows)
