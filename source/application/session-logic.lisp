@@ -8,10 +8,11 @@
 
 (def (with-macro* eo) with-session-logic (&key ensure-session (requires-valid-session #t) (lock-session #t))
   (assert (and (boundp '*application*)
-               *application*
-               (boundp '*session*)
+               *application*)
+          () "May not use WITH-SESSION-LOGIC outside the dynamic extent of an application; ~S is not bound properly or NIL" '*application*)
+  (assert (and (boundp '*session*)
                (boundp '*frame*))
-          () "May not use WITH-SESSION-LOGIC outside the dynamic extent of an application")
+          () "May not use WITH-SESSION-LOGIC outside the dynamic extent of an application; ~S and/or ~S is not bound properly" '*session* '*frame*)
   (bind ((application *application*)
          (session nil)
          (session-instance nil)
