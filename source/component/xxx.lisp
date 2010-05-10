@@ -70,7 +70,7 @@
         (setf (subject-component-of it) component)))))
 
 (def layered-method make-select-component-command ((component selectable/mixin) class prototype value)
-  (command/widget (:subject-component (find-selection-component component)
+  (command/widget (:subject-component (find-selection-component component :otherwise nil)
                    :enabled (delay (selectable-component? component)))
     (icon/widget select-component)
     (make-component-action component
