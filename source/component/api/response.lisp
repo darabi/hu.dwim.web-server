@@ -109,14 +109,9 @@
 ;;;;;;
 ;;; Ajax aware render
 
-(def function call-render-xhtml (component)
-  (bind ((*inside-user-code* #t))
-    (setf *rendering-phase-reached* #t)
-    (app.debug "Rendering component ~A" component)
-    (render-xhtml component)))
-
 (def function ajax-aware-render (component)
   (assert (boundp '*rendering-phase-reached*))
+  (setf *rendering-phase-reached* #t)
   (app.debug "Inside AJAX-AWARE-RENDER; is this an ajax-aware-request? ~A" *ajax-aware-request*)
   (if (and *ajax-aware-request*
            (ajax-enabled? *application*))
@@ -125,7 +120,8 @@
 
 (def function full-render (component)
   "Renders COMPONENT fully without assuming any already existing state on the client side."
-  (call-render-xhtml component))
+  (bind ((*inside-user-code* #t))
+    (render-xhtml component)))
 
 (def function incremental-render (component)
   "Renders COMPONENT incrementally by sending the necessary state changes that needs to be applied on the client side.
@@ -146,8 +142,9 @@ Interesting use cases for INCREMENTAL-RENDER involves changing VISIBLE-COMPONENT
          <dom-replacements (:xmlns #.+xml-namespace-uri/xhtml+)
           ,(foreach (lambda (to-be-rendered-component)
                       (map-descendant-components to-be-rendered-component [setf (rendered-component? !1) #f])
-                      (with-restored-component-environment (parent-component-of to-be-rendered-component)
-                        (call-render-xhtml to-be-rendered-component)))
+                      (bind ((*inside-user-code* #t))
+                        (with-restored-component-environment (parent-component-of to-be-rendered-component)
+                          (render-xhtml to-be-rendered-component))))
                     to-be-rendered-components)>)
       <result "success">>))
 

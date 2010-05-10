@@ -449,6 +449,7 @@ Components are created by either using the component specific macros, one of the
   (operation-not-supported "Cannot render ~A, you may want to override RENDER-COMPONENT" -self-))
 
 (def render-component :around component
+  (app.dribble "Rendering component ~A" -self-)
   (with-component-environment -self-
     (call-next-layered-method)))
 
