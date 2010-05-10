@@ -20,7 +20,10 @@
 ;;; coordinates-dependent/mixin
 
 (def (component e) coordinates-dependent/mixin (dimensions/mixin)
-  ((coordinates nil :type list)))
+  ((coordinates
+    nil
+    :type list
+    :computed-in computed-universe/session)))
 
 (def refresh-component coordinates-dependent/mixin
   (bind (((:slots dimensions coordinates) -self-))
@@ -39,7 +42,9 @@
 ;;; coordinates-provider/mixin
 
 (def (component e) coordinates-provider/mixin (dimensions/mixin)
-  ((coordinates :type list)))
+  ((coordinates
+    :type list
+    :computed-in computed-universe/session)))
 
 (def component-environment coordinates-provider/mixin
   (bind (((:read-only-slots dimensions coordinates) -self-))
