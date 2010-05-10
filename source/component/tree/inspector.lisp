@@ -217,20 +217,23 @@
 ;;;;;;
 ;;; sequence/treeble/inspector
 
-(def (component e) sequence/treeble/inspector (inspector/basic t/detail/inspector sequence/abstract treeble/widget)
+(def (component e) sequence/treeble/inspector (inspector/basic
+                                               t/detail/inspector
+                                               sequence/columns/abstract
+                                               treeble/widget)
   ())
 
 (def refresh-component sequence/treeble/inspector
   (bind (((:slots component-value root-nodes columns) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf columns (make-column-presentations -self- class prototype component-value)
-          root-nodes (iter (for node-value :in-sequence component-value)
+    (setf root-nodes (iter (for node-value :in-sequence component-value)
                            (for root-node = (find node-value root-nodes :key #'component-value-of))
                            (if root-node
                                (setf (component-value-of root-node) node-value)
                                (setf root-node (make-nodrow-presentation -self- class prototype node-value)))
-                           (collect root-node)))))
+                           (collect root-node)))
+    (setf columns (make-column-presentations -self- class prototype component-value))))
 
 (def (layered-function e) make-nodrow-presentation (component class prototype value)
   (:method ((component sequence/treeble/inspector) class prototype value)
@@ -238,6 +241,10 @@
                    :component-value value
                    :edited (edited-component? component)
                    :editable (editable-component? component))))
+
+(def layered-method collect-instance-specific-presented-slots ((component sequence/treeble/inspector) class prototype value)
+  (iter (for root-node :in-sequence (root-nodes-of component))
+        (appending (collect-instance-specific-presented-slots root-node (component-dispatch-class root-node) (component-dispatch-prototype root-node) (component-value-of root-node)))))
 
 ;;;;;;
 ;;; t/nodrow/inspector
@@ -252,7 +259,9 @@
          (component-value (component-value-of -self-))
          (children (collect-presented-children -self- dispatch-class dispatch-prototype component-value)))
     (setf cells
-          (if component-value
+          (if (and component-value
+                   ;; TODO: KLUDGE: during computing the columns for the treeble
+                   (slot-boundp *tree* 'columns))
               (mapcar (lambda (column)
                         (funcall (cell-factory-of column) -self-))
                       (columns-of *tree*))
@@ -269,3 +278,18 @@
                  :component-value value
                  :edited (edited-component? component)
                  :editable (editable-component? component)))
+
+(def layered-method collect-instance-specific-presented-slots :around (component class prototype value)
+  (call-in-component-environment component #'call-next-method))
+
+(def layered-method collect-instance-specific-presented-slots ((component t/nodrow/inspector) class prototype value)
+  ;; TODO: KLUDGE: we need the component tree to collect the slots
+  (ensure-refreshed component)
+  ;; TODO: KLUDGE: the columns were not there yet, so we need to refresh
+  (mark-to-be-refreshed-component component)
+  (append (collect-presented-slots component (component-dispatch-class component) (component-dispatch-prototype component) (component-value-of component))
+          (iter (for child-node :in (child-nodes-of component))
+                (appending (collect-presented-slots child-node (component-dispatch-class child-node) (component-dispatch-prototype child-node) (component-value-of child-node))))))
+
+(def layered-method collect-presented-slots ((component t/nodrow/inspector) class prototype value)
+  (class-slots class))

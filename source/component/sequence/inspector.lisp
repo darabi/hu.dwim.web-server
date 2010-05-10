@@ -109,11 +109,66 @@
                         :editable (editable-component? component)))
 
 ;;;;;;
+;;; sequence/columns/abstract
+
+(def (component e) sequence/columns/abstract (sequence/abstract)
+  ())
+
+(def (layered-function e) make-column-presentations (component class prototype value)
+  (:method ((component sequence/columns/abstract) class prototype value)
+    (append (optional-list (when-bind the-class (component-dispatch-class component)
+                             (when (closer-mop:class-direct-subclasses the-class)
+                               (make-type-column-presentation component class prototype value))))
+            (make-place-column-presentations component class prototype value))))
+
+(def (layered-function e) make-type-column-presentation (component class prototype value)
+  (:method ((component sequence/columns/abstract) class prototype value)
+    (make-instance 'place/column/inspector
+                   :component-value "BLAH" ;; TODO:
+                   :header #"object-list-table.column.type"
+                   :cell-factory (lambda (component)
+                                   (bind ((class (class-of (component-value-of component))))
+                                     (make-value-viewer class :initial-alternative-type 't/reference/inspector))))))
+
+;; TODO: split for sequence/table/inspector and sequence/treeble/inspector, the latter must recurse down
+(def (layered-function e) make-place-column-presentations (component class prototype value)
+  (:method ((component sequence/columns/abstract) class prototype value)
+    (bind ((slot-name->slot-map nil)
+           (slots (append (collect-class-specific-presented-slots component class prototype value)
+                          (collect-instance-specific-presented-slots component class prototype value))))
+      (dolist (slot slots)
+        (bind ((slot-name (slot-definition-name slot)))
+          (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
+            (push (cons slot-name slot) slot-name->slot-map))))
+      (mapcar (lambda (slot-name+slot)
+                (make-instance 'place/column/inspector
+                               :component-value "BLAH" ;; TODO:
+                               :header (localized-slot-name (cdr slot-name+slot))
+                               :cell-factory (lambda (component)
+                                               (bind ((slot (find-slot (class-of (component-value-of component)) (car slot-name+slot) :otherwise nil)))
+                                                 (if slot
+                                                     (make-instance 'place/cell/inspector
+                                                                    :component-value (make-object-slot-place (component-value-of component) slot))
+                                                     (empty/layout))))))
+              (nreverse slot-name->slot-map)))))
+
+(def (layered-function e) collect-class-specific-presented-slots (component class prototype value)
+  (:method ((component sequence/columns/abstract) class prototype value)
+    (when class
+      (collect-presented-slots component class (class-prototype class) value))))
+
+(def layered-method collect-presented-slots ((component sequence/columns/abstract) class prototype value)
+  (class-slots class))
+
+(def layered-method collect-presented-places ((component sequence/columns/abstract) class prototype value)
+  (mapcar [make-object-slot-place value !1] (collect-presented-slots component class prototype value)))
+
+;;;;;;
 ;;; sequence/table/inspector
 
 (def (component e) sequence/table/inspector (inspector/style
                                              t/detail/inspector
-                                             sequence/abstract
+                                             sequence/columns/abstract
                                              table/widget
                                              component-messages/widget
                                              deep-arguments/mixin)
@@ -123,13 +178,13 @@
   (bind (((:slots component-value rows columns) -self-)
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
-    (setf columns (make-column-presentations -self- class prototype component-value)
-          rows (iter (for row-value :in-sequence component-value)
+    (setf rows (iter (for row-value :in-sequence component-value)
                      (for row = (find row-value rows :key #'component-value-of))
                      (if row
                          (setf (component-value-of row) row-value)
                          (setf row (make-row-presentation -self- class prototype row-value)))
-                     (collect row)))))
+                     (collect row)))
+    (setf columns (make-column-presentations -self- class prototype component-value))))
 
 (def layered-method make-page-navigation-bar ((component sequence/table/inspector) class prototype value)
   (apply #'make-instance 'page-navigation-bar/widget
@@ -143,53 +198,11 @@
                    :edited (edited-component? component)
                    :editable (editable-component? component))))
 
-(def (layered-function e) make-type-column-presentation (component class prototype value)
-  (:method ((component columns/mixin) class prototype value)
-    (make-instance 'place/column/inspector
-                   :component-value "BLAH" ;; TODO:
-                   :header #"object-list-table.column.type"
-                   :cell-factory (lambda (component)
-                                   (bind ((class (class-of (component-value-of component))))
-                                     (make-value-viewer class :initial-alternative-type 't/reference/inspector))))))
-
-(def (layered-function e) make-column-presentations (component class prototype value)
-  (:method ((component columns/mixin) class prototype value)
-    (append (optional-list (when-bind the-class (component-dispatch-class component)
-                             (when (closer-mop:class-direct-subclasses the-class)
-                               (make-type-column-presentation component class prototype value))))
-            (make-place-column-presentations component class prototype value))))
-
-;; TODO: split for sequence/table/inspector and sequence/treeble/inspector, the latter must recurse down
-(def (layered-function e) make-place-column-presentations (component class prototype value)
-  (:method ((component columns/mixin) class prototype value)
-    (bind (((:slots command-bar columns component-value) component)
-           (slot-name->slot-map nil))
-      ;; KLUDGE: TODO: this register mapping is wrong, maps slot-names to randomly choosen effective-slots, must be forbidden
-      (flet ((register-slot (slot)
-               (bind ((slot-name (slot-definition-name slot)))
-                 (unless (member slot-name slot-name->slot-map :test #'eq :key #'car)
-                   (push (cons slot-name slot) slot-name->slot-map)))))
-        (when class
-          (foreach #'register-slot (collect-presented-slots component class (class-prototype class) component-value)))
-        (iter (for value :in-sequence component-value)
-              (foreach #'register-slot (collect-presented-slots component (class-of value) value component-value))))
-      (mapcar (lambda (slot-name->slot)
-                (make-instance 'place/column/inspector
-                               :component-value "BLAH" ;; TODO:
-                               :header (localized-slot-name (cdr slot-name->slot))
-                               :cell-factory (lambda (component)
-                                               (bind ((slot (find-slot (class-of (component-value-of component)) (car slot-name->slot) :otherwise nil)))
-                                                 (if slot
-                                                     (make-instance 'place/cell/inspector
-                                                                    :component-value (make-object-slot-place (component-value-of component) slot))
-                                                     (empty/layout))))))
-              (nreverse slot-name->slot-map)))))
-
-(def layered-method collect-presented-slots ((component columns/mixin) class prototype value)
-  (class-slots class))
-
-(def layered-method collect-presented-places ((component columns/mixin) class prototype value)
-  (mapcar [make-object-slot-place value !1] (collect-presented-slots component class prototype value)))
+;; TODO: find a proper superclass name
+(def (layered-function e) collect-instance-specific-presented-slots (component class prototype value)
+  (:method ((component sequence/table/inspector) class prototype value)
+    (iter (for row :in-sequence (rows-of component))
+          (appending (collect-presented-slots row (component-dispatch-class row) (component-dispatch-prototype row) (component-value-of row))))))
 
 ;;;;;;
 ;;; place/column/inspector

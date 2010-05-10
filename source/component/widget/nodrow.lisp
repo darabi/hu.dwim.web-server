@@ -77,7 +77,7 @@
         ,(render-nodrow-expander nodrow)
         ,(typecase
           (stringp
-           (render-component expander-cell))
+           expander-cell)
           (content/mixin
             (ensure-refreshed expander-cell)
             (render-component (content-of expander-cell)))

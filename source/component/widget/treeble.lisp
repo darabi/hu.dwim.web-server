@@ -17,7 +17,7 @@
                                    selection/mixin)
   (;; TODO expander-column-index should be marked by a special column type, or something similar. this way it's very fragile...
    (expander-column-index 0 :type integer)
-   (expand-nodes-by-default #f :type boolean)))
+   (expand-nodes-by-default #t :type boolean)))
 
 (def (macro e) treeble/widget ((&rest args &key &allow-other-keys) &body root-nodes)
   `(make-instance 'treeble/widget ,@args :root-nodes (list ,@root-nodes)))
