@@ -321,7 +321,7 @@
                        ;; TODO why does it ever happen that the ajax answer is empty?
                        ;; TODO don't use dojo internals. find a way to reinvoke the same event, or make sure some other way that the context menu comes up
                        (._scheduleOpen it event.target nil (create :x event.pageX :y event.pageY))
-                       (log.warn "Context menu was not found after processing the ajax answer (empty ajax answer?). The id we looked for is " id))))
+                       (log.error "Context menu was not found after processing the ajax answer (empty ajax answer?). The id we looked for is " id))))
    event connection))
 
 (defun wui.io.postprocess-inserted-node (original-node imported-node)
