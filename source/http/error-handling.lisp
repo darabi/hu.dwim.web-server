@@ -10,6 +10,9 @@
   (and *response*
        (headers-are-sent-p *response*)))
 
+(def function is-error-worth-logging? (error)
+  (not (typep error 'access-denied-error)))
+
 (def function build-backtrace-string (error &key message)
   (hu.dwim.util:build-backtrace-string error :message message :timestamp (local-time:now)))
 
@@ -32,7 +35,10 @@
 (def methods handle-toplevel-error
 
   (:method :before (context (error serious-condition))
-    (server.dribble (build-backtrace-string error :message "HANDLE-TOPLEVEL-ERROR :before is now dealing with this error"))
+    (bind ((message (build-backtrace-string error :message "HANDLE-TOPLEVEL-ERROR :before is now dealing with this error")))
+      (if (is-error-worth-logging? error)
+          (server.error message)
+          (server.dribble message)))
     (maybe-invoke-debugger error :context context))
 
   (:method :around (context error)

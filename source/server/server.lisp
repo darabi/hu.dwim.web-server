@@ -321,7 +321,7 @@
                (decf (occupied-worker-count-of server)))))
          (handle-request-error (condition)
            (incf (failed-request-count-of server))
-           (unless (typep condition 'access-denied-error)
+           (when (is-error-worth-logging? condition)
              (server.error "Error while handling a server request in worker ~A on socket ~A: ~A" worker stream-socket condition))
            ;; no need to worry about (nested) errors here, see WITH-LAYERED-ERROR-HANDLERS
            (handle-toplevel-error *context-of-error* condition)
