@@ -7,26 +7,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; layout/abstract
+;;; component/layout
 
-(def (component e) layout/abstract ()
+(def (component e) component/layout ()
   ()
-  (:documentation "A LAYOUT/ABSTRACT is an arrangement of its child COMPONENTs, it does not provide behaviour on the client side to modify its state. It might have various visual appearance properties to control the look and feel."))
+  (:documentation "A layout is a visual arrangement of its child components. It does not provide behavior on the client side to modify the component's state or appearance. On the other hand it may have various properties that control the style and look and feel. This class does not have any slots on purpose."))
 
 ;;;;;;
-;;; layout/minimal
+;;; standard/layout
 
-(def (component e) layout/minimal (layout/abstract component/minimal)
-  ())
-
-;;;;;;
-;;; layout/basic
-
-(def (component e) layout/basic (layout/minimal component/basic)
-  ())
-
-;;;;;;
-;;; layout/style
-
-(def (component e) layout/style (layout/basic component/style)
-  ())
+(def (component e) standard/layout (component/layout standard/component)
+  ()
+  (:documentation "A standard layout includes a set of generally useful mixins."))

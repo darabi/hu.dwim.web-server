@@ -52,11 +52,8 @@
 (def method print-component-value ((self unbound/presentation))
   #"value.unbound")
 
-(def (function io) render-unbound-component ()
-  `xml,#"value.unbound")
-
 (def render-xhtml unbound/presentation
-  (render-unbound-component))
+  (render-component-value -self-))
 
 ;;;;;;
 ;;; null/presentation
@@ -67,11 +64,8 @@
 (def method print-component-value ((self null/presentation))
   #"value.nil")
 
-(def (function io) render-null-component ()
-  `xml,#"value.nil")
-
 (def render-xhtml null/presentation
-  (render-null-component))
+  (render-component-value -self-))
 
 ;;;;;;
 ;;; t/read-eval-print/presentation
@@ -510,7 +504,7 @@
   ())
 
 (def render-xhtml inet-address/presentation
-  `xml,(print-component-value -self-))
+  (render-component-value -self-))
 
 (def method print-component-value ((component inet-address/presentation))
   (bind (((:values component-value has-component-value?) (component-value-and-bound? component)))

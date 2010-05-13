@@ -7,58 +7,58 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; t/filter
+;;; t/alternator/filter
 
-(def (component e) t/filter (filter/basic
-                             t/presentation
-                             cloneable/abstract
-                             layer/mixin
-                             title/mixin
-                             component-result/mixin)
+(def (component e) t/alternator/filter (t/filter
+                                        t/alternator/presentation
+                                        cloneable/component
+                                        layer/mixin
+                                        title/mixin
+                                        component-result/mixin)
   ()
   (:documentation "Generic factory configuration (all components are available):
 
-(T/FILTER                                         ; filter for something (alternator)
+(T/ALTERNATOR/FILTER                              ; filter for something (alternator)
  (T/PLACE-LIST/FILTER                             ; filter for a list of places of something
-  (PLACE-LIST/FILTER                              ; filter for a list of places (alternator)
+  (PLACE-LIST/ALTERNATOR/FILTER                   ; filter for a list of places (alternator)
    (PLACE-LIST/PLACE-GROUP-LIST/FILTER            ; filter for a grouping of a list of places
-    (PLACE-GROUP-LIST/FILTER                      ; filter for a list of place groups (alternator)
+    (PLACE-GROUP-LIST/ALTERNATOR/FILTER           ; filter for a list of place groups (alternator)
      (PLACE-GROUP-LIST/NAME-VALUE-LIST/FILTER     ; filter for a list of place groups, display as a name value list
-      (PLACE-GROUP/FILTER                         ; filter for a group of places (alternator)
+      (PLACE-GROUP/ALTERNATOR/FILTER              ; filter for a group of places (alternator)
        (PLACE-GROUP/NAME-VALUE-GROUP/FILTER       ; filter for a group of places, display as a name value group
-        (PLACE/FILTER                             ; filter for a place (alternator)
+        (PLACE/ALTERNATOR/FILTER                  ; filter for a place (alternator)
          (PLACE/NAME-VALUE-PAIR/FILTER            ; filter for a place, display as a name value pair
           (PLACE/NAME/FILTER                      ; filter the name of a place
-           (STRING/FILTER                         ; filter a string (alternator)
+           (STRING/ALTERNATOR/FILTER              ; filter a string (alternator)
             (STRING/TEXT/FILTER                   ; filter a string, display as text
              STRING)))                            ; immediate
           (PLACE/VALUE/FILTER                     ; filter for the value of a place
-           (T/FILTER))))                          ; filter for something (alternator)
+           (T/ALTERNATOR/FILTER))))               ; filter for something (alternator)
         ...))
       ...))))))
 
 Optimized factory configuration (default):
 
-(T/FILTER                                         ; filter for something (alternator)
+(T/ALTERNATOR/FILTER                              ; filter for something (alternator)
  (PLACE-GROUP-LIST/NAME-VALUE-LIST/FILTER         ; filter for a list of place groups, display as a name value list
   (PLACE-GROUP/NAME-VALUE-GROUP/FILTER            ; filter for a group of places, display as a name value group
    (PLACE/NAME-VALUE-PAIR/FILTER                  ; filter for a place, display as a name value pair
     STRING                                        ; immediate
     (PLACE/VALUE/FILTER                           ; filter for the value of a place
-     (T/FILTER)))                                 ; filter for something (alternator)
+     (T/ALTERNATOR/FILTER)))                      ; filter for something (alternator)
    ...)
   ...))
 "))
 
-(def subtype-mapper *filter-type-mapping* t t/filter)
+(def subtype-mapper *filter-type-mapping* t t/alternator/filter)
 
-(def render-component t/filter
+(def render-component t/alternator/filter
   (with-render-alternator/widget -self-
     (render-title-for -self-)
     (render-alternator-interior -self-)
     (render-result-for -self-)))
 
-(def layered-method make-alternatives ((component t/filter) class prototype value)
+(def layered-method make-alternatives ((component t/alternator/filter) class prototype value)
   (list (make-instance 't/name-value-list/filter
                        :component-value value
                        :component-value-type (component-value-type-of component))
@@ -66,15 +66,15 @@ Optimized factory configuration (default):
                        :component-value value
                        :component-value-type (component-value-type-of component))))
 
-(def layered-method make-command-bar-commands ((component t/filter) class prototype value)
+(def layered-method make-command-bar-commands ((component t/alternator/filter) class prototype value)
   (optional-list* (make-execute-filter-command component class prototype value) (call-next-layered-method)))
 
-(def method collect-filter-predicates ((self t/filter))
+(def method collect-filter-predicates ((self t/alternator/filter))
   '(equal))
 
 (def (icon e) execute-filter)
 
-(def layered-method make-execute-filter-command ((component t/filter) class prototype value)
+(def layered-method make-execute-filter-command ((component t/alternator/filter) class prototype value)
   (when (authorize-operation *application* `(make-execute-filter-command :class ,class))
     (make-replace-and-push-back-command (delay (result-of component))
                                         (delay (with-restored-component-environment component
@@ -85,10 +85,10 @@ Optimized factory configuration (default):
                                               :subject-component component)
                                         (list :content (icon/widget navigate-back)))))
 
-(def layered-method make-result ((component t/filter) class prototype (value list))
+(def layered-method make-result ((component t/alternator/filter) class prototype (value list))
   (make-inspector `(or null (cons ,(class-name (component-dispatch-class component)) t)) :value value))
 
-(def layered-method make-result :around ((component t/filter) class prototype value)
+(def layered-method make-result :around ((component t/alternator/filter) class prototype value)
   (prog1-bind component
       (call-next-layered-method)
     (if value
@@ -96,7 +96,7 @@ Optimized factory configuration (default):
         (add-component-warning-message component #"no-matches-were-found"))))
 
 (def (layered-function e) execute-filter (component class prototype value)
-  (:method ((component t/filter) class prototype value)
+  (:method ((component t/alternator/filter) class prototype value)
     (bind ((result nil)
            (predicate (make-filter-predicate component class prototype value)))
       (map-filter-input component class prototype value
@@ -110,7 +110,7 @@ Optimized factory configuration (default):
     (make-filter-predicate (content-of component) class prototype value)))
 
 (def (layered-function e) map-filter-input (component class prototype value function)
-  (:method ((component t/filter) class prototype value function)
+  (:method ((component t/alternator/filter) class prototype value function)
     (sb-ext::gc :full #t)
     (sb-vm::map-allocated-objects
      (lambda (candidate type size)
@@ -122,7 +122,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; t/reference/filter
 
-(def (component e) t/reference/filter (filter/abstract t/reference/presentation)
+(def (component e) t/reference/filter (t/filter t/reference/presentation)
   ())
 
 (def layered-method make-reference-content ((component t/reference/filter) class prototype value)
@@ -131,13 +131,13 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; t/detail/filter
 
-(def (component e) t/detail/filter (filter/abstract t/detail/presentation)
+(def (component e) t/detail/filter (t/filter t/detail/presentation)
   ())
 
 ;;;;;;
 ;;; t/name-value-list/filter
 
-(def (component e) t/name-value-list/filter (filter/basic t/name-value-list/presentation)
+(def (component e) t/name-value-list/filter (t/detail/filter t/name-value-list/presentation)
   ())
 
 (def layered-method collect-presented-slots ((component t/name-value-list/filter) class prototype value)
@@ -177,7 +177,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place-group-list/name-value-list/filter
 
-(def (component e) place-group-list/name-value-list/filter (filter/basic place-group-list/name-value-list/presentation)
+(def (component e) place-group-list/name-value-list/filter (t/detail/filter place-group-list/name-value-list/presentation)
   ())
 
 (def layered-method collect-presented-place-groups ((component place-group-list/name-value-list/filter) class prototype (value place-group))
@@ -200,7 +200,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place-group/name-value-group/filter
 
-(def (component e) place-group/name-value-group/filter (filter/basic place-group/name-value-group/presentation)
+(def (component e) place-group/name-value-group/filter (t/detail/filter place-group/name-value-group/presentation)
   ())
 
 (def layered-method make-content-presentation ((component place-group/name-value-group/filter) class prototype (value object-slot-place))
@@ -212,7 +212,7 @@ Optimized factory configuration (default):
 ;;; place/name-value-pair/filter
 
 ;; TODO: move these slots down one level?
-(def (component e) place/name-value-pair/filter (filter/basic place/name-value-pair/presentation)
+(def (component e) place/name-value-pair/filter (t/detail/filter place/name-value-pair/presentation)
   ((use-in-filter #f :type boolean)
    (use-in-filter-id)
    (negated #f :type boolean)

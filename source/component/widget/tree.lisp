@@ -9,8 +9,8 @@
 ;;;;;;
 ;;; tree/widget
 
-(def (component e) tree/widget (tree/abstract
-                                widget/style
+(def (component e) tree/widget (tree/component
+                                standard/widget
                                 root-nodes/mixin
                                 selection/mixin
                                 command-bar/mixin
@@ -29,7 +29,7 @@
 
 (def render-xhtml tree/widget
   (bind (((:read-only-slots root-nodes) -self-))
-    (with-render-style/abstract (-self-)
+    (with-render-style/component (-self-)
       (foreach #'render-component root-nodes)
       (render-command-bar-for -self-)
       (render-context-menu-for -self-))))

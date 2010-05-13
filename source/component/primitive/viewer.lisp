@@ -9,6 +9,6 @@
 ;;;;;;
 ;;; primitive/viewer
 
-(def (component e) primitive/viewer (primitive/presentation viewer/abstract)
+(def (component e) primitive/viewer (primitive/presentation t/viewer)
   ()
   (:documentation "A PRIMITIVE/VIEWER displays existing values of primitive TYPEs."))

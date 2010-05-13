@@ -114,9 +114,8 @@
        <div ,(render-component (find-slot-value-component -self- 'hu.dwim.util::educations))>
        <div ,(render-component (find-slot-value-component -self- 'hu.dwim.util::experiences))>>)
 
-(def layered-method make-alternatives ((component t/inspector) class prototype (value curriculum-vitae))
-  (list* (make-instance 'curriculum-vitae/detail/inspector :component-value value)
-         (call-next-method)))
+(def layered-method make-alternatives ((component t/alternator/inspector) class prototype (value curriculum-vitae))
+  (list* (make-instance 'curriculum-vitae/detail/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; person/detail/inspector
@@ -125,7 +124,7 @@
   ((slot-names '(hu.dwim.util::first-name hu.dwim.util::last-name hu.dwim.util::email-address))))
 
 (def render-xhtml person/detail/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     <span (:class "name")
           ,(render-component (find-slot-value-component -self- 'hu.dwim.util::first-name))
           " "
@@ -133,14 +132,13 @@
     <span (:class "email-address")
           ,(render-component (find-slot-value-component -self- 'hu.dwim.util::email-address))>))
 
-(def layered-method make-alternatives ((component t/inspector) class prototype (value person))
-  (list* (make-instance 'person/detail/inspector :component-value value)
-         (call-next-method)))
+(def layered-method make-alternatives ((component t/alternator/inspector) class prototype (value person))
+  (list* (make-instance 'person/detail/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; t/slot-value-contents/inspector
 
-(def (component e) t/slot-value-contents/inspector (inspector/style contents/widget)
+(def (component e) t/slot-value-contents/inspector (t/inspector contents/widget)
   ((slot-names t :allocation :class)))
 
 (def refresh-component t/slot-value-contents/inspector

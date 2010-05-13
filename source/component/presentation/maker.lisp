@@ -7,11 +7,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; maker/abstract
+;;; component/maker
 
-(def (component e) maker/abstract (presentation/abstract)
+(def (component e) component/maker (component/presentation)
   ()
-  (:documentation "A MAKER/ABSTRACT creates new values of a TYPE.
+  (:documentation "A maker creates new values of a TYPE. This class does not have any slots on purpose.
   - similar to (make-instance ...)
   - static input
     - value-type: type
@@ -22,27 +22,15 @@
   - output
     - value: selected-type"))
 
-(def method component-dispatch-class ((self maker/abstract))
+;;;;;;
+;;; t/maker
+
+(def (component e) t/maker (component/maker t/presentation)
+  ())
+
+(def method component-dispatch-class ((self t/maker))
   (or (find-class-for-type (component-value-type-of self))
       (find-class t)))
-
-;;;;;;
-;;; maker/minimal
-
-(def (component e) maker/minimal (maker/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; maker/basic
-
-(def (component e) maker/basic (maker/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; maker/style
-
-(def (component e) maker/style (maker/basic presentation/style)
-  ())
 
 ;;;;;;
 ;;; Maker factory

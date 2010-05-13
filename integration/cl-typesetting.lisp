@@ -43,7 +43,7 @@
 
 (def (special-variable e) *total-page-count*)
 
-(def layered-method export-pdf ((self exportable/abstract))
+(def layered-method export-pdf ((self exportable/component))
   (with-output-to-export-stream (*pdf-stream* :content-type +pdf-mime-type+ :external-format :iso-8859-1)
     (bind ((typeset::*default-font* (pdf:get-font "FreeSerif"))
            (typeset::*font* typeset::*default-font*)

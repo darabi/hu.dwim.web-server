@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; primitive/filter
 
-(def (component e) primitive/filter (primitive/presentation filter/abstract)
+(def (component e) primitive/filter (primitive/presentation t/filter)
   ()
   (:documentation "A PRIMITIVE/FILTER filters the set of existing values of a primitive TYPE based on a filter criteria provided by the user."))
 

@@ -7,26 +7,26 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; presentation/abstract
+;;; component/presentation
 
-(def (component e) presentation/abstract (component-value/mixin component-value-type/mixin)
+(def (component e) component/presentation ()
   ()
-  (:documentation "A PRESENTATION/ABSTRACT is the base class of all TYPE related meta COMPONENTs."))
+  (:documentation "A presentation is the abstract base class of all TYPE related meta COMPONENTs. It presents a VALUE of TYPE in a way that is specific to the component. This class does not have any slots on purpose.
+  - static input
+    - value-type: type
+  - volatile input
+    - value: type
+  - dispatch
+    - dispatch-class: (class-of value)
+    - dispatch-prototype: (class-prototype dispatch-class)
+  - output
+    - value: type"))
 
 ;;;;;;
-;;; presentation/minimal
+;;; t/presentation
 
-(def (component e) presentation/minimal (presentation/abstract component/minimal)
-  ())
-
-;;;;;;
-;;; presentation/basic
-
-(def (component e) presentation/basic (presentation/minimal component/basic)
-  ())
-
-;;;;;;
-;;; presentation/style
-
-(def (component e) presentation/style (presentation/basic component/style)
+;; TODO: the order of superclasses here might be not what we want
+;; it's weird that component-value/mixin comes before standard/component
+;; but in the class precedence list of t/detail/presentation component-value/mixin must come before content/component
+(def (component e) t/presentation (component/presentation component-value/mixin component-value-type/mixin standard/component)
   ())

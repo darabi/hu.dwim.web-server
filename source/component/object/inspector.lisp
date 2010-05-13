@@ -7,60 +7,59 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; t/inspector
+;;; t/alternator/inspector
 
-(def (component e) t/inspector (inspector/basic
-                                t/presentation
-                                cloneable/abstract
-                                deep-arguments/mixin
-                                layer/mixin
-                                title/mixin)
+(def (component e) t/alternator/inspector (t/inspector
+                                           t/alternator/presentation
+                                           cloneable/component
+                                           deep-arguments/mixin
+                                           layer/mixin
+                                           title/mixin)
   ()
   (:documentation "Generic factory version (all components are available):
 
-(T/INSPECTOR                                      ; inspect something (alternator)
+(T/ALTERNATOR/INSPECTOR                           ; inspect something (alternator)
  (T/PLACE-LIST/INSPECTOR                          ; inspect a list of places of something
-  (PLACE-LIST/INSPECTOR                           ; inspect a list of places (alternator)
+  (PLACE-LIST/ALTERNATOR/INSPECTOR                ; inspect a list of places (alternator)
    (PLACE-LIST/PLACE-GROUP-LIST/INSPECTOR         ; inspect a grouping of a list of places
-    (PLACE-GROUP-LIST/INSPECTOR                   ; inspect a list of place groups (alternator)
+    (PLACE-GROUP-LIST/ALTERNATOR/INSPECTOR        ; inspect a list of place groups (alternator)
      (PLACE-GROUP-LIST/NAME-VALUE-LIST/INSPECTOR  ; inspect a list of place groups, display as a name value list
-      (PLACE-GROUP/INSPECTOR                      ; inspect a group of places (alternator)
+      (PLACE-GROUP/ALTERNATOR/INSPECTOR           ; inspect a group of places (alternator)
        (PLACE-GROUP/NAME-VALUE-GROUP/INSPECTOR    ; inspect a group of places, display as a name value group
-        (PLACE/INSPECTOR                          ; inspect a place (alternator)
+        (PLACE/ALTERNATOR/INSPECTOR               ; inspect a place (alternator)
          (PLACE/NAME-VALUE-PAIR/INSPECTOR         ; inspect a place, display as a name value pair
           (PLACE/NAME/INSPECTOR                   ; inspect the name of a place
-           (STRING/INSPECTOR                      ; inspect a string (alternator)
+           (STRING/ALTERNATOR/INSPECTOR           ; inspect a string (alternator)
             (STRING/TEXT/INSPECTOR                ; inspect a string, display as text
              STRING)))                            ; immediate
           (PLACE/VALUE/INSPECTOR                  ; inspect the value of a place
-           (T/INSPECTOR))))                       ; inspect something (alternator)
+           (T/ALTERNATOR/INSPECTOR))))            ; inspect something (alternator)
         ...))
       ...))))))
 
 Optimized factory configuration (default):
 
-(T/INSPECTOR                                      ; inspect something (alternator)
+(T/ALTERNATOR/INSPECTOR                           ; inspect something (alternator)
  (PLACE-GROUP-LIST/NAME-VALUE-LIST/INSPECTOR      ; inspect a list of place groups, display as a name value list
   (PLACE-GROUP/NAME-VALUE-GROUP/INSPECTOR         ; inspect a group of places, display as a name value group
    (PLACE/NAME-VALUE-PAIR/INSPECTOR               ; inspect a place, display as a name value pair
     STRING                                        ; immediate
     (PLACE/VALUE/INSPECTOR                        ; inspect the value of a place
-     (T/INSPECTOR)))                              ; inspect something (alternator)
+     (T/ALTERNATOR/INSPECTOR)))                   ; inspect something (alternator)
    ...)
   ...))
 
-(STRING/INSPECTOR                                 ; inspect a string (alternator)
+(STRING/ALTERNATOR/INSPECTOR                      ; inspect a string (alternator)
  (STRING/TEXT/INSPECTOR)                          ; inspect a string as text
  (STRING/CHARACTER-SEQUENCE/INSPECTOR)            ; inspect a string as a sequence of characters
  ...)
 "))
 
-(def subtype-mapper *inspector-type-mapping* t t/inspector)
+(def subtype-mapper *inspector-type-mapping* t t/alternator/inspector)
 
-(def layered-method make-alternatives ((component t/inspector) class prototype value)
+(def layered-method make-alternatives ((component t/alternator/inspector) class prototype value)
   (bind (((:read-only-slots editable-component edited-component component-value-type) component))
-    (list (apply #'make-instance
-                 't/name-value-list/inspector
+    (list (apply #'make-instance 't/name-value-list/inspector
                  :component-value value
                  :component-value-type component-value-type
                  :edited edited-component
@@ -72,7 +71,7 @@ Optimized factory configuration (default):
                          :edited edited-component
                          :editable editable-component))))
 
-(def render-component t/inspector
+(def render-component t/alternator/inspector
   (with-render-alternator/widget -self-
     (render-title-for -self-)
     (render-alternator-interior -self-)))
@@ -80,19 +79,19 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; t/reference/inspector
 
-(def (component e) t/reference/inspector (inspector/abstract t/reference/presentation)
+(def (component e) t/reference/inspector (t/inspector t/reference/presentation)
   ())
 
 ;;;;;;
 ;;; t/detail/inspector
 
-(def (component e) t/detail/inspector (inspector/abstract t/detail/presentation)
+(def (component e) t/detail/inspector (t/inspector t/detail/presentation)
   ())
 
 ;;;;;
 ;;; t/documentation/inspector
 
-(def (component e) t/documentation/inspector (inspector/style t/detail/inspector contents/mixin)
+(def (component e) t/documentation/inspector (t/detail/inspector contents/mixin)
   ())
 
 (def refresh-component t/documentation/inspector
@@ -104,7 +103,7 @@ Optimized factory configuration (default):
   (render-contents-for -self-))
 
 (def render-xhtml t/documentation/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-contents-for -self-)))
 
 (def (generic e) make-documentation (component class prototype value)
@@ -142,7 +141,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; t/name-value-list/inspector
 
-(def (component e) t/name-value-list/inspector (inspector/basic t/name-value-list/presentation)
+(def (component e) t/name-value-list/inspector (t/detail/inspector t/name-value-list/presentation)
   ((slot-names nil :type list)))
 
 (def layered-method collect-presented-slots ((component t/name-value-list/inspector) class prototype value)
@@ -191,7 +190,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place-group-list/name-value-list/inspector
 
-(def (component e) place-group-list/name-value-list/inspector (inspector/basic place-group-list/name-value-list/presentation)
+(def (component e) place-group-list/name-value-list/inspector (t/detail/inspector place-group-list/name-value-list/presentation)
   ())
 
 (def layered-method collect-presented-place-groups ((component place-group-list/name-value-list/inspector) class prototype (value place-group))
@@ -207,7 +206,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place-group/name-value-group/inspector
 
-(def (component e) place-group/name-value-group/inspector (inspector/basic place-group/name-value-group/presentation)
+(def (component e) place-group/name-value-group/inspector (t/detail/inspector place-group/name-value-group/presentation)
   ())
 
 (def layered-method make-content-presentation ((component place-group/name-value-group/inspector) class prototype (value object-slot-place))
@@ -220,7 +219,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place/name-value-pair/inspector
 
-(def (component e) place/name-value-pair/inspector (inspector/basic place/name-value-pair/presentation)
+(def (component e) place/name-value-pair/inspector (t/detail/inspector place/name-value-pair/presentation)
   ())
 
 (def layered-method make-value-presentation ((component place/name-value-pair/inspector) class prototype value)

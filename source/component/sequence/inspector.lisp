@@ -7,25 +7,25 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; sequence/abstract
+;;; sequence/inspector
 
-(def (component e) sequence/abstract (inspector/abstract)
+(def (component e) sequence/inspector (t/inspector)
   ())
 
-(def method component-dispatch-class ((component sequence/abstract))
+(def method component-dispatch-class ((component sequence/inspector))
   ;; TODO: KLUDGE: this should be an argument
   (awhen (component-value-of component)
     (class-of (first-elt it))))
 
 ;;;;;;
-;;; sequence/inspector
+;;; sequence/alternator/inspector
 
-(def (component e) sequence/inspector (t/inspector sequence/abstract)
+(def (component e) sequence/alternator/inspector (t/alternator/inspector sequence/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* sequence sequence/inspector)
+(def subtype-mapper *inspector-type-mapping* sequence sequence/alternator/inspector)
 
-(def layered-method make-alternatives ((component sequence/inspector) class prototype value)
+(def layered-method make-alternatives ((component sequence/alternator/inspector) class prototype value)
   (bind (((:read-only-slots editable-component edited-component component-value-type) component))
     (optional-list (awhen (find-if [not (null (class-slots (class-of !1)))] value)
                      (make-instance 'sequence/table/inspector
@@ -58,13 +58,13 @@
 ;;;;;;
 ;;; sequence/reference/inspector
 
-(def (component e) sequence/reference/inspector (t/reference/inspector sequence/abstract)
+(def (component e) sequence/reference/inspector (t/reference/inspector sequence/inspector)
   ())
 
 ;;;;;;
 ;;; sequence/list/inspector
 
-(def (component e) sequence/list/inspector (inspector/style t/detail/inspector sequence/abstract list/widget)
+(def (component e) sequence/list/inspector (t/detail/inspector sequence/inspector list/widget)
   ())
 
 (def refresh-component sequence/list/inspector
@@ -72,7 +72,7 @@
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
     (setf contents (iter (for element-value :in-sequence component-value)
-                         (for element = (find element-value contents :key #'component-value-of))
+                         (for element = (find element-value contents :key #'component-value-of :test #'component-value=))
                          (if element
                              (setf (component-value-of element) element-value)
                              (setf element (make-element-presentation -self- class prototype element-value)))
@@ -91,7 +91,7 @@
 ;;;;;;
 ;;; t/element/inspector
 
-(def (component e) t/element/inspector (inspector/style element/widget)
+(def (component e) t/element/inspector (t/detail/inspector element/widget)
   ())
 
 (def refresh-component t/element/inspector
@@ -109,20 +109,20 @@
                         :editable (editable-component? component)))
 
 ;;;;;;
-;;; sequence/columns/abstract
+;;; sequence/columns/component
 
-(def (component e) sequence/columns/abstract (sequence/abstract)
+(def (component e) sequence/columns/component (sequence/inspector)
   ())
 
 (def (layered-function e) make-column-presentations (component class prototype value)
-  (:method ((component sequence/columns/abstract) class prototype value)
+  (:method ((component sequence/columns/component) class prototype value)
     (append (optional-list (when-bind the-class (component-dispatch-class component)
                              (when (closer-mop:class-direct-subclasses the-class)
                                (make-type-column-presentation component class prototype value))))
             (make-place-column-presentations component class prototype value))))
 
 (def (layered-function e) make-type-column-presentation (component class prototype value)
-  (:method ((component sequence/columns/abstract) class prototype value)
+  (:method ((component sequence/columns/component) class prototype value)
     (make-instance 'place/column/inspector
                    :component-value "BLAH" ;; TODO:
                    :header #"object-list-table.column.type"
@@ -132,7 +132,7 @@
 
 ;; TODO: split for sequence/table/inspector and sequence/treeble/inspector, the latter must recurse down
 (def (layered-function e) make-place-column-presentations (component class prototype value)
-  (:method ((component sequence/columns/abstract) class prototype value)
+  (:method ((component sequence/columns/component) class prototype value)
     (bind ((slot-name->slot-map nil)
            (slots (append (collect-class-specific-presented-slots component class prototype value)
                           (collect-instance-specific-presented-slots component class prototype value))))
@@ -153,22 +153,21 @@
               (nreverse slot-name->slot-map)))))
 
 (def (layered-function e) collect-class-specific-presented-slots (component class prototype value)
-  (:method ((component sequence/columns/abstract) class prototype value)
+  (:method ((component sequence/columns/component) class prototype value)
     (when class
       (collect-presented-slots component class (class-prototype class) value))))
 
-(def layered-method collect-presented-slots ((component sequence/columns/abstract) class prototype value)
+(def layered-method collect-presented-slots ((component sequence/columns/component) class prototype value)
   (class-slots class))
 
-(def layered-method collect-presented-places ((component sequence/columns/abstract) class prototype value)
+(def layered-method collect-presented-places ((component sequence/columns/component) class prototype value)
   (mapcar [make-object-slot-place value !1] (collect-presented-slots component class prototype value)))
 
 ;;;;;;
 ;;; sequence/table/inspector
 
-(def (component e) sequence/table/inspector (inspector/style
-                                             t/detail/inspector
-                                             sequence/columns/abstract
+(def (component e) sequence/table/inspector (t/detail/inspector
+                                             sequence/columns/component
                                              table/widget
                                              component-messages/widget
                                              deep-arguments/mixin)
@@ -179,7 +178,7 @@
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
     (setf rows (iter (for row-value :in-sequence component-value)
-                     (for row = (find row-value rows :key #'component-value-of))
+                     (for row = (find row-value rows :key #'component-value-of :test #'component-value=))
                      (if row
                          (setf (component-value-of row) row-value)
                          (setf row (make-row-presentation -self- class prototype row-value)))
@@ -207,14 +206,13 @@
 ;;;;;;
 ;;; place/column/inspector
 
-(def (component e) place/column/inspector (inspector/basic column/widget)
+(def (component e) place/column/inspector (t/detail/inspector column/widget)
   ((cell-factory :type (or symbol function))))
 
 ;;;;;;
 ;;; t/row/inspector
 
-(def (component e) t/row/inspector (inspector/style
-                                    t/detail/inspector
+(def (component e) t/row/inspector (t/detail/inspector
                                     row/widget
                                     component-messages/widget)
   ())
@@ -230,7 +228,7 @@
 
 (def layered-method render-table-row :before ((table sequence/table/inspector) (row t/row/inspector))
   (when (messages-of row)
-    (render-table-row table (make-instance 'entire-row/widget :content (inline-render-component/widget ()
+    (render-table-row table (make-instance 'entire-row/widget :content (inline-render/widget ()
                                                                          (render-component-messages-for row))))))
 
 (def layered-method render-onclick-handler ((row t/row/inspector) button)
@@ -239,7 +237,7 @@
     (call-next-layered-method)))
 
 (def layered-method make-context-menu-items ((component t/row/inspector) class prototype value)
-  (append (optional-list (make-menu-item (make-expand-command component class prototype value))) (call-next-method)))
+  (append (optional-list (make-menu-item (make-expand-command component class prototype value))) (call-next-layered-method)))
 
 (def layered-method make-command-bar-commands ((component t/row/inspector) class prototype value)
   nil)
@@ -261,11 +259,13 @@
                                         (list :content (icon/widget collapse-component)
                                               :subject-component (delay replacement-component)))))
 
+(def layered-method collect-presented-slots ((component t/row/inspector) class prototype value)
+  (class-slots class))
+
 ;;;;;;
 ;;; t/entire-row/inspector
 
-(def (component e) t/entire-row/inspector (inspector/style
-                                           t/detail/inspector
+(def (component e) t/entire-row/inspector (t/detail/inspector
                                            entire-row/widget
                                            component-messages/widget)
   ())
@@ -282,7 +282,7 @@
 ;;;;;;
 ;;; place/cell/inspector
 
-(def (component e) place/cell/inspector (inspector/style t/detail/inspector cell/widget)
+(def (component e) place/cell/inspector (t/detail/inspector cell/widget)
   ())
 
 (def refresh-component place/cell/inspector

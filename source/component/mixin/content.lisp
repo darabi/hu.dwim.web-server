@@ -20,20 +20,20 @@
   (render-component (content-of component)))
 
 ;;;;;;
-;;; content/abstract
+;;; content/component
 
-(def (component e) content/abstract (refreshable/mixin content/mixin)
+(def (component e) content/component (refreshable/mixin content/mixin)
   ())
 
-(def refresh-component content/abstract
+(def refresh-component content/component
   (awhen (content-of -self-)
     (mark-to-be-refreshed-component it)))
 
-(def method component-value-of ((self content/abstract))
+(def method component-value-of ((self content/component))
   (awhen (content-of self)
     (component-value-of it)))
 
-(def method (setf component-value-of) (new-value (self content/abstract))
+(def method (setf component-value-of) (new-value (self content/component))
   (awhen (content-of self)
     (setf (component-value-of it) new-value)))
 
@@ -51,16 +51,16 @@
   (foreach #'render-component (contents-of component)))
 
 ;;;;;;
-;;; contents/abstract
+;;; contents/component
 
-(def (component e) contents/abstract (refreshable/mixin contents/mixin)
+(def (component e) contents/component (refreshable/mixin contents/mixin)
   ())
 
-(def refresh-component contents/abstract
+(def refresh-component contents/component
   (foreach #'mark-to-be-refreshed-component (contents-of -self-)))
 
-(def method component-value-of ((self contents/abstract))
+(def method component-value-of ((self contents/component))
   (mapcar 'component-value-of (contents-of self)))
 
-(def method (setf component-value-of) (new-value (self contents/abstract))
+(def method (setf component-value-of) (new-value (self contents/component))
   (mapcar [setf (component-value-of !1) !2] (contents-of self) new-value))

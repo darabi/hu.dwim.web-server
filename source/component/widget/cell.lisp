@@ -22,8 +22,8 @@
 ;;;;;;
 ;;; cell/widget
 
-(def (component e) cell/widget (widget/style
-                                content/abstract
+(def (component e) cell/widget (standard/widget
+                                content/component
                                 context-menu/mixin
                                 selectable/mixin)
   ((column-span nil :type integer)

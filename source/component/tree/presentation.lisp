@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; t/tree/presentation
 
-(def (component e) t/tree/presentation (presentation/basic tree/widget)
+(def (component e) t/tree/presentation (t/detail/presentation tree/widget)
   ())

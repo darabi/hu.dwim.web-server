@@ -9,20 +9,27 @@
 ;;;;;;
 ;;; Kludges
 
+;; TODO: move
 (def (class* e) application-with-perec-support ()
   ())
 
+;; TODO: move
 (def method call-in-application-environment :around ((application application-with-perec-support) session thunk)
   (hu.dwim.meta-model::with-model-database
     (hu.dwim.perec::with-readonly-transaction
       (hu.dwim.perec:with-new-compiled-query-cache
         (call-next-method)))))
 
+;; TODO: move
 (def method call-in-interaction-environment :around ((application application-with-perec-support) session thunk)
   (hu.dwim.meta-model::with-model-database
     (hu.dwim.perec::with-transaction
       (hu.dwim.perec:with-new-compiled-query-cache
         (call-next-method)))))
+
+;; TODO: move
+(def method component-value= ((value-1 hu.dwim.perec::persistent-object) (value-2 hu.dwim.perec::persistent-object))
+  (hu.dwim.perec:p-eq value-1 value-2))
 
 ;; TODO: KLUDGE: move
 (def method reuse-component-value ((component component) (class standard-class) (prototype object-slot-place) (value object-slot-place))
@@ -49,8 +56,8 @@
   (when (place-bound? place)
     (bind ((value (place-value place)))
       (setf (component-value-of component)
-            (if (and (hu.dwim.perec::d-value-p value)
-                     (hu.dwim.perec::single-d-value-p value))
+            (if (and (hu.dwim.perec:d-value-p value)
+                     (hu.dwim.perec:single-d-value-p value))
                 (hu.dwim.perec::single-d-value value)
                 value)))))
 

@@ -205,7 +205,7 @@
                                                          (:file "inspector" :depends-on ("presentation"))
                                                          (:file "presentation")))
                                            (:module "tree"
-                                            :depends-on ("object")
+                                            :depends-on ("sequence")
                                             :components ((:file "inspector" :depends-on ("presentation"))
                                                          (:file "presentation")))
                                            (:module "text"
@@ -242,7 +242,6 @@
                                                          (:file "function")
                                                          (:file "generic")
                                                          (:file "method")
-                                                         (:file "model")
                                                          (:file "module")
                                                          (:file "name")
                                                          (:file "package")

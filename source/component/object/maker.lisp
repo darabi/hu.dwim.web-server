@@ -7,52 +7,52 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; t/maker
+;;; t/alternator/maker
 
-(def (component e) t/maker (maker/basic
-                            t/presentation
-                            cloneable/abstract
-                            layer/mixin
-                            title/mixin
-                            component-result/mixin)
+(def (component e) t/alternator/maker (t/maker
+                                       t/alternator/presentation
+                                       cloneable/component
+                                       layer/mixin
+                                       title/mixin
+                                       component-result/mixin)
   ()
   (:documentation "Generic factory version (all components are available):
 
-(T/MAKER                                          ; maker for something (alternator)
+(T/ALTERNATOR/MAKER                               ; maker for something (alternator)
  (T/PLACE-LIST/MAKER                              ; maker for a list of places of something
-  (PLACE-LIST/MAKER                               ; maker for a list of places (alternator)
+  (PLACE-LIST/ALTERNATOR/MAKER                    ; maker for a list of places (alternator)
    (PLACE-LIST/PLACE-GROUP-LIST/MAKER             ; maker for a grouping of a list of places
-    (PLACE-GROUP-LIST/MAKER                       ; maker for a list of place groups (alternator)
+    (PLACE-GROUP-LIST/ALTERNATOR/MAKER            ; maker for a list of place groups (alternator)
      (PLACE-GROUP-LIST/NAME-VALUE-LIST/MAKER      ; maker for a list of place groups, display as a name value list
-      (PLACE-GROUP/MAKER                          ; maker for a group of places (alternator)
+      (PLACE-GROUP/ALTERNATOR/MAKER               ; maker for a group of places (alternator)
        (PLACE-GROUP/NAME-VALUE-GROUP/MAKER        ; maker for a group of places, display as a name value group
-        (PLACE/MAKER                              ; maker for a place (alternator)
+        (PLACE/ALTERNATOR/MAKER                   ; maker for a place (alternator)
          (PLACE/NAME-VALUE-PAIR/MAKER             ; maker for a place, display as a name value pair
           (PLACE/NAME/MAKER                       ; maker the name of a place
-           (STRING/MAKER                          ; maker a string (alternator)
+           (STRING/ALTERNATOR/MAKER               ; maker a string (alternator)
             (STRING/TEXT/MAKER                    ; maker a string, display as text
              STRING)))                            ; immediate
           (PLACE/VALUE/MAKER                      ; maker for the value of a place
-           (T/MAKER))))                           ; maker for something (alternator)
+           (T/ALTERNATOR/MAKER))))                ; maker for something (alternator)
         ...))
       ...))))))
 
 Optimized factory configuration (default):
 
-(T/MAKER                                          ; maker for something (alternator)
+(T/ALTERNATOR/MAKER                               ; maker for something (alternator)
  (PLACE-GROUP-LIST/NAME-VALUE-LIST/MAKER          ; maker for a list of place groups, display as a name value list
   (PLACE-GROUP/NAME-VALUE-GROUP/MAKER             ; maker for a group of places, display as a name value group
    (PLACE/NAME-VALUE-PAIR/MAKER                   ; maker for a place, display as a name value pair
     STRING                                        ; immediate
     (PLACE/VALUE/MAKER                            ; maker for the value of a place
-     (T/MAKER)))                                  ; maker for something (alternator)
+     (T/ALTERNATOR/MAKER)))                       ; maker for something (alternator)
    ...)
   ...))
 "))
 
-(def subtype-mapper *maker-type-mapping* t t/maker)
+(def subtype-mapper *maker-type-mapping* t t/alternator/maker)
 
-(def layered-method make-alternatives ((component t/maker) class prototype value)
+(def layered-method make-alternatives ((component t/alternator/maker) class prototype value)
   (list (make-instance 't/name-value-list/maker
                        :component-value value
                        :component-value-type (component-value-type-of component))
@@ -60,18 +60,18 @@ Optimized factory configuration (default):
                        :component-value value
                        :component-value-type (component-value-type-of component))))
 
-(def render-component t/maker
+(def render-component t/alternator/maker
   (with-render-alternator/widget -self-
     (render-title-for -self-)
     (render-alternator-interior -self-)
     (render-result-for -self-)))
 
-(def layered-method make-command-bar-commands ((component t/maker) class prototype value)
+(def layered-method make-command-bar-commands ((component t/alternator/maker) class prototype value)
   (optional-list* (make-make-new-instance-command component class prototype value) (call-next-layered-method)))
 
 (def (icon e) make-new-instance)
 
-(def layered-method make-make-new-instance-command ((component t/maker) class prototype value)
+(def layered-method make-make-new-instance-command ((component t/alternator/maker) class prototype value)
   (when (authorize-operation *application* `(make-make-new-instance-command :class ,class))
     (make-replace-and-push-back-command (delay (result-of component))
                                         (delay (with-restored-component-environment component
@@ -82,11 +82,11 @@ Optimized factory configuration (default):
                                               :subject-component component)
                                         (list :content (icon/widget navigate-back)))))
 
-(def layered-method make-result ((component t/maker) class prototype value)
+(def layered-method make-result ((component t/alternator/maker) class prototype value)
   (make-inspector (class-name (component-dispatch-class component)) :value value))
 
 (def (layered-function e) make-new-instance (component class prototype value)
-  (:method ((component t/maker) class prototype value)
+  (:method ((component t/alternator/maker) class prototype value)
     (apply #'make-instance class (make-maker-initargs component class prototype value))))
 
 (def (layered-function e) make-maker-initargs (component class prototype value)
@@ -100,19 +100,19 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; t/reference/maker
 
-(def (component e) t/reference/maker (maker/basic t/reference/presentation)
+(def (component e) t/reference/maker (t/maker t/reference/presentation)
   ())
 
 ;;;;;;
 ;;; t/detail/maker
 
-(def (component e) t/detail/maker (maker/abstract t/detail/presentation)
+(def (component e) t/detail/maker (t/maker t/detail/presentation)
   ())
 
 ;;;;;;
 ;;; t/name-value-list/maker
 
-(def (component e) t/name-value-list/maker (maker/basic t/name-value-list/presentation)
+(def (component e) t/name-value-list/maker (t/detail/maker t/name-value-list/presentation)
   ())
 
 (def layered-method collect-presented-slots ((component t/name-value-list/maker) class prototype value)
@@ -147,7 +147,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place-group-list/name-value-list/maker
 
-(def (component e) place-group-list/name-value-list/maker (maker/basic place-group-list/name-value-list/presentation)
+(def (component e) place-group-list/name-value-list/maker (t/detail/maker place-group-list/name-value-list/presentation)
   ())
 
 (def layered-method collect-presented-place-groups ((component place-group-list/name-value-list/maker) class prototype (value place-group))
@@ -161,7 +161,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place-group/name-value-group/maker
 
-(def (component e) place-group/name-value-group/maker (maker/basic place-group/name-value-group/presentation)
+(def (component e) place-group/name-value-group/maker (t/detail/maker place-group/name-value-group/presentation)
   ())
 
 (def layered-method make-content-presentation ((component place-group/name-value-group/maker) class prototype (value object-slot-place))
@@ -172,7 +172,7 @@ Optimized factory configuration (default):
 ;;;;;;
 ;;; place/name-value-pair/maker
 
-(def (component e) place/name-value-pair/maker (maker/basic place/name-value-pair/presentation)
+(def (component e) place/name-value-pair/maker (t/detail/maker place/name-value-pair/presentation)
   ())
 
 (def layered-method make-value-presentation ((component place/name-value-pair/maker) class prototype value)

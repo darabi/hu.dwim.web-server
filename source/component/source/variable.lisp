@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; symbol/special-variable-name/inspector
 
-(def (component e) symbol/special-variable-name/inspector (inspector/basic)
+(def (component e) symbol/special-variable-name/inspector (t/inspector)
   ())

@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; flow/layout
 
-(def (component e) flow/layout (layout/minimal contents/abstract)
+(def (component e) flow/layout (standard/layout contents/component)
   ((orientation :horizontal :type (member :vertical :horizontal))
    (direction :forward :type (member :forward :backward))))
 

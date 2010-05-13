@@ -43,7 +43,7 @@
          (focused-field-id (if identifier
                                "password-field"
                                "identifier-field")))
-    (with-render-style/abstract (-self-)
+    (with-render-style/component (-self-)
       (render-title-for -self-)
       (render-component-messages-for -self-)
       <table
@@ -90,7 +90,7 @@
   (string+ "content-border " (call-next-method)))
 
 (def render-xhtml login-data/login/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-component-messages-for -self-)
     (render-content-for -self-)
     (render-command-bar-for -self-)))
@@ -112,7 +112,7 @@
 ;;;;;;
 ;;; fake-identifier-and-password-login/widget
 
-(def (component e) fake-identifier-and-password-login/widget (widget/style)
+(def (component e) fake-identifier-and-password-login/widget (standard/widget)
   ((identifier nil)
    (password nil)
    (comment nil))

@@ -7,14 +7,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; column/abstract
+;;; column/component
 
 (def special-variable *column-index*)
 
-(def (component e) column/abstract ()
+(def (component e) column/component ()
   ())
 
-(def method supports-debug-component-hierarchy? ((self column/abstract))
+(def method supports-debug-component-hierarchy? ((self column/component))
   #f)
 
 ;;;;;;

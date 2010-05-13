@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Wizard
 
-(def (component e) wizard/widget (widget/style)
+(def (component e) wizard/widget (standard/widget)
   ((pages nil :type components)
    (page-navigation-bar nil :type component)))
 

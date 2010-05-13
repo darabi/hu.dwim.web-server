@@ -7,9 +7,16 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; chart/abstract
+;;; component/chart
 
-(def (component e) chart/abstract (component/basic)
+(def (component e) component/chart ()
+  ()
+  (:documentation "Base class for various chart components. This class does not have any slots on purpose."))
+
+;;;;;;
+;;; standard/chart
+
+(def (component e) standard/chart (standard/component component/chart)
   ((configuration-provider
     :type (or symbol function))
    (data-provider

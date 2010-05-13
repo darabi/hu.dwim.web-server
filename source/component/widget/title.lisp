@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; title/widget
 
-(def (component e) title/widget (widget/style content/abstract)
+(def (component e) title/widget (standard/widget content/component)
   ()
   (:documentation "A TITLE/WIDGET represents the TITLE of another COMPONENT."))
 
@@ -23,13 +23,13 @@
   (render-content-for -self-))
 
 (def render-xhtml title/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-content-for -self-)))
 
 ;;;;;;
 ;;; title-bar/widget
 
-(def (component e) title-bar/widget (widget/style title/mixin)
+(def (component e) title-bar/widget (standard/widget title/mixin)
   ()
   (:documentation "A COMPONENT that has a TITLE and various other small widgets around it."))
 
@@ -41,7 +41,7 @@
 
 (def render-xhtml title-bar/widget
   (bind ((parent-component (parent-component-of -self-)))
-    (with-render-style/abstract (-self- :element-name "span")
+    (with-render-style/component (-self- :element-name "span")
       (render-collapse-or-expand-command-for parent-component)
       (render-show-context-menu-command-for parent-component)
       (render-title-for -self-)

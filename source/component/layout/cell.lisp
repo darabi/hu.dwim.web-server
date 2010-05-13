@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; cell/layout
 
-(def (component e) cell/layout (layout/minimal content/abstract)
+(def (component e) cell/layout (standard/layout content/component)
   ((column-span nil :type integer)
    (row-span nil :type integer)
    (horizontal-alignment nil :type (member nil :left :center :right))

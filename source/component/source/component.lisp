@@ -7,17 +7,17 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; component/inspector
+;;; component/alternator/inspector
 
-(def (component e) component/inspector (t/inspector)
+(def (component e) component/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null component) component/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null component) component/alternator/inspector)
 
-(def layered-method make-alternatives ((component component/inspector) (class component-class) (prototype component) (value component))
+(def layered-method make-alternatives ((component component/alternator/inspector) (class component-class) (prototype component) (value component))
   (list* (make-instance 'component/render-xhtml-output/inspector :component-value value)
          (make-instance 'component/documentation/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; component/documentation/inspector
@@ -28,7 +28,7 @@
 ;;;;;;
 ;;; component/render-xhtml-output/inspector
 
-(def (component e) component/render-xhtml-output/inspector (inspector/basic quote-xml-string-content/widget)
+(def (component e) component/render-xhtml-output/inspector (t/detail/inspector quote-xml-string-content/widget)
   ())
 
 (def refresh-component component/render-xhtml-output/inspector

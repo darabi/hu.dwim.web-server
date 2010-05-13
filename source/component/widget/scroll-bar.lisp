@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; scroll-bar/widget
 
-(def (component e) scroll-bar/widget (widget/basic)
+(def (component e) scroll-bar/widget (standard/widget)
   ())

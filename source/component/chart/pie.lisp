@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; pie/chart
 
-(def (component e) pie/chart (chart/abstract)
+(def (component e) pie/chart (standard/chart)
   ())
 
 (def (macro e) pie/chart ((&rest args &key &allow-other-keys) &body name-value-pairs)

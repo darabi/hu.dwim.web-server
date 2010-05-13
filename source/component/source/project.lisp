@@ -7,16 +7,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; project/inspector
+;;; project/alternator/inspector
 
-(def (component e) project/inspector (t/inspector)
+(def (component e) project/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null project) project/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null project) project/alternator/inspector)
 
-(def layered-method make-alternatives ((component project/inspector) (class standard-class) (prototype project) (value project))
-  (list* (make-instance 'project/detail/inspector :component-value value)
-         (call-next-method)))
+(def layered-method make-alternatives ((component project/alternator/inspector) (class standard-class) (prototype project) (value project))
+  (list* (make-instance 'project/detail/inspector :component-value value) (call-next-layered-method)))
 
 (def method localized-instance-name ((project project))
   (name-of project))
@@ -24,7 +23,7 @@
 ;;;;;;
 ;;; project/detail/inspector
 
-(def (component e) project/detail/inspector (inspector/style t/detail/presentation tab-container/widget)
+(def (component e) project/detail/inspector (t/detail/inspector tab-container/widget)
   ())
 
 (def layered-method refresh-component :before ((self project/detail/inspector))
@@ -49,7 +48,7 @@
 ;;;;;;
 ;;; project/description/inspector
 
-(def (component e) project/description/inspector (inspector/style t/detail/presentation content/widget)
+(def (component e) project/description/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component project/description/inspector
@@ -59,7 +58,7 @@
 ;;;;;;
 ;;; project/system/inspector
 
-(def (component e) project/system/inspector (inspector/style t/detail/presentation content/widget)
+(def (component e) project/system/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component project/system/inspector
@@ -69,7 +68,7 @@
 ;;;;;;
 ;;; project/content/inspector
 
-(def (component e) project/content/inspector (inspector/style t/detail/presentation)
+(def (component e) project/content/inspector (t/detail/inspector)
   ((directory :type component)))
 
 (def refresh-component project/content/inspector
@@ -77,13 +76,13 @@
     (setf directory (make-value-inspector (path-of component-value) :initial-alternative-type 'pathname/directory/tree/inspector))))
 
 (def render-xhtml project/content/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-component (directory-of -self-))))
 
 ;;;;;;
 ;;; project/repository/inspector
 
-(def (component e) project/repository/inspector (inspector/style t/detail/presentation)
+(def (component e) project/repository/inspector (t/detail/inspector)
   ())
 
 (def render-xhtml project/repository/inspector
@@ -102,7 +101,7 @@
 ;;;;;;
 ;;; project/test/inspector
 
-(def (component e) project/test/inspector (inspector/style t/detail/presentation content/widget)
+(def (component e) project/test/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component project/test/inspector
@@ -124,7 +123,7 @@
 ;;;;;;
 ;;; project/licence/inspector
 
-(def (component e) project/licence/inspector (inspector/style t/detail/presentation content/widget)
+(def (component e) project/licence/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component project/licence/inspector

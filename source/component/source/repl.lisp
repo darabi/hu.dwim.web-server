@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; lisp-form-list/repl/inspector
 
-(def (component e) lisp-form-list/repl/inspector (sequence/inspector)
+(def (component e) lisp-form-list/repl/inspector (sequence/alternator/inspector)
   ())
 
 (def layered-method make-element-presentation ((component lisp-form-list/repl/inspector) class prototype value)

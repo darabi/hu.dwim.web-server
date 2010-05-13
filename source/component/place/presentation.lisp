@@ -13,6 +13,13 @@
   ()
   (:documentation "Presentation for reified places."))
 
+;;;;;;
+;;; place/alternator/presentation
+
+(def (component e) place/alternator/presentation (t/alternator/presentation)
+  ()
+  (:documentation "Presentation for reified places."))
+
 ;;;;;;;
 ;;; place/reference/presentation
 
@@ -22,10 +29,16 @@
 (def layered-method make-reference-content ((component place/reference/presentation) class prototype (value place))
   (format nil "~A: ~A" (capitalize-first-letter (substitute #\Space #\- (string-downcase (symbol-name (class-name class))))) (place-name value)))
 
+;;;;;;;
+;;; place/detail/presentation
+
+(def (component e) place/detail/presentation (t/detail/presentation)
+  ())
+
 ;;;;;;
 ;;; place/value/presentation
 
-(def (component e) place/value/presentation (t/detail/presentation content/widget)
+(def (component e) place/value/presentation (place/detail/presentation content/widget)
   ())
 
 (def refresh-component place/value/presentation
@@ -37,6 +50,6 @@
         (setf content (make-content-presentation -self- class prototype component-value)))))
 
 (def render-xhtml place/value/presentation
-  (with-render-style/abstract (-self- :element-name "span")
+  (with-render-style/component (-self- :element-name "span")
     (render-context-menu-for -self-)
     (render-content-for -self-)))

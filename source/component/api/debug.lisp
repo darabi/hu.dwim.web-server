@@ -21,8 +21,8 @@
             ,(bind ((*debug-component-hierarchy* #f))
                (render-component (make-copy-to-repl-command -self-))
                (render-component (make-inspect-in-repl-command -self-)))
-            ,(call-next-method)>
-          (call-next-method))
+            ,(call-next-layered-method)>
+          (call-next-layered-method))
     (skip-rendering-component ()
       :report (lambda (stream)
                 (format stream "Skip rendering ~A and put an error marker in place" -self-))

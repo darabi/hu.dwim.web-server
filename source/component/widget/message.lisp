@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; component-messages/widget
 
-(def (component e) component-messages/widget (widget/style)
+(def (component e) component-messages/widget (standard/widget)
   ((messages nil :type components))
   (:documentation "A COMPONENT with a list of COMPONENT-MESSAGEs."))
 
@@ -17,7 +17,7 @@
   `(make-instance 'component-messages/widget ,@args :messages (list ,@messages)))
 
 (def render-xhtml component-messages/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-component-messages-for -self-)))
 
 (def (function e) render-component-messages-for (collector)
@@ -66,7 +66,7 @@
 ;;;;;;
 ;;; component-message/widget
 
-(def (component e) component-message/widget (widget/style closable/abstract content/abstract)
+(def (component e) component-message/widget (standard/widget closable/component content/component)
   ((category :information :type (member :information :warning :error))
    (permanent #f :type boolean))
   (:documentation "An optionally permanent COMPONENT-MESSAGE with a CATEGORY. Permanent messages must be removed by explicit user interaction."))
@@ -79,12 +79,12 @@
     (setf style-class (string+ (string-downcase category) "-message-border"))))
 
 (def render-xhtml component-message/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-content-for -self-)))
 
 (def layered-method make-close-component-command ((component component-message/widget) class prototype value)
   (when (permanent? component)
-    (call-next-method)))
+    (call-next-layered-method)))
 
 (def method close-component ((component component-message/widget) class prototype value)
   (deletef (messages-of (parent-component-of component)) component))

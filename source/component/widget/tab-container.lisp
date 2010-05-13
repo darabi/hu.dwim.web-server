@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; tab-page/widget
 
-(def (component e) tab-page/widget (widget/basic content/abstract)
+(def (component e) tab-page/widget (standard/widget content/component)
   ((selector (icon/widget switch-to-tab-page) :type component))
   (:documentation "A TAB-PAGE/WIDGET has a CONTENT and a SELECTOR."))
 
@@ -32,7 +32,7 @@
 ;;;;;;
 ;;; tab-container/widget
 
-(def (component e) tab-container/widget (widget/style content/abstract)
+(def (component e) tab-container/widget (standard/widget content/component)
   ((tab-pages :type list)
    (tab-page-selector-bar :type component))
   (:documentation "A TAB-CONTAINER/WIDGET allows the user to select between its TAB-PAGE/WIDGETs."))
@@ -55,7 +55,7 @@
 
 (def render-xhtml tab-container/widget
   (bind (((:read-only-slots content tab-page-selector-bar) -self-))
-    (with-render-style/abstract (-self-)
+    (with-render-style/component (-self-)
       (render-component tab-page-selector-bar)
       (render-component content))))
 

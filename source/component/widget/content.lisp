@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; content/widget
 
-(def (component e) content/widget (widget/style content/abstract context-menu/mixin)
+(def (component e) content/widget (standard/widget content/component context-menu/mixin)
   ()
   (:documentation "A COMPONENT with style, remote setup, context menu and another COMPONENT inside."))
 
@@ -20,14 +20,14 @@
   (render-content-for -self-))
 
 (def render-xhtml content/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-context-menu-for -self-)
     (render-content-for -self-)))
 
 ;;;;;;
 ;;; contents/widget
 
-(def (component e) contents/widget (widget/style contents/abstract context-menu/mixin)
+(def (component e) contents/widget (standard/widget contents/component context-menu/mixin)
   ()
   (:documentation "A COMPONENT with style, remote setup, context menu and several COMPONENTs inside."))
 
@@ -38,14 +38,14 @@
   (render-contents-for -self-))
 
 (def render-xhtml contents/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-context-menu-for -self-)
     (render-contents-for -self-)))
 
 ;;;;;;
 ;;; inline-xhtml-string-content/widget
 
-(def (component e) inline-xhtml-string-content/widget (widget/basic content/abstract style/mixin)
+(def (component e) inline-xhtml-string-content/widget (standard/widget content/component)
   ((content :type string))
   (:documentation "A COMPONENT that renders its content as inline XHTML."))
 
@@ -66,7 +66,7 @@
 ;;;;;;
 ;;; quote-xml-string-content/widget
 
-(def (component e) quote-xml-string-content/widget (widget/basic content/abstract style/mixin)
+(def (component e) quote-xml-string-content/widget (standard/widget content/component)
   ((content :type string))
   (:documentation "A COMPONENT that renders its content as a quoted XML string."))
 
@@ -80,7 +80,7 @@
 ;;;;;;
 ;;; quote-xml-form/widget
 
-(def (component e) quote-xml-form/widget (widget/basic style/mixin thunk/mixin)
+(def (component e) quote-xml-form/widget (standard/widget thunk/mixin)
   ()
   (:documentation "A COMPONENT that renders its content provided as a FORM as a quoted XML string."))
 

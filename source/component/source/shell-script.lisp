@@ -16,16 +16,15 @@
   `(make-instance 'shell-script ,@args :contents (list ,@lines)))
 
 ;;;;;;
-;;; shell-script/inspector
+;;; shell-script/alternator/inspector
 
-(def (component e) shell-script/inspector (t/inspector)
+(def (component e) shell-script/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null shell-script) shell-script/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null shell-script) shell-script/alternator/inspector)
 
-(def layered-method make-alternatives ((component shell-script/inspector) (class standard-class) (prototype shell-script) (value shell-script))
-  (list* (make-instance 'shell-script/text/inspector :component-value value)
-         (call-next-method)))
+(def layered-method make-alternatives ((component shell-script/alternator/inspector) (class standard-class) (prototype shell-script) (value shell-script))
+  (list* (make-instance 'shell-script/text/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; string/shell-script/inspector
@@ -37,7 +36,7 @@
   (def render-xhtml shell-script/text/inspector
     (bind (((:read-only-slots component-value) -self-)
            (contents (contents-of component-value)))
-      (with-render-style/abstract (-self- :element-name "ol")
+      (with-render-style/component (-self- :element-name "ol")
         (iter (with length = (length contents))
               (for index :from 0)
               (for line :in contents)

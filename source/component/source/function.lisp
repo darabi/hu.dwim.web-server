@@ -7,17 +7,17 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; function/inspector
+;;; function/alternator/inspector
 
-(def (component e) function/inspector (t/inspector)
+(def (component e) function/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null function) function/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null function) function/alternator/inspector)
 
-(def layered-method make-alternatives ((component function/inspector) (class built-in-class) (prototype function) (value function))
+(def layered-method make-alternatives ((component function/alternator/inspector) (class built-in-class) (prototype function) (value function))
   (list* (make-instance 'function/documentation/inspector :component-value value)
          (make-instance 'function/lisp-form/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; t/reference/inspector
@@ -30,7 +30,7 @@
                          (eq (first name) 'macro-function))
                     "Macro")
                    (t "Unknown"))
-             ": " (call-next-method))))
+             ": " (call-next-layered-method))))
 
 ;;;;;;
 ;;; function/documentation/inspector
@@ -44,7 +44,7 @@
 ;;;;;;
 ;;; function/lisp-form/inspector
 
-(def (component e) function/lisp-form/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) function/lisp-form/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component function/lisp-form/inspector

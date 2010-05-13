@@ -14,14 +14,14 @@
 (def (icon e) collapse-component)
 
 ;;;;;;
-;;; collapsible/abstract
+;;; collapsible/component
 
-(def (component e) collapsible/abstract (widget/abstract collapsible/mixin)
+(def (component e) collapsible/component (component/widget collapsible/mixin)
   ((collapse-command :type component)
    (expand-command :type component))
-  (:documentation "A COLLAPSIBLE/ABSTRACT has two different COMPONENTs as content, the EXPANDED and the COLLAPSED variants."))
+  (:documentation "A COLLAPSIBLE/COMPONENT has two different COMPONENTs as content, the EXPANDED and the COLLAPSED variants."))
 
-(def refresh-component collapsible/abstract
+(def refresh-component collapsible/component
   (bind ((class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-))
          (value (component-value-of -self-)))
@@ -30,7 +30,7 @@
     (setf (expand-command-of -self-)
           (make-expand-command -self- class prototype value))))
 
-(def method visible-child-component-slots ((self collapsible/abstract))
+(def method visible-child-component-slots ((self collapsible/component))
   (remove-slots (if (expanded-component? self)
                     '(expand-command)
                     '(collapse-command))
@@ -48,37 +48,37 @@
       (render-expand-command-for component)))
 
 (def (layered-function e) make-collapse-command (component class prototype value)
-  (:method ((component collapsible/abstract) class prototype value)
+  (:method ((component collapsible/component) class prototype value)
     (command/widget (:subject-component component)
       (icon/widget collapse-component :label nil)
       (make-component-action component
         (collapse-component component)))))
 
 (def (layered-function e) make-expand-command (component class prototype value)
-  (:method ((component collapsible/abstract) class prototype value)
+  (:method ((component collapsible/component) class prototype value)
     (command/widget (:subject-component component)
       (icon/widget expand-component :label nil)
       (make-component-action component
         (expand-component component)))))
 
 ;;;;;;
-;;; collapsible-content/abstract
+;;; collapsible-content/component
 
-(def (component e) collapsible-content/abstract (collapsible/abstract content/abstract)
+(def (component e) collapsible-content/component (collapsible/component content/component)
   ())
 
-(def method visible-child-component-slots ((self collapsible-content/abstract))
+(def method visible-child-component-slots ((self collapsible-content/component))
   (if (expanded-component? self)
       (call-next-method)
       (remove-slots '(content) (call-next-method))))
 
 ;;;;;;
-;;; collapsible-contents/abstract
+;;; collapsible-contents/component
 
-(def (component e) collapsible-contents/abstract (collapsible/abstract contents/abstract)
+(def (component e) collapsible-contents/component (collapsible/component contents/component)
   ())
 
-(def method visible-child-component-slots ((self collapsible-contents/abstract))
+(def method visible-child-component-slots ((self collapsible-contents/component))
   (if (expanded-component? self)
       (call-next-method)
       (remove-slots '(contents) (call-next-method))))
@@ -86,7 +86,7 @@
 ;;;;;;
 ;;; collapsible/widget
 
-(def (component e) collapsible/widget (widget/style collapsible/abstract)
+(def (component e) collapsible/widget (standard/widget collapsible/component)
   ((collapsed-content :type component)
    (expanded-content :type component)))
 
@@ -94,7 +94,7 @@
   `(make-instance 'collapsible/widget ,@args :collapsed-content ,(first content) :expanded-content ,(second content)))
 
 (def render-component collapsible/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-collapsed-or-expanded-content-for -self-)))
 

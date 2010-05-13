@@ -7,16 +7,18 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; t/presentation
+;;; t/alternator/presentation
 
-(def (component e) t/presentation (presentation/abstract alternator/widget)
+(def (component e) t/alternator/presentation (t/presentation alternator/widget)
   ((initial-alternative-type 't/detail/presentation)
    (default-alternative-type 't/detail/presentation))
   (:documentation "Presentation for all types."))
 
-(def layered-method refresh-component :before ((-self- t/presentation))
-  (bind (((:slots alternatives) -self-)
-         (component-value (component-value-of -self-)))
+(def method component-style-class ((self t/alternator/presentation))
+  (string+ "content-border " (call-next-method)))
+
+(def layered-method refresh-component :before ((-self- t/alternator/presentation))
+  (bind (((:slots alternatives component-value) -self-))
     (if alternatives
         (foreach [setf (component-value-of !1) component-value] alternatives)
         (setf alternatives (make-alternatives -self- (component-dispatch-class -self-) (component-dispatch-prototype -self-) component-value)))))
@@ -24,7 +26,7 @@
 ;;;;;;
 ;;; t/reference/presentation
 
-(def (component e) t/reference/presentation (presentation/abstract reference/widget)
+(def (component e) t/reference/presentation (t/presentation reference/widget)
   ())
 
 (def refresh-component t/reference/presentation
@@ -46,8 +48,11 @@
 ;;;;;;
 ;;; t/detail/presentation
 
-(def (component e) t/detail/presentation (presentation/abstract)
+(def (component e) t/detail/presentation (t/presentation)
   ())
+
+(def method component-style-class ((self t/detail/presentation))
+  (%component-style-class self))
 
 ;;;;;;
 ;;; t/name-value-list/presentation
@@ -69,11 +74,11 @@
 (def (layered-function e) collect-presented-places (component class prototype value))
 
 (def (layered-function e) collect-presented-slots (component class prototype value)
-  (:method :around ((component filter/abstract) class prototype value)
+  (:method :around ((component t/filter) class prototype value)
     (collect-if [authorize-operation *application* `(filter-slot-value :class ,class :prototype ,prototype :slot ,!1)]
                 (call-next-layered-method)))
 
-  (:method :around ((component inspector/abstract) class prototype value)
+  (:method :around ((component t/inspector) class prototype value)
     (collect-if [authorize-operation *application* `(inspect-slot-value :class ,class :prototype ,prototype :slot ,!1)]
                 (call-next-layered-method))))
 

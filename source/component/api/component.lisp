@@ -57,44 +57,30 @@
   (:documentation "The base class for all components. The primitive types /CLASS/COMMON-LISP:STRING and /CLASS/COMMON-LISP:NUMBER are also considered components. For debugging purposes and to avoid silent errors NIL is not a valid component. This class does not have any slots on purpose.
 
 Naming convention for non instantiatable components:
-*/mixin       - adds some slots and/or behavior, but it is not usable on its own. It usually has no superclasses, or only other mixin classes.
-*/abstract    - base class for similar kind of components, usually related to a mixin that mixes in an instance of this component in a slot. It usually has no superclasses, except other mixins, and usually there is only one abstract superclass of an instantiatable component.
+<name>/mixin     - adds some slots and/or behavior, but it is not usable on its own. It usually has no superclasses, or only other mixin classes.
+<name>/component - abstract base class for similar kind of components, usually related to a mixin that adds an instance of this component in a slot. It usually has no superclasses, except other mixins, and usually there is only one abstract superclass of an instantiatable component.
 
-Naming convention for presentations related to a lisp type, they are usually subclasses of alternator components:
-*/maker       - subclasses of /CLASS/'HU.DWIM.WUI:MAKER/ABSTRACT'
-*/viewer      - subclasses of /CLASS/'HU.DWIM.WUI:VIEWER/ABSTRACT'
-*/editor      - subclasses of /CLASS/'HU.DWIM.WUI:EDITOR/ABSTRACT'
-*/inspector   - subclasses of /CLASS/'HU.DWIM.WUI:INSPECTOR/ABSTRACT'
-*/filter      - subclasses of /CLASS/'HU.DWIM.WUI:FILTER/ABSTRACT'
-*/finder      - subclasses of /CLASS/'HU.DWIM.WUI:FINDER/ABSTRACT'
-*/selector    - subclasses of /CLASS/'HU.DWIM.WUI:SELECTOR/ABSTRACT'
+Naming convention for alternative presentations related to a lisp type, they are usually subclasses of the following components:
+<lisp-type>/<alternative>/maker     - subclasses of /CLASS/'HU.DWIM.WUI:COMPONENT/MAKER'
+<lisp-type>/<alternative>/viewer    - subclasses of /CLASS/'HU.DWIM.WUI:COMPONENT/VIEWER'
+<lisp-type>/<alternative>/editor    - subclasses of /CLASS/'HU.DWIM.WUI:COMPONENT/EDITOR'
+<lisp-type>/<alternative>/inspector - subclasses of /CLASS/'HU.DWIM.WUI:COMPONENT/INSPECTOR'
+<lisp-type>/<alternative>/filter    - subclasses of /CLASS/'HU.DWIM.WUI:COMPONENT/FILTER'
+<lisp-type>/<alternative>/finder    - subclasses of /CLASS/'HU.DWIM.WUI:COMPONENT/FINDER'
+<lisp-type>/<alternative>/selector  - subclasses of /CLASS/'HU.DWIM.WUI:COMPONENT/SELECTOR'
 
 Naming convention for some alternative components:
-*/reference/* - subclasses of /CLASS/'HU.DWIM.WUI:T/REFERENCE/PRESENTATION'
-*/detail/*    - subclasses of /CLASS/'HU.DWIM.WUI:T/DETAIL/PRESENTATION'
+<lisp-type>/reference/<presentation-kind> - subclasses of /CLASS/'HU.DWIM.WUI:T/REFERENCE/PRESENTATION'
+<lisp-type>/detail/<presentation-kind>    - subclasses of /CLASS/'HU.DWIM.WUI:T/DETAIL/PRESENTATION'
 
 Components are created by either using the component specific macros, one of the component specific factory functions or by calling generic factory functions such as /FUNCTION/COMMON-LISP:MAKE-INSTANCE, /FUNCTION/HU.DWIM.WUI:MAKE-MAKER, /FUNCTION/HU.DWIM.WUI:MAKE-VIEWER, /FUNCTION/HU.DWIM.WUI:MAKE-EDITOR, /FUNCTION/HU.DWIM.WUI:MAKE-INSPECTOR, /FUNCTION/HU.DWIM.WUI:MAKE-FILTER, /FUNCTION/HU.DWIM.WUI:MAKE-FINDER and /FUNCTION/HU.DWIM.WUI:MAKE-SELECTOR."))
 
 ;;;;;;
-;;; component/minimal
+;;; standard/component
 
-(def (component e) component/minimal (parent/mixin hideable/mixin)
+(def (component e) standard/component (style/component parent/mixin hideable/mixin refreshable/mixin renderable/mixin disableable/mixin)
   ()
-  (:documentation "A COMPONENT/MINIMAL includes a minimal set of mixins. It supports navigation towards the root component in the component hierarchy using PARENT-COMPONENT-OF, it also provides HIDE-COMPONENT and SHOW-COMPONENT."))
-
-;;;;;;
-;;; component/basic
-
-(def (component e) component/basic (component/minimal refreshable/mixin renderable/mixin)
-  ()
-  (:documentation "A COMPONENT/BASIC includes a basic set of mixins. It supports reacting upon state changes with TO-BE-REFRESHED-COMPONENT? and REFRESH-COMPONENT. It also provides on demand rendering with TO-BE-RENDERED-COMPONENT? and RENDER-COMPONENT."))
-
-;;;;;;
-;;; component/style
-
-(def (component e) component/style (component/basic style/abstract disableable/mixin)
-  ()
-  (:documentation "A COMPONENT/STYLE includes a set of style related mixins. It supports styles with STYLE-CLASS and CUSTOM-STYLE, it also provides remote setup with the help of a unique ID, and ENABLE-COMPONENT along with DISABLE-COMPONENT for better user experience."))
+  (:documentation "A standard component includes a set of generally useful mixins."))
 
 ;;;;;;
 ;;; Component environment
@@ -302,6 +288,9 @@ Components are created by either using the component specific macros, one of the
 (def method (setf component-value-of) (new-value (self component))
   (values))
 
+(def method component-value= (value-1 value-2)
+  (eq value-1 value-2))
+
 (def method reuse-component-value ((self component) class prototype value)
   value)
 
@@ -451,7 +440,10 @@ Components are created by either using the component specific macros, one of the
 (def render-component :around component
   (app.dribble "Rendering component ~A" -self-)
   (with-component-environment -self-
-    (call-next-layered-method)))
+    (ensure-refreshed -self-)
+    (if (visible-component? -self-)
+        (call-next-layered-method)
+        (render-component-stub -self-))))
 
 (def method lazily-rendered-component? ((self component))
   #f)
@@ -498,6 +490,11 @@ Components are created by either using the component specific macros, one of the
 
 (def method mark-refreshed-component ((self component))
   (operation-not-supported "Cannot MARK-REFRESHED-COMPONENT ~A, you may want to subclass REFRESHABLE/MIXIN"))
+
+(def function ensure-refreshed (component)
+  (when (to-be-refreshed-component? component)
+    (refresh-component component))
+  component)
 
 ;;;;;;
 ;;; Show/hide component
@@ -596,7 +593,7 @@ Components are created by either using the component specific macros, one of the
 ;;; Clone component
 
 (def method clone-component ((self component))
-  (operation-not-supported "Cannot clone ~A, you may want to subclass from CLONEABLE/ABSTRACT" self))
+  (operation-not-supported "Cannot clone ~A, you may want to subclass from CLONEABLE/COMPONENT" self))
 
 ;;;;;;
 ;;; Export CSV

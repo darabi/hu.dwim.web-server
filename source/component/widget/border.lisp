@@ -9,6 +9,6 @@
 ;;;;;;
 ;;; border/widget
 
-(def (component e) border/widget (widget/basic content/abstract)
+(def (component e) border/widget (standard/widget content/component)
   ()
   (:documentation "A BORDER COMPONENT."))

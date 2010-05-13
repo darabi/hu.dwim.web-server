@@ -7,21 +7,23 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; hyperlink/inspector
+;;; hyperlink/alternator/inspector
 
-(def (component e) hyperlink/inspector (t/inspector)
+(def (component e) hyperlink/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null hyperlink) hyperlink/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null hyperlink) hyperlink/alternator/inspector)
 
-(def layered-method make-alternatives ((component hyperlink/inspector) (class standard-class) (prototype hyperlink) (value hyperlink))
-  (list* (make-instance 'hyperlink/text/inspector :component-value value)
-         (call-next-method)))
+(def method component-style-class ((self hyperlink/alternator/inspector))
+  "hyperlink inspector")
+
+(def layered-method make-alternatives ((component hyperlink/alternator/inspector) (class standard-class) (prototype hyperlink) (value hyperlink))
+  (list* (make-instance 'hyperlink/text/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; hyperlink/text/inspector
 
-(def (component e) hyperlink/text/inspector (inspector/style t/detail/inspector content/widget)
+(def (component e) hyperlink/text/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component hyperlink/text/inspector
@@ -34,7 +36,7 @@
 
 (def render-xhtml hyperlink/text/inspector
   (bind (((:read-only-slots component-value) -self-))
-    (with-render-style/abstract (-self- :element-name "span")
+    (with-render-style/component (-self- :element-name "span")
       <a (:class "external-link widget" :target "_blank" :href ,(print-uri-to-string (uri-of component-value)))
          ,(render-content-for -self-)
          ,(render-component (icon/widget external-link))>)))

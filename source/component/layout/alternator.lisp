@@ -9,9 +9,11 @@
 ;;;;;;
 ;;; alternator/layout
 
-(def (component e) alternator/layout (layout/minimal content/abstract)
-  ((alternatives nil :type list))
-  (:documentation "A LAYOUT with several child COMPONENTs out of which only one is shown at a time."))
+(def (component e) alternator/layout (standard/layout content/mixin)
+  ((alternatives
+    nil
+    :type list))
+  (:documentation "A /CLASS/HU.DWIM.WUI:COMPONENT with several child components, out of which only one is shown at a time."))
 
 (def (macro e) alternator/layout ((&rest args &key &allow-other-keys) &body alternatives)
   (bind ((first-alternative (first alternatives)))

@@ -7,26 +7,25 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; uri/inspector
+;;; uri/alternator/inspector
 
-(def (component e) uri/inspector (t/inspector)
+(def (component e) uri/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null uri) uri/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null uri) uri/alternator/inspector)
 
-(def layered-method make-alternatives ((component uri/inspector) (class standard-class) (prototype uri) (value uri))
+(def layered-method make-alternatives ((component uri/alternator/inspector) (class standard-class) (prototype uri) (value uri))
   ;; TOOD: not all uris are external links
-  (list* (make-instance 'uri/external-link/inspector :component-value value)
-         (call-next-method)))
+  (list* (make-instance 'uri/external-link/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; uri/external-link/inspector
 
-(def (component e) uri/external-link/inspector (inspector/style t/detail/inspector)
+(def (component e) uri/external-link/inspector (t/detail/inspector)
   ())
 
 (def render-xhtml uri/external-link/inspector
-  (with-render-style/abstract (-self- :element-name "span")
+  (with-render-style/component (-self- :element-name "span")
     (bind ((uri (print-uri-to-string (component-value-of -self-))))
       ;; TODO: refactor this to use the external-link/widget
       <a (:href ,uri :target "_blank")

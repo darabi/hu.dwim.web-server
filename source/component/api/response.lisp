@@ -130,8 +130,8 @@ There's an important invariant kept, namely calling FULL-RENDER at T0 (the initi
 
 Interesting use cases for INCREMENTAL-RENDER involves changing VISIBLE-COMPONENT?, TO-BE-RENDERED-COMPONENT?, LAZILY-RENDERED-COMPONENT? and not calling RENDER-COMPONENT on a child component."
   (bind ((to-be-rendered-components
-          ;; KLUDGE: finding top/abstract and going down from there
-          (bind ((top (find-descendant-component-of-type 'top/abstract component
+          ;; KLUDGE: finding top/component and going down from there
+          (bind ((top (find-descendant-component-of-type 'top/component component
                                                          :otherwise `(:error "There is no TOP component below ~A, AJAX cannot be used in this situation at the moment" ,component))))
             (collect-covering-to-be-rendered-descendant-components top))))
     (setf (header-value *response* +header/content-type+) +xml-mime-type+)

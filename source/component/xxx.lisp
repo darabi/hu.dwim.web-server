@@ -7,26 +7,6 @@
 
 (in-package :hu.dwim.wui)
 
-
-;; TODO: move
-(def method component-style-class ((self t/presentation))
-  (string+ "content-border " (call-next-method)))
-
-(def method component-style-class ((self t/detail/presentation))
-  (%component-style-class self))
-
-(def method component-style-class ((self text/inspector))
-  "text inspector")
-
-(def method component-style-class ((self book/inspector))
-  "content-border text inspector")
-
-(def method component-style-class ((self uri/inspector))
-  "uri inspector")
-
-(def method component-style-class ((self hyperlink/inspector))
-  "hyperlink inspector")
-
 (def function make-copy-to-repl-command (component)
   (command/widget (:ajax #t)
     "COPY"
@@ -37,12 +17,12 @@
     "INSPECT"
     (make-action (inspect-in-repl component))))
 
+;;;;;;
+;;; Icon
+
 (def (icon e) navigate-back)
 
 (def (icon e) external-link)
-
-;;;;;;
-;;; Icon
 
 (def (icon e) diagram)
 
@@ -201,8 +181,9 @@
       (refresh-component component))))
 
 (def function extract-primitive-component-place (component)
-  (bind ((parent-component (parent-component-of component)))
-    (when (typep parent-component 'inspector/abstract)
+  ;; TODO: KLUDGE: fuck these parent-component-ofs
+  (bind ((parent-component (find-ancestor-component-of-type 'place/presentation component :otherwise #f)))
+    (when parent-component
       (bind ((component-value (component-value-of parent-component)))
         (when (typep component-value 'object-slot-place)
           (bind ((instance (instance-of component-value)))
@@ -211,14 +192,14 @@
 ;;;;;
 ;;; Exportable
 
-(def layered-method make-context-menu-items ((component exportable/abstract) class prototype instance)
+(def layered-method make-context-menu-items ((component exportable/component) class prototype instance)
   (optional-list* (make-submenu-item (icon/widget menu :label "Export")
                                      (make-export-commands component class prototype instance))
                   (call-next-layered-method)))
 
 (def (icon e) export-text)
 
-(def layered-method make-export-command ((format (eql :txt)) (component exportable/abstract) class prototype value)
+(def layered-method make-export-command ((format (eql :txt)) (component exportable/component) class prototype value)
   (when (authorize-operation *application* `(make-expand-command :format ,format))
     (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
       (icon/widget export-text)
@@ -227,7 +208,7 @@
 
 (def (icon e) export-csv)
 
-(def layered-method make-export-command ((format (eql :csv)) (component exportable/abstract) class prototype value)
+(def layered-method make-export-command ((format (eql :csv)) (component exportable/component) class prototype value)
   (when (authorize-operation *application* `(make-expand-command :format ,format))
     (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
       (icon/widget export-csv)
@@ -238,7 +219,7 @@
 
 (def special-variable *pdf-stream*)
 
-(def layered-method make-export-command ((format (eql :pdf)) (component exportable/abstract) class prototype value)
+(def layered-method make-export-command ((format (eql :pdf)) (component exportable/component) class prototype value)
   (when (authorize-operation *application* `(make-expand-command :format ,format))
     (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
       (icon/widget export-pdf)
@@ -247,7 +228,7 @@
 
 (def (icon e) export-odt)
 
-(def layered-method make-export-command ((format (eql :odt)) (component exportable/abstract) class prototype value)
+(def layered-method make-export-command ((format (eql :odt)) (component exportable/component) class prototype value)
   (when (authorize-operation *application* `(make-expand-command :format ,format))
     (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
       (icon/widget export-odt)
@@ -256,7 +237,7 @@
 
 (def (icon e) export-ods)
 
-(def layered-method make-export-command ((format (eql :ods)) (component exportable/abstract) class prototype value)
+(def layered-method make-export-command ((format (eql :ods)) (component exportable/component) class prototype value)
   (when (authorize-operation *application* `(make-expand-command :format ,format))
     (command/widget (:ajax #f :delayed-content #t :application-relative-path (export-file-name format component value))
       (icon/widget export-ods)
@@ -307,7 +288,7 @@
 
 (def (icon e) close-component)
 
-(def layered-method make-close-component-command ((component closable/abstract) class prototype value)
+(def layered-method make-close-component-command ((component closable/component) class prototype value)
   (command/widget ()
     (icon/widget close-component)
     (make-component-action component

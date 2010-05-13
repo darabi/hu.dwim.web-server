@@ -10,7 +10,7 @@
 ;;; internal-error-message/widget
 
 (def (component e) internal-error-message/widget (component-messages/widget
-                                                  content/abstract
+                                                  content/component
                                                   title-bar/mixin
                                                   command-bar/mixin
                                                   frame-unique-id/mixin)
@@ -27,7 +27,7 @@
                       #"error.internal-server-error.title"))))
 
 (def render-xhtml internal-error-message/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-title-bar-for -self-)
     (render-component-messages-for -self-)
     <div ,(render-content-for -self-)>
@@ -42,7 +42,7 @@
                                           (make-uri-for-new-frame)
                                           (make-action
                                             (setf (root-component-of *frame*) original-root-component))))
-               (call-next-method))
+               (call-next-layered-method))
         (list))))
 
 (def method handle-toplevel-error/application/emit-response ((application application) (error serious-condition) (ajax-aware? (eql #f)))
@@ -56,7 +56,7 @@
                                         :error error
                                         :original-root-component (when *frame*
                                                                    (root-component-of *frame*))
-                                        :content (inline-render-component/widget ()
+                                        :content (inline-render/widget ()
                                                    ;; TODO split the content of render-application-internal-error-page into separate l10n entries and drop the call to apply-localization-function
                                                    ;; TODO don't use component-message/widget here
                                                    (render-component (component-message/widget (:category :error)

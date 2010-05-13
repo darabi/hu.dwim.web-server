@@ -7,22 +7,22 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; test/inspector
+;;; test/alternator/inspector
 
-(def (component e) test/inspector (t/inspector)
+(def (component e) test/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null hu.dwim.stefil::test) test/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null hu.dwim.stefil::test) test/alternator/inspector)
 
-(def layered-method make-alternatives ((component test/inspector) (class standard-class) (prototype hu.dwim.stefil::test) (value hu.dwim.stefil::test))
+(def layered-method make-alternatives ((component test/alternator/inspector) (class standard-class) (prototype hu.dwim.stefil::test) (value hu.dwim.stefil::test))
   (list* (make-instance 'test/hierarchy/tree/inspector :component-value value)
          (make-instance 'test/lisp-form/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; test/lisp-form/inspector
 
-(def (component e) test/lisp-form/inspector (inspector/style t/detail/presentation content/widget)
+(def (component e) test/lisp-form/inspector (t/inspector t/detail/presentation content/widget)
   ())
 
 (def refresh-component test/lisp-form/inspector

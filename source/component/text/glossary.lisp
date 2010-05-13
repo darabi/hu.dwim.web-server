@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; glossary/inspector
 
-(def (component e) glossary/inspector (inspector/basic)
+(def (component e) glossary/inspector (t/inspector)
   ())
 
 (def render-xhtml glossary/inspector

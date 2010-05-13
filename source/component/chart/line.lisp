@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; line/chart
 
-(def (component e) line/chart (chart/abstract)
+(def (component e) line/chart (standard/chart)
   ())
 
 (def render-xhtml line/chart

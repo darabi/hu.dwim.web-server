@@ -7,18 +7,22 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; d-value/inspector
+;;; d-value/alternator/inspector
 
-(def (component e) d-value/inspector (t/inspector)
+(def (component e) d-value/alternator/inspector (t/alternator/inspector)
   ()
   (:documentation "Inspector for a D-VALUE instance in various alternative views."))
 
-(def subtype-mapper *inspector-type-mapping* (or null hu.dwim.perec::d-value) d-value/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null hu.dwim.perec::d-value) d-value/alternator/inspector)
 
-(def method slot-type (class prototype (slot hu.dwim.perec::persistent-effective-slot-definition-d))
+(def type dimensional-value (type)
+  (declare (ignore type))
   'hu.dwim.perec::d-value)
 
-(def layered-method make-alternatives ((component d-value/inspector) class prototype value)
+(def method slot-type (class prototype (slot hu.dwim.perec::persistent-effective-slot-definition-d))
+  `(dimensional-value ,(call-next-method)))
+
+(def layered-method make-alternatives ((component d-value/alternator/inspector) class prototype value)
   (list* (make-instance 'd-value/table/inspector
                         :component-value value
                         :component-value-type (component-value-type-of component))
@@ -28,16 +32,16 @@
 ;;; t/reference/inspector
 
 (def layered-method make-reference-content ((reference t/reference/inspector) class prototype (instance hu.dwim.perec::d-value))
-  (if (hu.dwim.perec::single-d-value-p instance)
+  (if (hu.dwim.perec:single-d-value-p instance)
       (bind ((single-value (hu.dwim.perec::single-d-value instance)))
-        (make-reference-content reference (class-of single-value) single-value single-value))
-      (string+ (write-to-string (length (hu.dwim.perec::c-values-of instance))) " dimensional values")))
+        ;; TODO: get the proper type and use that
+        (make-inspector (second (component-value-type-of (parent-component-of reference))) :value single-value))
+      (string+ (write-to-string (length (hu.dwim.perec::c-values-of instance))) " values")))
 
 ;;;;;;
 ;;; d-value/table/inspector
 
-(def component d-value/table/inspector (inspector/style
-                                        t/detail/inspector
+(def component d-value/table/inspector (t/detail/inspector
                                         table/widget
                                         component-messages/widget)
   ())
@@ -49,7 +53,8 @@
                                        :component-value "BLAH" ;; TODO:
                                        :header "Value"
                                        :cell-factory (lambda (row)
-                                                       (make-value-inspector (hu.dwim.perec::value-of (component-value-of row)))))
+                                                       (make-inspector (second (component-value-type-of -self-))
+                                                                       :value (hu.dwim.perec::value-of (component-value-of row)))))
                         (iter (for index :from 0)
                               (for dimension :in dimensions)
                               (rebind (index)
@@ -76,10 +81,10 @@
 (def function make-coordinate-inspector (dimension coordinate)
   (if (typep dimension 'hu.dwim.perec::ordering-dimension)
       (make-coordinate-range-inspector coordinate)
-      (make-value-viewer (if (length= 1 coordinate)
-                             (first coordinate)
-                             coordinate)
-                         :default-alternative-type 'reference-component)))
+      (make-value-inspector (if (length= 1 coordinate)
+                                (first coordinate)
+                                coordinate)
+                            :default-alternative-type 'reference-component)))
 
 (def function make-coordinate-range-inspector (coordinate)
   ;; TODO: KLUDGE: this is really much more complex than this

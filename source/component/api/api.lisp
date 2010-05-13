@@ -373,6 +373,9 @@
 (def (generic e) (setf component-value-of) (new-value component)
   (:documentation "Sets the COMPONENT-VALUE associated with COMPONENT to NEW-VALUE."))
 
+(def (generic e) component-value= (value-1 value-2)
+  (:documentation "TRUE means the component values are equal, FALSE otherwise."))
+
 (def (generic e) reuse-component-value (component class prototype value)
   (:documentation "Carries out anything needed to reuse the COMPONENT-VALUE of COMPONENT and returns it."))
 

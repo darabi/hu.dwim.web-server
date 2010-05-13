@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; row/layout
 
-(def (component e) row/layout (layout/minimal row/abstract cells/mixin)
+(def (component e) row/layout (standard/layout row/component cells/mixin)
   ((vertical-alignment nil :type (member nil :top :center :bottom))))
 
 (def (macro e) row/layout ((&rest args &key &allow-other-keys) &body cells)

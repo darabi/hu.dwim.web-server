@@ -7,12 +7,12 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; node/abstract
+;;; node/component
 
-(def (component e) node/abstract ()
+(def (component e) node/component ()
   ())
 
-(def component-environment node/abstract
+(def component-environment node/component
   (bind ((*tree-level* (1+ *tree-level*)))
     (call-next-method)))
 

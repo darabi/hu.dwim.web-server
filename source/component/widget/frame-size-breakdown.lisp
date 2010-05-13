@@ -10,7 +10,7 @@
 ;;; frame-size-breakdown/widget
 
 ;; TODO: rewrite this using the meta gui
-(def (component e) frame-size-breakdown/widget (widget/basic)
+(def (component e) frame-size-breakdown/widget (standard/widget)
   ((last-dynamic-usage 0)
    (last-descriptors nil)))
 

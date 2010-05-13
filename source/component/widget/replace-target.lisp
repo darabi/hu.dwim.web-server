@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; target-place/widget
 
-(def (component e) target-place/widget (widget/basic content/abstract)
+(def (component e) target-place/widget (standard/widget content/component)
   ((target-place :type place))
   (:documentation "A TARGET-PLACE/WIDGET has a PLACE that refers into its CONTENT. This place can be set by REPLACE-TARGET-PLACE/WIDGET descendant COMPONENTs."))
 

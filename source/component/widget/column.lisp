@@ -9,8 +9,8 @@
 ;;;;;;
 ;;; column/widget
 
-(def (component e) column/widget (widget/style
-                                  column/abstract
+(def (component e) column/widget (standard/widget
+                                  column/component
                                   header/mixin
                                   context-menu/mixin
                                   selectable/mixin)
@@ -24,5 +24,5 @@
 
 (def render-xhtml column/widget
   ;; NOTE: don't put style and the like on th, because that cannot be easily updated on the client side
-  <th ,(with-render-style/abstract (-self-)
+  <th ,(with-render-style/component (-self-)
          (render-header-for -self-))>)

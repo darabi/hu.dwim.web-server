@@ -7,15 +7,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; text/inspector
+;;; text/alternator/inspector
 
-(def (component e) text/inspector (t/inspector)
+(def (component e) text/alternator/inspector (t/alternator/inspector)
   ())
 
 ;;;;;;
 ;;; t/text/inspector
 
-(def (component e) t/text/inspector (inspector/style t/detail/inspector contents/widget)
+(def (component e) t/text/inspector (t/detail/inspector contents/widget)
   ())
 
 (def refresh-component t/text/inspector

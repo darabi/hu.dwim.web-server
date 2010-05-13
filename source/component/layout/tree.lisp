@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; tree/layout
 
-(def (component e) tree/layout (tree/abstract layout/minimal root-nodes/mixin)
+(def (component e) tree/layout (standard/layout tree/component root-nodes/mixin)
   ())
 
 (def (macro e) tree/layout ((&rest args &key &allow-other-keys) &body root-nodes)

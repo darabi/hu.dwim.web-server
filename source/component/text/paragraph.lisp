@@ -7,16 +7,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; paragraph/inspector
+;;; paragraph/alternator/inspector
 
-(def (component e) paragraph/inspector (text/inspector)
+(def (component e) paragraph/alternator/inspector (text/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null paragraph) paragraph/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null paragraph) paragraph/alternator/inspector)
 
-(def layered-method make-alternatives ((component paragraph/inspector) (class standard-class) (prototype paragraph) (value paragraph))
-  (list* (make-instance 'paragraph/text/inspector :component-value value)
-         (call-next-method)))
+(def layered-method make-alternatives ((component paragraph/alternator/inspector) (class standard-class) (prototype paragraph) (value paragraph))
+  (list* (make-instance 'paragraph/text/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; paragraph/text/inspector
@@ -33,7 +32,7 @@
   (write-text-line-separator))
 
 (def render-xhtml paragraph/text/inspector
-  (with-render-style/abstract (-self- :element-name "p")
+  (with-render-style/component (-self- :element-name "p")
     (render-contents-for -self-)))
 
 (def layered-function render-paragraph (component)

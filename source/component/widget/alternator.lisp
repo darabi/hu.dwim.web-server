@@ -28,7 +28,7 @@
       (setf content (find-initial-alternative-component -self-)))))
 
 (def with-macro with-render-alternator/widget (self)
-  (with-render-style/abstract (self :element-name (if (typep (content-of self) 'reference/widget)
+  (with-render-style/component (self :element-name (if (typep (content-of self) 'reference/widget)
                                                       "span"
                                                       "div"))
     (-body-)))
@@ -96,7 +96,7 @@
                                                       (not (eq (class-of alternative)
                                                                (class-of (content-of component))))
                                                       (or (not reference?)
-                                                          (find-ancestor-component-of-type 'inspector/abstract (parent-component-of component) :otherwise #f)))))
+                                                          (find-ancestor-component-of-type 't/inspector (parent-component-of component) :otherwise #f)))))
                      :subject-component component))))
 
 (def (generic e) make-switch-to-alternative-command-content (alternative)

@@ -118,7 +118,7 @@
                                                    (if (negated? component)
                                                        `(not ,ponated-predicate)
                                                        ponated-predicate)))))
-                   ((and (typep value-filter 't/filter)
+                   ((and (typep value-filter 't/alternator/filter)
                          (not (typep (content-of value-filter) 't/reference/filter)))
                     (with-new-query-variable (query-variable filter-query (class-name (find-class-for-type (component-value-type-of value-filter))))
                       (hu.dwim.perec::add-assert (query-of filter-query)

@@ -15,11 +15,11 @@
 
 (def (icon e) context-sensitive-help :tooltip nil)
 
-(def (component e) context-sensitive-help (content/mixin frame-unique-id/mixin)
+(def (component e) context-sensitive-help/widget (content/mixin frame-unique-id/mixin)
   ()
   (:default-initargs :content (icon/widget context-sensitive-help)))
 
-(def render-xhtml context-sensitive-help
+(def render-xhtml context-sensitive-help/widget
   (when *frame*
     (bind ((href (register-action/href (make-action (show-context-sensitive-help -self-)) :delayed-content #t)))
       <div (:id ,(id-of -self-)
@@ -28,7 +28,7 @@
         ,(render-content-for -self-)>)))
 
 (def layered-function show-context-sensitive-help (component)
-  (:method ((self context-sensitive-help))
+  (:method ((self context-sensitive-help/widget))
     (with-request-parameters (((ids +context-sensitive-help-parameter-name+) nil))
       (setf ids (ensure-list ids))
       (bind ((components nil))
@@ -42,7 +42,7 @@
                                                      components)
                                                #"context-sensitive-help.not-available"))))))
 
-(def layered-method make-context-sensitive-help ((component context-sensitive-help) class prototype value)
+(def layered-method make-context-sensitive-help ((component context-sensitive-help/widget) class prototype value)
   #"context-sensitive-help.self-description")
 
 ;;;;;;
@@ -60,7 +60,7 @@
     (add-component-error-message -self- "Nincs engedélyezve az internet böngészőjében a JavaScript programok futtatása, így az alkalmazás sajnos egyátalán nem használható. Kérjük engedélyezze a JavaScript futtatását a beállításokban!"))
   (unless (supported? (identify-http-user-agent *request*))
     (add-component-error-message -self- "Ezt az internet böngészőt vagy annak az éppen használt verzióját az alkalmazás nem támogatja. Az alábbi oldalon olvashatja a támogatott böngészők listáját és a letöltésükhöz szükséges információkat. A kellemetlenségért elnézését kérjük!"))
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-title-for -self-)
     (render-component-messages-for -self-)
     ;; TODO: make this a book and localize it

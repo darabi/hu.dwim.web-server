@@ -7,26 +7,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; widget/abstract
+;;; component/widget
 
-(def (component e) widget/abstract ()
+(def (component e) component/widget ()
   ()
-  (:documentation "A WIDGET/ABSTRACT has visual appearance on its own, it also provides behaviour on the client side such as visiblility, expanding, scrolling, resizing, context menu, selection, sorting subparts, etc."))
+  (:documentation "A widget is similar a layout but it also provides behaviour on the client side. A few examples are visiblility, expanding, collapsing, scrolling, resizing, moving, context menu, selection, sorting subparts, etc. This class does not have any slots on purpose."))
 
 ;;;;;;
-;;; widget/minimal
+;;; standard/widget
 
-(def (component e) widget/minimal (widget/abstract component/minimal)
-  ())
-
-;;;;;;
-;;; widget/basic
-
-(def (component e) widget/basic (widget/minimal component/basic)
-  ())
-
-;;;;;;
-;;; widget/style
-
-(def (component e) widget/style (widget/basic component/style)
+(def (component e) standard/widget (component/widget standard/component)
   ())

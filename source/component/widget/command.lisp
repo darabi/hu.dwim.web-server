@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; command/widget
 
-(def (component e) command/widget (widget/style content/mixin)
+(def (component e) command/widget (standard/widget content/mixin)
   (;; TODO: put a lambda with the authorization rule captured here in hu.dwim.perec integration
    ;; TODO: always wrap the action lambda with a call to execute-command
    (available

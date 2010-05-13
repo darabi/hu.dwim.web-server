@@ -24,11 +24,6 @@
     :documentation "TRUE means the COMPONENT is visible on the remote side, FALSE otherwise."))
   (:documentation "A COMPONENT that can be HIDDEN or SHOWN."))
 
-(def render-component :in xhtml-layer :around hideable/mixin
-  (if (visible-component? -self-)
-      (call-next-layered-method)
-      (render-component-stub -self-)))
-
 (def method visible-component? :around ((self hideable/mixin))
   (force (call-next-method)))
 

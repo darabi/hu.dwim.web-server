@@ -7,9 +7,9 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; t/inspector
+;;; t/alternator/inspector
 
-(def layered-method make-alternatives ((component t/inspector) (class computed-class) (prototype hu.dwim.perec::table) (value hu.dwim.perec::table))
+(def layered-method make-alternatives ((component t/alternator/inspector) (class computed-class) (prototype hu.dwim.perec::table) (value hu.dwim.perec::table))
   (list* (make-instance 'table/sql/inspector
                         :component-value value
                         :component-value-type (component-value-type-of component))
@@ -18,7 +18,7 @@
 ;;;;;;
 ;;; table/sql/inspector
 
-(def (component e) table/sql/inspector (inspector/style t/detail/inspector content/widget)
+(def (component e) table/sql/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component table/sql/inspector

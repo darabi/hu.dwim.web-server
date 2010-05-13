@@ -7,38 +7,26 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; viewer/abstract
+;;; component/viewer
 
-(def (component e) viewer/abstract (presentation/abstract)
+(def (component e) component/viewer (component/presentation)
   ()
-  (:documentation "A VIEWER/ABSTRACT displays existing values of a TYPE.
+  (:documentation "A viewer displays existing values of a TYPE. This class does not have any slots on purpose.
   - similar to a #<LITERAL-OBJECT {100C204081}>
   - static input
-    - component-value-type: type
+    - value-type: type
   - volatile input
-    - component-value: component-value-type
+    - value: value-type
   - dispatch
-    - dispatch-class: (class-of component-value)
+    - dispatch-class: (class-of value)
     - dispatch-prototype: (class-prototype dispatch-class)
   - output
-    - component-value: component-value-type"))
+    - value: value-type"))
 
 ;;;;;;
-;;; viewer/minimal
+;;; t/viewer
 
-(def (component e) viewer/minimal (viewer/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; viewer/basic
-
-(def (component e) viewer/basic (viewer/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; viewer/style
-
-(def (component e) viewer/style (viewer/basic presentation/style)
+(def (component e) t/viewer (component/viewer t/presentation)
   ())
 
 ;;;;;;

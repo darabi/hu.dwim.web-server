@@ -13,9 +13,15 @@
   ()
   (:documentation "An PLACE/INSPECTOR displays or edits existing values of a TYPE at a PLACE."))
 
-(def subtype-mapper *inspector-type-mapping* place place/inspector)
+;;;;;;
+;;; place/alternator/inspector
 
-(def layered-method make-alternatives ((component place/inspector) class prototype value)
+(def (component e) place/alternator/inspector (t/alternator/inspector place/alternator/presentation)
+  ())
+
+(def subtype-mapper *inspector-type-mapping* place place/alternator/inspector)
+
+(def layered-method make-alternatives ((component place/alternator/inspector) class prototype value)
   (list (make-instance 'place/value/inspector
                        :component-value value
                        :editable (editable-component? component)
@@ -32,9 +38,15 @@
   ())
 
 ;;;;;;
+;;; place/detail/inspector
+
+(def (component e) place/detail/inspector (t/detail/inspector place/detail/presentation)
+  ())
+
+;;;;;;
 ;;; place/value/inspector
 
-(def (component e) place/value/inspector (inspector/basic place/value/presentation)
+(def (component e) place/value/inspector (t/detail/inspector place/value/presentation)
   ())
 
 (def layered-method make-content-presentation ((component place/value/inspector) class prototype value)

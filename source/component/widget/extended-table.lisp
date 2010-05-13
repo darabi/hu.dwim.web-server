@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; Extended table
 
-(def (component e) extended-table-component (id/mixin)
+(def (component e) extended-table/widget (standard/widget id/mixin)
   ((row-headers nil :type components)
    (row-headers-depth :type integer)
    (row-leaf-count :type integer)
@@ -19,7 +19,7 @@
    (header-cell nil :type component)
    (cells nil :type components)))
 
-(def refresh-component extended-table-component
+(def refresh-component extended-table/widget
   (bind (((:slots row-headers row-headers-depth row-leaf-count column-headers column-headers-depth column-leaf-count) -self-))
     (flet ((setf-indices (headers)
              (iter (for index :from 0)
@@ -32,7 +32,7 @@
       (setf column-leaf-count (count-leaves column-headers))
       (setf-indices column-headers))))
 
-(def render-xhtml extended-table-component
+(def render-xhtml extended-table/widget
   (bind (((:read-only-slots header-cell row-headers row-headers-depth column-headers column-headers-depth column-leaf-count cells) -self-))
     (labels ((cell-index (row-path column-path)
                (+ (* column-leaf-count (index-of (last-elt row-path)))
@@ -102,17 +102,18 @@
 ;;;;;;
 ;;; Column header
 
-(def (component e) table-header-component (content/mixin remote-setup/mixin)
+(def (component e) header/widget (standard/widget content/mixin remote-setup/mixin)
   ((children nil :type components)
    (index nil :type integer)))
 
-(def (macro e) table-header-component (content &body children)
-  `(make-instance 'table-header-component
+(def (macro e) header/widget (content &body children)
+  `(make-instance 'header/widget
                   :content ,content
                   :children (list ,@children)))
 
-(def render-xhtml table-header-component
-  <div (:id ,(id-of -self-)) ,(call-next-method)>)
+(def render-xhtml header/widget
+  <div (:id ,(id-of -self-))
+   ,(call-next-layered-method)>)
 
 (def function count-leaves (headers)
   (reduce #'+ (ensure-list headers)

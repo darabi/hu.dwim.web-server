@@ -7,14 +7,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; top/abstract
+;;; top/component
 
-(def (component e) top/abstract (content/mixin)
+(def (component e) top/component (content/mixin)
   ()
   (:documentation "A COMPONENT that is related to the FOCUS command."))
 
 (def (function e) find-top-component (component &key (otherwise :error otherwise?))
-  (or (find-ancestor-component-of-type 'top/abstract component :otherwise #f)
+  (or (find-ancestor-component-of-type 'top/component component :otherwise #f)
       (handle-otherwise (error "Unable to find top component starting from component ~A" component))))
 
 (def (function e) top-component? (component)

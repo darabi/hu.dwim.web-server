@@ -9,9 +9,9 @@
 ;;;;;;
 ;;; element/widget
 
-(def (component e) element/widget (widget/style
+(def (component e) element/widget (standard/widget
                                    context-menu/mixin
-                                   content/abstract
+                                   content/component
                                    selectable/mixin)
   ()
   (:documentation "An ELEMENT/WIDGET has a single COMPONENT inside. It supports selection, highlight and commands within a LIST/WIDGET."))

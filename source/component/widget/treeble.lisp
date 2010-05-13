@@ -9,8 +9,8 @@
 ;;;;;;
 ;;; treeble/widget
 
-(def (component e) treeble/widget (tree/abstract
-                                   widget/style
+(def (component e) treeble/widget (tree/component
+                                   standard/widget
                                    root-nodes/mixin
                                    columns/mixin
                                    collapsible/mixin
@@ -27,7 +27,7 @@
 
 (def render-xhtml treeble/widget
   (bind (((:read-only-slots root-nodes) -self-))
-    (with-render-style/abstract (-self-)
+    (with-render-style/component (-self-)
       <table <thead <tr (:class "nodrow") ,(render-treeble-columns -self-)>>
         <tbody ,(foreach #'render-component root-nodes)>>)))
 

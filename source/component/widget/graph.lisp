@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; graph/widget
 
-(def (component e) graph/widget (widget/style cl-graph:dot-graph)
+(def (component e) graph/widget (standard/widget cl-graph:dot-graph)
   ((x :type number)
    (y :type number)
    (width :type number)
@@ -28,7 +28,7 @@
      (add-vertices-and-edges it (list ,@vertices-and-edges))))
 
 (def refresh-component graph/widget
-  "Layouts the graph using graphviz through CFFI. The graph's coordinate system origin is the bottom left, width and height are increasing right and up."
+    "Layouts the graph using graphviz through CFFI. The graph's coordinate system origin is the bottom left, width and height are increasing right and up."
   (bind (((:slots x y width height max-width max-height scale) -self-))
     (cl-graph::iterate-nodes -self-
                              (lambda (node)
@@ -37,7 +37,12 @@
                                (setf (getf (cl-graph:dot-attributes node) :shape) :box)
                                (setf (getf (cl-graph:dot-attributes node) :fixedsize) t)
                                (compute-vertex-size node (content-of node))))
-    (cl-graph:iterate-edges -self- [setf (getf (cl-graph:dot-attributes !1) :label) (label-of !1)])
+    (cl-graph:iterate-edges -self- (lambda (edge)
+                                     (setf (getf (cl-graph:dot-attributes edge) :label) (label-of edge))
+                                     (awhen (head-arrow-of edge)
+                                       (setf (getf (cl-graph:dot-attributes edge) :arrowhead) (shape-of it)))
+                                     (awhen (tail-arrow-of edge)
+                                       (setf (getf (cl-graph:dot-attributes edge) :arrowtail) (shape-of it)))))
     (cl-graph:layout-graph-with-graphviz -self-)
     ;; store graph coordinates
     (bind ((((blx bly) (urx ury)) (cl-graph:dot-attribute-value :bb -self-)))
@@ -48,9 +53,11 @@
     ;; store edge coordinates
     (cl-graph:iterate-edges -self-
                             (lambda (edge)
-                              (setf (points-of edge)
-                                    (mapcar [list (first !1) (second !1)]
-                                            (cl-graph:dot-attribute-value :pos edge)))))
+                              (bind (((&optional xc yc) (cl-graph:dot-attribute-value :lp edge)))
+                                (setf (points-of edge) (mapcar [list (first !1) (second !1)]
+                                                               (cl-graph:dot-attribute-value :pos edge))
+                                      (label-x-of edge) xc
+                                      (label-y-of edge) yc))))
     ;; store vertex coordinates
     (cl-graph::iterate-nodes -self-
                              (lambda (vertex)
@@ -122,11 +129,11 @@
 ;;;;;;
 ;;; vertex/widget
 
-(def (component e) vertex/widget (widget/style cl-graph:dot-vertex)
+(def (component e) vertex/widget (standard/widget cl-graph:dot-vertex)
   ((x :type number)
    (y :type number)
-   (width :type number)
-   (height :type number)
+   (width nil :type number)
+   (height nil :type number)
    (shape :box :type (member :box))
    (border-width 1 :type number)
    (content nil :type component)))
@@ -155,13 +162,13 @@
     (values))
 
   (:method (vertex content)
-    (setf (getf (cl-graph:dot-attributes vertex) :width) 1)
-    (setf (getf (cl-graph:dot-attributes vertex) :height) 1)))
+    (setf (getf (cl-graph:dot-attributes vertex) :width) (or (width-of vertex) 1))
+    (setf (getf (cl-graph:dot-attributes vertex) :height) (or (height-of vertex) 1))))
 
 ;;;;;;
 ;;; edge/widget
 
-(def (component e) edge/widget (widget/basic cl-graph:dot-edge)
+(def (component e) edge/widget (standard/widget cl-graph:dot-edge)
   ((points :type list)
    (width 1 :type number)
    (label nil :type component)
@@ -178,8 +185,8 @@
            (string+ (princ-to-string (first p)) "," (princ-to-string (svg-y (second p)))))
          (arrow-marker (arrow type)
            (when arrow
-             (string+ "url(#" (string-downcase (symbol-name (shape-of arrow))) "-" type ")"))))
-    (bind (((:read-only-slots points head-arrow tail-arrow) -self-)
+             (string+ "url(#" (string-downcase (symbol-name (shape-of arrow))) "-arrow-" type ")"))))
+    (bind (((:read-only-slots points head-arrow tail-arrow label label-x label-y style-class custom-style id) -self-)
            (bezier-points points)
            (points-length (length bezier-points)))
       (unless (zerop points-length)
@@ -191,10 +198,16 @@
                                                  " " (p->string p3)
                                                  " " (p->string p4))
                          :marker-end ,(when (= i (/ (1- points-length) 3))
-                                            (arrow-marker head-arrow "end"))
+                                        (arrow-marker head-arrow "end"))
                          :marker-start ,(when (first-iteration-p)
-                                              (arrow-marker tail-arrow "start"))
-                         :fill "none" :stroke "brown" :stroke-width 2)>)))))
+                                          (arrow-marker tail-arrow "start"))
+                         :fill "none" :stroke "brown" :stroke-width 2)>))
+      (when (and label-x label-y)
+        <div (:id ,id :class ,style-class
+              :style `str(,custom-style "position: absolute; "
+                                        "left: " ,(princ-to-string label-x) "px; "
+                                        "top: " ,(princ-to-string (svg-y label-y)) "px; "))
+         ,(render-component label)>))))
 
 ;;;;;;
 ;;; directed-edge/widget
@@ -205,8 +218,11 @@
 ;;;;;;
 ;;; arrow/widget
 
-(def (component e) arrow/widget (widget/basic)
+(def (component e) arrow/widget (standard/widget)
   ((shape :type symbol)))
+
+(def (macro e) arrow/widget (&rest args &key &allow-other-keys)
+  `(make-instance 'arrow/widget ,@args))
 
 ;;;;;;
 ;;; Util

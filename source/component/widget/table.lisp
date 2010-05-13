@@ -9,8 +9,8 @@
 ;;;;;;
 ;;; table/widget
 
-(def (component e) table/widget (widget/style
-                                 table/abstract
+(def (component e) table/widget (standard/widget
+                                 table/component
                                  rows/mixin
                                  columns/mixin
                                  selection/mixin
@@ -37,7 +37,7 @@
                                (min (length rows)
                                     (+ position
                                        (page-size-of page-navigation-bar))))))
-    (with-render-style/abstract (-self-)
+    (with-render-style/component (-self-)
       (render-context-menu-for -self-)
       <table <thead <tr (:class "row") ,(render-columns-for -self-)>>
         <tbody ,(iter (for index :from 0)

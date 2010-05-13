@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; nodrow/layout
 
-(def (component e) nodrow/layout (layout/minimal node/abstract cells/mixin child-nodes/mixin)
+(def (component e) nodrow/layout (standard/layout node/component cells/mixin child-nodes/mixin)
   ())
 
 (def (macro e) nodrow/layout ((&rest args &key &allow-other-keys) &body child-nodes)

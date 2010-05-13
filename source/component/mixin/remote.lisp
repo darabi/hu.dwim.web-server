@@ -18,7 +18,7 @@
 (def (layered-function e) render-remote-setup (component)
   (:method :around ((self id/mixin))
     (when (remote-setup? self)
-      (call-next-method)))
+      (call-next-layered-method)))
 
   (:method :in xhtml-layer ((self id/mixin))
     `js-onload(wui.setup-component ,(id-of self) ,(instance-class-name-as-string self))))

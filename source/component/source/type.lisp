@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; symbol/type-name/inspector
 
-(def (component e) symbol/type-name/inspector (t/inspector)
+(def (component e) symbol/type-name/inspector (t/alternator/inspector)
   ())

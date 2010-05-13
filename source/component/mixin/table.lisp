@@ -7,13 +7,13 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; table/abstract
+;;; table/component
 
 (def special-variable *table*)
 
-(def (component e) table/abstract ()
+(def (component e) table/component ()
   ())
 
-(def component-environment table/abstract
+(def component-environment table/component
   (bind ((*table* -self-))
     (call-next-method)))

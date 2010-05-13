@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; t/tree/inspector
 
-(def (component e) t/tree/inspector (inspector/basic t/detail/inspector tree/widget)
+(def (component e) t/tree/inspector (t/detail/inspector tree/widget)
   ())
 
 (def refresh-component t/tree/inspector
@@ -32,7 +32,7 @@
 ;;;;;;
 ;;; t/node/inspector
 
-(def (component e) t/node/inspector (inspector/basic t/detail/inspector node/widget)
+(def (component e) t/node/inspector (t/detail/inspector node/widget)
   ())
 
 (def refresh-component t/node/inspector
@@ -45,7 +45,7 @@
         (setf (component-value-of content) component-value)
         (setf content (make-content-presentation -self- dispatch-class dispatch-prototype component-value)))
     (setf child-nodes (iter (for child :in-sequence children)
-                            (for child-node = (find child child-nodes :key #'component-value-of))
+                            (for child-node = (find child child-nodes :key #'component-value-of :test #'component-value=))
                             (if child-node
                                 (setf (component-value-of child-node) child)
                                 (setf child-node (make-node-presentation -self- dispatch-class dispatch-prototype child)))
@@ -74,7 +74,7 @@
 ;;;;;;
 ;;; t/tree-level/inspector
 
-(def (component e) t/tree-level/inspector (inspector/basic t/detail/inspector tree-level/widget)
+(def (component e) t/tree-level/inspector (t/detail/inspector tree-level/widget)
   ())
 
 (def refresh-component t/tree-level/inspector
@@ -144,7 +144,7 @@
 ;;;;;;
 ;;; t/tree-level/path/inspector
 
-(def (component e) t/tree-level/path/inspector (inspector/basic t/detail/inspector path/widget)
+(def (component e) t/tree-level/path/inspector (t/detail/inspector path/widget)
   ())
 
 (def method component-dispatch-class ((self t/tree-level/path/inspector))
@@ -189,7 +189,7 @@
 ;;;;;;
 ;;; sequence/tree/inspector
 
-(def (component e) sequence/tree/inspector (t/tree/inspector sequence/abstract)
+(def (component e) sequence/tree/inspector (t/tree/inspector sequence/inspector)
   ())
 
 (def layered-method make-node-presentation ((component sequence/tree/inspector) class prototype value)
@@ -203,7 +203,7 @@
 ;;;;;;
 ;;; sequence/node/inspector
 
-(def (component e) sequence/node/inspector (t/node/inspector sequence/abstract)
+(def (component e) sequence/node/inspector (t/node/inspector sequence/inspector)
   ())
 
 (def layered-method make-node-presentation ((component sequence/node/inspector) class prototype value)
@@ -217,9 +217,8 @@
 ;;;;;;
 ;;; sequence/treeble/inspector
 
-(def (component e) sequence/treeble/inspector (inspector/basic
-                                               t/detail/inspector
-                                               sequence/columns/abstract
+(def (component e) sequence/treeble/inspector (t/detail/inspector
+                                               sequence/columns/component
                                                treeble/widget)
   ())
 
@@ -228,7 +227,7 @@
          (class (component-dispatch-class -self-))
          (prototype (component-dispatch-prototype -self-)))
     (setf root-nodes (iter (for node-value :in-sequence component-value)
-                           (for root-node = (find node-value root-nodes :key #'component-value-of))
+                           (for root-node = (find node-value root-nodes :key #'component-value-of :test #'component-value=))
                            (if root-node
                                (setf (component-value-of root-node) node-value)
                                (setf root-node (make-nodrow-presentation -self- class prototype node-value)))
@@ -249,7 +248,7 @@
 ;;;;;;
 ;;; t/nodrow/inspector
 
-(def (component e) t/nodrow/inspector (inspector/style t/detail/inspector nodrow/widget)
+(def (component e) t/nodrow/inspector (t/detail/inspector nodrow/widget)
   ())
 
 (def refresh-component t/nodrow/inspector
@@ -267,7 +266,7 @@
                       (columns-of *tree*))
               nil))
     (setf child-nodes (iter (for child :in-sequence children)
-                            (for child-node = (find child child-nodes :key #'component-value-of))
+                            (for child-node = (find child child-nodes :key #'component-value-of :test #'component-value=))
                             (if child-node
                                 (setf (component-value-of child-node) child)
                                 (setf child-node (make-nodrow-presentation -self- dispatch-class dispatch-prototype child)))
@@ -280,7 +279,7 @@
                  :editable (editable-component? component)))
 
 (def layered-method collect-instance-specific-presented-slots :around (component class prototype value)
-  (call-in-component-environment component #'call-next-method))
+  (call-in-component-environment component #'call-next-layered-method))
 
 (def layered-method collect-instance-specific-presented-slots ((component t/nodrow/inspector) class prototype value)
   ;; TODO: KLUDGE: we need the component tree to collect the slots

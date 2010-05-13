@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; t/lisp-form/inspector
 
-(def (component e) t/lisp-form/inspector (inspector/style)
+(def (component e) t/lisp-form/inspector (t/detail/inspector)
   ((source-objects :type list)
    (line-count :type integer)))
 
@@ -33,7 +33,7 @@
 {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
   (def render-component t/lisp-form/inspector
     (bind (((:read-only-slots line-count) -self-))
-      (with-render-style/abstract (-self-)
+      (with-render-style/component (-self-)
         <pre (:class "gutter")
              ,(iter (for line-number :from 1 :to line-count)
                     <span (:class `str("line-number " ,(element-style-class (1- line-number) line-count)))
@@ -57,15 +57,15 @@
   `(make-instance 't/lisp-form/invoker ,@args :component-value ',(make-lisp-form-component-value* (the-only-element form))))
 
 (def render-xhtml t/lisp-form/invoker
-  (with-render-style/abstract (-self-)
-    (call-next-method)
+  (with-render-style/component (-self-)
+    (call-next-layered-method)
     (render-command-bar-for -self-)
     <div (:class "result") ,(render-component (result-of -self-))>))
 
 (def (icon e) evaluate-form)
 
 (def layered-method make-command-bar-commands ((component t/lisp-form/invoker) class prototype value)
-  (optional-list* (make-evaluate-form-command component class prototype value) (call-next-method)))
+  (optional-list* (make-evaluate-form-command component class prototype value) (call-next-layered-method)))
 
 (def layered-method make-evaluate-form-command ((component t/lisp-form/invoker) class prototype value)
   (command/widget (:visible (delay (or (eq :multiple (evaluation-mode-of component))

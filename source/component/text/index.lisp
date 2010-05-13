@@ -7,10 +7,10 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; index/inspector
+;;; index/alternator/inspector
 
-(def (component e) index/inspector ()
+(def (component e) index/alternator/inspector (t/alternator/inspector)
   ())
 
-(def render-xhtml index/inspector
+(def render-xhtml index/alternator/inspector
   (not-yet-implemented))

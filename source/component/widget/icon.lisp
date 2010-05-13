@@ -23,7 +23,7 @@
 ;;;;;;
 ;;; icon/widget
 
-(def (component e) icon/widget (widget/abstract style/mixin tooltip/mixin)
+(def (component e) icon/widget (component/widget style/mixin tooltip/mixin)
   ((name :type symbol)
    (label :type (or null component))
    (image-path nil :type (or null string))))

@@ -10,7 +10,7 @@
 ;;; page-size-selector/widget
 
 ;; TODO: revive
-(def (component e) page-size-selector/widget (widget/basic member/inspector)
+(def (component e) page-size-selector/widget (standard/widget member/inspector)
   ()
   (:default-initargs
    :edited #t
@@ -24,7 +24,7 @@
 ;;; page-navigation-bar/widget
 
 ;; TODO: clickable pages: first, 4, 5, previous, (jumper 7), next, 9, 10, last
-(def (component e) page-navigation-bar/widget (widget/style)
+(def (component e) page-navigation-bar/widget (standard/widget)
   ((position 0 :type integer)
    (total-count 0 :type integer)
    (first-command :type component)
@@ -56,7 +56,7 @@
     ;; TODO: revive page-size-selector (does not work with ajax)
     (declare (ignore page-size-selector))
     (when (< page-size total-count)
-      (with-render-style/abstract (-self-)
+      (with-render-style/component (-self-)
         (foreach (lambda (component)
                    <span ,(render-component component)>)
                  (list first-command previous-command " #" jumper "/" total-count #+nil page-size-selector next-command last-command))))))

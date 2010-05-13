@@ -7,11 +7,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; selector/abstract
+;;; component/selector
 
-(def (component e) selector/abstract (presentation/abstract)
+(def (component e) component/selector (component/presentation)
   ()
-  (:documentation "A SELECTOR/ABSTRACT displays all existing values of TYPE at once to select exactly one VALUE of them.
+  (:documentation "A selector displays all existing values of TYPE at once to select exactly one VALUE of them. This class does not have any slots on purpose.
   - similar to (elt ...)
   - static input
     - value-type: type
@@ -23,21 +23,9 @@
     - value: value-type"))
 
 ;;;;;;
-;;; selector/minimal
+;;; t/selector
 
-(def (component e) selector/minimal (selector/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; selector/basic
-
-(def (component e) selector/basic (selector/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; selector/style
-
-(def (component e) selector/style (selector/basic presentation/style)
+(def (component e) t/selector (component/selector t/presentation)
   ())
 
 ;;;;;;

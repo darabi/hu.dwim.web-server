@@ -35,13 +35,13 @@
       ,(-body-)>))
 
 ;;;;;;
-;;; style/abstract
+;;; style/component
 
-(def (component e) style/abstract (style/mixin remote-setup/mixin)
+(def (component e) style/component (style/mixin remote-setup/mixin)
   ()
   (:documentation "A COMPONENT with STYLE and remote setup."))
 
-(def (with-macro* e) with-render-style/abstract (self &key (element-name "div"))
+(def (with-macro* e) with-render-style/component (self &key (element-name "div"))
   (bind (((:read-only-slots id style-class custom-style) self))
     <,element-name (:id ,id :class ,style-class :style ,custom-style)
       ,(-body-)>))

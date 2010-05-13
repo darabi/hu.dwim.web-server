@@ -9,10 +9,10 @@
 ;;;;;;
 ;;; nodrow/widget
 
-(def (component e) nodrow/widget (widget/style
-                                  node/abstract
+(def (component e) nodrow/widget (standard/widget
+                                  node/component
                                   cells/mixin
-                                  collapsible/abstract
+                                  collapsible/component
                                   child-nodes/mixin
                                   context-menu/mixin
                                   collapsible/mixin
@@ -75,14 +75,14 @@
   (bind ((expander-cell (elt (cells-of nodrow) (expander-column-index-of *tree*))))
     <td (:class "expander cell widget")
         ,(render-nodrow-expander nodrow)
-        ,(typecase
-          (stringp
-           expander-cell)
-          (content/mixin
-            (ensure-refreshed expander-cell)
-            (render-component (content-of expander-cell)))
-          (t
-           (render-component expander-cell)))>))
+        ,(typecase expander-cell
+           (string
+             (render-component expander-cell))
+           (content/mixin
+             (ensure-refreshed expander-cell)
+             (render-component (content-of expander-cell)))
+           (t
+             (render-component expander-cell)))>))
 
 (def (layered-function e) render-nodrow-cells (component)
   (:method ((self nodrow/widget))
@@ -95,7 +95,7 @@
                 (render-nodrow-expander-cell self)
                 (render-table-row-cell *tree* self column cell))))))
 
-;; TODO: rename and factor into mixin/abstract classes and with the one found in cell.lisp
+;; TODO: rename and factor into mixin/component classes and with the one found in cell.lisp
 (def layered-methods render-table-row-cell
   (:method :before ((table treeble/widget) (row nodrow/widget) (column column/widget) (cell cell/widget))
     (ensure-refreshed cell))
@@ -118,10 +118,10 @@
 ;;;;;;
 ;;; entire-nodrow/widget
 
-(def (component e) entire-nodrow/widget (widget/style
-                                         node/abstract
-                                         content/abstract
-                                         collapsible/abstract
+(def (component e) entire-nodrow/widget (standard/widget
+                                         node/component
+                                         content/component
+                                         collapsible/component
                                          context-menu/mixin
                                          collapsible/mixin
                                          selectable/mixin)
@@ -135,7 +135,7 @@
 
 (def render-xhtml entire-nodrow/widget
   (bind (((:read-only-slots id) -self-))
-    (with-render-style/abstract (-self- :element-name "tr")
+    (with-render-style/component (-self- :element-name "tr")
       <td (:colspan ,(length (columns-of *tree*))
            :onmouseover `js-inline(wui.highlight-mouse-enter-handler event ,id)
            :onmouseout `js-inline(wui.highlight-mouse-leave-handler event ,id))

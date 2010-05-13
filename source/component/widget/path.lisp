@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; path/widget
 
-(def (component e) path/widget (widget/basic contents/abstract)
+(def (component e) path/widget (standard/widget contents/component)
   ())
 
 (def (macro e) path/widget ((&rest args &key &allow-other-keys) &body contents)

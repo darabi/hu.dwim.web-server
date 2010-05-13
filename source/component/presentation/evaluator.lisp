@@ -7,11 +7,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; evaluator/abstract
+;;; component/evaluator
 
-(def (component e) evaluator/abstract (presentation/abstract)
+(def (component e) component/evaluator (component/presentation)
   ()
-  (:documentation "An EVALUATOR/ABSTRACT TODO:
+  (:documentation "An evaluator ... This class does not have any slots on purpose.
   - similar to an arbitrary form
   - static input
     - form: form
@@ -23,19 +23,7 @@
     - value: return-type"))
 
 ;;;;;;
-;;; evaluator/minimal
+;;; t/evaluator
 
-(def (component e) evaluator/minimal (evaluator/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; evaluator/basic
-
-(def (component e) evaluator/basic (evaluator/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; evaluator/style
-
-(def (component e) evaluator/style (evaluator/basic presentation/style)
+(def (component e) t/evaluator (component/evaluator t/presentation)
   ())

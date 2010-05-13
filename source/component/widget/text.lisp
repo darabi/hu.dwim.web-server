@@ -10,5 +10,5 @@
 ;;; text/widget
 
 ;; TODO:
-(def (component e) text/widget (widget/style)
+(def (component e) text/widget (standard/widget)
   ())

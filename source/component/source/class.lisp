@@ -7,14 +7,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; class/inspector
+;;; class/alternator/inspector
 
-(def (component e) class/inspector (t/inspector)
+(def (component e) class/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null class) class/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null class) class/alternator/inspector)
 
-(def layered-method make-alternatives ((component class/inspector) (class standard-class) (prototype class) (value class))
+(def layered-method make-alternatives ((component class/alternator/inspector) (class standard-class) (prototype class) (value class))
   (bind (((:read-only-slots editable-component edited-component component-value-type) component))
     (list* (make-instance 'class/documentation/inspector
                           :component-value value
@@ -36,6 +36,11 @@
                           :component-value-type component-value-type
                           :edited edited-component
                           :editable editable-component)
+           (make-instance 'class/superclass-hierarchy/graph/inspector
+                          :component-value value
+                          :component-value-type component-value-type
+                          :edited edited-component
+                          :editable editable-component)
            (call-next-layered-method))))
 
 ;;;;;;
@@ -47,7 +52,7 @@
 ;;;;;;
 ;;; class/lisp-form/inspector
 
-(def (component e) class/lisp-form/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) class/lisp-form/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component class/lisp-form/inspector
@@ -70,7 +75,7 @@
   (render-component (direct-slots-of -self-)))
 
 (def render-xhtml class/documentation/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-title-for -self-)
     (render-contents-for -self-)
     (render-component (direct-slots-of -self-))))
@@ -186,6 +191,40 @@
 
 (def layered-method make-content-presentation ((component class/tree-level/node/inspector) (class class) (prototype class) (value class))
   (make-instance 'class/tree-level/reference/inspector :component-value value))
+
+;;;;;;
+;;; class/superclass-hierarchy/graph/inspector
+
+(def (component e) class/superclass-hierarchy/graph/inspector (t/inspector graph/widget)
+  ())
+
+;; TODO: integration with cl-graph
+(def layered-method refresh-component :before ((-self- class/superclass-hierarchy/graph/inspector))
+  (bind (((:slots component-value) -self-)
+         (class-precedence-list (class-precedence-list component-value))
+         (vertices (make-hash-table))
+         (seen-classes nil))
+    (add-vertices-and-edges -self-
+                            (iter (for class :in class-precedence-list)
+                                  (for class-name = (class-name class))
+                                  (setf (gethash class-name vertices)
+                                        (cl-graph:add-vertex -self- (make-instance 'vertex/widget
+                                                                                   :vertex-id (hash-table-count vertices)
+                                                                                   :width 2
+                                                                                   :content (string+ (integer-to-string (position class class-precedence-list)) ": "
+                                                                                                     (string-downcase class-name)))))))
+    (labels ((recurse (class)
+               (push class seen-classes)
+               (iter (for superclass :in (class-direct-superclasses class))
+                     (cl-graph:add-edge -self-
+                                        (make-instance 'edge/widget
+                                                       :vertex-1 (gethash (class-name superclass) vertices)
+                                                       :vertex-2 (gethash (class-name class) vertices)
+                                                       :tail-arrow (make-instance 'arrow/widget :shape :empty)
+                                                       :label ""))
+                     (unless (member superclass seen-classes)
+                       (recurse superclass)))))
+      (recurse component-value))))
 
 ;;;;;;
 ;;; t/filter

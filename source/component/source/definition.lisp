@@ -7,17 +7,17 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; definition/inspector
+;;; definition/alternator/inspector
 
-(def (component e) definition/inspector (t/inspector)
+(def (component e) definition/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null definition) definition/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null definition) definition/alternator/inspector)
 
-(def layered-method make-alternatives ((component definition/inspector) (class standard-class) (prototype definition) (value definition))
+(def layered-method make-alternatives ((component definition/alternator/inspector) (class standard-class) (prototype definition) (value definition))
   (list* (make-instance 'definition/lisp-form/inspector :component-value value)
          (make-instance 'definition/documentation/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; t/reference/inspector
@@ -34,16 +34,16 @@
 ;;;;;;
 ;;; definition/lisp-form/inspector
 
-(def (component e) definition/lisp-form/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) definition/lisp-form/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component definition/lisp-form/inspector
   (bind (((:slots component-value content) -self-)
          (dispatch-class (component-dispatch-class -self-))
          (dispatch-prototype (component-dispatch-prototype -self-)))
-    (setf content (make-definition/lisp-form/content -self- dispatch-class dispatch-prototype component-value))))
+    (setf content (make-definition-lisp-form-presentation -self- dispatch-class dispatch-prototype component-value))))
 
-(def generic make-definition/lisp-form/content (component class prototype value)
+(def generic make-definition-lisp-form-presentation (component class prototype value)
   (:method ((component definition/lisp-form/inspector) class prototype (value definition))
     (bind ((name (make-definition-class-name class))
            (source (definition-source-text (first (sb-introspect:find-definition-sources-by-name (name-of value) (intern (string-upcase name) :keyword))))))

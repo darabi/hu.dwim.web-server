@@ -10,8 +10,8 @@
 ;;; panel/widget
 
 (def (component e) panel/widget (component-messages/widget
-                                 content/abstract
-                                 collapsible/abstract
+                                 content/component
+                                 collapsible/component
                                  title-bar/mixin
                                  collapsible/mixin
                                  context-menu/mixin
@@ -26,12 +26,12 @@
 (def render-xhtml panel/widget
   (bind (((:read-only-slots content) -self-))
     (if (typep content 'reference/widget)
-        (with-render-style/abstract (-self- :element-name "span")
+        (with-render-style/component (-self- :element-name "span")
           (render-context-menu-for -self-)
           (render-component-messages-for -self-)
           (render-content-for -self-))
         (if (expanded-component? -self-)
-            (with-render-style/abstract (-self-)
+            (with-render-style/component (-self-)
               (render-context-menu-for -self-)
               (render-title-bar-for -self-)
               (render-component-messages-for -self-)

@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; row/widget
 
-(def (component e) row/widget (widget/style
+(def (component e) row/widget (standard/widget
                                row/layout
                                header/mixin
                                cells/mixin
@@ -63,9 +63,9 @@
 ;;;;;;
 ;;; entire-row/widget
 
-(def (component e) entire-row/widget (widget/style
-                                      row/abstract
-                                      content/abstract
+(def (component e) entire-row/widget (standard/widget
+                                      row/component
+                                      content/component
                                       header/mixin
                                       context-menu/mixin
                                       selectable/mixin)

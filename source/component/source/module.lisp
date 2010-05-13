@@ -7,7 +7,7 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; module/inspector
+;;; module/alternator/inspector
 
-(def (component e) module/inspector (t/inspector)
+(def (component e) module/alternator/inspector (t/alternator/inspector)
   ())

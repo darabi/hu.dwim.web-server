@@ -7,11 +7,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; finder/abstract
+;;; component/finder
 
-(def (component e) finder/abstract (presentation/abstract)
+(def (component e) component/finder (component/presentation)
   ()
-  (:documentation "A FINDER/ABSTRACT searches for a particular existing value of TYPE based on a filter criteria provided by the user.
+  (:documentation "A finder searches for a particular existing value of TYPE based on a filter criteria provided by the user. This class does not have any slots on purpose.
   - similar to (select-instance ...)
   - static input
     - value-type: type
@@ -23,21 +23,9 @@
     - value: selected-type"))
 
 ;;;;;;
-;;; finder/minimal
+;;; t/finder
 
-(def (component e) finder/minimal (finder/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; finder/basic
-
-(def (component e) finder/basic (finder/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; finder/style
-
-(def (component e) finder/style (finder/basic presentation/style)
+(def (component e) t/finder (component/finder t/presentation)
   ())
 
 ;;;;;;

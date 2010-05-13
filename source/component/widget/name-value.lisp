@@ -9,8 +9,7 @@
 ;;;;;;
 ;;; name-value-list/widget
 
-(def (component e) name-value-list/widget (widget/basic
-                                           contents/abstract)
+(def (component e) name-value-list/widget (standard/widget contents/component)
   ())
 
 (def (macro e) name-value-list/widget ((&rest args &key &allow-other-keys) &body contents)
@@ -23,9 +22,9 @@
 ;;;;;;
 ;;; name-value-group/widget
 
-(def (component e) name-value-group/widget (widget/basic
-                                            collapsible/abstract
-                                            contents/abstract
+(def (component e) name-value-group/widget (standard/widget
+                                            collapsible/component
+                                            contents/component
                                             title/mixin
                                             frame-unique-id/mixin)
   ())
@@ -68,7 +67,7 @@
 ;;;;;;
 ;;; name-value-pair/widget
 
-(def (component e) name-value-pair/widget (widget/basic)
+(def (component e) name-value-pair/widget (standard/widget)
   ((name nil :type component)
    (value nil :type component)))
 

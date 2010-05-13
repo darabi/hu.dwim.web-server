@@ -7,15 +7,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; draggable/abstract
+;;; draggable/component
 
-(def (component e) draggable/abstract ()
+(def (component e) draggable/component ()
   ()
   (:documentation "A COMPONENT that can be dragged on the remote side."))
 
 ;;;;;;
-;;; drag-and-drop-place/abstract
+;;; drag-and-drop-place/component
 
-(def (component e) drag-and-drop-place/abstract ()
+(def (component e) drag-and-drop-place/component ()
   ()
   (:documentation "A COMPONENT that serves as a DRAG-AND-DROP-PLACE."))

@@ -7,43 +7,31 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; inspector/abstract
+;;; component/inspector
 
-(def (component e) inspector/abstract (presentation/abstract editable/mixin)
+(def (component e) component/inspector (component/presentation)
   ()
-  (:documentation "An INSPECTOR/ABSTRACT displays or edits existing values of a TYPE. An inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes.
+  (:documentation "An inspector displays or edits existing values of a TYPE. An inspector is essentially a viewer and an editor at the same time, and the user can switch between the two modes. This class does not have any slots on purpose.
   - similar to either #<LITERAL-OBJECT {100C204081}> or (reinitialize-instance ...)
   - static input
-    - component-value-type: type
+    - value-type: type
   - volatile input
-    - selected-type: type (selected-type is a subtype of component-value-type)
-    - component-value: selected-type
+    - selected-type: type (selected-type is a subtype of value-type)
+    - value: selected-type
   - dispatch
-    - dispatch-class: (class-of component-value)
+    - dispatch-class: (class-of value)
     - dispatch-prototype: (class-prototype dispatch-class)
   - output
-    - component-value: selected-type"))
+    - value: selected-type"))
 
-(def method component-dispatch-class ((self inspector/abstract))
+;;;;;;
+;;; t/inspector
+
+(def (component e) t/inspector (component/inspector t/presentation editable/mixin)
+  ())
+
+(def method component-dispatch-class ((self t/inspector))
   (class-of (component-value-of self)))
-
-;;;;;;
-;;; inspector/minimal
-
-(def (component e) inspector/minimal (inspector/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; inspector/basic
-
-(def (component e) inspector/basic (inspector/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; inspector/style
-
-(def (component e) inspector/style (inspector/basic presentation/style)
-  ())
 
 ;;;;;;
 ;;; Inspector factory

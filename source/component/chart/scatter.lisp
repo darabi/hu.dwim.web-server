@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; scatter/chart
 
-(def (component e) scatter/chart (chart/abstract)
+(def (component e) scatter/chart (standard/chart)
   ())
 
 (def render-xhtml scatter/chart

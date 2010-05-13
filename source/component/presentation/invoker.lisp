@@ -7,12 +7,12 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; invoker/abstract
+;;; invoker/component
 
-(def (component e) invoker/abstract (presentation/abstract)
+(def (component e) invoker/component (component/presentation)
   ()
-  (:documentation "An INVOKER/ABSTRACT TODO:
-  - similar to (foo ...)
+  (:documentation "An invoker ... This class does not have any slots on purpose.
+  - similar to a function call such as (foo ...)
   - static input
     - function-names: list of symbols
     - argument-types: list of types
@@ -23,19 +23,7 @@
     - value: return-type"))
 
 ;;;;;;
-;;; invoker/minimal
+;;; t/invoker
 
-(def (component e) invoker/minimal (invoker/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; invoker/basic
-
-(def (component e) invoker/basic (invoker/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; invoker/style
-
-(def (component e) invoker/style (invoker/basic presentation/style)
+(def (component e) t/invoker (invoker/component t/presentation)
   ())

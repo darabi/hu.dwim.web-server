@@ -7,21 +7,21 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; source-file/inspector
+;;; source-file/alternator/inspector
 
-(def (component e) source-file/inspector (t/inspector)
+(def (component e) source-file/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null asdf:source-file) source-file/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null asdf:source-file) source-file/alternator/inspector)
 
-(def layered-method make-alternatives ((component source-file/inspector) (class standard-class) (prototype asdf:source-file) (value asdf:source-file))
+(def layered-method make-alternatives ((component source-file/alternator/inspector) (class standard-class) (prototype asdf:source-file) (value asdf:source-file))
   (list* (make-instance 'source-file/lisp-form-list/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; source-file/lisp-form-list/inspector
 
-(def (component e) source-file/lisp-form-list/inspector (inspector/basic t/detail/presentation content/widget)
+(def (component e) source-file/lisp-form-list/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component source-file/lisp-form-list/inspector

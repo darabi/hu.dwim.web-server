@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; column/chart
 
-(def (component e) column/chart (chart/abstract)
+(def (component e) column/chart (standard/chart)
   ())
 
 (def (macro e) column/chart ((&rest args &key &allow-other-keys) &body name-value-pairs)

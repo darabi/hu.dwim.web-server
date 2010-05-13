@@ -7,11 +7,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; mouse/abstract
+;;; mouse/component
 
-(def (component e) mouse/abstract ()
+(def (component e) mouse/component ()
   ())
 
 (def (layered-function e) render-onclick-handler (component button)
-  (:method ((self mouse/abstract) button)
+  (:method ((self mouse/component) button)
     (values)))

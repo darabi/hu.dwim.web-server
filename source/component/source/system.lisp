@@ -7,16 +7,15 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; system/inspector
+;;; system/alternator/inspector
 
-(def (component e) system/inspector (t/inspector)
+(def (component e) system/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null asdf:system) system/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null asdf:system) system/alternator/inspector)
 
-(def layered-method make-alternatives ((component system/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
-  (list* (make-instance 'system/depends-on-hierarchy/tree/inspector :component-value value)
-         (call-next-method)))
+(def layered-method make-alternatives ((component system/alternator/inspector) (class standard-class) (prototype asdf:system) (value asdf:system))
+  (list* (make-instance 'system/depends-on-hierarchy/tree/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; system/depends-on-hierarchy/tree/inspector

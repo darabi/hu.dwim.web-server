@@ -55,9 +55,9 @@
         (call-next-method)))))
 
 ;;;;;;
-;;; t/inspector
+;;; t/alternator/inspector
 
-(def layered-method make-alternatives ((component t/inspector) (class standard-class) (prototype hu.dwim.perec::dimension) (value hu.dwim.perec::dimension))
+(def layered-method make-alternatives ((component t/alternator/inspector) (class standard-class) (prototype hu.dwim.perec::dimension) (value hu.dwim.perec::dimension))
   (list* (make-instance 'dimension/documentation/inspector
                         :component-value value
                         :component-value-type (component-value-type-of component))
@@ -77,7 +77,7 @@
   (render-contents-for -self-))
 
 (def render-xhtml dimension/documentation/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-title-for -self-)
     (render-contents-for -self-)))
 

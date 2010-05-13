@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; t/toc/inspector
 
-(def (component e) t/toc/inspector (inspector/style t/detail/inspector contents/widget)
+(def (component e) t/toc/inspector (t/detail/inspector contents/widget)
   ())
 
 (def refresh-component t/toc/inspector

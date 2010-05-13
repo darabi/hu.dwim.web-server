@@ -7,23 +7,23 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; dictionary/inspector
+;;; dictionary/alternator/inspector
 
-(def (component e) dictionary/inspector (t/inspector)
+(def (component e) dictionary/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null dictionary) dictionary/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null dictionary) dictionary/alternator/inspector)
 
-(def layered-method make-alternatives ((component dictionary/inspector) (class standard-class) (prototype dictionary) (value dictionary))
+(def layered-method make-alternatives ((component dictionary/alternator/inspector) (class standard-class) (prototype dictionary) (value dictionary))
   (list* (make-instance 'dictionary/name-list/inspector :component-value value)
          (make-instance 'dictionary/documentation/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; t/reference/inspector
 
 (def layered-method make-reference-content ((component t/reference/inspector) (class standard-class) prototype (value dictionary))
-  (string+ "Dictionary: " (call-next-method)))
+  (string+ "Dictionary: " (call-next-layered-method)))
 
 ;;;;;;
 ;;; dictionary/documentation/inspector
@@ -37,7 +37,7 @@
 ;;;;;;
 ;;; dictionary/name-list/inspector
 
-(def (component e) dictionary/name-list/inspector (inspector/basic t/detail/presentation contents/widget title/mixin)
+(def (component e) dictionary/name-list/inspector (t/detail/inspector contents/widget title/mixin)
   ())
 
 (def refresh-component dictionary/name-list/inspector
@@ -49,7 +49,7 @@
                            (definition-names-of component-value)))))
 
 (def render-xhtml dictionary/name-list/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-title-for -self-)
     (render-contents-for -self-)))
 

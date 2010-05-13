@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; list/widget
 
-(def (component e) list/widget (widget/style
+(def (component e) list/widget (standard/widget
                                 list/layout
                                 selection/mixin
                                 command-bar/mixin

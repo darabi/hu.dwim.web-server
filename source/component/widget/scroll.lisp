@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; scroll/widget
 
-(def (component e) scroll/widget (widget/basic)
+(def (component e) scroll/widget (standard/widget)
   ())

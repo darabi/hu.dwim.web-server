@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; primitive/inspector
 
-(def (component e) primitive/inspector (primitive/presentation inspector/abstract)
+(def (component e) primitive/inspector (primitive/presentation t/inspector)
   ()
   (:documentation "A PRIMITIVE/INSPECTOR displays or edits existing values of primitive TYPEs."))
 
@@ -97,7 +97,7 @@
   (bind (((:read-only-slots edited-component) -self-))
     (if edited-component
         (render-string-component -self-)
-        `xml,(print-component-value -self-))))
+        (render-component-value -self-))))
 
 ;;;;;;
 ;;; string/inspector
@@ -111,7 +111,7 @@
   (bind (((:read-only-slots edited-component) -self-))
     (if edited-component
         (render-string-component -self-)
-        `xml,(print-component-value -self-))))
+        (render-component-value -self-))))
 
 ;;;;;;
 ;;; password/inspector
@@ -154,7 +154,7 @@
   (bind (((:read-only-slots edited-component) -self-))
     (if edited-component
         (render-number-field-for-primitive-component -self-)
-        `xml,(print-component-value -self-))))
+        (render-component-value -self-))))
 
 ;;;;;;
 ;;; real/inspector
@@ -207,7 +207,7 @@
 (def render-xhtml date/inspector
   (if (edited-component? -self-)
       (render-date-component -self-)
-      `xml,(print-component-value -self-)))
+      (render-component-value -self-)))
 
 ;;;;;;
 ;;; time-of-day/inspector
@@ -220,7 +220,7 @@
 (def render-xhtml time-of-day/inspector
   (if (edited-component? -self-)
       (render-time-component -self-)
-      `xml,(print-component-value -self-)))
+      (render-component-value -self-)))
 
 ;;;;;;
 ;;; timestamp/inspector
@@ -233,7 +233,7 @@
 (def render-xhtml timestamp/inspector
   (if (edited-component? -self-)
       (render-timestamp-component -self-)
-      `xml,(print-component-value -self-)))
+      (render-component-value -self-)))
 
 ;;;;;;
 ;;; member/inspector
@@ -249,7 +249,7 @@
       (bind ((icon (find-icon/member-component-value -self-)))
         (if icon
             (render-icon :icon icon :label (print-component-value -self-) :tooltip nil)
-            `xml,(print-component-value -self-)))))
+            (render-component-value -self-)))))
 
 ;;;;;;
 ;;; html/inspector
@@ -286,7 +286,7 @@
 
 (def render-xhtml inet-address/inspector
   (if (edited-component? -self-)
-      (call-next-method)
+      (call-next-layered-method)
       (print-component-value -self-)))
 
 ;;;;;;

@@ -7,21 +7,20 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; standard-method/inspector
+;;; standard-method/alternator/inspector
 
-(def (component e) standard-method/inspector (t/inspector)
+(def (component e) standard-method/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null standard-method) standard-method/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null standard-method) standard-method/alternator/inspector)
 
-(def layered-method make-alternatives ((component standard-method/inspector) (class standard-class) (prototype standard-method) (value standard-method))
-  (list* (make-instance 'standard-method/lisp-form/inspector :component-value value)
-         (call-next-method)))
+(def layered-method make-alternatives ((component standard-method/alternator/inspector) (class standard-class) (prototype standard-method) (value standard-method))
+  (list* (make-instance 'standard-method/lisp-form/inspector :component-value value) (call-next-layered-method)))
 
 ;;;;;;
 ;;; standard-method/lisp-form/inspector
 
-(def (component e) standard-method/lisp-form/inspector (inspector/basic t/detail/inspector content/widget)
+(def (component e) standard-method/lisp-form/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component standard-method/lisp-form/inspector

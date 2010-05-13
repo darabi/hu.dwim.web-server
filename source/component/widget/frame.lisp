@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; frame/widget
 
-(def (component e) frame/widget (top/abstract layer/mixin)
+(def (component e) frame/widget (top/component layer/mixin)
   ((content-mime-type +xhtml-mime-type+)
    (stylesheet-uris nil)
    (script-uris (make-default-script-uris))

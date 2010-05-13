@@ -9,6 +9,6 @@
 ;;;;;;
 ;;; primitive/editor
 
-(def (component e) primitive/editor (primitive/presentation editor/abstract)
+(def (component e) primitive/editor (primitive/presentation t/editor)
   ()
   (:documentation "A PRIMITIVE/EDITOR edits existing values of primitive TYPEs."))

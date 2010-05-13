@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; stock/chart
 
-(def (component e) stock/chart (chart/abstract)
+(def (component e) stock/chart (standard/chart)
   ())
 
 (def (macro e) stock/chart ((&rest args &key &allow-other-keys) &body data)

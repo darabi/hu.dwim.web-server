@@ -7,21 +7,21 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; row/abstract
+;;; row/component
 
 (def special-variable *row-index* nil)
 
-(def (component e) row/abstract ()
+(def (component e) row/component ()
   ())
 
-(def component-environment row/abstract
+(def component-environment row/component
   (if *row-index*
       (call-next-method)
       (bind ((*row-index* (awhen (parent-component-of -self-)
                             (position -self- (rows-of it)))))
         (call-next-method))))
 
-(def method supports-debug-component-hierarchy? ((self row/abstract))
+(def method supports-debug-component-hierarchy? ((self row/component))
   #f)
 
 ;;;;;;

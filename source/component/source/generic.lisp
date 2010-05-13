@@ -7,13 +7,16 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; standard-generic-function/inspector
+;;; standard-generic-function/alternator/inspector
 
-(def (component e) standard-generic-function/inspector (t/inspector)
+(def (component e) standard-generic-function/alternator/inspector (function/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null standard-generic-function) standard-generic-function/inspector)
+;; KLUDGE: closer-mop:standard-generic-function is a subclass of common-lisp:standard-generic-function and thus generic function are not instances of it
+(def subtype-mapper *inspector-type-mapping* (or null common-lisp:standard-generic-function) standard-generic-function/alternator/inspector)
 
-(def layered-method make-alternatives ((component standard-generic-function/inspector) (class funcallable-standard-class) (prototype standard-generic-function) (value standard-generic-function))
-  (list* (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods value))
-         (call-next-method)))
+;; KLUDGE: both prototype and value supposed to be of type standard-generic-function
+(def layered-method make-alternatives ((component standard-generic-function/alternator/inspector) (class funcallable-standard-class) (prototype function) (value common-lisp:standard-generic-function))
+  (list* (make-instance 'function/documentation/inspector :component-value value)
+         (make-instance 'standard-method-sequence/lisp-form-list/inspector :component-value (generic-function-methods value))
+         (call-next-layered-method)))

@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; primitive/maker
 
-(def (component e) primitive/maker (primitive/presentation maker/abstract)
+(def (component e) primitive/maker (primitive/presentation t/maker)
   ((initform)
    (use-initform :type boolean))
   (:documentation "A PRIMITIVE/MAKER makers new values of primitive TYPEs."))

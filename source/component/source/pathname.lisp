@@ -7,14 +7,14 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; pathname/inspector
+;;; pathname/alternator/inspector
 
-(def (component e) pathname/inspector (t/inspector)
+(def (component e) pathname/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null pathname) pathname/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null pathname) pathname/alternator/inspector)
 
-(def layered-method make-alternatives ((component pathname/inspector) (class structure-class) (prototype pathname) (value pathname))
+(def layered-method make-alternatives ((component pathname/alternator/inspector) (class structure-class) (prototype pathname) (value pathname))
   (bind ((file? (when value (pathname-name value)))
          (file-type (when file? (guess-file-type value))))
     (optional-list* (when (and value
@@ -26,12 +26,12 @@
                       (make-instance 'pathname/lisp-file/inspector :component-value value))
                     (when (eq file-type :binary)
                       (make-instance 'pathname/binary-file/inspector :component-value value))
-                    (call-next-method))))
+                    (call-next-layered-method))))
 
 ;;;;;;
 ;;; pathname/text-file/inspector
 
-(def (component e) pathname/text-file/inspector (inspector/basic t/detail/inspector content/widget)
+(def (component e) pathname/text-file/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component pathname/text-file/inspector
@@ -45,7 +45,7 @@
 ;;;;;;
 ;;; pathname/binary-file/inspector
 
-(def (component e) pathname/binary-file/inspector (inspector/basic t/detail/inspector content/widget)
+(def (component e) pathname/binary-file/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component pathname/binary-file/inspector
@@ -64,7 +64,7 @@
 ;;;;;;
 ;;; pathname/lisp-file/inspector
 
-(def (component e) pathname/lisp-file/inspector (inspector/basic t/detail/inspector content/widget)
+(def (component e) pathname/lisp-file/inspector (t/detail/inspector content/widget)
   ())
 
 (def refresh-component pathname/lisp-file/inspector

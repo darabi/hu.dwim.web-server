@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; flow/chart
 
-(def (component e) flow/chart (chart/abstract)
+(def (component e) flow/chart (standard/chart)
   ())
 
 (def render-xhtml flow/chart

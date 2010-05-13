@@ -9,10 +9,10 @@
 ;;;;;;
 ;;; node/widget
 
-(def (component e) node/widget (node/abstract
-                                collapsible/abstract
-                                widget/basic
-                                content/abstract
+(def (component e) node/widget (node/component
+                                collapsible/component
+                                standard/widget
+                                content/component
                                 child-nodes/mixin
                                 context-menu/mixin
                                 collapsible/mixin

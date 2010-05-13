@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; lisp-form/component-demo/inspector
 
-(def (component e) lisp-form/component-demo/inspector (inspector/style content/abstract)
+(def (component e) lisp-form/component-demo/inspector (t/inspector content/component)
   ((component :type function)))
 
 (def (macro e) lisp-form/component-demo/inspector ((&rest args &key &allow-other-keys) &body forms)
@@ -31,5 +31,5 @@
                       (make-value-inspector component :initial-alternative-type 't/documentation/inspector))))))
 
 (def render-xhtml lisp-form/component-demo/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-content-for -self-)))

@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; container/layout
 
-(def (component e) container/layout (layout/style contents/abstract frame-unique-id/mixin)
+(def (component e) container/layout (standard/layout contents/component frame-unique-id/mixin)
   ()
   (:documentation "A LAYOUT with several child COMPONENTs inside. The actual layout is set up on the remote side by style referring to its id."))
 
@@ -17,5 +17,5 @@
   `(make-instance 'container/layout ,@args :contents (list ,@contents)))
 
 (def render-xhtml container/layout
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-contents-for -self-)))

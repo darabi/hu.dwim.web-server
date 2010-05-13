@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; symbol/definition-name/inspector
 
-(def (component e) symbol/definition-name/inspector (inspector/basic contents/widget)
+(def (component e) symbol/definition-name/inspector (t/inspector contents/widget)
   ())
 
 (def refresh-component symbol/definition-name/inspector

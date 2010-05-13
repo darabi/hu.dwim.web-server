@@ -14,25 +14,25 @@
   (:documentation "A COMPONENT with a FUNCTION."))
 
 ;;;;;;
-;;; inline-render-component/widget
+;;; inline-render/widget
 
-(def (component e) inline-render-component/widget (widget/basic thunk/mixin)
+(def (component e) inline-render/widget (standard/widget thunk/mixin)
   ()
-  (:documentation "An INLINE-RENDER-COMPONENT/WIDGET has a FUNCTION that is called in its RENDER-COMPONENT."))
+  (:documentation "An INLINE-RENDER/WIDGET has a FUNCTION that is called in its RENDER-COMPONENT."))
 
-(def (macro e) inline-render-component/widget ((&rest args &key &allow-other-keys) &body forms)
-  `(make-instance 'inline-render-component/widget ,@args :thunk (named-lambda inline-render-component/body () ,@forms)))
+(def (macro e) inline-render/widget ((&rest args &key &allow-other-keys) &body forms)
+  `(make-instance 'inline-render/widget ,@args :thunk (named-lambda inline-render-component/body () ,@forms)))
 
 (def function render-inline-render-component (component)
   (funcall (thunk-of component)))
 
-(def render-component inline-render-component/widget
+(def render-component inline-render/widget
   (render-inline-render-component -self-))
 
 ;;;;;;
 ;;; inline-render-xhtml/widget
 
-(def (component e) inline-render-xhtml/widget (inline-render-component/widget)
+(def (component e) inline-render-xhtml/widget (inline-render/widget)
   ()
   (:documentation "An INLINE-RENDER-XHTML/WIDGET can only be rendered in XHTML format."))
 
@@ -46,16 +46,16 @@
   (render-inline-render-component -self-))
 
 ;;;;;;
-;;; wrap-render-component/widget
+;;; wrap-render-standard/widget
 
-(def (component e) wrap-render-component/widget (widget/basic content/abstract thunk/mixin)
+(def (component e) wrap-render-standard/widget (standard/widget content/component thunk/mixin)
   ()
-  (:documentation "A WRAP-RENDER-COMPONENT/WIDGET has a FUNCTION and another COMPONENT inside. It wraps the rendering of its CONTENT with the rendering FUNCTION. The CONTENT can be rendered by calling the local function (-body-)."))
+  (:documentation "A WRAP-RENDER-STANDARD/WIDGET has a FUNCTION and another COMPONENT inside. It wraps the rendering of its CONTENT with the rendering FUNCTION. The CONTENT can be rendered by calling the local function (-body-)."))
 
-(def (macro e) wrap-render-component/widget ((&rest args &key &allow-other-keys) content &body forms)
-  `(%wrap-render-component/widget ,(list* :class-name 'wrap-render-component/widget args) ,content ,@forms))
+(def (macro e) wrap-render-standard/widget ((&rest args &key &allow-other-keys) content &body forms)
+  `(%wrap-render-standard/widget ,(list* :class-name 'wrap-render-standard/widget args) ,content ,@forms))
 
-(def macro %wrap-render-component/widget ((&rest args &key class-name &allow-other-keys) content &body forms)
+(def macro %wrap-render-standard/widget ((&rest args &key class-name &allow-other-keys) content &body forms)
   (remove-from-plistf args :class-name)
   `(make-instance ',class-name ,@args
                   :thunk (lambda (next-method)
@@ -67,18 +67,18 @@
 (def function render-wrap-render-component (component)
   (funcall (thunk-of component) (lambda () (render-content-for component))))
 
-(def render-component wrap-render-component/widget
+(def render-component wrap-render-standard/widget
   (render-wrap-render-component -self-))
 
 ;;;;;;
 ;;; wrap-render-xhtml/widget
 
-(def (component e) wrap-render-xhtml/widget (wrap-render-component/widget)
+(def (component e) wrap-render-xhtml/widget (wrap-render-standard/widget)
   ()
   (:documentation "An WRAP-RENDER-XHTML/WIDGET can only be rendered in XHTML format."))
 
 (def (macro e) wrap-render-xhtml/widget ((&rest args &key &allow-other-keys) content &body forms)
-  `(%wrap-render-component/widget ,(list* :class-name 'wrap-render-xhtml/widget args) ,content ,@forms))
+  `(%wrap-render-standard/widget ,(list* :class-name 'wrap-render-xhtml/widget args) ,content ,@forms))
 
 (def render-component wrap-render-xhtml/widget
   (error "Cannot render ~A in non XHTML format" -self-))

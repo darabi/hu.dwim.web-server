@@ -7,11 +7,11 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; editor/abstract
+;;; component/editor
 
-(def (component e) editor/abstract (presentation/abstract)
+(def (component e) component/editor (component/presentation)
   ()
-  (:documentation "An EDITOR/ABSTRACT edits existing values of a TYPE.
+  (:documentation "An editor edits existing values of a TYPE. This class does not have any slots on purpose.
   - similar to (reinitialize-instance ...)
   - static input
     - value-type: type
@@ -19,27 +19,15 @@
     - selected-type: type (selected-type is a subtype of value-type)
     - value: selected-type
   - dispatch
-    - dispatch-class: (class-of component-value)
+    - dispatch-class: (class-of value)
     - dispatch-prototype: (class-prototype dispatch-class)
   - output
     - value: selected-type"))
 
 ;;;;;;
-;;; editor/minimal
+;;; t/editor
 
-(def (component e) editor/minimal (editor/abstract presentation/minimal)
-  ())
-
-;;;;;;
-;;; editor/basic
-
-(def (component e) editor/basic (editor/minimal presentation/basic)
-  ())
-
-;;;;;;
-;;; editor/style
-
-(def (component e) editor/style (editor/basic presentation/style)
+(def (component e) t/editor (component/editor t/presentation)
   ())
 
 ;;;;;;

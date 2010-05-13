@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; tree-level/widget
 
-(def (component e) tree-level/widget (widget/basic collapsible/abstract)
+(def (component e) tree-level/widget (standard/widget collapsible/component)
   ((path nil :type component)
    (previous-sibling nil :type component)
    (next-sibling nil :type component)

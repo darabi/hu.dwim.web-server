@@ -9,5 +9,5 @@
 ;;;;;;
 ;;; tool-bar/widget
 
-(def (component e) tool-bar/widget ()
+(def (component e) tool-bar/widget (standard/widget)
   ())

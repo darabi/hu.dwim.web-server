@@ -10,7 +10,7 @@
 ;;; external-link/widget
 
 ;; TODO: make this a subclass of command/widget and forget about this url stuff, that will be part of uri/external-link/inspector
-(def (component e) external-link/widget (widget/basic content/abstract)
+(def (component e) external-link/widget (standard/widget content/component)
   ((url :type string)))
 
 (def (macro e) external-link/widget ((&rest args &key &allow-other-keys) &body url-and-content)

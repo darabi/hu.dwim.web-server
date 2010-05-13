@@ -7,12 +7,12 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; exportable/abstract
+;;; exportable/component
 
-(def (component e) exportable/abstract ()
+(def (component e) exportable/component ()
   ())
 
-(def layered-method make-export-commands ((component exportable/abstract) class prototype value)
+(def layered-method make-export-commands ((component exportable/component) class prototype value)
   (optional-list (make-export-command :txt component class prototype value)
                  (make-export-command :csv component class prototype value)
                  (make-export-command :pdf component class prototype value)
@@ -22,7 +22,7 @@
 
 (def (layered-function e) export-file-name (format component value)
   (:method :around (format component value)
-    (awhen (call-next-method)
+    (awhen (call-next-layered-method)
       (string+ it "." (string-downcase format))))
 
   (:method (format component value)
@@ -45,7 +45,7 @@
 ;;;;;;
 ;;; Text format
 
-(def layered-method export-text ((self exportable/abstract))
+(def layered-method export-text ((self exportable/component))
   (with-output-to-export-stream (*text-stream* :content-type +text-mime-type+ :external-format (guess-encoding-for-http-response))
     (with-active-layers (passive-layer)
       (render-text self))))
@@ -61,7 +61,7 @@
 ;;;;;;
 ;;; CSV format
 
-(def layered-method export-csv ((self exportable/abstract))
+(def layered-method export-csv ((self exportable/component))
   (with-output-to-export-stream (*csv-stream* :content-type +csv-mime-type+ :external-format (guess-encoding-for-http-response))
     (with-active-layers (passive-layer)
       (render-csv self))))
@@ -110,7 +110,7 @@
     <office:body
       ,(-with-macro/body-)>>)
 
-(def layered-method export-odt ((self exportable/abstract))
+(def layered-method export-odt ((self exportable/component))
   (bind ((encoding (guess-encoding-for-http-response)))
     (with-output-to-export-stream (*xml-stream* :content-type +odt-mime-type+ :external-format encoding)
       (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +odt-mime-type+)
@@ -121,7 +121,7 @@
 ;;;;;;
 ;;; ODS format
 
-(def layered-method export-ods ((self exportable/abstract))
+(def layered-method export-ods ((self exportable/component))
   (bind ((encoding (guess-encoding-for-http-response)))
     (with-output-to-export-stream (*xml-stream* :content-type +ods-mime-type+ :external-format encoding)
       (with-xml-document-header/open-document-format (*xml-stream* :encoding encoding :mime-type +ods-mime-type+)

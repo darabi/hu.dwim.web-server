@@ -11,7 +11,7 @@
 
 (def (icon e) show-submenu)
 
-(def (component e) menu-bar/widget (widget/style menu-items/mixin)
+(def (component e) menu-bar/widget (standard/widget menu-items/mixin)
   ()
   (:documentation "A MENU-BAR/WIDGET is always shown with a flat list of MENU-ITEM/WIDGETs immediately VISIBLE."))
 
@@ -30,7 +30,7 @@
 ;;;;;;
 ;;; popup-menu/widget
 
-(def (component e) popup-menu/widget (widget/style content/abstract menu-items/mixin)
+(def (component e) popup-menu/widget (standard/widget content/component menu-items/mixin)
   ()
   (:documentation "A POPUP-MENU/WIDGET is only shown upon explicit user interaction on its CONTENT."))
 
@@ -57,7 +57,7 @@
 
 (def (icon e) show-context-menu)
 
-(def (component e) context-menu/widget (widget/style menu-items/mixin lazy/mixin)
+(def (component e) context-menu/widget (standard/widget menu-items/mixin lazy/mixin)
   ()
   (:documentation "A CONTEXT-MENU/WIDGET is attached to its PARENT-COMPONENT as its CONTEXT-MENU."))
 
@@ -98,7 +98,7 @@
 ;;;;;;
 ;;; menu-item/widget
 
-(def (component e) menu-item/widget (widget/style content/abstract menu-items/mixin)
+(def (component e) menu-item/widget (standard/widget content/component menu-items/mixin)
   ()
   (:documentation "A MENU-ITEM/WIDGET is an intermediate or leaf COMPONENT in a MENU-HIERARCHY."))
 
@@ -198,7 +198,7 @@
 ;;;;;;
 ;;; menu-item-separator/widget
 
-(def (component e) menu-item-separator/widget (widget/style)
+(def (component e) menu-item-separator/widget (standard/widget)
   ()
   (:documentation "A MENU-ITEM-SEPARATOR/WIDGET is a leaf COMPONENT in the MENU-HIERARCHY separating other MENU-ITEM/WIDGETs."))
 

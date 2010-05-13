@@ -7,21 +7,24 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; book/inspector
+;;; book/alternator/inspector
 
 (def (icon e) book)
 
-(def (component e) book/inspector (text/inspector exportable/abstract)
+(def (component e) book/alternator/inspector (text/alternator/inspector exportable/component)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null book) book/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null book) book/alternator/inspector)
 
-(def layered-method make-alternatives ((component book/inspector) (class standard-class) (prototype book) (value book))
+(def method component-style-class ((self book/alternator/inspector))
+  "content-border text inspector")
+
+(def layered-method make-alternatives ((component book/alternator/inspector) (class standard-class) (prototype book) (value book))
   (list* (make-instance 'book/text/inspector :component-value value)
          (make-instance 'book/toc/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
-(def layered-method export-file-name (format (component book/inspector) (value book))
+(def layered-method export-file-name (format (component book/alternator/inspector) (value book))
   (title-of value))
 
 (def (function e) make-book-menu-item (name)
@@ -40,9 +43,9 @@
 ;;; book/text/inspector
 
 (def (component e) book/text/inspector (t/text/inspector
-                                        collapsible-contents/abstract
+                                        collapsible-contents/component
                                         title/mixin
-                                        exportable/abstract)
+                                        exportable/component)
   ((toc :type component)))
 
 (def refresh-component book/text/inspector
@@ -50,7 +53,7 @@
     (setf toc (make-instance 'book/toc/inspector :component-value component-value))))
 
 (def render-xhtml book/text/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
     (foreach #'render-author (authors-of (component-value-of -self-)))
@@ -77,7 +80,7 @@
   (write-text-line-begin)
   (foreach #'render-author (authors-of (component-value-of -self-)))
   (write-text-line-separator)
-  (call-next-method))
+  (call-next-layered-method))
 
 (def render-ods book/text/inspector
   (render-title-for -self-)

@@ -9,13 +9,19 @@
 ;;;;;;
 ;;; place/maker
 
-(def (component e) place/maker (t/maker place/presentation)
+(def (component e) place/maker (t/maker)
   ()
   (:documentation "An PLACE/MAKER makes existing values of a TYPE at a PLACE."))
 
-(def subtype-mapper *maker-type-mapping* place place/maker)
+;;;;;;
+;;; place/alternator/maker
 
-(def layered-method make-alternatives ((component place/maker) class prototype value)
+(def (component e) place/alternator/maker (t/maker place/presentation)
+  ())
+
+(def subtype-mapper *maker-type-mapping* place place/alternator/maker)
+
+(def layered-method make-alternatives ((component place/alternator/maker) class prototype value)
   (list (make-instance 'place/value/maker :component-value value)
         (make-instance 'place/reference/maker :component-value value)))
 
@@ -28,7 +34,7 @@
 ;;;;;;
 ;;; place/value/maker
 
-(def (component e) place/value/maker (maker/basic place/value/presentation)
+(def (component e) place/value/maker (t/detail/maker place/value/presentation)
   ())
 
 (def (macro e) place/value/maker (place &rest args &key &allow-other-keys)

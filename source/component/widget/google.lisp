@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; google-analytics/widget
 
-(def (component e) google-analytics/widget ()
+(def (component e) google-analytics/widget (standard/widget)
   ((analytics-account :type string)))
 
 (def (macro e) google-analytics/widget (&rest args &key &allow-other-keys)

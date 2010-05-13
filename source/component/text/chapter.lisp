@@ -7,17 +7,17 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; chapter/inspector
+;;; chapter/alternator/inspector
 
-(def (component e) chapter/inspector (text/inspector exportable/abstract)
+(def (component e) chapter/alternator/inspector (text/alternator/inspector exportable/component)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null chapter) chapter/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null chapter) chapter/alternator/inspector)
 
-(def layered-method make-alternatives ((component chapter/inspector) (class standard-class) (prototype chapter) (value chapter))
+(def layered-method make-alternatives ((component chapter/alternator/inspector) (class standard-class) (prototype chapter) (value chapter))
   (list* (make-instance 'chapter/text/inspector :component-value value)
          (make-instance 'chapter/toc/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; t/reference/inspector
@@ -29,12 +29,12 @@
 ;;; chapter/text/inspector
 
 (def (component e) chapter/text/inspector (t/text/inspector
-                                           collapsible-contents/abstract
+                                           collapsible-contents/component
                                            title/mixin)
   ())
 
 (def render-xhtml chapter/text/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-collapse-or-expand-command-for -self-)
     (render-title-for -self-)
     (when (expanded-component? -self-)
@@ -54,7 +54,7 @@
     (write-text-line-begin)
     (write-characters #\- (- (file-position *text-stream*) position 1) *text-stream*))
   (write-text-line-separator)
-  (call-next-method))
+  (call-next-layered-method))
 
 (def layered-method make-title ((self chapter/text/inspector) class prototype (value chapter))
   (title-of value))

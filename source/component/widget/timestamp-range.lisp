@@ -9,8 +9,8 @@
 ;;;;;;
 ;;; Timestamp range
 
-;; TODO: implement
-(def (component e) timestamp-range-component (editable/mixin)
+;; TODO: implement, move to place, etc.
+(def (component e) timestamp-range/widget (editable/mixin)
   ((lower-bound
     nil
     :type (or null local-time:timestamp))
@@ -32,7 +32,7 @@
     (make-instance 'timestamp-component)
     :type component)))
 
-(def constructor timestamp-range-component
+(def constructor timestamp-range/widget
   (not-yet-implemented)
   (setf (range-of -self-) (make-instance 'member-inspector
                                          :edited #t
@@ -43,11 +43,11 @@
                                          :client-name-generator [integer-to-string !2])))
 
 (def (macro e) timestamp-range (&key range-begin range-end)
-  `(make-instance 'timestamp-range-component
+  `(make-instance 'timestamp-range/widget
                   :range-begin (make-instance 'timestamp-component :component-value ,range-begin)
                   :range-end (make-instance 'timestamp-component :component-value ,range-end)))
 
-(def render-xhtml timestamp-range-component
+(def render-xhtml timestamp-range/widget
   (bind (((:read-only-slots single range range-begin range-end) -self-))
     (if single
         (render-component range)

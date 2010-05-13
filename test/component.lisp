@@ -12,8 +12,8 @@
 (def class component-demo-application (standard-application)
   ()
   (:default-initargs
-    :home-package (find-package :hu.dwim.wui.test)
-    :default-locale "en"))
+   :home-package (find-package :hu.dwim.wui.test)
+   :default-locale "en"))
 
 (def special-variable *component-demo-application* (make-instance 'component-demo-application))
 
@@ -73,7 +73,7 @@
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Layout"
-        (make-value-inspector (find-class 'layout/abstract)))
+        (make-value-inspector (find-class 'component/layout)))
     (component-demo/widget "Empty"
       (empty/layout))
     (component-demo/widget "Alternator"
@@ -171,7 +171,7 @@
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Widget"
-        (make-value-inspector (find-class 'widget/abstract)))
+        (make-value-inspector (find-class 'component/widget)))
     (component-demo/widget "Authentication"
       (identifier-and-password-login/widget :identifier "John" :password "engedjbe"))
     (component-demo/widget "Inline render XHTML"
@@ -679,19 +679,19 @@
          ,(make 'response '*response*)))))
 
 (def function make-object-maker-node ()
-  (make-object-presentation-node "Maker" make-maker t/maker))
+  (make-object-presentation-node "Maker" make-maker t/alternator/maker))
 
 (def function make-object-viewer-node ()
-  (make-object-presentation-node "Viewer" make-viewer t/viewer))
+  (make-object-presentation-node "Viewer" make-viewer t/alternator/viewer))
 
 (def function make-object-editor-node ()
-  (make-object-presentation-node "Editor" make-editor t/editor))
+  (make-object-presentation-node "Editor" make-editor t/alternator/editor))
 
 (def function make-object-inspector-node ()
-  (make-object-presentation-node "Inspector" make-inspector t/inspector))
+  (make-object-presentation-node "Inspector" make-inspector t/alternator/inspector))
 
 (def function make-object-filter-node ()
-  (make-object-presentation-node "Filter" make-filter t/filter))
+  (make-object-presentation-node "Filter" make-filter t/alternator/filter))
 
 ;;;;;;
 ;;; Sequence
@@ -721,7 +721,6 @@
        (component-demo/widget "Application"
          ,(make 'list '(list *performance-application* *echo-application* *parameter-application* *session-application* *authentication-application* *component-demo-application*))))))
 
-
 (def function make-sequence-maker-node ()
   (make-sequence-presentation-node "Maker" make-maker sequence/maker))
 
@@ -732,7 +731,7 @@
   (make-sequence-presentation-node "Editor" make-editor sequence/editor))
 
 (def function make-sequence-inspector-node ()
-  (make-sequence-presentation-node "Inspector" make-inspector sequence/inspector))
+  (make-sequence-presentation-node "Inspector" make-inspector sequence/alternator/inspector))
 
 (def function make-sequence-filter-node ()
   (make-sequence-presentation-node "Filter" make-filter sequence/filter))
@@ -752,7 +751,9 @@
 
 (def function make-tree-node ()
   (node/widget (:expanded #f)
-      "Tree"
+      (replace-target-place/widget ()
+          "Tree"
+        (make-value-inspector (find-class 't/tree/presentation)))
     (make-tree-maker-node)
     (make-tree-viewer-node)
     (make-tree-editor-node)
@@ -800,7 +801,9 @@
 
 (def function make-book-element-node ()
   (node/widget (:expanded #f)
-      "Text"
+      (replace-target-place/widget ()
+          "Text"
+        (make-value-inspector (find-class 't/text/inspector)))
     (component-demo/widget "Book"
       (make-value-inspector
        (book (:title "The Guide" :authors '("Levente Mészáros"))
@@ -829,7 +832,10 @@
 
 (def function make-source-element-node ()
   (node/widget (:expanded #f)
-      "Source"
+      (replace-target-place/widget ()
+          "Source"
+        (content/widget ()
+          "Various specialized components for source related things."))
     (component-demo/widget "System"
       (make-value-inspector (asdf:find-system :hu.dwim.wui)))
     (component-demo/widget "Module"
@@ -839,7 +845,7 @@
     (component-demo/widget "Text file"
       (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "LICENCE")))
     (component-demo/widget "Binary file"
-      (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "www/wui/icon/10x10/arrow-out.png")))
+      (make-value-inspector (asdf:system-relative-pathname :hu.dwim.wui "www/icon/10x10/arrow-out.png")))
     (component-demo/widget "Pathname"
       (make-value-inspector (system-relative-pathname :hu.dwim.wui.component "")))
     (component-demo/widget "Package"
@@ -896,7 +902,7 @@
   (node/widget (:expanded #f)
       (replace-target-place/widget ()
           "Chart"
-        (make-value-inspector (find-class 'chart/abstract)))
+        (make-value-inspector (find-class 'component/chart)))
     (component-demo/widget "Column"
       (column/chart (:title "Salary"
                      :width 400
@@ -1016,8 +1022,7 @@
                              "Susanne"))))
         (horizontal-list/layout ()
           left-list
-          (content/widget ()
-            (make-inspector 'string :value (compute-as (string+ (selected-component-value left-list) " - " (selected-component-value right-list)))))
+          (make-inspector 'string :value (compute-as (string+ (selected-component-value left-list) " - " (selected-component-value right-list))))
           right-list)))
     (component-demo/widget "Inspector"
       (bind ((list-inspector (make-value-inspector (list (parse-uri "http://dwim.hu")

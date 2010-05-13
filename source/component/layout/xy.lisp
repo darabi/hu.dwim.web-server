@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; xy/layout
 
-(def (component e) xy/layout (layout/minimal contents/abstract)
+(def (component e) xy/layout (standard/layout contents/component)
   ((width :type number)
    (height :type number))
   (:documentation "A LAYOUT that positions CHILD-COMPONENTs to their specified X, Y coordinates within its own coordinate system."))
@@ -26,7 +26,7 @@
 ;;;;;;
 ;;; parent-relative-position/layout
 
-(def (component e) parent-relative-position/layout (layout/minimal content/abstract)
+(def (component e) parent-relative-position/layout (standard/layout content/component)
   ((x :type number)
    (y :type number))
   (:documentation "A LAYOUT that positions its CONTENT to the specified X, Y coordinates within its parent's coordinate system."))
@@ -36,6 +36,6 @@
 
 (def render-xhtml parent-relative-position/layout
   (bind (((:read-only-slots x y) -self-))
-    <div (:class "parent-relative-position layout" :style `str("position: relative; top: " ,(integer-to-string x)
-                                                               "px; left: " ,(integer-to-string y) "px;"))
+    <div (:class "parent-relative-position layout"
+          :style `str("position: relative; top: " ,(integer-to-string x) "px; left: " ,(integer-to-string y) "px;"))
       ,(render-content-for -self-)>))

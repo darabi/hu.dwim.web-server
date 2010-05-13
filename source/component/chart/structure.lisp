@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; structure/chart
 
-(def (component e) structure/chart (chart/abstract)
+(def (component e) structure/chart (standard/chart)
   ())
 
 (def render-xhtml structure/chart

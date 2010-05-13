@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; splitter/widget
 
-(def (component e) splitter/widget (widget/style list/layout)
+(def (component e) splitter/widget (standard/widget list/layout)
   ())
 
 (def (macro e) splitter/widget ((&rest args &key &allow-other-keys) &body contents)

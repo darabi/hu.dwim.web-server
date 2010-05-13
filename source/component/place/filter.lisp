@@ -9,13 +9,19 @@
 ;;;;;;
 ;;; place/filter
 
-(def (component e) place/filter (t/filter place/presentation)
+(def (component e) place/filter (t/filter)
   ()
-  (:documentation "An PLACE/INSPECTOR filters existing values of a TYPE at a PLACE."))
+  (:documentation "A PLACE/INSPECTOR filters existing values of a TYPE at a PLACE."))
 
-(def subtype-mapper *filter-type-mapping* place place/filter)
+;;;;;;
+;;; place/alternator/filter
 
-(def layered-method make-alternatives ((component place/filter) class prototype value)
+(def (component e) place/alternator/filter (t/alternator/filter place/presentation)
+  ())
+
+(def subtype-mapper *filter-type-mapping* place place/alternator/filter)
+
+(def layered-method make-alternatives ((component place/alternator/filter) class prototype value)
   (list (make-instance 'place/value/filter :component-value value)
         (make-instance 'place/reference/filter :component-value value)))
 
@@ -28,7 +34,7 @@
 ;;;;;;
 ;;; place/value/filter
 
-(def (component e) place/value/filter (filter/basic place/value/presentation)
+(def (component e) place/value/filter (t/detail/filter place/value/presentation)
   ())
 
 (def layered-method make-content-presentation ((component place/value/filter) class prototype value)

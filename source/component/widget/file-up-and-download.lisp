@@ -31,13 +31,13 @@
     (unless (probe-file absolute-file-name)
       (setf (enabled-component? -self-) #f))
     <div (:class "download-file widget")
-         ,(call-next-method)
-         " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
+      ,(call-next-layered-method)
+      " (" ,(file-last-modification-timestamp absolute-file-name) ")">))
 
 ;;;;;;
 ;;; Upload file
 
-(def (component e) upload-file/widget ()
+(def (component e) upload-file/widget (standard/widget)
   ((client-state-sink nil)))
 
 (def (macro e) upload-file/widget ()

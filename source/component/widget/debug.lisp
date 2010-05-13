@@ -126,11 +126,11 @@
 ;;;;;;
 ;;; Debug menu
 
-(def (component e) client-side-error-handling-test (widget/style)
+(def (component e) client-side-error-handling-test (standard/widget)
   ())
 
 (def render-xhtml client-side-error-handling-test
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (bind ((error-action (make-action
                            (error "This is a demo error for testing purposes. It was signalled from the body of an action.")))
            (slow-js-logging-ajax-action (make-action
@@ -143,7 +143,7 @@
               (apply 'render-replace-target-place-command/xhtml component replacement-component content :style-class "command" args))
             (make-inline-component-with-rendering-error ()
               (bind ((us nil))
-                (setf us (inline-render-component/widget ()
+                (setf us (inline-render/widget ()
                            (error "This is a demo error signaled from the render method of the inline component ~A" us))))))
        <p "These actions help testing how errors in different situations are dealt with.">
        <ul

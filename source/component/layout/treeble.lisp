@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; treeble/layout
 
-(def (component e) treeble/layout (tree/abstract layout/minimal root-nodes/mixin)
+(def (component e) treeble/layout (standard/layout tree/component root-nodes/mixin)
   ())
 
 (def (macro e) treeble/layout ((&rest args &key &allow-other-keys) &body nodes)

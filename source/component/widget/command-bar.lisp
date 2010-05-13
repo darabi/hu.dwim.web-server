@@ -7,28 +7,28 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; command-bar/abstract
+;;; command-bar/component
 
-(def (component e) command-bar/abstract (widget/abstract)
+(def (component e) command-bar/component (standard/widget)
   ((commands :type components))
   (:documentation "A COMMAND-BAR with a SEQUENCE of COMMANDs."))
 
-(def render-component :before command-bar/abstract
+(def render-component :before command-bar/component
   (sort-command-bar-commands -self-))
 
 (def (generic e) sort-command-bar-commands (component)
   (:documentation "Sorts the COMMANDs of COMMAND-BAR.")
 
-  (:method :around ((self command-bar/abstract))
+  (:method :around ((self command-bar/component))
     (setf (commands-of self) (call-next-method)))
 
-  (:method ((self command-bar/abstract))
+  (:method ((self command-bar/component))
     (sort (commands-of self) #'< :key #'command-position)))
 
 ;;;;;;
 ;;; command-bar/widget
 
-(def (component e) command-bar/widget (command-bar/abstract widget/style)
+(def (component e) command-bar/widget (command-bar/component standard/widget)
   ())
 
 (def (macro e) command-bar/widget ((&rest args &key &allow-other-keys) &body commands)
@@ -41,7 +41,7 @@
   (foreach #'render-component (commands-of -self-)))
 
 (def render-xhtml command-bar/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (iter (with commands = (commands-of -self-))
           (with length = (length commands))
           (with index = 0)

@@ -7,20 +7,20 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; t/inspector
+;;; t/alternator/inspector
 
-(def layered-method make-alternatives ((component t/inspector) (class standard-class) (prototype standard-process) (value standard-process))
+(def layered-method make-alternatives ((component t/alternator/inspector) (class standard-class) (prototype standard-process) (value standard-process))
   (list* (make-instance 'standard-process/user-interface/inspector
                         :component-value value
                         :component-value-type (component-value-type-of component))
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; standard-process/user-interface/inspector
 
 (def (special-variable e) *process-component*)
 
-(def (component e) standard-process/user-interface/inspector (inspector/style t/detail/inspector component-messages/widget content/mixin commands/mixin)
+(def (component e) standard-process/user-interface/inspector (t/detail/inspector component-messages/widget content/mixin commands/mixin)
   ;; TODO: add support to command-bar
   ((answer-commands nil))
   (:documentation "A COMPONENT based on the continuation support provided by the hu.dwim.delico system."))
@@ -34,7 +34,7 @@
                         (funcall (hu.dwim.delico::make-closure/cc walked-form))))))))
 
 (def render-xhtml standard-process/user-interface/inspector
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-component-messages-for -self-)
     (render-content-for -self-)
     (render-command-bar-for -self-)))

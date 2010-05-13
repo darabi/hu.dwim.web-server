@@ -11,7 +11,7 @@
 
 ;; TODO: this needs to be revisited, make it more parametrizable, not just by overriding render, etc.
 
-(def (component e) about/widget (widget/style title/mixin)
+(def (component e) about/widget (standard/widget title/mixin)
   ()
   (:default-initargs :title (title/widget () "About")))
 
@@ -19,7 +19,7 @@
   `(make-instance 'about/widget ,@args))
 
 (def render-xhtml about/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-title-for -self-)
     (render-about/dwim)
     (render-about/thellminar)))

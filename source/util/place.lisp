@@ -6,8 +6,6 @@
 
 (in-package :hu.dwim.wui)
 
-;;; TODO: couldn't we use a better naming scheme for classes using /
-
 ;;;;;;
 ;;; API
 ;;;
@@ -111,6 +109,7 @@
   (:documentation "A PLACE that is get and set by using lambda functions."))
 
 (def (function e) make-functional-place (name getter setter &key (type t))
+  "Returns a new PLACE with the given NAME and TYPE. The arguments GETTER and SETTER are functions used to get and set the value in the place."
   (check-type name symbol)
   (make-instance 'functional-place
                  :name name
@@ -132,6 +131,7 @@
   (:documentation "A PLACE that is get and set by using lambda functions on a single argument."))
 
 (def (function e) make-simple-functional-place (argument name &key (type t))
+  "Returns a new PLACE with the given NAME and TYPE. The NAME argument also names a function that is called with ARGUMENT to get the value in the place. The (SETF NAME) names another function that is called with the ARGUMENT and the new value to set the value in the place."
   (check-type name symbol)
   (make-instance 'simple-functional-place
                  :argument argument
@@ -149,14 +149,14 @@
 ;;;;;;
 ;;; variable-place
 
-(def (class*) variable-place (basic-place)
+(def (class* e) variable-place (basic-place)
   ()
   (:documentation "A PLACE for a variable."))
 
 ;;;;;;
 ;;; special-variable-place
 
-(def (class*) special-variable-place (variable-place)
+(def (class* e) special-variable-place (variable-place)
   ()
   (:documentation "A PLACE for a special variable."))
 

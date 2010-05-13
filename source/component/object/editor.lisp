@@ -9,8 +9,13 @@
 ;;;;;;
 ;;; t/editor
 
-(def (component e) t/editor (editor/basic
-                             t/presentation
-                             cloneable/abstract
+(def (component e) t/editor (t/presentation)
+  ())
+
+;;;;;;
+;;; t/editor
+
+(def (component e) t/editor (t/presentation
+                             cloneable/component
                              layer/mixin)
   ())

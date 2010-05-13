@@ -9,8 +9,7 @@
 ;;;;;;
 ;;; t/viewer
 
-(def (component e) t/viewer (viewer/basic
-                             t/presentation
-                             cloneable/abstract
+(def (component e) t/viewer (t/presentation
+                             cloneable/component
                              layer/mixin)
   ())

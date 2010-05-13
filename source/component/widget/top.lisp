@@ -11,7 +11,7 @@
 
 (def (component e) top/widget (component-messages/widget
                                target-place/widget
-                               top/abstract
+                               top/component
                                menu-bar/mixin
                                context-menu/mixin)
   ())
@@ -20,7 +20,7 @@
   `(make-instance 'top/widget ,@args :content ,(the-only-element content)))
 
 (def render-xhtml top/widget
-  (with-render-style/abstract (-self-)
+  (with-render-style/component (-self-)
     (render-menu-bar-for -self-)
     (render-context-menu-for -self-)
     (render-component-messages-for -self-)

@@ -9,7 +9,7 @@
 ;;;;;;
 ;;; image/widget
 
-(def (component e) image/widget (widget/style)
+(def (component e) image/widget (standard/widget)
   ((location :type uri))
   (:documentation "An IMAGE specified by an URI location"))
 

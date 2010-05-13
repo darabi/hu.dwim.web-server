@@ -7,22 +7,22 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; standard-slot-definition/inspector
+;;; standard-slot-definition/alternator/inspector
 
-(def (component e) standard-slot-definition/inspector (t/inspector)
+(def (component e) standard-slot-definition/alternator/inspector (t/alternator/inspector)
   ())
 
-(def subtype-mapper *inspector-type-mapping* (or null standard-slot-definition) standard-slot-definition/inspector)
+(def subtype-mapper *inspector-type-mapping* (or null standard-slot-definition) standard-slot-definition/alternator/inspector)
 
-(def layered-method make-alternatives ((component standard-slot-definition/inspector) (class standard-class) (prototype standard-slot-definition) (value standard-slot-definition))
+(def layered-method make-alternatives ((component standard-slot-definition/alternator/inspector) (class standard-class) (prototype standard-slot-definition) (value standard-slot-definition))
   (list* (make-instance 'standard-slot-definition/documentation/inspector :component-value value)
          (make-instance 'standard-slot-definition/lisp-form/inspector :component-value value)
-         (call-next-method)))
+         (call-next-layered-method)))
 
 ;;;;;;
 ;;; standard-slot-definition/lisp-form/inspector
 
-(def (component e) standard-slot-definition/lisp-form/inspector (inspector/style t/detail/presentation)
+(def (component e) standard-slot-definition/lisp-form/inspector (t/detail/inspector)
   ())
 
 ;;;;;;

@@ -10,5 +10,5 @@
 ;;; checkbox/widget
 
 ;; TODO:
-(def (component e) checkbox/widget (widget/style)
+(def (component e) checkbox/widget (standard/widget)
   ())

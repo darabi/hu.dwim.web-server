@@ -7,16 +7,16 @@
 (in-package :hu.dwim.wui)
 
 ;;;;;;
-;;; tree/abstract
+;;; tree/component
 
 (def special-variable *tree*)
 
 (def special-variable *tree-level*)
 
-(def (component e) tree/abstract ()
+(def (component e) tree/component ()
   ())
 
-(def component-environment tree/abstract
+(def component-environment tree/component
   (bind ((*tree* -self-)
          (*tree-level* -1))
     (call-next-method)))
