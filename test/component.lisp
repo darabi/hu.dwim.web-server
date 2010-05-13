@@ -9,18 +9,29 @@
 ;;;;;;
 ;;; This is a simple example application with various components
 
-(def special-variable *component-demo-application* (make-instance 'standard-application
-                                                                  :home-package (find-package :hu.dwim.wui.test)
-                                                                  :default-locale "en"))
+(def class component-demo-application (standard-application)
+  ()
+  (:default-initargs
+    :home-package (find-package :hu.dwim.wui.test)
+    :default-locale "en"))
+
+(def special-variable *component-demo-application* (make-instance 'component-demo-application))
 
 ;;;;;;
 ;;; Entry point
+
+(def method make-frame-root-component-using-application ((application component-demo-application) session frame content)
+  (frame/widget (:title "hu.dwim.wui component demo"
+                 :stylesheet-uris (make-stylesheet-uris :hu.dwim.wui "static/" "css/test.css"))
+    (top/widget (:menu-bar (menu-bar/widget ()
+                             (make-debug-menu)))
+      (make-component-demo-content content))))
 
 (def file-serving-entry-point *component-demo-application* "static/" (system-relative-pathname :hu.dwim.wui "www/"))
 
 (def entry-point (*component-demo-application* :path "")
   (with-entry-point-logic (:ensure-session #t :ensure-frame #t)
-    (make-frame-root-component-rendering-response :root-component-factory 'make-demo-frame-component)))
+    (make-frame-root-component-rendering-response)))
 
 (def function startup-test-server-with-component-demo-application (&key (maximum-worker-count 16) (log-level +debug+) (host *test-host*) (port *test-port*))
   (setf (log-level 'wui) log-level)
@@ -41,16 +52,6 @@
            ,content
          (lisp-form/component-demo/inspector ()
            ,@forms))))
-
-(def function make-demo-frame-component ()
-  (make-demo-frame-component-with-content))
-
-(def function make-demo-frame-component-with-content (&optional initial-content-component)
-  (frame/widget (:title "hu.dwim.wui component demo"
-                 :stylesheet-uris (make-stylesheet-uris :hu.dwim.wui "static/" "css/test.css"))
-    (top/widget (:menu-bar (menu-bar/widget ()
-                             (make-debug-menu)))
-      (make-component-demo-content initial-content-component))))
 
 ;;;;;;
 ;;; Immediate
