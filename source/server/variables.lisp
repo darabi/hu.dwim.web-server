@@ -6,6 +6,13 @@
 
 (in-package :hu.dwim.wui)
 
+(def special-variable *profile-request-processing* #f
+  "Should the the statistical profiler be enabled while inside the request processing body?")
+
+(def generic profile-request-processing? (context)
+  (:method ((context t))
+    *profile-request-processing*))
+
 (def special-variable *debug-client-side* (not *load-as-production?*)
   "Should the client side run in debug mode?")
 

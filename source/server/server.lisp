@@ -47,7 +47,12 @@
    (occupied-worker-count 0 :type integer) ; only accessed while having the lock on the server, so doesn't need to be atomic
    (started-at nil :type local-time:timestamp)
    (timer nil)
-   (profile-request-processing? #f :type boolean :export :accessor)))
+   (profile-request-processing? :type boolean :reader nil :writer (setf profile-request-processing?))))
+
+(def method profile-request-processing? ((server server))
+  (if (slot-boundp server 'profile-request-processing?)
+      (slot-value server 'profile-request-processing?)
+      (call-next-method)))
 
 (def constructor (server (listen-entries nil listen-entries-p) host port ssl-certificate)
   (when (and (or host port ssl-certificate)
