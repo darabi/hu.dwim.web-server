@@ -50,7 +50,7 @@
 (def method debug-client-side? ((self application))
   (if (slot-boundp self 'debug-client-side)
       (slot-value self 'debug-client-side)
-      *debug-client-side*))
+      (call-next-method)))
 
 (def (function e) human-readable-broker-path (server application)
   (bind ((path (broker-path-to-broker server application)))
