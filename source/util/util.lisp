@@ -191,7 +191,7 @@
 (declaim (ftype (function () double-float) get-monotonic-time))
 (def (function eio) get-monotonic-time ()
   "Returns a time in seconds as a double-float that constantly grows (unaffected by setting the system clock)."
-  (isys:%sys-get-monotonic-time))
+  (isys:get-monotonic-time))
 
 (def (function i) us-ascii-octets-to-string (vector)
   (coerce (babel:octets-to-string vector :encoding :us-ascii) 'simple-base-string))

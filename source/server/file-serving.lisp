@@ -172,7 +172,7 @@
                                      (awhen (pathname-type file)
                                        (list "." it)))))
                    <tr <td ,(render-link (string+ name) name)>
-                       <td ,(integer-to-string (isys:stat-size (isys:%sys-lstat (namestring file))))>>))
+                       <td ,(integer-to-string (isys:stat-size (isys:lstat (namestring file))))>>))
                (render-directory (directory &key
                                             (path (string+ (lastcar (pathname-directory directory)) "/"))
                                             (name path))
