@@ -65,7 +65,7 @@
       (format stream "Number of requests to valid sessions:       ~A~%" (requests-to-sessions-count-of it))
       (format stream "Sessions last purged at:                    ~,2F seconds since boot~%" (coerce (sessions-last-purged-at-of it) 'float))
       (terpri))
-    (format stream "Heap usage:                                 ~,2F MBytes~%" (/ (sb-kernel::dynamic-usage) 1024d0 1024d0))
+    (format stream "Heap usage:                                 ~,2F MBytes~%" (/ (sb-kernel::dynamic-usage) 1024 1024))
     (format stream "Number of threads running:                  ~A~%" (length (sb-thread::list-all-threads)))
     ;;(format stream "Maximum heap size: ~,2F MB~%" (/ (sb-kernel::dynamic-) 1024d0 1024d0))
     (format stream "Elapsed time rendering this response:       ~,4F seconds~%" (local-time:timestamp-difference (local-time:now) start))))

@@ -47,17 +47,17 @@
       (render-title-for -self-)
       (render-component-messages-for -self-)
       <table
-          <tr <td (:class "label") ,#"slot-name.identifier<>">
-              <td (:class "value")
-                  <input (:id "identifier-field"
-                              :name "identifier"
-                              :value ,identifier)>>>
+        <tr <td (:class "label") ,#"slot-name.identifier<>">
+          <td (:class "value")
+            <input (:id "identifier-field"
+                    :name "identifier"
+                    :value ,identifier)>>>
         <tr <td (:class "label") ,#"slot-name.password<>">
-            <td (:class "value")
-                <input (:id "password-field"
-                            :name "password"
-                            :value ,password
-                            :type "password")>>>
+          <td (:class "value")
+            <input (:id "password-field"
+                    :name "password"
+                    :value ,password
+                    :type "password")>>>
         <tr <td (:colspan 2) ,(render-command-bar-for -self-)>>>)
     `js-onload(.focus ($ ,focused-field-id))))
 
