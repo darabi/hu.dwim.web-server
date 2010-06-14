@@ -72,9 +72,12 @@ Optimized factory configuration (default):
                          :editable editable-component))))
 
 (def render-component t/alternator/inspector
-  (with-render-alternator/widget -self-
-    (render-title-for -self-)
-    (render-alternator-interior -self-)))
+  (render-title-for -self-)
+  (render-alternator-interior -self-))
+
+(def render-xhtml t/alternator/inspector
+  (with-render-xhtml-alternator -self-
+    (call-next-layered-method)))
 
 ;;;;;;
 ;;; t/reference/inspector

@@ -53,10 +53,13 @@ Optimized factory configuration (default):
 (def subtype-mapper *filter-type-mapping* t t/alternator/filter)
 
 (def render-component t/alternator/filter
-  (with-render-alternator/widget -self-
-    (render-title-for -self-)
-    (render-alternator-interior -self-)
-    (render-result-for -self-)))
+  (render-title-for -self-)
+  (render-alternator-interior -self-)
+  (render-result-for -self-))
+
+(def render-xhtml t/alternator/filter
+  (with-render-xhtml-alternator -self-
+    (call-next-layered-method)))
 
 (def layered-method make-alternatives ((component t/alternator/filter) class prototype value)
   (list (make-instance 't/name-value-list/filter

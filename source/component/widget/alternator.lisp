@@ -27,7 +27,7 @@
     (unless content
       (setf content (find-initial-alternative-component -self-)))))
 
-(def with-macro with-render-alternator/widget (self)
+(def with-macro with-render-xhtml-alternator (self)
   (with-render-style/component (self :element-name (if (typep (content-of self) 'reference/widget)
                                                       "span"
                                                       "div"))
@@ -44,7 +44,7 @@
   (render-alternator-interior -self-))
 
 (def render-xhtml alternator/widget
-  (with-render-alternator/widget -self-
+  (with-render-xhtml-alternator -self-
     (render-alternator-interior -self-)))
 
 (def method selected-component-of ((self alternator/widget))

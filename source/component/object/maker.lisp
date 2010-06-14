@@ -61,10 +61,13 @@ Optimized factory configuration (default):
                        :component-value-type (component-value-type-of component))))
 
 (def render-component t/alternator/maker
-  (with-render-alternator/widget -self-
-    (render-title-for -self-)
-    (render-alternator-interior -self-)
-    (render-result-for -self-)))
+  (render-title-for -self-)
+  (render-alternator-interior -self-)
+  (render-result-for -self-))
+
+(def render-xhtml t/alternator/maker
+  (with-render-xhtml-alternator -self-
+    (call-next-layered-method)))
 
 (def layered-method make-command-bar-commands ((component t/alternator/maker) class prototype value)
   (optional-list* (make-make-new-instance-command component class prototype value) (call-next-layered-method)))
