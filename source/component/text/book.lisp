@@ -64,7 +64,7 @@
         ,(render-contents-for -self-)>)))
 
 (def render-odt book/text/inspector
-  <text:p ,(render-title-for -self-)>
+  <text:h ,(render-title-for -self-)>
   (awhen (authors-of (component-value-of -self-))
     <text:p ,(foreach #'render-author it)>)
   (render-contents-for -self-))

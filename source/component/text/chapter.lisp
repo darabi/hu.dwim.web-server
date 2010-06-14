@@ -28,10 +28,16 @@
 ;;;;;;
 ;;; chapter/text/inspector
 
+(def (special-variable e) *chapter-level* 0)
+
 (def (component e) chapter/text/inspector (t/text/inspector
                                            collapsible-contents/component
                                            title/mixin)
   ())
+
+(def component-environment chapter/text/inspector
+  (bind ((*chapter-level* (1+ *chapter-level*)))
+    (call-next-method)))
 
 (def render-xhtml chapter/text/inspector
   (with-render-style/component (-self-)
@@ -43,7 +49,8 @@
         ,(render-contents-for -self-)>)))
 
 (def render-odt chapter/text/inspector
-  <text:p ,(render-title-for -self-)>
+  <text:h (text:style-name `str("Heading." ,(integer-to-string *chapter-level*)))
+    ,(render-title-for -self-)>
   (render-contents-for -self-))
 
 (def render-text chapter/text/inspector

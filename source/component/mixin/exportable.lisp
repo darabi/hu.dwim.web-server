@@ -107,6 +107,22 @@
       <meta:generator "http://dwim.hu/project/hu.dwim.wui">
       <meta:creation-date ()
         ,(local-time:format-rfc3339-timestring nil (local-time:now))>>
+    <office:font-face-decls
+      <style:font-face (style:font-pitch "variable" style:font-family-generic "roman" svg:font-family "'Times New Roman'" style:name "Times New Roman")>
+      <style:font-face (style:font-pitch "variable" style:font-family-generic "swiss" svg:font-family "Arial" style:name "Arial")>>
+    <office:styles
+      <style:style (style:class "text" style:family "paragraph" style:name "Standard")>
+      <style:style (style:class "text" style:parent-style-name "Standard" style:family "paragraph" style:name "Heading")
+        <style:paragraph-properties (fo:keep-with-next "always" fo:margin-bottom "0.0835in" fo:margin-top "0.1665in")>
+        <style:text-properties (style:font-size-complex "14pt" style:font-name-complex "Tahoma" style:font-size-asian "14pt" style:font-name-asian "DejaVu Sans" fo:font-size "14pt" style:font-name "Arial")>>
+      <style:style (style:class "text" style:default-outline-level "1" style:parent-style-name "Heading" style:family "paragraph" style:display-name "Heading 1" style:name "Heading.1")
+        <style:text-properties (style:font-weight-complex "bold" style:font-size-complex "16pt" style:font-weight-asian "bold" style:font-size-asian "14pt" fo:font-weight "bold" fo:font-size "16pt")>>
+      <style:style (style:class "text" style:default-outline-level "2" style:parent-style-name "Heading" style:family "paragraph" style:display-name "Heading 2" style:name "Heading.2")
+        <style:text-properties (style:font-weight-complex "bold" style:font-style-complex "italic" style:font-size-complex "14pt" style:font-weight-asian "bold" style:font-style-asian "italic" style:font-size-asian "14pt" fo:font-weight "bold" fo:font-style "italic" fo:font-size "14pt")>>
+      <style:style (style:class "text" style:default-outline-level "3" style:parent-style-name "Heading" style:family "paragraph" style:display-name "Heading 3" style:name "Heading.3")
+        <style:text-properties (style:font-weight-complex "bold" style:font-size-complex "14pt" style:font-weight-asian "bold" style:font-size-asian "14pt" fo:font-weight "bold" fo:font-size "13pt")>>>
+    <office:master-styles
+      <style:master-page (style:page-layout-name "pm1" style:name "Standard")>>
     <office:body
       ,(-with-macro/body-)>>)
 
