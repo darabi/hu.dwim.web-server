@@ -120,7 +120,9 @@
       <style:style (style:class "text" style:default-outline-level "2" style:parent-style-name "Heading" style:family "paragraph" style:display-name "Heading 2" style:name "Heading.2")
         <style:text-properties (style:font-weight-complex "bold" style:font-style-complex "italic" style:font-size-complex "14pt" style:font-weight-asian "bold" style:font-style-asian "italic" style:font-size-asian "14pt" fo:font-weight "bold" fo:font-style "italic" fo:font-size "14pt")>>
       <style:style (style:class "text" style:default-outline-level "3" style:parent-style-name "Heading" style:family "paragraph" style:display-name "Heading 3" style:name "Heading.3")
-        <style:text-properties (style:font-weight-complex "bold" style:font-size-complex "14pt" style:font-weight-asian "bold" style:font-size-asian "14pt" fo:font-weight "bold" fo:font-size "13pt")>>>
+        <style:text-properties (style:font-weight-complex "bold" style:font-size-complex "14pt" style:font-weight-asian "bold" style:font-size-asian "14pt" fo:font-weight "bold" fo:font-size "13pt")>>
+      <style:style (style:class "text" style:parent-style-name "Standard" style:family "paragraph" style:name "Code")
+        <style:text-properties (style:font-name "Courier New")>>>
     <office:master-styles
       <style:master-page (style:page-layout-name "pm1" style:name "Standard")>>
     <office:body
