@@ -108,6 +108,7 @@
       <meta:creation-date ()
         ,(local-time:format-rfc3339-timestring nil (local-time:now))>>
     <office:font-face-decls
+      <style:font-face (style:font-pitch "fixed" style:font-family-generic "modern" svg:font-family "'Courier New'" style:name "Courier New")>
       <style:font-face (style:font-pitch "variable" style:font-family-generic "roman" svg:font-family "'Times New Roman'" style:name "Times New Roman")>
       <style:font-face (style:font-pitch "variable" style:font-family-generic "swiss" svg:font-family "Arial" style:name "Arial")>>
     <office:styles
