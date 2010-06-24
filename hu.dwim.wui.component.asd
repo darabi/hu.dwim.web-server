@@ -256,4 +256,4 @@
                                                          (:file "uri")
                                                          (:file "variable")))))
                              ;; KLUDGE: kill this
-                             (:file "xxx" :pathname "component/xxx.lisp" :depends-on ("component"))))))
+                             (:file "xxx" :pathname #p"component/xxx.lisp" :depends-on ("component"))))))
