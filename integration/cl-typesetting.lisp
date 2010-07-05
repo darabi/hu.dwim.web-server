@@ -236,6 +236,7 @@
 
 (def render-pdf hyperlink/text/inspector
   ;; TODO: how does one render a link?
+  ;; (pdf:add-URI-link 10 10 239 50 "http://www.fractalconcept.com/asp/html/cl-pdf.html" :border #(1 1 1))
   (render-content-for -self-))
 
 (def render-pdf shell-script/text/inspector

@@ -124,11 +124,7 @@
               (loop :named binding :do
                 (with-simple-restart (retry "Try opening the socket again on host ~S port ~S" host port)
                   (server.debug "Binding socket to host ~A, port ~A" host port)
-                  (bind ((socket (iolib:make-socket :connect :passive
-                                                    :local-host host
-                                                    :local-port port
-                                                    :external-format +default-external-format+
-                                                    :reuse-address #t))
+                  (bind ((socket (iolib:make-socket :connect :passive :local-host host :local-port port :external-format +default-external-format+ :reuse-address #t))
                          (fd (iolib:fd-of socket)))
                     (unwind-protect-case ()
                         (progn

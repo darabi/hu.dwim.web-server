@@ -86,10 +86,12 @@ Components are created by either using the component specific macros, one of the
 ;;; Component environment
 
 (def (macro e) with-component-environment (component &body forms)
+  "Execute FORMS in the environment of COMPONENT."
   `(call-in-component-environment ,component (named-lambda with-component-environment-body ()
                                                ,@forms)))
 
 (def (with-macro e) with-restored-component-environment (component)
+  "Calls CALL-IN-COMPONENT-ENVIRONMENT in such a nested way, that the environment of the component and all its parents is restored. The order is root -> children. Executes BODY in the restored environment."
   (bind ((path (nreverse (collect-ancestor-components component))))
     (labels ((%call-with-restored-component-environment (remaining-path)
                (if remaining-path
