@@ -133,8 +133,6 @@
                     (unwind-protect-case ()
                         (progn
                           (assert fd)
-                          (server.dribble "Setting socket ~A to be non-blocking" socket)
-                          (setf (iolib.streams:fd-non-blocking socket) #t)
                           ;;(setf (iolib:socket-option socket :receive-timeout) 1)
                           (server.debug "Adding socket ~A, fd ~A to the accept multiplexer" socket fd)
                           (iomux::monitor-fd mux (aprog1
@@ -265,8 +263,6 @@
                          (iter (for stream-socket = (iolib:accept-connection socket :wait #f))
                                (while (and stream-socket
                                            (not (shutdown-initiated-p server))))
-                               ;; TODO until we have proper connection multiplexing, the sockets towards the clients should be blocking
-                               (setf (iolib.streams:fd-non-blocking stream-socket) #f)
                                ;; TODO is this a constant or depends on server network load?
                                (setf (iolib:socket-option stream-socket :receive-timeout) 15)
                                (worker-loop/serve-one-request threaded? server worker stream-socket)))))))
