@@ -114,8 +114,8 @@
   ((file-name)
    (delete-file-when-finished #f :type boolean :accessor delete-file-when-finished?)))
 
-(def (function e) make-file-serving-response (file-name)
-  (make-instance 'file-serving-response :file-name file-name))
+(def (function e) make-file-serving-response (file-name &key (delete-when-finished #f))
+  (make-instance 'file-serving-response :file-name file-name :delete-file-when-finished delete-when-finished))
 
 (def method send-response ((self file-serving-response))
   (server.info "Sending file serving response from ~S" (file-name-of self))
