@@ -17,6 +17,9 @@
 (def layered-method make-alternatives ((component paragraph/alternator/inspector) (class standard-class) (prototype paragraph) (value paragraph))
   (list* (make-instance 'paragraph/text/inspector :component-value value) (call-next-layered-method)))
 
+(def method component-style-class ((self paragraph/alternator/inspector))
+  (%component-style-class self))
+
 ;;;;;;
 ;;; paragraph/text/inspector
 

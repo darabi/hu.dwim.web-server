@@ -19,6 +19,9 @@
          (make-instance 'chapter/toc/inspector :component-value value)
          (call-next-layered-method)))
 
+(def method component-style-class ((self chapter/alternator/inspector))
+  (%component-style-class self))
+
 ;;;;;;
 ;;; t/reference/inspector
 

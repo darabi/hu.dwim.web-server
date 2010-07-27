@@ -16,9 +16,6 @@
 
 (def subtype-mapper *inspector-type-mapping* (or null book) book/alternator/inspector)
 
-(def method component-style-class ((self book/alternator/inspector))
-  "content-border text inspector")
-
 (def layered-method make-alternatives ((component book/alternator/inspector) (class standard-class) (prototype book) (value book))
   (list* (make-instance 'book/text/inspector :component-value value)
          (make-instance 'book/toc/inspector :component-value value)

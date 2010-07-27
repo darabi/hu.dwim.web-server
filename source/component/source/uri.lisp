@@ -18,6 +18,9 @@
   ;; TOOD: not all uris are external links
   (list* (make-instance 'uri/external-link/inspector :component-value value) (call-next-layered-method)))
 
+(def method component-style-class ((self uri/alternator/inspector))
+  (%component-style-class self))
+
 ;;;;;;
 ;;; uri/external-link/inspector
 

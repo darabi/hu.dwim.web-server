@@ -14,11 +14,11 @@
 
 (def subtype-mapper *inspector-type-mapping* (or null hyperlink) hyperlink/alternator/inspector)
 
-(def method component-style-class ((self hyperlink/alternator/inspector))
-  "hyperlink inspector")
-
 (def layered-method make-alternatives ((component hyperlink/alternator/inspector) (class standard-class) (prototype hyperlink) (value hyperlink))
   (list* (make-instance 'hyperlink/text/inspector :component-value value) (call-next-layered-method)))
+
+(def method component-style-class ((self hyperlink/alternator/inspector))
+  (%component-style-class self))
 
 ;;;;;;
 ;;; hyperlink/text/inspector
