@@ -14,8 +14,13 @@
 
 (def (class* e) project ()
   ((name :type string)
-   (path :type pathname)
+   (path nil :type pathname)
    (description nil)))
+
+(def constructor project
+  (bind (((:slots path name) -self-))
+    (unless path
+      (setf path (system-directory name)))))
 
 ;;;;;;
 ;;; Util
