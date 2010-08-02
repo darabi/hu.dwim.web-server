@@ -16,14 +16,14 @@
 ;;;;;;
 ;;; place/alternator/presentation
 
-(def (component e) place/alternator/presentation (t/alternator/presentation)
+(def (component e) place/alternator/presentation (place/presentation t/alternator/presentation)
   ()
   (:documentation "Presentation for reified places."))
 
 ;;;;;;;
 ;;; place/reference/presentation
 
-(def (component e) place/reference/presentation (t/reference/presentation)
+(def (component e) place/reference/presentation (place/presentation t/reference/presentation)
   ())
 
 (def layered-method make-reference-content ((component place/reference/presentation) class prototype (value place))
@@ -32,7 +32,7 @@
 ;;;;;;;
 ;;; place/detail/presentation
 
-(def (component e) place/detail/presentation (t/detail/presentation)
+(def (component e) place/detail/presentation (place/presentation t/detail/presentation)
   ())
 
 ;;;;;;
