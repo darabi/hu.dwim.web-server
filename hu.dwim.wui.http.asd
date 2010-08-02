@@ -36,7 +36,9 @@
                :local-time
                :parse-number
                :rfc2109
-               :rfc2388-binary)
+               :rfc2388-binary
+               ;; TODO: remove direct swank dependency
+               :swank)
   :components ((:module "source"
                 :components ((:file "package")
                              (:file "duplicates" :depends-on ("package"))
