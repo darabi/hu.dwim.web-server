@@ -24,5 +24,6 @@
 
 (def render-xhtml column/widget
   ;; NOTE: don't put style and the like on th, because that cannot be easily updated on the client side
-  <th ,(with-render-style/component (-self-)
-         (render-header-for -self-))>)
+  <th (:class "column")
+    ,(with-render-style/component (-self-)
+       (render-header-for -self-))>)
