@@ -35,7 +35,8 @@
          (prototype (component-dispatch-prototype -self-))
          (expandible? (authorize-operation *application* `(make-switch-to-alternative-command :class ,class :instance ,component-value :alternative ,(class-name (class-of -self-)))))
          (label (make-reference-content -self- class prototype component-value)))
-    (setf content (if expandible?
+    (setf content (if (and expandible?
+                           (stringp label))
                       (icon/widget expand-from-reference :label label)
                       label)
           subject-component (delay (parent-component-of -self-))
