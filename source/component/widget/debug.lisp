@@ -144,7 +144,7 @@
                                           (notf (symbol-global-value ,variable-name))
                                           (mark-to-be-rendered-component -self-))
                                         "toggle" :ajax ,ajax)>>)))
-        <table (:class "bordered")
+        <table (:class "debugging-state")
           <tr <td (:class "header") "Scope of effect" >
               <td (:class "header") "Value" >
               <td (:class "header") "Action" >>
