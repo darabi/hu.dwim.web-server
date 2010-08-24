@@ -16,6 +16,7 @@
   (:documentation "TODO"))
 
 (def render-component :in xhtml-layer :around lazy/mixin
+  (ensure-refreshed -self-)
   (if (lazily-rendered-component? -self-)
       (render-component-stub -self-)
       (call-next-layered-method)))
