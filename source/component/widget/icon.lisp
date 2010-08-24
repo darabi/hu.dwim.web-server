@@ -69,6 +69,7 @@
       (setf name (name-of icon)))
     (unless label?
       (setf label (label-of icon)))
+    (setf label (force label))
     (unless image-path?
       (setf image-path (image-path-of icon)))
     (unless tooltip?
@@ -84,9 +85,9 @@
     {with-quasi-quoted-xml-to-binary-emitting-form-syntax/preserve-whitespace
       <span (:id ,id :class ,style-class)
         ,(when image-path
-          <img (:src ,(string+ (path-prefix-of *application*) image-path))>)
-        ,(awhen (force label)
-          (render-icon-label icon it))>}))
+           <img (:src ,(string+ (path-prefix-of *application*) image-path) :alt ,label)>)
+        ,(when label
+           (render-icon-label icon label))>}))
 
 (def function icon-style-class (component)
   (string+ "icon " (string-downcase (symbol-name (name-of component)))))

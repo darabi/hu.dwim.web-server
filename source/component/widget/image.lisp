@@ -22,4 +22,4 @@
 
 (def (function e) render-image (self)
   (bind (((:read-only-slots id style-class custom-style location) self))
-    <img (:id ,id :class ,style-class :style ,custom-style :src ,(print-uri-to-string location))>))
+    <img (:id ,id :class ,style-class :style ,custom-style :src ,(print-uri-to-string location) :alt "")>))

@@ -113,7 +113,7 @@
                           (generate-unique-component-id))))
         ;; NOTE name is not a valid attribute in xhtml, but in test mode it's rendered to help test code finding commands
         ;; TODO: if we render it as a span, then tab navigation skips the commands
-        <span (:id ,id :class ,style-class ,(maybe-make-xml-attribute "name" name))
+        <span (:id ,id :class ,style-class :name ,name)
           #\Newline ;; NOTE: this is mandatory for chrome when the element does not have a content
           ,(render-component content)>
         (render-action-js-event-handler "onclick" (if submit-id (list id submit-id) id) action

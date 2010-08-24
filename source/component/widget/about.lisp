@@ -31,7 +31,7 @@
   <div (:id ,id)
     <h1 ,title>
     <table <tr <td <a (:href ,url :target "_blank")
-                      <img (:src ,image-url :alt ,image-alt)>>>
+                      <img (:src ,image-url :alt ,(or image-alt ""))>>>
                <td (:class ,+table-cell-vertical-alignment-style-class/center+)
                    ,(iter (for person :in-sequence people)
                           <div ,person>)>>>>)
