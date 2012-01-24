@@ -24,6 +24,7 @@
    (default-locale "en" :type string)
    (supported-locales '("en") :type sequence)
    (default-timezone local-time:*default-timezone* :type local-time::timezone)
+   (doctype +xhtml-1.1-doctype+ :type string)
    (session-class nil :type (or null standard-class))
    (session-timeout *default-session-timeout* :type number)
    (sessions-last-purged-at (get-monotonic-time) :type number)
