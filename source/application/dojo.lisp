@@ -22,7 +22,8 @@
   ((dojo-skin-name "tundra")
    (dojo-file-name "dojo.js")
    ;; FIXME ? this way it gets captured at build-time, instead of start-time
-   (dojo-directory-name (or (find-latest-js-library "dojo" "For building dojo, cf. hu.dwim.web-server/etc/build-dojo.sh") "dojotoolkit/"))))
+   (dojo-directory-name (or (find-latest-js-library "dojo")
+                            "dojotoolkit/"))))
 
 (def method startup-broker :after ((self application-with-dojo-support))
   (unless (dojo-directory-name-of self)
@@ -74,18 +75,6 @@
    +dijit/popup-menu-bar-item+   "dijit.PopupMenuBarItem"
    +dijit/inline-edit-box+       "dijit.InlineEditBox"
    ))
-
-(def (function e) find-latest-dojo-directory-name (directory &key (otherwise :cerror))
-  (loop
-    (with-simple-restart (retry "Try searching for dojo directories again in ~A" directory)
-      (bind ((dojo-dir (first (sort (remove-if [not (starts-with-subseq "dojo" !1)]
-                                               (mapcar [last-elt (pathname-directory !1)]
-                                                       (cl-fad:list-directory directory)))
-                                    #'string>=))))
-      (return
-        (if dojo-dir
-            (string+ dojo-dir "/")
-            (handle-otherwise/value otherwise :default-message (list "Seems like there's not any dojo directory in ~S. Hint: see hu.dwim.web-server/etc/build-dojo.sh" directory))))))))
 
 (pushnew 'dojo-widget-collector/wrapper *xhtml-body-environment-wrappers*)
 

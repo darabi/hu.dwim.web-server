@@ -21,8 +21,8 @@
 (def (class* ea) application-with-extjs-support (application)
   ((extjs-skin-name "dummy")
    (extjs-file-name "ext-all.js")
-   (extjs-directory-name (or (find-latest-js-library "ext" "Download and put extjs in www/libraries/ext-4.x")
-                                    "ext/"))))
+   (extjs-directory-name (or (find-latest-js-library "ext")
+                             "ext/"))))
 
 (def method startup-broker :after ((self application-with-extjs-support))
   (unless (extjs-directory-name-of self)

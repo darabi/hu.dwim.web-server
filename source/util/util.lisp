@@ -127,14 +127,16 @@
 ;;;;;;
 ;;; Handling of javascript libs in www/libraries
 
-(def function find-latest-js-library (prefix warning-message)
-  (find-latest-subdirectory-with-prefix prefix
-                                        (system-relative-pathname :hu.dwim.web-server "www/libraries/")
-                                        :otherwise :warn
-                                        :otherwise-message warning-message))
+(def function find-latest-js-library (prefix)
+  (bind ((library-directory (system-relative-pathname :hu.dwim.web-server "www/libraries/")))
+    (find-latest-subdirectory-with-prefix prefix
+                                          library-directory
+                                          :otherwise (lambda ()
+                                                       (warn "~S: couldn't find any version of ~S in the directory ~A. By default hu.dwim.web-server doesn't contain the required JavaScript libraries, but it has helper scripts in its etc/ directory to build them."
+                                                             'find-latest-js-library prefix library-directory)))))
 
-;; TODO: this looks like a generic utility, move to an appropriate place?
-(def function find-latest-subdirectory-with-prefix (prefix directory &key (otherwise :cerror) (otherwise-message ""))
+;; TODO: this looks like a generic utility, move to an appropriate place? (issue: cl-far dependency. hdws should use iolib for these things, but hu.dwim.util shouldn't depend on iolib...)
+(def function find-latest-subdirectory-with-prefix (prefix directory &key (otherwise :cerror))
   "Finds all subdirectories of DIRECTORY whose name starts with PREFIX, sorts them with string>= and returns the first one."
   (loop
     (with-simple-restart (retry "Try searching for directories with name prefix ~A again in ~A" prefix directory)

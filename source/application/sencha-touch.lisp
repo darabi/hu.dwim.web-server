@@ -22,8 +22,8 @@
   ((skin-name "tundra") ;; FIXME: currently unused
    (production-file-name "sencha-touch.js")
    (debug-file-name "sencha-touch-debug-w-comments.js")
-   (directory-name (or (find-latest-js-library "sencha-touch" "For building sencha-touch, cf. hu.dwim.web-server/etc/build-sencha-touch.sh")
-                                    "sencha-touch/"))))
+   (directory-name (or (find-latest-js-library "sencha-touch")
+                       "sencha-touch/"))))
 
 (def method startup-broker :after ((self application-with-sencha-touch-support))
   (unless (directory-name-of self)
