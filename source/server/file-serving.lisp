@@ -115,19 +115,20 @@
 (def generic produce-response/directory-serving (broker uri-path relative-path root-directory)
   (:method ((broker directory-serving-broker) (uri-path list) (relative-path list) (root-directory iolib.pathnames:file-path))
     (bind ((absolute-file-path (directory-serving/resolve-uri-to-absolute-file-path broker uri-path relative-path root-directory)))
-      (files.debug "Making file serving response for ~A, uri-path ~S, relative-path ~S, root-directory ~S" absolute-file-path uri-path relative-path root-directory)
+      (files.debug "Making file serving response for '~A', uri-path ~S, relative-path ~S, root-directory ~S" absolute-file-path uri-path relative-path root-directory)
       (when (and absolute-file-path
                  (or (allow-access-to-external-files? broker)
                      (starts-with-subseq (iolib.pathnames:file-path-namestring root-directory)
                                          (iolib.pathnames:file-path-namestring absolute-file-path))))
         (cond
           ((iolib.os:directory-exists-p absolute-file-path)
-           (when (render-directory-index? broker)
-             (if (hu.dwim.uri:path-had-leading-slash? (uri-of *request*))
-                 (produce-response/directory-serving/directory broker absolute-file-path uri-path relative-path root-directory)
-                 (make-redirect-response (aprog1
-                                             (clone-request-uri)
-                                           (setf (hu.dwim.uri:path-had-leading-slash? it) #t))))))
+           (if (render-directory-index? broker)
+               (if (hu.dwim.uri:path-had-leading-slash? (uri-of *request*))
+                   (produce-response/directory-serving/directory broker absolute-file-path uri-path relative-path root-directory)
+                   (make-redirect-response (aprog1
+                                               (clone-request-uri)
+                                             (setf (hu.dwim.uri:path-had-leading-slash? it) #t))))
+               (files.debug "Rendering directory index is not allowed, falling through")))
           (t
            (produce-response/directory-serving/file broker absolute-file-path uri-path relative-path root-directory)))))))
 
