@@ -1,0 +1,3 @@
+[submodule "www/libraries/dojo"]
+	path = www/libraries/dojo
+	url = ssh://scm/js/dojo
