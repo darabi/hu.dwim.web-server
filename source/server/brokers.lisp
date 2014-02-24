@@ -144,7 +144,7 @@
 (def method call-if-matches-request ((broker broker-at-path) request thunk)
   (bind ((broker-path (path-of broker))
          (broker-path-length (length broker-path))
-         (length-matches? (if (zerop broker-path-length)
+         (length-matches? (if (and broker-path (zerop broker-path-length))
                               (length= 0 *remaining-query-path-elements*)
                               (<= broker-path-length
                                   (length *remaining-query-path-elements*)))))
