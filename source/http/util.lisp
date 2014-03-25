@@ -62,12 +62,9 @@
                                    (coerce string 'simple-base-string)
                                    string)
                               stream)))
-    (if (eq doctype +xhtml-1.1-doctype+)
-        (emit #.(format nil "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">"))
-        (progn
-          (emit #.(format nil "<!DOCTYPE html PUBLIC "))
-          (emit doctype)
-          (emit #.(format nil ">~%"))))))
+    (emit #.(format nil "<!DOCTYPE "))
+    (emit doctype)
+    (emit #.(format nil ">~%"))))
 
 (def (macro e) emit-http-response ((&optional headers-as-plist cookie-list) &body body)
   "Emit a full http response and also bind html stream, so you are ready to output directly into the network stream."

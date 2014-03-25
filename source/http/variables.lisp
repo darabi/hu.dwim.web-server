@@ -144,15 +144,15 @@
    +odt-mime-type+        "application/vnd.oasis.opendocument.text"
    +ods-mime-type+        "application/vnd.oasis.opendocument.spreadsheet"
    +javascript-mime-type+ "text/javascript"
-   +json-mime-type+ "application/json"
    +plain-text-mime-type+ "text/plain"
    +octet-stream-mime-type+ "application/octet-stream"
    +atom-feed-mime-type+  "application/atom+xml"
 
-   +xhtml-1.0-strict-doctype+       "\"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""
-   +xhtml-1.0-transitional-doctype+ "\"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/transitional.dtd\""
-   +xhtml-1.0-frameset-doctype+     "\"-//W3C//DTD XHTML 1.0 Frameset//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd\""
-   +xhtml-1.1-doctype+              "\"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\""
+   +xhtml-1.0-strict-doctype+       "html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""
+   +xhtml-1.0-transitional-doctype+ "html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/transitional.dtd\""
+   +xhtml-1.0-frameset-doctype+     "html PUBLIC \"-//W3C//DTD XHTML 1.0 Frameset//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd\""
+   +xhtml-1.1-doctype+              "html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\""
+   +html5-doctype+                  "html"
    ))
 
 (def (function io) mime-type= (a b)

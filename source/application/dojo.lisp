@@ -22,8 +22,7 @@
   ((dojo-skin-name "tundra")
    (dojo-file-name "dojo.js")
    ;; FIXME ? this way it gets captured at build-time, instead of start-time
-   (dojo-directory-name (or (find-latest-dojo-directory-name (system-relative-pathname :hu.dwim.web-server "www/libraries/") :otherwise :warn)
-                            "dojotoolkit/"))))
+   (dojo-directory-name (or (find-latest-js-library "dojo" "For building dojo, cf. hu.dwim.web-server/etc/build-dojo.sh") "dojotoolkit/"))))
 
 (def method startup-broker :after ((self application-with-dojo-support))
   (unless (dojo-directory-name-of self)

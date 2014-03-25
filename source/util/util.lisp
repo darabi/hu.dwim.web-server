@@ -123,3 +123,26 @@
   (if (slot-boundp context 'debug-on-error)
       (slot-value context 'debug-on-error)
       (call-next-method)))
+
+;;;;;;
+;;; Handling of javascript libs in www/libraries
+
+(def function find-latest-js-library (prefix warning-message)
+  (find-latest-subdirectory-with-prefix prefix
+                                        (system-relative-pathname :hu.dwim.web-server "www/libraries/")
+                                        :otherwise :warn
+                                        :otherwise-message warning-message))
+
+;; TODO: this looks like a generic utility, move to an appropriate place?
+(def function find-latest-subdirectory-with-prefix (prefix directory &key (otherwise :cerror) (otherwise-message ""))
+  "Finds all subdirectories of DIRECTORY whose name starts with PREFIX, sorts them with string>= and returns the first one."
+  (loop
+    (with-simple-restart (retry "Try searching for directories with name prefix ~A again in ~A" prefix directory)
+      (bind ((subdir (first (sort (remove-if [not (starts-with-subseq prefix !1)]
+                                             (mapcar [last-elt (pathname-directory !1)]
+                                                     (cl-fad:list-directory directory)))
+                                  #'string>=))))
+        (return
+          (if subdir
+              (string+ subdir "/")
+              (handle-otherwise/value otherwise :default-message (list "Seems like there's not any directory in ~S whose name starts with ~A." directory prefix))))))))
