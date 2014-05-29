@@ -78,6 +78,18 @@
 
 (pushnew 'dojo-widget-collector/wrapper *xhtml-body-environment-wrappers*)
 
+
+(def function drop-dojo-properties-without-value (dojo-properties)
+  `js-piece(create
+            ,@(iter (for (name value) :on dojo-properties :by #'cddr)
+                   ;; we would render a js null here otherwise, and there's no (easy?) way to differentiate
+                   ;; between the two situations, so just drop the whole thing...
+                   (when value
+                     (collect (if (keywordp name)
+                                  (string-downcase (symbol-name name))
+                                  name))
+                     (collect value)))))
+
 (def function dojo-widget-collector/wrapper (thunk)
   (bind ((*dojo-widgets* '()))
     (multiple-value-prog1
@@ -96,14 +108,7 @@
                                                    `js-piece(create :node ,id
                                                                     :type ,dojo-type
                                                                     :inherited (create
-                                                                                ,@(iter (for (name value) :on dojo-properties :by #'cddr)
-                                                                                        ;; we would render a js null here otherwise, and there's no (easy?) way to differentiate
-                                                                                        ;; between the two situations, so just drop the whole thing...
-                                                                                        (when value
-                                                                                          (collect (if (keywordp name)
-                                                                                                       (string-downcase (symbol-name name))
-                                                                                                       name))
-                                                                                          (collect value)))))
+                                                                                ,@(drop-dojo-properties-without-value dojo-properties)))
                                                    `js-piece(create :node ,id
                                                                     :type ,dojo-type)))))))))))))
 
