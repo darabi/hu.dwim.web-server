@@ -71,6 +71,8 @@
      nil)
     (t
      (bind ((broker (first brokers))
+            ;; FIXME: application is not visible here, it lives in hdws.application
+            #+nil(*application* (if (boundp '*application*) *application* (when (typep broker 'application) broker)))
             (result-values (multiple-value-list (funcall visitor broker request)))
             (result (first result-values)))
        (typecase result
@@ -81,7 +83,15 @@
           ;; record the broker who provided the new set of brokers on the *broker-stack*
           (bind ((*broker-stack* (cons broker *broker-stack*)))
             (server.debug "Broker ~A returned the new rules ~S, calling ITERATE-BROKERS-FOR-RESPONSE recursively" broker result)
-            (iterate-brokers-for-response visitor request initial-brokers result (1+ recursion-depth))))
+            (iter (for broker :in result)
+                  (for a = (format t "Calling ITERATE-BROKERS-FOR-RESPONSE with broker ~A~%" broker))
+                  (for r = (iterate-brokers-for-response visitor request initial-brokers (list broker) (1+ recursion-depth)))
+                  (if r (return (values r)))
+                  #+nil(finally (return (values-list result-list)))
+                  #+nil(if result (leave (multiple-value-list result))))))
+            ;; (iter (for broker :in result)
+            ;;       (for result = (iterate-brokers-for-response visitor request initial-brokers (list broker) (1+ recursion-depth)))
+            ;;       (if result (leave (multiple-value-list result))))))
          (request
           (server.debug "Broker ~A returned the new request ~S, calling ITERATE-BROKERS-FOR-RESPONSE recursively" broker result)
           ;; we've got a new request, start over using the original set of brokers

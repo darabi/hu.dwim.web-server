@@ -76,6 +76,7 @@
         (progn
           (when requires-valid-session
             (assert *session*))
+          (app.debug "before if *session*")
           (if *session*
               (with-frame-logic (:requires-valid-frame requires-valid-frame :ensure-frame ensure-frame)
                 (-body-))
@@ -85,8 +86,14 @@
               (with-action-logic (:requires-valid-action requires-valid-action)
                 (-body-))
               (-body-))
+        (app.debug "before call-in-post-actions-env")
+        (unless (boundp '*session*)
+          (setf *session* nil))
+        (unless (boundp '*frame*)
+          (setf *frame* nil))
         (call-in-post-action-environment *application* *session* *frame*
                                          (named-lambda call-in-post-action-environment-body ()
+                                           (app.debug "in named-lambda")
                                            (convert-to-primitive-response
                                             (call-in-entry-point-environment *application* *session* #'-with-macro/body-))))))))
 

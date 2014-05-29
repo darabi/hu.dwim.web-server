@@ -37,8 +37,13 @@
    (ajax-enabled *default-ajax-enabled* :type boolean :accessor ajax-enabled? :export :accessor))
   (:default-initargs :path '()))
 
+(def method call-if-matches-request ((app application) request thunk)
+  (setf *application* app)
+  (call-next-method))
+
 (def method handle-request ((app application) request)
   (debug-only (assert (and (boundp '*broker-stack*) (eq (first *broker-stack*) app))))
+  (setf *application* app)
   ;; tell ITERATE-BROKERS-FOR-RESPONSE to go on with a new set of brokers
   (remove-if-not (lambda (ep) (typep ep 'broker)) (entry-points-of app)))
 
